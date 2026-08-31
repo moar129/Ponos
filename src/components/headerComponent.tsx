@@ -8,6 +8,7 @@ import {
   User,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
+import {DataLayerPage} from '../pages/dataLayer/DataLayerPage.tsx';
 
 export function Header() {
   // Dynamisk styling baseret på om ruten er aktiv

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import type { DataLayerCat, RawCategory } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
+import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { Search, Filter, Plus, Box, Loader2 } from 'lucide-react';
 
 export function DataLayerPage() {
@@ -17,41 +18,46 @@ export function DataLayerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // State til at styre AddCategoryComponent modalen
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addParentId, setAddParentId] = useState<number | null>(null);
+  const [addParentTitle, setAddParentTitle] = useState<string | undefined>(undefined);
+
   // 1. Hent kategorier fra Supabase
   useEffect(() => {
     fetchCategories();
   }, []);
 
-function buildCategoryTree(
-  rawCategories: RawCategory[],
-  parentId: number | null = null
-): DataLayerCat[] {
-  return rawCategories
-    .filter((cat) => cat.parent_id === parentId)
-    .sort((a, b) => a.ranked - b.ranked)
-    .map((cat) => ({
-      id: cat.id,
-      titel: cat.titel,
-      ranked: cat.ranked,
-      items: [], // Tom indtil items implementeres senere
-      subCategories: buildCategoryTree(rawCategories, cat.id),
-    }));
-}
-
-// Hjælpefunktion til at finde en kategori ud fra et ID i hele træet
-function findCategoryInTree(
-  categories: DataLayerCat[],
-  id: number
-): DataLayerCat | null {
-  for (const cat of categories) {
-    if (cat.id === id) return cat;
-    if (cat.subCategories.length > 0) {
-      const found = findCategoryInTree(cat.subCategories, id);
-      if (found) return found;
-    }
+  function buildCategoryTree(
+    rawCategories: RawCategory[],
+    parentId: number | null = null
+  ): DataLayerCat[] {
+    return rawCategories
+      .filter((cat) => cat.parent_id === parentId)
+      .sort((a, b) => a.ranked - b.ranked)
+      .map((cat) => ({
+        id: cat.id,
+        titel: cat.titel,
+        ranked: cat.ranked,
+        items: [], // Tom indtil items implementeres senere
+        subCategories: buildCategoryTree(rawCategories, cat.id),
+      }));
   }
-  return null;
-}
+
+  // Hjælpefunktion til at finde en kategori ud fra et ID i hele træet
+  function findCategoryInTree(
+    categories: DataLayerCat[],
+    id: number
+  ): DataLayerCat | null {
+    for (const cat of categories) {
+      if (cat.id === id) return cat;
+      if (cat.subCategories.length > 0) {
+        const found = findCategoryInTree(cat.subCategories, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -95,40 +101,38 @@ function findCategoryInTree(
   // Håndter valg af kategori i UI (skifter URL og opdaterer state)
   const handleSelectCategory = (category: DataLayerCat) => {
     setSelectedCategory(category);
-    // Brug useNavigate / useSearchParams til at lægge kategorien i URL'en
     setSearchParams({ catId: category.id.toString() });
   };
 
-  // Opret ny kategori i Supabase
-  const handleAddCategory = async (parentId: number | null) => {
-    const titel = prompt(
-      parentId ? 'Indtast navn på underkategori:' : 'Indtast navn på hovedkategori:'
-    );
-    if (!titel) return;
-
-    const newCat = {
-      titel,
-      parent_id: parentId,
-      ranked: 1,
-    };
-
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([newCat])
-      .select();
-
-    if (error) {
-      console.error('Fejl ved oprettelse af kategori:', error);
-    } else if (data && data[0]) {
-      // Genhent kategorier fra Supabase
-      await fetchCategories();
-      // Naviger direkte til den nye kategori med useNavigate
-      navigate(`?catId=${data[0].id}`);
+  // Åbner modalen til oprettelse af enten hovedkategori eller underkategori
+  const handleOpenAddModal = (parentId: number | null) => {
+    setAddParentId(parentId);
+    if (parentId) {
+      const parentCat = findCategoryInTree(categoryTree, parentId);
+      setAddParentTitle(parentCat?.titel);
+    } else {
+      setAddParentTitle(undefined);
     }
+    setIsAddModalOpen(true);
+  };
+
+  // Koldes når ny kategori er gemt i Supabase via AddCategoryComponent
+  const handleCategoryAdded = async (newCategoryId: number) => {
+    await fetchCategories();
+    setSearchParams({ catId: newCategoryId.toString() });
   };
 
   return (
     <div className="space-y-6">
+      {/* Modal til oprettelse af kategori */}
+      <AddCategoryComponent
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        parentId={addParentId}
+        parentTitle={addParentTitle}
+        onSuccess={handleCategoryAdded}
+      />
+
       {/* Topbar med søgning & overordnede knapper */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0B132A] p-4 rounded-xl border border-slate-800 shadow-sm">
         <div className="relative w-full sm:w-96">
@@ -153,7 +157,7 @@ function findCategoryInTree(
 
           <button
             type="button"
-            onClick={() => handleAddCategory(null)}
+            onClick={() => handleOpenAddModal(null)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
@@ -185,7 +189,7 @@ function findCategoryInTree(
                     category={cat}
                     selectedCategoryId={selectedCategory?.id ?? null}
                     onSelectCategory={handleSelectCategory}
-                    onAddSubCategory={handleAddCategory}
+                    onAddSubCategory={handleOpenAddModal}
                   />
                 ))}
               </div>
@@ -194,7 +198,7 @@ function findCategoryInTree(
 
           <button
             type="button"
-            onClick={() => handleAddCategory(null)}
+            onClick={() => handleOpenAddModal(null)}
             className="mt-6 flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-dashed border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 text-sm transition-colors justify-center"
           >
             <Plus className="w-4 h-4" />

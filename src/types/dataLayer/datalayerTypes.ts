@@ -36,3 +36,11 @@ export interface CategoryTreeNodeProps {
   onSelectCategory: (category: DataLayerCat) => void;
   onAddSubCategory: (parentId: number) => void;
 }
+
+export interface AddCategoryComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  parentId: number | null;
+  parentTitle?: string;
+  onSuccess: (newCategoryId: number) => void;
+}
