@@ -78,7 +78,7 @@ export default function SignUp() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-bg-gray px-4">
+        <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
                 <h1 className="text-xl font-semibold text-primary mb-6">Opret konto</h1>
                 {error && (
