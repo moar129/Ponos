@@ -4,7 +4,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import { Header } from './components/headerComponent'
 import { Footer } from './components/footerComponent'
-import SignUp from './pages/SignUp'
+import SignUp from './pages/logIn/SignUp'
 
 function App() {
   const [count, setCount] = useState(0)
