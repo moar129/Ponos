@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Header } from './components/headerComponent';
 import { Footer } from './components/footerComponent';
 import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
+import SignUp from './pages/logIn/SignUp'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           {/* Datalager siden */}
           <Route path="/datalager" element={<DataLayerPage />} />
         </Routes>
+        <SignUp />
       </main>
 
       {/* FOOTER */}
