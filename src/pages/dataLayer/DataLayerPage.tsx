@@ -133,7 +133,7 @@ export function DataLayerPage() {
       />
 
       {/* Topbar med søgning & overordnede knapper */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0B132A] p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -153,25 +153,16 @@ export function DataLayerPage() {
             <Filter className="w-4 h-4" />
             <span>Filter</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => handleOpenAddModal(null)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Opret kategori</span>
-          </button>
         </div>
       </div>
 
       {/* Grid Layout med 2 kolonner */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Venstre side: Kategori-Stamtræ */}
-        <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
+        <div className="lg:col-span-4 xl:col-span-3 bg-[#0B132A] rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
           <div>
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
-              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
                 Kategorier
               </h2>
             </div>
@@ -198,15 +189,15 @@ export function DataLayerPage() {
           <button
             type="button"
             onClick={() => handleOpenAddModal(null)}
-            className="mt-6 flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-dashed border-slate-300 text-slate-600 hover:text-slate-900 hover:border-slate-400 text-sm transition-colors justify-center"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            <span>Opret hovedkategori</span>
+            <span>Opret kategori</span>
           </button>
         </div>
 
         {/* Højre side: Visning af den valgte kategori */}
-        <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-slate-200 p-6 shadow-sm min-h-[500px]">
+        <div className="lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-200 p-6 shadow-sm min-h-[500px]">
           {selectedCategory ? (
             <div>
               <div className="mb-6 pb-4 border-b border-slate-200">
@@ -230,7 +221,7 @@ export function DataLayerPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-500 text-sm">
+            <div className="flex items-center justify-center h-full text-slate-300 text-sm">
               Vælg en kategori i menuen til venstre
             </div>
           )}
