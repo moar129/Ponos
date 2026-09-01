@@ -40,7 +40,7 @@ export default function Login() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-6">Log ind</h1>
                 {error && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
