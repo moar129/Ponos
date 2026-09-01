@@ -26,7 +26,7 @@ function App() {
           {/* Datalager siden */}
           <Route path="/datalager" element={<DataLayerPage />} />
         </Routes>
-        <SignUp />
+        {/*<SignUp />*/}
       </main>
 
       {/* FOOTER */}
