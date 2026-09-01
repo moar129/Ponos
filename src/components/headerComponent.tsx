@@ -45,7 +45,7 @@ export function Header() {
           <span>Statistik</span>
         </NavLink>
 
-        <NavLink to="/" className={getNavLinkClass}>
+        <NavLink to="/datalager" className={getNavLinkClass}>
           <Database className="w-5 h-5" />
           <span>Datalager</span>
         </NavLink>
