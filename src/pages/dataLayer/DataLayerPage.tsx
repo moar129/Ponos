@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import type { DataLayerCat, RawCategory } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
@@ -8,7 +8,6 @@ import { Search, Filter, Plus, Box, Loader2 } from 'lucide-react';
 
 export function DataLayerPage() {
   // Navigation & URL-tilstand
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
 
@@ -116,7 +115,7 @@ export function DataLayerPage() {
     setIsAddModalOpen(true);
   };
 
-  // Koldes når ny kategori er gemt i Supabase via AddCategoryComponent
+  // Kaldes når ny kategori er gemt i Supabase via AddCategoryComponent
   const handleCategoryAdded = async (newCategoryId: number) => {
     await fetchCategories();
     setSearchParams({ catId: newCategoryId.toString() });
@@ -134,7 +133,7 @@ export function DataLayerPage() {
       />
 
       {/* Topbar med søgning & overordnede knapper */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0B132A] p-4 rounded-xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -142,14 +141,14 @@ export function DataLayerPage() {
             placeholder="Søg..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C7975D] transition-colors"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#C7975D] transition-colors"
           />
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
           <button
             type="button"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition-colors border border-slate-200"
           >
             <Filter className="w-4 h-4" />
             <span>Filter</span>
@@ -169,10 +168,10 @@ export function DataLayerPage() {
       {/* Grid Layout med 2 kolonner */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Venstre side: Kategori-Stamtræ */}
-        <div className="lg:col-span-4 xl:col-span-3 bg-[#0B132A] rounded-xl border border-slate-800 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
+        <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
           <div>
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Kategorier
               </h2>
             </div>
@@ -199,7 +198,7 @@ export function DataLayerPage() {
           <button
             type="button"
             onClick={() => handleOpenAddModal(null)}
-            className="mt-6 flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-dashed border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 text-sm transition-colors justify-center"
+            className="mt-6 flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-dashed border-slate-300 text-slate-600 hover:text-slate-900 hover:border-slate-400 text-sm transition-colors justify-center"
           >
             <Plus className="w-4 h-4" />
             <span>Opret hovedkategori</span>
@@ -207,22 +206,22 @@ export function DataLayerPage() {
         </div>
 
         {/* Højre side: Visning af den valgte kategori */}
-        <div className="lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-6 shadow-sm min-h-[500px]">
+        <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-slate-200 p-6 shadow-sm min-h-[500px]">
           {selectedCategory ? (
             <div>
-              <div className="mb-6 pb-4 border-b border-slate-800">
-                <h1 className="text-2xl font-serif text-slate-100 font-semibold">
+              <div className="mb-6 pb-4 border-b border-slate-200">
+                <h1 className="text-2xl font-serif text-slate-800 font-semibold">
                   {selectedCategory.titel}
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Kategori ID: {selectedCategory.id} | Rank: {selectedCategory.ranked}
                 </p>
               </div>
 
               {/* Placeholder indtil items implementeres senere */}
-              <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500 border border-dashed border-slate-800 rounded-lg bg-slate-900/20">
-                <Box className="w-12 h-12 mb-3 stroke-[1.5] text-slate-600" />
-                <p className="text-base font-medium text-slate-400">
+              <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500 border border-dashed border-slate-200 rounded-lg bg-slate-50">
+                <Box className="w-12 h-12 mb-3 stroke-[1.5] text-slate-400" />
+                <p className="text-base font-medium text-slate-700">
                   Ingen items tilknyttet endnu
                 </p>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm">

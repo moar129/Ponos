@@ -8,7 +8,6 @@ import {
   User,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
-import {DataLayerPage} from '../pages/dataLayer/DataLayerPage.tsx';
 
 export function Header() {
   // Dynamisk styling baseret på om ruten er aktiv
@@ -46,7 +45,7 @@ export function Header() {
           <span>Statistik</span>
         </NavLink>
 
-        <NavLink to="/" className={getNavLinkClass}>
+        <NavLink to="/datalager" className={getNavLinkClass}>
           <Database className="w-5 h-5" />
           <span>Datalager</span>
         </NavLink>
