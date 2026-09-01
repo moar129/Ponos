@@ -7,6 +7,7 @@ import Login from './pages/logIn/Login'
 import { useAuthListener } from './store/hooks/useAuthListener'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
+import RequestMembership from './pages/organisation/RequestMembership';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/request-membership" element={<RequestMembership />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
         </Routes>
