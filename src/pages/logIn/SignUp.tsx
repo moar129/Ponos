@@ -96,7 +96,7 @@ export default function SignUp() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-6">Opret konto</h1>
 
                 {/* Fejlbesked vises kun hvis error er sat */}

@@ -8,17 +8,22 @@ import { useAuthListener } from './store/hooks/useAuthListener'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
+import { useMembershipListener } from './store/hooks/useMembershipListener';
+import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 
 
 function App() {
   // Denne hook sørger for, at Redux-store'ets auth-state altid matcher Supabases faktiske login-status.
   useAuthListener()
+  // Denne hook sørger for, at Redux-store'ets membership-state altid matcher Supabases faktiske medlemskabsstatus.
+  useMembershipListener()
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}
       <Header />
-
+      {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}
+      <PendingRequestBanner />
       {/* HOVEDINDHOLD / ROUTER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         <Routes>
