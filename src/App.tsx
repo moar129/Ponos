@@ -1,10 +1,18 @@
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom'
 import { Header } from './components/headerComponent';
 import { Footer } from './components/footerComponent';
 import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
 import SignUp from './pages/logIn/SignUp'
+import Login from './pages/logIn/Login'
+import { useAuthListener } from './store/hooks/useAuthListener'
+import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
+import Dashboard from './pages/dashboard/Dashboard'
+
 
 function App() {
+  // Denne hook sørger for, at Redux-store'ets auth-state altid matcher Supabases faktiske login-status.
+  useAuthListener()
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}
@@ -13,20 +21,18 @@ function App() {
       {/* HOVEDINDHOLD / ROUTER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         <Routes>
-          {/* Forsiden */}
-          <Route
-            path="/"
-            element={
-              <div className="flex items-center justify-center h-64 text-slate-400">
-                Velkommen til PONOS
-              </div>
-            }
-          />
-
-          {/* Datalager siden */}
+          {/* tilføj flere ruter efter behov */}
+          <Route path="/" element={<div />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/datalager" element={<DataLayerPage />} />
+
+          {/* Alle ruter inde i denne wrapper kræver login */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            {/* tilføj flere ruter efter behov */}
+          </Route>
         </Routes>
-        {/*<SignUp />*/}
       </main>
 
       {/* FOOTER */}
