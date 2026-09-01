@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
-import { Header } from './components/headerComponent'
-import { Footer } from './components/footerComponent'
+import { Header } from './components/headerComponent';
+import { Footer } from './components/footerComponent';
+import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
 import SignUp from './pages/logIn/SignUp'
 import Login from './pages/logIn/Login'
 import { useAuthListener } from './store/hooks/useAuthListener'
@@ -13,17 +14,18 @@ function App() {
   useAuthListener()
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#F3F4F8]">
+    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}
       <Header />
 
-      {/* HOVEDINDHOLD */}
+      {/* HOVEDINDHOLD / ROUTER */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         <Routes>
           {/* tilføj flere ruter efter behov */}
           <Route path="/" element={<div />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/datalager" element={<DataLayerPage />} />
 
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
@@ -36,7 +38,7 @@ function App() {
       {/* FOOTER */}
       <Footer />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
