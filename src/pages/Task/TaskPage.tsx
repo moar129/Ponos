@@ -1,13 +1,13 @@
-﻿
+
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../../store/TaskStore';
+import type { RootState, AppDispatch } from '../../store/store';
 import {
   fetchTasks,
   fetchRooms,
   updateTaskStatus,
   createRoom,
-} from '../../store/TaskStore';
+} from '../../store/slices/taskSlices';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 
@@ -15,7 +15,7 @@ export const TasksPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { tasks, rooms, userOrgId, loading } = useSelector(
-    (state: RootState) => state.taskStore
+    (state: RootState) => state.task
   );
 
   const [search, setSearch] = useState('');

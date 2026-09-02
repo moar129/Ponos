@@ -1,23 +1,8 @@
-import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Task, ETaskStatus } from '../types/Task/Task';
-import { supabase } from '../lib/supabase';
-
-interface Room {
-  id: string;
-  organisation_id: string;
-  name: string;
-  required_role_id: string | null;
-  created_at: string;
-}
-
-interface TaskState {
-  tasks: Task[];
-  rooms: Room[];
-  loading: boolean;
-  error: string | null;
-  userOrgId: string | null;
-}
+import type { Task, ETaskStatus } from '../../types/Task/Task';
+import { supabase } from '../../lib/supabase';
+import type { Room, TaskState } from '../../types/Task/Task';
 
 const PROTOTYPE_ORG_ID = '11111111-1111-4111-8111-111111111111';
 
@@ -44,7 +29,11 @@ const initialState: TaskState = {
 };
 
 
-//READ - Hent opgaver
+// =========================
+// TASKS
+// =========================
+
+// READ - Hent opgaver
 export const fetchTasks = createAsyncThunk<Task[], string>(
   'tasks/fetchTasks',
   async (orgId) => {
@@ -55,11 +44,43 @@ export const fetchTasks = createAsyncThunk<Task[], string>(
       .select('*')
       .eq('organisation_id', effectiveOrgId);
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
+
     return data as Task[];
   }
 );
 
+
+// UPDATE 
+export const updateTaskStatus = createAsyncThunk<
+  Task,
+  { id: string; status: ETaskStatus }
+>(
+  'tasks/updateStatus',
+  async ({ id, status }) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data as Task;
+  }
+);
+
+
+// =========================
+// ROOMS
+// =========================
+
+// READ - Hent rum
 export const fetchRooms = createAsyncThunk<Room[], string>(
   'tasks/fetchRooms',
   async (orgId) => {
@@ -71,13 +92,16 @@ export const fetchRooms = createAsyncThunk<Room[], string>(
       .eq('organisation_id', effectiveOrgId)
       .order('created_at', { ascending: true });
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
 
     return data as Room[];
   }
 );
 
 
+// CREATE - Opret rum
 export const createRoom = createAsyncThunk<
   Room,
   { organisationId: string; name: string }
@@ -95,71 +119,107 @@ export const createRoom = createAsyncThunk<
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
 
     return data as Room;
   }
 );
 
-//UPDATE - Flyt opgave
-export const updateTaskStatus = createAsyncThunk<Task, { id: string, status: ETaskStatus }>(
-  'tasks/updateStatus',
-  async ({ id, status }) => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .update({ status })
-      .eq('id', id)
-      .select()
-      .single();
 
-    if (error) throw new Error(error.message);
-    return data as Task;
-  }
-);
+// =========================
+// SLICE
+// =========================
 
 const taskSlice = createSlice({
   name: 'tasks',
+
   initialState,
+
   reducers: {
-    // Når auth er gennemført, kør: dispatch(setOrgId(id)) - sørg for at id er organisation_id fra supabase auth
     setOrgId: (state, action: PayloadAction<string | null>) => {
       state.userOrgId = action.payload;
-    }
+    },
   },
+
   extraReducers: (builder) => {
+
+    // -------------------------
+    // FETCH TASKS
+    // -------------------------
+
     builder
-      .addCase(fetchTasks.pending, (state) => { state.loading = true; })
+      .addCase(fetchTasks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
       .addCase(fetchTasks.fulfilled, (state, action: PayloadAction<Task[]>) => {
         state.loading = false;
         state.tasks = action.payload;
       })
+
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Fejl ved hentning af opgaver';
-      })
+        state.error =
+          action.error.message || 'Fejl ved hentning af opgaver';
+      });
+
+
+    // -------------------------
+    // UPDATE TASK STATUS
+    // -------------------------
+
+    builder
       .addCase(updateTaskStatus.fulfilled, (state, action: PayloadAction<Task>) => {
-        const index = state.tasks.findIndex(t => t.id === action.payload.id);
-        if (index !== -1) state.tasks[index] = action.payload;
-      })
+        const index = state.tasks.findIndex(
+          task => task.id === action.payload.id
+        );
+
+        if (index !== -1) {
+          state.tasks[index] = action.payload;
+        }
+      });
+
+
+    // -------------------------
+    // FETCH ROOMS
+    // -------------------------
+
+    builder
       .addCase(fetchRooms.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
+
       .addCase(fetchRooms.fulfilled, (state, action: PayloadAction<Room[]>) => {
         state.loading = false;
         state.rooms = action.payload;
       })
+
       .addCase(fetchRooms.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Fejl ved hentning af rum';
-      })
+        state.error =
+          action.error.message || 'Fejl ved hentning af rum';
+      });
+
+
+    // -------------------------
+    // CREATE ROOM
+    // -------------------------
+
+    builder
       .addCase(createRoom.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
+
       .addCase(createRoom.fulfilled, (state, action: PayloadAction<Room>) => {
         state.loading = false;
         state.rooms.push(action.payload);
       })
+
       .addCase(createRoom.rejected, (state, action) => {
         state.loading = false;
         state.error =
@@ -168,10 +228,11 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setOrgId } = taskSlice.actions;
-export const store = configureStore({
-  reducer: { taskStore: taskSlice.reducer },
-});
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// =========================
+// EXPORTS
+// =========================
+
+export const { setOrgId } = taskSlice.actions;
+
+export const taskReducer = taskSlice.reducer;
