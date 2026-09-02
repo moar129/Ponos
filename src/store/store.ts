@@ -1,16 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import membershipReducer from './slices/membershipSlice';
+import categoryReducer from './slices/categorySlice';
 
 export const store = configureStore({
-    reducer: {
-        auth: authReducer,
-        membership: membershipReducer,
-        // Tilføj redux-reducerne her, når vi får brug for dem. For nu er der ingen.
-    },
+  reducer: {
+    auth: authReducer,
+    membership: membershipReducer,
+    categories: categoryReducer,
+  },
 });
 
-// Typer til brug i resten af appen (giver TypeScript-autocomplete
-// på state og dispatch, når vi bruger useSelector/useDispatch)
+// Typer til brug i resten af appen
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

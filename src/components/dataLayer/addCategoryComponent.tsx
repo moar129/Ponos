@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { useAppDispatch } from '../../store/hooks/hooksCategory';
+import { addCategoryThunk, fetchCategoriesThunk } from '../../store/slices/categorySlice';
 import { X, FolderPlus, Loader2 } from 'lucide-react';
 import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
 
@@ -10,6 +11,7 @@ export function AddCategoryComponent({
   parentTitle,
   onSuccess,
 }: AddCategoryComponentProps) {
+  const dispatch = useAppDispatch();
   const [titel, setTitel] = useState('');
   const [ranked, setRanked] = useState<number>(1);
   const [loading, setLoading] = useState(false);
@@ -24,34 +26,30 @@ export function AddCategoryComponent({
     setLoading(true);
     setErrorMsg(null);
 
-    const newCategory = {
-      titel: titel.trim(),
-      parent_id: parentId,
-      ranked: Number(ranked) || 1,
-    };
-
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([newCategory])
-      .select();
+    const action = await dispatch(
+      addCategoryThunk({
+        title: titel.trim(),
+        parentId,
+        rank: Number(ranked) || 1,
+      })
+    );
 
     setLoading(false);
 
-    if (error) {
-      console.error('Fejl ved oprettelse af kategori:', error);
-      setErrorMsg('Der opstod en fejl ved oprettelse af kategorien.');
-    } else if (data && data[0]) {
+    if (addCategoryThunk.fulfilled.match(action)) {
       setTitel('');
       setRanked(1);
-      onSuccess(data[0].id);
+      await dispatch(fetchCategoriesThunk());
+      onSuccess(action.payload.id);
       onClose();
+    } else {
+      setErrorMsg((action.payload as string) || 'Der opstod en fejl ved oprettelse.');
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="w-full max-w-md bg-[#0B132A] border border-slate-800 rounded-xl shadow-2xl p-6 relative">
-        {/* Luk-knap */}
         <button
           type="button"
           onClick={onClose}
@@ -60,7 +58,6 @@ export function AddCategoryComponent({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Overskrift */}
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-[#C7975D]/10 rounded-lg text-[#C7975D]">
             <FolderPlus className="w-6 h-6" />
@@ -83,7 +80,6 @@ export function AddCategoryComponent({
           </div>
         )}
 
-        {/* Formular */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1.5">

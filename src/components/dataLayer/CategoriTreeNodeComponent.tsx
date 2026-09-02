@@ -48,7 +48,7 @@ export function CategoryTreeNode({
               isSelected ? 'text-[#C7975D]' : 'text-slate-400 group-hover:text-[#C7975D]'
             }`}
           />
-          <span className="text-sm truncate">{category.titel}</span>
+          <span className="text-sm truncate">{category.title}</span>
         </div>
 
         <button
