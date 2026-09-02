@@ -1,3 +1,4 @@
+// src/pages/login/SignUp.tsx
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -5,20 +6,23 @@ import { supabase } from '../../lib/supabase'
 
 export default function SignUp() {
     const navigate = useNavigate()
+
+    // Formfelter: brugerens input
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+
+    // UI-status: bruges til at vise fejlbeskeder og loading-tilstand
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
-
-    // validation function to check if the form inputs are valid
-    // returns an error message if invalid, otherwise returns null
-    // This function checks for empty first and last names, 
-    // validates the email format, 
-    // checks password length, and ensures the password and confirm password match.
+    // Validerer formens input, før vi overhovedet kalder Supabase.
+    // Returnerer en fejlbesked (string) hvis noget er ugyldigt,
+    // eller null hvis alt er okay.
+    // Tjekker: tomme navnefelter, gyldigt email-format,
+    // password-længde, og at password/confirmPassword matcher.
     function validate(): string | null {
         if (!firstName.trim() || !lastName.trim()) {
             return 'Fornavn og efternavn skal udfyldes.'
@@ -36,10 +40,12 @@ export default function SignUp() {
         return null
     }
 
+    // Håndterer formens submit-event. Kalder Supabase Auth for at oprette en ny bruger.
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setError(null)
-        
+
+        // Client-side validering først, så vi undgår unødvendige kald til Supabase
         const validationError = validate()
         if (validationError) {
             setError(validationError)
@@ -47,6 +53,10 @@ export default function SignUp() {
         }
 
         setLoading(true)
+
+        // Opretter brugeren i Supabase Auth. first_name/last_name sendes med i options.
+        // data, så de kan læses af handle_new_user()-triggeren i
+        // databasen, som opretter den tilhørende profiles-række automatisk.
         const { data, error: signUpError } = await supabase.auth.signUp({
             email: email.trim(),
             password,
@@ -60,6 +70,8 @@ export default function SignUp() {
         setLoading(false)
 
         if (signUpError) {
+            // Specifik besked hvis emailen allerede er i brug (Supabase's
+            // fejltekst tjekkes case-insensitivt), ellers en generisk fejl.
             if (signUpError.message.toLowerCase().includes('already registered')) {
                 setError('Der findes allerede en konto med denne e-mail.')
             } else {
@@ -68,19 +80,26 @@ export default function SignUp() {
             return
         }
 
+        // Hvis "Confirm email" er slået til i Supabase, returneres ingen
+        // session med det samme - brugeren skal først bekræfte sin email.
+        // Vi sender dem til login-siden med en besked om at tjekke deres mail.
         if (!data.session) {
             alert('Tjek din e-mail for at bekræfte din konto, før du kan logge ind.')
             navigate('/login')
             return
         }
 
+        // Hvis der ER en session med det samme (email-bekræftelse er slået fra),
+        // sender vi brugeren direkte videre til dashboardet.
         navigate('/dashboard')
     }
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-6">Opret konto</h1>
+
+                {/* Fejlbesked vises kun hvis error er sat */}
                 {error && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                         {error}
@@ -150,6 +169,7 @@ export default function SignUp() {
                     {loading ? 'Opretter konto...' : 'Opret konto'}
                 </button>
 
+                {/* Link til login-siden - ruten "/login" matcher Login.tsx */}
                 <p className="mt-4 text-sm text-secondary text-center">
                     Har du allerede en konto? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
                 </p>
