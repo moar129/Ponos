@@ -1,3 +1,4 @@
+// src/store/apis/authApi.ts
 import type { Session } from '@supabase/supabase-js'
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
