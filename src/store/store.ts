@@ -1,12 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import membershipReducer from './slices/membershipSlice';
+import { taskReducer } from './slices/taskSlices';
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
         membership: membershipReducer,
-        // Tilføj redux-reducerne her, når vi får brug for dem. For nu er der ingen.
+        task: taskReducer,
     },
 });
 
