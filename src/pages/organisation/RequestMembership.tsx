@@ -1,24 +1,23 @@
+// src/pages/organisation/RequestMembership.tsx
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../../lib/supabase'
 import type { Organisation } from '../../types/organisation/organisationType'
-import { useAppDispatch, useAppSelector } from '../../store/hooks/hooks'
-import { pendingRequestSet } from '../../store/slices/membershipSlice' 
+import { useRequestMembershipMutation } from '../../store/apis/membershipApi'
 
 // Denne komponent giver brugeren mulighed for at anmode om medlemskab i en organisation.
 export default function RequestMembership() {
-    // Hent session fra Redux, så vi kan få brugerens ID til at indsætte i membership_requests-tabellen
-    const session = useAppSelector((state) => state.auth.session)
-    const dispatch = useAppDispatch()
+    // RTK Query-mutation erstatter det direkte supabase.insert()-kald og
+    // Redux-dispatchet, der lå her før. isLoading/error kommer nu fra
+    // mutationens egen status i stedet for lokal useState.
+    const [requestMembership, { isLoading: submitting, error: mutationError }] = useRequestMembershipMutation()
 
-    // State til at holde styr på organisationer, loading-status, valgt organisation, form submission status, fejl og succes
+    // State til at holde styr på organisationer, loading-status og valgt organisation
     const [organisations, setOrganisations] = useState<Organisation[]>([])
     const [loadingOrganisations, setLoadingOrganisations] = useState(true)
 
-    // State til at holde styr på brugerens valg og form status
+    // State til at holde styr på brugerens valg og om anmodningen er sendt
     const [selectedOrgId, setSelectedOrgId] = useState('')
-    const [submitting, setSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
 
     // Hent organisationer fra Supabase, når komponenten mountes
@@ -43,50 +42,42 @@ export default function RequestMembership() {
     // Håndterer form submission for at indsende en medlemsanmodning
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        setError(null)
 
-        // Tjek om brugeren er logget ind, før vi forsøger at indsende anmodningen
-        if (!session) {
-            setError('Du skal være logget ind for at anmode om medlemskab.')
-            return
+        // Kalder mutationen. .unwrap() gør at en fejl kastes som en
+        // JavaScript-exception, så vi kan fange den i catch-blokken i
+        // stedet for at skulle tjekke et separat felt manuelt her.
+        try {
+            await requestMembership({ organisationId: selectedOrgId }).unwrap()
+            // Ved succes invaliderer mutationen automatisk 'PendingRequest',
+            // så banneret opdaterer sig selv - vi behøver ikke dispatche noget.
+            setSuccess(true)
+        } catch {
+            // Fejlen er allerede tilgængelig via mutationError nedenfor,
+            // så her behøver vi ikke gøre andet end at undlade at vise
+            // succes-beskeden.
         }
-        setSubmitting(true)
-
-        // Indsæt en ny række i membership_requests-tabellen med brugerens ID og den valgte organisations ID
-        const { error: insertError } = await supabase
-            .from('membership_requests')
-            .insert({
-                user_id: session.user.id,
-                organisation_id: selectedOrgId,
-            })
-
-        setSubmitting(false)
-        
-        // Håndter fejl ved indsættelse, f.eks. hvis brugeren allerede har en ventende anmodning
-        if (insertError) {
-            if (insertError.code === '23505') {
-                setError('Du har allerede en ventende anmodning til denne organisation.')
-            } else {
-                setError('Noget gik galt: ' + insertError.message)
-            }
-            return
-        }
-
-        // find det valgte org-navn og opdater Redux med det samme
-        const selectedOrg = organisations.find((org) => org.id === selectedOrgId)
-
-        // Hvis organisationen findes, opdater Redux state med den valgte organisations ID og navn, så vi kan vise det i UI'et senere
-        if (selectedOrg) {
-            dispatch(
-                pendingRequestSet({
-                    organisationId: selectedOrg.id,
-                    organisationName: selectedOrg.name,
-                })
-            )
-        }
-
-        setSuccess(true)
     }
+
+    // Hjælpefunktion der udtrækker en læsbar fejlbesked fra mutationens
+    // error-objekt, som RTK Query kan returnere i lidt forskellige former.
+    function getErrorMessage(): string | null {
+        if (!mutationError) return null
+
+        // Ekstra typetjek, så TypeScript er sikker på mutationError er et
+        // objekt, før vi bruger 'in'-operatoren på det.
+        if (
+            typeof mutationError === 'object' &&
+            mutationError !== null &&
+            'error' in mutationError &&
+            typeof mutationError.error === 'string'
+        ) {
+            return mutationError.error
+        }
+
+        return 'Noget gik galt. Prøv igen.'
+    }
+
+    const errorMessage = getErrorMessage()
 
     // Hvis anmodningen er sendt succesfuldt, vis en bekræftelsesbesked i stedet for formen
     if (success) {
@@ -106,9 +97,9 @@ export default function RequestMembership() {
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-6">Anmod om medlemskab</h1>
 
-                {error && (
+                {errorMessage && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                        {error}
+                        {errorMessage}
                     </div>
                 )}
 

@@ -21,7 +21,7 @@ export const authApi = supabaseApi.injectEndpoints({
 
             // Løbende abonnement: holder cachen opdateret ved login/logout/token-refresh,
             // uden at nogen komponent selv skal spørge igen
-            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch }) {
                 // Vent til det første queryFn-kald ovenfor er færdigt, så vi ikke
                 // abonnerer, før der overhovedet er noget i cachen at opdatere
                 await cacheDataLoaded
@@ -30,6 +30,13 @@ export const authApi = supabaseApi.injectEndpoints({
                     // Skriver direkte ind i RTK Query's cache - alle komponenter der
                     // bruger useGetSessionQuery() re-rendrer automatisk med den nye session
                     updateCachedData(() => session)
+
+                    // Login/logout betyder brugerens medlemskabsstatus kan være
+                    // ændret (fx logget ind som en anden bruger) - tvinger derfor
+                    // getMyPendingRequest til at hente frisk data igen, i stedet
+                    // for at blive ved med at vise et forældet resultat fra
+                    // dengang komponenten først blev mountet.
+                    dispatch(supabaseApi.util.invalidateTags(['PendingRequest']))
                 })
 
                 // Når ingen komponenter længere abonnerer på denne query (fx ved

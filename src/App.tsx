@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Route, Routes } from 'react-router-dom'
 import { Header } from './components/headerComponent';
 import { Footer } from './components/footerComponent';
