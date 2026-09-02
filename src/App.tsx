@@ -10,7 +10,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
 import { useMembershipListener } from './store/hooks/useMembershipListener';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
-
+import { TasksPage } from './pages/Task/TaskPage';
 
 function App() {
   // Denne hook sørger for, at Redux-store'ets auth-state altid matcher Supabases faktiske login-status.
@@ -36,6 +36,7 @@ function App() {
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tasks" element={<TasksPage />} />
             <Route path="/request-membership" element={<RequestMembership />} />
             {/* tilføj flere ruter efter behov */}
           </Route>

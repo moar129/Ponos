@@ -4,29 +4,47 @@ import type { Task, ETaskStatus } from '../../types/Task/Task';
 import { supabase } from '../../lib/supabase';
 import type { Room, TaskState } from '../../types/Task/Task';
 
-const PROTOTYPE_ORG_ID = '11111111-1111-4111-8111-111111111111';
-
-const isValidUuid = (value: string | null): value is string => {
-  if (!value) return false;
-
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
-
-const getEffectiveOrgId = (value: string | null): string => {
-  if (isValidUuid(value)) {
-    return value;
-  }
-
-  return PROTOTYPE_ORG_ID;
-};
-
 const initialState: TaskState = {
   tasks: [],
   rooms: [],
   loading: false,
   error: null,
-  userOrgId: PROTOTYPE_ORG_ID,
+  userOrgId: null,
 };
+
+
+// =========================
+// ORGANISATION
+// =========================
+
+// Hent organisationen for den nuværende bruger
+export const fetchUserOrganisation = createAsyncThunk<
+  string | null,
+  void
+>(
+  'tasks/fetchUserOrganisation',
+  async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('organisation_id')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data.organisation_id;
+  }
+);
 
 
 // =========================
@@ -37,12 +55,10 @@ const initialState: TaskState = {
 export const fetchTasks = createAsyncThunk<Task[], string>(
   'tasks/fetchTasks',
   async (orgId) => {
-    const effectiveOrgId = getEffectiveOrgId(orgId);
-
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
-      .eq('organisation_id', effectiveOrgId);
+      .eq('organisation_id', orgId);
 
     if (error) {
       throw new Error(error.message);
@@ -53,7 +69,7 @@ export const fetchTasks = createAsyncThunk<Task[], string>(
 );
 
 
-// UPDATE 
+// UPDATE - Opdater status
 export const updateTaskStatus = createAsyncThunk<
   Task,
   { id: string; status: ETaskStatus }
@@ -84,12 +100,10 @@ export const updateTaskStatus = createAsyncThunk<
 export const fetchRooms = createAsyncThunk<Room[], string>(
   'tasks/fetchRooms',
   async (orgId) => {
-    const effectiveOrgId = getEffectiveOrgId(orgId);
-
     const { data, error } = await supabase
       .from('task_rooms')
       .select('*')
-      .eq('organisation_id', effectiveOrgId)
+      .eq('organisation_id', orgId)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -108,13 +122,11 @@ export const createRoom = createAsyncThunk<
 >(
   'tasks/createRoom',
   async ({ organisationId, name }) => {
-    const effectiveOrgId = getEffectiveOrgId(organisationId);
-
     const { data, error } = await supabase
       .from('task_rooms')
       .insert({
-        organisation_id: effectiveOrgId,
-        name: name,
+        organisation_id: organisationId,
+        name,
       })
       .select()
       .single();
@@ -146,6 +158,28 @@ const taskSlice = createSlice({
   extraReducers: (builder) => {
 
     // -------------------------
+    // FETCH ORGANISATION
+    // -------------------------
+
+    builder
+      .addCase(fetchUserOrganisation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchUserOrganisation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userOrgId = action.payload;
+      })
+
+      .addCase(fetchUserOrganisation.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message || 'Kunne ikke finde organisation';
+      });
+
+
+    // -------------------------
     // FETCH TASKS
     // -------------------------
 
@@ -172,15 +206,18 @@ const taskSlice = createSlice({
     // -------------------------
 
     builder
-      .addCase(updateTaskStatus.fulfilled, (state, action: PayloadAction<Task>) => {
-        const index = state.tasks.findIndex(
-          task => task.id === action.payload.id
-        );
+      .addCase(
+        updateTaskStatus.fulfilled,
+        (state, action: PayloadAction<Task>) => {
+          const index = state.tasks.findIndex(
+            task => task.id === action.payload.id
+          );
 
-        if (index !== -1) {
-          state.tasks[index] = action.payload;
+          if (index !== -1) {
+            state.tasks[index] = action.payload;
+          }
         }
-      });
+      );
 
 
     // -------------------------
@@ -228,10 +265,6 @@ const taskSlice = createSlice({
   },
 });
 
-
-// =========================
-// EXPORTS
-// =========================
 
 export const { setOrgId } = taskSlice.actions;
 
