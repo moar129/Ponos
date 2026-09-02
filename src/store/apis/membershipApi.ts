@@ -46,7 +46,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
             providesTags: ['PendingRequest'],
         }),
 
-        // NY: Sender en medlemsanmodning for den indloggede bruger til den
+        // Sender en medlemsanmodning for den indloggede bruger til den
         // valgte organisation. Bruges af RequestMembership.tsx.
         requestMembership: builder.mutation<void, { organisationId: string }>({
             queryFn: async ({ organisationId }) => {
@@ -55,7 +55,10 @@ export const membershipApi = supabaseApi.injectEndpoints({
 
                 if (userError || !userData.user) {
                     return {
-                        error: { status: 'CUSTOM_ERROR', error: 'Du skal være logget ind for at anmode om medlemskab.' },
+                        error: { 
+                            status: 'CUSTOM_ERROR', 
+                            error: 'Du skal være logget ind for at anmode om medlemskab.' 
+                        },
                     }
                 }
 
