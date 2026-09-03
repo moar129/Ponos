@@ -1,78 +1,32 @@
-# React + TypeScript + Vite
+# Ponos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Projektoverblik
 
-Currently, two official plugins are available:
+**Ponos** er en digital platform til data, koordinering og indsigt for virksomheder/organisationer (fx Roskilde Festival som første use case, men bygget generisk).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Platformen bygger på tre grundspørgsmål:
+- **Hvad har vi?** → Datalayer (items, kategorier, lokationer)
+- **Hvem gør hvad?** → Opgavesystem (tasks, ansvarlige, deltagere)
+- **Hvad fortæller data os?** → Dashboard & statistik (auto-genereret ud fra eksisterende data)
 
-## React Compiler
+Platformens sider (jf. projektbeskrivelsen): Forside, Om os, Kontakt, Login, Dashboard, Opgaver, Statistik, Datalayer, Bruger.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 2. Tech stack
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+| Del | Valg |
+|---|---|
+| Backend | Supabase (Auth + Postgres) |
+| Frontend | React + TypeScript + Tailwind CSS + Lucide (ikoner) |
+| State management | **Redux Toolkit** (globalt store, se afsnit 7) |
+| Routing | react-router-dom |
+| Versionsstyring | GitHub |
+| Deployment | Vercel |
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+**Farvepalette (hjemmesiden):**
+| Navn | Hex | Brug (foreslået) |
+|---|---|---|
+| Primær mørk | `#071B33` | Baggrund / header / primær tekst på lys baggrund |
+| Sekundær blå-grå | `#3E5574` | Sekundær baggrund, kort, navigation |
+| Accent guld | `#C7975D` | Call-to-action, highlights, ikoner |
+| Lys grå | `#C8C7C7` | Borders, sekundær tekst |
+| Meget lys grå | `#DCDCDC` | Baggrunde, dividers |
