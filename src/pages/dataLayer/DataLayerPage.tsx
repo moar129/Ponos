@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery } from '../../store/apis/dataLayerApi';
+import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
 import type { DataLayerCat } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
