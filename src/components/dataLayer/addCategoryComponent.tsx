@@ -1,8 +1,6 @@
-
 import { useState } from 'react';
 import { X, FolderPlus, Loader2 } from 'lucide-react';
-import { useAppDispatch } from '../../store/hooks/hooksCategory';
-import { addCategoryThunk } from '../../store/slices/categorySlice';
+import { useAddCategoryMutation } from '../../store/apis/dataLayerApi';
 import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 export function AddCategoryComponent({
@@ -12,36 +10,35 @@ export function AddCategoryComponent({
   parentTitle,
   onSuccess,
 }: AddCategoryComponentProps) {
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
+  const [addCategory, { isLoading }] = useAddCategoryMutation();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmitAction = async (formData: FormData) => {
     const title = (formData.get('title') as string)?.trim();
-    const rank = Number(formData.get('rank')) || 1;
+    const rankInput = formData.get('rank');
+    const rank = rankInput !== null && rankInput !== '' ? Number(rankInput) : 1;
 
     if (!title) return;
 
-    setLoading(true);
     setErrorMsg(null);
 
     try {
-      const result = await dispatch(
-        addCategoryThunk({
-          title,
-          parentId,
-          rank,
-        })
-      ).unwrap();
+      const newCategoryId = await addCategory({
+        title,
+        parentId,
+        rank,
+      }).unwrap();
 
-      onSuccess(result.id);
+      onSuccess(newCategoryId);
       onClose();
     } catch (err: any) {
-      setErrorMsg(typeof err === 'string' ? err : 'Der opstod en fejl ved oprettelse.');
-    } finally {
-      setLoading(false);
+      const message =
+        typeof err === 'string'
+          ? err
+          : err?.data?.error || err?.error || 'Der opstod en fejl ved oprettelse.';
+      setErrorMsg(message);
     }
   };
 
@@ -84,7 +81,6 @@ export function AddCategoryComponent({
         )}
 
         <form action={handleSubmitAction} className="space-y-4">
-          {/* Implicit Label Wrapping - ingen id/htmlFor påkrævet */}
           <label className="block text-xs font-medium text-slate-300">
             <div className="mb-1.5 flex items-center gap-1">
               Kategorinavn
@@ -100,6 +96,21 @@ export function AddCategoryComponent({
             />
           </label>
 
+          <label className="block text-xs font-medium text-slate-300">
+            <div className="mb-1.5">Sorteringsværdi (Rank)</div>
+            <input
+              name="rank"
+              type="number"
+              min="0"
+              defaultValue={1}
+              placeholder="1"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors font-normal"
+            />
+            <span className="text-[11px] text-slate-400 mt-1 block">
+              Lavere tal vises først i kategoritræet.
+            </span>
+          </label>
+
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800 mt-6">
             <button
               type="button"
@@ -110,10 +121,10 @@ export function AddCategoryComponent({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Gem kategori
             </button>
           </div>

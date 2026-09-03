@@ -1,6 +1,6 @@
 export interface DataLayerItem {
   id: string;
-   itemLocationId: string;
+  itemLocationId: string;
   organisationId: string;
   categoryId: string;
   name: string;
@@ -46,11 +46,4 @@ export interface AddCategoryComponentProps {
   parentId: string | null;
   parentTitle?: string;
   onSuccess: (newCategoryId: string) => void;
-}
-
-export interface CategoryState {
-  tree: DataLayerCat[];
-  selectedCategoryId: string | null;
-  loading: boolean;
-  error: string | null;
 }

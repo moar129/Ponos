@@ -10,7 +10,7 @@ export function CategoryTreeNode({
   onSelectCategory,
   onAddSubCategory,
 }: CategoryTreeNodeProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
   const isSelected = selectedCategoryId === category.id;
 
