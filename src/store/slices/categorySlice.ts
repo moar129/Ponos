@@ -1,0 +1,136 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { supabase } from '../../lib/supabase';
+import type { RootState } from '../store';
+import type { DataLayerCat, RawCategory } from '../../types/dataLayer/datalayerTypes';
+
+// Rekursiv funktion til opbygning af kategoritræ
+function buildCategoryTree(
+  rawCategories: RawCategory[],
+  parentId: string | null = null
+): DataLayerCat[] {
+  return rawCategories
+    .filter((cat) => cat.parent_category_id === parentId)
+    .sort((a, b) => a.rank - b.rank)
+    .map((cat) => ({
+      id: cat.id,
+      title: cat.title,
+      rank: cat.rank,
+      organisationId: cat.organisation_id,
+      items: [],
+      subCategories: buildCategoryTree(rawCategories, cat.id),
+    }));
+}
+
+interface CategoryState {
+  tree: DataLayerCat[];
+  selectedCategoryId: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: CategoryState = {
+  tree: [],
+  selectedCategoryId: null,
+  loading: false,
+  error: null,
+};
+
+// Async Thunk: Hent alle kategorier
+export const fetchCategoriesThunk = createAsyncThunk(
+  'categories/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data, error } = await supabase
+        .from('data_layer_categories')
+        .select('*')
+        .order('rank', { ascending: true });
+
+      if (error) throw error;
+      return buildCategoryTree(data as RawCategory[]);
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Kunne ikke hente kategorier');
+    }
+  }
+);
+
+// Async Thunk: Opret ny kategori
+export const addCategoryThunk = createAsyncThunk(
+  'categories/addCategory',
+  async (
+    payload: { title: string; parentId: string | null; rank: number },
+    { getState, rejectWithValue }
+  ) => {
+    try {
+      const state = getState() as RootState;
+
+      // TILPAS HER: Tilpas stien baseret på din authSlice (fx state.auth.organisationId, state.auth.profile?.organisation_id osv.)
+      let organisationId = (state.auth as any)?.organisation_id || (state.auth as any)?.user?.organisation_id;
+
+      // Hvis organisation_id ikke findes i Redux auth-state, hente det via Supabase fallback
+      if (!organisationId) {
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        if (authError || !authData.user) {
+          throw new Error('Du skal være logget ind for at oprette en kategori.');
+        }
+
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('organisation_id')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileError || !profileData?.organisation_id) {
+          throw new Error('Kunne ikke hente din organisationstilknytning.');
+        }
+
+        organisationId = profileData.organisation_id;
+      }
+
+      const { data, error } = await supabase
+        .from('data_layer_categories')
+        .insert([
+          {
+            title: payload.title,
+            parent_category_id: payload.parentId,
+            rank: payload.rank,
+            organisation_id: organisationId,
+          },
+        ])
+        .select();
+
+      if (error) throw error;
+      return data[0];
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Fejl ved oprettelse af kategori');
+    }
+  }
+);
+
+export const categorySlice = createSlice({
+  name: 'categories',
+  initialState,
+  reducers: {
+    setSelectedCategoryId: (state, action: PayloadAction<string | null>) => {
+      state.selectedCategoryId = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCategoriesThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCategoriesThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.tree = action.payload;
+      })
+      .addCase(fetchCategoriesThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+  },
+});
+
+export const { setSelectedCategoryId } = categorySlice.actions;
+export default categorySlice.reducer;

@@ -1,46 +1,47 @@
-
 export interface DataLayerItem {
-  id: number;
+  id: string;
   name: string;
-  description: string;
+  description?: string | null;
   quantity: number;
-  itemStatus: 'Available' | 'Out of Stock' | 'Reserved' | 'Damaged' | 'In Use' | 'Missing' | 'Maintenance';
-  itemLocation: ItemLocation;
+  itemStatus: 'Available' | 'Reserved' | 'OutOfStock' | 'InUse' | 'Missing' | 'Damaged' | 'Maintenance';
+  itemLocation?: ItemLocation | null;
 }
 
 export interface DataLayerCat {
-  id: number;
-  titel: string;
-  ranked: number;
+  id: string;
+  title: string;
+  rank: number;
   items: DataLayerItem[];
   subCategories: DataLayerCat[];
+  organisationId: string;
 }
 
-export interface ItemLocation{
-  id: number;
+export interface ItemLocation {
+  id: string;
   name: string;
-  description: string;
-  adress: string;
+  description?: string | null;
+  address?: string | null;
 }
 
 export interface RawCategory {
-  id: number;
-  titel: string;
-  ranked: number;
-  parent_id: number | null;
+  id: string;
+  title: string;
+  rank: number;
+  parent_category_id: string | null;
+  organisation_id: string;
 }
 
 export interface CategoryTreeNodeProps {
   category: DataLayerCat;
-  selectedCategoryId: number | null;
+  selectedCategoryId: string | null;
   onSelectCategory: (category: DataLayerCat) => void;
-  onAddSubCategory: (parentId: number) => void;
+  onAddSubCategory: (parentId: string) => void;
 }
 
 export interface AddCategoryComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  parentId: number | null;
+  parentId: string | null;
   parentTitle?: string;
-  onSuccess: (newCategoryId: number) => void;
+  onSuccess: (newCategoryId: string) => void;
 }
