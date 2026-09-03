@@ -1,3 +1,4 @@
+
 import { Link, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -30,12 +31,12 @@ export function Header() {
 
       {/* Navigation */}
       <nav className="hidden md:flex items-center gap-2">
-        <NavLink to="/" className={getNavLinkClass}>
+        <NavLink to="/dashboard" className={getNavLinkClass}>
           <LayoutDashboard className="w-5 h-5" />
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/" className={getNavLinkClass}>
+        <NavLink to="/tasks" className={getNavLinkClass}>
           <ClipboardList className="w-5 h-5" />
           <span>Opgaver</span>
         </NavLink>
