@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { supabase } from '../../lib/supabase';
-import type { RootState } from '../store';
-import type { DataLayerCat, RawCategory } from '../../types/dataLayer/datalayerTypes';
+import type { DataLayerCat, RawCategory, CategoryState} from '../../types/dataLayer/datalayerTypes';
 
 // Rekursiv funktion til opbygning af kategoritræ
 function buildCategoryTree(
@@ -20,13 +19,6 @@ function buildCategoryTree(
       items: [],
       subCategories: buildCategoryTree(rawCategories, cat.id),
     }));
-}
-
-interface CategoryState {
-  tree: DataLayerCat[];
-  selectedCategoryId: string | null;
-  loading: boolean;
-  error: string | null;
 }
 
 const initialState: CategoryState = {
@@ -59,34 +51,29 @@ export const addCategoryThunk = createAsyncThunk(
   'categories/addCategory',
   async (
     payload: { title: string; parentId: string | null; rank: number },
-    { getState, rejectWithValue }
+    { rejectWithValue }
   ) => {
     try {
-      const state = getState() as RootState;
-
-      // TILPAS HER: Tilpas stien baseret på din authSlice (fx state.auth.organisationId, state.auth.profile?.organisation_id osv.)
-      let organisationId = (state.auth as any)?.organisation_id || (state.auth as any)?.user?.organisation_id;
-
-      // Hvis organisation_id ikke findes i Redux auth-state, hente det via Supabase fallback
-      if (!organisationId) {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-        if (authError || !authData.user) {
-          throw new Error('Du skal være logget ind for at oprette en kategori.');
-        }
-
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('organisation_id')
-          .eq('id', authData.user.id)
-          .single();
-
-        if (profileError || !profileData?.organisation_id) {
-          throw new Error('Kunne ikke hente din organisationstilknytning.');
-        }
-
-        organisationId = profileData.organisation_id;
+      // Henter brugerens organisation direkte via Supabase (RTK Query-migreringen
+      // fjernede authSlice, som denne funktion tidligere - uden effekt - forsøgte at læse fra)
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        throw new Error('Du skal være logget ind for at oprette en kategori.');
       }
+      // Henter organisation_id fra profilen
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('organisation_id')
+        .eq('id', authData.user.id)
+        .single();
+      // Hvis der ikke findes en organisationstilknytning, kastes en fejl
+      if (profileError || !profileData?.organisation_id) {
+        throw new Error('Kunne ikke hente din organisationstilknytning.');
+      }
+      // Brug organisation_id fra profilen til at oprette kategorien
+      const organisationId = profileData.organisation_id;
 
+      // Indsætter den nye kategori i databasen
       const { data, error } = await supabase
         .from('data_layer_categories')
         .insert([
@@ -98,7 +85,8 @@ export const addCategoryThunk = createAsyncThunk(
           },
         ])
         .select();
-
+      
+      // Hvis der opstår en fejl under indsættelsen, kastes en fejl
       if (error) throw error;
       return data[0];
     } catch (err: any) {

@@ -45,3 +45,10 @@ export interface AddCategoryComponentProps {
   parentTitle?: string;
   onSuccess: (newCategoryId: string) => void;
 }
+
+export interface CategoryState {
+  tree: DataLayerCat[];
+  selectedCategoryId: string | null;
+  loading: boolean;
+  error: string | null;
+}
