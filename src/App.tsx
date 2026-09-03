@@ -8,7 +8,7 @@ import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
-
+import { TasksPage } from './pages/Task/TaskPage';
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tasks" element={<TasksPage />} />
             <Route path="/request-membership" element={<RequestMembership />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
