@@ -4,10 +4,3 @@ export interface PendingMembershipRequest {
     organisationId: string
     organisationName: string
 }
-
-export interface MembershipState {
-    pendingRequest: PendingMembershipRequest | null
-    // 'loading' mens vi endnu ikke har tjekket databasen,
-    // 'checked' når vi ved besked (uanset om der findes en anmodning eller ej)
-    status: 'loading' | 'checked'
-}
