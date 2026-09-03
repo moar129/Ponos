@@ -24,13 +24,13 @@ function App() {
           <Route path="/" element={<div />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/datalager" element={<DataLayerPage />} />
 
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/request-membership" element={<RequestMembership />} />
+            <Route path="/datalager" element={<DataLayerPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
         </Routes>
