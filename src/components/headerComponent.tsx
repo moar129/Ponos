@@ -31,7 +31,7 @@ export function Header() {
 
       {/* Navigation */}
       <nav className="hidden md:flex items-center gap-2">
-        <NavLink to="/" className={getNavLinkClass}>
+        <NavLink to="/dashboard" className={getNavLinkClass}>
           <LayoutDashboard className="w-5 h-5" />
           <span>Dashboard</span>
         </NavLink>

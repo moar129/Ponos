@@ -4,20 +4,13 @@ import { Footer } from './components/footerComponent';
 import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
 import SignUp from './pages/logIn/SignUp'
 import Login from './pages/logIn/Login'
-import { useAuthListener } from './store/hooks/useAuthListener'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
-import { useMembershipListener } from './store/hooks/useMembershipListener';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 
 
 function App() {
-  // Denne hook sørger for, at Redux-store'ets auth-state altid matcher Supabases faktiske login-status.
-  useAuthListener()
-  // Denne hook sørger for, at Redux-store'ets membership-state altid matcher Supabases faktiske medlemskabsstatus.
-  useMembershipListener()
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}

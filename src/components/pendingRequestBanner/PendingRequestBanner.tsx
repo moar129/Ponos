@@ -1,12 +1,14 @@
-import { useAppSelector } from '../../store/hooks/hooks'
-// Viser en banner under navbaren, hvis den indloggede bruger har en
-// ventende (Pending) medlemsanmodning. Læser direkte fra Redux, så den
-// virker uanset hvilken side brugeren er på.
-export default function PendingRequestBanner() {
-    const pendingRequest = useAppSelector((state) => state.membership.pendingRequest)
-    const membershipStatus = useAppSelector((state) => state.membership.status)
+// src/components/pendingRequestBanner/PendingRequestBanner.tsx
+import { useGetMyPendingRequestQuery } from '../../store/apis/membershipApi'
 
-    if (membershipStatus === 'loading' || !pendingRequest) {
+// Viser en banner under navbaren, hvis den indloggede bruger har en
+// ventende (Pending) medlemsanmodning. Henter data via RTK Query i
+// stedet for Redux-slice, så komponenten virker uanset hvilken side
+// brugeren er på.
+export default function PendingRequestBanner() {
+    const { data: pendingRequest, isLoading } = useGetMyPendingRequestQuery()
+
+    if (isLoading || !pendingRequest) {
         return null
     }
 
