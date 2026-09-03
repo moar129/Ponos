@@ -74,7 +74,8 @@ export function DataLayerPage() {
     setIsAddModalOpen(true);
   };
 
-  const handleCategoryAdded = (newCategoryId: string) => {
+  const handleCategoryAdded = async (newCategoryId: string) => {
+    await dispatch(fetchCategoriesThunk()).unwrap();
     setSearchParams({ catId: newCategoryId });
   };
 

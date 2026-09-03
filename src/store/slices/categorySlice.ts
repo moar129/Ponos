@@ -58,16 +58,15 @@ export const fetchCategoriesThunk = createAsyncThunk(
 export const addCategoryThunk = createAsyncThunk(
   'categories/addCategory',
   async (
-    payload: { title: string; parentId: string | null; rank: number },
+    payload: { title: string; parentId: string | null; rank: number | null },
     { getState, rejectWithValue }
   ) => {
     try {
       const state = getState() as RootState;
 
-      // TILPAS HER: Tilpas stien baseret på din authSlice (fx state.auth.organisationId, state.auth.profile?.organisation_id osv.)
-      let organisationId = (state.auth as any)?.organisation_id || (state.auth as any)?.user?.organisation_id;
+      let organisationId =
+        (state.auth as any)?.organisation_id || (state.auth as any)?.user?.organisation_id;
 
-      // Hvis organisation_id ikke findes i Redux auth-state, hente det via Supabase fallback
       if (!organisationId) {
         const { data: authData, error: authError } = await supabase.auth.getUser();
         if (authError || !authData.user) {
@@ -93,7 +92,7 @@ export const addCategoryThunk = createAsyncThunk(
           {
             title: payload.title,
             parent_category_id: payload.parentId,
-            rank: payload.rank,
+            rank: payload.rank, // Kan nu sendes direkte som null
             organisation_id: organisationId,
           },
         ])

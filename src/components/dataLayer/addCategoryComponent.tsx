@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useAppDispatch } from '../../store/hooks/hooksCategory';
-import { addCategoryThunk, fetchCategoriesThunk } from '../../store/slices/categorySlice';
 import { X, FolderPlus, Loader2 } from 'lucide-react';
+import { useAppDispatch } from '../../store/hooks/hooksCategory';
+import { addCategoryThunk } from '../../store/slices/categorySlice';
 import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 export function AddCategoryComponent({
@@ -12,48 +12,50 @@ export function AddCategoryComponent({
   onSuccess,
 }: AddCategoryComponentProps) {
   const dispatch = useAppDispatch();
-  const [titel, setTitel] = useState('');
-  const [ranked, setRanked] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!titel.trim()) return;
+  const handleSubmitAction = async (formData: FormData) => {
+    const title = (formData.get('title') as string)?.trim();
+    const rank = Number(formData.get('rank')) || 1;
+
+    if (!title) return;
 
     setLoading(true);
     setErrorMsg(null);
 
-    const action = await dispatch(
-      addCategoryThunk({
-        title: titel.trim(),
-        parentId,
-        rank: Number(ranked) || 1,
-      })
-    );
+    try {
+      const result = await dispatch(
+        addCategoryThunk({
+          title,
+          parentId,
+          rank,
+        })
+      ).unwrap();
 
-    setLoading(false);
-
-    if (addCategoryThunk.fulfilled.match(action)) {
-      setTitel('');
-      setRanked(1);
-      await dispatch(fetchCategoriesThunk());
-      onSuccess(action.payload.id);
+      onSuccess(result.id);
       onClose();
-    } else {
-      setErrorMsg((action.payload as string) || 'Der opstod en fejl ved oprettelse.');
+    } catch (err: any) {
+      setErrorMsg(typeof err === 'string' ? err : 'Der opstod en fejl ved oprettelse.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="w-full max-w-md bg-[#0B132A] border border-slate-800 rounded-xl shadow-2xl p-6 relative">
         <button
           type="button"
           onClick={onClose}
           className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+          aria-label="Luk modal"
         >
           <X className="w-5 h-5" />
         </button>
@@ -68,45 +70,34 @@ export function AddCategoryComponent({
             </h2>
             {parentId && parentTitle && (
               <p className="text-xs text-slate-400 mt-0.5">
-                Forælder: <span className="text-slate-200 font-medium">{parentTitle}</span>
+                Forælder: <strong className="text-slate-200 font-medium">{parentTitle}</strong>
               </p>
             )}
           </div>
         </div>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm" role="alert">
             {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Kategorinavn <span className="text-red-400">*</span>
-            </label>
+        <form action={handleSubmitAction} className="space-y-4">
+          {/* Implicit Label Wrapping - ingen id/htmlFor påkrævet */}
+          <label className="block text-xs font-medium text-slate-300">
+            <div className="mb-1.5 flex items-center gap-1">
+              Kategorinavn
+              <span aria-hidden="true" className="text-red-400">*</span>
+            </div>
             <input
+              name="title"
               type="text"
               required
-              value={titel}
-              onChange={(e) => setTitel(e.target.value)}
+              aria-required="true"
               placeholder="F.eks. Elektronik, Kabler eller Værktøj..."
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors font-normal"
             />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Sortering (Ranked)
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={ranked}
-              onChange={(e) => setRanked(parseInt(e.target.value) || 1)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
-            />
-          </div>
+          </label>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800 mt-6">
             <button
@@ -118,11 +109,11 @@ export function AddCategoryComponent({
             </button>
             <button
               type="submit"
-              disabled={loading || !titel.trim()}
+              disabled={loading}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>Gem kategori</span>
+              Gem kategori
             </button>
           </div>
         </form>

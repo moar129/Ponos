@@ -1,10 +1,12 @@
 export interface DataLayerItem {
   id: string;
+   itemLocationId: string;
+  organisationId: string;
+  categoryId: string;
   name: string;
   description?: string | null;
   quantity: number;
   itemStatus: 'Available' | 'Reserved' | 'OutOfStock' | 'InUse' | 'Missing' | 'Damaged' | 'Maintenance';
-  itemLocation?: ItemLocation | null;
 }
 
 export interface DataLayerCat {
