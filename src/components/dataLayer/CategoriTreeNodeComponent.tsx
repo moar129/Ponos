@@ -17,11 +17,10 @@ export function CategoryTreeNode({
   return (
     <div className="ml-2 pl-2 border-l border-slate-700/50 my-0.5">
       <div
-        className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${
-          isSelected
+        className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
             ? 'bg-slate-700/80 text-white font-medium'
             : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-        }`}
+          }`}
         onClick={() => onSelectCategory(category)}
       >
         <div className="flex items-center gap-1.5 overflow-hidden">
@@ -45,9 +44,8 @@ export function CategoryTreeNode({
           )}
 
           <Folder
-            className={`w-4 h-4 shrink-0 ${
-              isSelected ? 'text-[#C7975D]' : 'text-slate-400 group-hover:text-[#C7975D]'
-            }`}
+            className={`w-4 h-4 shrink-0 ${isSelected ? 'text-accent' : 'text-slate-400 group-hover:text-accent'
+              }`}
           />
           <span className="text-sm truncate">{category.title}</span>
         </div>

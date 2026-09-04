@@ -13,7 +13,7 @@ export default function PendingRequestBanner() {
     }
 
     return (
-        <div className="w-full bg-[#C7975D]/15 border-b border-[#C7975D] text-[#0B132A] text-sm text-center px-4 py-2">
+        <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
             Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
         </div>
     )
