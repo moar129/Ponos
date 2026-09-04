@@ -10,6 +10,9 @@ import {
 } from '../../store/slices/taskSlices';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
+import { FilterBar } from '../../components/Task/FilterBar.tsx';
+import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
+import type { ETaskStatus } from '../../types/Task/Task';
 
 export const TasksPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -24,6 +27,8 @@ export const TasksPage: React.FC = () => {
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [newRoomName, setNewRoomName] = useState('');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
 
     // Hent organisationen for den nuværende bruger
     useEffect(() => {
@@ -84,9 +89,13 @@ export const TasksPage: React.FC = () => {
         const matchesRoom =
             selectedRoomId === null || task.room_id === selectedRoomId;
 
-        return matchesSearch && matchesRoom;
+        const matchesStatus = selectedStatuses.includes(task.status);
+
+        return matchesSearch && matchesRoom && matchesStatus;
     });
 
+    const availableTasks = filteredTasks.filter((task) => task.status === 'Started');
+    const inProgressTasks = filteredTasks.filter((task) => task.status === 'InProgress');
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
@@ -97,61 +106,13 @@ export const TasksPage: React.FC = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f4f4f2] text-[#111827]">
-            <header className="bg-[#0B132A] text-white px-8 py-5">
-                <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+            <header className="border-b border-gray-200 bg-white text-gray-900 px-8 py-5">
+                <div className="relative max-w-[1600px] mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-8">
-                        <div className="text-2xl font-bold tracking-tight">
-                            Ponos
-                        </div>
-
-                        <nav className="flex items-center gap-2">
-                            <button className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium">
-                                Opgaver
-                            </button>
-
-                            <button className="px-4 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-white/70">
-                                Projekter
-                            </button>
-
-                            <button className="px-4 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-white/70">
-                                Kalender
-                            </button>
-                        </nav>
                     </div>
 
                     <div className="flex items-center gap-5">
                         <div className="relative">
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Søg opgaver..."
-                                className="
-                                    w-56
-                                    rounded-lg
-                                    bg-white/10
-                                    border border-white/10
-                                    px-4 py-2
-                                    text-sm
-                                    placeholder:text-white/40
-                                    outline-none
-                                    focus:bg-white/15
-                                    focus:border-white/30
-                                "
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm">Bruger</span>
-
-                            <div
-                                className="
-                                    w-10 h-10
-                                    rounded-full
-                                    bg-gray-300
-                                    border-2 border-white/20
-                                "
-                            />
                         </div>
                     </div>
                 </div>
@@ -166,6 +127,23 @@ export const TasksPage: React.FC = () => {
                 />
             </div>
 
+            {/* Filter Bar - toggle */}
+            <FilterBar
+                isFilterOpen={isFilterOpen}
+                onToggleFilter={() => setIsFilterOpen(!isFilterOpen)}
+                search={search}
+                onSearchChange={setSearch}
+                availableCount={availableTasks.length}
+                inProgressCount={inProgressTasks.length}
+            />
+
+            {/* Filter Panel - dropdown */}
+            <FilterPanel 
+                isOpen={isFilterOpen}
+                selectedStatuses={selectedStatuses}
+                onStatusChange={setSelectedStatuses}
+            />
+
             {isAddRoomOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
                     <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
@@ -178,7 +156,7 @@ export const TasksPage: React.FC = () => {
                             value={newRoomName}
                             onChange={(e) => setNewRoomName(e.target.value)}
                             placeholder="Skriv navn på rum"
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0B132A]"
+                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleAddRoom();
@@ -202,7 +180,7 @@ export const TasksPage: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleAddRoom}
-                                className="rounded-lg bg-[#0B132A] px-4 py-2 text-sm font-medium text-white"
+                                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
                             >
                                 Gem rum
                             </button>
@@ -222,7 +200,9 @@ export const TasksPage: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-[1fr_1fr_280px] gap-8 items-start">
+                {/* 2 kolonner - Tilgængelige og I gang */}
+                <div className="grid grid-cols-2 gap-8 items-start">
+                    {/* Tilgængelige opgaver */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg">
@@ -230,31 +210,27 @@ export const TasksPage: React.FC = () => {
                             </h2>
 
                             <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
-                                {
-                                    filteredTasks.filter(
-                                        (task) => task.status === 'Started'
-                                    ).length
-                                }
+                                {availableTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
-                            {filteredTasks
-                                .filter(
-                                    (task) => task.status === 'Started'
-                                )
-                                .map((task) => (
-                                    <TaskCard
-                                        key={task.id}
-                                        task={task}
-                                        onJoin={() =>
-                                            handleJoinTask(task.id)
-                                        }
-                                    />
-                                ))}
+                            {availableTasks.map((task) => (
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    onJoin={() => handleJoinTask(task.id)}
+                                />
+                            ))}
+                            {availableTasks.length === 0 && (
+                                <p className="text-gray-500 text-sm py-8 text-center">
+                                    Ingen tilgængelige opgaver
+                                </p>
+                            )}
                         </div>
                     </section>
 
+                    {/* I gang opgaver */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg">
@@ -262,92 +238,24 @@ export const TasksPage: React.FC = () => {
                             </h2>
 
                             <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                                {
-                                    filteredTasks.filter(
-                                        (task) =>
-                                            task.status === 'InProgress'
-                                    ).length
-                                }
+                                {inProgressTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
-                            {filteredTasks
-                                .filter(
-                                    (task) =>
-                                        task.status === 'InProgress'
-                                )
-                                .map((task) => (
-                                    <TaskCard
-                                        key={task.id}
-                                        task={task}
-                                    />
-                                ))}
+                            {inProgressTasks.map((task) => (
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                />
+                            ))}
+                            {inProgressTasks.length === 0 && (
+                                <p className="text-gray-500 text-sm py-8 text-center">
+                                    Ingen opgaver i gang
+                                </p>
+                            )}
                         </div>
                     </section>
-
-                    <aside>
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-8">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-bold text-lg">
-                                    Filter
-                                </h2>
-
-                                <button className="text-sm text-gray-400 hover:text-gray-700">
-                                    Nulstil
-                                </button>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-sm font-semibold mb-3">
-                                    Status
-                                </label>
-
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-3 text-sm">
-                                        <input type="checkbox" />
-                                        Tilgængelig
-                                    </label>
-
-                                    <label className="flex items-center gap-3 text-sm">
-                                        <input type="checkbox" />
-                                        I gang
-                                    </label>
-
-                                    <label className="flex items-center gap-3 text-sm">
-                                        <input type="checkbox" />
-                                        Færdig
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-sm font-semibold mb-3">
-                                    Prioritet
-                                </label>
-
-                                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-                                    <option>Alle</option>
-                                    <option>Lav</option>
-                                    <option>Mellem</option>
-                                    <option>Høj</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold mb-3">
-                                    Sortér efter
-                                </label>
-
-                                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-                                    <option>Nyeste</option>
-                                    <option>Ældste</option>
-                                    <option>Prioritet</option>
-                                    <option>Deadline</option>
-                                </select>
-                            </div>
-                        </div>
-                    </aside>
                 </div>
             </main>
         </div>

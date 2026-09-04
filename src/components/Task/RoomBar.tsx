@@ -37,7 +37,7 @@ export const RoomBar: React.FC<RoomBarProps> = ({
               transition
               ${
                 selectedRoomId === null
-                  ? 'border-[#0B132A] text-[#0B132A]'
+                  ? 'border-gray-900 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
               }
             `}
@@ -59,7 +59,7 @@ export const RoomBar: React.FC<RoomBarProps> = ({
                 transition
                 ${
                   selectedRoomId === room.id
-                    ? 'border-[#0B132A] text-[#0B132A]'
+                    ? 'border-gray-900 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-900'
                 }
               `}
