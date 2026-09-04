@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
-import type { DataLayerCat } from '../../types/dataLayer/datalayerTypes';
+import type { DataLayerCat, AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
+import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
+import { ItemDetailComponent } from '../../components/dataLayer/itemsDetailComponent';
+import { getAggregatedItems } from '../../store/slices/dataLayersSlices/aggregatedItems';
 import { Search, Filter, Plus, Box, Loader2 } from 'lucide-react';
+import { EditCategoryComponent } from '../../components/dataLayer/editCategoryComponent';
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
+
+  const [editCategoryTarget, setEditCategoryTarget] = useState<DataLayerCat | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -18,6 +24,9 @@ export function DataLayerPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addParentId, setAddParentId] = useState<string | null>(null);
   const [addParentTitle, setAddParentTitle] = useState<string | undefined>(undefined);
+
+  const [isAddItemsModalOpen, setIsAddItemsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<AggregatedItem | null>(null);
 
   function findCategoryInTree(
     categories: DataLayerCat[],
@@ -71,6 +80,8 @@ export function DataLayerPage() {
       ? (error as { error: string }).error
       : null;
 
+  const aggregatedItems = selectedCategory ? getAggregatedItems(selectedCategory) : [];
+
   return (
     <div className="space-y-6">
       <AddCategoryComponent
@@ -80,6 +91,21 @@ export function DataLayerPage() {
         parentTitle={addParentTitle}
         onSuccess={handleCategoryAdded}
       />
+
+      <EditCategoryComponent
+        isOpen={!!editCategoryTarget}
+        onClose={() => setEditCategoryTarget(null)}
+        category={editCategoryTarget}
+      />
+
+      <AddItemsComponent
+        isOpen={isAddItemsModalOpen}
+        onClose={() => setIsAddItemsModalOpen(false)}
+        categoryId={selectedCategory?.id ?? null}
+        categoryTitle={selectedCategory?.title}
+      />
+
+      <ItemDetailComponent item={selectedItem} onClose={() => setSelectedItem(null)} />
 
       {errorMessage && (
         <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -132,6 +158,7 @@ export function DataLayerPage() {
                     selectedCategoryId={selectedCategory?.id ?? null}
                     onSelectCategory={handleSelectCategory}
                     onAddSubCategory={handleOpenAddModal}
+                    onEditCategory={setEditCategoryTarget}
                   />
                 ))}
               </div>
@@ -151,33 +178,56 @@ export function DataLayerPage() {
         <div className="lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-6 shadow-sm min-h-[500px]">
           {selectedCategory ? (
             <div>
-              <div className="mb-6 pb-4 border-b border-slate-800">
-                <h1 className="text-2xl font-serif text-slate-100 font-semibold">
-                  {selectedCategory.title}
-                </h1>
-                <p className="text-xs text-slate-400 mt-1">
-                  Kategori ID: {selectedCategory.id}
-                </p>
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div>
+                  <h1 className="text-2xl font-serif text-slate-100 font-semibold">
+                    {selectedCategory.title}
+                  </h1>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Kategori ID: {selectedCategory.id}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddItemsModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Tilføj items</span>
+                </button>
               </div>
 
-              {selectedCategory.items.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedCategory.items.map((item) => (
-                    <div
+              {aggregatedItems.length > 0 ? (
+                <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg overflow-hidden">
+                  {aggregatedItems.map((item) => (
+                    <button
                       key={item.id}
-                      className="p-4 bg-slate-900 border border-slate-800 rounded-lg text-slate-200"
+                      type="button"
+                      onClick={() => setSelectedItem(item)}
+                      className="w-full flex items-center justify-between gap-4 p-4 bg-slate-900 hover:bg-slate-800/70 text-left transition-colors"
                     >
-                      <h3 className="font-medium text-slate-100">{item.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {item.description || 'Ingen beskrivelse'}
-                      </p>
-                      <div className="flex items-center justify-between mt-4 text-xs text-slate-400">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-slate-100 truncate">{item.name}</span>
+                          {item.isFromSubCategory && (
+                            <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                              {item.sourceCategoryTitle}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 truncate mt-0.5">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0 text-xs text-slate-400">
                         <span>Antal: {item.quantity}</span>
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300">
                           {item.itemStatus}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               ) : (

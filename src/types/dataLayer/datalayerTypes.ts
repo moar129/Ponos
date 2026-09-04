@@ -38,6 +38,7 @@ export interface CategoryTreeNodeProps {
   selectedCategoryId: string | null;
   onSelectCategory: (category: DataLayerCat) => void;
   onAddSubCategory: (parentId: string) => void;
+  onEditCategory: (category: DataLayerCat) => void; // ny
 }
 
 export interface AddCategoryComponentProps {
@@ -46,4 +47,33 @@ export interface AddCategoryComponentProps {
   parentId: string | null;
   parentTitle?: string;
   onSuccess: (newCategoryId: string) => void;
+}
+
+export interface AggregatedItem extends DataLayerItem {
+  sourceCategoryTitle: string;
+  isFromSubCategory: boolean;
+}
+
+export interface AddItemsComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categoryId: string | null;
+  categoryTitle?: string;
+  onSuccess?: () => void;
+}
+
+export interface ItemDetailComponentProps {
+  item: AggregatedItem | null;
+  onClose: () => void;
+}
+
+
+export type ItemStatus = DataLayerItem['itemStatus'];
+
+export interface ItemRow {
+  key: string;
+  name: string;
+  description: string;
+  quantity: number;
+  itemStatus: ItemStatus;
 }

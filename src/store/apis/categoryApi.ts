@@ -249,6 +249,37 @@ export const categoryApi = supabaseApi.injectEndpoints({
       },
       providesTags: [{ type: 'ItemLocation', id: 'LIST' }],
     }),
+    addItems: builder.mutation<string[], Omit<DataLayerItem, 'id' | 'organisationId'>[]>({
+  queryFn: async (items) => {
+    try {
+      const organisationId = await getAuthenticatedOrganisationId();
+
+      const { data, error } = await supabase
+        .from('data_layer_items')
+        .insert(
+          items.map((item) => ({
+            location_id: item.itemLocationId || null,
+            organisation_id: organisationId,
+            category_id: item.categoryId,
+            name: item.name,
+            description: item.description,
+            quantity: item.quantity,
+            status: item.itemStatus,
+          }))
+        )
+        .select('id');
+
+      if (error) {
+        return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+      }
+
+      return { data: (data ?? []).map((row) => row.id) };
+    } catch (err: any) {
+      return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af items' } };
+    }
+  },
+  invalidatesTags: [{ type: 'Item', id: 'LIST' }],
+}),
   }),
 });
 
@@ -258,6 +289,7 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useAddItemMutation,
+  useAddItemsMutation, // ny
   useUpdateItemMutation,
   useDeleteItemMutation,
   useGetItemLocationsQuery,
