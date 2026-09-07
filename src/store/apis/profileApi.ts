@@ -18,7 +18,7 @@ async function lookupName(table: 'roles' | 'organisations', id: string | null): 
 
 export const profileApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // US-03: henter den indloggede brugers egen profil. RLS sørger for,
+        // henter den indloggede brugers egen profil. RLS sørger for,
         // at man aldrig kan læse andres profil end sin egen (eller nogen i
         // egen organisation) - .eq('id', ...) her er kun for at ramme
         // netop min egen række.
@@ -77,7 +77,7 @@ export const profileApi = supabaseApi.injectEndpoints({
             providesTags: ['Profile'],
         }),
 
-        // US-04: opdaterer kun de felter brugeren selv må ændre. Rolle og
+        // opdaterer kun de felter brugeren selv må ændre. Rolle og
         // organisation sendes bevidst ikke med - databasens
         // prevent_self_role_org_change-trigger ville alligevel afvise det.
         updateMyProfile: builder.mutation<void, UpdateProfileInput>({

@@ -26,7 +26,7 @@ export function Header() {
   const { data: profile } = useGetMyProfileQuery();
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
 
-  // Kun administratorer får "Anmodninger" i navigationen (US-06).
+  // Kun administratorer får "Anmodninger" i navigationen.
   // Skjuler kun linket - den reelle adgangskontrol ligger i RLS.
   const { isAdmin } = useIsAdmin();
 

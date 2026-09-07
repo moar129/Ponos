@@ -14,10 +14,9 @@ import ProfilePage from './pages/profile/ProfilePage';
 import { useGetSessionQuery } from './store/apis/authApi';
 
 function App() {
-  // Holder session-queryen abonneret hele appens levetid. Den er det, der
-  // starter authApi's onAuthStateChange-listener - uden en abonnent her
-  // kørte listeneren ikke på /login, så login/logout først slog igennem
-  // i headeren efter et sideskift eller en refresh.
+  // Holder session-queryen aktiv hele appens levetid.
+  // Den aktiverer authApi's onAuthStateChange-listener,
+  // så login/logout slår igennem uden sideskift eller refresh.
   useGetSessionQuery();
 
   return (

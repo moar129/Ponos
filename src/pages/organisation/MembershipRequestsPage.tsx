@@ -29,7 +29,7 @@ function formatDate(value: string): string {
     })
 }
 
-// US-06 (se), US-07 (accepter) og US-08 (afvis) i ét sammenhængende
+// se, accepter og afvis i ét sammenhængende
 // admin-view. Adgangen håndhæves server-side af RLS - tjekket her er
 // kun for at undgå at vise en tom side til brugere uden rettigheder.
 export default function MembershipRequestsPage() {

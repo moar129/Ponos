@@ -100,7 +100,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
             invalidatesTags: ['PendingRequest'],
         }),
 
-        // US-06: henter de ventende anmodninger, administratoren må se.
+        // henter de ventende anmodninger, administratoren må se.
         // Der filtreres bevidst IKKE på organisation her - RLS-policy'en
         // "Se egne anmodninger eller (som admin) anmodninger i egen org"
         // begrænser allerede rækkerne server-side. En ikke-admin får
@@ -159,7 +159,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
             providesTags: ['MembershipRequest'],
         }),
 
-        // US-07 + US-08: accepter eller afvis. Kun status sendes med -
+        // accepter eller afvis. Kun status sendes med -
         // trigger'en handle_membership_request_status_change sætter
         // reviewed_at/reviewed_by og tilknytter ved accept brugeren til
         // organisationen. RLS sikrer, at kun en admin i den rigtige
