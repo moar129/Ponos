@@ -48,7 +48,7 @@ export function AddCategoryComponent({
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-md bg-[#0B132A] border border-slate-800 rounded-xl shadow-2xl p-6 relative">
+      <div className="w-full max-w-md bg-primary border border-slate-800 rounded-xl shadow-2xl p-6 relative">
         <button
           type="button"
           onClick={onClose}
@@ -59,7 +59,7 @@ export function AddCategoryComponent({
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-[#C7975D]/10 rounded-lg text-[#C7975D]">
+          <div className="p-2 bg-accent/10 rounded-lg text-accent">
             <FolderPlus className="w-6 h-6" />
           </div>
           <div>
@@ -92,7 +92,7 @@ export function AddCategoryComponent({
               required
               aria-required="true"
               placeholder="F.eks. Elektronik, Kabler eller Værktøj..."
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors font-normal"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent transition-colors font-normal"
             />
           </label>
 
@@ -104,7 +104,7 @@ export function AddCategoryComponent({
               min="0"
               defaultValue={1}
               placeholder="1"
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors font-normal"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent transition-colors font-normal"
             />
             <span className="text-[11px] text-slate-400 mt-1 block">
               Lavere tal vises først i kategoritræet.
@@ -122,7 +122,7 @@ export function AddCategoryComponent({
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] disabled:opacity-50 text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Gem kategori

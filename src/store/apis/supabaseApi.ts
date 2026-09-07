@@ -6,6 +6,7 @@ export const supabaseApi = createApi({
     baseQuery: fakeBaseQuery(),
     tagTypes: [
         'Session',
+        'Profile',
         'PendingRequest',
         'MembershipRequest',
         'Category',

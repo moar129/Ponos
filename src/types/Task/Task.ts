@@ -27,3 +27,14 @@ export interface TaskState {
   userOrgId: string | null;
 }
 
+export interface RoomBarProps {
+  rooms: Room[];
+  selectedRoomId: string | null;
+  onSelectRoom: (roomId: string | null) => void;
+  onAddRoom: () => void;
+}
+
+export interface TaskCardProps {
+  task: Task;
+  onJoin?: () => void;
+}
