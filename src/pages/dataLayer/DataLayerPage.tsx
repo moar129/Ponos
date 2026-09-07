@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery } from '../../store/apis/dataLayerApi';
-import type { DataLayerCat } from '../../types/dataLayer/datalayerTypes';
+import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
+import type { DataLayerCat, AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
-import { Search, Filter, Plus, Box, Loader2 } from 'lucide-react';
+import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
+import { ItemDetailComponent } from '../../components/dataLayer/itemsDetailComponent';
+import { EditCategoryComponent } from '../../components/dataLayer/editCategoryComponent';
+import { DeleteCategoryComponent } from '../../components/dataLayer/deleteCategoryComponent';
+import { DeleteItemsComponent } from '../../components/dataLayer/deleteItemComponent';
+import { getAggregatedItems } from '../../store/slices/dataLayersSlices/aggregatedItems';
+import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon } from 'lucide-react';
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
@@ -15,9 +21,27 @@ export function DataLayerPage() {
   const [selectedCategory, setSelectedCategory] = useState<DataLayerCat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Kategori: opret
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addParentId, setAddParentId] = useState<string | null>(null);
   const [addParentTitle, setAddParentTitle] = useState<string | undefined>(undefined);
+
+  // Kategori: rediger
+  const [editCategoryTarget, setEditCategoryTarget] = useState<DataLayerCat | null>(null);
+
+  // Kategori: slet
+  const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<DataLayerCat | null>(null);
+
+  // Items: tilføj
+  const [isAddItemsModalOpen, setIsAddItemsModalOpen] = useState(false);
+
+  // Items: detalje / rediger / slet enkelt
+  const [selectedItem, setSelectedItem] = useState<AggregatedItem | null>(null);
+
+  // Items: vælg flere / slet flere
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set());
+  const [isDeleteItemsOpen, setIsDeleteItemsOpen] = useState(false);
 
   function findCategoryInTree(
     categories: DataLayerCat[],
@@ -49,6 +73,7 @@ export function DataLayerPage() {
   const handleSelectCategory = (category: DataLayerCat) => {
     setSelectedCategory(category);
     setSearchParams({ catId: category.id });
+    exitSelectMode(); // undgå at select-mode "overlever" et kategoriskift
   };
 
   const handleOpenAddModal = (parentId: string | null) => {
@@ -66,10 +91,38 @@ export function DataLayerPage() {
     setSearchParams({ catId: newCategoryId });
   };
 
+  const handleCategoriesDeleted = (deletedIds: string[]) => {
+    if (selectedCategory && deletedIds.includes(selectedCategory.id)) {
+      setSelectedCategory(null);
+      setSearchParams({});
+    }
+  };
+
+  const toggleItemSelected = (id: string) => {
+    setSelectedItemIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelectMode = () => {
+    setIsSelectMode(false);
+    setSelectedItemIds(new Set());
+  };
+
+  const handleItemsDeleted = () => {
+    exitSelectMode();
+  };
+
   const errorMessage =
     error && typeof error === 'object' && 'error' in error
       ? (error as { error: string }).error
       : null;
+
+  const aggregatedItems = selectedCategory ? getAggregatedItems(selectedCategory) : [];
+  const itemsMarkedForDeletion = aggregatedItems.filter((item) => selectedItemIds.has(item.id));
 
   return (
     <div className="space-y-6">
@@ -79,6 +132,35 @@ export function DataLayerPage() {
         parentId={addParentId}
         parentTitle={addParentTitle}
         onSuccess={handleCategoryAdded}
+      />
+
+      <EditCategoryComponent
+        isOpen={!!editCategoryTarget}
+        onClose={() => setEditCategoryTarget(null)}
+        category={editCategoryTarget}
+      />
+
+      <DeleteCategoryComponent
+        isOpen={!!deleteCategoryTarget}
+        category={deleteCategoryTarget}
+        onClose={() => setDeleteCategoryTarget(null)}
+        onDeleted={handleCategoriesDeleted}
+      />
+
+      <AddItemsComponent
+        isOpen={isAddItemsModalOpen}
+        onClose={() => setIsAddItemsModalOpen(false)}
+        categoryId={selectedCategory?.id ?? null}
+        categoryTitle={selectedCategory?.title}
+      />
+
+      <ItemDetailComponent item={selectedItem} onClose={() => setSelectedItem(null)} />
+
+      <DeleteItemsComponent
+        isOpen={isDeleteItemsOpen}
+        items={itemsMarkedForDeletion}
+        onClose={() => setIsDeleteItemsOpen(false)}
+        onDeleted={handleItemsDeleted}
       />
 
       {errorMessage && (
@@ -132,6 +214,8 @@ export function DataLayerPage() {
                     selectedCategoryId={selectedCategory?.id ?? null}
                     onSelectCategory={handleSelectCategory}
                     onAddSubCategory={handleOpenAddModal}
+                    onEditCategory={setEditCategoryTarget}
+                    onDeleteCategory={setDeleteCategoryTarget}
                   />
                 ))}
               </div>
@@ -151,33 +235,103 @@ export function DataLayerPage() {
         <div className="lg:col-span-8 xl:col-span-9 bg-primary rounded-xl border border-slate-800 p-6 shadow-sm min-h-[500px]">
           {selectedCategory ? (
             <div>
-              <div className="mb-6 pb-4 border-b border-slate-800">
-                <h1 className="text-2xl font-serif text-slate-100 font-semibold">
-                  {selectedCategory.title}
-                </h1>
-                <p className="text-xs text-slate-400 mt-1">
-                  Kategori ID: {selectedCategory.id}
-                </p>
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div>
+                  <h1 className="text-2xl font-serif text-slate-100 font-semibold">
+                    {selectedCategory.title}
+                  </h1>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Kategori ID: {selectedCategory.id}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {isSelectMode ? (
+                    <button
+                      type="button"
+                      onClick={exitSelectMode}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
+                    >
+                      <XIcon className="w-4 h-4" />
+                      <span>Annullér</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsSelectMode(true)}
+                      disabled={aggregatedItems.length === 0}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700 disabled:opacity-50"
+                    >
+                      <span>Vælg</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAddItemsModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Tilføj items</span>
+                  </button>
+                </div>
               </div>
 
-              {selectedCategory.items.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedCategory.items.map((item) => (
-                    <div
+              {isSelectMode && selectedItemIds.size > 0 && (
+                <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-slate-900 border border-slate-800">
+                  <span className="text-sm text-slate-300">{selectedItemIds.size} valgt</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteItemsOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Slet valgte
+                  </button>
+                </div>
+              )}
+
+              {aggregatedItems.length > 0 ? (
+                <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg overflow-hidden">
+                  {aggregatedItems.map((item) => (
+                    <button
                       key={item.id}
-                      className="p-4 bg-slate-900 border border-slate-800 rounded-lg text-slate-200"
+                      type="button"
+                      onClick={() => (isSelectMode ? toggleItemSelected(item.id) : setSelectedItem(item))}
+                      className="w-full flex items-center gap-3 justify-between p-4 bg-slate-900 hover:bg-slate-800/70 text-left transition-colors"
                     >
-                      <h3 className="font-medium text-slate-100">{item.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {item.description || 'Ingen beskrivelse'}
-                      </p>
-                      <div className="flex items-center justify-between mt-4 text-xs text-slate-400">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {isSelectMode && (
+                          <input
+                            type="checkbox"
+                            checked={selectedItemIds.has(item.id)}
+                            onChange={() => toggleItemSelected(item.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-slate-100 truncate">{item.name}</span>
+                            {item.isFromSubCategory && (
+                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                                {item.sourceCategoryTitle}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 truncate mt-0.5">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0 text-xs text-slate-400">
                         <span>Antal: {item.quantity}</span>
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300">
                           {item.itemStatus}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               ) : (

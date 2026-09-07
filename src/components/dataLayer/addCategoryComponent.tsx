@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, FolderPlus, Loader2 } from 'lucide-react';
-import { useAddCategoryMutation } from '../../store/apis/dataLayerApi';
+import { useAddCategoryMutation } from '../../store/apis/categoryApi';
 import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 export function AddCategoryComponent({
