@@ -266,6 +266,29 @@ as $$
 $$;
 
 
+-- US-06: en ansøger er endnu IKKE medlem, så deres profiles.organisation_id
+-- er null. Policy'en "Se egen profil eller profiler i egen organisation"
+-- rammer derfor ikke, og administratoren kunne ikke se ansøgerens navn og
+-- email. Funktionen er security definer, så opslaget i membership_requests
+-- sker uden RLS - det undgår rekursion mellem de to tabellers policies.
+-- Kun ansøgere med status 'Pending' eksponeres.
+create or replace function public.is_pending_requester_to_my_org(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.has_privilege('admin') and exists (
+    select 1
+    from public.membership_requests mr
+    where mr.user_id = p_user_id
+      and mr.organisation_id = public.auth_profile_org()
+      and mr.status = 'Pending'
+  );
+$$;
+
+
 -- =====================================================================
 -- 15. TRIGGERS
 -- =====================================================================
@@ -424,6 +447,14 @@ create policy "Se egen profil eller profiler i egen organisation"
     id = auth.uid()
     or organisation_id = public.auth_profile_org()
   );
+
+-- US-06: lader administratoren læse navn/email på brugere, der har en
+-- ventende anmodning til organisationen - de er endnu ikke medlemmer og
+-- fanges derfor ikke af policy'en ovenfor.
+create policy "Admin kan se ansøgeres profiler i egen organisation"
+  on public.profiles for select
+  to authenticated
+  using (public.is_pending_requester_to_my_org(id));
 
 create policy "Bruger kan opdatere egen profil"
   on public.profiles for update

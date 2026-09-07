@@ -9,6 +9,7 @@ export const supabaseApi = createApi({
         'Profile',
         'PendingRequest',
         'MembershipRequest',
+        'Privilege',
         'Category',
         'Item',
         'ItemLocation',

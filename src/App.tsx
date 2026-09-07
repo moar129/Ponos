@@ -7,6 +7,7 @@ import Login from './pages/logIn/Login'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
+import MembershipRequestsPage from './pages/organisation/MembershipRequestsPage';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 import { TasksPage } from './pages/Task/TaskPage';
 import ProfilePage from './pages/profile/ProfilePage';
@@ -38,6 +39,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/request-membership" element={<RequestMembership />} />
+            <Route path="/medlemsanmodninger" element={<MembershipRequestsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
             {/* tilføj flere ruter efter behov */}

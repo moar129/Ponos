@@ -1,7 +1,11 @@
 // src/store/apis/membershipApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { PendingMembershipRequest } from '../../types/membership/membershipType'
+import type {
+    MembershipRequest,
+    PendingMembershipRequest,
+    ReviewMembershipRequestInput,
+} from '../../types/membership/membershipType'
 
 export const membershipApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -95,7 +99,111 @@ export const membershipApi = supabaseApi.injectEndpoints({
             // uden manuel Redux-dispatch.
             invalidatesTags: ['PendingRequest'],
         }),
+
+        // US-06: henter de ventende anmodninger, administratoren må se.
+        // Der filtreres bevidst IKKE på organisation her - RLS-policy'en
+        // "Se egne anmodninger eller (som admin) anmodninger i egen org"
+        // begrænser allerede rækkerne server-side. En ikke-admin får
+        // derfor kun sine egne anmodninger, aldrig andres.
+        getPendingMembershipRequests: builder.query<MembershipRequest[], void>({
+            queryFn: async () => {
+                const { data: requests, error: requestsError } = await supabase
+                    .from('membership_requests')
+                    .select('id, user_id, requested_at')
+                    .eq('status', 'Pending')
+                    .order('requested_at')
+
+                if (requestsError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: requestsError.message } }
+                }
+
+                if (!requests || requests.length === 0) {
+                    return { data: [] }
+                }
+
+                // Profilerne hentes i et separat kald i stedet for som
+                // PostgREST-join, af samme grund som lookupName i
+                // profileApi.ts: joins er skrøbelige her, og en fejlende
+                // join ville vælte hele listen.
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, first_name, last_name, email')
+                    .in('id', requests.map((request) => request.user_id))
+
+                if (profilesError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                }
+
+                const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+
+                return {
+                    data: requests.flatMap((request) => {
+                        const profile = profileById.get(request.user_id)
+
+                        // Kan profilen ikke læses (RLS), udelades rækken
+                        // frem for at vise en anmodning uden afsender.
+                        if (!profile) return []
+
+                        return [{
+                            id: request.id,
+                            userId: request.user_id,
+                            firstName: profile.first_name,
+                            lastName: profile.last_name,
+                            email: profile.email,
+                            requestedAt: request.requested_at,
+                        }]
+                    }),
+                }
+            },
+
+            providesTags: ['MembershipRequest'],
+        }),
+
+        // US-07 + US-08: accepter eller afvis. Kun status sendes med -
+        // trigger'en handle_membership_request_status_change sætter
+        // reviewed_at/reviewed_by og tilknytter ved accept brugeren til
+        // organisationen. RLS sikrer, at kun en admin i den rigtige
+        // organisation kan ramme rækken.
+        reviewMembershipRequest: builder.mutation<void, ReviewMembershipRequestInput>({
+            queryFn: async ({ requestId, decision }) => {
+                const { data, error } = await supabase
+                    .from('membership_requests')
+                    .update({ status: decision })
+                    .eq('id', requestId)
+                    .eq('status', 'Pending')
+                    .select('id')
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                // Ingen rækker ramt = enten blokeret af RLS eller allerede
+                // behandlet af en anden. Uden dette tjek ville UI'en melde
+                // succes på en opdatering, der aldrig skete.
+                if (!data || data.length === 0) {
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: 'Anmodningen kunne ikke behandles. Den er måske allerede behandlet, eller du mangler rettigheder.',
+                        },
+                    }
+                }
+
+                return { data: undefined }
+            },
+
+            // Listen hentes friskt, så den behandlede anmodning forsvinder.
+            // 'Profile' invalideres også: accepterer man en anmodning,
+            // ændres ansøgerens organisation - og ser man sin egen liste,
+            // skal banneret opdateres.
+            invalidatesTags: ['MembershipRequest', 'Profile', 'PendingRequest'],
+        }),
     }),
 })
 
-export const { useGetMyPendingRequestQuery, useRequestMembershipMutation } = membershipApi
+export const {
+    useGetMyPendingRequestQuery,
+    useRequestMembershipMutation,
+    useGetPendingMembershipRequestsQuery,
+    useReviewMembershipRequestMutation,
+} = membershipApi

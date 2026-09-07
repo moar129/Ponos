@@ -53,3 +53,4 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 
 ## Plans
 - at the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammer for the sake of concision
+- At the end of a planing session dont go to code, ask me if iam ready to code.
