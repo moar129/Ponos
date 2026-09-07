@@ -1,8 +1,10 @@
 // src/pages/profile/ProfilePage.tsx
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { User } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { LogOut, User } from 'lucide-react'
 import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/apis/profileApi'
+import { useSignOutMutation } from '../../store/apis/authApi'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
 
 // Tom formular-tilstand, indtil brugeren trykker "Rediger profil" og
@@ -18,8 +20,10 @@ const emptyForm: UpdateProfileInput = {
 // oplysninger og kan skifte til en redigerings-tilstand for de felter,
 // brugeren selv må ændre. Rolle, organisation og e-mail vises kun.
 export default function ProfilePage() {
+    const navigate = useNavigate()
     const { data: profile, isLoading, error: queryError } = useGetMyProfileQuery()
     const [updateMyProfile, { isLoading: saving, error: mutationError }] = useUpdateMyProfileMutation()
+    const [signOut, { isLoading: signingOut }] = useSignOutMutation()
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateProfileInput>(emptyForm)
@@ -41,6 +45,13 @@ export default function ProfilePage() {
     function cancelEdit() {
         setIsEditing(false)
         setValidationError(null)
+    }
+
+    async function handleSignOut() {
+        await signOut()
+        // Auth-listeneren i authApi rydder selv cachen; her sikrer vi bare
+        // at brugeren ikke bliver stående på den beskyttede profilside.
+        navigate('/login')
     }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -245,13 +256,24 @@ export default function ProfilePage() {
                         </div>
                     </dl>
 
-                    <button
-                        type="button"
-                        onClick={() => startEdit(profile)}
-                        className="mt-6 bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
-                    >
-                        Rediger profil
-                    </button>
+                    <div className="mt-6 flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            onClick={() => startEdit(profile)}
+                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
+                        >
+                            Rediger profil
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSignOut}
+                            disabled={signingOut}
+                            className="flex items-center gap-2 rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            {signingOut ? 'Logger ud...' : 'Log ud'}
+                        </button>
+                    </div>
                 </>
             )}
         </div>

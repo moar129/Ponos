@@ -47,7 +47,22 @@ export const authApi = supabaseApi.injectEndpoints({
                 listener.subscription.unsubscribe()
             },
         }),
+
+        // Logger brugeren ud. Selve cache-oprydningen sker automatisk:
+        // signOut udløser onAuthStateChange ovenfor, som både nulstiller
+        // session-cachen og invaliderer profil/medlemskabsdata.
+        signOut: builder.mutation<void, void>({
+            queryFn: async () => {
+                const { error } = await supabase.auth.signOut()
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+        }),
     }),
 })
 
-export const { useGetSessionQuery } = authApi
+export const { useGetSessionQuery, useSignOutMutation } = authApi
