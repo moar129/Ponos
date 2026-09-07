@@ -1,6 +1,7 @@
 # CLAUDE.md
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+- In all interactions and commit messages, be extremely concise and sacrifice grammer for the sake of concision
 
 ## Project overview
 
@@ -18,7 +19,7 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 ## Architecture
 
 - Vite + React 19 + TypeScript. Tailwind v4 is wired in purely via the `@tailwindcss/vite` plugin — there is no `tailwind.config.js`. The React Compiler is enabled via `babel-plugin-react-compiler` in `vite.config.ts`.
-- Frontend-only repo. The backend is Supabase (Postgres + Auth), called directly from the client via the singleton in `src/lib/supabase.ts`. `docs/dbSchema.sql` documents the schema (gitignored, local reference only).
+- Frontend-only repo. The backend is Supabase (Postgres + Auth), called directly from the client via the singleton in `src/lib/supabase.ts`. `docs/dbSchema.sql` documents the schema.
 - **State**: Redux Toolkit + RTK Query, built around one shared API instance, `supabaseApi` (`src/store/apis/supabaseApi.ts`, `createApi` + `fakeBaseQuery`, with the app's `tagTypes` declared there). Feature API files (`authApi.ts`, `membershipApi.ts`, `dataLayerApi.ts`) call `supabaseApi.injectEndpoints(...)` rather than creating separate `createApi` instances — follow this pattern for new server-state features.
   - Endpoints use `queryFn` (not `query:`) to call the Supabase client directly, since there's no REST base URL.
   - `dataLayerApi.ts` also has a client-side `buildCategoryTree` helper that turns flat category/item rows into a nested tree.
@@ -30,7 +31,7 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 
 ## Project-specific development principles
 
-(condensed from `docs/Project.md`, which is gitignored — this is the only place these survive for future sessions)
+(condensed from `docs/Project.md` — read it directly for full detail)
 
 - Stay generic: Roskilde Festival is a pilot case, not the data model. Don't hardcode logic that only makes sense for it.
 - Reuse data across features instead of duplicating it (Datalayer → Items → Tasks → Statistics should reference existing records, not copy them).
@@ -44,5 +45,11 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 
 ## Notes
 
-- `docs/` (`Project.md`, `userStories.md`, `dbSchema.sql`) is gitignored but present locally — consult it for the full product spec, user stories, and DB schema when deeper context is needed.
+- `docs/` (`Project.md`, `userStories.md`, `dbSchema.sql`) is tracked in git — consult it for the full product spec, user stories, and DB schema when deeper context is needed.
+- `docs/studerende1-plan.md` — progress tracker for Student 1's user stories (Access, Organisation & Overview). Check "Næste op" at the top for the current task; update it after finishing a story.
+- Code (identifiers, comments) is written in English. UI-facing text (labels, buttons, errors) stays Danish — the product is for Danish speakers.
+- Git commits are made by the user, not Claude.
 - No CI and no Docker setup exist in this repo.
+
+## Plans
+- at the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammer for the sake of concision
