@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { CategoryTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
-import { ChevronRight, ChevronDown, Folder, Plus, Pencil } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2 } from 'lucide-react';
 
 export function CategoryTreeNode({
   category,
@@ -8,6 +8,7 @@ export function CategoryTreeNode({
   onSelectCategory,
   onAddSubCategory,
   onEditCategory,
+  onDeleteCategory,
 }: CategoryTreeNodeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
@@ -71,6 +72,18 @@ export function CategoryTreeNode({
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteCategory(category);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-slate-300 hover:text-red-400 transition-opacity ml-1"
+            title="Slet kategori"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
@@ -84,6 +97,7 @@ export function CategoryTreeNode({
               onSelectCategory={onSelectCategory}
               onAddSubCategory={onAddSubCategory}
               onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
             />
           ))}
         </div>
