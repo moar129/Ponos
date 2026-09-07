@@ -4,7 +4,7 @@ Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-03 + US-04 – Se og redigere profil**
+**US-06/07/08 – Admin: se, acceptere og afvise medlemsanmodninger**
 
 ## Status
 
@@ -12,8 +12,8 @@ Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er
 |---|---|---|---|---|
 | US-01 | Opret konto | Critical | Done | SignUp.tsx + DB trigger komplet |
 | US-02 | Login | Critical | Delvist | Login/redirect virker; "ingen org → ingen adgang" kun håndhævet via RLS, ikke i UI; `/`-ruten er ikke beskyttet |
-| US-03 | Se profil | Medium | Mangler | Ingen side/API findes; header-link til `/bruger` går ingen steder |
-| US-04 | Rediger profil | Medium | Mangler | Afhænger af US-03 |
+| US-03 | Se profil | Medium | Done | `/bruger` (ProfilePage.tsx) + profileApi.ts; header viser nu rigtigt navn/rolle |
+| US-04 | Rediger profil | Medium | Done | Rediger navn, beskrivelse, billed-URL; email/rolle/org er read-only |
 | US-05 | Anmod om medlemskab | Critical | Done | RequestMembership.tsx + membershipApi.ts komplet |
 | US-06/07/08 | Se, acceptere og afvise medlemsanmodninger (admin) | Critical | Mangler | Ét sammenhængende admin-view; DB/RLS/trigger klar, ingen UI/API |
 | US-09 | Se organisation | Medium | Mangler | RLS klar, ingen side/API |
@@ -29,7 +29,7 @@ Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er
 
 ## Anbefalet rækkefølge
 
-1. **US-03 + US-04** — Profile view/edit (mindste selvstændige enhed, allerede planlagt i detaljer)
+1. ~~**US-03 + US-04** — Profile view/edit~~ ✅
 2. **US-06/07/08** — Admin: se + acceptere/afvise medlemsanmodninger (naturlig fortsættelse af US-05)
 3. **US-09 + US-10** — Se/rediger organisation
 4. **US-11 + US-12 + US-13** — Roller & privileges (bygger på org-konteksten fra US-09/10, og kræver medlemmer at tildele roller til)
