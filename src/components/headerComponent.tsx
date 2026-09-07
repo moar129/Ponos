@@ -10,10 +10,12 @@ import {
   User,
   ChevronDown,
   LogOut,
+  UserPlus,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useSignOutMutation } from '../store/apis/authApi';
+import { useIsAdmin } from '../store/apis/privilegeApi';
 
 export function Header() {
   const navigate = useNavigate();
@@ -23,6 +25,10 @@ export function Header() {
   // vi tilbage til en neutral tekst.
   const { data: profile } = useGetMyProfileQuery();
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
+
+  // Kun administratorer får "Anmodninger" i navigationen.
+  // Skjuler kun linket - den reelle adgangskontrol ligger i RLS.
+  const { isAdmin } = useIsAdmin();
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -98,6 +104,13 @@ export function Header() {
           <Database className="w-5 h-5" />
           <span>Datalager</span>
         </NavLink>
+
+        {isAdmin && (
+          <NavLink to="/medlemsanmodninger" className={getNavLinkClass}>
+            <UserPlus className="w-5 h-5" />
+            <span>Anmodninger</span>
+          </NavLink>
+        )}
       </nav>
 
       {/* Højre side: Notifikation Ikon + Bruger Profil */}
