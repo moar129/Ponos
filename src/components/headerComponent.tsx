@@ -9,8 +9,15 @@ import {
   User,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
+import { useGetMyProfileQuery } from '../store/apis/profileApi';
 
 export function Header() {
+  // Viser den indloggede brugers eget navn/rolle i stedet for pladsholder-
+  // tekst. Er ingen logget ind (eller profilen endnu ikke hentet), falder
+  // vi tilbage til en neutral tekst.
+  const { data: profile } = useGetMyProfileQuery();
+
+
   // Dynamisk styling baseret på om ruten er aktiv
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2 px-4 py-2.5 rounded-md text-base font-medium transition-colors ${isActive
@@ -69,12 +76,20 @@ export function Header() {
           to="/bruger"
           className="flex items-center gap-3 hover:opacity-90 transition-opacity"
         >
-          <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-semibold">
-            <User className="w-6 h-6 text-slate-700" />
+          <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-semibold overflow-hidden">
+            {profile?.urlPicture ? (
+              <img src={profile.urlPicture} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-6 h-6 text-slate-700" />
+            )}
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <span className="text-sm font-semibold leading-tight">Bruger</span>
-            <span className="text-xs text-slate-400">Medarbejder</span>
+            <span className="text-sm font-semibold leading-tight">
+              {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
+            </span>
+            <span className="text-xs text-slate-400">
+              {profile?.roleName ?? 'Ingen rolle'}
+            </span>
           </div>
         </Link>
       </div>
