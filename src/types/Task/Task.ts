@@ -1,5 +1,6 @@
 
 export type ETaskStatus = 'Started' | 'InProgress' | 'Completed';
+export type ETaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
 
 export interface Task {
   id: string;
@@ -8,7 +9,8 @@ export interface Task {
   title: string;
   description: string | null;
   status: ETaskStatus;
-  priorityColor?: string; 
+  priority: ETaskPriority | null;
+  max_assignees: number | null;
 }
 
 export  interface Room {

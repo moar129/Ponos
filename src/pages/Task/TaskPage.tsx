@@ -13,6 +13,8 @@ import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
 import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
 import type { ETaskStatus } from '../../types/Task/Task';
+import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+
 
 export const TasksPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -26,6 +28,7 @@ export const TasksPage: React.FC = () => {
     const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
+    const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
@@ -138,7 +141,7 @@ export const TasksPage: React.FC = () => {
             />
 
             {/* Filter Panel - dropdown */}
-            <FilterPanel 
+            <FilterPanel
                 isOpen={isFilterOpen}
                 selectedStatuses={selectedStatuses}
                 onStatusChange={setSelectedStatuses}
@@ -190,14 +193,24 @@ export const TasksPage: React.FC = () => {
             )}
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold">
-                        Opgaver
-                    </h1>
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold">
+                            Opgaver
+                        </h1>
 
-                    <p className="text-gray-500 mt-1">
-                        Få overblik over arbejdet, der skal udføres.
-                    </p>
+                        <p className="text-gray-500 mt-1">
+                            Få overblik over arbejdet, der skal udføres.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setIsCreateTaskOpen(true)}
+                        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                    >
+                        Opret opgave
+                    </button>
                 </div>
 
                 {/* 2 kolonner - Tilgængelige og I gang */}
@@ -258,6 +271,12 @@ export const TasksPage: React.FC = () => {
                     </section>
                 </div>
             </main>
+
+            <CreateTaskModal
+                isOpen={isCreateTaskOpen}
+                onClose={() => setIsCreateTaskOpen(false)}
+            />
+            
         </div>
     );
 };

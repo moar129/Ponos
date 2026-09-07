@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Task, ETaskStatus } from '../../types/Task/Task';
+import type { Task, ETaskStatus, ETaskPriority } from '../../types/Task/Task';
 import { supabase } from '../../lib/supabase';
 import type { Room, TaskState } from '../../types/Task/Task';
 
@@ -65,6 +65,41 @@ export const fetchTasks = createAsyncThunk<Task[], string>(
     }
 
     return data as Task[];
+  }
+);
+
+  
+// CREATE - Opret opgave
+export const createTask = createAsyncThunk<
+  Task,
+  {
+    organisationId: string;
+    title: string;
+    description: string;
+    priority: ETaskPriority | null;
+    max_assignees: number | null;
+  }
+>(
+  'tasks/createTask',
+  async ({ organisationId, title, description, priority, max_assignees }) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        organisation_id: organisationId,
+        title,
+        description,
+        priority,
+        status: 'Started',
+        max_assignees,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data as Task;
   }
 );
 
@@ -202,6 +237,28 @@ const taskSlice = createSlice({
 
 
     // -------------------------
+    // CREATE TASK
+    // -------------------------
+
+    builder
+      .addCase(createTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(createTask.fulfilled, (state, action: PayloadAction<Task>) => {
+        state.loading = false;
+        state.tasks.push(action.payload);
+      })
+
+      .addCase(createTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message || 'Fejl ved oprettelse af opgave';
+      });
+
+
+    // -------------------------
     // UPDATE TASK STATUS
     // -------------------------
 
@@ -267,5 +324,4 @@ const taskSlice = createSlice({
 
 
 export const { setOrgId } = taskSlice.actions;
-
 export const taskReducer = taskSlice.reducer;
