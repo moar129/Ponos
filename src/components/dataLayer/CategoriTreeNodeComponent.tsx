@@ -1,27 +1,26 @@
-
 import { useState } from 'react';
 import type { CategoryTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
-import { ChevronRight, ChevronDown, Folder, Plus } from 'lucide-react';
-
+import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2 } from 'lucide-react';
 
 export function CategoryTreeNode({
   category,
   selectedCategoryId,
   onSelectCategory,
   onAddSubCategory,
+  onEditCategory,
+  onDeleteCategory,
 }: CategoryTreeNodeProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
   const isSelected = selectedCategoryId === category.id;
 
   return (
     <div className="ml-2 pl-2 border-l border-slate-700/50 my-0.5">
       <div
-        className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${
-          isSelected
+        className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
             ? 'bg-slate-700/80 text-white font-medium'
             : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-        }`}
+          }`}
         onClick={() => onSelectCategory(category)}
       >
         <div className="flex items-center gap-1.5 overflow-hidden">
@@ -34,35 +33,56 @@ export function CategoryTreeNode({
               }}
               className="p-0.5 hover:bg-slate-700 rounded text-slate-400 hover:text-white"
             >
-              {isOpen ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
+              {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
           ) : (
             <span className="w-5" />
           )}
 
           <Folder
-            className={`w-4 h-4 shrink-0 ${
-              isSelected ? 'text-[#C7975D]' : 'text-slate-400 group-hover:text-[#C7975D]'
-            }`}
+            className={`w-4 h-4 shrink-0 ${isSelected ? 'text-accent' : 'text-slate-400 group-hover:text-accent'
+              }`}
           />
           <span className="text-sm truncate">{category.title}</span>
         </div>
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddSubCategory(category.id);
-          }}
-          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-600 rounded text-slate-300 transition-opacity ml-1"
-          title="Tilføj underkategori"
-        >
-          <Plus className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditCategory(category);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-600 rounded text-slate-300 transition-opacity"
+            title="Rediger kategori"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddSubCategory(category.id);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-600 rounded text-slate-300 transition-opacity ml-1"
+            title="Tilføj underkategori"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteCategory(category);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-slate-300 hover:text-red-400 transition-opacity ml-1"
+            title="Slet kategori"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {isOpen && hasSubCategories && (
@@ -74,6 +94,8 @@ export function CategoryTreeNode({
               selectedCategoryId={selectedCategoryId}
               onSelectCategory={onSelectCategory}
               onAddSubCategory={onAddSubCategory}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
             />
           ))}
         </div>

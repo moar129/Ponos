@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../../store/store';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks/hooks';
 import {
     fetchTasks,
     fetchRooms,
@@ -16,14 +15,10 @@ import type { ETaskStatus } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 
 
-export const TasksPage: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
+export function TasksPage() {
+    const dispatch = useAppDispatch();
 
-    const { tasks, rooms, userOrgId, loading, error } = useSelector(
-        (state: RootState) => state.task
-    );
-    console.log('USER ORG ID:', userOrgId);
-    console.log('TASK ERROR:', error);
+    const { tasks, rooms, userOrgId, loading } = useAppSelector((state) => state.task);
 
     const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -33,12 +28,10 @@ export const TasksPage: React.FC = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
 
-    // Hent organisationen for den nuværende bruger
     useEffect(() => {
         dispatch(fetchUserOrganisation());
     }, [dispatch]);
 
-    // Når organisationen er fundet, hent tasks og rooms
     useEffect(() => {
         if (userOrgId) {
             dispatch(fetchTasks(userOrgId));
@@ -75,8 +68,6 @@ export const TasksPage: React.FC = () => {
                 })
             ).unwrap();
 
-            console.log('Rum blev oprettet!');
-
             setNewRoomName('');
             setIsAddRoomOpen(false);
         } catch (error) {
@@ -101,7 +92,7 @@ export const TasksPage: React.FC = () => {
     const inProgressTasks = filteredTasks.filter((task) => task.status === 'InProgress');
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <p className="font-semibold">Henter opgaver...</p>
             </div>
         );
@@ -111,12 +102,9 @@ export const TasksPage: React.FC = () => {
         <div className="min-h-screen flex flex-col bg-[#f4f4f2] text-[#111827]">
             <header className="border-b border-gray-200 bg-white text-gray-900 px-8 py-5">
                 <div className="relative max-w-[1600px] mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                    </div>
-
+                    <div className="flex items-center gap-8" />
                     <div className="flex items-center gap-5">
-                        <div className="relative">
-                        </div>
+                        <div className="relative" />
                     </div>
                 </div>
             </header>
@@ -130,7 +118,6 @@ export const TasksPage: React.FC = () => {
                 />
             </div>
 
-            {/* Filter Bar - toggle */}
             <FilterBar
                 isFilterOpen={isFilterOpen}
                 onToggleFilter={() => setIsFilterOpen(!isFilterOpen)}
@@ -140,7 +127,6 @@ export const TasksPage: React.FC = () => {
                 inProgressCount={inProgressTasks.length}
             />
 
-            {/* Filter Panel - dropdown */}
             <FilterPanel
                 isOpen={isFilterOpen}
                 selectedStatuses={selectedStatuses}
@@ -150,16 +136,14 @@ export const TasksPage: React.FC = () => {
             {isAddRoomOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
                     <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">
-                            Opret rum
-                        </h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Opret rum</h3>
 
                         <input
                             type="text"
                             value={newRoomName}
                             onChange={(e) => setNewRoomName(e.target.value)}
                             placeholder="Skriv navn på rum"
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleAddRoom();
@@ -183,7 +167,7 @@ export const TasksPage: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleAddRoom}
-                                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+                                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
                             >
                                 Gem rum
                             </button>
@@ -195,9 +179,7 @@ export const TasksPage: React.FC = () => {
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">
-                            Opgaver
-                        </h1>
+                        <h1 className="text-3xl font-bold">Opgaver</h1>
 
                         <p className="text-gray-500 mt-1">
                             Få overblik over arbejdet, der skal udføres.
@@ -213,15 +195,10 @@ export const TasksPage: React.FC = () => {
                     </button>
                 </div>
 
-                {/* 2 kolonner - Tilgængelige og I gang */}
                 <div className="grid grid-cols-2 gap-8 items-start">
-                    {/* Tilgængelige opgaver */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">
-                                Opgaver tilgængelige
-                            </h2>
-
+                            <h2 className="font-bold text-lg">Opgaver tilgængelige</h2>
                             <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
                                 {availableTasks.length}
                             </span>
@@ -243,13 +220,9 @@ export const TasksPage: React.FC = () => {
                         </div>
                     </section>
 
-                    {/* I gang opgaver */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">
-                                I gang
-                            </h2>
-
+                            <h2 className="font-bold text-lg">I gang</h2>
                             <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
                                 {inProgressTasks.length}
                             </span>
@@ -276,7 +249,6 @@ export const TasksPage: React.FC = () => {
                 isOpen={isCreateTaskOpen}
                 onClose={() => setIsCreateTaskOpen(false)}
             />
-            
         </div>
     );
-};
+}

@@ -7,10 +7,18 @@ import Login from './pages/logIn/Login'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import RequestMembership from './pages/organisation/RequestMembership';
+import MembershipRequestsPage from './pages/organisation/MembershipRequestsPage';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 import { TasksPage } from './pages/Task/TaskPage';
+import ProfilePage from './pages/profile/ProfilePage';
+import { useGetSessionQuery } from './store/apis/authApi';
 
 function App() {
+  // Holder session-queryen aktiv hele appens levetid.
+  // Den aktiverer authApi's onAuthStateChange-listener,
+  // så login/logout slår igennem uden sideskift eller refresh.
+  useGetSessionQuery();
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}
@@ -30,6 +38,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/request-membership" element={<RequestMembership />} />
+            <Route path="/medlemsanmodninger" element={<MembershipRequestsPage />} />
+            <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>

@@ -1,10 +1,12 @@
 export interface DataLayerItem {
   id: string;
+  itemLocationId: string;
+  organisationId: string;
+  categoryId: string;
   name: string;
   description?: string | null;
   quantity: number;
   itemStatus: 'Available' | 'Reserved' | 'OutOfStock' | 'InUse' | 'Missing' | 'Damaged' | 'Maintenance';
-  itemLocation?: ItemLocation | null;
 }
 
 export interface DataLayerCat {
@@ -36,6 +38,8 @@ export interface CategoryTreeNodeProps {
   selectedCategoryId: string | null;
   onSelectCategory: (category: DataLayerCat) => void;
   onAddSubCategory: (parentId: string) => void;
+  onEditCategory: (category: DataLayerCat) => void; // ny
+  onDeleteCategory: (category: DataLayerCat) => void; // ny
 }
 
 export interface AddCategoryComponentProps {
@@ -46,9 +50,52 @@ export interface AddCategoryComponentProps {
   onSuccess: (newCategoryId: string) => void;
 }
 
-export interface CategoryState {
-  tree: DataLayerCat[];
-  selectedCategoryId: string | null;
-  loading: boolean;
-  error: string | null;
+export interface AggregatedItem extends DataLayerItem {
+  sourceCategoryTitle: string;
+  isFromSubCategory: boolean;
+}
+
+export interface AddItemsComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categoryId: string | null;
+  categoryTitle?: string;
+  onSuccess?: () => void;
+}
+
+export interface ItemDetailComponentProps {
+  item: AggregatedItem | null;
+  onClose: () => void;
+}
+
+
+export type ItemStatus = DataLayerItem['itemStatus'];
+
+export interface ItemRow {
+  key: string;
+  name: string;
+  description: string;
+  quantity: number;
+  itemStatus: ItemStatus;
+}
+
+export interface DeleteCategoryComponentProps {
+  isOpen: boolean;
+  category: DataLayerCat | null;
+  onClose: () => void;
+  onDeleted: (deletedIds: string[]) => void;
+}
+
+export interface SubCategoryCheckboxProps {
+  category: DataLayerCat;
+  depth: number;
+  selectedIds: Set<string>;
+  onToggle: (id: string) => void;
+}
+
+export interface DeleteItemsComponentProps {
+  isOpen: boolean;
+  items: AggregatedItem[];
+  onClose: () => void;
+  onDeleted: (deletedIds: string[]) => void;
 }

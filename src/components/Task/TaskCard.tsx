@@ -1,14 +1,7 @@
-import React from 'react';
-import type { Task } from '../../types/Task/Task';
+import type { TaskCardProps } from '../../types/Task/Task';
 
-interface Props {
-  task: Task;
-  onJoin?: () => void;
-}
-
-export const TaskCard: React.FC<Props> = ({ task, onJoin }) => {
-
-  const getPriorityColor = (priority: Task['priority']) => {
+export function TaskCard({ task, onJoin }: TaskCardProps) {
+  const getPriorityColor = (priority: TaskCardProps['task']['priority']) => {
     switch (priority) {
       case 'Low':
         return 'bg-green-100 text-green-700';
@@ -26,9 +19,7 @@ export const TaskCard: React.FC<Props> = ({ task, onJoin }) => {
   return (
     <div className="bg-white border-2 border-gray-300 rounded-xl p-5 shadow-sm w-full">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="font-bold text-xl">
-          {task.title}
-        </h3>
+        <h3 className="font-bold text-xl">{task.title}</h3>
       </div>
 
       <div className="bg-[#f1f3f5] border border-gray-200 rounded-lg p-4 mb-6 min-h-[100px] relative">
@@ -36,30 +27,19 @@ export const TaskCard: React.FC<Props> = ({ task, onJoin }) => {
           Info
         </span>
 
-        <p className="text-gray-700 text-sm">
-          {task.description || 'Ingen beskrivelse'}
-        </p>
+        <p className="text-gray-700 text-sm">{task.description || 'Ingen beskrivelse'}</p>
       </div>
 
-      {/* OPGAVE DETALJER */}
       <div className="flex flex-wrap gap-2 mb-5">
-
-        {/* PRIORITET */}
         {task.priority && (
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(task.priority)}`}
-          >
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(task.priority)}`}>
             Prioritet: {task.priority}
           </span>
         )}
 
-        {/* ANTAL PERSONER */}
         <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-          {task.max_assignees === null
-            ? 'Ingen begrænsning'
-            : `Maks. ${task.max_assignees} personer`}
+          {task.max_assignees === null ? 'Ingen begrænsning' : `Maks. ${task.max_assignees} personer`}
         </span>
-
       </div>
 
       {task.status === 'Started' && onJoin && (
@@ -72,4 +52,4 @@ export const TaskCard: React.FC<Props> = ({ task, onJoin }) => {
       )}
     </div>
   );
-};
+}
