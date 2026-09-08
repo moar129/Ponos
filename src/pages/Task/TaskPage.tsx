@@ -1,25 +1,26 @@
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks/hooks';
-import {
-    fetchTasks,
-    fetchRooms,
-    updateTaskStatus,
-    createRoom,
-    fetchUserOrganisation,
-} from '../../store/slices/taskSlices';
+import { useState } from 'react';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
 import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
 import type { ETaskStatus } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+import {
+    useCreateRoomMutation,
+    useGetRoomsQuery,
+    useGetTasksQuery,
+    useUpdateTaskStatusMutation,
+} from '../../store/apis/taskApi';
 
+function readableError(err: unknown): string | null {
+    if (!err) return null;
+    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
+        return err.error;
+    }
+    return 'Noget gik galt. Prøv igen.';
+}
 
 export function TasksPage() {
-    const dispatch = useAppDispatch();
-
-    const { tasks, rooms, userOrgId, loading } = useAppSelector((state) => state.task);
-
     const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
@@ -28,24 +29,20 @@ export function TasksPage() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
 
-    useEffect(() => {
-        dispatch(fetchUserOrganisation());
-    }, [dispatch]);
+    const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useGetTasksQuery();
+    const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = useGetRoomsQuery();
+    const [updateTaskStatus, { error: updateTaskError }] = useUpdateTaskStatusMutation();
+    const [createRoom, { error: createRoomError }] = useCreateRoomMutation();
 
-    useEffect(() => {
-        if (userOrgId) {
-            dispatch(fetchTasks(userOrgId));
-            dispatch(fetchRooms(userOrgId));
-        }
-    }, [userOrgId, dispatch]);
-
-    const handleJoinTask = (taskId: string) => {
-        dispatch(
-            updateTaskStatus({
+    const handleJoinTask = async (taskId: string) => {
+        try {
+            await updateTaskStatus({
                 id: taskId,
                 status: 'InProgress',
-            })
-        );
+            }).unwrap();
+        } catch {
+            // handled through mutation error state
+        }
     };
 
     const handleAddRoom = async () => {
@@ -55,23 +52,12 @@ export function TasksPage() {
             return;
         }
 
-        if (!userOrgId) {
-            console.error('Ingen organisation fundet');
-            return;
-        }
-
         try {
-            await dispatch(
-                createRoom({
-                    organisationId: userOrgId,
-                    name: roomName,
-                })
-            ).unwrap();
-
+            await createRoom({ name: roomName }).unwrap();
             setNewRoomName('');
             setIsAddRoomOpen(false);
-        } catch (error) {
-            console.error('Kunne ikke oprette rum:', error);
+        } catch {
+            // handled through mutation error state
         }
     };
 
@@ -90,7 +76,9 @@ export function TasksPage() {
 
     const availableTasks = filteredTasks.filter((task) => task.status === 'Started');
     const inProgressTasks = filteredTasks.filter((task) => task.status === 'InProgress');
-    if (loading) {
+    const pageError = readableError(tasksError) ?? readableError(roomsError) ?? readableError(updateTaskError) ?? readableError(createRoomError);
+
+    if (tasksLoading || roomsLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <p className="font-semibold">Henter opgaver...</p>
@@ -177,6 +165,12 @@ export function TasksPage() {
             )}
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
+                {pageError && (
+                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                        {pageError}
+                    </div>
+                )}
+
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold">Opgaver</h1>

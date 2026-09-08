@@ -1,64 +1,62 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../../store/store';
-import { createTask } from '../../store/slices/taskSlices';
+import { useCreateTaskMutation } from '../../store/apis/taskApi';
 import type { ETaskPriority } from '../../types/Task/Task';
-
 
 interface CreateTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
+function readableError(err: unknown): string | null {
+    if (!err) return null;
+    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
+        return err.error;
+    }
+    return 'Noget gik galt. Prøv igen.';
+}
+
+export function CreateTaskModal({
     isOpen,
     onClose,
-}) => {
+}: CreateTaskModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState<ETaskPriority | null>(null);
     const [maxAssignees, setMaxAssignees] = useState<number | null>(null);
-    const dispatch = useDispatch<AppDispatch>();
-
-    const userOrgId = useSelector(
-        (state: RootState) => state.task.userOrgId
-    );
+    const [createTask, { isLoading, error }] = useCreateTaskMutation();
 
     if (!isOpen) {
         return null;
     }
+
     const handleSubmit = async () => {
         if (!title.trim()) {
             return;
         }
 
-        if (!userOrgId) {
-            return;
-        }
-
-        await dispatch(
-            createTask({
-                organisationId: userOrgId,
+        try {
+            await createTask({
                 title: title.trim(),
                 description: description.trim(),
                 priority,
                 max_assignees: maxAssignees,
-            })
-        );
+            }).unwrap();
 
-        setTitle('');
-        setDescription('');
-        setPriority(null);
-        setMaxAssignees(null);
-        onClose();
+            setTitle('');
+            setDescription('');
+            setPriority(null);
+            setMaxAssignees(null);
+            onClose();
+        } catch {
+            // handled through mutation error state
+        }
     }
 
+    const errorMessage = readableError(error);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50">
             <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-
-                {/* Modal Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-900">
                         Opret Opgave
@@ -72,10 +70,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                     </button>
                 </div>
 
-                {/* Form */}
-                <div className="space-y-4">
+                {errorMessage && (
+                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                        {errorMessage}
+                    </div>
+                )}
 
-                    {/* TITLE */}
+                <div className="space-y-4">
                     <div>
                         <label
                             htmlFor="task-title"
@@ -93,7 +94,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                         />
                     </div>
 
-                    {/* DESCRIPTION */}
                     <div>
                         <label
                             htmlFor="task-description"
@@ -112,9 +112,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                         />
                     </div>
 
-                    {/* PRIORITY */}
                     <div>
-                        <label htmlFor="task-priority"
+                        <label
+                            htmlFor="task-priority"
                             className="mb-1 block text-sm font-medium text-gray-700"
                         >
                             Prioritet
@@ -139,7 +139,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                         </select>
                     </div>
 
-                    {/* MAX ANTAL PERSONER */}
                     <div>
                         <label
                             htmlFor="task-max-assignees"
@@ -169,10 +168,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                             <option value="10">10 personer</option>
                         </select>
                     </div>
-
                 </div>
 
-                {/* Buttons */}
                 <div className="mt-6 flex justify-end gap-3">
                     <button
                         type="button"
@@ -185,12 +182,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                        disabled={isLoading}
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
                     >
                         Opret Opgave
                     </button>
                 </div>
-
             </div>
         </div>
     );
