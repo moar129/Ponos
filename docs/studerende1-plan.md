@@ -6,9 +6,7 @@ Dette er den løbende statusoversigt for de 24 user stories, som Studerende 1 er
 
 **US-59 – Være medlem af flere organisationer**
 
-Se "Anbefalet rækkefølge" nedenfor. Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret og færdig (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
-
-Mangler desuden: manuel test i browseren af de allerede implementerede Fase 1-adgangsregler (fx en bruger med kun `manage_roles` der ikke kan give admin-rollen væk).
+Se "Anbefalet rækkefølge" nedenfor. Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt testet i browseren og bekræftet virkende (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
 
 (US-58, US-59, US-60 og US-61 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
@@ -27,7 +25,7 @@ Mangler desuden: manuel test i browseren af de allerede implementerede Fase 1-ad
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne); adgang nu granulær via `manage_organisation`-privilegie (Fase 1) |
 | US-11 | Tildel rolle | High | Done | `/roller` (RolesPage.tsx) + roleApi.ts (`assignRole`); egen række er skrivebeskyttet, DB-trigger blokerer selv-tildeling; adgang nu granulær via `manage_roles`, med escalation-guard mod at give admin-rolle væk uden selv at være admin (Fase 1) |
 | US-12 | Opret rolle | Medium | Done | roleApi.ts (`createRole`); udvidet med `updateRole`/`deleteRole` (fuld CRUD, ikke krævet af story men RLS var allerede klar), UI på `/roller`; adgang nu granulær via `manage_roles` (Fase 1) |
-| US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`, `updatePrivilege`, `deletePrivilege` - fuld CRUD), UI på `/roller`; adgang nu granulær via `manage_roles`, med escalation-guard mod at oprette/omdøbe et privilegie til `admin` uden selv at være admin (Fase 1) |
+| US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`, `updatePrivilege`, `deletePrivilege` - fuld CRUD), UI på `/roller`; adgang nu granulær via `manage_roles`, med escalation-guard mod at oprette/omdøbe et privilegie til `admin` uden selv at være admin (Fase 1). "Tilføj privilegie" er en dropdown af kendte privilegier (`KNOWN_PRIVILEGES`/`privilegeLabel` i privilegeApi.ts) + "Andet"-fritekst, i stedet for rent fritekstfelt — undgår tastefejl på de bogstavelige RLS-privilegienavne |
 | US-62 | Granulære skriverettigheder i Datalayer | Medium | Mangler | Tilhører nu Studerende 1 (ikke Studerende 2); bevidst udskudt til efter US-59/60/61/Dashboard (trin 8) - fuld spec klar, se "Fase 2-spec" nedenfor |
 | US-63 | Granulære skriverettigheder i Opgaver | Medium | Mangler | Tilhører nu Studerende 1 (ikke Studerende 3); bevidst udskudt til efter US-59/60/61/Dashboard (trin 8) - fuld spec klar, se "Fase 2-spec" nedenfor |
 | US-45 | Se dashboard | Critical | Mangler | Nuværende Dashboard.tsx er eksplicit en placeholder |
