@@ -4,9 +4,16 @@ Dette er den løbende statusoversigt for de 24 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-59 – Være medlem af flere organisationer**
+**US-58 – Opret organisation (færdiggør)**
 
-Se "Anbefalet rækkefølge" nedenfor. Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt testet i browseren og bekræftet virkende (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
+Branch `dev-opretOrg`, status Delvist (se status-tabel). Besluttet: færdiggøres før US-59. Mangler:
+- `create_organisation`-RPC i Supabase (SQL, køres manuelt af bruger i SQL Editor)
+- Opret-formular i UI på `/organisation`
+- Opdatering af `dbSchema.sql` med den nye RPC
+
+Types (`organisationType.ts`) og RTK Query-mutationen (`organisationApi.ts`, `createOrganisation`) er allerede klar. Når US-58 er Done: sæt status-tabellens US-58-række til "Done" og gå videre til **US-59 – Være medlem af flere organisationer** (se "Anbefalet rækkefølge" nedenfor).
+
+Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt testet i browseren og bekræftet virkende (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
 
 (US-58, US-59, US-60 og US-61 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
