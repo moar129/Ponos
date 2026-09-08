@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { X, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useAddItemsMutation } from '../../store/apis/categoryApi';
 import type { AddItemsComponentProps, ItemRow, ItemStatus } from '../../types/dataLayer/datalayerTypes';
-
+import { LocationPickerComponent } from './locationsPickerComponent';
 
 const STATUS_OPTIONS: ItemStatus[] = [
   'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance',
@@ -17,6 +17,7 @@ export function AddItemsComponent({
   isOpen, onClose, categoryId, categoryTitle, onSuccess,
 }: AddItemsComponentProps) {
   const [rows, setRows] = useState<ItemRow[]>([emptyRow()]);
+  const [locationId, setLocationId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [addItems, { isLoading }] = useAddItemsMutation();
 
@@ -32,34 +33,35 @@ export function AddItemsComponent({
 
   const resetAndClose = () => {
     setRows([emptyRow()]);
+    setLocationId(null);
     setFormError(null);
     onClose();
   };
 
   const handleSubmit = async () => {
-  if (!categoryId) return setFormError('Ingen kategori valgt.');
+    if (!categoryId) return setFormError('Ingen kategori valgt.');
 
-  const validRows = rows.filter((r) => r.name.trim().length > 0);
-  if (validRows.length === 0) return setFormError('Tilføj mindst ét item med et navn.');
+    const validRows = rows.filter((r) => r.name.trim().length > 0);
+    if (validRows.length === 0) return setFormError('Tilføj mindst ét item med et navn.');
 
-  try {
-    await addItems(
-      validRows.map((r) => ({
-        categoryId,
-        itemLocationId: '', // eller fra et lokations-dropdown, se note ovenfor
-        name: r.name.trim(),
-        description: r.description.trim() || null,
-        quantity: r.quantity,
-        itemStatus: r.itemStatus,
-      }))
-    ).unwrap();
+    try {
+      await addItems(
+        validRows.map((r) => ({
+          categoryId,
+          itemLocationId: locationId,
+          name: r.name.trim(),
+          description: r.description.trim() || null,
+          quantity: r.quantity,
+          itemStatus: r.itemStatus,
+        }))
+      ).unwrap();
 
-    onSuccess?.();
-    resetAndClose();
-  } catch {
-    setFormError('Kunne ikke oprette items. Prøv igen.');
-  }
-};
+      onSuccess?.();
+      resetAndClose();
+    } catch {
+      setFormError('Kunne ikke oprette items. Prøv igen.');
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -80,6 +82,13 @@ export function AddItemsComponent({
               {formError}
             </div>
           )}
+
+          <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg">
+            <LocationPickerComponent value={locationId} onChange={setLocationId} />
+            <p className="text-[11px] text-slate-500 mt-1.5">
+              Denne lokation bruges til alle items i denne oprettelse.
+            </p>
+          </div>
 
           {rows.map((row, idx) => (
             <div key={row.key} className="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-2">

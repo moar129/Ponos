@@ -319,9 +319,6 @@ export function DataLayerPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-400 truncate mt-0.5">
-                            {item.description}
-                          </p>
                         </div>
                       </div>
 

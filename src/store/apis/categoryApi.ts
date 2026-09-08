@@ -106,10 +106,9 @@ export const categoryApi = supabaseApi.injectEndpoints({
           : [{ type: 'Category' as const, id: 'LIST' }],
     }),
 
-    addCategory: builder.mutation<
-      string,
-      { title: string; parentId: string | null; rank: number }
-    >({
+    addCategory: builder.mutation< string, 
+    { title: string; parentId: string | null; rank: number } >
+    ({
       queryFn: async ({ title, parentId, rank }) => {
         try {
           const organisationId = await getAuthenticatedOrganisationId();
@@ -171,7 +170,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
           const { data, error } = await supabase
             .from('data_layer_items')
             .insert({
-              location_id: item.itemLocationId,
+              location_id: item.itemLocationId || null,
               organisation_id: organisationId,
               category_id: item.categoryId,
               name: item.name,
@@ -189,6 +188,38 @@ export const categoryApi = supabaseApi.injectEndpoints({
           return { data: data.id };
         } catch (err: any) {
           return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af item' } };
+        }
+      },
+      invalidatesTags: [{ type: 'Item', id: 'LIST' }],
+    }),
+
+    addItems: builder.mutation<string[], Omit<DataLayerItem, 'id' | 'organisationId'>[]>({
+      queryFn: async (items) => {
+        try {
+          const organisationId = await getAuthenticatedOrganisationId();
+
+          const { data, error } = await supabase
+            .from('data_layer_items')
+            .insert(
+              items.map((item) => ({
+                location_id: item.itemLocationId || null,
+                organisation_id: organisationId,
+                category_id: item.categoryId,
+                name: item.name,
+                description: item.description,
+                quantity: item.quantity,
+                status: item.itemStatus,
+              }))
+            )
+            .select('id');
+
+          if (error) {
+            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          }
+
+          return { data: (data ?? []).map((row) => row.id) };
+        } catch (err: any) {
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af items' } };
         }
       },
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
@@ -235,51 +266,91 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
           const { data, error } = await supabase
             .from('locations')
-            .select('id, name, description, address')
+            .select('id, name, description, address, organisation_id')
             .eq('organisation_id', organisationId);
 
           if (error) {
             return { error: { status: 'CUSTOM_ERROR', error: error.message } };
           }
 
-          return { data: data ?? [] };
+          const locations: ItemLocation[] = (data ?? []).map((loc) => ({
+            id: loc.id,
+            organisationId: loc.organisation_id,
+            name: loc.name,
+            description: loc.description,
+            address: loc.address,
+          }));
+
+          return { data: locations };
         } catch (err: any) {
           return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved hentning af lokationer' } };
         }
       },
-      providesTags: [{ type: 'ItemLocation', id: 'LIST' }],
+      providesTags: (result) =>
+        result
+          ? [
+              { type: 'ItemLocation' as const, id: 'LIST' },
+              ...result.map((loc) => ({ type: 'ItemLocation' as const, id: loc.id })),
+            ]
+          : [{ type: 'ItemLocation' as const, id: 'LIST' }],
     }),
-    addItems: builder.mutation<string[], Omit<DataLayerItem, 'id' | 'organisationId'>[]>({
-  queryFn: async (items) => {
-    try {
-      const organisationId = await getAuthenticatedOrganisationId();
 
-      const { data, error } = await supabase
-        .from('data_layer_items')
-        .insert(
-          items.map((item) => ({
-            location_id: item.itemLocationId || null,
-            organisation_id: organisationId,
-            category_id: item.categoryId,
-            name: item.name,
-            description: item.description,
-            quantity: item.quantity,
-            status: item.itemStatus,
-          }))
-        )
-        .select('id');
+    addLocation: builder.mutation<string, { name: string; description?: string | null; address?: string | null }>({
+      queryFn: async (location) => {
+        try {
+          const organisationId = await getAuthenticatedOrganisationId();
 
-      if (error) {
-        return { error: { status: 'CUSTOM_ERROR', error: error.message } };
-      }
+          const { data, error } = await supabase
+            .from('locations')
+            .insert({
+              organisation_id: organisationId,
+              name: location.name,
+              description: location.description ?? null,
+              address: location.address ?? null,
+            })
+            .select('id')
+            .single();
 
-      return { data: (data ?? []).map((row) => row.id) };
-    } catch (err: any) {
-      return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af items' } };
-    }
-  },
-  invalidatesTags: [{ type: 'Item', id: 'LIST' }],
-}),
+          if (error) {
+            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          }
+
+          return { data: data.id };
+        } catch (err: any) {
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af lokation' } };
+        }
+      },
+      invalidatesTags: [{ type: 'ItemLocation', id: 'LIST' }],
+    }),
+
+    updateLocation: builder.mutation<void, { id: string; name?: string; description?: string | null; address?: string | null }>({
+      queryFn: async ({ id, ...changes }) => {
+        const { error } = await supabase.from('locations').update(changes).eq('id', id);
+
+        if (error) {
+          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+        }
+
+        return { data: undefined };
+      },
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'ItemLocation', id },
+        { type: 'ItemLocation', id: 'LIST' },
+      ],
+    }),
+
+    deleteLocation: builder.mutation<void, { id: string }>({
+      queryFn: async ({ id }) => {
+        const { error } = await supabase.from('locations').delete().eq('id', id);
+
+        if (error) {
+          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+        }
+
+        return { data: undefined };
+      },
+      invalidatesTags: [{ type: 'ItemLocation', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -289,8 +360,11 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useAddItemMutation,
-  useAddItemsMutation, // ny
+  useAddItemsMutation,
   useUpdateItemMutation,
   useDeleteItemMutation,
   useGetItemLocationsQuery,
+  useAddLocationMutation,
+  useUpdateLocationMutation,
+  useDeleteLocationMutation,
 } = categoryApi;

@@ -1,6 +1,6 @@
 export interface DataLayerItem {
   id: string;
-  itemLocationId: string;
+  itemLocationId?: string | null; 
   organisationId: string;
   categoryId: string;
   name: string;
@@ -20,6 +20,7 @@ export interface DataLayerCat {
 
 export interface ItemLocation {
   id: string;
+  organisationId: string;
   name: string;
   description?: string | null;
   address?: string | null;
@@ -98,4 +99,24 @@ export interface DeleteItemsComponentProps {
   items: AggregatedItem[];
   onClose: () => void;
   onDeleted: (deletedIds: string[]) => void;
+}
+
+export interface LocationManagerComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export interface ConfirmDialogComponentProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  isLoading?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export interface LocationPickerComponentProps {
+  value: string | null;
+  onChange: (locationId: string | null) => void;
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Package, Pencil, Loader2, Save } from 'lucide-react';
-import { useUpdateItemMutation } from '../../store/apis/categoryApi';
+import { useUpdateItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
+import { LocationPickerComponent } from './locationsPickerComponent';
 import type { DataLayerItem, AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 
 interface ItemDetailComponentProps {
@@ -30,9 +31,11 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [itemStatus, setItemStatus] = useState<ItemStatus>('Available');
+  const [itemLocationId, setItemLocationId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [updateItem, { isLoading }] = useUpdateItemMutation();
+  const { data: locations = [] } = useGetItemLocationsQuery();
 
   useEffect(() => {
     if (item) {
@@ -40,12 +43,15 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
       setDescription(item.description ?? '');
       setQuantity(item.quantity);
       setItemStatus(item.itemStatus);
+      setItemLocationId(item.itemLocationId ?? null);
       setIsEditing(false);
       setFormError(null);
     }
   }, [item]);
 
   if (!item) return null;
+
+  const currentLocationName = locations.find((l) => l.id === item.itemLocationId)?.name;
 
   const handleClose = () => {
     setIsEditing(false);
@@ -65,6 +71,7 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
         description: description.trim() || null,
         quantity,
         itemStatus,
+        itemLocationId,
       }).unwrap();
 
       handleClose(); // luk modalen, så listen viser opdaterede data
@@ -159,6 +166,16 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
                 </span>
               )}
             </div>
+
+            <div className="col-span-2">
+              <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Lokation</span>
+              {isEditing ? (
+                <LocationPickerComponent value={itemLocationId} onChange={setItemLocationId} />
+              ) : (
+                <span className="text-slate-200">{currentLocationName ?? 'Ingen lokation'}</span>
+              )}
+            </div>
+
             {item.isFromSubCategory && !isEditing && (
               <div className="col-span-2">
                 <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Kategori</span>
