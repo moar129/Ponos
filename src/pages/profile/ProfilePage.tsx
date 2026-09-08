@@ -16,7 +16,7 @@ const emptyForm: UpdateProfileInput = {
     urlPicture: null,
 }
 
-// US-03 (se profil) + US-04 (rediger profil). Siden viser brugerens egne
+// se profil og rediger profil. Siden viser brugerens egne
 // oplysninger og kan skifte til en redigerings-tilstand for de felter,
 // brugeren selv må ændre. Rolle, organisation og e-mail vises kun.
 export default function ProfilePage() {
@@ -195,7 +195,7 @@ export default function ProfilePage() {
 
                     {/* E-mail, rolle og organisation kan ikke redigeres her:
                         e-mail hører til Supabase Auth, og rolle/organisation
-                        blokeres server-side (US-04: ingen selvtildelte privilegier). */}
+                        blokeres server-side. */}
                     <p className="mb-6 text-xs text-secondary">
                         E-mail, rolle og organisation kan ikke ændres her. Kontakt din administrator.
                     </p>
@@ -239,7 +239,7 @@ export default function ProfilePage() {
                                 {profile.organisationName ?? 'Ingen organisation'}
                             </dd>
                         </div>
-                        {/* Rolle vises kun, hvis brugeren er medlem af en organisation (US-03) */}
+                        {/* Rolle vises kun, hvis brugeren er medlem af en organisation */}
                         {profile.organisationId && (
                             <div className="py-3 flex justify-between gap-4">
                                 <dt className="text-sm text-secondary">Rolle</dt>

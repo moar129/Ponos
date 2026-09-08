@@ -1,4 +1,4 @@
-// Brugerens egen profil, som den vises på /bruger (US-03).
+// Brugerens egen profil, som den vises på /bruger.
 // Rolle- og organisationsnavn hentes med via joins, så UI'en kan vise
 // dem uden et ekstra opslag. Begge er null, hvis brugeren endnu ikke er
 // medlem af en organisation / ikke har fået tildelt en rolle.
@@ -15,7 +15,7 @@ export interface Profile {
     roleName: string | null
 }
 
-// De felter brugeren selv må ændre (US-04). Bevidst uden role_id,
+// De felter brugeren selv må ændre. Bevidst uden role_id,
 // organisation_id, email og note_admin: rolle/organisation blokeres
 // server-side af trigger + RLS, email hører til Supabase Auth, og
 // note_admin er administratorens felt.

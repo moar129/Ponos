@@ -5,7 +5,6 @@ export function RoomBar({ rooms, selectedRoomId, onSelectRoom, onAddRoom }: Room
         <div className="w-full bg-white border-b border-gray-200">
             <div className="max-w-[1600px] mx-auto px-8">
                 <div className="flex items-center gap-1 overflow-x-auto">
-
                     <button
                         onClick={() => onSelectRoom(null)}
                         className={`

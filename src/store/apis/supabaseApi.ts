@@ -9,9 +9,13 @@ export const supabaseApi = createApi({
         'Profile',
         'PendingRequest',
         'MembershipRequest',
+        'Privilege',
+        'Organisation',
         'Category',
         'Item',
         'ItemLocation',
+        'Task',
+        'TaskRoom',
     ],
     endpoints: () => ({}),
 })

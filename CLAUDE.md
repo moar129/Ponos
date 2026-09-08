@@ -1,7 +1,7 @@
 # CLAUDE.md
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- In all interactions and commit messages, be extremely concise and sacrifice grammer for the sake of concision
+- In all interactions and commit messages, be extremely concise and sacrifice grammer for the sake of concision.
 
 ## Project overview
 
@@ -52,4 +52,5 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 - No CI and no Docker setup exist in this repo.
 
 ## Plans
-- at the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammer for the sake of concision
+- At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammer for the sake of concision.
+- At the end of a planing session dont go to code, ask me if iam ready to code.

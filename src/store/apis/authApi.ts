@@ -31,14 +31,22 @@ export const authApi = supabaseApi.injectEndpoints({
                     // bruger useGetSessionQuery() re-rendrer automatisk med den nye session
                     updateCachedData(() => session)
 
-                    // Login/logout betyder brugerens medlemskabsstatus og profil
-                    // kan være ændret (fx logget ind som en anden bruger) - tvinger
-                    // derfor getMyPendingRequest og getMyProfile til at hente frisk
-                    // data igen, i stedet for at blive ved med at vise et forældet
-                    // resultat fra dengang komponenten først blev mountet. Uden
-                    // 'Profile' her ville headeren først vise det rigtige navn efter
-                    // et sideskift eller en refresh.
-                    dispatch(supabaseApi.util.invalidateTags(['PendingRequest', 'Profile']))
+                    // Login/logout betyder brugerens medlemskabsstatus, profil,
+                    // privilegier og organisation kan være ændret (fx logget ind
+                    // som en anden bruger) - tvinger derfor al bruger-afhængig
+                    // data til at hente frisk igen, i stedet for at blive ved med
+                    // at vise et forældet resultat fra dengang komponenten først
+                    // blev mountet. Uden 'Privilege' her blev fx det admin-kun
+                    // "Anmodninger"-link i headeren stående efter logout, indtil
+                    // man selv opdaterede siden.
+                    dispatch(
+                        supabaseApi.util.invalidateTags([
+                            'PendingRequest',
+                            'Profile',
+                            'Privilege',
+                            'Organisation',
+                        ]),
+                    )
                 })
 
                 // Når ingen komponenter længere abonnerer på denne query (fx ved
