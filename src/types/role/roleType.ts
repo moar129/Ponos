@@ -25,8 +25,18 @@ export interface CreateRoleInput {
     name: string
 }
 
+export interface UpdateRoleInput {
+    roleId: string
+    name: string
+}
+
 export interface CreatePrivilegeInput {
     roleId: string
+    name: string
+}
+
+export interface UpdatePrivilegeInput {
+    privilegeId: string
     name: string
 }
 

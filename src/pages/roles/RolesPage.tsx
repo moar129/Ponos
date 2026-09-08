@@ -1,16 +1,26 @@
 // src/pages/roles/RolesPage.tsx
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { ShieldCheck } from 'lucide-react'
+import { Check, Lock, Pencil, ShieldCheck, Trash2, X } from 'lucide-react'
 import {
+    ADMIN_ROLE_NAME,
     useAssignRoleMutation,
     useCreateRoleMutation,
+    useDeleteRoleMutation,
     useGetOrganisationMembersQuery,
     useGetOrganisationRolesQuery,
+    useUpdateRoleMutation,
 } from '../../store/apis/roleApi'
-import { useCreatePrivilegeMutation, useGetOrganisationPrivilegesQuery, useIsAdmin } from '../../store/apis/privilegeApi'
+import {
+    ADMIN_PRIVILEGE,
+    useCreatePrivilegeMutation,
+    useDeletePrivilegeMutation,
+    useGetOrganisationPrivilegesQuery,
+    useIsAdmin,
+    useUpdatePrivilegeMutation,
+} from '../../store/apis/privilegeApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
-import type { OrganisationMember, Role } from '../../types/role/roleType'
+import type { OrganisationMember, Privilege, Role } from '../../types/role/roleType'
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -23,10 +33,10 @@ function readableError(err: unknown): string | null {
 }
 
 // Roller og privileges (US-11 + US-12 + US-13), samlet på én
-// admin-side: opret roller, tilknyt privileges til dem, og tildel
-// roller til organisationens medlemmer. Adgangen håndhæves server-side
-// af RLS - tjekket her er kun for at undgå at vise siden til brugere
-// uden rettigheder.
+// admin-side: opret/omdøb/slet roller, tilknyt/omdøb/fjern privileges,
+// og tildel roller til organisationens medlemmer. Adgangen håndhæves
+// server-side af RLS - tjekket her er kun for at undgå at vise siden
+// til brugere uden rettigheder.
 export default function RolesPage() {
     const { isAdmin, isLoading: loadingPrivileges } = useIsAdmin()
     const { data: myProfile } = useGetMyProfileQuery()
@@ -72,8 +82,8 @@ export default function RolesPage() {
     )
 }
 
-// Roller med deres privileges, plus formularer til at oprette en ny
-// rolle og tilknytte et nyt privilege til en rolle.
+// Roller med deres privileges, plus en formular til at oprette en ny
+// rolle.
 function RolesSection() {
     const { data: roles, isLoading: loadingRoles, error: rolesError } = useGetOrganisationRolesQuery()
     const { data: privileges, isLoading: loadingPrivileges, error: privilegesError } = useGetOrganisationPrivilegesQuery()
@@ -141,7 +151,7 @@ function RolesSection() {
                         <RoleCard
                             key={role.id}
                             role={role}
-                            privilegeNames={(privileges ?? []).filter((p) => p.roleId === role.id).map((p) => p.name)}
+                            privileges={(privileges ?? []).filter((p) => p.roleId === role.id)}
                         />
                     ))}
                 </ul>
@@ -152,24 +162,66 @@ function RolesSection() {
 
 interface RoleCardProps {
     role: Role
-    privilegeNames: string[]
+    privileges: Privilege[]
 }
 
-// Én rolle: dens tilknyttede privileges, plus en lille formular til at
-// tilføje endnu et privilege til netop denne rolle.
-function RoleCard({ role, privilegeNames }: RoleCardProps) {
+// Én rolle: navn (omdøbes/slettes inline), dens tilknyttede privileges,
+// plus en lille formular til at tilføje endnu et privilege.
+function RoleCard({ role, privileges }: RoleCardProps) {
+    // Kun organisationens indbyggede "Admin"-rolle med admin-privilegiet
+    // er låst mod omdøb/slet: sletning af netop den ville kaskade-slette
+    // selve admin-privilegiet (privileges.role_id ... on delete cascade)
+    // og låse alle administratorer ude af organisationen. Andre roller må
+    // frit have admin-privilegiet (fx til test) uden at blive låst.
+    // Matcher databasens prevent_admin_role_change-trigger.
+    const isAdminRole = role.name === ADMIN_ROLE_NAME && privileges.some((p) => p.name === ADMIN_PRIVILEGE)
+
+    const [updateRole, { isLoading: renaming, error: renameError }] = useUpdateRoleMutation()
+    const [deleteRole, { isLoading: deleting, error: deleteError }] = useDeleteRoleMutation()
     const [createPrivilege, { isLoading: creating, error: createError }] = useCreatePrivilegeMutation()
+
+    const [isEditing, setIsEditing] = useState(false)
+    const [editName, setEditName] = useState(role.name)
+    const [confirmingDelete, setConfirmingDelete] = useState(false)
+
     const [newPrivilegeName, setNewPrivilegeName] = useState('')
-    const [validationError, setValidationError] = useState<string | null>(null)
+    const [privilegeValidationError, setPrivilegeValidationError] = useState<string | null>(null)
+
+    function startEdit() {
+        setEditName(role.name)
+        setIsEditing(true)
+    }
+
+    async function handleRename(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        if (!editName.trim()) return
+
+        try {
+            await updateRole({ roleId: role.id, name: editName }).unwrap()
+            setIsEditing(false)
+        } catch {
+            // Fejlen vises via renameError.
+        }
+    }
+
+    async function handleDelete() {
+        try {
+            await deleteRole(role.id).unwrap()
+        } catch {
+            // Fejlen vises via deleteError.
+        } finally {
+            setConfirmingDelete(false)
+        }
+    }
 
     async function handleCreatePrivilege(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
 
         if (!newPrivilegeName.trim()) {
-            setValidationError('Privilegiets navn skal udfyldes.')
+            setPrivilegeValidationError('Privilegiets navn skal udfyldes.')
             return
         }
-        setValidationError(null)
+        setPrivilegeValidationError(null)
 
         try {
             await createPrivilege({ roleId: role.id, name: newPrivilegeName }).unwrap()
@@ -179,23 +231,105 @@ function RoleCard({ role, privilegeNames }: RoleCardProps) {
         }
     }
 
-    const error = validationError ?? readableError(createError)
+    const privilegeFormError = privilegeValidationError ?? readableError(createError)
 
     return (
         <li className="border border-border-gray rounded-md p-4">
-            <p className="font-medium mb-2">{role.name}</p>
+            {isEditing ? (
+                <form onSubmit={handleRename} className="flex items-center gap-2 mb-2">
+                    <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        autoFocus
+                        className="flex-1 rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                    <button
+                        type="submit"
+                        disabled={renaming}
+                        aria-label="Gem rollenavn"
+                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        disabled={renaming}
+                        aria-label="Annuller"
+                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </form>
+            ) : confirmingDelete ? (
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <p className="text-sm text-secondary">
+                        Slet rollen "{role.name}"? Tilknyttede privileges fjernes også, og medlemmer med rollen mister den.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    >
+                        {deleting ? 'Sletter...' : 'Ja, slet'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setConfirmingDelete(false)}
+                        disabled={deleting}
+                        className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        Annuller
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="font-medium">{role.name}</p>
+                    {isAdminRole ? (
+                        <span
+                            className="flex items-center gap-1 text-xs text-secondary italic"
+                            title="Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes"
+                        >
+                            <Lock className="w-3.5 h-3.5" />
+                            Låst
+                        </span>
+                    ) : (
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={startEdit}
+                                aria-label="Omdøb rolle"
+                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors"
+                            >
+                                <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingDelete(true)}
+                                aria-label="Slet rolle"
+                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
 
-            {privilegeNames.length === 0 ? (
+            {(readableError(renameError) || readableError(deleteError)) && (
+                <p className="text-red-700 text-xs mb-2">
+                    {readableError(renameError) ?? readableError(deleteError)}
+                </p>
+            )}
+
+            {privileges.length === 0 ? (
                 <p className="text-sm text-secondary mb-3">Ingen privileges endnu.</p>
             ) : (
-                <ul className="flex flex-wrap gap-2 mb-3">
-                    {privilegeNames.map((name) => (
-                        <li
-                            key={name}
-                            className="text-xs bg-bg-gray text-secondary rounded-full px-3 py-1"
-                        >
-                            {name}
-                        </li>
+                <ul className="space-y-1 mb-3">
+                    {privileges.map((privilege) => (
+                        <PrivilegeRow key={privilege.id} privilege={privilege} roleName={role.name} />
                     ))}
                 </ul>
             )}
@@ -217,7 +351,145 @@ function RoleCard({ role, privilegeNames }: RoleCardProps) {
                 </button>
             </form>
 
-            {error && <p className="text-red-700 text-xs mt-2">{error}</p>}
+            {privilegeFormError && <p className="text-red-700 text-xs mt-2">{privilegeFormError}</p>}
+        </li>
+    )
+}
+
+interface PrivilegeRowProps {
+    privilege: Privilege
+    roleName: string
+}
+
+// Ét privilege: navn (omdøbes/fjernes inline).
+function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
+    const [updatePrivilege, { isLoading: renaming, error: renameError }] = useUpdatePrivilegeMutation()
+    const [deletePrivilege, { isLoading: deleting, error: deleteError }] = useDeletePrivilegeMutation()
+
+    const [isEditing, setIsEditing] = useState(false)
+    const [editName, setEditName] = useState(privilege.name)
+    const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+    function startEdit() {
+        setEditName(privilege.name)
+        setIsEditing(true)
+    }
+
+    async function handleRename(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        if (!editName.trim()) return
+
+        try {
+            await updatePrivilege({ privilegeId: privilege.id, name: editName }).unwrap()
+            setIsEditing(false)
+        } catch {
+            // Fejlen vises via renameError.
+        }
+    }
+
+    async function handleDelete() {
+        try {
+            await deletePrivilege(privilege.id).unwrap()
+        } catch {
+            // Fejlen vises via deleteError.
+        } finally {
+            setConfirmingDelete(false)
+        }
+    }
+
+    const error = readableError(renameError) ?? readableError(deleteError)
+
+    if (isEditing) {
+        return (
+            <li>
+                <form onSubmit={handleRename} className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        autoFocus
+                        className="flex-1 rounded-md border border-border-gray px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                    <button
+                        type="submit"
+                        disabled={renaming}
+                        aria-label="Gem privilegienavn"
+                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        <Check className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        disabled={renaming}
+                        aria-label="Annuller"
+                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                </form>
+                {error && <p className="text-red-700 text-xs mt-1">{error}</p>}
+            </li>
+        )
+    }
+
+    if (confirmingDelete) {
+        return (
+            <li className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-secondary">Fjern privilegiet "{privilege.name}"?</span>
+                <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="text-red-700 font-medium hover:underline disabled:opacity-60"
+                >
+                    {deleting ? 'Fjerner...' : 'Ja, fjern'}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(false)}
+                    disabled={deleting}
+                    className="text-secondary hover:underline disabled:opacity-60"
+                >
+                    Annuller
+                </button>
+                {error && <p className="text-red-700 text-xs w-full">{error}</p>}
+            </li>
+        )
+    }
+
+    // Kun admin-privilegiet på organisationens "Admin"-rolle er låst -
+    // se isAdminRole i RoleCard for begrundelsen. Samme privilege-navn på
+    // en anden rolle (fx en testrolle) må frit omdøbes/fjernes.
+    const isAdminPrivilege = privilege.name === ADMIN_PRIVILEGE && roleName === ADMIN_ROLE_NAME
+
+    return (
+        <li className="flex items-center justify-between gap-2 text-sm bg-bg-gray text-secondary rounded-md px-3 py-1">
+            <span>{privilege.name}</span>
+            {isAdminPrivilege ? (
+                <span className="flex items-center gap-1 text-xs italic" title="Admin-privilegiet kan ikke omdøbes eller fjernes">
+                    <Lock className="w-3.5 h-3.5" />
+                </span>
+            ) : (
+                <div className="flex items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={startEdit}
+                        aria-label="Omdøb privilege"
+                        className="p-1 rounded-md hover:bg-white transition-colors"
+                    >
+                        <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setConfirmingDelete(true)}
+                        aria-label="Fjern privilege"
+                        className="p-1 rounded-md hover:bg-white transition-colors"
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+            )}
         </li>
     )
 }

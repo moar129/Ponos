@@ -22,8 +22,8 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 | US-09 | Se organisation | Medium | Done | `/organisation` (OrganisationPage.tsx) + organisationApi.ts |
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne) |
 | US-11 | Tildel rolle | High | Done | `/roller` (RolesPage.tsx, kun admin) + roleApi.ts (`assignRole`); egen række er skrivebeskyttet, DB-trigger blokerer selv-tildeling |
-| US-12 | Opret rolle | Medium | Done | roleApi.ts (`createRole`), UI på `/roller` |
-| US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`), UI på `/roller` |
+| US-12 | Opret rolle | Medium | Done | roleApi.ts (`createRole`); udvidet med `updateRole`/`deleteRole` (fuld CRUD, ikke krævet af story men RLS var allerede klar), UI på `/roller` |
+| US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`, `updatePrivilege`, `deletePrivilege` - fuld CRUD), UI på `/roller` |
 | US-45 | Se dashboard | Critical | Mangler | Nuværende Dashboard.tsx er eksplicit en placeholder |
 | US-46 | Se antal items | High | Mangler | Data findes via dataLayerApi, ikke vist noget sted |
 | US-47 | Se antal opgaver | High | Mangler | Data findes via taskSlices, intet total-count, ingen auto-opdatering |
@@ -57,3 +57,4 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 ## Sådan bruges filen
 
 Efter hver færdig story: opdater status-tabellen og "Næste op"-linjen øverst.
+

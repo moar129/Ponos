@@ -397,6 +397,89 @@ create trigger trg_sync_item_organisation
   for each row execute function public.sync_item_organisation();
 
 
+-- 15.5 Beskytter admin-privilegiet PÅ ORGANISATIONENS "Admin"-ROLLE mod
+-- omdøb/slet (US-13, roleApi.ts/privilegeApi.ts har en UI-guard for
+-- dette, men RLS alene kan ikke skelne "netop denne række" - enhver
+-- admin må ellers redigere/slette privilegier i egen organisation).
+-- Andre roller må frit have et privilege ved navn 'admin' (fx til test)
+-- uden at blive låst - kun kombinationen "Admin"-rollen + admin-
+-- privilegiet er beskyttet, da det er den, der reelt ville låse alle
+-- administratorer ude, hvis den forsvandt.
+create or replace function public.prevent_admin_privilege_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  role_name text;
+begin
+  select name into role_name from public.roles where id = old.role_id;
+
+  if old.name = 'admin' and role_name = 'Admin' then
+    if tg_op = 'DELETE' then
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke slettes.';
+    end if;
+    if new.name is distinct from old.name then
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke omdøbes.';
+    end if;
+  end if;
+
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_admin_privilege_change
+  before update or delete on public.privileges
+  for each row execute function public.prevent_admin_privilege_change();
+
+
+-- 15.6 Beskytter organisationens "Admin"-rolle mod omdøb/slet, når den
+-- har admin-privilegiet (US-12) - sletning ville ellers kaskade-slette
+-- selve admin-privilegiet (privileges.role_id ... on delete cascade).
+-- Andre roller, der måtte have et privilege ved navn 'admin' (fx til
+-- test), er IKKE låst - kun rollen ved navn "Admin" specifikt.
+create or replace function public.prevent_admin_role_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  is_admin_role boolean;
+begin
+  if old.name <> 'Admin' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  is_admin_role := exists (
+    select 1 from public.privileges
+    where role_id = old.id and name = 'admin'
+  );
+
+  if not is_admin_role then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if tg_op = 'DELETE' then
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke slettes.';
+  end if;
+
+  if new.name is distinct from old.name then
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke omdøbes.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_admin_role_change
+  before update or delete on public.roles
+  for each row execute function public.prevent_admin_role_change();
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================

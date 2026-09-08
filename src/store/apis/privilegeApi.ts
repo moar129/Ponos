@@ -1,7 +1,7 @@
 // src/store/apis/privilegeApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { CreatePrivilegeInput, Privilege } from '../../types/role/roleType'
+import type { CreatePrivilegeInput, Privilege, UpdatePrivilegeInput } from '../../types/role/roleType'
 
 // Navnet på det privilegie, der giver adgang til organisations-
 // administration (medlemmer, roller, privilegier). Konventionen er sat i
@@ -121,6 +121,54 @@ export const privilegeApi = supabaseApi.injectEndpoints({
 
             invalidatesTags: ['Privilege'],
         }),
+
+        // Omdøber et privilege. RLS ("Admin kan redigere/slette
+        // privilegier i egen organisation") afviser dette server-side for
+        // ikke-admins og for privilegier uden for egen organisation.
+        updatePrivilege: builder.mutation<void, UpdatePrivilegeInput>({
+            queryFn: async ({ privilegeId, name }) => {
+                const trimmed = name.trim()
+
+                if (!trimmed) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'Privilegiets navn skal udfyldes.' } }
+                }
+
+                const { error } = await supabase
+                    .from('privileges')
+                    .update({ name: trimmed })
+                    .eq('id', privilegeId)
+
+                if (error) {
+                    if (error.code === '23505') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilege.' },
+                        }
+                    }
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Privilege'],
+        }),
+
+        // Fjerner et privilege fra en rolle. RLS ("Admin kan slette
+        // privilegier i egen organisation") afviser dette server-side for
+        // ikke-admins og for privilegier uden for egen organisation.
+        deletePrivilege: builder.mutation<void, string>({
+            queryFn: async (privilegeId) => {
+                const { error } = await supabase.from('privileges').delete().eq('id', privilegeId)
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Privilege'],
+        }),
     }),
 })
 
@@ -128,6 +176,8 @@ export const {
     useGetMyPrivilegesQuery,
     useGetOrganisationPrivilegesQuery,
     useCreatePrivilegeMutation,
+    useUpdatePrivilegeMutation,
+    useDeletePrivilegeMutation,
 } = privilegeApi
 
 // Lille hjælper, så komponenter ikke skal gentage sammenligningen.

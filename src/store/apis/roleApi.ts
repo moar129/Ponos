@@ -1,7 +1,14 @@
 // src/store/apis/roleApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role } from '../../types/role/roleType'
+import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, UpdateRoleInput } from '../../types/role/roleType'
+
+// Navnet på organisationens indbyggede administrator-rolle. Sammen med
+// ADMIN_PRIVILEGE (privilegeApi.ts) bruges det til at låse netop denne
+// rolle mod omdøb/slet i UI'en - andre roller må frit have
+// admin-privilegiet uden at blive låst (jf. databasens
+// prevent_admin_role_change-trigger, som bruger samme konvention).
+export const ADMIN_ROLE_NAME = 'Admin'
 
 // Slår den indloggede brugers organisation op. Samme mønster som
 // updateMyOrganisation i organisationApi.ts - roller/tildelinger skal
@@ -91,6 +98,57 @@ export const roleApi = supabaseApi.injectEndpoints({
             invalidatesTags: ['Role'],
         }),
 
+        // Omdøber en rolle i administratorens organisation. RLS ("Admin
+        // kan redigere/slette roller i egen organisation") afviser dette
+        // server-side for ikke-admins.
+        updateRole: builder.mutation<void, UpdateRoleInput>({
+            queryFn: async ({ roleId, name }) => {
+                const trimmed = name.trim()
+
+                if (!trimmed) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
+                }
+
+                const { error } = await supabase
+                    .from('roles')
+                    .update({ name: trimmed })
+                    .eq('id', roleId)
+
+                if (error) {
+                    if (error.code === '23505') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Der findes allerede en rolle med dette navn.' },
+                        }
+                    }
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Role'],
+        }),
+
+        // Sletter en rolle i administratorens organisation. RLS ("Admin kan
+        // slette roller i egen organisation") afviser dette server-side for
+        // ikke-admins. Databasen kaskaderer selv: tilknyttede privileges
+        // slettes (privileges.role_id ... on delete cascade), og medlemmer
+        // med rollen mister den (profiles.role_id ... on delete set null) -
+        // 'Privilege' og 'Profile' invalideres derfor også.
+        deleteRole: builder.mutation<void, string>({
+            queryFn: async (roleId) => {
+                const { error } = await supabase.from('roles').delete().eq('id', roleId)
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Role', 'Privilege', 'Profile'],
+        }),
+
         // Henter medlemmerne af administratorens organisation, så de kan
         // tildeles en rolle (US-11). RLS ("Se egen profil eller profiler i
         // egen organisation") afgrænser allerede til egen organisation.
@@ -153,6 +211,8 @@ export const roleApi = supabaseApi.injectEndpoints({
 export const {
     useGetOrganisationRolesQuery,
     useCreateRoleMutation,
+    useUpdateRoleMutation,
+    useDeleteRoleMutation,
     useGetOrganisationMembersQuery,
     useAssignRoleMutation,
 } = roleApi
