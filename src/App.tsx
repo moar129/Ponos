@@ -11,6 +11,7 @@ import MembershipRequestsPage from './pages/organisation/MembershipRequestsPage'
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 import { TasksPage } from './pages/Task/TaskPage';
 import ProfilePage from './pages/profile/ProfilePage';
+import OrganisationPage from './pages/organisation/OrganisationPage';
 import { useGetSessionQuery } from './store/apis/authApi';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
             <Route path="/request-membership" element={<RequestMembership />} />
             <Route path="/medlemsanmodninger" element={<MembershipRequestsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
+            <Route path="/organisation" element={<OrganisationPage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>

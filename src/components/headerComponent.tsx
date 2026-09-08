@@ -11,6 +11,7 @@ import {
   ChevronDown,
   LogOut,
   UserPlus,
+  Building2,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
@@ -166,6 +167,15 @@ export function Header() {
               >
                 <User className="w-4 h-4" />
                 Se profil
+              </Link>
+              <Link
+                to="/organisation"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors"
+              >
+                <Building2 className="w-4 h-4" />
+                Organisation
               </Link>
               <button
                 type="button"

@@ -5,3 +5,10 @@ export interface Organisation {
     id: string
     name: string
 }
+
+// De felter en administrator selv må ændre. Organisations-tabellen har pt.
+// kun 'name' - udvides denne type senere, hvis der tilføjes flere
+// redigerbare felter til organisations-tabellen.
+export interface UpdateOrganisationInput {
+    name: string
+}
