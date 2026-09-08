@@ -4,7 +4,22 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-59 – Være medlem af flere organisationer**
+**Granulære privilegier (udvidelse af US-11/12/13 + US-10) — plan godkendt, IKKE implementeret endnu**
+
+I dag tjekker hele appen (RLS + frontend) reelt kun ét privilegienavn: `'admin'`. Alt andet man opretter i `/roller` er dekorativt. Målet: hver CRUD-handling i Studerende 1's domæne skal kunne styres af sit eget, uafhængigt tildelelige privilegie — admin skal altid kunne alt.
+
+Godkendt design (Fase 1, klar til implementering):
+- Ny SQL-funktion `has_privilege_or_admin(p_name) = has_privilege(p_name) OR has_privilege('admin')` (i afsnit 14, ved siden af `has_privilege`).
+- Nye privilegienavne: `manage_roles` (US-11+12+13 samlet — deler UI-faneblad, en rolle-manager der ikke må røre privilegier kan lave tomme roller), `manage_membership_requests` (US-06/07/08), `manage_organisation` (US-10).
+- Alle steder RLS i dag bruger `has_privilege('admin')` for disse policies (afsnit 16.1–16.5: organisations UPDATE, profiles UPDATE til rolletildeling, roles INSERT/UPDATE/DELETE, privileges INSERT/UPDATE/DELETE, membership_requests SELECT/UPDATE) skiftes til `has_privilege_or_admin(...)`. Kræver `drop policy` + `create policy` med nyt navn (uden "Admin kan..."-præfiks) da Postgres ikke har `create or replace policy`.
+- `is_pending_requester_to_my_org` (afsnit 14) skal bruge `has_privilege_or_admin('manage_membership_requests')` i stedet for `has_privilege('admin')`.
+- **Escalation-guard** (vigtigt, sikkerhed): en bruger med kun `manage_roles` må IKKE kunne give sig selv/andre fuld admin. To steder kræver derfor stadig bogstaveligt `has_privilege('admin')` via eksplicit `WITH CHECK`: (1) profiles UPDATE når den tildelte rolle bærer `'admin'`-privilegiet, (2) privileges INSERT/UPDATE når `name = 'admin'`. De to eksisterende låse-triggers (`prevent_admin_role_change`, `prevent_admin_privilege_change`) er navnebaserede og røres ikke.
+- Frontend: `privilegeApi.ts` får `MANAGE_ROLES_PRIVILEGE`/`MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE`/`MANAGE_ORGANISATION_PRIVILEGE`-konstanter og en generisk `useHasPrivilege(name)`-hook, som erstatter `useIsAdmin()` (fjernes — bliver død kode). Kaldere der opdateres: `headerComponent.tsx` (Anmodninger/Roller-links gates nu uafhængigt), `MembershipRequestsPage.tsx`, `RolesPage.tsx` (kun side-adgangs-gaten — `ADMIN_PRIVILEGE`/`isAdminRole`/`isAdminPrivilege`-lås-logikken for selve "Admin"-rollen røres ikke), `OrganisationPage.tsx`.
+- 42501-fejlbesked-mapping tilføjes i `roleApi.ts` (`assignRole`) og `privilegeApi.ts` (`createPrivilege`/`updatePrivilege`).
+
+**Ude af scope for denne omgang** (bevidst fravalgt — se noter): Datalayer (lokationer/kategorier/items) og Opgaver er markeret "Studerende 2/3's domæne" i `dbSchema.sql` med kommentar om at det er deres eget ansvar at stramme skriv-policies. Samme mønster (`has_privilege_or_admin`) skal bruges der senere, men tilføjes som to nye user stories (US-62 Datalayer, US-63 Opgaver) i `userStories.md` i stedet for at blive implementeret nu — ikke gjort endnu, mangler stadig at blive tilføjet.
+
+Efter SQL er kørt af brugeren og bekræftet: opdater `dbSchema.sql` (ny funktion + opdaterede policies) og denne fils status-tabel (US-10/11/12/13-rækkerne).
 
 (US-58, US-59, US-60 og US-61 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
