@@ -17,7 +17,11 @@ import {
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useSignOutMutation } from '../store/apis/authApi';
-import { useIsAdmin } from '../store/apis/privilegeApi';
+import {
+  MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
+  MANAGE_ROLES_PRIVILEGE,
+  useHasPrivilege,
+} from '../store/apis/privilegeApi';
 
 export function Header() {
   const navigate = useNavigate();
@@ -28,9 +32,11 @@ export function Header() {
   const { data: profile } = useGetMyProfileQuery();
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
 
-  // Kun administratorer får "Anmodninger" i navigationen.
-  // Skjuler kun linket - den reelle adgangskontrol ligger i RLS.
-  const { isAdmin } = useIsAdmin();
+  // Anmodninger og Roller gates nu uafhængigt af hinanden - hver kræver
+  // kun sit eget privilegie (admin har som altid begge). Skjuler kun
+  // linket - den reelle adgangskontrol ligger i RLS.
+  const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE);
+  const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -107,14 +113,14 @@ export function Header() {
           <span>Datalager</span>
         </NavLink>
 
-        {isAdmin && (
+        {canManageMembershipRequests && (
           <NavLink to="/medlemsanmodninger" className={getNavLinkClass}>
             <UserPlus className="w-5 h-5" />
             <span>Anmodninger</span>
           </NavLink>
         )}
 
-        {isAdmin && (
+        {canManageRoles && (
           <NavLink to="/roller" className={getNavLinkClass}>
             <ShieldCheck className="w-5 h-5" />
             <span>Roller</span>

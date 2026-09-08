@@ -3,10 +3,16 @@ import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { CreatePrivilegeInput, Privilege, UpdatePrivilegeInput } from '../../types/role/roleType'
 
-// Navnet på det privilegie, der giver adgang til organisations-
-// administration (medlemmer, roller, privilegier). Konventionen er sat i
-// databasen, hvor RLS-policies bruger has_privilege('admin').
+// Navnet på det privilegie, der giver adgang til ALT (superset af alle
+// andre privilegier). Konventionen er sat i databasen, hvor RLS-policies
+// bruger has_privilege_or_admin(), som altid tillader admin.
 export const ADMIN_PRIVILEGE = 'admin'
+
+// Granulære privilegienavne (Fase 1) - matcher navnene RLS-policies
+// tjekker via has_privilege_or_admin() i dbSchema.sql.
+export const MANAGE_ROLES_PRIVILEGE = 'manage_roles'
+export const MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'manage_membership_requests'
+export const MANAGE_ORGANISATION_PRIVILEGE = 'manage_organisation'
 
 export const privilegeApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -113,6 +119,13 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                             error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
                         }
                     }
+                    // 42501 = RLS afviste - fx forsøg på at oprette et
+                    // privilegie ved navn "admin" uden selv at være admin.
+                    if (error.code === '42501') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at oprette dette privilegie.' },
+                        }
+                    }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
                 }
 
@@ -142,6 +155,13 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     if (error.code === '23505') {
                         return {
                             error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
+                        }
+                    }
+                    // 42501 = RLS afviste - fx forsøg på at omdøbe et
+                    // privilegie til "admin" uden selv at være admin.
+                    if (error.code === '42501') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at redigere dette privilegie.' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -180,14 +200,15 @@ export const {
     useDeletePrivilegeMutation,
 } = privilegeApi
 
-// Lille hjælper, så komponenter ikke skal gentage sammenligningen.
+// Generisk hjælper til at gate UI efter et enkelt privilegie. Admin har
+// altid alt (samme regel som has_privilege_or_admin() i databasen).
 // isLoading returneres med, så UI'en kan undlade at vise "ingen adgang",
 // før svaret rent faktisk er hentet.
-export function useIsAdmin(): { isAdmin: boolean; isLoading: boolean } {
+export function useHasPrivilege(name: string): { hasPrivilege: boolean; isLoading: boolean } {
     const { data: privileges, isLoading } = useGetMyPrivilegesQuery()
 
     return {
-        isAdmin: privileges?.includes(ADMIN_PRIVILEGE) ?? false,
+        hasPrivilege: (privileges?.includes(name) || privileges?.includes(ADMIN_PRIVILEGE)) ?? false,
         isLoading,
     }
 }

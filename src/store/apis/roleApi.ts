@@ -195,6 +195,13 @@ export const roleApi = supabaseApi.injectEndpoints({
                     .eq('id', userId)
 
                 if (error) {
+                    // 42501 = RLS afviste - fx forsøg på at give en rolle med
+                    // admin-privilegiet uden selv at være admin (escalation-guard).
+                    if (error.code === '42501') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at tildele denne rolle.' },
+                        }
+                    }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
                 }
 

@@ -13,10 +13,11 @@ import {
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
+    MANAGE_ROLES_PRIVILEGE,
     useCreatePrivilegeMutation,
     useDeletePrivilegeMutation,
     useGetOrganisationPrivilegesQuery,
-    useIsAdmin,
+    useHasPrivilege,
     useUpdatePrivilegeMutation,
 } from '../../store/apis/privilegeApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
@@ -38,19 +39,19 @@ function readableError(err: unknown): string | null {
 // server-side af RLS - tjekket her er kun for at undgå at vise siden
 // til brugere uden rettigheder.
 export default function RolesPage() {
-    const { isAdmin, isLoading: loadingPrivileges } = useIsAdmin()
+    const { hasPrivilege: canManageRoles, isLoading: loadingPrivileges } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
     const { data: myProfile } = useGetMyProfileQuery()
 
     if (loadingPrivileges) {
         return <p className="text-secondary">Indlæser...</p>
     }
 
-    if (!isAdmin) {
+    if (!canManageRoles) {
         return (
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-2">Ingen adgang</h1>
                 <p className="text-sm text-secondary">
-                    Kun administratorer kan administrere roller og privilegier.
+                    Du har ikke rettigheder til at administrere roller og privilegier.
                 </p>
             </div>
         )

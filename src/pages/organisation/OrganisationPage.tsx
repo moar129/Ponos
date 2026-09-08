@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
 import { useGetMyOrganisationQuery, useUpdateMyOrganisationMutation } from '../../store/apis/organisationApi'
-import { useIsAdmin } from '../../store/apis/privilegeApi'
+import { MANAGE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
@@ -17,7 +17,7 @@ const emptyForm: UpdateOrganisationInput = { name: '' }
 export default function OrganisationPage() {
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
-    const { isAdmin } = useIsAdmin()
+    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
@@ -154,7 +154,7 @@ export default function OrganisationPage() {
                         </div>
                     </dl>
 
-                    {isAdmin && (
+                    {canManageOrganisation && (
                         <div className="mt-6 flex flex-wrap gap-3">
                             <button
                                 type="button"

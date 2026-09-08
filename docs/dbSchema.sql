@@ -248,8 +248,8 @@ as $$
 $$;
 
 -- Tjekker om nuværende bruger har en given privilege (via sin rolle)
--- Konvention: privilegiet "admin" bruges til organisations-administration
--- (medlemmer, roller, privilegier, org-indstillinger). Kan udvides frit.
+-- Konvention: privilegiet "admin" er en superset af alle andre - se
+-- has_privilege_or_admin() nedenfor, som er det RLS-policies reelt bruger.
 create or replace function public.has_privilege(p_name text)
 returns boolean
 language sql
@@ -263,6 +263,20 @@ as $$
     join public.privileges p on p.role_id = pr.role_id
     where pr.id = auth.uid() and p.name = p_name
   );
+$$;
+
+-- Fase 1 granulære privilegier: hver CRUD-handling styres af sit eget,
+-- uafhængigt tildelelige privilegie (fx "manage_roles",
+-- "manage_membership_requests", "manage_organisation") - admin skal
+-- altid kunne alt, uanset hvilke granulære privilegier der er tildelt.
+create or replace function public.has_privilege_or_admin(p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.has_privilege(p_name) or public.has_privilege('admin');
 $$;
 
 
@@ -279,7 +293,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.has_privilege('admin') and exists (
+  select public.has_privilege_or_admin('manage_membership_requests') and exists (
     select 1
     from public.membership_requests mr
     where mr.user_id = p_user_id
@@ -514,10 +528,10 @@ create policy "Opret organisation (bootstrap)"
   to authenticated
   with check (true);
 
-create policy "Admin kan redigere egen organisation"
+create policy "Rediger egen organisation"
   on public.organisations for update
   to authenticated
-  using (id = public.auth_profile_org() and public.has_privilege('admin'));
+  using (id = public.auth_profile_org() and public.has_privilege_or_admin('manage_organisation'));
 
 
 -- ---------------------------------------------------------------------
@@ -544,12 +558,27 @@ create policy "Bruger kan opdatere egen profil"
   to authenticated
   using (id = auth.uid());
 
-create policy "Admin kan opdatere profiler i egen organisation (fx tildele rolle)"
+-- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
+-- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
+-- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
+create policy "Tildel rolle til profiler i egen organisation"
   on public.profiles for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_roles')
+    and (
+      public.has_privilege('admin')
+      or role_id is null
+      or not exists (
+        select 1 from public.privileges p
+        where p.role_id = role_id and p.name = 'admin'
+      )
+    )
   );
 
 
@@ -561,28 +590,28 @@ create policy "Se roller i egen organisation"
   to authenticated
   using (organisation_id = public.auth_profile_org());
 
-create policy "Admin kan oprette roller i egen organisation"
+create policy "Opret roller i egen organisation"
   on public.roles for insert
   to authenticated
   with check (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
-create policy "Admin kan redigere/slette roller i egen organisation"
+create policy "Rediger roller i egen organisation"
   on public.roles for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
-create policy "Admin kan slette roller i egen organisation"
+create policy "Slet roller i egen organisation"
   on public.roles for delete
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
 
@@ -596,28 +625,37 @@ create policy "Se privilegier i egen organisation"
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
   );
 
-create policy "Admin kan oprette privilegier i egen organisation"
+-- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
+-- kunne oprette/omdøbe et privilegie TIL "admin" - kun en reel admin må.
+-- WITH CHECK ser det NYE (post-update) navn.
+create policy "Opret privilegier i egen organisation"
   on public.privileges for insert
   to authenticated
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+    and (name <> 'admin' or public.has_privilege('admin'))
   );
 
-create policy "Admin kan redigere/slette privilegier i egen organisation"
+create policy "Rediger privilegier i egen organisation"
   on public.privileges for update
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+  )
+  with check (
+    role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('manage_roles')
+    and (name <> 'admin' or public.has_privilege('admin'))
   );
 
-create policy "Admin kan slette privilegier i egen organisation"
+create policy "Slet privilegier i egen organisation"
   on public.privileges for delete
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
 
@@ -629,20 +667,20 @@ create policy "Bruger kan anmode om medlemskab for sig selv"
   to authenticated
   with check (user_id = auth.uid());
 
-create policy "Se egne anmodninger eller (som admin) anmodninger i egen org"
+create policy "Se egne anmodninger eller anmodninger i egen org"
   on public.membership_requests for select
   to authenticated
   using (
     user_id = auth.uid()
-    or (organisation_id = public.auth_profile_org() and public.has_privilege('admin'))
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_membership_requests'))
   );
 
-create policy "Admin kan acceptere/afvise anmodninger i egen organisation"
+create policy "Accepter/afvis anmodninger i egen organisation"
   on public.membership_requests for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_membership_requests')
   );
 
 

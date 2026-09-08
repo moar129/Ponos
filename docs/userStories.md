@@ -1124,6 +1124,42 @@ Som bruger vil jeg kunne forlade en organisation, jeg er medlem af, så jeg ikke
 
 ---
 
+## US-62 – Granulære skriverettigheder i Datalayer
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slette Datalayer-data (items, kategorier, lokationer) via granulære privilegier, så ikke alle organisationsmedlemmer automatisk har skriveadgang.
+
+### Acceptance Criteria
+
+- RLS-policies for items, kategorier og lokationer skelner mellem læse- og skriveadgang.
+- Skriveadgang (opret/rediger/slet) kræver et dedikeret privilegie pr. ressourcetype eller et samlet Datalayer-privilegie.
+- En bruger med kun læseadgang kan se data, men ikke oprette/redigere/slette.
+- Administratoren (admin-privilegiet) har altid fuld adgang, uanset øvrige privilegier.
+- Ændringen bryder ikke eksisterende funktionalitet for brugere med admin-privilegiet.
+
+---
+
+## US-63 – Granulære skriverettigheder i Opgaver
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slette opgaver via granulære privilegier, så ikke alle organisationsmedlemmer automatisk har skriveadgang.
+
+### Acceptance Criteria
+
+- RLS-policies for opgaver (tasks, task_assignees, task_participants, task_materials) skelner mellem læse- og skriveadgang.
+- Skriveadgang (opret/rediger/slet) kræver et dedikeret privilegie.
+- En bruger med kun læseadgang kan se opgaver, men ikke oprette/redigere/slette dem.
+- Administratoren (admin-privilegiet) har altid fuld adgang, uanset øvrige privilegier.
+- Ændringen bryder ikke eksisterende funktionalitet for brugere med admin-privilegiet.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1192,6 +1228,8 @@ Som bruger vil jeg kunne forlade en organisation, jeg er medlem af, så jeg ikke
 - US-54 – Sammenlign statistik
 - US-60 – Oprette flere organisationer
 - US-61 – Forlade en organisation
+- US-62 – Granulære skriverettigheder i Datalayer
+- US-63 – Granulære skriverettigheder i Opgaver
 
 ## Low
 
@@ -1248,7 +1286,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**22 stories**
+**24 stories**
 
 ### Bruger & login
 
@@ -1275,6 +1313,8 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-11
 - US-12
 - US-13
+- US-62
+- US-63
 
 ### Dashboard
 
