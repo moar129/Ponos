@@ -39,9 +39,11 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 2. ~~**US-06/07/08** — Admin: se + acceptere/afvise medlemsanmodninger~~ ✅
 3. ~~**US-09 + US-10** — Se/rediger organisation~~ ✅
 4. **US-11 + US-12 + US-13** — Roller & privileges (bygger på org-konteksten fra US-09/10, og kræver medlemmer at tildele roller til). `privilegeApi.ts` + tagType `Privilege` er allerede lagt ind og kan genbruges
-5. **US-45 + US-46 + US-47** — Rigtigt dashboard (genbruger data-mønstre fra Datalayer/opgaver)
-6. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/request-membership`)
-7. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
+5. **US-59** — Være medlem af flere organisationer (stor migration: erstatter `profiles.organisation_id`/`role_id` med en medlemskabsmodel + "aktiv organisation"-koncept). Gøres efter US-11-13, så rolle/privilege-UI'en bygges og testes på den simple model først i stedet for at skulle tilpasses midt i migrationen
+6. **US-60 + US-61** — Oprette flere organisationer / Forlade en organisation (bygger direkte på US-59's medlemskabsmodel, gøres derfor lige efter)
+7. **US-45 + US-46 + US-47** — Rigtigt dashboard (genbruger data-mønstre fra Datalayer/opgaver; bygges efter US-59 så den fra start regner med "aktiv organisation" i stedet for at skulle rettes til bagefter)
+8. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/request-membership`)
+9. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
 
 ## Konventioner
 
@@ -49,7 +51,7 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 - UI-tekst til brugeren (labels, knapper, fejlbeskeder) forbliver på dansk.
 - Denne fil og øvrig `docs/`-dokumentation forbliver på dansk.
 - Git commits laves af brugeren selv.
-- DB-ændringer køres manuelt af brugeren i Supabase SQL Editor. `dbSchema.sql` opdateres bagefter som dokumentation.
+- DB-ændringer køres manuelt af brugeren og skal derfor have sql kode til at kunne bruges i Supabase SQL Editor. `dbSchema.sql` opdateres bagefter som dokumentation.
 - `supabaseTables.sql` er et genereret dump af de faktiske tabeller. Det indeholder **ikke** indexes, tabel-niveau constraints, triggers, RLS-policies eller funktioner - fraværet af noget dér beviser derfor ikke, at det mangler i databasen.
 
 ## Sådan bruges filen
