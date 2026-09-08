@@ -50,7 +50,7 @@ export default function RolesPage() {
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-2">Ingen adgang</h1>
                 <p className="text-sm text-secondary">
-                    Kun administratorer kan administrere roller og privileges.
+                    Kun administratorer kan administrere roller og privilegier.
                 </p>
             </div>
         )
@@ -64,9 +64,9 @@ export default function RolesPage() {
                         <ShieldCheck className="w-6 h-6 text-secondary" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-semibold text-primary">Roller & privileges</h1>
+                        <h1 className="text-xl font-semibold text-primary">Roller & privilegier</h1>
                         <p className="text-sm text-secondary">
-                            Opret roller, tilknyt privileges, og tildel roller til organisationens medlemmer.
+                            Opret roller, tilknyt privilegier, og tildel roller til organisationens medlemmer.
                         </p>
                     </div>
                 </div>
@@ -265,7 +265,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
             ) : confirmingDelete ? (
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                     <p className="text-sm text-secondary">
-                        Slet rollen "{role.name}"? Tilknyttede privileges fjernes også, og medlemmer med rollen mister den.
+                        Slet rollen "{role.name}"? Tilknyttede privilegier fjernes også, og medlemmer med rollen mister den.
                     </p>
                     <button
                         type="button"
@@ -325,7 +325,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
             )}
 
             {privileges.length === 0 ? (
-                <p className="text-sm text-secondary mb-3">Ingen privileges endnu.</p>
+                <p className="text-sm text-secondary mb-3">Ingen privilegier endnu.</p>
             ) : (
                 <ul className="space-y-1 mb-3">
                     {privileges.map((privilege) => (
@@ -339,7 +339,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                     type="text"
                     value={newPrivilegeName}
                     onChange={(e) => setNewPrivilegeName(e.target.value)}
-                    placeholder="Nyt privilege, fx admin"
+                    placeholder="Nyt privilegie, fx admin"
                     className="flex-1 min-w-[160px] rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                 />
                 <button
@@ -347,7 +347,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                     disabled={creating}
                     className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
                 >
-                    {creating ? 'Tilføjer...' : 'Tilføj privilege'}
+                    {creating ? 'Tilføjer...' : 'Tilføj privilegie'}
                 </button>
             </form>
 
@@ -475,7 +475,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                     <button
                         type="button"
                         onClick={startEdit}
-                        aria-label="Omdøb privilege"
+                        aria-label="Omdøb privilegie"
                         className="p-1 rounded-md hover:bg-white transition-colors"
                     >
                         <Pencil className="w-3.5 h-3.5" />
@@ -483,7 +483,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                     <button
                         type="button"
                         onClick={() => setConfirmingDelete(true)}
-                        aria-label="Fjern privilege"
+                        aria-label="Fjern privilegie"
                         className="p-1 rounded-md hover:bg-white transition-colors"
                     >
                         <Trash2 className="w-3.5 h-3.5" />

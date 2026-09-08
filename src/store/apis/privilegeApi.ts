@@ -110,7 +110,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     // (role_id, name) - rollen har allerede dette privilege.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilege.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -141,7 +141,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                 if (error) {
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilege.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
