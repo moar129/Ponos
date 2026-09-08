@@ -13,7 +13,9 @@ import {
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
+    KNOWN_PRIVILEGES,
     MANAGE_ROLES_PRIVILEGE,
+    privilegeLabel,
     useCreatePrivilegeMutation,
     useDeletePrivilegeMutation,
     useGetOrganisationPrivilegesQuery,
@@ -22,6 +24,11 @@ import {
 } from '../../store/apis/privilegeApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import type { OrganisationMember, Privilege, Role } from '../../types/role/roleType'
+
+// Sentinel-værdi for "Andet (indtast selv)..."-valget i privilegie-
+// dropdownen - adskilt fra rigtige privilegienavne ved det ugyldige
+// tegn, så den aldrig kan kollidere med et faktisk privilegienavn.
+const CUSTOM_PRIVILEGE_OPTION = '__custom__'
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -210,8 +217,16 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     const [editName, setEditName] = useState(role.name)
     const [confirmingDelete, setConfirmingDelete] = useState(false)
 
-    const [newPrivilegeName, setNewPrivilegeName] = useState('')
+    const [selectedPrivilege, setSelectedPrivilege] = useState('')
+    const [customPrivilegeName, setCustomPrivilegeName] = useState('')
     const [privilegeValidationError, setPrivilegeValidationError] = useState<string | null>(null)
+
+    // Kun de kendte privilegier, rollen ikke allerede har - undgår at
+    // friste til et dublet-forsøg, som RLS/unique-constraint alligevel
+    // ville afvise.
+    const availablePrivileges = KNOWN_PRIVILEGES.filter(
+        (known) => !privileges.some((existing) => existing.name === known.name),
+    )
 
     function startEdit() {
         setEditName(role.name)
@@ -243,15 +258,23 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     async function handleCreatePrivilege(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
 
-        if (!newPrivilegeName.trim()) {
+        if (!selectedPrivilege) {
+            setPrivilegeValidationError('Vælg et privilegie.')
+            return
+        }
+
+        const name = selectedPrivilege === CUSTOM_PRIVILEGE_OPTION ? customPrivilegeName.trim() : selectedPrivilege
+
+        if (!name) {
             setPrivilegeValidationError('Privilegiets navn skal udfyldes.')
             return
         }
         setPrivilegeValidationError(null)
 
         try {
-            await createPrivilege({ roleId: role.id, name: newPrivilegeName }).unwrap()
-            setNewPrivilegeName('')
+            await createPrivilege({ roleId: role.id, name }).unwrap()
+            setSelectedPrivilege('')
+            setCustomPrivilegeName('')
         } catch {
             // Fejlen vises via createError.
         }
@@ -361,13 +384,26 @@ function RoleCard({ role, privileges }: RoleCardProps) {
             )}
 
             <form onSubmit={handleCreatePrivilege} className="flex flex-wrap items-end gap-2">
-                <input
-                    type="text"
-                    value={newPrivilegeName}
-                    onChange={(e) => setNewPrivilegeName(e.target.value)}
-                    placeholder="Nyt privilegie, fx admin"
-                    className="flex-1 min-w-[160px] rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                />
+                <select
+                    value={selectedPrivilege}
+                    onChange={(e) => setSelectedPrivilege(e.target.value)}
+                    className="rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                >
+                    <option value="" disabled>Vælg privilegie</option>
+                    {availablePrivileges.map((p) => (
+                        <option key={p.name} value={p.name}>{p.label}</option>
+                    ))}
+                    <option value={CUSTOM_PRIVILEGE_OPTION}>Andet (indtast selv)...</option>
+                </select>
+                {selectedPrivilege === CUSTOM_PRIVILEGE_OPTION && (
+                    <input
+                        type="text"
+                        value={customPrivilegeName}
+                        onChange={(e) => setCustomPrivilegeName(e.target.value)}
+                        placeholder="Fx custom_privilegie"
+                        className="flex-1 min-w-[160px] rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                )}
                 <button
                     type="submit"
                     disabled={creating}
@@ -491,7 +527,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
 
     return (
         <li className="flex items-center justify-between gap-2 text-sm bg-bg-gray text-secondary rounded-md px-3 py-1">
-            <span>{privilege.name}</span>
+            <span>{privilegeLabel(privilege.name)}</span>
             {isAdminPrivilege ? (
                 <span className="flex items-center gap-1 text-xs italic" title="Admin-privilegiet kan ikke omdøbes eller fjernes">
                     <Lock className="w-3.5 h-3.5" />

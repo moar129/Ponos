@@ -14,6 +14,26 @@ export const MANAGE_ROLES_PRIVILEGE = 'manage_roles'
 export const MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'manage_membership_requests'
 export const MANAGE_ORGANISATION_PRIVILEGE = 'manage_organisation'
 
+// Kendte systemprivilegier med brugervenlige, danske labels - bruges til
+// at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
+// privilegie til en rolle. En organisation kan ikke forventes at kende
+// eller stave de bogstavelige privilegienavne, RLS-policies tjekker.
+// Privileges-tabellen tillader stadig vilkårlige navne (US-13 er skrevet
+// generisk), så UI'en har også en "Andet"-mulighed med fritekst.
+export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
+    { name: ADMIN_PRIVILEGE, label: 'Fuld administrator (kan alt)' },
+    { name: MANAGE_ROLES_PRIVILEGE, label: 'Administrere roller og privilegier' },
+    { name: MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, label: 'Behandle medlemsanmodninger' },
+    { name: MANAGE_ORGANISATION_PRIVILEGE, label: 'Redigere organisation' },
+]
+
+// Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets
+// brugervenlige label - falder tilbage til det rå navn for
+// custom-privilegier, der ikke er i listen.
+export function privilegeLabel(name: string): string {
+    return KNOWN_PRIVILEGES.find((p) => p.name === name)?.label ?? name
+}
+
 export const privilegeApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Henter navnene på den indloggede brugers privilegier (via rollen).
