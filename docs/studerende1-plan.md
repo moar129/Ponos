@@ -1,10 +1,12 @@
 # Studerende 1 – Fremgangsplan (Adgang, Organisation & Overblik)
 
-Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er ansvarlig for (jf. `userStories.md`, afsnit 13 "Arbejdsfordeling"). Filen opdateres efter hver færdig story, så en ny samtale/session altid kan se, hvor langt vi er, og hvad næste skridt er.
+Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er ansvarlig for (jf. `userStories.md`, afsnit 13 "Arbejdsfordeling"). Filen opdateres efter hver færdig story, så en ny samtale/session altid kan se, hvor langt vi er, og hvad næste skridt er.
 
 ## Næste op
 
 **US-11 + US-12 + US-13 – Roller & privileges**
+
+(US-58, US-59, US-60 og US-61 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
 ## Status
 
@@ -12,6 +14,7 @@ Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er
 |---|---|---|---|---|
 | US-01 | Opret konto | Critical | Done | SignUp.tsx + DB trigger komplet |
 | US-02 | Login | Critical | Delvist | Login/redirect virker; banner viser nu "ingen organisation" + link til anmodning; `/`-ruten er stadig ikke beskyttet |
+| US-58 | Opret organisation | Critical | Delvist | Types (`organisationType.ts`) + RTK Query-mutation (`organisationApi.ts`, `createOrganisation`) klar; mangler `create_organisation`-RPC i Supabase, opret-formular på `/organisation` og opdatering af `dbSchema.sql` |
 | US-03 | Se profil | Medium | Done | `/bruger` (ProfilePage.tsx) + profileApi.ts; header viser nu rigtigt navn/rolle |
 | US-04 | Rediger profil | Medium | Done | Rediger navn, beskrivelse, billed-URL; email/rolle/org er read-only |
 | US-05 | Anmod om medlemskab | Critical | Done | RequestMembership.tsx + membershipApi.ts komplet |
@@ -26,6 +29,9 @@ Dette er den løbende statusoversigt for de 18 user stories, som Studerende 1 er
 | US-47 | Se antal opgaver | High | Mangler | Data findes via taskSlices, intet total-count, ingen auto-opdatering |
 | US-56 | Se nyheder | Low | Mangler | `news`-tabel + RLS findes; 0% frontend |
 | US-57 | Hent nyheder fra ekstern API | Low | Mangler | Kun DB-scaffold; intet API-kald nogen steder i repoet |
+| US-59 | Være medlem af flere organisationer | High | Mangler | Kræver ny medlemskabsmodel (many-to-many) + "aktiv organisation"-koncept; erstatter `profiles.organisation_id`/`role_id` og rammer stort set alle RLS-policies. Ikke startet. |
+| US-60 | Oprette flere organisationer | Medium | Mangler | Afhænger af US-59's medlemskabsmodel; udvider `create_organisation`-RPC'en (US-58) til ikke at blokere når brugeren allerede er medlem et sted. |
+| US-61 | Forlade en organisation | Medium | Mangler | Afhænger af US-59; kræver tjek for "sidste admin" før forladelse tillades. |
 
 ## Anbefalet rækkefølge
 

@@ -1,7 +1,7 @@
 // src/store/apis/organisationApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import type { CreateOrganisationInput, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -112,7 +112,45 @@ export const organisationApi = supabaseApi.injectEndpoints({
             // opdaterede navn vises umiddelbart efter en succesfuld gemning.
             invalidatesTags: ['Organisation'],
         }),
+
+        // Opretter en ny organisation og tildeler den kaldende bruger
+        // rollen Admin (US-58). Kører server-side som en atomisk
+        // 'security definer'-funktion (create_organisation), fordi
+        // client-side inserts ikke kan udføre det: roles-tabellens RLS
+        // kræver allerede at være admin i orgen, og trg_prevent_self_role_
+        // org_change blokerer altid brugerens eget forsøg på at sætte sin
+        // egen organisation_id/role_id. Funktionen validerer og fejler
+        // atomisk, så organisationen aldrig oprettes delvist.
+        createOrganisation: builder.mutation<Organisation, CreateOrganisationInput>({
+            queryFn: async ({ name }) => {
+                const trimmed = name.trim()
+
+                if (!trimmed) {
+                    return {
+                        error: { status: 'CUSTOM_ERROR', error: 'Organisationens navn skal udfyldes.' },
+                    }
+                }
+
+                const { data, error } = await supabase.rpc('create_organisation', { p_name: trimmed })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: { id: data.id, name: data.name } }
+            },
+
+            // Organisation (den nye org), Profile (organisation_id/role_id
+            // ændret) og Privilege (brugeren har nu admin-privilegiet) skal
+            // alle hentes friske, så resten af UI'en (header, /bruger,
+            // /organisation) opdaterer sig selv uden reload.
+            invalidatesTags: ['Organisation', 'Profile', 'Privilege'],
+        }),
     }),
 })
 
-export const { useGetMyOrganisationQuery, useUpdateMyOrganisationMutation } = organisationApi
+export const {
+    useGetMyOrganisationQuery,
+    useUpdateMyOrganisationMutation,
+    useCreateOrganisationMutation,
+} = organisationApi
