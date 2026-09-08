@@ -4,7 +4,7 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-11 + US-12 + US-13 – Roller & privileges**
+**US-59 – Være medlem af flere organisationer**
 
 (US-58, US-59, US-60 og US-61 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
@@ -21,9 +21,9 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 | US-06/07/08 | Se, acceptere og afvise medlemsanmodninger (admin) | Critical | Done | `/medlemsanmodninger` (kun admin) + membershipApi/privilegeApi; ny RLS-policy så admin kan se ansøgeres navn/email |
 | US-09 | Se organisation | Medium | Done | `/organisation` (OrganisationPage.tsx) + organisationApi.ts |
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne) |
-| US-11 | Tildel rolle | High | Mangler | RLS + selv-ændrings-trigger klar, ingen UI/API |
-| US-12 | Opret rolle | Medium | Mangler | RLS + unique constraint klar, ingen UI/API |
-| US-13 | Opret privilege | Medium | Mangler | RLS klar, ingen UI/API |
+| US-11 | Tildel rolle | High | Done | `/roller` (RolesPage.tsx, kun admin) + roleApi.ts (`assignRole`); egen række er skrivebeskyttet, DB-trigger blokerer selv-tildeling |
+| US-12 | Opret rolle | Medium | Done | roleApi.ts (`createRole`), UI på `/roller` |
+| US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`), UI på `/roller` |
 | US-45 | Se dashboard | Critical | Mangler | Nuværende Dashboard.tsx er eksplicit en placeholder |
 | US-46 | Se antal items | High | Mangler | Data findes via dataLayerApi, ikke vist noget sted |
 | US-47 | Se antal opgaver | High | Mangler | Data findes via taskSlices, intet total-count, ingen auto-opdatering |
@@ -38,7 +38,7 @@ Dette er den løbende statusoversigt for de 22 user stories, som Studerende 1 er
 1. ~~**US-03 + US-04** — Profile view/edit~~ ✅
 2. ~~**US-06/07/08** — Admin: se + acceptere/afvise medlemsanmodninger~~ ✅
 3. ~~**US-09 + US-10** — Se/rediger organisation~~ ✅
-4. **US-11 + US-12 + US-13** — Roller & privileges (bygger på org-konteksten fra US-09/10, og kræver medlemmer at tildele roller til). `privilegeApi.ts` + tagType `Privilege` er allerede lagt ind og kan genbruges
+4. ~~**US-11 + US-12 + US-13** — Roller & privileges~~ ✅
 5. **US-59** — Være medlem af flere organisationer (stor migration: erstatter `profiles.organisation_id`/`role_id` med en medlemskabsmodel + "aktiv organisation"-koncept). Gøres efter US-11-13, så rolle/privilege-UI'en bygges og testes på den simple model først i stedet for at skulle tilpasses midt i migrationen
 6. **US-60 + US-61** — Oprette flere organisationer / Forlade en organisation (bygger direkte på US-59's medlemskabsmodel, gøres derfor lige efter)
 7. **US-45 + US-46 + US-47** — Rigtigt dashboard (genbruger data-mønstre fra Datalayer/opgaver; bygges efter US-59 så den fra start regner med "aktiv organisation" i stedet for at skulle rettes til bagefter)

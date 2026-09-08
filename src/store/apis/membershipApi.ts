@@ -195,8 +195,10 @@ export const membershipApi = supabaseApi.injectEndpoints({
             // Listen hentes friskt, så den behandlede anmodning forsvinder.
             // 'Profile' invalideres også: accepterer man en anmodning,
             // ændres ansøgerens organisation - og ser man sin egen liste,
-            // skal banneret opdateres.
-            invalidatesTags: ['MembershipRequest', 'Profile', 'PendingRequest'],
+            // skal banneret opdateres. 'Role' invalideres, så det
+            // nyaccepterede medlem straks dukker op i medlemslisten på
+            // /roller uden at admin skal genindlæse siden.
+            invalidatesTags: ['MembershipRequest', 'Profile', 'PendingRequest', 'Role'],
         }),
     }),
 })

@@ -12,6 +12,7 @@ import {
   LogOut,
   UserPlus,
   Building2,
+  ShieldCheck,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
@@ -110,6 +111,13 @@ export function Header() {
           <NavLink to="/medlemsanmodninger" className={getNavLinkClass}>
             <UserPlus className="w-5 h-5" />
             <span>Anmodninger</span>
+          </NavLink>
+        )}
+
+        {isAdmin && (
+          <NavLink to="/roller" className={getNavLinkClass}>
+            <ShieldCheck className="w-5 h-5" />
+            <span>Roller</span>
           </NavLink>
         )}
       </nav>
