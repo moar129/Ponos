@@ -57,27 +57,52 @@ export default function RolesPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8">
-            <div className="bg-white rounded-lg shadow-md p-8 text-slate-900">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center">
-                        <ShieldCheck className="w-6 h-6 text-secondary" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-semibold text-primary">Roller & privilegier</h1>
-                        <p className="text-sm text-secondary">
-                            Opret roller, tilknyt privilegier, og tildel roller til organisationens medlemmer.
-                        </p>
-                    </div>
+        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center">
+                    <ShieldCheck className="w-6 h-6 text-secondary" />
                 </div>
-
-                <RolesSection />
+                <div>
+                    <h1 className="text-xl font-semibold text-primary">Roller & privilegier</h1>
+                    <p className="text-sm text-secondary">
+                        Opret roller, tilknyt privilegier, og tildel roller til organisationens medlemmer.
+                    </p>
+                </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-8 text-slate-900">
-                <h2 className="text-lg font-semibold text-primary mb-4">Medlemmer</h2>
-                <MembersSection currentUserId={myProfile?.id ?? null} />
+            <RolesAndMembersTabs currentUserId={myProfile?.id ?? null} />
+        </div>
+    )
+}
+
+interface RolesAndMembersTabsProps {
+    currentUserId: string | null
+}
+
+// To faner i stedet for to store bokse oven på hinanden: administratoren
+// arbejder typisk med enten roller/privilegier eller medlemmer ad gangen,
+// så kun ét afsnit vises fremfor at man skal scrolle forbi det andet.
+function RolesAndMembersTabs({ currentUserId }: RolesAndMembersTabsProps) {
+    const [activeTab, setActiveTab] = useState<'roles' | 'members'>('roles')
+
+    const tabClass = (tab: 'roles' | 'members') =>
+        `px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
+            ? 'border-primary text-primary'
+            : 'border-transparent text-secondary hover:text-primary'
+        }`
+
+    return (
+        <div>
+            <div className="flex gap-2 border-b border-border-gray mb-6">
+                <button type="button" onClick={() => setActiveTab('roles')} className={tabClass('roles')}>
+                    Roller & privilegier
+                </button>
+                <button type="button" onClick={() => setActiveTab('members')} className={tabClass('members')}>
+                    Medlemmer
+                </button>
             </div>
+
+            {activeTab === 'roles' ? <RolesSection /> : <MembersSection currentUserId={currentUserId} />}
         </div>
     )
 }
