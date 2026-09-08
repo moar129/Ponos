@@ -12,6 +12,7 @@ import PendingRequestBanner from './components/pendingRequestBanner/PendingReque
 import { TasksPage } from './pages/Task/TaskPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import OrganisationPage from './pages/organisation/OrganisationPage';
+import RolesPage from './pages/roles/RolesPage';
 import { useGetSessionQuery } from './store/apis/authApi';
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
             <Route path="/medlemsanmodninger" element={<MembershipRequestsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/organisation" element={<OrganisationPage />} />
+            <Route path="/roller" element={<RolesPage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>

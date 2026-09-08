@@ -12,3 +12,8 @@ export interface Organisation {
 export interface UpdateOrganisationInput {
     name: string
 }
+
+// Felter til at oprette en ny organisation (US-58).
+export interface CreateOrganisationInput {
+    name: string
+}

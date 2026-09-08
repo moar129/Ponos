@@ -1052,12 +1052,121 @@ Som system vil jeg kunne hente nyheder fra en ekstern API, så aktuelle nyheder 
 
 ---
 
+## US-58 – Opret organisation
+
+**Priority:** Critical
+
+### User Story
+
+Som kommende virksomhedsejer vil jeg kunne oprette en organisation, så jeg automatisk får tildelt rollen som administrator og kan administrere organisationen og dens indhold.
+
+### Acceptance Criteria
+
+- Givet at brugeren er logget ind, når brugeren udfylder de påkrævede oplysninger og vælger "Opret organisation", så oprettes organisationen.
+- Givet at brugeren opretter en organisation, når organisationen er oprettet, så tildeles brugeren automatisk rollen Admin for organisationen.
+- Givet at organisationen er oprettet, når brugeren fortsætter efter oprettelsen, så kan brugeren tilgå organisationens administration.
+- Givet at brugeren har rollen Admin, når brugeren tilgår organisationens administrationsfunktioner, så kan brugeren administrere organisationens relevante indhold og indstillinger.
+- Givet at organisationen ikke kan oprettes, når brugeren forsøger at oprette organisationen, så får brugeren en tydelig fejlbesked, og organisationen oprettes ikke delvist.
+
+---
+
+## US-59 – Være medlem af flere organisationer
+
+**Priority:** High
+
+### User Story
+
+Som bruger vil jeg kunne være medlem af flere organisationer samtidig, så jeg kan deltage i flere organisationers arbejde uden at miste adgang til de andre.
+
+### Acceptance Criteria
+
+- Givet at brugeren allerede er medlem af en organisation, når brugeren får accepteret en medlemsanmodning til en anden organisation, så bliver brugeren medlem af begge organisationer samtidig.
+- Givet at brugeren er medlem af flere organisationer, så har brugeren en rolle pr. organisation, uafhængigt af de øvrige organisationer.
+- Brugeren kan se en liste over alle organisationer, brugeren er medlem af.
+- Givet at brugeren er medlem af flere organisationer, når brugeren vælger hvilken organisation der skal være aktiv, så viser Ponos kun data fra den valgte organisation.
+- Givet at brugeren skifter aktiv organisation, så påvirkes brugerens medlemskab eller rolle i de øvrige organisationer ikke.
+- Brugeren kan ikke se data fra andre organisationer end den aktuelt aktive.
+
+---
+
+## US-60 – Oprette flere organisationer
+
+**Priority:** Medium
+
+### User Story
+
+Som bruger, der allerede er medlem af én eller flere organisationer, vil jeg kunne oprette endnu en organisation, så jeg kan blive administrator for flere organisationer samtidig.
+
+### Acceptance Criteria
+
+- Givet at brugeren allerede er medlem af mindst én organisation, når brugeren opretter en ny organisation, så oprettes organisationen uden at brugerens eksisterende medlemskaber påvirkes.
+- Givet at organisationen er oprettet, når oprettelsen er gennemført, så tildeles brugeren automatisk rollen Admin for den nye organisation, ved siden af eksisterende medlemskaber.
+- Givet at organisationen er oprettet, så kan brugeren vælge den nye organisation som aktiv organisation.
+- Givet at organisationen ikke kan oprettes, når brugeren forsøger, så får brugeren en tydelig fejlbesked, og hverken organisationen eller nogen tilknytning oprettes delvist.
+
+---
+
+## US-61 – Forlade en organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som bruger vil jeg kunne forlade en organisation, jeg er medlem af, så jeg ikke længere har adgang til organisationens data, når jeg ikke længere har brug for det.
+
+### Acceptance Criteria
+
+- Givet at brugeren er medlem af en organisation, når brugeren vælger at forlade organisationen, så fjernes brugerens medlemskab af organisationen.
+- Givet at brugeren har forladt organisationen, så mister brugeren adgang til organisationens data.
+- Givet at brugeren forlader en organisation, så påvirkes brugerens medlemskab af eventuelle andre organisationer ikke.
+- Givet at brugeren er den eneste administrator i organisationen, når brugeren forsøger at forlade, så blokeres handlingen, og brugeren får en tydelig besked om at organisationen skal have mindst én administrator.
+- Givet at brugeren forlader den organisation, der er valgt som aktiv, så skal brugeren vælge en anden aktiv organisation blandt sine resterende medlemskaber (eller stå uden aktiv organisation, hvis ingen er tilbage).
+
+---
+
+## US-62 – Granulære skriverettigheder i Datalayer
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slette Datalayer-data (items, kategorier, lokationer) via granulære privilegier, så ikke alle organisationsmedlemmer automatisk har skriveadgang.
+
+### Acceptance Criteria
+
+- RLS-policies for items, kategorier og lokationer skelner mellem læse- og skriveadgang.
+- Skriveadgang (opret/rediger/slet) kræver et dedikeret privilegie pr. ressourcetype eller et samlet Datalayer-privilegie.
+- En bruger med kun læseadgang kan se data, men ikke oprette/redigere/slette.
+- Administratoren (admin-privilegiet) har altid fuld adgang, uanset øvrige privilegier.
+- Ændringen bryder ikke eksisterende funktionalitet for brugere med admin-privilegiet.
+
+---
+
+## US-63 – Granulære skriverettigheder i Opgaver
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slette opgaver via granulære privilegier, så ikke alle organisationsmedlemmer automatisk har skriveadgang.
+
+### Acceptance Criteria
+
+- RLS-policies for opgaver (tasks, task_assignees, task_participants, task_materials) skelner mellem læse- og skriveadgang.
+- Skriveadgang (opret/rediger/slet) kræver et dedikeret privilegie.
+- En bruger med kun læseadgang kan se opgaver, men ikke oprette/redigere/slette dem.
+- Administratoren (admin-privilegiet) har altid fuld adgang, uanset øvrige privilegier.
+- Ændringen bryder ikke eksisterende funktionalitet for brugere med admin-privilegiet.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
 
 - US-01 – Opret konto
 - US-02 – Login
+- US-58 – Opret organisation
 - US-05 – Anmod om medlemskab
 - US-07 – Acceptere medlemsanmodning
 - US-14 – Se items
@@ -1076,6 +1185,7 @@ Som system vil jeg kunne hente nyheder fra en ekstern API, så aktuelle nyheder 
 - US-06 – Se medlemsanmodninger
 - US-08 – Afvise medlemsanmodning
 - US-11 – Tildel rolle
+- US-59 – Være medlem af flere organisationer
 - US-16 – Rediger item
 - US-18 – Se itemdetaljer
 - US-19 – Angiv mængde
@@ -1116,6 +1226,10 @@ Som system vil jeg kunne hente nyheder fra en ekstern API, så aktuelle nyheder 
 - US-43 – Angiv item-mængde på opgave
 - US-53 – Statistik over tid
 - US-54 – Sammenlign statistik
+- US-60 – Oprette flere organisationer
+- US-61 – Forlade en organisation
+- US-62 – Granulære skriverettigheder i Datalayer
+- US-63 – Granulære skriverettigheder i Opgaver
 
 ## Low
 
@@ -1133,6 +1247,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 - US-01 – Opret konto
 - US-02 – Login
+- US-58 – Opret organisation
 - US-05 – Anmod om medlemskab
 - US-06 – Se medlemsanmodninger
 - US-07 – Acceptere medlemsanmodning
@@ -1171,7 +1286,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**18 stories**
+**24 stories**
 
 ### Bruger & login
 
@@ -1182,18 +1297,24 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ### Organisation & medlemskab
 
+- US-58
 - US-05
 - US-06
 - US-07
 - US-08
 - US-09
 - US-10
+- US-59
+- US-60
+- US-61
 
 ### Roller & privileges
 
 - US-11
 - US-12
 - US-13
+- US-62
+- US-63
 
 ### Dashboard
 
