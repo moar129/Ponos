@@ -1,16 +1,18 @@
 // components/dataLayer/locationManagerComponent.tsx
 import { useState } from 'react';
-import { X, Pencil, Trash2, Loader2, Save, MapPin } from 'lucide-react';
+import { X, Pencil, Trash2, Loader2, Save, MapPin, Eye} from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
   useDeleteLocationMutation,
 } from '../../store/apis/categoryApi';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
-import type { ItemLocation, LocationManagerComponentProps  } from '../../types/dataLayer/datalayerTypes';
+import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 
-export function LocationManagerComponent({ isOpen, onClose }: LocationManagerComponentProps) {
+export function LocationManagerComponent({ isOpen, onClose, onViewItems }: LocationManagerComponentProps & {
+  onViewItems?: (location: ItemLocation) => void;
+}) {
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
   const [editTarget, setEditTarget] = useState<ItemLocation | null>(null);
   const [editName, setEditName] = useState('');
@@ -139,12 +141,17 @@ export function LocationManagerComponent({ isOpen, onClose }: LocationManagerCom
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => startEdit(loc)} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Rediger">
+                        {onViewItems && (
+                        <button onClick={() => onViewItems(loc)} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Vis items her">
+                            <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        )}
+                        <button onClick={() => startEdit(loc)} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Rediger">
                         <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => setDeleteTarget(loc)} className="p-1.5 rounded hover:bg-red-500/10 text-slate-400 hover:text-red-400" title="Slet">
+                        </button>
+                        <button onClick={() => setDeleteTarget(loc)} className="p-1.5 rounded hover:bg-red-500/10 text-slate-400 hover:text-red-400" title="Slet">
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                        </button>
                     </div>
                   </div>
                 )}

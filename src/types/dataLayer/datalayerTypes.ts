@@ -119,4 +119,34 @@ export interface ConfirmDialogComponentProps {
 export interface LocationPickerComponentProps {
   value: string | null;
   onChange: (locationId: string | null) => void;
+  onViewItems?: (location: ItemLocation) => void; 
+}
+
+export interface FilterPanelComponentProps {
+  isOpen: boolean;
+  categories: DataLayerCat[];
+  statuses: ItemStatus[];
+  selectedCategoryIds: Set<string>;
+  selectedStatuses: Set<ItemStatus>;
+  onToggleCategory: (id: string) => void;
+  onToggleStatus: (status: ItemStatus) => void;
+  onClear: () => void;
+  onClose: () => void;
+}
+
+export interface LocationItemsComponentProps {
+  isOpen: boolean;
+  location: ItemLocation | null;
+  items: AggregatedItem[];
+  onClose: () => void;
+  onSelectItem: (item: AggregatedItem) => void;
+}
+
+export interface GlobalSearchComponentProps {
+  isOpen: boolean;
+  query: string;
+  matchedCategories: DataLayerCat[];
+  matchedItems: AggregatedItem[];
+  onSelectCategory: (category: DataLayerCat) => void;
+  onSelectItem: (item: AggregatedItem) => void;
 }
