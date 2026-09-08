@@ -60,9 +60,9 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: (result) =>
                 result
                     ? [
-                          { type: 'Task' as const, id: 'LIST' },
-                          ...result.map((task) => ({ type: 'Task' as const, id: task.id })),
-                      ]
+                        { type: 'Task' as const, id: 'LIST' },
+                        ...result.map((task) => ({ type: 'Task' as const, id: task.id })),
+                    ]
                     : [{ type: 'Task' as const, id: 'LIST' }],
         }),
 
@@ -86,9 +86,9 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: (result) =>
                 result
                     ? [
-                          { type: 'TaskRoom' as const, id: 'LIST' },
-                          ...result.map((room) => ({ type: 'TaskRoom' as const, id: room.id })),
-                      ]
+                        { type: 'TaskRoom' as const, id: 'LIST' },
+                        ...result.map((room) => ({ type: 'TaskRoom' as const, id: room.id })),
+                    ]
                     : [{ type: 'TaskRoom' as const, id: 'LIST' }],
         }),
 
