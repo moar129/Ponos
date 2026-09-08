@@ -9,7 +9,7 @@ import {
     useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
-    useUpdateTaskStatusMutation,
+    useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
 
 function readableError(err: unknown): string | null {
@@ -28,22 +28,15 @@ export function TasksPage() {
     const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
+    const [createRoom, { error: createRoomError }] = useCreateRoomMutation();
+
 
     const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useGetTasksQuery();
     const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = useGetRoomsQuery();
-    const [updateTaskStatus, { error: updateTaskError }] = useUpdateTaskStatusMutation();
-    const [createRoom, { error: createRoomError }] = useCreateRoomMutation();
+    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
 
-    const handleJoinTask = async (taskId: string) => {
-        try {
-            await updateTaskStatus({
-                id: taskId,
-                status: 'InProgress',
-            }).unwrap();
-        } catch {
-            // handled through mutation error state
-        }
-    };
+
+
 
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
@@ -73,10 +66,18 @@ export function TasksPage() {
 
         return matchesSearch && matchesRoom && matchesStatus;
     });
-
-    const availableTasks = filteredTasks.filter((task) => task.status === 'Started');
-    const inProgressTasks = filteredTasks.filter((task) => task.status === 'InProgress');
-    const pageError = readableError(tasksError) ?? readableError(roomsError) ?? readableError(updateTaskError) ?? readableError(createRoomError);
+    const availableTasks = filteredTasks.filter(
+        (task) =>
+            task.status === 'Started' &&
+            !myTaskIds.includes(task.id)
+    );
+    const myTasks = filteredTasks.filter(
+        (task) => myTaskIds.includes(task.id)
+    );
+    const pageError =
+        readableError(tasksError) ??
+        readableError(roomsError) ??
+        readableError(createRoomError);
 
     if (tasksLoading || roomsLoading) {
         return (
@@ -112,7 +113,7 @@ export function TasksPage() {
                 search={search}
                 onSearchChange={setSearch}
                 availableCount={availableTasks.length}
-                inProgressCount={inProgressTasks.length}
+                inProgressCount={myTasks.length}
             />
 
             <FilterPanel
@@ -203,7 +204,6 @@ export function TasksPage() {
                                 <TaskCard
                                     key={task.id}
                                     task={task}
-                                    onJoin={() => handleJoinTask(task.id)}
                                 />
                             ))}
                             {availableTasks.length === 0 && (
@@ -218,18 +218,18 @@ export function TasksPage() {
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg">I gang</h2>
                             <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                                {inProgressTasks.length}
+                                {myTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
-                            {inProgressTasks.map((task) => (
+                            {myTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
                                 />
                             ))}
-                            {inProgressTasks.length === 0 && (
+                            {myTasks.length === 0 && (
                                 <p className="text-gray-500 text-sm py-8 text-center">
                                     Ingen opgaver i gang
                                 </p>
@@ -242,6 +242,7 @@ export function TasksPage() {
             <CreateTaskModal
                 isOpen={isCreateTaskOpen}
                 onClose={() => setIsCreateTaskOpen(false)}
+                selectedRoomId={selectedRoomId}
             />
         </div>
     );

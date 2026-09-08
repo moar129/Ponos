@@ -1,6 +1,41 @@
+import { useEffect, useState } from 'react';
 import type { TaskCardProps } from '../../types/Task/Task';
+import {
+  useGetTaskAssigneesQuery,
+  useAssignToTaskMutation,
+  useUnassignFromTaskMutation,
+} from '../../store/apis/taskApi';
+import { supabase } from '../../lib/supabase';
 
-export function TaskCard({ task, onJoin }: TaskCardProps) {
+export function TaskCard({ task }: TaskCardProps) {
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
+
+  const [assignToTask] = useAssignToTaskMutation();
+  const [unassignFromTask] = useUnassignFromTaskMutation();
+
+  const isAssigned =
+    currentUserId !== null && assignees.includes(currentUserId);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data } = await supabase.auth.getUser();
+
+      setCurrentUserId(data.user?.id ?? null);
+    };
+
+    getCurrentUser();
+  }, []);
+
+  const handleAssignment = async () => {
+    if (isAssigned) {
+      await unassignFromTask({ taskId: task.id });
+    } else {
+      await assignToTask({ taskId: task.id });
+    }
+  };
+
   const getPriorityColor = (priority: TaskCardProps['task']['priority']) => {
     switch (priority) {
       case 'Low':
@@ -27,27 +62,40 @@ export function TaskCard({ task, onJoin }: TaskCardProps) {
           Info
         </span>
 
-        <p className="text-gray-700 text-sm">{task.description || 'Ingen beskrivelse'}</p>
+        <p className="text-gray-700 text-sm">
+          {task.description || 'Ingen beskrivelse'}
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
         {task.priority && (
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(task.priority)}`}>
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(
+              task.priority
+            )}`}
+          >
             Prioritet: {task.priority}
           </span>
         )}
 
         <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-          {task.max_assignees === null ? 'Ingen begrænsning' : `Maks. ${task.max_assignees} personer`}
+          {task.max_assignees === null
+            ? 'Ingen begrænsning'
+            : `Maks. ${task.max_assignees} personer`}
         </span>
       </div>
 
-      {task.status === 'Started' && onJoin && (
+      {task.status === 'Started' && (
         <button
-          onClick={onJoin}
-          className="border-2 border-black px-8 py-2 rounded font-bold uppercase text-xs tracking-widest hover:bg-black hover:text-white transition-all"
+          type="button"
+          onClick={handleAssignment}
+          className={`border-2 px-8 py-2 rounded font-bold uppercase text-xs tracking-widest transition-all ${
+            isAssigned
+              ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+              : 'border-black hover:bg-black hover:text-white'
+          }`}
         >
-          Tilmeld
+          {isAssigned ? 'Afmeld' : 'Tilmeld'}
         </button>
       )}
     </div>
