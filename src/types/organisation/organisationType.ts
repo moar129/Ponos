@@ -21,9 +21,14 @@ export interface CreateOrganisationInput {
 // Et af brugerens medlemskaber (US-59) - til listen "Mine organisationer"
 // og til at vise/vælge hvilken der er aktiv. roleName er null, hvis
 // brugeren endnu ikke har fået tildelt en rolle i den organisation.
+// isAdmin/memberCount (US-64) styrer "Slet organisation"-knappen og dens
+// bekræft-tekst - kun klient-side visning, reel håndhævelse ligger i
+// delete_organisation-RPC'en.
 export interface MyMembership {
     organisationId: string
     organisationName: string
     roleName: string | null
     isActive: boolean
+    isAdmin: boolean
+    memberCount: number
 }

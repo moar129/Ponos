@@ -188,6 +188,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     role_id: string | null
                     role_name: string | null
                     is_active: boolean
+                    is_admin: boolean
+                    member_count: number
                 }
 
                 return {
@@ -196,6 +198,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
                         organisationName: row.organisation_name,
                         roleName: row.role_name,
                         isActive: row.is_active,
+                        isAdmin: row.is_admin,
+                        memberCount: row.member_count,
                     })),
                 }
             },
@@ -247,6 +251,33 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
             invalidatesTags: [...USER_SCOPED_TAGS],
         }),
+
+        // Sletter en organisation permanent (US-64). Kører server-side som
+        // RPC'en delete_organisation, som kun tillader det for en reel
+        // administrator af DEN organisation (ikke nødvendigvis brugerens
+        // aktive) - ingen "sidste medlem"-restriktion, dækker både "alene
+        // tilbage" og "organisationen lukker ned med andre medlemmer
+        // tilbage". Alt underliggende data (opgaver, items, kategorier,
+        // lokationer, statistik, roller, medlemskaber) cascader automatisk
+        // via eksisterende FK'er. Returnerer den slettende brugers nye
+        // aktive organisation (eller null), udfyldt kun hvis den slettede
+        // org var brugerens egen aktive - samme mønster som
+        // leaveOrganisation.
+        deleteOrganisation: builder.mutation<Organisation | null, { organisationId: string }>({
+            queryFn: async ({ organisationId }) => {
+                const { data, error } = await supabase.rpc('delete_organisation', {
+                    p_organisation_id: organisationId,
+                })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: data ? { id: data.id, name: data.name } : null }
+            },
+
+            invalidatesTags: [...USER_SCOPED_TAGS],
+        }),
     }),
 })
 
@@ -257,4 +288,5 @@ export const {
     useGetMyMembershipsQuery,
     useSetActiveOrganisationMutation,
     useLeaveOrganisationMutation,
+    useDeleteOrganisationMutation,
 } = organisationApi

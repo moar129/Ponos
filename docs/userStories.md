@@ -1160,6 +1160,24 @@ Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slett
 
 ---
 
+## US-64 – Slette en organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne slette min organisation permanent, så jeg kan lukke den ned, når jeg enten er det eneste tilbageværende medlem og ikke længere har brug for den, eller når organisationen som helhed skal lukke - uanset om der stadig er andre medlemmer i den.
+
+### Acceptance Criteria
+
+- Kun en administrator af organisationen kan slette den.
+- Givet at administratoren sletter organisationen, når sletningen gennemføres, så fjernes organisationens data (roller, privilegier, medlemskaber, lokationer, kategorier, items, opgaver, statistik) permanent.
+- Givet at organisationen har andre medlemmer end den, der sletter, når organisationen slettes, så mister alle øvrige medlemmer deres adgang til organisationen med det samme.
+- Givet at den slettede organisation var administratorens (eller et andet medlems) aktive organisation, så står brugeren uden aktiv organisation, eller får automatisk en anden af sine resterende organisationer som aktiv, hvis brugeren er medlem af flere.
+- Givet at administratoren forsøger at slette organisationen, når handlingen udføres, så kræves en tydelig bekræftelse, da sletningen ikke kan fortrydes.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1230,6 +1248,7 @@ Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slett
 - US-61 – Forlade en organisation
 - US-62 – Granulære skriverettigheder i Datalayer
 - US-63 – Granulære skriverettigheder i Opgaver
+- US-64 – Slette en organisation
 
 ## Low
 
@@ -1286,7 +1305,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**24 stories**
+**25 stories**
 
 ### Bruger & login
 
@@ -1307,6 +1326,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-59
 - US-60
 - US-61
+- US-64
 
 ### Roller & privileges
 
