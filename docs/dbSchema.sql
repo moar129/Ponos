@@ -34,19 +34,23 @@ create unique index organisations_name_unique on public.organisations (lower(tri
 -- 3. PROFILES (= domænemodellens "User")
 -- Navngivet "profiles" i stedet for "users" for ikke at kollidere med
 -- Supabase's indbyggede auth.users. id er 1:1 med auth.users.id.
--- role_id-kolonnen tilføjes efter roles-tabellen (cirkulær reference).
+-- active_organisation_id (US-59, tidligere "organisation_id") er IKKE
+-- længere brugerens ene organisation - det er den organisation, hvis
+-- data brugeren p.t. ser ("aktiv organisation"). Faktisk medlemskab
+-- (many-to-many, én rolle pr. organisation) ligger i memberships-tabellen
+-- (afsnit 6.5). Må kun ændres via set_active_organisation()/
+-- create_organisation() - se prevent_self_role_org_change (15.7).
 -- ---------------------------------------------------------------------
 create table public.profiles (
-  id               uuid primary key references auth.users(id) on delete cascade,
-  first_name       text not null,
-  last_name        text not null,
-  email            text not null unique,
-  description      text,
-  note_admin       text,
-  url_picture      text,
-  organisation_id  uuid references public.organisations(id) on delete set null,
-  role_id          uuid, -- FK tilføjes nedenfor
-  created_at       timestamptz not null default now()
+  id                     uuid primary key references auth.users(id) on delete cascade,
+  first_name             text not null,
+  last_name              text not null,
+  email                  text not null unique,
+  description            text,
+  note_admin             text,
+  url_picture            text,
+  active_organisation_id uuid references public.organisations(id) on delete set null,
+  created_at             timestamptz not null default now()
 );
 
 
@@ -60,11 +64,6 @@ create table public.roles (
   created_at       timestamptz not null default now(),
   unique (organisation_id, name)
 );
-
--- Nu kan profiles.role_id's FK oprettes
-alter table public.profiles
-  add constraint profiles_role_id_fkey
-  foreign key (role_id) references public.roles(id) on delete set null;
 
 
 -- ---------------------------------------------------------------------
@@ -101,6 +100,29 @@ create unique index membership_requests_unique_pending
 
 create index idx_membership_requests_org on public.membership_requests (organisation_id);
 create index idx_membership_requests_user on public.membership_requests (user_id);
+
+
+-- ---------------------------------------------------------------------
+-- 6.5 MEMBERSHIP (US-59 - faktisk organisationsmedlemskab, many-to-many)
+-- En bruger kan være medlem af flere organisationer samtidig, med sin
+-- egen rolle pr. organisation. profiles.active_organisation_id peger på
+-- hvilken af disse medlemskaber, der p.t. er "aktiv" (styrer hvilken
+-- organisations data brugeren ser - se auth_profile_org(), afsnit 14).
+-- Oprettes af create_organisation() (15.8) og af
+-- handle_membership_request_status_change() ved accept (15.3) - aldrig
+-- direkte af klienten.
+-- ---------------------------------------------------------------------
+create table public.memberships (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  role_id          uuid references public.roles(id) on delete set null,
+  created_at       timestamptz not null default now(),
+  unique (user_id, organisation_id)
+);
+
+create index idx_memberships_user on public.memberships (user_id);
+create index idx_memberships_org on public.memberships (organisation_id);
 
 
 -- ---------------------------------------------------------------------
@@ -240,7 +262,11 @@ create table public.news (
 -- 14. HJÆLPEFUNKTIONER (bruges i RLS-policies)
 -- =====================================================================
 
--- Returnerer organisation_id for den nuværende bruger (auth.uid())
+-- Returnerer den nuværende brugers AKTIVE organisation (auth.uid()) -
+-- US-59: ikke nødvendigvis brugerens eneste organisation, se memberships
+-- (afsnit 6.5). Alle org-scopede RLS-policies i afsnit 16 bruger denne,
+-- så et skift af aktiv organisation (set_active_organisation, 15.10)
+-- slår automatisk igennem alle steder uden at nogen policy skal ændres.
 create or replace function public.auth_profile_org()
 returns uuid
 language sql
@@ -248,12 +274,15 @@ stable
 security definer
 set search_path = public
 as $$
-  select organisation_id from public.profiles where id = auth.uid();
+  select active_organisation_id from public.profiles where id = auth.uid();
 $$;
 
--- Tjekker om nuværende bruger har en given privilege (via sin rolle)
--- Konvention: privilegiet "admin" er en superset af alle andre - se
--- has_privilege_or_admin() nedenfor, som er det RLS-policies reelt bruger.
+-- Tjekker om nuværende bruger har en given privilege via sin rolle i den
+-- AKTIVE organisation (US-59: rollen ligger på memberships, ikke
+-- profiles - en bruger kan have forskellige roller/privilegier i sine
+-- forskellige organisationer). Konvention: privilegiet "admin" er en
+-- superset af alle andre - se has_privilege_or_admin() nedenfor, som er
+-- det RLS-policies reelt bruger.
 create or replace function public.has_privilege(p_name text)
 returns boolean
 language sql
@@ -264,7 +293,8 @@ as $$
   select exists (
     select 1
     from public.profiles pr
-    join public.privileges p on p.role_id = pr.role_id
+    join public.memberships m on m.user_id = pr.id and m.organisation_id = pr.active_organisation_id
+    join public.privileges p on p.role_id = m.role_id
     where pr.id = auth.uid() and p.name = p_name
   );
 $$;
@@ -368,6 +398,10 @@ create trigger trg_prevent_self_role_org_change
 -- 15.3 Når en medlemsanmodning godkendes/afvises, sættes ReviewedAt og
 -- ReviewedBy automatisk, og ved godkendelse tilknyttes brugeren
 -- organisationen (uden automatisk rolle) – jf. US-07 og US-08.
+-- US-59: opretter et memberships-medlemskab i stedet for at overskrive
+-- profiles - brugeren kan allerede være medlem/have en aktiv organisation
+-- andetsteds, som ikke må påvirkes. Aktiv organisation sættes derfor kun,
+-- hvis brugeren ikke allerede har én.
 create or replace function public.handle_membership_request_status_change()
 returns trigger
 language plpgsql
@@ -378,9 +412,14 @@ begin
   if new.status = 'Accepted' and old.status is distinct from 'Accepted' then
     new.reviewed_at := coalesce(new.reviewed_at, now());
     new.reviewed_by := coalesce(new.reviewed_by, auth.uid());
+
+    insert into public.memberships (user_id, organisation_id)
+    values (new.user_id, new.organisation_id)
+    on conflict (user_id, organisation_id) do nothing;
+
     update public.profiles
-      set organisation_id = new.organisation_id
-      where id = new.user_id;
+      set active_organisation_id = new.organisation_id
+      where id = new.user_id and active_organisation_id is null;
   elsif new.status = 'Rejected' and old.status is distinct from 'Rejected' then
     new.reviewed_at := coalesce(new.reviewed_at, now());
     new.reviewed_by := coalesce(new.reviewed_by, auth.uid());
@@ -499,12 +538,14 @@ create trigger trg_prevent_admin_role_change
 
 
 -- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
--- kaldende brugers egen organisation_id/role_id (bruger opretter og
--- bliver selv admin) - trg_prevent_self_role_org_change (15.2) blokerer
--- normalt netop dette. Funktionen sætter et transaktionslokalt flag
--- (bypass), som denne opdaterede version af triggeren respekterer.
--- Almindelige klient-opdateringer sætter aldrig flaget og er derfor
--- stadig blokeret som før.
+-- kaldende brugers egen aktive organisation (bruger opretter og bliver
+-- selv admin) - trg_prevent_self_role_org_change (15.2) blokerer normalt
+-- netop dette. Funktionen sætter et transaktionslokalt flag (bypass),
+-- som denne opdaterede version af triggeren respekterer. Almindelige
+-- klient-opdateringer sætter aldrig flaget og er derfor stadig blokeret
+-- som før. US-59: role_id-grenen er fjernet - rollen ligger nu på
+-- memberships (se trg_prevent_self_membership_role_change, 15.9), ikke
+-- profiles. set_active_organisation (15.10) bruger samme bypass-flag.
 create or replace function public.prevent_self_role_org_change()
 returns trigger
 language plpgsql
@@ -514,11 +555,8 @@ as $$
 begin
   if new.id = auth.uid()
      and coalesce(current_setting('ponos.bypass_self_role_org_change', true), 'false') <> 'true' then
-    if new.role_id is distinct from old.role_id then
-      raise exception 'Du kan ikke tildele dig selv en rolle.';
-    end if;
-    if new.organisation_id is distinct from old.organisation_id then
-      raise exception 'Du kan ikke ændre din egen organisationstilknytning direkte.';
+    if new.active_organisation_id is distinct from old.active_organisation_id then
+      raise exception 'Du kan ikke ændre din aktive organisation direkte.';
     end if;
   end if;
   return new;
@@ -526,14 +564,14 @@ end;
 $$;
 
 
--- 15.8 US-58: Opretter en ny organisation, en "Admin"-rolle med
+-- 15.8 US-58/US-60: Opretter en ny organisation, en "Admin"-rolle med
 -- admin-privilegiet, og gør den kaldende bruger til admin i den - alt i
 -- én atomisk transaktion (fejler hele vejen igennem hvis noget går galt
--- undervejs). security definer, fordi roles/privileges-inserts og
--- profiles-opdateringen ellers ville blive blokeret af RLS hhv.
--- trg_prevent_self_role_org_change. US-60 (flere organisationer) er ikke
--- lavet endnu - en bruger der allerede er medlem af en organisation kan
--- derfor ikke oprette en ny her.
+-- undervejs). security definer, fordi roles/privileges/memberships-
+-- inserts og profiles-opdateringen ellers ville blive blokeret af RLS
+-- hhv. trg_prevent_self_role_org_change. US-60: en bruger, der allerede
+-- har et eller flere medlemskaber, kan også oprette en ny organisation
+-- her - eneste guard er login og et udfyldt navn.
 create or replace function public.create_organisation(p_name text)
 returns public.organisations
 language plpgsql
@@ -553,10 +591,6 @@ begin
     raise exception 'Organisationens navn skal udfyldes.';
   end if;
 
-  if exists (select 1 from public.profiles where id = v_user_id and organisation_id is not null) then
-    raise exception 'Du er allerede medlem af en organisation.';
-  end if;
-
   insert into public.organisations (name)
   values (trim(p_name))
   returning * into v_org;
@@ -568,13 +602,19 @@ begin
   insert into public.privileges (role_id, name)
   values (v_role_id, 'admin');
 
+  insert into public.memberships (user_id, organisation_id, role_id)
+  values (v_user_id, v_org.id, v_role_id);
+
   -- Lokal til denne transaktion (tredje argument 'true') - nulstilles
   -- automatisk ved commit, påvirker ingen andre requests.
   perform set_config('ponos.bypass_self_role_org_change', 'true', true);
 
+  -- US-60: den nyoprettede organisation bliver altid brugerens aktive
+  -- organisation med det samme (også ved en 2., 3., ... organisation) -
+  -- brugeren kan stadig frit skifte tilbage bagefter via
+  -- set_active_organisation (15.10) / "Mine organisationer".
   update public.profiles
-    set organisation_id = v_org.id,
-        role_id = v_role_id
+    set active_organisation_id = v_org.id
     where id = v_user_id;
 
   return v_org;
@@ -582,6 +622,64 @@ end;
 $$;
 
 grant execute on function public.create_organisation(text) to authenticated;
+
+
+-- 15.9 US-59: en bruger med manage_roles må ikke kunne tildele SIG SELV
+-- en rolle via en memberships-opdatering (samme escalation-tanke som
+-- prevent_self_role_org_change havde for profiles.role_id før US-59).
+create or replace function public.prevent_self_membership_role_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.user_id = auth.uid() and new.role_id is distinct from old.role_id then
+    raise exception 'Du kan ikke tildele dig selv en rolle.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_self_membership_role_change
+  before update on public.memberships
+  for each row execute function public.prevent_self_membership_role_change();
+
+
+-- 15.10 US-59: skifter brugerens aktive organisation. Validerer at
+-- brugeren faktisk er medlem, før profiles.active_organisation_id
+-- opdateres - klienten må ALDRIG opdatere den kolonne direkte (kun
+-- denne funktion og create_organisation sætter den, begge via samme
+-- bypass-flag som trg_prevent_self_role_org_change respekterer).
+create or replace function public.set_active_organisation(p_organisation_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+begin
+  if v_user_id is null then
+    raise exception 'Du skal være logget ind for at skifte organisation.';
+  end if;
+
+  if not exists (
+    select 1 from public.memberships
+    where user_id = v_user_id and organisation_id = p_organisation_id
+  ) then
+    raise exception 'Du er ikke medlem af denne organisation.';
+  end if;
+
+  perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+  update public.profiles
+    set active_organisation_id = p_organisation_id
+    where id = v_user_id;
+end;
+$$;
+
+grant execute on function public.set_active_organisation(uuid) to authenticated;
 
 
 -- =====================================================================
@@ -593,6 +691,7 @@ alter table public.profiles                enable row level security;
 alter table public.roles                   enable row level security;
 alter table public.privileges              enable row level security;
 alter table public.membership_requests     enable row level security;
+alter table public.memberships             enable row level security;
 alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
@@ -648,28 +747,8 @@ create policy "Bruger kan opdatere egen profil"
   to authenticated
   using (id = auth.uid());
 
--- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
--- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
--- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
-create policy "Tildel rolle til profiler i egen organisation"
-  on public.profiles for update
-  to authenticated
-  using (
-    organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
-  )
-  with check (
-    organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
-    and (
-      public.has_privilege('admin')
-      or role_id is null
-      or not exists (
-        select 1 from public.privileges p
-        where p.role_id = role_id and p.name = 'admin'
-      )
-    )
-  );
+-- US-59: rolletildeling flyttet til memberships (afsnit 16.10) - rollen
+-- ligger ikke længere på profiles.
 
 
 -- ---------------------------------------------------------------------
@@ -905,3 +984,43 @@ create policy "Alle autentificerede brugere kan se nyheder"
 -- Ingen insert/update/delete-policy for almindelige brugere:
 -- nyheder synkroniseres fra ekstern API via service role (US-57),
 -- som ikke er underlagt RLS.
+
+
+-- ---------------------------------------------------------------------
+-- 16.10 MEMBERSHIPS (US-59)
+-- Ingen INSERT/DELETE-policy for almindelige brugere: rækker oprettes
+-- kun via create_organisation() (15.8) og
+-- handle_membership_request_status_change() (15.3), begge security
+-- definer. DELETE (forlad organisation) hører til US-61.
+-- ---------------------------------------------------------------------
+create policy "Se egne medlemskaber eller medlemskaber i egen organisation"
+  on public.memberships for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    or organisation_id = public.auth_profile_org()
+  );
+
+-- Escalation-guard (sikkerhed): samme mønster som de øvrige "Tildel
+-- rolle"/manage_roles-policies - en bruger med kun manage_roles må ikke
+-- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
+-- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
+create policy "Tildel rolle til medlemskaber i egen organisation"
+  on public.memberships for update
+  to authenticated
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_roles')
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_roles')
+    and (
+      public.has_privilege('admin')
+      or role_id is null
+      or not exists (
+        select 1 from public.privileges p
+        where p.role_id = role_id and p.name = 'admin'
+      )
+    )
+  );

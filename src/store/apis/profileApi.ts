@@ -41,7 +41,7 @@ export const profileApi = supabaseApi.injectEndpoints({
 
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('id, first_name, last_name, email, description, url_picture, organisation_id, role_id')
+                    .select('id, first_name, last_name, email, description, url_picture, active_organisation_id')
                     .eq('id', userData.user.id)
                     .maybeSingle()
 
@@ -53,9 +53,23 @@ export const profileApi = supabaseApi.injectEndpoints({
                     return { data: null }
                 }
 
+                // Rollen ligger på memberships (US-59), ikke på profiles -
+                // slår brugerens medlemskab af DEN AKTIVE organisation op for
+                // at finde dens role_id.
+                let roleId: string | null = null
+                if (data.active_organisation_id) {
+                    const { data: membership } = await supabase
+                        .from('memberships')
+                        .select('role_id')
+                        .eq('user_id', data.id)
+                        .eq('organisation_id', data.active_organisation_id)
+                        .maybeSingle()
+                    roleId = membership?.role_id ?? null
+                }
+
                 const [organisationName, roleName] = await Promise.all([
-                    lookupName('organisations', data.organisation_id),
-                    lookupName('roles', data.role_id),
+                    lookupName('organisations', data.active_organisation_id),
+                    lookupName('roles', roleId),
                 ])
 
                 return {
@@ -66,9 +80,9 @@ export const profileApi = supabaseApi.injectEndpoints({
                         email: data.email,
                         description: data.description,
                         urlPicture: data.url_picture,
-                        organisationId: data.organisation_id,
+                        activeOrganisationId: data.active_organisation_id,
                         organisationName,
-                        roleId: data.role_id,
+                        roleId,
                         roleName,
                     },
                 }
