@@ -9,6 +9,7 @@ interface CreateTaskInput {
     description: string
     priority: ETaskPriority | null
     max_assignees: number | null
+    room_id?: string | null
 }
 
 interface CreateRoomInput {
@@ -18,6 +19,10 @@ interface CreateRoomInput {
 interface UpdateTaskStatusInput {
     id: string
     status: ETaskStatus
+}
+
+interface AssignToTaskInput {
+    taskId: string
 }
 
 async function getAuthenticatedOrganisationId(): Promise<string> {
@@ -93,7 +98,7 @@ export const taskApi = supabaseApi.injectEndpoints({
         }),
 
         createTask: builder.mutation<Task, CreateTaskInput>({
-            queryFn: async ({ title, description, priority, max_assignees }) => {
+            queryFn: async ({ title, description, priority, max_assignees, room_id }) => {
                 try {
                     const organisationId = await getAuthenticatedOrganisationId()
                     const { data, error } = await supabase
@@ -105,6 +110,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             priority,
                             status: 'Started',
                             max_assignees,
+                            room_id,
                         })
                         .select()
                         .single()
@@ -156,13 +162,201 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],
         }),
+        getTaskAssignees: builder.query<string[], string>({
+            queryFn: async (taskId) => {
+                try {
+                    const { data, error } = await supabase
+                        .from('task_assignees')
+                        .select('user_id')
+                        .eq('task_id', taskId)
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+                    return {
+                        data: (data ?? []).map((assignee) => assignee.user_id),
+                    }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved hentning af ansvarlige'
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            providesTags: (_result, _error, taskId) => [
+                {
+                    type: 'Task',
+                    id: `${taskId}-ASSIGNEES`,
+                },
+            ],
+        }),
+        assignToTask: builder.mutation<void, AssignToTaskInput>({
+            queryFn: async ({ taskId }) => {
+                try {
+                    const { data: authData, error: authError } =
+                        await supabase.auth.getUser()
+                    if (authError || !authData.user) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: 'Du skal være logget ind.',
+                            } as QueryError,
+                        }
+                    }
+                    const { error } = await supabase
+                        .from('task_assignees')
+                        .insert({
+                            task_id: taskId,
+                            user_id: authData.user.id,
+                        })
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+                    return {
+                        data: undefined,
+                    }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved tilmelding til opgaven'
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                'MyTasks',
+                {
+                    type: 'Task',
+                    id: `${taskId}-ASSIGNEES`,
+                },
+            ],
+        }),
+        unassignFromTask: builder.mutation<void, AssignToTaskInput>({
+            queryFn: async ({ taskId }) => {
+                try {
+                    const { data: authData, error: authError } =
+                        await supabase.auth.getUser();
+                    if (authError || !authData.user) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: 'Du skal være logget ind.',
+                            } as QueryError,
+                        };
+                    }
+                    const { error } = await supabase
+                        .from('task_assignees')
+                        .delete()
+                        .eq('task_id', taskId)
+                        .eq('user_id', authData.user.id);
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        };
+                    }
+                    return {
+                        data: undefined,
+                    };
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved afmelding fra opgaven';
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    };
+                }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                'MyTasks',
+                {
+                    type: 'Task',
+                    id: `${taskId}-ASSIGNEES`,
+                },
+            ],
+        }),
+        getMyTaskIds: builder.query<string[], void>({
+            queryFn: async () => {
+                try {
+                    const { data: authData, error: authError } =
+                        await supabase.auth.getUser();
+                    if (authError || !authData.user) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: 'Du skal være logget ind.',
+                            } as QueryError,
+                        };
+                    }
+                    const { data, error } = await supabase
+                        .from('task_assignees')
+                        .select('task_id')
+                        .eq('user_id', authData.user.id);
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        };
+                    }
+                    return {
+                        data: (data ?? []).map((assignment) => assignment.task_id),
+                    };
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved hentning af egne opgaver';
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    };
+                }
+            },
+            providesTags: ['MyTasks'],
+        }),
+
     }),
 })
 
 export const {
     useGetTasksQuery,
     useGetRoomsQuery,
+    useGetTaskAssigneesQuery,
     useCreateTaskMutation,
     useCreateRoomMutation,
     useUpdateTaskStatusMutation,
+    useAssignToTaskMutation,
+    useUnassignFromTaskMutation,
+    useGetMyTaskIdsQuery,
 } = taskApi

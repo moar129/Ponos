@@ -5,6 +5,7 @@ import type { ETaskPriority } from '../../types/Task/Task';
 interface CreateTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
+    selectedRoomId: string | null;
 }
 
 function readableError(err: unknown): string | null {
@@ -18,6 +19,7 @@ function readableError(err: unknown): string | null {
 export function CreateTaskModal({
     isOpen,
     onClose,
+    selectedRoomId,
 }: CreateTaskModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -35,11 +37,14 @@ export function CreateTaskModal({
         }
 
         try {
+            console.log('Opretter opgave med room_id:', selectedRoomId);
+
             await createTask({
                 title: title.trim(),
                 description: description.trim(),
                 priority,
                 max_assignees: maxAssignees,
+                room_id: selectedRoomId,
             }).unwrap();
 
             setTitle('');
@@ -108,8 +113,7 @@ export function CreateTaskModal({
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Opgavens beskrivelse"
                             rows={5}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
-                        />
+                            className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 break-words" />
                     </div>
 
                     <div>

@@ -17,6 +17,7 @@ export const supabaseApi = createApi({
         'ItemLocation',
         'Task',
         'TaskRoom',
+        'MyTasks'
     ],
     endpoints: () => ({}),
 })
