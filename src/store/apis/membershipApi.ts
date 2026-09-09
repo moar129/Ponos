@@ -51,7 +51,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
         }),
 
         // Sender en medlemsanmodning for den indloggede bruger til den
-        // valgte organisation. Bruges af RequestMembership.tsx.
+        // valgte organisation. Bruges af OrganisationPage.tsx.
         requestMembership: builder.mutation<void, { organisationId: string }>({
             queryFn: async ({ organisationId }) => {
                 // Finder den aktuelt indloggede bruger direkte fra Supabase

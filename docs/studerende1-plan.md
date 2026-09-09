@@ -4,14 +4,9 @@ Dette er den løbende statusoversigt for de 24 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-58 – Opret organisation (færdiggør)**
+**US-59 – Være medlem af flere organisationer**
 
-Branch `dev-opretOrg`, status Delvist (se status-tabel). Besluttet: færdiggøres før US-59. Mangler:
-- `create_organisation`-RPC i Supabase (SQL, køres manuelt af bruger i SQL Editor)
-- Opret-formular i UI på `/organisation`
-- Opdatering af `dbSchema.sql` med den nye RPC
-
-Types (`organisationType.ts`) og RTK Query-mutationen (`organisationApi.ts`, `createOrganisation`) er allerede klar. Når US-58 er Done: sæt status-tabellens US-58-række til "Done" og gå videre til **US-59 – Være medlem af flere organisationer** (se "Anbefalet rækkefølge" nedenfor).
+US-58 er nu Done (se status-tabel). Stor migration: erstatter `profiles.organisation_id`/`role_id` med en medlemskabsmodel (many-to-many) + "aktiv organisation"-koncept, og rammer stort set alle RLS-policies. Ikke startet endnu - ingen spec skrevet på forhånd for denne (i modsætning til Fase 2/US-62-63), så en session skal selv lægge en plan først. Se "Anbefalet rækkefølge" nedenfor for hvad der kommer efter.
 
 Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt testet i browseren og bekræftet virkende (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
 
@@ -23,10 +18,10 @@ Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt
 |---|---|---|---|---|
 | US-01 | Opret konto | Critical | Done | SignUp.tsx + DB trigger komplet |
 | US-02 | Login | Critical | Delvist | Login/redirect virker; banner viser nu "ingen organisation" + link til anmodning; `/`-ruten er stadig ikke beskyttet |
-| US-58 | Opret organisation | Critical | Delvist | Types (`organisationType.ts`) + RTK Query-mutation (`organisationApi.ts`, `createOrganisation`) klar; mangler `create_organisation`-RPC i Supabase, opret-formular på `/organisation` og opdatering af `dbSchema.sql` |
+| US-58 | Opret organisation | Critical | Done | `create_organisation`-RPC (`dbSchema.sql` §15.7-15.8) + case-insensitivt unikt navn (`organisations_name_unique`) kørt og testet i Supabase; opret-formular på `/organisation`, slået sammen med US-05's anmod-flow i samme UI (faner) |
 | US-03 | Se profil | Medium | Done | `/bruger` (ProfilePage.tsx) + profileApi.ts; header viser nu rigtigt navn/rolle |
 | US-04 | Rediger profil | Medium | Done | Rediger navn, beskrivelse, billed-URL; email/rolle/org er read-only |
-| US-05 | Anmod om medlemskab | Critical | Done | RequestMembership.tsx + membershipApi.ts komplet |
+| US-05 | Anmod om medlemskab | Critical | Done | Flyttet fra egen side (`RequestMembership.tsx`/`/request-membership`, nu slettet) ind i `OrganisationPage.tsx` som en fane ved siden af "Opret organisation"; membershipApi.ts uændret |
 | US-06/07/08 | Se, acceptere og afvise medlemsanmodninger (admin) | Critical | Done | `/medlemsanmodninger` + membershipApi/privilegeApi; ny RLS-policy så admin kan se ansøgeres navn/email; adgang nu granulær via `manage_membership_requests`-privilegie (Fase 1) |
 | US-09 | Se organisation | Medium | Done | `/organisation` (OrganisationPage.tsx) + organisationApi.ts |
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne); adgang nu granulær via `manage_organisation`-privilegie (Fase 1) |
@@ -54,7 +49,7 @@ Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt
 6. **US-60 + US-61** — Oprette flere organisationer / Forlade en organisation (bygger direkte på US-59's medlemskabsmodel, gøres derfor lige efter)
 7. **US-45 + US-46 + US-47** — Rigtigt dashboard (genbruger data-mønstre fra Datalayer/opgaver; bygges efter US-59 så den fra start regner med "aktiv organisation" i stedet for at skulle rettes til bagefter)
 8. **US-62 + US-63** — Granulære skriverettigheder i Datalayer/Opgaver (Fase 2, samme mønster som US-11-13 - tilhører Studerende 1, ikke Studerende 2/3). Bevidst rykket til her, EFTER US-59/60/61: undgår at RLS-policies på Datalayer/Opgave-tabellerne skal rettes til igen når US-59 ændrer medlemskabsmodellen, og reducerer risikoen for at kollidere med Studerende 2/3's igangværende arbejde i de tabeller/komponenter. Fuld spec: se "Fase 2-spec" nedenfor.
-9. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/request-membership`)
+9. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/organisation`, som nu rummer både opret- og anmod-flow)
 10. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8

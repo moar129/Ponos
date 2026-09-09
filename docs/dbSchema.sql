@@ -25,6 +25,10 @@ create table public.organisations (
   created_at timestamptz not null default now()
 );
 
+-- Organisationsnavne skal være unikke (case-insensitivt, trimmet) -
+-- ellers kan to organisationer oprettes med samme navn (US-58).
+create unique index organisations_name_unique on public.organisations (lower(trim(name)));
+
 
 -- ---------------------------------------------------------------------
 -- 3. PROFILES (= domænemodellens "User")
@@ -492,6 +496,92 @@ $$;
 create trigger trg_prevent_admin_role_change
   before update or delete on public.roles
   for each row execute function public.prevent_admin_role_change();
+
+
+-- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
+-- kaldende brugers egen organisation_id/role_id (bruger opretter og
+-- bliver selv admin) - trg_prevent_self_role_org_change (15.2) blokerer
+-- normalt netop dette. Funktionen sætter et transaktionslokalt flag
+-- (bypass), som denne opdaterede version af triggeren respekterer.
+-- Almindelige klient-opdateringer sætter aldrig flaget og er derfor
+-- stadig blokeret som før.
+create or replace function public.prevent_self_role_org_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.id = auth.uid()
+     and coalesce(current_setting('ponos.bypass_self_role_org_change', true), 'false') <> 'true' then
+    if new.role_id is distinct from old.role_id then
+      raise exception 'Du kan ikke tildele dig selv en rolle.';
+    end if;
+    if new.organisation_id is distinct from old.organisation_id then
+      raise exception 'Du kan ikke ændre din egen organisationstilknytning direkte.';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+
+-- 15.8 US-58: Opretter en ny organisation, en "Admin"-rolle med
+-- admin-privilegiet, og gør den kaldende bruger til admin i den - alt i
+-- én atomisk transaktion (fejler hele vejen igennem hvis noget går galt
+-- undervejs). security definer, fordi roles/privileges-inserts og
+-- profiles-opdateringen ellers ville blive blokeret af RLS hhv.
+-- trg_prevent_self_role_org_change. US-60 (flere organisationer) er ikke
+-- lavet endnu - en bruger der allerede er medlem af en organisation kan
+-- derfor ikke oprette en ny her.
+create or replace function public.create_organisation(p_name text)
+returns public.organisations
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org      public.organisations;
+  v_role_id  uuid;
+  v_user_id  uuid := auth.uid();
+begin
+  if v_user_id is null then
+    raise exception 'Du skal være logget ind for at oprette en organisation.';
+  end if;
+
+  if trim(coalesce(p_name, '')) = '' then
+    raise exception 'Organisationens navn skal udfyldes.';
+  end if;
+
+  if exists (select 1 from public.profiles where id = v_user_id and organisation_id is not null) then
+    raise exception 'Du er allerede medlem af en organisation.';
+  end if;
+
+  insert into public.organisations (name)
+  values (trim(p_name))
+  returning * into v_org;
+
+  insert into public.roles (organisation_id, name)
+  values (v_org.id, 'Admin')
+  returning id into v_role_id;
+
+  insert into public.privileges (role_id, name)
+  values (v_role_id, 'admin');
+
+  -- Lokal til denne transaktion (tredje argument 'true') - nulstilles
+  -- automatisk ved commit, påvirker ingen andre requests.
+  perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+  update public.profiles
+    set organisation_id = v_org.id,
+        role_id = v_role_id
+    where id = v_user_id;
+
+  return v_org;
+end;
+$$;
+
+grant execute on function public.create_organisation(text) to authenticated;
 
 
 -- =====================================================================
