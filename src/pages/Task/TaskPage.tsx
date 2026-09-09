@@ -55,9 +55,11 @@ export function TasksPage() {
     };
 
     const filteredTasks = tasks.filter((task) => {
+
         const matchesSearch = task.title
             ?.toLowerCase()
             .includes(search.toLowerCase());
+
 
         const matchesRoom =
             selectedRoomId === null || task.room_id === selectedRoomId;
@@ -66,11 +68,27 @@ export function TasksPage() {
 
         return matchesSearch && matchesRoom && matchesStatus;
     });
-    const availableTasks = filteredTasks.filter(
-        (task) =>
-            task.status === 'Started' &&
-            !myTaskIds.includes(task.id)
-    );
+
+    const priorityRank: Record<string, number> = {
+        Critical: 1,
+        High: 2,
+        Medium: 3,
+        Low: 4,
+        
+    };
+
+    const availableTasks = filteredTasks
+        .filter(
+            (task) =>
+                task.status === 'Started' &&
+                !myTaskIds.includes(task.id)
+        )
+        .sort((a, b) => {
+            const priorityA = priorityRank[a.priority ?? ''] ?? 5;
+            const priorityB = priorityRank[b.priority ?? ''] ?? 5;
+
+            return priorityA - priorityB;
+        });
     const myTasks = filteredTasks.filter(
         (task) => myTaskIds.includes(task.id)
     );
