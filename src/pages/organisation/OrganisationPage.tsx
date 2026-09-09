@@ -7,6 +7,7 @@ import {
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
+    useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
@@ -652,23 +653,27 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
     )
 }
 
-// "Mine organisationer" (US-59): liste over alle brugerens medlemskaber,
-// med mulighed for at skifte hvilken der er aktiv. Ligger som en fane på
-// samme side som organisationsdetaljer/rediger, i stedet for en separat
-// side - det er begge dele "min tilknytning til organisationer".
+// "Mine organisationer" (US-59/US-61): liste over alle brugerens
+// medlemskaber, med mulighed for at skifte hvilken der er aktiv, og for
+// at forlade en organisation. Ligger som en fane på samme side som
+// organisationsdetaljer/rediger, i stedet for en separat side - det er
+// begge dele "min tilknytning til organisationer".
 function MyMembershipsSection() {
     const { data: memberships, isLoading, error: queryError } = useGetMyMembershipsQuery()
-    const [setActiveOrganisation, { error: switchError }] = useSetActiveOrganisationMutation()
-    const [switchingId, setSwitchingId] = useState<string | null>(null)
+    // Vises efter et vellykket "Forlad" - løftet op hertil (frem for at
+    // ligge i selve rækken) fordi den forladte organisations række
+    // forsvinder fra listen, så snart 'Membership' invalideres og listen
+    // henter frisk data igen - en besked i selve rækken ville derfor aldrig
+    // nå at blive vist.
+    const [leftMessage, setLeftMessage] = useState<string | null>(null)
 
-    async function handleSwitch(organisationId: string) {
-        setSwitchingId(organisationId)
-        try {
-            await setActiveOrganisation({ organisationId }).unwrap()
-        } catch {
-            // Fejlen vises via switchError.
-        } finally {
-            setSwitchingId(null)
+    function handleLeft(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
+        if (!wasActive) {
+            setLeftMessage(`Du har forladt "${organisationName}".`)
+        } else if (newActiveOrganisation) {
+            setLeftMessage(`Du har forladt "${organisationName}". Din aktive organisation er nu "${newActiveOrganisation.name}".`)
+        } else {
+            setLeftMessage(`Du har forladt "${organisationName}". Du har ingen aktiv organisation længere.`)
         }
     }
 
@@ -689,39 +694,108 @@ function MyMembershipsSection() {
         return <p className="text-secondary">Du er ikke medlem af nogen organisationer.</p>
     }
 
-    const actionError = readableApiError(switchError)
-
     return (
         <div>
-            {actionError && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                    {actionError}
+            {leftMessage && (
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                    {leftMessage}
                 </div>
             )}
 
             <ul className="divide-y divide-border-gray border-t border-border-gray">
                 {memberships.map((membership: MyMembership) => (
-                    <li key={membership.organisationId} className="py-3 flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                            <p className="font-medium">{membership.organisationName}</p>
-                            <p className="text-sm text-secondary">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
-                        </div>
-
-                        {membership.isActive ? (
-                            <span className="text-sm font-medium text-accent">Aktiv</span>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => handleSwitch(membership.organisationId)}
-                                disabled={switchingId === membership.organisationId}
-                                className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
-                            >
-                                {switchingId === membership.organisationId ? 'Skifter...' : 'Gør aktiv'}
-                            </button>
-                        )}
-                    </li>
+                    <MembershipRow key={membership.organisationId} membership={membership} onLeft={handleLeft} />
                 ))}
             </ul>
         </div>
+    )
+}
+
+interface MembershipRowProps {
+    membership: MyMembership
+    onLeft: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
+}
+
+function MembershipRow({ membership, onLeft }: MembershipRowProps) {
+    const [setActiveOrganisation, { isLoading: switching, error: switchError }] = useSetActiveOrganisationMutation()
+    const [leaveOrganisation, { isLoading: leaving, error: leaveError }] = useLeaveOrganisationMutation()
+
+    const [confirmingLeave, setConfirmingLeave] = useState(false)
+
+    async function handleSwitch() {
+        try {
+            await setActiveOrganisation({ organisationId: membership.organisationId }).unwrap()
+        } catch {
+            // Fejlen vises via switchError.
+        }
+    }
+
+    async function handleLeave() {
+        try {
+            const newActiveOrganisation = await leaveOrganisation({ organisationId: membership.organisationId }).unwrap()
+            onLeft(membership.organisationName, membership.isActive, newActiveOrganisation)
+        } catch {
+            // Fejlen vises via leaveError - forbliver i bekræft-tilstand.
+        }
+    }
+
+    const actionError = readableApiError(switchError) ?? readableApiError(leaveError)
+
+    return (
+        <li className="py-3">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <p className="font-medium">{membership.organisationName}</p>
+                    <p className="text-sm text-secondary">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {membership.isActive ? (
+                        <span className="text-sm font-medium text-accent">Aktiv</span>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleSwitch}
+                            disabled={switching}
+                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        >
+                            {switching ? 'Skifter...' : 'Gør aktiv'}
+                        </button>
+                    )}
+
+                    {confirmingLeave ? (
+                        <>
+                            <span className="text-sm text-secondary">Er du sikker?</span>
+                            <button
+                                type="button"
+                                onClick={handleLeave}
+                                disabled={leaving}
+                                className="text-red-700 text-sm font-medium hover:underline disabled:opacity-60"
+                            >
+                                {leaving ? 'Forlader...' : 'Ja, forlad'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingLeave(false)}
+                                disabled={leaving}
+                                className="text-secondary text-sm hover:underline disabled:opacity-60"
+                            >
+                                Annuller
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setConfirmingLeave(true)}
+                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                        >
+                            Forlad
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {actionError && <p className="text-red-700 text-xs mt-2">{actionError}</p>}
+        </li>
     )
 }
