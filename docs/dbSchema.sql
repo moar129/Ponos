@@ -314,12 +314,13 @@ as $$
 $$;
 
 
--- US-06: en ansøger er endnu IKKE medlem, så deres profiles.organisation_id
--- er null. Policy'en "Se egen profil eller profiler i egen organisation"
--- rammer derfor ikke, og administratoren kunne ikke se ansøgerens navn og
--- email. Funktionen er security definer, så opslaget i membership_requests
--- sker uden RLS - det undgår rekursion mellem de to tabellers policies.
--- Kun ansøgere med status 'Pending' eksponeres.
+-- US-06: en ansøger er endnu IKKE medlem, så der findes ingen
+-- memberships-række for dem i organisationen. Policy'en "Se egen profil
+-- eller profiler i egen organisation" rammer derfor ikke, og
+-- administratoren kunne ikke se ansøgerens navn og email. Funktionen er
+-- security definer, så opslaget i membership_requests sker uden RLS -
+-- det undgår rekursion mellem de to tabellers policies. Kun ansøgere med
+-- status 'Pending' eksponeres.
 create or replace function public.is_pending_requester_to_my_org(p_user_id uuid)
 returns boolean
 language sql
@@ -462,6 +463,10 @@ create trigger trg_sync_item_organisation
 -- uden at blive låst - kun kombinationen "Admin"-rollen + admin-
 -- privilegiet er beskyttet, da det er den, der reelt ville låse alle
 -- administratorer ude, hvis den forsvandt.
+-- US-64: respekterer ponos.bypass_admin_protection - uden denne ville
+-- delete_organisation (15.13) ikke kunne kaskade-slette Admin-privilegiet
+-- sammen med resten af organisationen, selvom hele organisationen (og
+-- dermed enhver mening i at beskytte netop dens Admin-rolle) forsvinder.
 create or replace function public.prevent_admin_privilege_change()
 returns trigger
 language plpgsql
@@ -471,6 +476,11 @@ as $$
 declare
   role_name text;
 begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
   select name into role_name from public.roles where id = old.role_id;
 
   if old.name = 'admin' and role_name = 'Admin' then
@@ -497,6 +507,8 @@ create trigger trg_prevent_admin_privilege_change
 -- selve admin-privilegiet (privileges.role_id ... on delete cascade).
 -- Andre roller, der måtte have et privilege ved navn 'admin' (fx til
 -- test), er IKKE låst - kun rollen ved navn "Admin" specifikt.
+-- US-64: respekterer samme ponos.bypass_admin_protection-flag som
+-- prevent_admin_privilege_change (15.5) - se dens kommentar for hvorfor.
 create or replace function public.prevent_admin_role_change()
 returns trigger
 language plpgsql
@@ -506,6 +518,11 @@ as $$
 declare
   is_admin_role boolean;
 begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
   if old.name <> 'Admin' then
     if tg_op = 'DELETE' then return old; end if;
     return new;
@@ -682,6 +699,228 @@ $$;
 grant execute on function public.set_active_organisation(uuid) to authenticated;
 
 
+-- 15.11 US-61: fjerner brugerens medlemskab af p_organisation_id.
+-- Blokerer hvis brugeren er organisationens ENESTE administrator (dvs.
+-- eneste medlemskab hvis rolle bærer 'admin'-privilegiet) - organisationen
+-- skal altid have mindst én administrator. Hvis den forladte organisation
+-- var brugerens aktive, vælges automatisk en anden af de resterende
+-- medlemskaber som ny aktiv organisation (vilkårlig - ældste medlemskab),
+-- eller ingen hvis ingen er tilbage - samme "automatisk skift + besked"-
+-- mønster som create_organisation (15.8/US-60), derfor samme bypass-flag.
+-- Returnerer den nye aktive organisation (eller null), så klienten kan
+-- vise hvilken organisation brugeren nu er på. Påvirker aldrig brugerens
+-- øvrige medlemskaber/roller (kun DELETE på egen række).
+create or replace function public.leave_organisation(p_organisation_id uuid)
+returns public.organisations
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id       uuid := auth.uid();
+  v_role_id       uuid;
+  v_is_admin      boolean;
+  v_other_admins  int;
+  v_next_org_id   uuid;
+  v_result        public.organisations;
+begin
+  if v_user_id is null then
+    raise exception 'Du skal være logget ind for at forlade en organisation.';
+  end if;
+
+  select role_id into v_role_id
+  from public.memberships
+  where user_id = v_user_id and organisation_id = p_organisation_id;
+
+  if not found then
+    raise exception 'Du er ikke medlem af denne organisation.';
+  end if;
+
+  v_is_admin := v_role_id is not null and exists (
+    select 1 from public.privileges where role_id = v_role_id and name = 'admin'
+  );
+
+  if v_is_admin then
+    select count(*) into v_other_admins
+    from public.memberships m
+    join public.privileges p on p.role_id = m.role_id and p.name = 'admin'
+    where m.organisation_id = p_organisation_id and m.user_id <> v_user_id;
+
+    if v_other_admins = 0 then
+      raise exception 'Du er den eneste administrator i organisationen. Gør et andet medlem til administrator, før du forlader den.';
+    end if;
+  end if;
+
+  delete from public.memberships
+  where user_id = v_user_id and organisation_id = p_organisation_id;
+
+  perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+  select organisation_id into v_next_org_id
+  from public.memberships
+  where user_id = v_user_id
+  order by created_at
+  limit 1;
+
+  update public.profiles
+    set active_organisation_id = v_next_org_id
+    where id = v_user_id and active_organisation_id = p_organisation_id;
+
+  if v_next_org_id is not null then
+    select * into v_result from public.organisations where id = v_next_org_id;
+  end if;
+
+  return v_result;
+end;
+$$;
+
+grant execute on function public.leave_organisation(uuid) to authenticated;
+
+
+-- 15.12 US-59 (fix): henter "Mine organisationer"-listen (organisation +
+-- rolle + er-aktiv pr. medlemskab) i ét atomisk, security definer-kald.
+-- Nødvendig fordi roles-tabellens RLS ("Se roller i egen organisation",
+-- 16.3) er scopet til brugerens AKTIVE organisation - et almindeligt
+-- klient-opslag kunne derfor ikke se rollenavnet for en organisation, der
+-- ikke lige er aktiv, og viste fejlagtigt "Ingen rolle tildelt". At udvide
+-- selve roles-RLS'en blev overvejet, men ville lække andre organisationers
+-- roller ind i /roller's rolle-STYRINGS-visning for brugere med flere
+-- organisationer - denne funktion undgår det helt ved at læse uden om RLS.
+-- US-64: udvidet med is_admin (styrer "Slet organisation"-knappen - kun
+-- en reel administrator af DEN organisation må slette den) og
+-- member_count (til bekræft-teksten "fjerner adgang for N andre
+-- medlemmer"). Samme grund som ovenfor til at beregne det her i stedet
+-- for et separat klient-opslag: memberships-RLS er også scopet til
+-- brugerens aktive organisation, så et opslag på "andre medlemmer i en
+-- IKKE-aktiv organisation" ville ramme samme blokering.
+create or replace function public.get_my_memberships()
+returns table (
+  organisation_id    uuid,
+  organisation_name  text,
+  role_id            uuid,
+  role_name          text,
+  is_active          boolean,
+  is_admin           boolean,
+  member_count       bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    m.organisation_id,
+    o.name as organisation_name,
+    m.role_id,
+    r.name as role_name,
+    m.organisation_id = p.active_organisation_id as is_active,
+    exists (
+      select 1 from public.privileges pr where pr.role_id = m.role_id and pr.name = 'admin'
+    ) as is_admin,
+    (select count(*) from public.memberships m2 where m2.organisation_id = m.organisation_id) as member_count
+  from public.memberships m
+  join public.organisations o on o.id = m.organisation_id
+  left join public.roles r on r.id = m.role_id
+  join public.profiles p on p.id = auth.uid()
+  where m.user_id = auth.uid();
+$$;
+
+grant execute on function public.get_my_memberships() to authenticated;
+
+
+-- 15.13 US-64: sletter en organisation permanent. Kun en administrator af
+-- DEN organisation (ikke nødvendigvis brugerens aktive) må slette - samme
+-- manuelle rolle/privilegie-opslag som leave_organisation (15.11)/
+-- get_my_memberships (15.12), da has_privilege_or_admin() kun kan tjekke
+-- brugerens AKTIVE organisation. Ingen "sidste medlem"-restriktion (i
+-- modsætning til leave_organisation) - begge scenarier (alene tilbage,
+-- eller organisationen lukker ned med andre medlemmer tilbage) er
+-- tilsigtede og skal begge lykkes; beskyttelsen mod et hændeligt tryk
+-- ligger i frontendens bekræft-flow, ikke her.
+--
+-- Al underliggende data (roller, privilegier, medlemskaber, opgaver,
+-- lokationer, kategorier, items, statistik, medlemsanmodninger) cascader
+-- automatisk via organisations-tabellens "on delete cascade"-FK'er.
+-- profiles.active_organisation_id (on delete set null) rydder samtidig
+-- automatisk op for ALLE brugere - også andre medlemmer end den, der
+-- sletter - der havde denne organisation som aktiv. Men det er internt en
+-- UPDATE på profiles, som rammer trg_prevent_self_role_org_change for
+-- netop DEN SLETTENDE BRUGERS egen række, hvis den slettede organisation
+-- var deres egen aktive - derfor samme bypass-flag som de tre andre
+-- RPC'er, sat FØR delete. Samme grund til at sætte
+-- ponos.bypass_admin_protection: kaskaden ned til roller/privilegier
+-- rammer ellers trg_prevent_admin_role_change (15.6) og
+-- trg_prevent_admin_privilege_change (15.5), som normalt (med god grund)
+-- blokerer sletning af organisationens "Admin"-rolle/privilegie - men her
+-- forsvinder hele organisationen alligevel, så beskyttelsen giver ikke
+-- mening. Returnerer den slettende brugers nye aktive organisation (eller
+-- null), udfyldt kun hvis den slettede org var deres egen aktive - samme
+-- mønster som leave_organisation.
+create or replace function public.delete_organisation(p_organisation_id uuid)
+returns public.organisations
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id     uuid := auth.uid();
+  v_role_id     uuid;
+  v_is_admin    boolean;
+  v_was_active  boolean;
+  v_next_org_id uuid;
+  v_result      public.organisations;
+begin
+  if v_user_id is null then
+    raise exception 'Du skal være logget ind for at slette en organisation.';
+  end if;
+
+  select role_id into v_role_id
+  from public.memberships
+  where user_id = v_user_id and organisation_id = p_organisation_id;
+
+  if not found then
+    raise exception 'Du er ikke medlem af denne organisation.';
+  end if;
+
+  v_is_admin := v_role_id is not null and exists (
+    select 1 from public.privileges where role_id = v_role_id and name = 'admin'
+  );
+
+  if not v_is_admin then
+    raise exception 'Kun en administrator kan slette organisationen.';
+  end if;
+
+  select (active_organisation_id = p_organisation_id) into v_was_active
+  from public.profiles where id = v_user_id;
+
+  perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+  perform set_config('ponos.bypass_admin_protection', 'true', true);
+
+  delete from public.organisations where id = p_organisation_id;
+
+  if v_was_active then
+    select organisation_id into v_next_org_id
+    from public.memberships
+    where user_id = v_user_id
+    order by created_at
+    limit 1;
+
+    update public.profiles
+      set active_organisation_id = v_next_org_id
+      where id = v_user_id;
+
+    if v_next_org_id is not null then
+      select * into v_result from public.organisations where id = v_next_org_id;
+    end if;
+  end if;
+
+  return v_result;
+end;
+$$;
+
+grant execute on function public.delete_organisation(uuid) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -726,12 +965,22 @@ create policy "Rediger egen organisation"
 -- ---------------------------------------------------------------------
 -- 16.2 PROFILES
 -- ---------------------------------------------------------------------
+-- US-59: "egen organisation" betyder her "et medlemskab i MIN aktive
+-- organisation" - IKKE "samme active_organisation_id som mig". De to er
+-- ikke det samme, når et medlem er del af flere organisationer: en
+-- bruger, der p.t. har en ANDEN organisation aktiv, skal stadig kunne
+-- ses af administratorer i de(n) organisation(er), vedkommende faktisk
+-- er medlem af (fx medlemslisten på /roller). Tjekkes derfor via
+-- memberships i stedet for en direkte active_organisation_id-sammenligning.
 create policy "Se egen profil eller profiler i egen organisation"
   on public.profiles for select
   to authenticated
   using (
     id = auth.uid()
-    or organisation_id = public.auth_profile_org()
+    or exists (
+      select 1 from public.memberships m
+      where m.user_id = profiles.id and m.organisation_id = public.auth_profile_org()
+    )
   );
 
 -- US-06: lader administratoren læse navn/email på brugere, der har en
@@ -987,11 +1236,13 @@ create policy "Alle autentificerede brugere kan se nyheder"
 
 
 -- ---------------------------------------------------------------------
--- 16.10 MEMBERSHIPS (US-59)
+-- 16.10 MEMBERSHIPS (US-59/US-61)
 -- Ingen INSERT/DELETE-policy for almindelige brugere: rækker oprettes
 -- kun via create_organisation() (15.8) og
--- handle_membership_request_status_change() (15.3), begge security
--- definer. DELETE (forlad organisation) hører til US-61.
+-- handle_membership_request_status_change() (15.3), og fjernes kun via
+-- leave_organisation() (15.11) - alle tre security definer, samme mønster
+-- som roles/privileges. Ingen klient-facing DELETE-policy er derfor
+-- nødvendig; leave_organisation håndhæver selv "sidste admin"-tjekket.
 -- ---------------------------------------------------------------------
 create policy "Se egne medlemskaber eller medlemskaber i egen organisation"
   on public.memberships for select

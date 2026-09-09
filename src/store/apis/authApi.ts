@@ -1,6 +1,6 @@
 // src/store/apis/authApi.ts
 import type { Session } from '@supabase/supabase-js'
-import { supabaseApi } from './supabaseApi'
+import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 
 export const authApi = supabaseApi.injectEndpoints({
@@ -38,15 +38,10 @@ export const authApi = supabaseApi.injectEndpoints({
                     // at vise et forældet resultat fra dengang komponenten først
                     // blev mountet. Uden 'Privilege' her blev fx det admin-kun
                     // "Anmodninger"-link i headeren stående efter logout, indtil
-                    // man selv opdaterede siden.
-                    dispatch(
-                        supabaseApi.util.invalidateTags([
-                            'PendingRequest',
-                            'Profile',
-                            'Privilege',
-                            'Organisation',
-                        ]),
-                    )
+                    // man selv opdaterede siden. Bruger samme tag-liste som
+                    // organisationApi.ts's skift-aktiv-org-invalidering
+                    // (USER_SCOPED_TAGS) - se dens kommentar for hvorfor.
+                    dispatch(supabaseApi.util.invalidateTags([...USER_SCOPED_TAGS]))
                 })
 
                 // Når ingen komponenter længere abonnerer på denne query (fx ved
