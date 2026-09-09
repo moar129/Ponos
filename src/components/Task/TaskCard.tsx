@@ -62,7 +62,7 @@ export function TaskCard({ task }: TaskCardProps) {
           Info
         </span>
 
-        <p className="text-gray-700 text-sm">
+        <p className="text-gray-700 text-sm break-words hyphens-auto">
           {task.description || 'Ingen beskrivelse'}
         </p>
       </div>
