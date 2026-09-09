@@ -42,15 +42,15 @@ async function getAuthenticatedOrganisationId(): Promise<string> {
 
     const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('organisation_id')
+        .select('active_organisation_id')
         .eq('id', authData.user.id)
         .single()
 
-    if (profileError || !profileData?.organisation_id) {
+    if (profileError || !profileData?.active_organisation_id) {
         throw new Error('Kunne ikke hente din organisationstilknytning.')
     }
 
-    return profileData.organisation_id
+    return profileData.active_organisation_id
 }
 
 export const taskApi = supabaseApi.injectEndpoints({
