@@ -5,7 +5,7 @@ import {
     useGetPendingMembershipRequestsQuery,
     useReviewMembershipRequestMutation,
 } from '../../store/apis/membershipApi'
-import { useIsAdmin } from '../../store/apis/privilegeApi'
+import { MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { MembershipRequest, ReviewMembershipRequestInput } from '../../types/membership/membershipType'
 
 // Hvilken række der afventer bekræftelse, og hvad der blev trykket på.
@@ -33,9 +33,9 @@ function formatDate(value: string): string {
 // admin-view. Adgangen håndhæves server-side af RLS - tjekket her er
 // kun for at undgå at vise en tom side til brugere uden rettigheder.
 export default function MembershipRequestsPage() {
-    const { isAdmin, isLoading: loadingPrivileges } = useIsAdmin()
+    const { hasPrivilege: canManage, isLoading: loadingPrivileges } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
     const { data: requests, isLoading, error: queryError } = useGetPendingMembershipRequestsQuery(undefined, {
-        skip: !isAdmin,
+        skip: !canManage,
     })
     const [reviewRequest, { isLoading: submitting, error: mutationError }] = useReviewMembershipRequestMutation()
 
@@ -61,12 +61,12 @@ export default function MembershipRequestsPage() {
         return <p className="text-secondary">Indlæser...</p>
     }
 
-    if (!isAdmin) {
+    if (!canManage) {
         return (
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-2">Ingen adgang</h1>
                 <p className="text-sm text-secondary">
-                    Kun administratorer kan behandle medlemsanmodninger.
+                    Du har ikke rettigheder til at behandle medlemsanmodninger.
                 </p>
             </div>
         )

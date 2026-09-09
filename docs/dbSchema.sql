@@ -25,6 +25,10 @@ create table public.organisations (
   created_at timestamptz not null default now()
 );
 
+-- Organisationsnavne skal være unikke (case-insensitivt, trimmet) -
+-- ellers kan to organisationer oprettes med samme navn (US-58).
+create unique index organisations_name_unique on public.organisations (lower(trim(name)));
+
 
 -- ---------------------------------------------------------------------
 -- 3. PROFILES (= domænemodellens "User")
@@ -248,8 +252,8 @@ as $$
 $$;
 
 -- Tjekker om nuværende bruger har en given privilege (via sin rolle)
--- Konvention: privilegiet "admin" bruges til organisations-administration
--- (medlemmer, roller, privilegier, org-indstillinger). Kan udvides frit.
+-- Konvention: privilegiet "admin" er en superset af alle andre - se
+-- has_privilege_or_admin() nedenfor, som er det RLS-policies reelt bruger.
 create or replace function public.has_privilege(p_name text)
 returns boolean
 language sql
@@ -263,6 +267,20 @@ as $$
     join public.privileges p on p.role_id = pr.role_id
     where pr.id = auth.uid() and p.name = p_name
   );
+$$;
+
+-- Fase 1 granulære privilegier: hver CRUD-handling styres af sit eget,
+-- uafhængigt tildelelige privilegie (fx "manage_roles",
+-- "manage_membership_requests", "manage_organisation") - admin skal
+-- altid kunne alt, uanset hvilke granulære privilegier der er tildelt.
+create or replace function public.has_privilege_or_admin(p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.has_privilege(p_name) or public.has_privilege('admin');
 $$;
 
 
@@ -279,7 +297,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.has_privilege('admin') and exists (
+  select public.has_privilege_or_admin('manage_membership_requests') and exists (
     select 1
     from public.membership_requests mr
     where mr.user_id = p_user_id
@@ -397,6 +415,175 @@ create trigger trg_sync_item_organisation
   for each row execute function public.sync_item_organisation();
 
 
+-- 15.5 Beskytter admin-privilegiet PÅ ORGANISATIONENS "Admin"-ROLLE mod
+-- omdøb/slet (US-13, roleApi.ts/privilegeApi.ts har en UI-guard for
+-- dette, men RLS alene kan ikke skelne "netop denne række" - enhver
+-- admin må ellers redigere/slette privilegier i egen organisation).
+-- Andre roller må frit have et privilege ved navn 'admin' (fx til test)
+-- uden at blive låst - kun kombinationen "Admin"-rollen + admin-
+-- privilegiet er beskyttet, da det er den, der reelt ville låse alle
+-- administratorer ude, hvis den forsvandt.
+create or replace function public.prevent_admin_privilege_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  role_name text;
+begin
+  select name into role_name from public.roles where id = old.role_id;
+
+  if old.name = 'admin' and role_name = 'Admin' then
+    if tg_op = 'DELETE' then
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke slettes.';
+    end if;
+    if new.name is distinct from old.name then
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke omdøbes.';
+    end if;
+  end if;
+
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_admin_privilege_change
+  before update or delete on public.privileges
+  for each row execute function public.prevent_admin_privilege_change();
+
+
+-- 15.6 Beskytter organisationens "Admin"-rolle mod omdøb/slet, når den
+-- har admin-privilegiet (US-12) - sletning ville ellers kaskade-slette
+-- selve admin-privilegiet (privileges.role_id ... on delete cascade).
+-- Andre roller, der måtte have et privilege ved navn 'admin' (fx til
+-- test), er IKKE låst - kun rollen ved navn "Admin" specifikt.
+create or replace function public.prevent_admin_role_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  is_admin_role boolean;
+begin
+  if old.name <> 'Admin' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  is_admin_role := exists (
+    select 1 from public.privileges
+    where role_id = old.id and name = 'admin'
+  );
+
+  if not is_admin_role then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if tg_op = 'DELETE' then
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke slettes.';
+  end if;
+
+  if new.name is distinct from old.name then
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke omdøbes.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_admin_role_change
+  before update or delete on public.roles
+  for each row execute function public.prevent_admin_role_change();
+
+
+-- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
+-- kaldende brugers egen organisation_id/role_id (bruger opretter og
+-- bliver selv admin) - trg_prevent_self_role_org_change (15.2) blokerer
+-- normalt netop dette. Funktionen sætter et transaktionslokalt flag
+-- (bypass), som denne opdaterede version af triggeren respekterer.
+-- Almindelige klient-opdateringer sætter aldrig flaget og er derfor
+-- stadig blokeret som før.
+create or replace function public.prevent_self_role_org_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.id = auth.uid()
+     and coalesce(current_setting('ponos.bypass_self_role_org_change', true), 'false') <> 'true' then
+    if new.role_id is distinct from old.role_id then
+      raise exception 'Du kan ikke tildele dig selv en rolle.';
+    end if;
+    if new.organisation_id is distinct from old.organisation_id then
+      raise exception 'Du kan ikke ændre din egen organisationstilknytning direkte.';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+
+-- 15.8 US-58: Opretter en ny organisation, en "Admin"-rolle med
+-- admin-privilegiet, og gør den kaldende bruger til admin i den - alt i
+-- én atomisk transaktion (fejler hele vejen igennem hvis noget går galt
+-- undervejs). security definer, fordi roles/privileges-inserts og
+-- profiles-opdateringen ellers ville blive blokeret af RLS hhv.
+-- trg_prevent_self_role_org_change. US-60 (flere organisationer) er ikke
+-- lavet endnu - en bruger der allerede er medlem af en organisation kan
+-- derfor ikke oprette en ny her.
+create or replace function public.create_organisation(p_name text)
+returns public.organisations
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org      public.organisations;
+  v_role_id  uuid;
+  v_user_id  uuid := auth.uid();
+begin
+  if v_user_id is null then
+    raise exception 'Du skal være logget ind for at oprette en organisation.';
+  end if;
+
+  if trim(coalesce(p_name, '')) = '' then
+    raise exception 'Organisationens navn skal udfyldes.';
+  end if;
+
+  if exists (select 1 from public.profiles where id = v_user_id and organisation_id is not null) then
+    raise exception 'Du er allerede medlem af en organisation.';
+  end if;
+
+  insert into public.organisations (name)
+  values (trim(p_name))
+  returning * into v_org;
+
+  insert into public.roles (organisation_id, name)
+  values (v_org.id, 'Admin')
+  returning id into v_role_id;
+
+  insert into public.privileges (role_id, name)
+  values (v_role_id, 'admin');
+
+  -- Lokal til denne transaktion (tredje argument 'true') - nulstilles
+  -- automatisk ved commit, påvirker ingen andre requests.
+  perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+  update public.profiles
+    set organisation_id = v_org.id,
+        role_id = v_role_id
+    where id = v_user_id;
+
+  return v_org;
+end;
+$$;
+
+grant execute on function public.create_organisation(text) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -431,10 +618,10 @@ create policy "Opret organisation (bootstrap)"
   to authenticated
   with check (true);
 
-create policy "Admin kan redigere egen organisation"
+create policy "Rediger egen organisation"
   on public.organisations for update
   to authenticated
-  using (id = public.auth_profile_org() and public.has_privilege('admin'));
+  using (id = public.auth_profile_org() and public.has_privilege_or_admin('manage_organisation'));
 
 
 -- ---------------------------------------------------------------------
@@ -461,12 +648,27 @@ create policy "Bruger kan opdatere egen profil"
   to authenticated
   using (id = auth.uid());
 
-create policy "Admin kan opdatere profiler i egen organisation (fx tildele rolle)"
+-- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
+-- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
+-- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
+create policy "Tildel rolle til profiler i egen organisation"
   on public.profiles for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_roles')
+    and (
+      public.has_privilege('admin')
+      or role_id is null
+      or not exists (
+        select 1 from public.privileges p
+        where p.role_id = role_id and p.name = 'admin'
+      )
+    )
   );
 
 
@@ -478,28 +680,28 @@ create policy "Se roller i egen organisation"
   to authenticated
   using (organisation_id = public.auth_profile_org());
 
-create policy "Admin kan oprette roller i egen organisation"
+create policy "Opret roller i egen organisation"
   on public.roles for insert
   to authenticated
   with check (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
-create policy "Admin kan redigere/slette roller i egen organisation"
+create policy "Rediger roller i egen organisation"
   on public.roles for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
-create policy "Admin kan slette roller i egen organisation"
+create policy "Slet roller i egen organisation"
   on public.roles for delete
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
 
@@ -513,28 +715,37 @@ create policy "Se privilegier i egen organisation"
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
   );
 
-create policy "Admin kan oprette privilegier i egen organisation"
+-- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
+-- kunne oprette/omdøbe et privilegie TIL "admin" - kun en reel admin må.
+-- WITH CHECK ser det NYE (post-update) navn.
+create policy "Opret privilegier i egen organisation"
   on public.privileges for insert
   to authenticated
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+    and (name <> 'admin' or public.has_privilege('admin'))
   );
 
-create policy "Admin kan redigere/slette privilegier i egen organisation"
+create policy "Rediger privilegier i egen organisation"
   on public.privileges for update
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
+  )
+  with check (
+    role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('manage_roles')
+    and (name <> 'admin' or public.has_privilege('admin'))
   );
 
-create policy "Admin kan slette privilegier i egen organisation"
+create policy "Slet privilegier i egen organisation"
   on public.privileges for delete
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_roles')
   );
 
 
@@ -546,20 +757,20 @@ create policy "Bruger kan anmode om medlemskab for sig selv"
   to authenticated
   with check (user_id = auth.uid());
 
-create policy "Se egne anmodninger eller (som admin) anmodninger i egen org"
+create policy "Se egne anmodninger eller anmodninger i egen org"
   on public.membership_requests for select
   to authenticated
   using (
     user_id = auth.uid()
-    or (organisation_id = public.auth_profile_org() and public.has_privilege('admin'))
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_membership_requests'))
   );
 
-create policy "Admin kan acceptere/afvise anmodninger i egen organisation"
+create policy "Accepter/afvis anmodninger i egen organisation"
   on public.membership_requests for update
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege('admin')
+    and public.has_privilege_or_admin('manage_membership_requests')
   );
 
 

@@ -1,28 +1,81 @@
 // src/pages/organisation/OrganisationPage.tsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
-import { useGetMyOrganisationQuery, useUpdateMyOrganisationMutation } from '../../store/apis/organisationApi'
-import { useIsAdmin } from '../../store/apis/privilegeApi'
+import { supabase } from '../../lib/supabase'
+import { useCreateOrganisationMutation, useGetMyOrganisationQuery, useUpdateMyOrganisationMutation } from '../../store/apis/organisationApi'
+import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
+import { MANAGE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
 // feltet fyldes med organisationens nuværende værdi.
 const emptyForm: UpdateOrganisationInput = { name: '' }
 
+type NoOrgTab = 'create' | 'request'
+
 // Se organisation og rediger organisation. Alle medlemmer kan se
 // organisationens navn; kun administratorer kan redigere det - adgangen
 // håndhæves server-side af RLS, tjekket her er kun for ikke at vise en
 // redigeringsknap til brugere uden rettigheder.
+//
+// Bruger uden organisation: samme side tilbyder både "Opret organisation"
+// (US-58) og "Anmod om medlemskab" (US-05) som to faner - i stedet for at
+// spredt over to separate sider (`/organisation` og `/request-membership`),
+// da det er de to eneste veje ind i en organisation, og brugeren ellers
+// selv skulle vide/finde den anden side.
 export default function OrganisationPage() {
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
-    const { isAdmin } = useIsAdmin()
+    const [createOrganisation, { isLoading: creating, error: createError }] = useCreateOrganisationMutation()
+    const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
+    const { data: pendingRequest, isLoading: loadingPendingRequest } = useGetMyPendingRequestQuery()
+    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
     const [validationError, setValidationError] = useState<string | null>(null)
     const [savedMessage, setSavedMessage] = useState(false)
+
+    const [noOrgTab, setNoOrgTab] = useState<NoOrgTab>('create')
+
+    const [createName, setCreateName] = useState('')
+    const [createValidationError, setCreateValidationError] = useState<string | null>(null)
+
+    const [organisations, setOrganisations] = useState<Organisation[]>([])
+    const [loadingOrganisations, setLoadingOrganisations] = useState(true)
+    const [selectedOrgId, setSelectedOrgId] = useState('')
+    const [requestSuccess, setRequestSuccess] = useState(false)
+
+    // Henter listen af organisationer man kan anmode om medlemskab af, kun
+    // relevant for brugere uden egen organisation - undgår et unødvendigt
+    // kald for brugere der allerede er medlem et sted.
+    useEffect(() => {
+        if (isLoading || organisation) return
+
+        let cancelled = false
+
+        async function fetchOrganisations() {
+            const { data, error } = await supabase
+                .from('organisations')
+                .select('id, name')
+                .order('name')
+
+            if (cancelled) return
+
+            if (error) {
+                console.error('Kunne ikke hente organisationer:', error.message)
+            } else {
+                setOrganisations(data)
+            }
+            setLoadingOrganisations(false)
+        }
+
+        fetchOrganisations()
+        return () => {
+            cancelled = true
+        }
+    }, [isLoading, organisation])
 
     function startEdit(current: Organisation) {
         setForm({ name: current.name })
@@ -59,6 +112,40 @@ export default function OrganisationPage() {
         }
     }
 
+    async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+
+        if (!createName.trim()) {
+            setCreateValidationError('Organisationens navn skal udfyldes.')
+            return
+        }
+        setCreateValidationError(null)
+
+        try {
+            await createOrganisation({ name: createName.trim() }).unwrap()
+
+            // Mutationen invaliderer 'Organisation', så visningen nedenfor
+            // henter og viser den nye organisation automatisk.
+            setCreateName('')
+        } catch {
+            // Fejlen vises via createError - feltets indhold bevares.
+        }
+    }
+
+    async function handleRequestSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+
+        try {
+            await requestMembership({ organisationId: selectedOrgId }).unwrap()
+
+            // Mutationen invaliderer 'PendingRequest', så banneret og
+            // pendingRequest herunder opdaterer sig selv.
+            setRequestSuccess(true)
+        } catch {
+            // Fejlen vises via requestError.
+        }
+    }
+
     // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
     // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
     function readableError(err: unknown): string | null {
@@ -69,7 +156,7 @@ export default function OrganisationPage() {
         return 'Noget gik galt. Prøv igen.'
     }
 
-    if (isLoading) {
+    if (isLoading || loadingPendingRequest) {
         return <p className="text-secondary">Indlæser organisation...</p>
     }
 
@@ -82,10 +169,117 @@ export default function OrganisationPage() {
     }
 
     if (!organisation) {
+        const createErrorMessage = readableError(createError)
+        const requestErrorMessage = readableError(requestError)
+
         return (
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-2">Ingen organisation</h1>
-                <p className="text-sm text-secondary">Du er ikke medlem af en organisation endnu.</p>
+                <p className="text-sm text-secondary mb-6">
+                    Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.
+                </p>
+
+                {pendingRequest ? (
+                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+                        Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex gap-2 mb-6 border-b border-border-gray">
+                            <button
+                                type="button"
+                                onClick={() => setNoOrgTab('create')}
+                                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                    noOrgTab === 'create'
+                                        ? 'border-primary text-primary'
+                                        : 'border-transparent text-secondary hover:text-primary'
+                                }`}
+                            >
+                                Opret organisation
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setNoOrgTab('request')}
+                                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                    noOrgTab === 'request'
+                                        ? 'border-primary text-primary'
+                                        : 'border-transparent text-secondary hover:text-primary'
+                                }`}
+                            >
+                                Anmod om medlemskab
+                            </button>
+                        </div>
+
+                        {noOrgTab === 'create' ? (
+                            <>
+                                {(createValidationError || createErrorMessage) && (
+                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                        {createValidationError ?? createErrorMessage}
+                                    </div>
+                                )}
+                                <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
+                                        <input
+                                            id="create-name"
+                                            type="text"
+                                            value={createName}
+                                            onChange={(e) => setCreateName(e.target.value)}
+                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={creating}
+                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                    >
+                                        {creating ? 'Opretter...' : 'Opret organisation'}
+                                    </button>
+                                </form>
+                            </>
+                        ) : requestSuccess ? (
+                            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                                Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
+                            </div>
+                        ) : (
+                            <>
+                                {requestErrorMessage && (
+                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                        {requestErrorMessage}
+                                    </div>
+                                )}
+                                <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
+                                        <select
+                                            id="request-org"
+                                            value={selectedOrgId}
+                                            onChange={(e) => setSelectedOrgId(e.target.value)}
+                                            disabled={loadingOrganisations}
+                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                        >
+                                            <option value="" disabled>
+                                                {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
+                                            </option>
+                                            {organisations.map((org) => (
+                                                <option key={org.id} value={org.id}>
+                                                    {org.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={requesting || !selectedOrgId}
+                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                    >
+                                        {requesting ? 'Sender anmodning...' : 'Send anmodning'}
+                                    </button>
+                                </form>
+                            </>
+                        )}
+                    </>
+                )}
             </div>
         )
     }
@@ -154,7 +348,7 @@ export default function OrganisationPage() {
                         </div>
                     </dl>
 
-                    {isAdmin && (
+                    {canManageOrganisation && (
                         <div className="mt-6 flex flex-wrap gap-3">
                             <button
                                 type="button"
