@@ -52,9 +52,9 @@ Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt
 9. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/organisation`, som nu rummer både opret- og anmod-flow)
 10. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
 
-## US-59-spec — klar til udførelse ved trin 5
+## US-59-spec — udført og testet (historik)
 
-Skrevet på forhånd (2026-09-09), så en fremtidig session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget. Dækker KUN US-59's acceptkriterier (se, blive medlem af flere, skifte aktiv organisation) - US-60/US-61 er bevidst udenfor scope her, se note i bunden.
+Skrevet på forhånd (2026-09-09) og siden implementeret, kørt og manuelt testet i browseren - bevaret som dokumentation af den faktiske migration, ikke som en ventende opgave. Dækkede oprindeligt KUN US-59's acceptkriterier (se, blive medlem af flere, skifte aktiv organisation); US-60 blev trukket ind i samme omgang undervejs (se status-tabellen og "Anbefalet rækkefølge") - "Eksplicit UDENFOR scope"-noten nederst er derfor delvist forældet, kun US-61 er stadig reelt udenfor scope.
 
 **Kerneidé:** `profiles.organisation_id` omdøbes til `active_organisation_id` og betyder herefter "den organisation, hvis data brugeren p.t. ser" - IKKE længere "den ene organisation brugeren er medlem af". Faktisk medlemskab (many-to-many, én rolle pr. organisation) flyttes til en ny `memberships`-tabel. Fordi `auth_profile_org()` (bruges af stort set alle RLS-policies i afsnit 16) beholder samme signatur og bare læser `active_organisation_id` i stedet for `organisation_id`, skal INGEN af de eksisterende org-scopede RLS-policies (organisations, locations, categories, items, tasks, task_*, statistics_*) ændres - kun de policies/funktioner der direkte rører `role_id` eller selve medlemskabet.
 
