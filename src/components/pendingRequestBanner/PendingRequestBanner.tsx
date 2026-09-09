@@ -25,17 +25,18 @@ export default function PendingRequestBanner() {
         )
     }
 
-    // Ingen profil = ikke logget ind (fx på /login og /signup), og på
-    // selve anmodningssiden ville opfordringen være overflødig.
-    if (!profile || profile.organisationId || pathname === '/request-membership') {
+    // Ingen profil = ikke logget ind (fx på /login og /signup), og på selve
+    // organisationssiden (som nu også rummer "Anmod om medlemskab") ville
+    // opfordringen være overflødig.
+    if (!profile || profile.organisationId || pathname === '/organisation') {
         return null
     }
 
     return (
         <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
             Du er ikke medlem af en organisation endnu.{' '}
-            <Link to="/request-membership" className="font-semibold underline hover:no-underline">
-                Anmod om medlemskab
+            <Link to="/organisation" className="font-semibold underline hover:no-underline">
+                Opret eller anmod om medlemskab
             </Link>
         </div>
     )

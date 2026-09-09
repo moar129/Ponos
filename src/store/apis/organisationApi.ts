@@ -102,6 +102,14 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     .eq('id', profile.organisation_id)
 
                 if (error) {
+                    // Postgres-fejlkode 23505 = unique constraint violation
+                    // (organisations_name_unique) - der findes allerede en
+                    // organisation med dette navn.
+                    if (error.code === '23505') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                        }
+                    }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
                 }
 
@@ -134,6 +142,14 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 const { data, error } = await supabase.rpc('create_organisation', { p_name: trimmed })
 
                 if (error) {
+                    // Postgres-fejlkode 23505 = unique constraint violation
+                    // (organisations_name_unique) - der findes allerede en
+                    // organisation med dette navn.
+                    if (error.code === '23505') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                        }
+                    }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
                 }
 
