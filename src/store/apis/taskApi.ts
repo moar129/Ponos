@@ -12,6 +12,15 @@ interface CreateTaskInput {
     room_id?: string | null
 }
 
+interface UpdateTaskInput {
+    id: string
+    title: string
+    description: string
+    priority: ETaskPriority | null
+    max_assignees: number | null
+    room_id?: string | null
+}
+
 interface CreateRoomInput {
     name: string
 }
@@ -123,6 +132,62 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: [{ type: 'Task', id: 'LIST' }],
+        }),
+
+        updateTask: builder.mutation<Task, UpdateTaskInput>({
+            queryFn: async ({
+                id,
+                title,
+                description,
+                priority,
+                max_assignees,
+                room_id,
+            }) => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId()
+
+                    const { data, error } = await supabase
+                        .from('tasks')
+                        .update({
+                            title,
+                            description,
+                            priority,
+                            max_assignees,
+                            room_id,
+                        })
+                        .eq('id', id)
+                        .eq('organisation_id', organisationId)
+                        .select()
+                        .single()
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    return { data: data as Task }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved redigering af opgave'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            invalidatesTags: (_result, _error, { id }) => [
+                { type: 'Task', id },
+                { type: 'Task', id: 'LIST' },
+            ],
         }),
 
         createRoom: builder.mutation<Room, CreateRoomInput>({
@@ -355,6 +420,7 @@ export const {
     useGetTaskAssigneesQuery,
     useCreateTaskMutation,
     useCreateRoomMutation,
+    useUpdateTaskMutation,
     useUpdateTaskStatusMutation,
     useAssignToTaskMutation,
     useUnassignFromTaskMutation,
