@@ -17,3 +17,13 @@ export interface UpdateOrganisationInput {
 export interface CreateOrganisationInput {
     name: string
 }
+
+// Et af brugerens medlemskaber (US-59) - til listen "Mine organisationer"
+// og til at vise/vælge hvilken der er aktiv. roleName er null, hvis
+// brugeren endnu ikke har fået tildelt en rolle i den organisation.
+export interface MyMembership {
+    organisationId: string
+    organisationName: string
+    roleName: string | null
+    isActive: boolean
+}

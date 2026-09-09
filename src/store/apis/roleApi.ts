@@ -10,10 +10,11 @@ import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, Update
 // prevent_admin_role_change-trigger, som bruger samme konvention).
 export const ADMIN_ROLE_NAME = 'Admin'
 
-// Slår den indloggede brugers organisation op. Samme mønster som
-// updateMyOrganisation i organisationApi.ts - roller/tildelinger skal
-// altid ske inden for administratorens egen organisation.
-async function getMyOrganisationId(): Promise<{ organisationId: string } | { error: string }> {
+// Slår den indloggede brugers AKTIVE organisation op (US-59). Samme
+// mønster som updateMyOrganisation i organisationApi.ts - roller/
+// tildelinger skal altid ske inden for administratorens aktive
+// organisation, aldrig i en anden af brugerens organisationer.
+async function getActiveOrganisationId(): Promise<{ organisationId: string } | { error: string }> {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
@@ -22,7 +23,7 @@ async function getMyOrganisationId(): Promise<{ organisationId: string } | { err
 
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('organisation_id')
+        .select('active_organisation_id')
         .eq('id', userData.user.id)
         .maybeSingle()
 
@@ -30,11 +31,11 @@ async function getMyOrganisationId(): Promise<{ organisationId: string } | { err
         return { error: profileError.message }
     }
 
-    if (!profile?.organisation_id) {
+    if (!profile?.active_organisation_id) {
         return { error: 'Du er ikke medlem af en organisation.' }
     }
 
-    return { organisationId: profile.organisation_id }
+    return { organisationId: profile.active_organisation_id }
 }
 
 export const roleApi = supabaseApi.injectEndpoints({
@@ -69,7 +70,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
                 }
 
-                const org = await getMyOrganisationId()
+                const org = await getActiveOrganisationId()
                 if ('error' in org) {
                     return { error: { status: 'CUSTOM_ERROR', error: org.error } }
                 }
@@ -133,8 +134,9 @@ export const roleApi = supabaseApi.injectEndpoints({
         // slette roller i egen organisation") afviser dette server-side for
         // ikke-admins. Databasen kaskaderer selv: tilknyttede privileges
         // slettes (privileges.role_id ... on delete cascade), og medlemmer
-        // med rollen mister den (profiles.role_id ... on delete set null) -
-        // 'Privilege' og 'Profile' invalideres derfor også.
+        // med rollen mister den (memberships.role_id ... on delete set
+        // null) - 'Privilege', 'Profile' og 'Membership' invalideres derfor
+        // også.
         deleteRole: builder.mutation<void, string>({
             queryFn: async (roleId) => {
                 const { error } = await supabase.from('roles').delete().eq('id', roleId)
@@ -146,36 +148,54 @@ export const roleApi = supabaseApi.injectEndpoints({
                 return { data: undefined }
             },
 
-            invalidatesTags: ['Role', 'Privilege', 'Profile'],
+            invalidatesTags: ['Role', 'Privilege', 'Profile', 'Membership'],
         }),
 
-        // Henter medlemmerne af administratorens organisation, så de kan
-        // tildeles en rolle (US-11). RLS ("Se egen profil eller profiler i
-        // egen organisation") afgrænser allerede til egen organisation.
+        // Henter medlemmerne af administratorens AKTIVE organisation, så de
+        // kan tildeles en rolle (US-11). US-59: medlemskab (og dermed rolle)
+        // ligger nu på memberships, ikke profiles - hentes i to kald i
+        // stedet for en PostgREST-join (samme mønster som
+        // getPendingMembershipRequests i membershipApi.ts), da en enkelt
+        // fejlende join ellers ville vælte hele medlemslisten.
         getOrganisationMembers: builder.query<OrganisationMember[], void>({
             queryFn: async () => {
-                const org = await getMyOrganisationId()
+                const org = await getActiveOrganisationId()
                 if ('error' in org) {
                     return { error: { status: 'CUSTOM_ERROR', error: org.error } }
                 }
 
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('id, first_name, last_name, email, role_id')
+                const { data: memberships, error: membershipsError } = await supabase
+                    .from('memberships')
+                    .select('user_id, role_id')
                     .eq('organisation_id', org.organisationId)
-                    .order('first_name')
 
-                if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                if (membershipsError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: membershipsError.message } }
                 }
 
+                if (!memberships || memberships.length === 0) {
+                    return { data: [] }
+                }
+
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, first_name, last_name, email')
+                    .in('id', memberships.map((membership) => membership.user_id))
+                    .order('first_name')
+
+                if (profilesError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                }
+
+                const roleIdByUserId = new Map(memberships.map((membership) => [membership.user_id, membership.role_id]))
+
                 return {
-                    data: (data ?? []).map((profile) => ({
+                    data: (profiles ?? []).map((profile) => ({
                         id: profile.id,
                         firstName: profile.first_name,
                         lastName: profile.last_name,
                         email: profile.email,
-                        roleId: profile.role_id,
+                        roleId: roleIdByUserId.get(profile.id) ?? null,
                     })),
                 }
             },
@@ -183,16 +203,24 @@ export const roleApi = supabaseApi.injectEndpoints({
             providesTags: ['Role'],
         }),
 
-        // Tildeler en rolle til et medlem af organisationen (US-11).
-        // Databasens trg_prevent_self_role_org_change afviser, hvis
+        // Tildeler en rolle til et medlem af den aktive organisation
+        // (US-11). US-59: opdaterer nu medlemmets membership-række for
+        // netop denne organisation, ikke profiles. Databasens
+        // trg_prevent_self_membership_role_change afviser, hvis
         // administratoren forsøger at tildele sig selv en rolle - UI'en
         // undgår desuden at vise kontrollen for administratorens egen række.
         assignRole: builder.mutation<void, AssignRoleInput>({
             queryFn: async ({ userId, roleId }) => {
+                const org = await getActiveOrganisationId()
+                if ('error' in org) {
+                    return { error: { status: 'CUSTOM_ERROR', error: org.error } }
+                }
+
                 const { error } = await supabase
-                    .from('profiles')
+                    .from('memberships')
                     .update({ role_id: roleId })
-                    .eq('id', userId)
+                    .eq('user_id', userId)
+                    .eq('organisation_id', org.organisationId)
 
                 if (error) {
                     // 42501 = RLS afviste - fx forsøg på at give en rolle med
@@ -210,7 +238,7 @@ export const roleApi = supabaseApi.injectEndpoints({
 
             // 'Profile' invalideres, så headerens rollevisning følger med,
             // hvis medlemmet selv har appen åben.
-            invalidatesTags: ['Role', 'Profile'],
+            invalidatesTags: ['Role', 'Profile', 'Membership'],
         }),
     }),
 })

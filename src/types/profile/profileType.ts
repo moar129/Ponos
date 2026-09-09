@@ -1,7 +1,9 @@
 // Brugerens egen profil, som den vises på /bruger.
-// Rolle- og organisationsnavn hentes med via joins, så UI'en kan vise
-// dem uden et ekstra opslag. Begge er null, hvis brugeren endnu ikke er
-// medlem af en organisation / ikke har fået tildelt en rolle.
+// activeOrganisationId er brugerens AKTIVE organisation (US-59) - ikke
+// nødvendigvis den eneste, brugeren er medlem af, se memberships. Rolle-
+// og organisationsnavn hentes med, så UI'en kan vise dem uden et ekstra
+// opslag. Begge er null, hvis brugeren ikke har en aktiv organisation /
+// ikke har fået tildelt en rolle dér.
 export interface Profile {
     id: string
     firstName: string
@@ -9,7 +11,7 @@ export interface Profile {
     email: string
     description: string | null
     urlPicture: string | null
-    organisationId: string | null
+    activeOrganisationId: string | null
     organisationName: string | null
     roleId: string | null
     roleName: string | null

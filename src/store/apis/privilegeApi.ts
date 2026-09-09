@@ -58,7 +58,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
 
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('role_id')
+                    .select('active_organisation_id')
                     .eq('id', userData.user.id)
                     .maybeSingle()
 
@@ -66,16 +66,34 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
                 }
 
-                // Uden rolle (fx nyoprettet bruger uden organisation) er
-                // der ingen privilegier - og intet ekstra opslag at lave.
-                if (!profile?.role_id) {
+                // Uden aktiv organisation (fx nyoprettet bruger) er der
+                // ingen privilegier - og intet ekstra opslag at lave.
+                if (!profile?.active_organisation_id) {
+                    return { data: [] }
+                }
+
+                // Rollen ligger på memberships (US-59) - brugerens rolle i
+                // DEN AKTIVE organisation, ikke nødvendigvis i alle sine
+                // organisationer.
+                const { data: membership, error: membershipError } = await supabase
+                    .from('memberships')
+                    .select('role_id')
+                    .eq('user_id', userData.user.id)
+                    .eq('organisation_id', profile.active_organisation_id)
+                    .maybeSingle()
+
+                if (membershipError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: membershipError.message } }
+                }
+
+                if (!membership?.role_id) {
                     return { data: [] }
                 }
 
                 const { data, error } = await supabase
                     .from('privileges')
                     .select('name')
-                    .eq('role_id', profile.role_id)
+                    .eq('role_id', membership.role_id)
 
                 if (error) {
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }

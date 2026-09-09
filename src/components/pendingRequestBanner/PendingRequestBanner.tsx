@@ -28,7 +28,7 @@ export default function PendingRequestBanner() {
     // Ingen profil = ikke logget ind (fx på /login og /signup), og på selve
     // organisationssiden (som nu også rummer "Anmod om medlemskab") ville
     // opfordringen være overflødig.
-    if (!profile || profile.organisationId || pathname === '/organisation') {
+    if (!profile || profile.activeOrganisationId || pathname === '/organisation') {
         return null
     }
 
