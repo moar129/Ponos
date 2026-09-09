@@ -142,7 +142,7 @@ export interface LocationItemsComponentProps {
   onSelectItem: (item: AggregatedItem) => void;
 }
 
-export interface GlobalSearchComponentProps {
+export interface GlobalSearchResultsComponentProps {
   isOpen: boolean;
   query: string;
   matchedCategories: DataLayerCat[];

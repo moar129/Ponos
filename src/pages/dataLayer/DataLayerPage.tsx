@@ -36,6 +36,7 @@ export function DataLayerPage() {
 
   const [selectedCategory, setSelectedCategory] = useState<DataLayerCat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Kategori: opret
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -63,6 +64,7 @@ export function DataLayerPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<Set<ItemStatus>>(new Set());
   const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
+  const [localItemSearch, setLocalItemSearch] = useState('');
 
   // Lokationer
   const [isLocationManagerOpen, setIsLocationManagerOpen] = useState(false);
@@ -105,6 +107,7 @@ export function DataLayerPage() {
     setSearchParams({ catId: category.id });
     exitSelectMode();
     resetFilters();
+    setLocalItemSearch('');
   };
 
   const handleOpenAddModal = (parentId: string | null) => {
@@ -196,6 +199,12 @@ export function DataLayerPage() {
   const displayedItems = aggregatedItems.filter((item) => {
     if (selectedStatuses.size > 0 && !selectedStatuses.has(item.itemStatus as ItemStatus)) return false;
     if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
+    if (localItemSearch.trim()) {
+      const q = localItemSearch.trim().toLowerCase();
+      const matches =
+        item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+      if (!matches) return false;
+    }
     return true;
   });
 
@@ -276,11 +285,12 @@ export function DataLayerPage() {
             placeholder="Søg efter item eller kategori..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
             className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
           />
-
           <GlobalSearchResultsComponent
-            isOpen={searchQuery.trim().length > 0}
+            isOpen={isSearchFocused && searchQuery.trim().length > 0}
             query={searchQuery}
             matchedCategories={matchedCategories}
             matchedItems={matchedItems}
@@ -418,13 +428,29 @@ export function DataLayerPage() {
                 </div>
               </div>
 
-              {isSelectMode && selectedItemIds.size > 0 && (
+              <div className="relative mb-4">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Filtrer items i denne kategori..."
+                  value={localItemSearch}
+                  onChange={(e) => setLocalItemSearch(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+                />
+              </div>
+
+             {isSelectMode && (
                 <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-slate-900 border border-slate-800">
                   <span className="text-sm text-slate-300">{selectedItemIds.size} valgt</span>
                   <button
                     type="button"
                     onClick={() => setIsDeleteItemsOpen(true)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                    disabled={selectedItemIds.size === 0}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      selectedItemIds.size === 0
+                        ? 'bg-red-600/20 text-red-400/50 cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
                   >
                     <Trash2 className="w-4 h-4" />
                     Slet valgte
@@ -436,7 +462,11 @@ export function DataLayerPage() {
                 <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400 border border-dashed border-slate-800 rounded-lg bg-slate-900/50">
                   <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
                   <p className="text-base font-medium text-slate-200">Ingen items matcher filtrene</p>
-                  <button type="button" onClick={resetFilters} className="text-xs text-[#C7975D] hover:text-[#e0ac6f] mt-2">
+                  <button
+                    type="button"
+                    onClick={() => { resetFilters(); setLocalItemSearch(''); }}
+                    className="text-xs text-[#C7975D] hover:text-[#e0ac6f] mt-2"
+                  >
                     Ryd filtre
                   </button>
                 </div>

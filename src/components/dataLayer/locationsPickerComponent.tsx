@@ -12,6 +12,7 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
   const [isManaging, setIsManaging] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
+  const [newDescription, setNewDescription] = useState('');
   const [createError, setCreateError] = useState<string | null>(null);
   const [addLocation, { isLoading: isSaving }] = useAddLocationMutation();
 
@@ -29,11 +30,12 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
       return;
     }
     try {
-      const id = await addLocation({ name: newName.trim(), address: newAddress.trim() || null }).unwrap();
+      const id = await addLocation({ name: newName.trim(), address: newAddress.trim() || null, description: newDescription.trim() || null }).unwrap();
       onChange(id);
       setIsCreating(false);
       setNewName('');
       setNewAddress('');
+      setNewDescription('');
       setCreateError(null);
     } catch {
       setCreateError('Kunne ikke oprette lokation.');
@@ -71,6 +73,13 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
             onChange={(e) => setNewAddress(e.target.value)}
             className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
           />
+           <input
+              type="text"
+              placeholder="Beskrivelse (valgfrit)"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+            />
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"

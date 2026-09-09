@@ -1,6 +1,6 @@
 // components/dataLayer/locationManagerComponent.tsx
 import { useState } from 'react';
-import { X, Pencil, Trash2, Loader2, Save, MapPin, Eye} from 'lucide-react';
+import { X, Pencil, Trash2, Loader2, Save, MapPin } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
@@ -91,10 +91,10 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
           ) : locations.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">Ingen lokationer oprettet endnu.</p>
           ) : (
-            locations.map((loc) => (
-              <div key={loc.id} className="p-3 bg-slate-900 border border-slate-800 rounded-lg">
+           locations.map((loc) => (
+              <div key={loc.id} className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
                 {editTarget?.id === loc.id ? (
-                  <div className="space-y-2">
+                  <div className="p-3 space-y-2">
                     <input
                       type="text"
                       value={editName}
@@ -132,7 +132,11 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onViewItems?.(loc)}
+                    className="w-full flex items-center justify-between gap-3 text-left p-3 hover:bg-slate-800/50 transition-colors"
+                  >
                     <div className="min-w-0 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
                       <div className="min-w-0">
@@ -141,19 +145,28 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                        {onViewItems && (
-                        <button onClick={() => onViewItems(loc)} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Vis items her">
-                            <Eye className="w-3.5 h-3.5" />
-                        </button>
-                        )}
-                        <button onClick={() => startEdit(loc)} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Rediger">
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); startEdit(loc); } }}
+                        className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white"
+                        title="Rediger"
+                      >
                         <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setDeleteTarget(loc)} className="p-1.5 rounded hover:bg-red-500/10 text-slate-400 hover:text-red-400" title="Slet">
+                      </span>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setDeleteTarget(loc); } }}
+                        className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400"
+                        title="Slet"
+                      >
                         <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      </span>
                     </div>
-                  </div>
+                  </button>
                 )}
               </div>
             ))
