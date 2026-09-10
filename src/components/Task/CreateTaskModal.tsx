@@ -21,13 +21,21 @@ export function CreateTaskModal({
     onClose,
     selectedRoomId,
 }: CreateTaskModalProps) {
+    const today = new Date().toISOString().split('T')[0];
+    const isValidDate = (date: string) => {
+        if (!date) return true;
+
+        return date >= today;
+    };
+
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [startDate, setStartDate] = useState(today);
+    const [endDate, setEndDate] = useState('');
     const [priority, setPriority] = useState<ETaskPriority | null>(null);
     const [maxAssignees, setMaxAssignees] = useState<number | null>(null);
-    const [createTask, { isLoading, error }] = useCreateTaskMutation();
-
-    if (!isOpen) {
+    const [createTask, { isLoading, error }] = useCreateTaskMutation(); if (!isOpen) {
         return null;
     }
 
@@ -42,6 +50,8 @@ export function CreateTaskModal({
             await createTask({
                 title: title.trim(),
                 description: description.trim(),
+                start_date: startDate || null,
+                end_date: endDate || null,
                 priority,
                 max_assignees: maxAssignees,
                 room_id: selectedRoomId,
@@ -49,6 +59,8 @@ export function CreateTaskModal({
 
             setTitle('');
             setDescription('');
+            setStartDate('');
+            setEndDate('');
             setPriority(null);
             setMaxAssignees(null);
             onClose();
@@ -114,6 +126,56 @@ export function CreateTaskModal({
                             placeholder="Opgavens beskrivelse"
                             rows={5}
                             className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 break-words" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                htmlFor="task-start-date"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Startdato
+                            </label>
+
+                            <input
+                                id="task-start-date"
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    if (isValidDate(value)) {
+                                        setStartDate(value);
+                                    }
+                                }}
+                                min={startDate || today}
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="task-end-date"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Slutdato
+                            </label>
+
+                            <input
+                                id="task-end-date"
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    if (isValidDate(value)) {
+                                        setEndDate(value);
+                                    }
+                                }}
+                                min={startDate || today}
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
+                            />
+                        </div>
                     </div>
 
                     <div>

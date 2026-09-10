@@ -74,7 +74,26 @@ export function TasksPage() {
         High: 2,
         Medium: 3,
         Low: 4,
-        
+    };
+    const sortTasks = (
+        a: typeof filteredTasks[number],
+        b: typeof filteredTasks[number]
+    ) => {
+        const priorityA = priorityRank[a.priority ?? ''] ?? 5;
+        const priorityB = priorityRank[b.priority ?? ''] ?? 5;
+
+        if (priorityA !== priorityB) {
+            return priorityA - priorityB;
+        }
+
+        if (a.end_date && b.end_date) {
+            return a.end_date.localeCompare(b.end_date);
+        }
+
+        if (a.end_date) return -1;
+        if (b.end_date) return 1;
+
+        return 0;
     };
 
     const availableTasks = filteredTasks
@@ -83,15 +102,12 @@ export function TasksPage() {
                 task.status === 'Started' &&
                 !myTaskIds.includes(task.id)
         )
-        .sort((a, b) => {
-            const priorityA = priorityRank[a.priority ?? ''] ?? 5;
-            const priorityB = priorityRank[b.priority ?? ''] ?? 5;
+        .sort(sortTasks);
 
-            return priorityA - priorityB;
-        });
-    const myTasks = filteredTasks.filter(
-        (task) => myTaskIds.includes(task.id)
-    );
+    const myTasks = filteredTasks
+        .filter((task) => myTaskIds.includes(task.id))
+        .sort(sortTasks);
+
     const pageError =
         readableError(tasksError) ??
         readableError(roomsError) ??

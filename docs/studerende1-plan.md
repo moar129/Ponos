@@ -2,6 +2,12 @@
 
 Dette er den løbende statusoversigt for de 24 user stories, som Studerende 1 er ansvarlig for (jf. `userStories.md`, afsnit 13 "Arbejdsfordeling"). Filen opdateres efter hver færdig story, så en ny samtale/session altid kan se, hvor langt vi er, og hvad næste skridt er.
 
+## Logbog
+
+| Dato | Tekst |
+|---|---|
+| 09/09 | Jeg oprettede US-59-specifikationen for medlemskab af flere organisationer og beskrev den videre implementeringsplan. |
+
 ## Næste op
 
 **US-59 – Være medlem af flere organisationer**
