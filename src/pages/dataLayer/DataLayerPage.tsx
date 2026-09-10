@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
-import type { DataLayerCat, AggregatedItem } from '../../types/dataLayer/datalayerTypes';
+import type { DataLayerCat, AggregatedItem, ItemLocation } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
@@ -9,8 +9,24 @@ import { ItemDetailComponent } from '../../components/dataLayer/itemsDetailCompo
 import { EditCategoryComponent } from '../../components/dataLayer/editCategoryComponent';
 import { DeleteCategoryComponent } from '../../components/dataLayer/deleteCategoryComponent';
 import { DeleteItemsComponent } from '../../components/dataLayer/deleteItemComponent';
-import { getAggregatedItems } from '../../store/slices/dataLayersSlices/aggregatedItems';
-import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon } from 'lucide-react';
+import { FilterPanelComponent } from '../../components/dataLayer/filterPanelComponent';
+import { LocationManagerComponent } from '../../components/dataLayer/locationsManagerComponent';
+import { LocationItemsComponent } from '../../components/dataLayer/locationItemComponent';
+import { GlobalSearchResultsComponent } from '../../components/dataLayer/globalSearchComponent';
+import {
+  getAggregatedItems,
+  flattenAllItems,
+  getDescendantCategories,
+  searchCategories,
+  searchItemsGlobal,
+} from '../../store/slices/dataLayersSlices/aggregatedItems';
+import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin } from 'lucide-react';
+
+type ItemStatus = 'Available' | 'Reserved' | 'OutOfStock' | 'InUse' | 'Missing' | 'Damaged' | 'Maintenance';
+
+const ALL_STATUSES: ItemStatus[] = [
+  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance',
+];
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
@@ -20,6 +36,7 @@ export function DataLayerPage() {
 
   const [selectedCategory, setSelectedCategory] = useState<DataLayerCat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Kategori: opret
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -42,6 +59,16 @@ export function DataLayerPage() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set());
   const [isDeleteItemsOpen, setIsDeleteItemsOpen] = useState(false);
+
+  // Filter
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<Set<ItemStatus>>(new Set());
+  const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
+  const [localItemSearch, setLocalItemSearch] = useState('');
+
+  // Lokationer
+  const [isLocationManagerOpen, setIsLocationManagerOpen] = useState(false);
+  const [locationItemsTarget, setLocationItemsTarget] = useState<ItemLocation | null>(null);
 
   function findCategoryInTree(
     categories: DataLayerCat[],
@@ -70,10 +97,17 @@ export function DataLayerPage() {
     }
   }, [categoryIdFromUrl, categoryTree]);
 
+  const resetFilters = () => {
+    setSelectedStatuses(new Set());
+    setSelectedCategoryFilterIds(new Set());
+  };
+
   const handleSelectCategory = (category: DataLayerCat) => {
     setSelectedCategory(category);
     setSearchParams({ catId: category.id });
-    exitSelectMode(); // undgå at select-mode "overlever" et kategoriskift
+    exitSelectMode();
+    resetFilters();
+    setLocalItemSearch('');
   };
 
   const handleOpenAddModal = (parentId: string | null) => {
@@ -116,13 +150,73 @@ export function DataLayerPage() {
     exitSelectMode();
   };
 
+  const toggleStatusFilter = (status: ItemStatus) => {
+    setSelectedStatuses((prev) => {
+      const next = new Set(prev);
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
+      return next;
+    });
+  };
+
+  const toggleCategoryFilter = (id: string) => {
+    setSelectedCategoryFilterIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleOpenItemFromLocation = (item: AggregatedItem) => {
+    setLocationItemsTarget(null);
+    setIsLocationManagerOpen(false);
+    setSelectedItem(item);
+  };
+
+  const handleSelectSearchCategory = (category: DataLayerCat) => {
+    handleSelectCategory(category);
+    setSearchQuery('');
+  };
+
+  const handleSelectSearchItem = (item: AggregatedItem) => {
+    const itemCategory = findCategoryInTree(categoryTree, item.categoryId);
+    if (itemCategory) {
+      handleSelectCategory(itemCategory);
+    }
+    setSelectedItem(item);
+    setSearchQuery('');
+  };
+
   const errorMessage =
     error && typeof error === 'object' && 'error' in error
       ? (error as { error: string }).error
       : null;
 
   const aggregatedItems = selectedCategory ? getAggregatedItems(selectedCategory) : [];
+  const descendantCategories = selectedCategory ? getDescendantCategories(selectedCategory) : [];
+
+  const displayedItems = aggregatedItems.filter((item) => {
+    if (selectedStatuses.size > 0 && !selectedStatuses.has(item.itemStatus as ItemStatus)) return false;
+    if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
+    if (localItemSearch.trim()) {
+      const q = localItemSearch.trim().toLowerCase();
+      const matches =
+        item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+    return true;
+  });
+
   const itemsMarkedForDeletion = aggregatedItems.filter((item) => selectedItemIds.has(item.id));
+
+  const allItemsFlat = flattenAllItems(categoryTree);
+  const locationItems = locationItemsTarget
+    ? allItemsFlat.filter((item) => item.itemLocationId === locationItemsTarget.id)
+    : [];
+
+  const matchedCategories = searchCategories(categoryTree, searchQuery);
+  const matchedItems = searchItemsGlobal(categoryTree, searchQuery);
 
   return (
     <div className="space-y-6">
@@ -163,37 +257,94 @@ export function DataLayerPage() {
         onDeleted={handleItemsDeleted}
       />
 
+      <LocationManagerComponent
+        isOpen={isLocationManagerOpen}
+        onClose={() => setIsLocationManagerOpen(false)}
+        onViewItems={(loc) => setLocationItemsTarget(loc)}
+      />
+
+      <LocationItemsComponent
+        isOpen={!!locationItemsTarget}
+        location={locationItemsTarget}
+        items={locationItems}
+        onClose={() => setLocationItemsTarget(null)}
+        onSelectItem={handleOpenItemFromLocation}
+      />
+
       {errorMessage && (
         <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
           {errorMessage}
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-primary p-4 rounded-xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0B132A] p-4 rounded-xl border border-slate-800 shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Søg..."
+            placeholder="Søg efter item eller kategori..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent transition-colors"
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+          />
+          <GlobalSearchResultsComponent
+            isOpen={isSearchFocused && searchQuery.trim().length > 0}
+            query={searchQuery}
+            matchedCategories={matchedCategories}
+            matchedItems={matchedItems}
+            onSelectCategory={handleSelectSearchCategory}
+            onSelectItem={handleSelectSearchItem}
           />
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
           <button
             type="button"
+            onClick={() => setIsLocationManagerOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
           >
-            <Filter className="w-4 h-4" />
-            <span>Filter</span>
+            <MapPin className="w-4 h-4" />
+            <span>Lokationer</span>
           </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen((prev) => !prev)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                selectedStatuses.size > 0 || selectedCategoryFilterIds.size > 0
+                  ? 'bg-[#C7975D]/10 border-[#C7975D] text-[#C7975D]'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filter</span>
+              {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
+                <span className="ml-1 text-xs bg-[#C7975D] text-white rounded-full w-4 h-4 flex items-center justify-center">
+                  {selectedStatuses.size + selectedCategoryFilterIds.size}
+                </span>
+              )}
+            </button>
+
+            <FilterPanelComponent
+              isOpen={isFilterOpen}
+              categories={descendantCategories}
+              statuses={ALL_STATUSES}
+              selectedCategoryIds={selectedCategoryFilterIds}
+              selectedStatuses={selectedStatuses}
+              onToggleCategory={toggleCategoryFilter}
+              onToggleStatus={toggleStatusFilter}
+              onClear={resetFilters}
+              onClose={() => setIsFilterOpen(false)}
+            />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-4 xl:col-span-3 bg-primary rounded-xl border border-slate-800 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
+        <div className="lg:col-span-4 xl:col-span-3 bg-[#0B132A] rounded-xl border border-slate-800 p-4 shadow-sm flex flex-col justify-between min-h-[500px]">
           <div>
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -203,7 +354,7 @@ export function DataLayerPage() {
 
             {isLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
               </div>
             ) : (
               <div className="space-y-1">
@@ -225,14 +376,14 @@ export function DataLayerPage() {
           <button
             type="button"
             onClick={() => handleOpenAddModal(null)}
-            className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Opret kategori</span>
           </button>
         </div>
 
-        <div className="lg:col-span-8 xl:col-span-9 bg-primary rounded-xl border border-slate-800 p-6 shadow-sm min-h-[500px]">
+        <div className="lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-6 shadow-sm min-h-[500px]">
           {selectedCategory ? (
             <div>
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
@@ -259,7 +410,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={() => setIsSelectMode(true)}
-                      disabled={aggregatedItems.length === 0}
+                      disabled={displayedItems.length === 0}
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700 disabled:opacity-50"
                     >
                       <span>Vælg</span>
@@ -277,13 +428,29 @@ export function DataLayerPage() {
                 </div>
               </div>
 
-              {isSelectMode && selectedItemIds.size > 0 && (
+              <div className="relative mb-4">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Filtrer items i denne kategori..."
+                  value={localItemSearch}
+                  onChange={(e) => setLocalItemSearch(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+                />
+              </div>
+
+             {isSelectMode && (
                 <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-slate-900 border border-slate-800">
                   <span className="text-sm text-slate-300">{selectedItemIds.size} valgt</span>
                   <button
                     type="button"
                     onClick={() => setIsDeleteItemsOpen(true)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                    disabled={selectedItemIds.size === 0}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      selectedItemIds.size === 0
+                        ? 'bg-red-600/20 text-red-400/50 cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
                   >
                     <Trash2 className="w-4 h-4" />
                     Slet valgte
@@ -291,9 +458,21 @@ export function DataLayerPage() {
                 </div>
               )}
 
-              {aggregatedItems.length > 0 ? (
+              {aggregatedItems.length > 0 && displayedItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400 border border-dashed border-slate-800 rounded-lg bg-slate-900/50">
+                  <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+                  <p className="text-base font-medium text-slate-200">Ingen items matcher filtrene</p>
+                  <button
+                    type="button"
+                    onClick={() => { resetFilters(); setLocalItemSearch(''); }}
+                    className="text-xs text-[#C7975D] hover:text-[#e0ac6f] mt-2"
+                  >
+                    Ryd filtre
+                  </button>
+                </div>
+              ) : displayedItems.length > 0 ? (
                 <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg overflow-hidden">
-                  {aggregatedItems.map((item) => (
+                  {displayedItems.map((item) => (
                     <button
                       key={item.id}
                       type="button"

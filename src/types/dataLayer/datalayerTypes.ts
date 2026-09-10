@@ -1,6 +1,6 @@
 export interface DataLayerItem {
   id: string;
-  itemLocationId: string;
+  itemLocationId?: string | null; 
   organisationId: string;
   categoryId: string;
   name: string;
@@ -20,6 +20,7 @@ export interface DataLayerCat {
 
 export interface ItemLocation {
   id: string;
+  organisationId: string;
   name: string;
   description?: string | null;
   address?: string | null;
@@ -98,4 +99,54 @@ export interface DeleteItemsComponentProps {
   items: AggregatedItem[];
   onClose: () => void;
   onDeleted: (deletedIds: string[]) => void;
+}
+
+export interface LocationManagerComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export interface ConfirmDialogComponentProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  isLoading?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export interface LocationPickerComponentProps {
+  value: string | null;
+  onChange: (locationId: string | null) => void;
+  onViewItems?: (location: ItemLocation) => void; 
+}
+
+export interface FilterPanelComponentProps {
+  isOpen: boolean;
+  categories: DataLayerCat[];
+  statuses: ItemStatus[];
+  selectedCategoryIds: Set<string>;
+  selectedStatuses: Set<ItemStatus>;
+  onToggleCategory: (id: string) => void;
+  onToggleStatus: (status: ItemStatus) => void;
+  onClear: () => void;
+  onClose: () => void;
+}
+
+export interface LocationItemsComponentProps {
+  isOpen: boolean;
+  location: ItemLocation | null;
+  items: AggregatedItem[];
+  onClose: () => void;
+  onSelectItem: (item: AggregatedItem) => void;
+}
+
+export interface GlobalSearchResultsComponentProps {
+  isOpen: boolean;
+  query: string;
+  matchedCategories: DataLayerCat[];
+  matchedItems: AggregatedItem[];
+  onSelectCategory: (category: DataLayerCat) => void;
+  onSelectItem: (item: AggregatedItem) => void;
 }
