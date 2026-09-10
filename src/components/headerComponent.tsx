@@ -14,6 +14,7 @@ import {
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useSignOutMutation } from '../store/apis/authApi';
+import { useGetMyOrganisationQuery } from '../store/apis/organisationApi';
 
 export function Header() {
   const navigate = useNavigate();
@@ -23,6 +24,13 @@ export function Header() {
   // vi tilbage til en neutral tekst.
   const { data: profile } = useGetMyProfileQuery();
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
+
+  // Opgaver/Statistik/Datalager giver ikke mening uden en aktiv organisation
+  // (samme antagelse som OverviewTab). Viser linkene som udgangspunkt for at
+  // undgå flicker, og skjuler dem først når det er bekræftet at der ingen
+  // org er - Header renders også på fx /login, hvor organisation altid er null.
+  const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery();
+  const hasOrganisation = loadingOrganisation || !!organisation;
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -84,20 +92,24 @@ export function Header() {
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/tasks" className={getNavLinkClass}>
-          <ClipboardList className="w-5 h-5" />
-          <span>Opgaver</span>
-        </NavLink>
+        {hasOrganisation && (
+          <>
+            <NavLink to="/tasks" className={getNavLinkClass}>
+              <ClipboardList className="w-5 h-5" />
+              <span>Opgaver</span>
+            </NavLink>
 
-        <NavLink to="/" className={getNavLinkClass}>
-          <BarChart3 className="w-5 h-5" />
-          <span>Statistik</span>
-        </NavLink>
+            <NavLink to="/" className={getNavLinkClass}>
+              <BarChart3 className="w-5 h-5" />
+              <span>Statistik</span>
+            </NavLink>
 
-        <NavLink to="/datalager" className={getNavLinkClass}>
-          <Database className="w-5 h-5" />
-          <span>Datalager</span>
-        </NavLink>
+            <NavLink to="/datalager" className={getNavLinkClass}>
+              <Database className="w-5 h-5" />
+              <span>Datalager</span>
+            </NavLink>
+          </>
+        )}
       </nav>
 
       {/* Højre side: Notifikation Ikon + Bruger Profil */}
