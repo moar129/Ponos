@@ -1,10 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
 
-export interface StatCardProps {
+export interface PlaceholderBarProps {
     label: string
-    value: number | null
-    isLoading: boolean
-    error: string | null
+    description: string
     icon: LucideIcon
 }
 

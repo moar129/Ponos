@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import type { QuickLinkCardProps } from '../../types/dashboard/dashboardType'
 
 // Klikbar genvej til en anden side i appen, vist på Oversigt-fanen.
-// Samme visuelle sprog som StatCard, men er en Link i stedet for et tal.
+// Samme visuelle sprog som PlaceholderBar, men er en Link i stedet for tekst.
 export function QuickLinkCard({ to, label, description, icon: Icon }: QuickLinkCardProps) {
     return (
         <Link

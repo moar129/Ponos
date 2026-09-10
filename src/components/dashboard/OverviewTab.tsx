@@ -1,44 +1,21 @@
 // src/components/dashboard/OverviewTab.tsx
-import { useMemo } from 'react'
-import { Database, ClipboardList, ListChecks, Building2, BarChart3 } from 'lucide-react'
+import { Database, ClipboardList, ListChecks, Building2, BarChart3, Bell, Newspaper } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi'
-import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
-import type { DataLayerCat } from '../../types/dataLayer/datalayerTypes'
-import { StatCard } from './StatCard'
 import { QuickLinkCard } from './QuickLinkCard'
+import { PlaceholderBar } from './PlaceholderBar'
 
-// Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
-// komme i lidt forskellige former afhængigt af hvor fejlen opstod.
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
-
-function countItems(categories: DataLayerCat[]): number {
-    return categories.reduce((sum, cat) => sum + cat.items.length + countItems(cat.subCategories), 0)
-}
-
-// US-46 + US-47 + US-65: antal items/opgaver for den AKTIVE organisation,
-// plus antal opgaver tildelt den indloggede bruger selv, samt genveje til
-// Datalager/Opgaver. Genbruger de samme queries som Datalager/Opgaver-
-// siderne i stedet for nye count-endpoints - RTK Query cacher/deduper
-// allerede, og invaliderer automatisk ved org-skift (USER_SCOPED_TAGS).
+// US-65: genveje til Datalager/Opgaver/Statistik, samt placeholder-
+// bjælker til funktioner uden data/backend endnu - "Dine opgaver" (afventer
+// at Opgave-siden/task-modellen bliver færdig), "Notifikationer" (intet
+// datamodel/user story endnu) og "Nyheder" (afventer US-56/US-57 med
+// vilje). Ingen tal/counts vises længere her.
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
-    const { data: categoryTree, isLoading: loadingItems, error: itemsError } = useGetCategoryTreeQuery()
-    const { data: tasks, isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
-    const { data: myTaskIds, isLoading: loadingMyTasks, error: myTasksError } = useGetMyTaskIdsQuery()
 
-    const itemCount = useMemo(() => (categoryTree ? countItems(categoryTree) : null), [categoryTree])
-
-    // En bruger uden aktiv organisation ville ellers se tre ens
-    // fejlbeskeder ("Kunne ikke hente din organisationstilknytning.") -
-    // vis i stedet én venlig besked med en genvej til Organisation-fanen.
+    // En bruger uden aktiv organisation ville ellers se en tom side uden
+    // forklaring - vis i stedet én venlig besked med en genvej til
+    // Organisation-fanen.
     if (!loadingOrganisation && !organisation) {
         return (
             <div className="rounded-md border border-border-gray p-5 text-center">
@@ -58,30 +35,6 @@ export function OverviewTab() {
 
     return (
         <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <StatCard
-                    label="Antal items"
-                    value={itemCount}
-                    isLoading={loadingItems}
-                    error={readableError(itemsError)}
-                    icon={Database}
-                />
-                <StatCard
-                    label="Antal opgaver"
-                    value={tasks?.length ?? null}
-                    isLoading={loadingTasks}
-                    error={readableError(tasksError)}
-                    icon={ClipboardList}
-                />
-                <StatCard
-                    label="Dine opgaver"
-                    value={myTaskIds?.length ?? null}
-                    isLoading={loadingMyTasks}
-                    error={readableError(myTasksError)}
-                    icon={ListChecks}
-                />
-            </div>
-
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3">Genveje</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -105,6 +58,25 @@ export function OverviewTab() {
                     />
                 </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <PlaceholderBar
+                    label="Dine opgaver"
+                    description="Overblik over dine tildelte opgaver kommer snart."
+                    icon={ListChecks}
+                />
+                <PlaceholderBar
+                    label="Notifikationer"
+                    description="Notifikationer kommer snart."
+                    icon={Bell}
+                />
+            </div>
+
+            <PlaceholderBar
+                label="Nyheder"
+                description="Nyheder fra organisationen vises her, når nyhedsfunktionen er bygget."
+                icon={Newspaper}
+            />
         </div>
     )
 }
