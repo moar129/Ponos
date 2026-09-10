@@ -12,7 +12,8 @@ export interface StatCardProps {
 // 'roles' (roller & privilegier) og 'members' (medlemmers rolle-
 // tildeling) er sideordnede faner i stedet for at 'members' er nestet
 // INDE i 'roles' - undgår tre niveauer af faner oven i hinanden.
-export type AdminSubTab = 'roles' | 'members' | 'requests' | 'organisation'
+// 'invitations' (US-67) er gated af sin egen manage_invitations-privilegie.
+export type AdminSubTab = 'roles' | 'members' | 'invitations' | 'requests' | 'organisation'
 
 // Dashboardets tre topfaner (US-65): 'oversigt' og 'organisation' er
 // tilgængelige for alle, 'administration' kun med mindst ét

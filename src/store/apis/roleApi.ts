@@ -242,6 +242,27 @@ export const roleApi = supabaseApi.injectEndpoints({
             // hvis medlemmet selv har appen åben.
             invalidatesTags: ['Role', 'Profile', 'Membership'],
         }),
+
+        // Fjerner et medlem fra den aktive organisation (US-66). Kører
+        // server-side som RPC'en remove_member, som blokerer selv-fjernelse
+        // (brug "Forlad organisation" i stedet) og har en escalation-guard:
+        // kun en reel administrator må fjerne et andet medlem, hvis rolle
+        // bærer admin-privilegiet.
+        removeMember: builder.mutation<void, string>({
+            queryFn: async (userId) => {
+                const { error } = await supabase.rpc('remove_member', { p_user_id: userId })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            // Samme bredde som assignRole, så den fjernede brugers evt.
+            // åbne session mister adgang uden en manuel genindlæsning.
+            invalidatesTags: ['Role', 'Profile', 'Membership'],
+        }),
     }),
 })
 
@@ -252,4 +273,5 @@ export const {
     useDeleteRoleMutation,
     useGetOrganisationMembersQuery,
     useAssignRoleMutation,
+    useRemoveMemberMutation,
 } = roleApi

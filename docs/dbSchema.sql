@@ -126,6 +126,32 @@ create index idx_memberships_org on public.memberships (organisation_id);
 
 
 -- ---------------------------------------------------------------------
+-- 6.6 MEMBERSHIP INVITATION (US-67 - mirror af membership_requests, men
+-- ADMIN-initieret i stedet for bruger-initieret: invited_by = afsenderen,
+-- invited_user_id = modtageren, som selv skal acceptere/afvise).
+-- Genbruger e_membership_request_status (samme facon: Pending/Accepted/
+-- Rejected), ingen ny enum-type nødvendig.
+-- ---------------------------------------------------------------------
+create table public.membership_invitations (
+  id               uuid primary key default gen_random_uuid(),
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  invited_user_id  uuid not null references public.profiles(id) on delete cascade,
+  invited_by       uuid references public.profiles(id) on delete set null,
+  status           e_membership_request_status not null default 'Pending',
+  created_at       timestamptz not null default now(),
+  reviewed_at      timestamptz
+);
+
+-- Ingen dubletter af AKTIVE (Pending) invitationer for samme bruger+org.
+create unique index membership_invitations_unique_pending
+  on public.membership_invitations (invited_user_id, organisation_id)
+  where (status = 'Pending');
+
+create index idx_membership_invitations_org on public.membership_invitations (organisation_id);
+create index idx_membership_invitations_user on public.membership_invitations (invited_user_id);
+
+
+-- ---------------------------------------------------------------------
 -- 7. LOCATION (tilhører én organisation)
 -- ---------------------------------------------------------------------
 create table public.locations (
@@ -921,6 +947,176 @@ $$;
 grant execute on function public.delete_organisation(uuid) to authenticated;
 
 
+-- 15.14 US-66: fjerner et medlem fra ADMINISTRATORENS AKTIVE organisation
+-- (modsat leave_organisation, som fjerner den KALDENDE bruger selv).
+-- Blokerer selv-fjernelse (brug leave_organisation), og har en
+-- escalation-guard: kun en reel administrator må fjerne et medlem, hvis
+-- rolle bærer admin-privilegiet. Vælger automatisk en anden aktiv
+-- organisation for DEN FJERNEDE bruger, hvis den fjernede organisation
+-- var deres aktive - samme mønster som leave_organisation, men rammer
+-- profiles.id <> auth.uid(), så trg_prevent_self_role_org_change (som
+-- kun tjekker new.id = auth.uid()) ikke rammer her - intet bypass-flag
+-- nødvendigt.
+create or replace function public.remove_member(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid;
+  v_target_role_id uuid;
+  v_target_is_admin boolean;
+  v_next_org_id uuid;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind for at fjerne et medlem.';
+  end if;
+
+  if p_user_id = v_caller_id then
+    raise exception 'Du kan ikke fjerne dig selv - brug "Forlad organisation" i stedet.';
+  end if;
+
+  v_org_id := public.auth_profile_org();
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('manage_members') then
+    raise exception 'Du har ikke rettigheder til at fjerne medlemmer.';
+  end if;
+
+  select role_id into v_target_role_id
+  from public.memberships
+  where user_id = p_user_id and organisation_id = v_org_id;
+
+  if not found then
+    raise exception 'Brugeren er ikke medlem af organisationen.';
+  end if;
+
+  v_target_is_admin := v_target_role_id is not null and exists (
+    select 1 from public.privileges where role_id = v_target_role_id and name = 'admin'
+  );
+  if v_target_is_admin and not public.has_privilege('admin') then
+    raise exception 'Du skal være administrator for at fjerne en anden administrator.';
+  end if;
+
+  delete from public.memberships
+  where user_id = p_user_id and organisation_id = v_org_id;
+
+  select organisation_id into v_next_org_id
+  from public.memberships
+  where user_id = p_user_id
+  order by created_at
+  limit 1;
+
+  update public.profiles
+    set active_organisation_id = v_next_org_id
+    where id = p_user_id and active_organisation_id = v_org_id;
+end;
+$$;
+
+grant execute on function public.remove_member(uuid) to authenticated;
+
+
+-- 15.15 US-67: når en invitation accepteres/afvises, sættes reviewed_at
+-- automatisk, og ved accept tilknyttes den INVITEREDE bruger
+-- organisationen (uden automatisk rolle) - mirror af
+-- handle_membership_request_status_change (15.3), blot med
+-- invited_user_id i stedet for user_id.
+--
+-- VIGTIG FORSKEL fra membership_requests-varianten (fundet som bug under
+-- test): ved en ANMODNING er det altid en ADMIN, der opdaterer en ANDEN
+-- brugers status-række, så profiles-opdateringen rammer ikke admins egen
+-- række, og intet bypass-flag er nødvendigt. Ved en INVITATION er det
+-- derimod MODTAGEREN SELV, der opdaterer sin egen invitations-række for
+-- at acceptere - profiles-opdateringen herunder rammer derfor
+-- auth.uid()'s EGEN række og udløser ellers
+-- trg_prevent_self_role_org_change ("Du kan ikke ændre din egen
+-- organisationstilknytning direkte."), som blokerede accept. Samme
+-- bypass-flag som create_organisation/set_active_organisation/
+-- leave_organisation/delete_organisation bruger er derfor nødvendigt her.
+create or replace function public.handle_membership_invitation_status_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.status = 'Accepted' and old.status is distinct from 'Accepted' then
+    new.reviewed_at := coalesce(new.reviewed_at, now());
+
+    insert into public.memberships (user_id, organisation_id)
+    values (new.invited_user_id, new.organisation_id)
+    on conflict (user_id, organisation_id) do nothing;
+
+    perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+    update public.profiles
+      set active_organisation_id = new.organisation_id
+      where id = new.invited_user_id and active_organisation_id is null;
+  elsif new.status = 'Rejected' and old.status is distinct from 'Rejected' then
+    new.reviewed_at := coalesce(new.reviewed_at, now());
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_membership_invitation_status_change
+  before update on public.membership_invitations
+  for each row execute function public.handle_membership_invitation_status_change();
+
+
+-- 15.16 US-67: inviterer en EKSISTERENDE Ponos-bruger (via præcis email)
+-- til den aktive organisation. Må være en RPC (ikke en ren INSERT-
+-- policy), da klienten kun kender en email, ikke et bruger-id.
+create or replace function public.invite_member(p_email text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_target_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('manage_invitations') then
+    raise exception 'Du har ikke rettigheder til at invitere medlemmer.';
+  end if;
+
+  select id into v_target_id
+  from public.profiles
+  where lower(email) = lower(trim(p_email));
+
+  if v_target_id is null then
+    raise exception 'Ingen bruger findes med denne email.';
+  end if;
+
+  if exists (
+    select 1 from public.memberships
+    where user_id = v_target_id and organisation_id = v_org_id
+  ) then
+    raise exception 'Brugeren er allerede medlem af organisationen.';
+  end if;
+
+  insert into public.membership_invitations (organisation_id, invited_user_id, invited_by)
+  values (v_org_id, v_target_id, auth.uid())
+  on conflict (invited_user_id, organisation_id) where status = 'Pending' do nothing;
+
+  if not found then
+    raise exception 'Brugeren har allerede en ventende invitation til organisationen.';
+  end if;
+end;
+$$;
+
+grant execute on function public.invite_member(text) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -930,6 +1126,7 @@ alter table public.profiles                enable row level security;
 alter table public.roles                   enable row level security;
 alter table public.privileges              enable row level security;
 alter table public.membership_requests     enable row level security;
+alter table public.membership_invitations  enable row level security;
 alter table public.memberships             enable row level security;
 alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
@@ -961,6 +1158,22 @@ create policy "Rediger egen organisation"
   to authenticated
   using (id = public.auth_profile_org() and public.has_privilege_or_admin('manage_organisation'));
 
+-- US-67: lader en inviteret bruger se NAVNET på organisationen, de er
+-- inviteret til, selvom det ikke er deres aktive organisation (eller de
+-- har ingen) - uden dette ville politikken ovenfor skjule organisationen
+-- for netop den bruger, invitationen er tiltænkt.
+create policy "Se organisation man er inviteret til"
+  on public.organisations for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.membership_invitations mi
+      where mi.organisation_id = organisations.id
+        and mi.invited_user_id = auth.uid()
+        and mi.status = 'Pending'
+    )
+  );
+
 
 -- ---------------------------------------------------------------------
 -- 16.2 PROFILES
@@ -990,6 +1203,22 @@ create policy "Admin kan se ansøgeres profiler i egen organisation"
   on public.profiles for select
   to authenticated
   using (public.is_pending_requester_to_my_org(id));
+
+-- US-67: lader administratoren læse navn/email på en bruger, de har
+-- inviteret - parallelt til policy'en ovenfor, blot for invitationer i
+-- stedet for anmodninger (modtageren er endnu ikke medlem).
+create policy "Admin kan se inviterede profiler i egen organisation"
+  on public.profiles for select
+  to authenticated
+  using (
+    public.has_privilege_or_admin('manage_invitations')
+    and exists (
+      select 1 from public.membership_invitations mi
+      where mi.invited_user_id = profiles.id
+        and mi.organisation_id = public.auth_profile_org()
+        and mi.status = 'Pending'
+    )
+  );
 
 create policy "Bruger kan opdatere egen profil"
   on public.profiles for update
@@ -1274,4 +1503,38 @@ create policy "Tildel rolle til medlemskaber i egen organisation"
         where p.role_id = role_id and p.name = 'admin'
       )
     )
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.11 MEMBERSHIP INVITATIONS (US-67)
+-- Ingen INSERT-policy for almindelige brugere: rækker oprettes kun via
+-- invite_member() (15.16, security definer, samme konvention som
+-- create_organisation). Ingen DELETE-policy for modtageren - de kan kun
+-- opdatere status (acceptere/afvise); annullering er forbeholdt
+-- afsenderen (organisationen).
+-- ---------------------------------------------------------------------
+create policy "Se egne invitationer eller invitationer i egen organisation"
+  on public.membership_invitations for select
+  to authenticated
+  using (
+    invited_user_id = auth.uid()
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_invitations'))
+  );
+
+-- Modtageren accepterer/afviser selv sin egen invitation.
+create policy "Modtager kan svare på egen invitation"
+  on public.membership_invitations for update
+  to authenticated
+  using (invited_user_id = auth.uid())
+  with check (invited_user_id = auth.uid());
+
+-- Admin kan fortryde en ventende invitation, organisationen selv har sendt.
+create policy "Admin kan annullere ventende invitation i egen organisation"
+  on public.membership_invitations for delete
+  to authenticated
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_invitations')
+    and status = 'Pending'
   );

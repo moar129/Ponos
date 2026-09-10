@@ -1198,6 +1198,44 @@ Som bruger vil jeg kunne finde organisationens oplysninger og - hvis jeg er admi
 
 ---
 
+## US-66 – Fjerne medlem fra organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne fjerne et medlem fra min organisation, så jeg kan holde medlemslisten opdateret, hvis nogen ikke længere skal have adgang.
+
+### Acceptance Criteria
+
+- Kun en bruger med privilegiet `manage_members` (eller admin) kan fjerne et medlem.
+- En bruger kan ikke fjerne sig selv - "Forlad organisation" bruges til det.
+- En bruger med kun `manage_members` (ikke fuld administrator) kan ikke fjerne et medlem, hvis medlemmets rolle bærer admin-privilegiet.
+- Fjernelse er scopet til administratorens AKTIVE organisation.
+- Det fjernede medlem mister adgangen til organisationens data med det samme, og får automatisk en anden af sine resterende organisationer som aktiv, hvis de er medlem af flere.
+- Handlingen kræver en bekræftelse, da den ikke kan fortrydes af administratoren (medlemmet skal inviteres/anmode igen).
+
+---
+
+## US-67 – Invitere bruger til organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne invitere en eksisterende bruger til min organisation via deres email, så jeg ikke skal vente på at de selv finder frem til at anmode om medlemskab.
+
+### Acceptance Criteria
+
+- Kun en bruger med privilegiet `manage_invitations` (eller admin) kan sende invitationer.
+- Administratoren indtaster en præcis email; findes der en Ponos-bruger med den email, oprettes en invitation, ellers vises en tydelig fejl. Der sendes ingen email - modtageren ser invitationen ved næste login.
+- En bruger kan ikke inviteres, hvis de allerede er medlem, eller allerede har en ventende invitation til organisationen.
+- Modtageren kan se og acceptere/afvise invitationen (fx på dashboardets Organisation-fane), uanset om de har en aktiv organisation i forvejen.
+- Ved accept bliver brugeren medlem uden automatisk rolle (samme som ved accept af en medlemsanmodning).
+- Administratoren kan fortryde/annullere en ventende invitation, før modtageren har svaret.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1270,6 +1308,8 @@ Som bruger vil jeg kunne finde organisationens oplysninger og - hvis jeg er admi
 - US-63 – Granulære skriverettigheder i Opgaver
 - US-64 – Slette en organisation
 - US-65 – Administration og organisation samlet på dashboardet
+- US-66 – Fjerne medlem fra organisation
+- US-67 – Invitere bruger til organisation
 
 ## Low
 
@@ -1326,7 +1366,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**26 stories**
+**28 stories**
 
 ### Bruger & login
 
@@ -1348,6 +1388,8 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-60
 - US-61
 - US-64
+- US-66
+- US-67
 
 ### Roller & privileges
 

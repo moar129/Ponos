@@ -11,14 +11,16 @@ import {
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
+import { useGetMyPendingInvitationsQuery, useRespondToInvitationMutation } from '../../store/apis/invitationApi'
 import type {
     CreateOrganisationSectionProps,
     MembershipRowProps,
     MyMembership,
     Organisation,
 } from '../../types/organisation/organisationType'
+import type { InvitationRowProps, RespondInvitationInput } from '../../types/membership/membershipType'
 
-type NoOrgTab = 'create' | 'request' | 'memberships'
+type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -30,7 +32,7 @@ function readableApiError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.'
 }
 
-type OrgTab = 'details' | 'memberships' | 'request' | 'create'
+type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 
 // Se organisation, skifte/forlade medlemskaber, samt anmode om/oprette
 // organisationer - flyttet fra OrganisationPage.tsx (`/organisation`) ind
@@ -54,6 +56,10 @@ export function OrganisationTab() {
     const [createOrganisation, { isLoading: creating, error: createError }] = useCreateOrganisationMutation()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
     const { data: pendingRequest, isLoading: loadingPendingRequest } = useGetMyPendingRequestQuery()
+    // US-67: invitationer andre organisationer har sendt til MIG - vises
+    // som en betinget underfane (samme mønster som "Mine organisationer"),
+    // både i no-org- og has-org-visningen.
+    const { data: pendingInvitations } = useGetMyPendingInvitationsQuery()
 
     const [noOrgTab, setNoOrgTab] = useState<NoOrgTab>('create')
     const [orgTab, setOrgTab] = useState<OrgTab>('details')
@@ -215,10 +221,25 @@ export function OrganisationTab() {
                                     Mine organisationer
                                 </button>
                             )}
+                            {(pendingInvitations?.length ?? 0) > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setNoOrgTab('invitations')}
+                                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                        noOrgTab === 'invitations'
+                                            ? 'border-primary text-primary'
+                                            : 'border-transparent text-secondary hover:text-primary'
+                                    }`}
+                                >
+                                    Invitationer ({pendingInvitations?.length})
+                                </button>
+                            )}
                         </div>
 
                         {noOrgTab === 'memberships' ? (
                             <MyMembershipsSection />
+                        ) : noOrgTab === 'invitations' ? (
+                            <InvitationsSection />
                         ) : noOrgTab === 'create' ? (
                             <>
                                 {(createValidationError || createErrorMessage) && (
@@ -347,6 +368,19 @@ export function OrganisationTab() {
                 >
                     Opret organisation
                 </button>
+                {(pendingInvitations?.length ?? 0) > 0 && (
+                    <button
+                        type="button"
+                        onClick={() => switchOrgTab('invitations')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                            orgTab === 'invitations'
+                                ? 'border-primary text-primary'
+                                : 'border-transparent text-secondary hover:text-primary'
+                        }`}
+                    >
+                        Invitationer ({pendingInvitations?.length})
+                    </button>
+                )}
             </div>
 
             {orgTab === 'memberships' ? (
@@ -355,6 +389,8 @@ export function OrganisationTab() {
                 <RequestMembershipSection />
             ) : orgTab === 'create' ? (
                 <CreateOrganisationSection onCreated={handleOrganisationCreated} />
+            ) : orgTab === 'invitations' ? (
+                <InvitationsSection />
             ) : (
                 <>
                     {createdOrgName && (
@@ -387,6 +423,127 @@ export function OrganisationTab() {
                         </div>
                     </dl>
                 </>
+            )}
+        </div>
+    )
+}
+
+function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    })
+}
+
+// US-67: invitationer andre organisationer har sendt til den indloggede
+// bruger. Samme accepter/afvis-bekræft-mønster som RequestRow i
+// MembershipRequestsPanel.tsx (admin-siden af den anden retning).
+function InvitationsSection() {
+    const { data: invitations, isLoading, error: queryError } = useGetMyPendingInvitationsQuery()
+    const [respondToInvitation, { isLoading: submitting, error: mutationError }] = useRespondToInvitationMutation()
+
+    const [pendingDecision, setPendingDecision] = useState<RespondInvitationInput | null>(null)
+
+    async function confirmDecision(decision: RespondInvitationInput) {
+        try {
+            await respondToInvitation(decision).unwrap()
+            setPendingDecision(null)
+        } catch {
+            setPendingDecision(null)
+        }
+    }
+
+    const listError = readableApiError(queryError)
+    const actionError = readableApiError(mutationError)
+
+    return (
+        <div>
+            {(listError || actionError) && (
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    {listError ?? actionError}
+                </div>
+            )}
+
+            {isLoading ? (
+                <p className="text-secondary">Indlæser invitationer...</p>
+            ) : !invitations || invitations.length === 0 ? (
+                <p className="text-secondary">Du har ingen ventende invitationer.</p>
+            ) : (
+                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                    {invitations.map((invitation) => (
+                        <li key={invitation.id} className="py-4">
+                            <InvitationRow
+                                invitation={invitation}
+                                pendingDecision={pendingDecision}
+                                submitting={submitting}
+                                onSelect={setPendingDecision}
+                                onCancel={() => setPendingDecision(null)}
+                                onConfirm={confirmDecision}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    )
+}
+
+// Én invitation: enten organisationsnavn + de to knapper, eller - hvis
+// netop denne række afventer bekræftelse - en "er du sikker?"-boks.
+function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCancel, onConfirm }: InvitationRowProps) {
+    const decision = pendingDecision?.invitationId === invitation.id ? pendingDecision : null
+
+    return (
+        <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <p className="font-medium">{invitation.organisationName}</p>
+                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+            </div>
+
+            {decision ? (
+                <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-sm text-secondary max-w-xs">
+                        {decision.decision === 'Accepted'
+                            ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
+                            : `Er du sikker på, at invitationen skal afvises?`}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => onConfirm(decision)}
+                        disabled={submitting}
+                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    >
+                        {submitting ? 'Behandler...' : 'Ja'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={submitting}
+                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        Annuller
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
+                        disabled={submitting}
+                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    >
+                        Acceptér
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onSelect({ invitationId: invitation.id, decision: 'Rejected' })}
+                        disabled={submitting}
+                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        Afvis
+                    </button>
+                </div>
             )}
         </div>
     )

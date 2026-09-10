@@ -1,8 +1,10 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
-import { Building2, KeyRound, UserPlus, Users } from 'lucide-react'
+import { Building2, KeyRound, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
+    MANAGE_INVITATIONS_PRIVILEGE,
+    MANAGE_MEMBERS_PRIVILEGE,
     MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     MANAGE_ORGANISATION_PRIVILEGE,
     MANAGE_ROLES_PRIVILEGE,
@@ -11,6 +13,7 @@ import {
 import type { AdminSubTab } from '../../types/dashboard/dashboardType'
 import { RolesPrivilegesPanel } from './RolesPrivilegesPanel'
 import { MembersPanel } from './MembersPanel'
+import { InvitationsPanel } from './InvitationsPanel'
 import { MembershipRequestsPanel } from './MembershipRequestsPanel'
 import { OrganisationAdminPanel } from './OrganisationAdminPanel'
 
@@ -20,22 +23,27 @@ interface SubTabDef {
     icon: LucideIcon
 }
 
-// US-65: samler roller/privilegier, medlemmer, medlemsanmodninger og
-// organisations-administration i én fane, hver stadig gated af sit eget
-// specifikke privilegie - en bruger med kun ét privilegie ser kun de(n)
-// tilhørende underfane(r). "Roller & privilegier" og "Medlemmer" er
-// bevidst to sideordnede faner (ikke én fane med en fane indeni) - det
-// gav tre niveauer af faner oven i hinanden og virkede forvirrende.
+// US-65: samler roller/privilegier, medlemmer, invitationer,
+// medlemsanmodninger og organisations-administration i én fane, hver
+// stadig gated af sit eget specifikke privilegie - en bruger med kun ét
+// privilegie ser kun de(n) tilhørende underfane(r). "Roller &
+// privilegier" og "Medlemmer" er bevidst to sideordnede faner (ikke én
+// fane med en fane indeni) - det gav tre niveauer af faner oven i
+// hinanden og virkede forvirrende.
 export function AdministrationTab() {
     const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
+    const { hasPrivilege: canManageMembers } = useHasPrivilege(MANAGE_MEMBERS_PRIVILEGE)
+    const { hasPrivilege: canManageInvitations } = useHasPrivilege(MANAGE_INVITATIONS_PRIVILEGE)
     const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
 
     const tabs: SubTabDef[] = []
     if (canManageRoles) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
-    // Medlemmers rolle-tildeling kræver samme privilegie som selve
-    // rolle-administrationen.
-    if (canManageRoles) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
+    // "Medlemmer" viser rolle-tildeling (manage_roles) og/eller "Fjern"
+    // (manage_members) - fanen er synlig hvis mindst én af de to er til
+    // stede, panelet selv gater hver kontrol uafhængigt (US-66).
+    if (canManageRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
+    if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
     if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
 
@@ -72,6 +80,7 @@ export function AdministrationTab() {
 
             {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
             {activeSubTab === 'members' && <MembersPanel />}
+            {activeSubTab === 'invitations' && <InvitationsPanel />}
             {activeSubTab === 'requests' && <MembershipRequestsPanel />}
             {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
         </div>

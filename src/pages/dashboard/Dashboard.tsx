@@ -5,6 +5,8 @@ import type { LucideIcon } from 'lucide-react'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import {
+    MANAGE_INVITATIONS_PRIVILEGE,
+    MANAGE_MEMBERS_PRIVILEGE,
     MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     MANAGE_ORGANISATION_PRIVILEGE,
     MANAGE_ROLES_PRIVILEGE,
@@ -40,9 +42,12 @@ export default function Dashboard() {
     const { data: profile } = useGetMyProfileQuery()
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
+    const { hasPrivilege: canManageMembers } = useHasPrivilege(MANAGE_MEMBERS_PRIVILEGE)
+    const { hasPrivilege: canManageInvitations } = useHasPrivilege(MANAGE_INVITATIONS_PRIVILEGE)
     const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
-    const canSeeAdministration = canManageRoles || canManageMembershipRequests || canManageOrganisation
+    const canSeeAdministration =
+        canManageRoles || canManageMembers || canManageInvitations || canManageMembershipRequests || canManageOrganisation
 
     const [searchParams, setSearchParams] = useSearchParams()
     const rawTab = searchParams.get('tab')

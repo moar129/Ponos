@@ -35,3 +35,41 @@ export interface RequestRowProps {
     onCancel: () => void
     onConfirm: (decision: ReviewMembershipRequestInput) => void
 }
+
+// En invitation set fra MODTAGERENS side (US-67) - admin-initieret,
+// modsat MembershipRequest som er bruger-initieret. organisationName
+// hentes med, så modtageren kan se hvem der har inviteret dem.
+export interface MembershipInvitation {
+    id: string
+    organisationId: string
+    organisationName: string
+    invitedAt: string
+}
+
+// En sendt (ventende) invitation set fra ORGANISATIONENS/administratorens
+// side. Navn/email hentes fra den inviteredes profil.
+export interface SentInvitation {
+    id: string
+    userId: string
+    firstName: string
+    lastName: string
+    email: string
+    invitedAt: string
+}
+
+// Acceptér og afvis er samme operation med forskellig slutstatus, samme
+// mønster som ReviewMembershipRequestInput.
+export interface RespondInvitationInput {
+    invitationId: string
+    decision: 'Accepted' | 'Rejected'
+}
+
+// Props til InvitationRow i OrganisationTab.tsx (modtager-siden).
+export interface InvitationRowProps {
+    invitation: MembershipInvitation
+    pendingDecision: RespondInvitationInput | null
+    submitting: boolean
+    onSelect: (decision: RespondInvitationInput) => void
+    onCancel: () => void
+    onConfirm: (decision: RespondInvitationInput) => void
+}
