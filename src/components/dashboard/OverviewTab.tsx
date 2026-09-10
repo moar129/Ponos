@@ -1,6 +1,6 @@
 // src/components/dashboard/OverviewTab.tsx
 import { useMemo } from 'react'
-import { Database, ClipboardList, ListChecks, Building2 } from 'lucide-react'
+import { Database, ClipboardList, ListChecks, Building2, BarChart3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
@@ -84,7 +84,7 @@ export function OverviewTab() {
 
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3">Genveje</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <QuickLinkCard
                         to="/datalager"
                         label="Datalager"
@@ -96,6 +96,12 @@ export function OverviewTab() {
                         label="Opgaver"
                         description="Se og administrer organisationens opgaver."
                         icon={ClipboardList}
+                    />
+                    <QuickLinkCard
+                        to="/"
+                        label="Statistik"
+                        description="Se indsigt og statistik for organisationen."
+                        icon={BarChart3}
                     />
                 </div>
             </div>
