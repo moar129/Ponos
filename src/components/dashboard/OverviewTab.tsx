@@ -1,15 +1,16 @@
 // src/components/dashboard/OverviewTab.tsx
-import { Database, ClipboardList, ListChecks, Building2, BarChart3, Bell, Newspaper } from 'lucide-react'
+import { Database, ClipboardList, ListChecks, Building2, BarChart3, Bell } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import { QuickLinkCard } from './QuickLinkCard'
 import { PlaceholderBar } from './PlaceholderBar'
+import { NewsSlider } from './NewsSlider'
 
 // US-65: genveje til Datalager/Opgaver/Statistik, samt placeholder-
 // bjælker til funktioner uden data/backend endnu - "Dine opgaver" (afventer
-// at Opgave-siden/task-modellen bliver færdig), "Notifikationer" (intet
-// datamodel/user story endnu) og "Nyheder" (afventer US-56/US-57 med
-// vilje). Ingen tal/counts vises længere her.
+// at Opgave-siden/task-modellen bliver færdig) og "Notifikationer" (intet
+// datamodel/user story endnu). Nyheder (US-56/US-57) har fået sin egen
+// slider-widget nedenfor (NewsSlider) i stedet for en placeholder.
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
 
@@ -72,11 +73,7 @@ export function OverviewTab() {
                 />
             </div>
 
-            <PlaceholderBar
-                label="Nyheder"
-                description="Nyheder fra organisationen vises her, når nyhedsfunktionen er bygget."
-                icon={Newspaper}
-            />
+            <NewsSlider />
         </div>
     )
 }
