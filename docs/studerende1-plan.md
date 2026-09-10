@@ -4,13 +4,11 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 ## Næste op
 
-**US-45 + US-46 + US-47 – Rigtigt dashboard**
+**US-62 + US-63 – Granulære skriverettigheder i Datalayer/Opgaver (Fase 2)**
 
-US-58/59/60/61/64 (opret organisation, medlemskabsmodel + "aktiv organisation", flere organisationer, forlad organisation, slet organisation) er nu ALLE Done og manuelt testet og bekræftet virkende i browseren (se status-tabellen) - inkl. flere bugs fundet og rettet undervejs i selve testen (se US-59- og US-64-rækkernes noter). Hele "Organisation & medlemskab"-blokken er dermed færdig. Næste skridt jf. "Anbefalet rækkefølge": Dashboard, bygget fra start med "aktiv organisation" i tankerne (US-46/47 skal tælle items/opgaver for den AKTIVE organisation, ikke en fast organisation).
+US-66 (fjern medlem) og US-67 (invitér bruger) er nu ALLE Done, SQL kørt og bekræftet i Supabase, og manuelt testet og bekræftet virkende i browseren efter hele test-listen (kick, invitér, afvis, annullér, fejlbeskeder, banner) - inkl. én bug fundet og rettet undervejs (accept af invitation blokeret af `trg_prevent_self_role_org_change`, se US-67-rækkens note). Næste skridt jf. "Anbefalet rækkefølge": Fase 2 af granulære privilegier (US-62/US-63) - samme mønster som Fase 1 (US-11-13), oven på det allerede eksisterende `has_privilege_or_admin()`. Fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
 
-Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt testet i browseren og bekræftet virkende (se status-tabellen). Fase 2 (US-62/US-63) er bevidst udskudt til efter Dashboard-trinnet — fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede, så en session (evt. på en anden computer) kan gå direkte i gang uden at skulle genudlede noget.
-
-(US-58, US-59, US-60, US-61 og US-64 blev tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
+(US-58, US-59, US-60, US-61, US-64, US-65, US-66 og US-67 blev alle tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
 ## Status
 
@@ -25,20 +23,25 @@ Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt
 | US-06/07/08 | Se, acceptere og afvise medlemsanmodninger (admin) | Critical | Done | `/medlemsanmodninger` + membershipApi/privilegeApi; ny RLS-policy så admin kan se ansøgeres navn/email; adgang nu granulær via `manage_membership_requests`-privilegie (Fase 1) |
 | US-09 | Se organisation | Medium | Done | `/organisation` (OrganisationPage.tsx) + organisationApi.ts |
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne); adgang nu granulær via `manage_organisation`-privilegie (Fase 1) |
-| US-11 | Tildel rolle | High | Done | `/roller` (RolesPage.tsx) + roleApi.ts (`assignRole`); egen række er skrivebeskyttet, DB-trigger blokerer selv-tildeling; adgang nu granulær via `manage_roles`, med escalation-guard mod at give admin-rolle væk uden selv at være admin (Fase 1) |
+| US-11 | Tildel rolle | High | Done | Roller & privilegier-panelet i dashboardets Administration-fane (`RolesPrivilegesPanel.tsx`, tidligere `/roller`/`RolesPage.tsx`) + roleApi.ts (`assignRole`); egen række er skrivebeskyttet, DB-trigger blokerer selv-tildeling; adgang nu granulær via `manage_roles`, med escalation-guard mod at give admin-rolle væk uden selv at være admin (Fase 1). **Fundet under test (efter dashboard-flytning):** dropdownen kunne kun vælge mellem eksisterende roller - ingen måde at fjerne en rolle igen og gøre medlemmet til et almindeligt medlem uden privilegier. RLS'ens escalation-guard tillod allerede eksplicit `role_id is null` for enhver med `manage_roles` (ikke kun fulde administratorer) - rettet ved at tillade `roleId: string \| null` i `AssignRoleInput`/`assignRole`, og tilføje "Standard medlem (ingen rolle)" som valgmulighed i dropdownen (sentinel-værdi `__none__`, mappes til `null`). Ren frontend-rettelse, ingen SQL-ændring |
 | US-12 | Opret rolle | Medium | Done | roleApi.ts (`createRole`); udvidet med `updateRole`/`deleteRole` (fuld CRUD, ikke krævet af story men RLS var allerede klar), UI på `/roller`; adgang nu granulær via `manage_roles` (Fase 1) |
 | US-13 | Opret privilege | Medium | Done | privilegeApi.ts udvidet (`getOrganisationPrivileges`, `createPrivilege`, `updatePrivilege`, `deletePrivilege` - fuld CRUD), UI på `/roller`; adgang nu granulær via `manage_roles`, med escalation-guard mod at oprette/omdøbe et privilegie til `admin` uden selv at være admin (Fase 1). "Tilføj privilegie" er en dropdown af kendte privilegier (`KNOWN_PRIVILEGES`/`privilegeLabel` i privilegeApi.ts) + "Andet"-fritekst, i stedet for rent fritekstfelt — undgår tastefejl på de bogstavelige RLS-privilegienavne |
 | US-62 | Granulære skriverettigheder i Datalayer | Medium | Mangler | Tilhører nu Studerende 1 (ikke Studerende 2); bevidst udskudt til efter US-59/60/61/Dashboard (trin 8) - fuld spec klar, se "Fase 2-spec" nedenfor |
 | US-63 | Granulære skriverettigheder i Opgaver | Medium | Mangler | Tilhører nu Studerende 1 (ikke Studerende 3); bevidst udskudt til efter US-59/60/61/Dashboard (trin 8) - fuld spec klar, se "Fase 2-spec" nedenfor |
-| US-45 | Se dashboard | Critical | Mangler | Nuværende Dashboard.tsx er eksplicit en placeholder |
-| US-46 | Se antal items | High | Mangler | Data findes via dataLayerApi, ikke vist noget sted |
-| US-47 | Se antal opgaver | High | Mangler | Data findes via taskSlices, intet total-count, ingen auto-opdatering |
+| US-45 | Se dashboard | Critical | Done | `Dashboard.tsx` omskrevet fra placeholder til Oversigt/Organisation/Administration-faner - se US-65-rækken. Manuelt testet og bekræftet virkende i browseren. Genvejskort til Statistik tilføjet på Oversigt-fanen (ad-hoc, `OverviewTab.tsx`) - peger på "/" ligesom header-navigationen, da Statistik-siden endnu ikke er bygget (anden studerendes domæne). Manuelt testet og bekræftet virkende. Stat-kortene (Antal items/Antal opgaver/Dine opgaver, `StatCard.tsx`) er efterfølgende fjernet igen (ad-hoc bruger-forespørgsel) og erstattet af: Genveje-grid'et flyttet øverst, derunder to nye "kommer snart"-placeholder-bjælker (`PlaceholderBar.tsx`) til "Dine opgaver" og "Notifikationer" (efter bruger-feedback vist side om side i et 2-kolonne grid, ikke stablet), og nederst en tredje til "Nyheder". Alle tre er rent visuelle - ingen data/queries/SQL. Manuelt testet og bekræftet virkende i browseren. "Dine opgaver" afventer at Opgave-siden/task-modellen bliver færdig (Task har intet direkte assignee/deadline-felt, kun `task_assignees`-join); "Nyheder" afventer bevidst US-56/US-57. **Sidefund (ikke rettet, kun flagget):** "Notifikationer" har intet datamodel eller user story i projektet endnu - kun en død klokke-ikon-knap i header der linker til `/notifikationer` (ingen rute). Bør formaliseres som en ny user story (ny tabel+triggers, læst/ulæst) når den skal bygges færdig. `StatCard.tsx`/`StatCardProps` slettet som ubrugt kode |
+| US-46 | Se antal items | High | Done | `OverviewTab.tsx` tæller items rekursivt via eksisterende `useGetCategoryTreeQuery` (categoryApi.ts) - intet nyt count-endpoint. Manuelt testet og bekræftet virkende |
+| US-47 | Se antal opgaver | High | Done | `OverviewTab.tsx` bruger `tasks.length` fra eksisterende `useGetTasksQuery` (taskApi.ts) - auto-opdaterer via samme tags som resten af appen. Manuelt testet og bekræftet virkende |
 | US-56 | Se nyheder | Low | Mangler | `news`-tabel + RLS findes; 0% frontend |
 | US-57 | Hent nyheder fra ekstern API | Low | Mangler | Kun DB-scaffold; intet API-kald nogen steder i repoet |
 | US-59 | Være medlem af flere organisationer | High | Done | DB-migration kørt og bekræftet (memberships-tabel, `active_organisation_id`, nye RPC'er `set_active_organisation`/opdateret `create_organisation`) + `dbSchema.sql` opdateret; `categoryApi.ts`/`taskApi.ts` rettet til nyt kolonnenavn. Frontend: profileApi/organisationApi/roleApi/privilegeApi omlagt til memberships; `/organisation` har 4 faner når man har en aktiv org: "Organisation", "Mine organisationer" (liste + skift aktiv), "Anmod om medlemskab", "Opret organisation" (sidste to tilføjet undervejs - opdaget under test at en bruger med en org allerede ikke havde nogen UI-vej til at anmode/oprette en 2. org, kun no-org-fligen havde det). Manuelt testet og bekræftet virkende i browseren. **Bugs fundet+rettet under test:** (1) `profiles`-SELECT-policyen "Se egen profil eller profiler i egen organisation" sammenlignede stadig `active_organisation_id` direkte i stedet for at tjekke `memberships` - et medlem af 2 organisationer blev usynligt for administratorer i den organisation, der IKKE var brugerens aktive (fx forsvandt fra medlemslisten på `/roller`). Rettet til at bruge `exists (... memberships ...)`, se `dbSchema.sql` §16.2. (2) "Mine organisationer" viste "Ingen rolle tildelt" for enhver organisation der ikke var aktiv, fordi roles-RLS er scopet til aktiv organisation - løst med ny security definer-funktion `get_my_memberships()` (§15.12), som `organisationApi.ts`s `getMyMemberships` nu kalder i stedet for 3 separate klient-forespørgsler. (3) Efter login som en anden bruger viste siden forkert rolle/organisation indtil F5 - `authApi.ts`s login/logout-tag-invalidering var en hardcoded liste fra FØR US-59, som aldrig fik `'Membership'` (eller `'Role'`/datalag/opgave-tags) tilføjet. Rettet ved at udtrække én delt, eksporteret `USER_SCOPED_TAGS`-liste i `supabaseApi.ts`, som nu bruges af BÅDE `authApi.ts` (login/logout) og `organisationApi.ts` (skift aktiv org/opret/forlad organisation) - undgår at de to lister kan drive fra hinanden igen. Ingen SQL, kun frontend. |
 | US-60 | Oprette flere organisationer | Medium | Done | `create_organisation`-RPC'ens "allerede medlem"-blokering fjernet; en nyoprettet organisation bliver altid aktiv med det samme (også ved 2./3. org - ændret undervejs efter bruger-feedback om at "kan vælge som aktiv" skulle betyde automatisk skift + kvitteringsbesked, ikke manuelt skift bagefter). "Opret organisation"-fane på `/organisation` for brugere med en aktiv org, med besked "Organisationen X er oprettet og er nu din aktive organisation". Manuelt testet og bekræftet virkende (auto-skift af aktiv org bekræftet af bruger). |
 | US-61 | Forlade en organisation | Medium | Done | Ny RPC `leave_organisation` (`dbSchema.sql` §15.11) - blokerer hvis brugeren er organisationens eneste administrator; hvis den forladte organisation var aktiv, vælges automatisk en anden af de resterende medlemskaber som ny aktiv (eller ingen, hvis der ikke er flere) + besked om det, samme mønster som US-60. "Forlad"-knap pr. række under "Mine organisationer" på `/organisation`, med bekræft-trin. Manuelt testet og bekræftet virkende i browseren, inkl. de 3 bugs fundet undervejs (se US-59-rækken). |
 | US-64 | Slette en organisation | Medium | Done | Ny RPC `delete_organisation` (`dbSchema.sql` §15.13) - kan teknisk slette enhver organisation brugeren administrerer (samme manuelle memberships/privileges-opslag som `leave_organisation`, da `has_privilege_or_admin()` kun tjekker aktiv organisation); ingen "sidste medlem"-restriktion, dækker både "alene tilbage" og "organisationen lukker ned med andre medlemmer tilbage". Al data cascader automatisk via eksisterende FK'er. `get_my_memberships()` (§15.12) udvidet med `is_admin`/`member_count`. "Slet organisation"-knap under "Mine organisationer", men - efter bruger-feedback - kun vist på den AKTIVE organisations række (bevidst UI-begrænsning, ikke RPC-begrænsning, for at undgå fejlagtig sletning af den forkerte org i listen). Bekræft-flow: skriv organisationens navn + 2 tjekbokse (datatab, og - hvis relevant - antal andre medlemmer der mister adgang). **Bugs fundet+rettet under test:** (1) `delete_organisation`s kaskade ned til `roles`/`privileges` ramte `trg_prevent_admin_role_change`/`trg_prevent_admin_privilege_change` (15.5/15.6), som normalt (med god grund) blokerer sletning af organisationens "Admin"-rolle/privilegie - men her forsvinder hele organisationen alligevel. Rettet ved at give begge triggere et nyt `ponos.bypass_admin_protection`-flag (samme mønster som `ponos.bypass_self_role_org_change`), som `delete_organisation` nu sætter før sletningen. (2) `delete_organisation` BEREGNEDE den nye aktive organisation efter sletning (`v_next_org_id`), men glemte den faktiske `update profiles set active_organisation_id = ...` - kolonnen stod derfor på null (nulstillet af FK-cascaden) selvom brugeren havde et andet medlemskab tilbage. Rettet ved at tilføje den manglende UPDATE. (3) Da active_organisation_id var null, var der ingen UI-vej tilbage til "Mine organisationer" - `/organisation`s "ingen organisation"-visning viste kun opret/anmod-faner. Rettet defensivt (uafhængigt af om bug (2) skulle opstå igen): den visning tjekker nu `getMyMemberships` og tilbyder en "Mine organisationer"-fane, hvis brugeren rent faktisk har medlemskaber, med en forklarende tekst i stedet for at antage "ingen aktiv org" = "ingen organisationer overhovedet". Manuelt testet og bekræftet virkende i browseren. |
+| US-65 | Administration og organisation samlet på dashboardet | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel under planlægning af US-45/46/47, siden udvidet efter endnu en forespørgsel (se `userStories.md`). Roller & privilegier (`RolesPage.tsx`), medlemsanmodninger (`MembershipRequestsPage.tsx`) og organisationens rediger/slet (dele af `OrganisationPage.tsx`) er flyttet ind i dashboardets Administration-fane som selvstændige, individuelt privilegie-gatede paneler (`RolesPrivilegesPanel.tsx`, `MembershipRequestsPanel.tsx`, `OrganisationAdminPanel.tsx`). Resten af `OrganisationPage.tsx` (se org, mine organisationer, anmod, opret) er flyttet til en ny, ikke-privilegie-gated Organisation-fane (`OrganisationTab.tsx`). De tre gamle sider og deres ruter (`/roller`, `/medlemsanmodninger`, `/organisation`) samt header-nav/dropdown-links er slettet - dashboardet har nu URL-drevet fane-state (`?tab=...`). Oversigt-fanen udvidet med "dine opgaver"-tal og genvejskort til Datalager/Opgaver (`QuickLinkCard.tsx`), samt en venlig tom-tilstand for brugere uden aktiv organisation i stedet for tre ens fejlbeskeder. Organisation-tab/Administration-organisation-panel fik desuden en header (ikon + navn + "Administrator"-badge) og et "Antal medlemmer"-nøgletal i stedet for bare navnet (genbruger allerede hentet `useGetMyMembershipsQuery`-data, ingen nye kald/SQL). **Bug fundet+rettet under test:** "Roller & privilegier"-panelet havde en nestet underfane til "Medlemmer" - tre niveauer af faner oven i hinanden (Dashboard > Administration > Roller & privilegier > Medlemmer) med to identisk navngivne "Roller & privilegier" (top-niveau og fane-niveau) virkede forvirrende. Rettet ved at gøre "Medlemmer" til en sideordnet fane ved siden af "Roller & privilegier" i Administration (ny `MembersPanel.tsx`, udtrukket fra `RolesPrivilegesPanel.tsx`). Ren frontend-omstrukturering, ingen RLS/SQL-ændringer. Manuelt testet og bekræftet virkende i browseren efter rettelsen. |
+| US-66 | Fjerne medlem fra organisation | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel. Ny RPC `remove_member(p_user_id)` (security definer, modelleret efter `leave_organisation`) - scopet til administratorens AKTIVE organisation, blokerer selv-fjernelse, og har en escalation-guard: kun en reel administrator (`admin`-privilegiet) må fjerne et medlem, hvis rolle bærer admin-privilegiet. Ny privilegie `manage_members`. Frontend: `MembersPanel.tsx` har nu en uafhængigt gated "Fjern"-knap pr. medlem (bekræft-trin), med samme escalation-guard genskabt client-side (skjuler knappen for en manage_members-only bruger over for et admin-medlem). SQL kørt og bekræftet i Supabase - `dbSchema.sql` opdateret (§15.14). Manuelt testet og bekræftet virkende i browseren (fjern almindeligt medlem, knap skjult for manage_members-only over for admin, fuld admin kan fjerne admin, fjernet bruger mister adgang/får ny aktiv org). |
+| US-67 | Invitere bruger til organisation | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel. Ny tabel `membership_invitations` (mirror af `membership_requests`, men admin-initieret i stedet for bruger-initieret) + trigger `handle_membership_invitation_status_change` (samme mønster som `handle_membership_request_status_change`) + RPC `invite_member(p_email)` (slår email op, validerer, opretter invitation) + RLS-policies (modtager svarer selv, admin kan annullere en ventende invitation). To nye, snævre RLS-tilføjelser på `organisations`/`profiles` lader hhv. modtageren se organisationens navn og administratoren se den invitteredes navn/email, uden at det kræver et eksisterende medlemskab (samme mønster som `is_pending_requester_to_my_org()`). Ny privilegie `manage_invitations`. Frontend: ny `InvitationsPanel.tsx` (admin-side: invitér + annullér), ny `InvitationsSection` i `OrganisationTab.tsx` (modtager-side: acceptér/afvis, betinget fane som "Mine organisationer"), `PendingRequestBanner.tsx` viser nu også en ventende invitation. **Bug fundet+rettet under test:** modtageren kunne ikke acceptere en invitation. Årsag: `handle_membership_invitation_status_change` opdaterer `profiles.active_organisation_id` for `invited_user_id` - ved en ANMODNING er det altid en ADMIN der godkender (rammer aldrig admins egen profil-række), men ved en INVITATION er det MODTAGEREN SELV der accepterer sin egen række, så opdateringen rammer `auth.uid()`s egen profil og udløste `trg_prevent_self_role_org_change` ("Du kan ikke ændre din egen organisationstilknytning direkte."). Rettet ved at tilføje samme `ponos.bypass_self_role_org_change`-flag som `create_organisation`/`set_active_organisation`/`leave_organisation`/`delete_organisation` allerede bruger - samme klasse fejl som er set flere gange før i dette projekt (se US-59/64-rækkerne). SQL kørt og bekræftet i Supabase - `dbSchema.sql` opdateret (§6.6, §15.15-15.16, §16.1/16.2/16.11). Manuelt testet og bekræftet virkende i browseren efter rettelsen (invitér, fejlbeskeder for ikke-eksisterende/allerede-medlem/dublet, accept, afvis, annullér, banner, inviteret bruger uden aktiv org). |
+
+**Sidefund under planlægning (ikke rettet, kun flagget):** `organisations`-tabellens eneste SELECT-policy er scopet til `id = auth_profile_org()` - en bruger uden aktiv organisation (eller med en anden aktiv) kan formentlig ikke se andre organisationers navn/id via "vælg organisation"-dropdownen i `OrganisationTab.tsx` (anmod/opret-fanerne). Ikke undersøgt til bunds eller rettet - værd at teste/tjekke ved lejlighed.
 
 ## Anbefalet rækkefølge
 
@@ -48,10 +51,11 @@ Fase 1 af granulære privilegier (US-11/12/13 + US-10) er implementeret, manuelt
 4. ~~**US-11 + US-12 + US-13** — Roller & privileges (Fase 1: granulære privilegier)~~ ✅
 5. ~~**US-59** — Være medlem af flere organisationer (stor migration: erstatter `profiles.organisation_id`/`role_id` med en medlemskabsmodel + "aktiv organisation"-koncept)~~ ✅
 6. ~~**US-60 + US-61** — Oprette flere organisationer / Forlade en organisation (bygger direkte på US-59's medlemskabsmodel, gøres derfor lige efter)~~ ✅
-7. **US-45 + US-46 + US-47** — Rigtigt dashboard (genbruger data-mønstre fra Datalayer/opgaver; bygges efter US-59 så den fra start regner med "aktiv organisation" i stedet for at skulle rettes til bagefter)
-8. **US-62 + US-63** — Granulære skriverettigheder i Datalayer/Opgaver (Fase 2, samme mønster som US-11-13 - tilhører Studerende 1, ikke Studerende 2/3). Bevidst rykket til her, EFTER US-59/60/61: undgår at RLS-policies på Datalayer/Opgave-tabellerne skal rettes til igen når US-59 ændrer medlemskabsmodellen, og reducerer risikoen for at kollidere med Studerende 2/3's igangværende arbejde i de tabeller/komponenter. Fuld spec: se "Fase 2-spec" nedenfor.
-9. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/organisation`, som nu rummer både opret- og anmod-flow)
-10. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
+7. ~~**US-45 + US-46 + US-47 + US-65** — Rigtigt dashboard + Administration/Organisation-konsolidering~~ ✅
+8. ~~**US-66 + US-67** — Fjerne medlem / Invitere bruger (ad-hoc tilføjet, nye privilegier `manage_members`/`manage_invitations`)~~ ✅
+9. **US-62 + US-63** — Granulære skriverettigheder i Datalayer/Opgaver (Fase 2, samme mønster som US-11-13 - tilhører Studerende 1, ikke Studerende 2/3). Bevidst rykket til her, EFTER US-59/60/61: undgår at RLS-policies på Datalayer/Opgave-tabellerne skal rettes til igen når US-59 ændrer medlemskabsmodellen, og reducerer risikoen for at kollidere med Studerende 2/3's igangværende arbejde i de tabeller/komponenter. Fuld spec: se "Fase 2-spec" nedenfor.
+10. ~~**US-02 polish** — vis "ingen organisation"-tilstand i UI~~ ✅ (banner med link til `/organisation`, som nu rummer både opret- og anmod-flow)
+11. **US-56 + US-57** — Nyheder (lavest prioritet, ingen afhængigheder — gøres sidst)
 
 ## US-59-spec — udført og testet (historik)
 
@@ -115,6 +119,227 @@ Opstod som opfølgende spørgsmål under test af US-59/60/61 ("hvordan sletter m
 **Docs:** Ny story US-64 tilføjet i `userStories.md` (afsnit "Prioriteringsoversigt" + "Arbejdsfordeling", 25 stories nu for Studerende 1).
 
 **Bugs fundet+rettet under test** (se også status-tabellens US-64-række): (1) `delete_organisation`s kaskade ramte `trg_prevent_admin_role_change`/`trg_prevent_admin_privilege_change` - rettet med nyt `ponos.bypass_admin_protection`-flag. (2) Den manglende `update profiles set active_organisation_id = ...` efter valg af ny aktiv org - rettet. (3) Ingen UI-vej til "Mine organisationer" når `active_organisation_id` var null - `/organisation`s no-org-visning tjekker nu `getMyMemberships` og tilbyder fanen defensivt. (4) Efter bruger-feedback: "Slet organisation"-knappen er begrænset til kun at vise på den AKTIVE organisations række (ikke en bug, en bevidst UX-stramning).
+
+## US-66/67-spec — udført og testet (historik)
+
+SQL'en nedenfor er kørt af brugeren i Supabase SQL Editor, og hele funktionen (fjern medlem + invitér bruger, inkl. accept/afvis/annullér) er manuelt testet og bekræftet virkende i browseren (se status-tabellens US-66/US-67-rækker). `dbSchema.sql` er opdateret (§6.6, §15.14-15.16, §16.1/16.2/16.11). Bevaret her som dokumentation af den faktiske implementering, ikke som en ventende opgave.
+
+**US-66 (fjern medlem) - ny RPC, ingen nye tabeller/policies:**
+```sql
+create or replace function public.remove_member(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid;
+  v_target_role_id uuid;
+  v_target_is_admin boolean;
+  v_next_org_id uuid;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind for at fjerne et medlem.';
+  end if;
+
+  if p_user_id = v_caller_id then
+    raise exception 'Du kan ikke fjerne dig selv - brug "Forlad organisation" i stedet.';
+  end if;
+
+  v_org_id := public.auth_profile_org();
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('manage_members') then
+    raise exception 'Du har ikke rettigheder til at fjerne medlemmer.';
+  end if;
+
+  select role_id into v_target_role_id
+  from public.memberships
+  where user_id = p_user_id and organisation_id = v_org_id;
+
+  if not found then
+    raise exception 'Brugeren er ikke medlem af organisationen.';
+  end if;
+
+  v_target_is_admin := v_target_role_id is not null and exists (
+    select 1 from public.privileges where role_id = v_target_role_id and name = 'admin'
+  );
+  if v_target_is_admin and not public.has_privilege('admin') then
+    raise exception 'Du skal være administrator for at fjerne en anden administrator.';
+  end if;
+
+  delete from public.memberships
+  where user_id = p_user_id and organisation_id = v_org_id;
+
+  select organisation_id into v_next_org_id
+  from public.memberships
+  where user_id = p_user_id
+  order by created_at
+  limit 1;
+
+  update public.profiles
+    set active_organisation_id = v_next_org_id
+    where id = p_user_id and active_organisation_id = v_org_id;
+end;
+$$;
+
+grant execute on function public.remove_member(uuid) to authenticated;
+```
+
+**US-67 (invitér bruger) - ny tabel + trigger + RPC + policies:**
+```sql
+create table public.membership_invitations (
+  id               uuid primary key default gen_random_uuid(),
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  invited_user_id  uuid not null references public.profiles(id) on delete cascade,
+  invited_by       uuid references public.profiles(id) on delete set null,
+  status           e_membership_request_status not null default 'Pending',
+  created_at       timestamptz not null default now(),
+  reviewed_at      timestamptz
+);
+
+create unique index membership_invitations_unique_pending
+  on public.membership_invitations (invited_user_id, organisation_id)
+  where (status = 'Pending');
+
+create index idx_membership_invitations_org on public.membership_invitations (organisation_id);
+create index idx_membership_invitations_user on public.membership_invitations (invited_user_id);
+
+alter table public.membership_invitations enable row level security;
+
+-- RETTET under test (se status-tabellens US-67-note): modtageren
+-- accepterer sin EGEN invitation, så profiles-opdateringen nedenfor
+-- rammer auth.uid()s egen række og skal derfor bypasse
+-- trg_prevent_self_role_org_change, ligesom create_organisation/
+-- set_active_organisation/leave_organisation/delete_organisation gør.
+create or replace function public.handle_membership_invitation_status_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.status = 'Accepted' and old.status is distinct from 'Accepted' then
+    new.reviewed_at := coalesce(new.reviewed_at, now());
+
+    insert into public.memberships (user_id, organisation_id)
+    values (new.invited_user_id, new.organisation_id)
+    on conflict (user_id, organisation_id) do nothing;
+
+    perform set_config('ponos.bypass_self_role_org_change', 'true', true);
+
+    update public.profiles
+      set active_organisation_id = new.organisation_id
+      where id = new.invited_user_id and active_organisation_id is null;
+  elsif new.status = 'Rejected' and old.status is distinct from 'Rejected' then
+    new.reviewed_at := coalesce(new.reviewed_at, now());
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_membership_invitation_status_change
+  before update on public.membership_invitations
+  for each row execute function public.handle_membership_invitation_status_change();
+
+create or replace function public.invite_member(p_email text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_target_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('manage_invitations') then
+    raise exception 'Du har ikke rettigheder til at invitere medlemmer.';
+  end if;
+
+  select id into v_target_id
+  from public.profiles
+  where lower(email) = lower(trim(p_email));
+
+  if v_target_id is null then
+    raise exception 'Ingen bruger findes med denne email.';
+  end if;
+
+  if exists (
+    select 1 from public.memberships
+    where user_id = v_target_id and organisation_id = v_org_id
+  ) then
+    raise exception 'Brugeren er allerede medlem af organisationen.';
+  end if;
+
+  insert into public.membership_invitations (organisation_id, invited_user_id, invited_by)
+  values (v_org_id, v_target_id, auth.uid())
+  on conflict (invited_user_id, organisation_id) where status = 'Pending' do nothing;
+
+  if not found then
+    raise exception 'Brugeren har allerede en ventende invitation til organisationen.';
+  end if;
+end;
+$$;
+
+grant execute on function public.invite_member(text) to authenticated;
+
+create policy "Se egne invitationer eller invitationer i egen organisation"
+  on public.membership_invitations for select
+  to authenticated
+  using (
+    invited_user_id = auth.uid()
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_invitations'))
+  );
+
+create policy "Modtager kan svare på egen invitation"
+  on public.membership_invitations for update
+  to authenticated
+  using (invited_user_id = auth.uid())
+  with check (invited_user_id = auth.uid());
+
+create policy "Admin kan annullere ventende invitation i egen organisation"
+  on public.membership_invitations for delete
+  to authenticated
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('manage_invitations')
+    and status = 'Pending'
+  );
+
+create policy "Se organisation man er inviteret til"
+  on public.organisations for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.membership_invitations mi
+      where mi.organisation_id = organisations.id
+        and mi.invited_user_id = auth.uid()
+        and mi.status = 'Pending'
+    )
+  );
+
+create policy "Admin kan se inviterede profiler i egen organisation"
+  on public.profiles for select
+  to authenticated
+  using (
+    public.has_privilege_or_admin('manage_invitations')
+    and exists (
+      select 1 from public.membership_invitations mi
+      where mi.invited_user_id = profiles.id
+        and mi.organisation_id = public.auth_profile_org()
+        and mi.status = 'Pending'
+    )
+  );
+```
+
+**Frontend (allerede kodet):** nye privilegier `manage_members`/`manage_invitations` (privilegeApi.ts); `roleApi.ts` (`removeMember`); ny `invitationApi.ts` (`getMyPendingInvitations`, `getSentInvitations`, `inviteMember`, `cancelInvitation`, `respondToInvitation`); ny tag `'MembershipInvitation'` (supabaseApi.ts, i USER_SCOPED_TAGS); `MembersPanel.tsx` (Fjern-knap + escalation-guard); ny `InvitationsPanel.tsx` (admin-side); `OrganisationTab.tsx` (ny `InvitationsSection`, modtager-side); `PendingRequestBanner.tsx` (viser nu også ventende invitation); `AdministrationTab.tsx`/`Dashboard.tsx` (nye faner/gates).
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8
 

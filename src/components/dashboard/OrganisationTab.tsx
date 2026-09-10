@@ -1,26 +1,26 @@
-// src/pages/organisation/OrganisationPage.tsx
+// src/components/dashboard/OrganisationTab.tsx
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
     useCreateOrganisationMutation,
-    useDeleteOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
     useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
-    useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
-import { MANAGE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import type { MyMembership, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import { useGetMyPendingInvitationsQuery, useRespondToInvitationMutation } from '../../store/apis/invitationApi'
+import type {
+    CreateOrganisationSectionProps,
+    MembershipRowProps,
+    MyMembership,
+    Organisation,
+} from '../../types/organisation/organisationType'
+import type { InvitationRowProps, RespondInvitationInput } from '../../types/membership/membershipType'
 
-// Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
-// feltet fyldes med organisationens nuværende værdi.
-const emptyForm: UpdateOrganisationInput = { name: '' }
-
-type NoOrgTab = 'create' | 'request' | 'memberships'
+type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -32,19 +32,20 @@ function readableApiError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.'
 }
 
-type OrgTab = 'details' | 'memberships' | 'request' | 'create'
+type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 
-// Se organisation og rediger organisation. Alle medlemmer kan se
-// organisationens navn; kun administratorer kan redigere det - adgangen
-// håndhæves server-side af RLS, tjekket her er kun for ikke at vise en
-// redigeringsknap til brugere uden rettigheder.
+// Se organisation, skifte/forlade medlemskaber, samt anmode om/oprette
+// organisationer - flyttet fra OrganisationPage.tsx (`/organisation`) ind
+// i dashboardets Organisation-fane (US-65), tilgængelig for alle
+// brugere (ikke privilegie-gated, i modsætning til Administration-
+// fanen). Rediger/slet organisation ligger i Administration-fanen (se
+// OrganisationAdminPanel.tsx).
 //
-// Bruger uden organisation: samme side tilbyder både "Opret organisation"
-// (US-58) og "Anmod om medlemskab" (US-05) som to faner - i stedet for at
-// spredt over to separate sider (`/organisation` og `/request-membership`),
-// da det er de to eneste veje ind i en organisation, og brugeren ellers
-// selv skulle vide/finde den anden side.
-export default function OrganisationPage() {
+// Bruger uden organisation: samme fane tilbyder både "Opret organisation"
+// (US-58) og "Anmod om medlemskab" (US-05) som to underfaner, da det er
+// de to eneste veje ind i en organisation, og brugeren ellers selv
+// skulle vide/finde den anden vej.
+export function OrganisationTab() {
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     // Bruges også når organisation er null: en bruger uden aktiv
     // organisation kan stadig have andre medlemskaber (fx pga. en bug som
@@ -52,22 +53,20 @@ export default function OrganisationPage() {
     // sætte en ny aktiv org) - uden dette opslag var der ingen vej tilbage
     // til "Mine organisationer" udover at oprette en helt ny organisation.
     const { data: memberships } = useGetMyMembershipsQuery()
-    const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
     const [createOrganisation, { isLoading: creating, error: createError }] = useCreateOrganisationMutation()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
     const { data: pendingRequest, isLoading: loadingPendingRequest } = useGetMyPendingRequestQuery()
-    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
-
-    const [isEditing, setIsEditing] = useState(false)
-    const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
-    const [validationError, setValidationError] = useState<string | null>(null)
-    const [savedMessage, setSavedMessage] = useState(false)
+    // US-67: invitationer andre organisationer har sendt til MIG - vises
+    // som en betinget underfane (samme mønster som "Mine organisationer"),
+    // både i no-org- og has-org-visningen.
+    const { data: pendingInvitations } = useGetMyPendingInvitationsQuery()
 
     const [noOrgTab, setNoOrgTab] = useState<NoOrgTab>('create')
     const [orgTab, setOrgTab] = useState<OrgTab>('details')
-    // Vises på "Organisation"-fanen lige efter man har oprettet en ny
-    // organisation fra "Opret organisation"-fanen (US-60) - ryddes, når
-    // brugeren selv skifter fane igen, så den ikke bliver hængende.
+    // Vises på "Organisation"-underfanen lige efter man har oprettet en
+    // ny organisation fra "Opret organisation"-underfanen (US-60) -
+    // ryddes, når brugeren selv skifter fane igen, så den ikke bliver
+    // hængende.
     const [createdOrgName, setCreatedOrgName] = useState<string | null>(null)
 
     function switchOrgTab(tab: OrgTab) {
@@ -118,42 +117,6 @@ export default function OrganisationPage() {
         }
     }, [isLoading, organisation])
 
-    function startEdit(current: Organisation) {
-        setForm({ name: current.name })
-        setValidationError(null)
-        setSavedMessage(false)
-        setCreatedOrgName(null)
-        setIsEditing(true)
-    }
-
-    function cancelEdit() {
-        setIsEditing(false)
-        setValidationError(null)
-    }
-
-    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault()
-        setSavedMessage(false)
-
-        if (!form.name.trim()) {
-            setValidationError('Organisationens navn skal udfyldes.')
-            return
-        }
-        setValidationError(null)
-
-        try {
-            await updateMyOrganisation({ name: form.name.trim() }).unwrap()
-
-            // Mutationen invaliderer 'Organisation', så visningen nedenfor
-            // henter og viser det nye navn automatisk.
-            setIsEditing(false)
-            setSavedMessage(true)
-        } catch {
-            // Fejlen vises via mutationError - vi bliver i redigerings-
-            // tilstand, så administratorens indtastning ikke går tabt.
-        }
-    }
-
     async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
 
@@ -196,7 +159,7 @@ export default function OrganisationPage() {
 
     if (queryError) {
         return (
-            <div className="max-w-2xl mx-auto rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                 {readableError(queryError)}
             </div>
         )
@@ -208,8 +171,8 @@ export default function OrganisationPage() {
         const hasOtherMemberships = (memberships?.length ?? 0) > 0
 
         return (
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-                <h1 className="text-xl font-semibold text-primary mb-2">Ingen aktiv organisation</h1>
+            <div>
+                <h2 className="text-lg font-semibold text-primary mb-2">Ingen aktiv organisation</h2>
                 <p className="text-sm text-secondary mb-6">
                     {hasOtherMemberships
                         ? 'Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under "Mine organisationer", eller opret/anmod om en ny.'
@@ -258,10 +221,25 @@ export default function OrganisationPage() {
                                     Mine organisationer
                                 </button>
                             )}
+                            {(pendingInvitations?.length ?? 0) > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setNoOrgTab('invitations')}
+                                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                        noOrgTab === 'invitations'
+                                            ? 'border-primary text-primary'
+                                            : 'border-transparent text-secondary hover:text-primary'
+                                    }`}
+                                >
+                                    Invitationer ({pendingInvitations?.length})
+                                </button>
+                            )}
                         </div>
 
                         {noOrgTab === 'memberships' ? (
                             <MyMembershipsSection />
+                        ) : noOrgTab === 'invitations' ? (
+                            <InvitationsSection />
                         ) : noOrgTab === 'create' ? (
                             <>
                                 {(createValidationError || createErrorMessage) && (
@@ -336,18 +314,12 @@ export default function OrganisationPage() {
         )
     }
 
-    const saveError = readableError(mutationError)
+    // Bruges til at vise antal medlemmer + rolle-badge på "Organisation"-
+    // underfanen nedenfor - allerede hentet ovenfor til no-org-grenen.
+    const activeMembership = memberships?.find((m) => m.isActive) ?? null
 
     return (
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-            {/* Overskrift med ikon og navn */}
-            <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-bg-gray flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-secondary" />
-                </div>
-                <h1 className="text-xl font-semibold text-primary">{organisation.name}</h1>
-            </div>
-
+        <div>
             {/* US-59: en bruger kan være medlem af flere organisationer -
                 "Mine organisationer" viser dem alle og lader brugeren skifte
                 hvilken der er aktiv. */}
@@ -396,6 +368,19 @@ export default function OrganisationPage() {
                 >
                     Opret organisation
                 </button>
+                {(pendingInvitations?.length ?? 0) > 0 && (
+                    <button
+                        type="button"
+                        onClick={() => switchOrgTab('invitations')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                            orgTab === 'invitations'
+                                ? 'border-primary text-primary'
+                                : 'border-transparent text-secondary hover:text-primary'
+                        }`}
+                    >
+                        Invitationer ({pendingInvitations?.length})
+                    </button>
+                )}
             </div>
 
             {orgTab === 'memberships' ? (
@@ -404,80 +389,161 @@ export default function OrganisationPage() {
                 <RequestMembershipSection />
             ) : orgTab === 'create' ? (
                 <CreateOrganisationSection onCreated={handleOrganisationCreated} />
+            ) : orgTab === 'invitations' ? (
+                <InvitationsSection />
             ) : (
                 <>
-            {createdOrgName && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                    Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
-                </div>
-            )}
-
-            {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                    Organisationens oplysninger er gemt.
-                </div>
-            )}
-
-            {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                    {validationError ?? saveError}
-                </div>
-            )}
-
-            {isEditing ? (
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-6">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="name">Navn</label>
-                        <input
-                            id="name"
-                            type="text"
-                            value={form.name}
-                            onChange={(e) => setForm({ name: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-                        />
-                    </div>
-
-                    <div className="flex gap-3">
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
-                        >
-                            {saving ? 'Gemmer...' : 'Gem ændringer'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={cancelEdit}
-                            disabled={saving}
-                            className="rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
-                        >
-                            Annuller
-                        </button>
-                    </div>
-                </form>
-            ) : (
-                <>
-                    <dl className="divide-y divide-border-gray border-t border-border-gray">
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Navn</dt>
-                            <dd className="text-sm text-right">{organisation.name}</dd>
-                        </div>
-                    </dl>
-
-                    {canManageOrganisation && (
-                        <div className="mt-6 flex flex-wrap gap-3">
-                            <button
-                                type="button"
-                                onClick={() => startEdit(organisation)}
-                                className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
-                            >
-                                Rediger organisation
-                            </button>
+                    {createdOrgName && (
+                        <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                            Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
                         </div>
                     )}
+
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
+                            <Building2 className="w-7 h-7 text-secondary" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
+                                {activeMembership?.isAdmin && (
+                                    <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
+                                        Administrator
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                        </div>
+                    </div>
+
+                    <dl className="divide-y divide-border-gray border-t border-border-gray">
+                        <div className="py-3 flex justify-between gap-4">
+                            <dt className="text-sm text-secondary">Antal medlemmer</dt>
+                            <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                        </div>
+                    </dl>
                 </>
             )}
-                </>
+        </div>
+    )
+}
+
+function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    })
+}
+
+// US-67: invitationer andre organisationer har sendt til den indloggede
+// bruger. Samme accepter/afvis-bekræft-mønster som RequestRow i
+// MembershipRequestsPanel.tsx (admin-siden af den anden retning).
+function InvitationsSection() {
+    const { data: invitations, isLoading, error: queryError } = useGetMyPendingInvitationsQuery()
+    const [respondToInvitation, { isLoading: submitting, error: mutationError }] = useRespondToInvitationMutation()
+
+    const [pendingDecision, setPendingDecision] = useState<RespondInvitationInput | null>(null)
+
+    async function confirmDecision(decision: RespondInvitationInput) {
+        try {
+            await respondToInvitation(decision).unwrap()
+            setPendingDecision(null)
+        } catch {
+            setPendingDecision(null)
+        }
+    }
+
+    const listError = readableApiError(queryError)
+    const actionError = readableApiError(mutationError)
+
+    return (
+        <div>
+            {(listError || actionError) && (
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    {listError ?? actionError}
+                </div>
+            )}
+
+            {isLoading ? (
+                <p className="text-secondary">Indlæser invitationer...</p>
+            ) : !invitations || invitations.length === 0 ? (
+                <p className="text-secondary">Du har ingen ventende invitationer.</p>
+            ) : (
+                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                    {invitations.map((invitation) => (
+                        <li key={invitation.id} className="py-4">
+                            <InvitationRow
+                                invitation={invitation}
+                                pendingDecision={pendingDecision}
+                                submitting={submitting}
+                                onSelect={setPendingDecision}
+                                onCancel={() => setPendingDecision(null)}
+                                onConfirm={confirmDecision}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    )
+}
+
+// Én invitation: enten organisationsnavn + de to knapper, eller - hvis
+// netop denne række afventer bekræftelse - en "er du sikker?"-boks.
+function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCancel, onConfirm }: InvitationRowProps) {
+    const decision = pendingDecision?.invitationId === invitation.id ? pendingDecision : null
+
+    return (
+        <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <p className="font-medium">{invitation.organisationName}</p>
+                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+            </div>
+
+            {decision ? (
+                <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-sm text-secondary max-w-xs">
+                        {decision.decision === 'Accepted'
+                            ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
+                            : `Er du sikker på, at invitationen skal afvises?`}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => onConfirm(decision)}
+                        disabled={submitting}
+                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    >
+                        {submitting ? 'Behandler...' : 'Ja'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={submitting}
+                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        Annuller
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
+                        disabled={submitting}
+                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    >
+                        Acceptér
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onSelect({ invitationId: invitation.id, decision: 'Rejected' })}
+                        disabled={submitting}
+                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    >
+                        Afvis
+                    </button>
+                </div>
             )}
         </div>
     )
@@ -607,15 +673,6 @@ function RequestMembershipSection() {
     )
 }
 
-interface CreateOrganisationSectionProps {
-    // US-60: den nyoprettede organisation bliver altid brugerens aktive
-    // organisation med det samme (også ved en 2., 3., ...) - kaldes efter
-    // succesfuld oprettelse, så den overordnede side kan vise en besked og
-    // hoppe over på "Organisation"-fanen, hvor den nye (nu aktive)
-    // organisation vises.
-    onCreated: (organisationName: string) => void
-}
-
 // US-60: en bruger, der allerede har en aktiv organisation, kan oprette
 // endnu en (bliver automatisk admin i den, ved siden af eksisterende
 // medlemskaber). Egen komponent af samme grund som
@@ -680,16 +737,15 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
 
 // "Mine organisationer" (US-59/US-61): liste over alle brugerens
 // medlemskaber, med mulighed for at skifte hvilken der er aktiv, og for
-// at forlade en organisation. Ligger som en fane på samme side som
-// organisationsdetaljer/rediger, i stedet for en separat side - det er
-// begge dele "min tilknytning til organisationer".
+// at forlade en organisation. Ligger som en underfane sammen med
+// organisationsdetaljer, i stedet for en separat side - det er begge
+// dele "min tilknytning til organisationer".
 function MyMembershipsSection() {
     const { data: memberships, isLoading, error: queryError } = useGetMyMembershipsQuery()
-    // Vises efter et vellykket "Forlad"/"Slet organisation" - løftet op
-    // hertil (frem for at ligge i selve rækken) fordi rækken forsvinder
-    // fra listen, så snart 'Membership' invalideres og listen henter
-    // frisk data igen - en besked i selve rækken ville derfor aldrig nå
-    // at blive vist.
+    // Vises efter et vellykket "Forlad" - løftet op hertil (frem for at
+    // ligge i selve rækken) fordi rækken forsvinder fra listen, så snart
+    // 'Membership' invalideres og listen henter frisk data igen - en
+    // besked i selve rækken ville derfor aldrig nå at blive vist.
     const [actionMessage, setActionMessage] = useState<string | null>(null)
 
     function handleLeft(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
@@ -699,16 +755,6 @@ function MyMembershipsSection() {
             setActionMessage(`Du har forladt "${organisationName}". Din aktive organisation er nu "${newActiveOrganisation.name}".`)
         } else {
             setActionMessage(`Du har forladt "${organisationName}". Du har ingen aktiv organisation længere.`)
-        }
-    }
-
-    function handleDeleted(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
-        if (!wasActive) {
-            setActionMessage(`"${organisationName}" er slettet.`)
-        } else if (newActiveOrganisation) {
-            setActionMessage(`"${organisationName}" er slettet. Din aktive organisation er nu "${newActiveOrganisation.name}".`)
-        } else {
-            setActionMessage(`"${organisationName}" er slettet. Du har ingen aktiv organisation længere.`)
         }
     }
 
@@ -743,7 +789,6 @@ function MyMembershipsSection() {
                         key={membership.organisationId}
                         membership={membership}
                         onLeft={handleLeft}
-                        onDeleted={handleDeleted}
                     />
                 ))}
             </ul>
@@ -751,13 +796,7 @@ function MyMembershipsSection() {
     )
 }
 
-interface MembershipRowProps {
-    membership: MyMembership
-    onLeft: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
-    onDeleted: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
-}
-
-function MembershipRow({ membership, onLeft, onDeleted }: MembershipRowProps) {
+function MembershipRow({ membership, onLeft }: MembershipRowProps) {
     const [setActiveOrganisation, { isLoading: switching, error: switchError }] = useSetActiveOrganisationMutation()
     const [leaveOrganisation, { isLoading: leaving, error: leaveError }] = useLeaveOrganisationMutation()
 
@@ -837,139 +876,6 @@ function MembershipRow({ membership, onLeft, onDeleted }: MembershipRowProps) {
             </div>
 
             {actionError && <p className="text-red-700 text-xs mt-2">{actionError}</p>}
-
-            {membership.isAdmin && membership.isActive && (
-                <DeleteOrganisationControl membership={membership} onDeleted={onDeleted} />
-            )}
         </li>
-    )
-}
-
-interface DeleteOrganisationControlProps {
-    membership: MyMembership
-    onDeleted: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
-}
-
-// US-64: vises kun for den AKTIVE organisations række, og kun hvis
-// brugeren er administrator dér - en bevidst UI-begrænsning (RPC'en
-// tillader teknisk set at slette en ikke-aktiv organisation man
-// administrerer, men det holdes ude af UI'en for at undgå at man ved en
-// fejl sletter den forkerte af flere organisationer i listen). Sletning
-// er permanent og fjerner ALT organisationens data samt alle andre
-// medlemmers adgang med det samme - bekræft-flowet er derfor bevidst
-// tungere end "Forlad": brugeren skal skrive organisationens navn
-// præcist OG afkrydse at have forstået konsekvenserne, før knappen låses
-// op.
-function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisationControlProps) {
-    const [deleteOrganisation, { isLoading: deleting, error: deleteError }] = useDeleteOrganisationMutation()
-
-    const [confirmingDelete, setConfirmingDelete] = useState(false)
-    const [typedName, setTypedName] = useState('')
-    const [dataLossAcked, setDataLossAcked] = useState(false)
-    const [memberImpactAcked, setMemberImpactAcked] = useState(false)
-
-    const otherMemberCount = membership.memberCount - 1
-    const nameMatches = typedName.trim() === membership.organisationName
-    const canDelete = nameMatches && dataLossAcked && (otherMemberCount <= 0 || memberImpactAcked)
-
-    function startConfirm() {
-        setTypedName('')
-        setDataLossAcked(false)
-        setMemberImpactAcked(false)
-        setConfirmingDelete(true)
-    }
-
-    function cancelConfirm() {
-        setConfirmingDelete(false)
-    }
-
-    async function handleDelete() {
-        if (!canDelete) return
-        try {
-            const newActiveOrganisation = await deleteOrganisation({ organisationId: membership.organisationId }).unwrap()
-            onDeleted(membership.organisationName, membership.isActive, newActiveOrganisation)
-        } catch {
-            // Fejlen vises via deleteError - forbliver i bekræft-tilstand.
-        }
-    }
-
-    const deleteErrorMessage = readableApiError(deleteError)
-
-    if (!confirmingDelete) {
-        return (
-            <div className="mt-2">
-                <button
-                    type="button"
-                    onClick={startConfirm}
-                    className="text-xs font-medium text-red-700 hover:underline"
-                >
-                    Slet organisation
-                </button>
-            </div>
-        )
-    }
-
-    return (
-        <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 space-y-3">
-            <p className="text-sm text-red-700 font-medium">
-                Dette sletter "{membership.organisationName}" permanent og kan ikke fortrydes.
-            </p>
-
-            <div>
-                <label className="block text-xs text-secondary mb-1" htmlFor={`confirm-delete-${membership.organisationId}`}>
-                    Skriv organisationens navn ({membership.organisationName}) for at bekræfte
-                </label>
-                <input
-                    id={`confirm-delete-${membership.organisationId}`}
-                    type="text"
-                    value={typedName}
-                    onChange={(e) => setTypedName(e.target.value)}
-                    className="w-full rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-            </div>
-
-            <label className="flex items-start gap-2 text-xs text-secondary">
-                <input
-                    type="checkbox"
-                    checked={dataLossAcked}
-                    onChange={(e) => setDataLossAcked(e.target.checked)}
-                    className="mt-0.5 rounded border-border-gray"
-                />
-                Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.
-            </label>
-
-            {otherMemberCount > 0 && (
-                <label className="flex items-start gap-2 text-xs text-secondary">
-                    <input
-                        type="checkbox"
-                        checked={memberImpactAcked}
-                        onChange={(e) => setMemberImpactAcked(e.target.checked)}
-                        className="mt-0.5 rounded border-border-gray"
-                    />
-                    Jeg forstår at de {otherMemberCount} andre medlemmer mister deres adgang med det samme.
-                </label>
-            )}
-
-            {deleteErrorMessage && <p className="text-red-700 text-xs">{deleteErrorMessage}</p>}
-
-            <div className="flex gap-3">
-                <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={!canDelete || deleting}
-                    className="rounded-md bg-red-700 text-white px-3 py-1.5 text-sm font-medium hover:bg-red-800 transition-colors disabled:opacity-50"
-                >
-                    {deleting ? 'Sletter...' : 'Slet permanent'}
-                </button>
-                <button
-                    type="button"
-                    onClick={cancelConfirm}
-                    disabled={deleting}
-                    className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
-                >
-                    Annuller
-                </button>
-            </div>
-        </div>
     )
 }

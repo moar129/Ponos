@@ -204,8 +204,10 @@ export const roleApi = supabaseApi.injectEndpoints({
         }),
 
         // Tildeler en rolle til et medlem af den aktive organisation
-        // (US-11). US-59: opdaterer nu medlemmets membership-række for
-        // netop denne organisation, ikke profiles. Databasens
+        // (US-11), eller fjerner rollen (roleId: null) så medlemmet bliver
+        // et almindeligt medlem uden administrative privilegier. US-59:
+        // opdaterer nu medlemmets membership-række for netop denne
+        // organisation, ikke profiles. Databasens
         // trg_prevent_self_membership_role_change afviser, hvis
         // administratoren forsøger at tildele sig selv en rolle - UI'en
         // undgår desuden at vise kontrollen for administratorens egen række.
@@ -240,6 +242,27 @@ export const roleApi = supabaseApi.injectEndpoints({
             // hvis medlemmet selv har appen åben.
             invalidatesTags: ['Role', 'Profile', 'Membership'],
         }),
+
+        // Fjerner et medlem fra den aktive organisation (US-66). Kører
+        // server-side som RPC'en remove_member, som blokerer selv-fjernelse
+        // (brug "Forlad organisation" i stedet) og har en escalation-guard:
+        // kun en reel administrator må fjerne et andet medlem, hvis rolle
+        // bærer admin-privilegiet.
+        removeMember: builder.mutation<void, string>({
+            queryFn: async (userId) => {
+                const { error } = await supabase.rpc('remove_member', { p_user_id: userId })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            // Samme bredde som assignRole, så den fjernede brugers evt.
+            // åbne session mister adgang uden en manuel genindlæsning.
+            invalidatesTags: ['Role', 'Profile', 'Membership'],
+        }),
     }),
 })
 
@@ -250,4 +273,5 @@ export const {
     useDeleteRoleMutation,
     useGetOrganisationMembersQuery,
     useAssignRoleMutation,
+    useRemoveMemberMutation,
 } = roleApi

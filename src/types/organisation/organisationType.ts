@@ -32,3 +32,26 @@ export interface MyMembership {
     isAdmin: boolean
     memberCount: number
 }
+
+// Props til DeleteOrganisationControl, flyttet fra OrganisationPage.tsx
+// ind i OrganisationAdminPanel.tsx (US-65).
+export interface DeleteOrganisationControlProps {
+    membership: MyMembership
+    onDeleted: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
+}
+
+// Props til komponenter flyttet fra OrganisationPage.tsx ind i
+// OrganisationTab.tsx (US-65).
+export interface MembershipRowProps {
+    membership: MyMembership
+    onLeft: (organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) => void
+}
+
+export interface CreateOrganisationSectionProps {
+    // US-60: den nyoprettede organisation bliver altid brugerens aktive
+    // organisation med det samme (også ved en 2., 3., ...) - kaldes efter
+    // succesfuld oprettelse, så den overordnede fane kan vise en besked og
+    // hoppe over på "Organisation"-underfanen, hvor den nye (nu aktive)
+    // organisation vises.
+    onCreated: (organisationName: string) => void
+}

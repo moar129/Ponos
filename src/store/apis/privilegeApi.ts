@@ -13,6 +13,8 @@ export const ADMIN_PRIVILEGE = 'admin'
 export const MANAGE_ROLES_PRIVILEGE = 'manage_roles'
 export const MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'manage_membership_requests'
 export const MANAGE_ORGANISATION_PRIVILEGE = 'manage_organisation'
+export const MANAGE_MEMBERS_PRIVILEGE = 'manage_members'
+export const MANAGE_INVITATIONS_PRIVILEGE = 'manage_invitations'
 
 // Kendte systemprivilegier med brugervenlige, danske labels - bruges til
 // at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
@@ -25,6 +27,8 @@ export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
     { name: MANAGE_ROLES_PRIVILEGE, label: 'Administrere roller og privilegier' },
     { name: MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, label: 'Behandle medlemsanmodninger' },
     { name: MANAGE_ORGANISATION_PRIVILEGE, label: 'Redigere organisation' },
+    { name: MANAGE_MEMBERS_PRIVILEGE, label: 'Fjerne medlemmer' },
+    { name: MANAGE_INVITATIONS_PRIVILEGE, label: 'Invitere medlemmer' },
 ]
 
 // Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets

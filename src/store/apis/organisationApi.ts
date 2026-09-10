@@ -159,8 +159,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
             // Organisation (den nye org), Profile (active_organisation_id
             // ændret), Privilege (brugeren har nu admin-privilegiet) og
             // Membership (nyt medlemskab oprettet) skal alle hentes friske,
-            // så resten af UI'en (header, /bruger, /organisation) opdaterer
-            // sig selv uden reload.
+            // så resten af UI'en (header, /bruger, dashboardets Organisation-
+            // fane) opdaterer sig selv uden reload.
             invalidatesTags: ['Organisation', 'Profile', 'Privilege', 'Membership'],
         }),
 
