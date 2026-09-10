@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, Save } from 'lucide-react';
 import { useUpdateCategoryMutation } from '../../store/apis/categoryApi';
 import type { DataLayerCat } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 interface EditCategoryComponentProps {
   isOpen: boolean;
@@ -32,8 +33,8 @@ export function EditCategoryComponent({ isOpen, onClose, category }: EditCategor
     try {
       await updateCategory({ id: category.id, title: title.trim() }).unwrap();
       onClose();
-    } catch {
-      setFormError('Kunne ikke gemme ændringer. Prøv igen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer. Prøv igen.'));
     }
   };
 
@@ -45,7 +46,13 @@ export function EditCategoryComponent({ isOpen, onClose, category }: EditCategor
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <h2 className="text-lg font-semibold text-slate-100">Rediger kategori</h2>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+            title="Luk"
+            aria-label="Luk modal"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>

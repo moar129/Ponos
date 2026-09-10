@@ -55,6 +55,7 @@ export function CategoryTreeNode({
             }}
             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-600 rounded text-slate-300 transition-opacity"
             title="Rediger kategori"
+             aria-label="Rediger kategori"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
@@ -67,6 +68,7 @@ export function CategoryTreeNode({
             }}
             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-600 rounded text-slate-300 transition-opacity ml-1"
             title="Tilføj underkategori"
+             aria-label="Tilføj underkategori"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
@@ -79,6 +81,7 @@ export function CategoryTreeNode({
             }}
             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-slate-300 hover:text-red-400 transition-opacity ml-1"
             title="Slet kategori"
+             aria-label="Slet kategori"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

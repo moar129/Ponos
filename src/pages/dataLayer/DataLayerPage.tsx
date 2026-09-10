@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
-import type { DataLayerCat, AggregatedItem, ItemLocation } from '../../types/dataLayer/datalayerTypes';
+import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
@@ -22,11 +23,6 @@ import {
 } from '../../store/slices/dataLayersSlices/aggregatedItems';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin } from 'lucide-react';
 
-type ItemStatus = 'Available' | 'Reserved' | 'OutOfStock' | 'InUse' | 'Missing' | 'Damaged' | 'Maintenance';
-
-const ALL_STATUSES: ItemStatus[] = [
-  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance',
-];
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
@@ -193,30 +189,59 @@ export function DataLayerPage() {
       ? (error as { error: string }).error
       : null;
 
-  const aggregatedItems = selectedCategory ? getAggregatedItems(selectedCategory) : [];
-  const descendantCategories = selectedCategory ? getDescendantCategories(selectedCategory) : [];
+  const aggregatedItems = useMemo(
+    () => (selectedCategory ? getAggregatedItems(selectedCategory) : []),
+    [selectedCategory]
+  );
 
-  const displayedItems = aggregatedItems.filter((item) => {
-    if (selectedStatuses.size > 0 && !selectedStatuses.has(item.itemStatus as ItemStatus)) return false;
-    if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
-    if (localItemSearch.trim()) {
-      const q = localItemSearch.trim().toLowerCase();
-      const matches =
-        item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
-      if (!matches) return false;
-    }
-    return true;
-  });
+  const descendantCategories = useMemo(
+    () => (selectedCategory ? getDescendantCategories(selectedCategory) : []),
+    [selectedCategory]
+  );
 
-  const itemsMarkedForDeletion = aggregatedItems.filter((item) => selectedItemIds.has(item.id));
+  const displayedItems = useMemo(
+    () =>
+      aggregatedItems.filter((item) => {
+        if (selectedStatuses.size > 0 && !selectedStatuses.has(item.itemStatus as ItemStatus)) return false;
+        if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
 
-  const allItemsFlat = flattenAllItems(categoryTree);
-  const locationItems = locationItemsTarget
-    ? allItemsFlat.filter((item) => item.itemLocationId === locationItemsTarget.id)
-    : [];
+        if (localItemSearch.trim()) {
+          const q = localItemSearch.trim().toLowerCase();
+          const matches =
+            item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
 
-  const matchedCategories = searchCategories(categoryTree, searchQuery);
-  const matchedItems = searchItemsGlobal(categoryTree, searchQuery);
+          if (!matches) return false;
+        }
+
+        return true;
+      }),
+    [aggregatedItems, selectedStatuses, selectedCategoryFilterIds, localItemSearch]
+  );
+
+  const itemsMarkedForDeletion = useMemo(
+    () => aggregatedItems.filter((item) => selectedItemIds.has(item.id)),
+    [aggregatedItems, selectedItemIds]
+  );
+
+  const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
+
+  const locationItems = useMemo(
+    () =>
+      locationItemsTarget
+        ? allItemsFlat.filter((item) => item.itemLocationId === locationItemsTarget.id)
+        : [],
+    [allItemsFlat, locationItemsTarget]
+  );
+
+  const matchedCategories = useMemo(
+    () => searchCategories(categoryTree, searchQuery),
+    [categoryTree, searchQuery]
+  );
+
+  const matchedItems = useMemo(
+    () => searchItemsGlobal(categoryTree, searchQuery),
+    [categoryTree, searchQuery]
+  );
 
   return (
     <div className="space-y-6">
@@ -331,7 +356,7 @@ export function DataLayerPage() {
             <FilterPanelComponent
               isOpen={isFilterOpen}
               categories={descendantCategories}
-              statuses={ALL_STATUSES}
+              statuses={ALL_ITEM_STATUSES}
               selectedCategoryIds={selectedCategoryFilterIds}
               selectedStatuses={selectedStatuses}
               onToggleCategory={toggleCategoryFilter}
@@ -505,8 +530,8 @@ export function DataLayerPage() {
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0 text-xs text-slate-400">
-                        <span>Antal: {item.quantity}</span>
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <span className="w-16 text-right">Antal: {item.quantity}</span>
+                        <span className="w-24 text-center px-2 py-0.5 rounded bg-slate-800 text-slate-300">
                           {item.itemStatus}
                         </span>
                       </div>

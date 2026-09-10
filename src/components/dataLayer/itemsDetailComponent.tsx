@@ -2,35 +2,22 @@ import { useState, useEffect } from 'react';
 import { X, Package, Pencil, Loader2, Save } from 'lucide-react';
 import { useUpdateItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import { LocationPickerComponent } from './locationsPickerComponent';
-import type { DataLayerItem, AggregatedItem } from '../../types/dataLayer/datalayerTypes';
+import type { AggregatedItem } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 interface ItemDetailComponentProps {
   item: AggregatedItem | null;
   onClose: () => void;
 }
 
-type ItemStatus = DataLayerItem['itemStatus'];
-
-const STATUS_OPTIONS: ItemStatus[] = [
-  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance',
-];
-
-const STATUS_STYLES: Record<string, string> = {
-  Available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  Reserved: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  OutOfStock: 'bg-red-500/10 text-red-400 border-red-500/20',
-  InUse: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  Missing: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Damaged: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-};
 
 export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState(0);
-  const [itemStatus, setItemStatus] = useState<ItemStatus>('Available');
+  const [itemStatus, setItemStatus] = useState<(typeof ALL_ITEM_STATUSES)[number]>('Available');
   const [itemLocationId, setItemLocationId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -75,8 +62,8 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
       }).unwrap();
 
       handleClose(); // luk modalen, så listen viser opdaterede data
-    } catch {
-      setFormError('Kunne ikke gemme ændringer. Prøv igen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer. Prøv igen.'));
     }
   };
 
@@ -106,11 +93,12 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
                 onClick={() => setIsEditing(true)}
                 className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
                 title="Rediger item"
+                aria-label="Rediger item"
               >
                 <Pencil className="w-4 h-4" />
               </button>
             )}
-            <button onClick={handleClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white">
+            <button type="button" onClick={handleClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white" title="Luk" aria-label="Luk modal">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -155,13 +143,13 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
               {isEditing ? (
                 <select
                   value={itemStatus}
-                  onChange={(e) => setItemStatus(e.target.value as ItemStatus)}
+                  onChange={(e) => setItemStatus(e.target.value as (typeof ALL_ITEM_STATUSES)[number])}
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
                 >
-                  {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}
+                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
               ) : (
-                <span className={`inline-block px-2 py-0.5 rounded border text-xs ${STATUS_STYLES[item.itemStatus] ?? 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+                <span className={`inline-block px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-slate-800 text-slate-300 border-slate-700'}`}>
                   {item.itemStatus}
                 </span>
               )}

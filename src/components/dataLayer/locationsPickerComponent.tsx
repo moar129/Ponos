@@ -1,9 +1,9 @@
-// components/dataLayer/locationPickerComponent.tsx
 import { useState } from 'react';
 import { MapPin, Settings2, Loader2 } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
 import { LocationManagerComponent } from './locationsManagerComponent';
 import type { LocationPickerComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function LocationPickerComponent({ value, onChange }: LocationPickerComponentProps) {
@@ -37,8 +37,8 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
       setNewAddress('');
       setNewDescription('');
       setCreateError(null);
-    } catch {
-      setCreateError('Kunne ikke oprette lokation.');
+    } catch (err) {
+      setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
     }
   };
 
@@ -50,6 +50,8 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
           type="button"
           onClick={() => setIsManaging(true)}
           className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#C7975D]"
+          title="Administrer lokationer"
+          aria-label="Administrer lokationer"
         >
           <Settings2 className="w-3.5 h-3.5" />
           Administrer
@@ -117,7 +119,10 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
         </div>
       )}
 
-      <LocationManagerComponent isOpen={isManaging} onClose={() => setIsManaging(false)} />
+      <LocationManagerComponent
+        isOpen={isManaging}
+        onClose={() => setIsManaging(false)}
+      />
     </div>
   );
 }

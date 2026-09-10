@@ -1,4 +1,4 @@
-// components/dataLayer/GlobalSearchResultsComponent.tsx
+import type { MouseEvent } from 'react';
 import { Folder, Package } from 'lucide-react';
 import type { GlobalSearchResultsComponentProps } from '../../types/dataLayer/datalayerTypes';
 
@@ -11,7 +11,7 @@ export function GlobalSearchResultsComponent({
   const hasResults = matchedCategories.length > 0 || matchedItems.length > 0;
 
   // Forhindrer at input'et mister fokus (og dermed lukker dropdown'en), før klikket når frem
-  const preventBlur = (e: React.MouseEvent) => e.preventDefault();
+  const preventBlur = (e: MouseEvent) => e.preventDefault();
 
   return (
     <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">

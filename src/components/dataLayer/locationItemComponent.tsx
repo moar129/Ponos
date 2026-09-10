@@ -1,4 +1,3 @@
-// components/dataLayer/LocationItemsComponent.tsx
 import { X, MapPin, Package } from 'lucide-react';
 import type { LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
 
@@ -20,7 +19,7 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
               {location.address && <p className="text-xs text-slate-400 truncate">{location.address}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white shrink-0">
+          <button type="button" onClick={onClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white shrink-0" title="Luk" aria-label="Luk modal">
             <X className="w-5 h-5" />
           </button>
         </div>

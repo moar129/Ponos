@@ -1,4 +1,3 @@
-// components/dataLayer/FilterPanelComponent.tsx
 import type { FilterPanelComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 

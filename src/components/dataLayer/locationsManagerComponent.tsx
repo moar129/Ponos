@@ -1,4 +1,3 @@
-// components/dataLayer/locationManagerComponent.tsx
 import { useState } from 'react';
 import { X, Pencil, Trash2, Loader2, Save, MapPin } from 'lucide-react';
 import {
@@ -8,6 +7,7 @@ import {
 } from '../../store/apis/categoryApi';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
 import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function LocationManagerComponent({ isOpen, onClose, onViewItems }: LocationManagerComponentProps & {
@@ -48,8 +48,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
         description: editDescription.trim() || null,
       }).unwrap();
       setEditTarget(null);
-    } catch {
-      setFormError('Kunne ikke gemme ændringer.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer.'));
     }
   };
 
@@ -58,8 +58,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
     try {
       await deleteLocation({ id: deleteTarget.id }).unwrap();
       setDeleteTarget(null);
-    } catch {
-      setFormError('Kunne ikke slette lokationen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke slette lokationen.'));
       setDeleteTarget(null);
     }
   };
@@ -132,10 +132,11 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
                     </div>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => onViewItems?.(loc)}
-                    className="w-full flex items-center justify-between gap-3 text-left p-3 hover:bg-slate-800/50 transition-colors"
+                  <div
+                    onClick={onViewItems ? () => onViewItems(loc) : undefined}
+                    className={`w-full flex items-center justify-between gap-3 text-left p-3 transition-colors ${
+                      onViewItems ? 'hover:bg-slate-800/50 cursor-pointer' : ''
+                    }`}
                   >
                     <div className="min-w-0 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
@@ -145,28 +146,26 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <span
-                        role="button"
-                        tabIndex={0}
+                      <button
+                        type="button"
                         onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); startEdit(loc); } }}
                         className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white"
                         title="Rediger"
+                        aria-label="Rediger lokation"
                       >
                         <Pencil className="w-3.5 h-3.5" />
-                      </span>
-                      <span
-                        role="button"
-                        tabIndex={0}
+                      </button>
+                      <button
+                        type="button"
                         onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setDeleteTarget(loc); } }}
                         className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400"
                         title="Slet"
+                        aria-label="Slet lokation"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </span>
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 )}
               </div>
             ))
