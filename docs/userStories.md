@@ -1016,38 +1016,44 @@ Som bruger vil jeg kunne filtrere statistik efter relevante data, så jeg kan fo
 
 # 10. News / API
 
-## US-56 – Se nyheder
+## US-56 – Se og administrere nyheder
 
 **Priority:** Low
 
+**Note (opdateret):** Nyheder er organisationens egne (opslagstavle-stil, som Slack/Basecamp), ikke et globalt feed - hver organisation har sine egne nyheder, isoleret via RLS ligesom øvrige data (jf. `dbSchema.sql` §13/§16.9).
+
 ### User Story
 
-Som bruger vil jeg kunne se aktuelle nyheder, så jeg kan holde mig opdateret om relevant information.
+Som bruger vil jeg kunne se organisationens aktuelle nyheder, så jeg kan holde mig opdateret om relevant information. Som administrator (manage_news-privilegiet) vil jeg desuden kunne oprette, redigere og slette nyheder manuelt.
 
 ### Acceptance Criteria
 
-- Brugeren kan se en liste over tilgængelige nyheder.
+- Brugeren kan se en liste over organisationens nyheder.
 - En nyhed viser titel.
 - En nyhed viser beskrivelse.
 - En nyhed kan vise et billede, hvis et billede er tilgængeligt.
 - En nyhed viser dato/tidspunkt.
+- En nyhed kan vise et link ("Læs mere") til original-artiklen, hvis et link er tilgængeligt.
+- En administrator (manage_news) kan oprette, redigere og slette nyheder for organisationen.
 
 ---
 
-## US-57 – Hent nyheder fra ekstern API
+## US-57 – Hente nyheder fra en organisations egen eksterne API
 
 **Priority:** Low
 
+**Note (opdateret):** Ingen konkret ekstern API er valgt af nogen organisation endnu. Frem for automatisk baggrunds-sync (som ville kræve cron/edge-function-infrastruktur, som ikke findes i dette repo) konfigurerer hver organisation selv sin egen API-adresse (+ evt. nøgle), og en administrator henter derfra på forespørgsel.
+
 ### User Story
 
-Som system vil jeg kunne hente nyheder fra en ekstern API, så aktuelle nyheder kan vises automatisk på Ponos' forside.
+Som administrator vil jeg kunne konfigurere organisationens egen eksterne nyheds-API og hente nyheder derfra, så aktuelle nyheder kan importeres uden at skulle skrives ind manuelt hver gang.
 
 ### Acceptance Criteria
 
-- Systemet kan sende en forespørgsel til den valgte API.
-- Systemet kan modtage nyhedsdata.
-- Modtagne nyheder kan vises på forsiden.
-- Nyheder kan indeholde titel, beskrivelse, billede og publiceringstidspunkt.
+- En administrator (manage_news) kan konfigurere organisationens nyheds-API-adresse (og evt. en API-nøgle).
+- Systemet kan sende en forespørgsel til organisationens konfigurerede API.
+- Systemet kan modtage nyhedsdata og importere dem som nyheder for organisationen.
+- Nyheder kan indeholde titel, beskrivelse, billede, publiceringstidspunkt og link til original-artiklen.
 - Hvis API'et ikke er tilgængeligt, håndteres fejlen uden at resten af Ponos stopper.
 
 ---

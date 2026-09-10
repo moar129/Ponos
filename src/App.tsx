@@ -8,6 +8,8 @@ import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 import { TasksPage } from './pages/Task/TaskPage';
+import { NewsPage } from './pages/News/NewsPage';
+import { NewsDetailPage } from './pages/News/NewsDetailPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import { useGetSessionQuery } from './store/apis/authApi';
 
@@ -37,6 +39,8 @@ function App() {
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
+            <Route path="/nyheder" element={<NewsPage />} />
+            <Route path="/nyheder/:id" element={<NewsDetailPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
         </Routes>

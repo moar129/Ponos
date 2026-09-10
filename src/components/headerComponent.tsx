@@ -6,6 +6,7 @@ import {
   ClipboardList,
   BarChart3,
   Database,
+  Newspaper,
   Bell,
   User,
   ChevronDown,
@@ -107,6 +108,11 @@ export function Header() {
             <NavLink to="/datalager" className={getNavLinkClass}>
               <Database className="w-5 h-5" />
               <span>Datalager</span>
+            </NavLink>
+
+            <NavLink to="/nyheder" className={getNavLinkClass}>
+              <Newspaper className="w-5 h-5" />
+              <span>Nyheder</span>
             </NavLink>
           </>
         )}
