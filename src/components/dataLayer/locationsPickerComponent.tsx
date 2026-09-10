@@ -23,7 +23,7 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
     }
     onChange(val === '' ? null : val);
   };
-
+ 
   const handleCreate = async () => {
     if (!newName.trim()) {
       setCreateError('Navn er påkrævet.');
