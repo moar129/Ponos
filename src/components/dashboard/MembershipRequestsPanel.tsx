@@ -1,12 +1,11 @@
-// src/pages/organisation/MembershipRequestsPage.tsx
+// src/components/dashboard/MembershipRequestsPanel.tsx
 import { useState } from 'react'
-import { Check, UserPlus, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import {
     useGetPendingMembershipRequestsQuery,
     useReviewMembershipRequestMutation,
 } from '../../store/apis/membershipApi'
-import { MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import type { MembershipRequest, ReviewMembershipRequestInput } from '../../types/membership/membershipType'
+import type { RequestRowProps, ReviewMembershipRequestInput } from '../../types/membership/membershipType'
 
 // Hvilken række der afventer bekræftelse, og hvad der blev trykket på.
 type PendingDecision = ReviewMembershipRequestInput
@@ -29,14 +28,12 @@ function formatDate(value: string): string {
     })
 }
 
-// se, accepter og afvis i ét sammenhængende
-// admin-view. Adgangen håndhæves server-side af RLS - tjekket her er
-// kun for at undgå at vise en tom side til brugere uden rettigheder.
-export default function MembershipRequestsPage() {
-    const { hasPrivilege: canManage, isLoading: loadingPrivileges } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
-    const { data: requests, isLoading, error: queryError } = useGetPendingMembershipRequestsQuery(undefined, {
-        skip: !canManage,
-    })
+// Se, accepter og afvis medlemsanmodninger, i ét panel under
+// dashboardets Administration-fane (US-65). Panelet mountes kun når
+// AdministrationTab allerede har bekræftet manage_membership_requests-
+// privilegiet - selve adgangen håndhæves stadig server-side af RLS.
+export function MembershipRequestsPanel() {
+    const { data: requests, isLoading, error: queryError } = useGetPendingMembershipRequestsQuery()
     const [reviewRequest, { isLoading: submitting, error: mutationError }] = useReviewMembershipRequestMutation()
 
     // Både accept og afvisning skal bekræftes, så et fejlklik ikke rammer
@@ -57,38 +54,11 @@ export default function MembershipRequestsPage() {
         }
     }
 
-    if (loadingPrivileges) {
-        return <p className="text-secondary">Indlæser...</p>
-    }
-
-    if (!canManage) {
-        return (
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-                <h1 className="text-xl font-semibold text-primary mb-2">Ingen adgang</h1>
-                <p className="text-sm text-secondary">
-                    Du har ikke rettigheder til at behandle medlemsanmodninger.
-                </p>
-            </div>
-        )
-    }
-
     const listError = readableError(queryError)
     const actionError = readableError(mutationError)
 
     return (
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center">
-                    <UserPlus className="w-6 h-6 text-secondary" />
-                </div>
-                <div>
-                    <h1 className="text-xl font-semibold text-primary">Medlemsanmodninger</h1>
-                    <p className="text-sm text-secondary">
-                        Brugere, der har anmodet om adgang til din organisation.
-                    </p>
-                </div>
-            </div>
-
+        <div>
             {(listError || actionError) && (
                 <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                     {listError ?? actionError}
@@ -117,15 +87,6 @@ export default function MembershipRequestsPage() {
             )}
         </div>
     )
-}
-
-interface RequestRowProps {
-    request: MembershipRequest
-    pendingDecision: PendingDecision | null
-    submitting: boolean
-    onSelect: (decision: PendingDecision) => void
-    onCancel: () => void
-    onConfirm: (decision: PendingDecision) => void
 }
 
 // Én anmodning: enten navn/email + de to knapper, eller - hvis netop

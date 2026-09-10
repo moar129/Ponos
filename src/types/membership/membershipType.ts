@@ -24,3 +24,14 @@ export interface ReviewMembershipRequestInput {
     requestId: string
     decision: 'Accepted' | 'Rejected'
 }
+
+// Props til RequestRow, flyttet fra MembershipRequestsPage.tsx ind i
+// MembershipRequestsPanel.tsx (US-65).
+export interface RequestRowProps {
+    request: MembershipRequest
+    pendingDecision: ReviewMembershipRequestInput | null
+    submitting: boolean
+    onSelect: (decision: ReviewMembershipRequestInput) => void
+    onCancel: () => void
+    onConfirm: (decision: ReviewMembershipRequestInput) => void
+}

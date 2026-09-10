@@ -1178,6 +1178,26 @@ Som administrator vil jeg kunne slette min organisation permanent, så jeg kan l
 
 ---
 
+## US-65 – Administration og organisation samlet på dashboardet
+
+**Priority:** Medium
+
+### User Story
+
+Som bruger vil jeg kunne finde organisationens oplysninger og - hvis jeg er administrator - roller, medlemsanmodninger og organisationens indstillinger ét samlet sted på dashboardet, så jeg ikke skal navigere mellem flere separate sider eller header-menuer for at udføre disse opgaver.
+
+### Acceptance Criteria
+
+- Dashboardet har en "Organisation"-fane (alle brugere): se organisation, "Mine organisationer" (skift aktiv, forlad), anmod om medlemskab, opret organisation.
+- Dashboardet har en "Administration"-fane, der kun vises for brugere med mindst ét administrativt privilegie.
+- Administration-fanen samler roller & privilegier, medlemsanmodninger og organisationens indstillinger (rediger navn, slet organisation).
+- Hver administrativ funktion er fortsat kun synlig for brugere med det specifikke privilegie, den kræver.
+- De tidligere separate sider til roller, medlemsanmodninger og organisation (`/roller`, `/medlemsanmodninger`, `/organisation`) er nedlagt, inkl. "Organisation"-linket i header-dropdownet; funktionaliteten er uændret, kun placeringen er flyttet.
+- Dashboardets "Oversigt"-fane viser genveje til andre sider (Datalager, Opgaver) og et tal for brugerens egne opgaver, ikke kun organisationens samlede item-/opgave-antal.
+- Adgangskontrol håndhæves fortsat server-side (RLS); ingen nye rettigheder introduceres.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1249,6 +1269,7 @@ Som administrator vil jeg kunne slette min organisation permanent, så jeg kan l
 - US-62 – Granulære skriverettigheder i Datalayer
 - US-63 – Granulære skriverettigheder i Opgaver
 - US-64 – Slette en organisation
+- US-65 – Administration og organisation samlet på dashboardet
 
 ## Low
 
@@ -1305,7 +1326,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**25 stories**
+**26 stories**
 
 ### Bruger & login
 
@@ -1341,6 +1362,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-45
 - US-46
 - US-47
+- US-65
 
 ### News/API
 

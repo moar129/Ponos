@@ -1,20 +1,17 @@
-// src/pages/roles/RolesPage.tsx
+// src/components/dashboard/RolesPrivilegesPanel.tsx
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Check, ChevronDown, Lock, Pencil, ShieldCheck, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, Lock, Pencil, Trash2, X } from 'lucide-react'
 import {
     ADMIN_ROLE_NAME,
-    useAssignRoleMutation,
     useCreateRoleMutation,
     useDeleteRoleMutation,
-    useGetOrganisationMembersQuery,
     useGetOrganisationRolesQuery,
     useUpdateRoleMutation,
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
     KNOWN_PRIVILEGES,
-    MANAGE_ROLES_PRIVILEGE,
     privilegeLabel,
     useCreatePrivilegeMutation,
     useDeletePrivilegeMutation,
@@ -22,8 +19,7 @@ import {
     useHasPrivilege,
     useUpdatePrivilegeMutation,
 } from '../../store/apis/privilegeApi'
-import { useGetMyProfileQuery } from '../../store/apis/profileApi'
-import type { OrganisationMember, Privilege, Role } from '../../types/role/roleType'
+import type { PrivilegeRowProps, RoleCardProps } from '../../types/role/roleType'
 
 // Sentinel-værdi for "Andet (indtast selv)..."-valget i privilegie-
 // dropdownen - adskilt fra rigtige privilegienavne ved det ugyldige
@@ -40,79 +36,16 @@ function readableError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.'
 }
 
-// Roller og privileges (US-11 + US-12 + US-13), samlet på én
-// admin-side: opret/omdøb/slet roller, tilknyt/omdøb/fjern privileges,
-// og tildel roller til organisationens medlemmer. Adgangen håndhæves
-// server-side af RLS - tjekket her er kun for at undgå at vise siden
-// til brugere uden rettigheder.
-export default function RolesPage() {
-    const { hasPrivilege: canManageRoles, isLoading: loadingPrivileges } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
-    const { data: myProfile } = useGetMyProfileQuery()
-
-    if (loadingPrivileges) {
-        return <p className="text-secondary">Indlæser...</p>
-    }
-
-    if (!canManageRoles) {
-        return (
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-                <h1 className="text-xl font-semibold text-primary mb-2">Ingen adgang</h1>
-                <p className="text-sm text-secondary">
-                    Du har ikke rettigheder til at administrere roller og privilegier.
-                </p>
-            </div>
-        )
-    }
-
-    return (
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6 text-secondary" />
-                </div>
-                <div>
-                    <h1 className="text-xl font-semibold text-primary">Roller & privilegier</h1>
-                    <p className="text-sm text-secondary">
-                        Opret roller, tilknyt privilegier, og tildel roller til organisationens medlemmer.
-                    </p>
-                </div>
-            </div>
-
-            <RolesAndMembersTabs currentUserId={myProfile?.id ?? null} />
-        </div>
-    )
-}
-
-interface RolesAndMembersTabsProps {
-    currentUserId: string | null
-}
-
-// To faner i stedet for to store bokse oven på hinanden: administratoren
-// arbejder typisk med enten roller/privilegier eller medlemmer ad gangen,
-// så kun ét afsnit vises fremfor at man skal scrolle forbi det andet.
-function RolesAndMembersTabs({ currentUserId }: RolesAndMembersTabsProps) {
-    const [activeTab, setActiveTab] = useState<'roles' | 'members'>('roles')
-
-    const tabClass = (tab: 'roles' | 'members') =>
-        `px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
-            ? 'border-primary text-primary'
-            : 'border-transparent text-secondary hover:text-primary'
-        }`
-
-    return (
-        <div>
-            <div className="flex gap-2 border-b border-border-gray mb-6">
-                <button type="button" onClick={() => setActiveTab('roles')} className={tabClass('roles')}>
-                    Roller & privilegier
-                </button>
-                <button type="button" onClick={() => setActiveTab('members')} className={tabClass('members')}>
-                    Medlemmer
-                </button>
-            </div>
-
-            {activeTab === 'roles' ? <RolesSection /> : <MembersSection currentUserId={currentUserId} />}
-        </div>
-    )
+// Roller og privileges (US-12 + US-13), samlet i ét panel under
+// dashboardets Administration-fane (US-65): opret/omdøb/slet roller,
+// tilknyt/omdøb/fjern privileges. Medlemmernes rolle-tildeling (US-11)
+// ligger i en sideordnet fane, MembersPanel.tsx - tidligere en nestet
+// underfane HERINDE, hvilket gav tre niveauer af faner oven i hinanden
+// og virkede forvirrende. Panelet mountes kun når AdministrationTab
+// allerede har bekræftet manage_roles-privilegiet - selve adgangen
+// håndhæves stadig server-side af RLS.
+export function RolesPrivilegesPanel() {
+    return <RolesSection />
 }
 
 // Roller med deres privileges, plus en formular til at oprette en ny
@@ -191,11 +124,6 @@ function RolesSection() {
             )}
         </div>
     )
-}
-
-interface RoleCardProps {
-    role: Role
-    privileges: Privilege[]
 }
 
 // Én rolle: navn (omdøbes/slettes inline), dens tilknyttede privileges,
@@ -513,11 +441,6 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     )
 }
 
-interface PrivilegeRowProps {
-    privilege: Privilege
-    roleName: string
-}
-
 // Ét privilege: navn (omdøbes/fjernes inline).
 function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
     const [updatePrivilege, { isLoading: renaming, error: renameError }] = useUpdatePrivilegeMutation()
@@ -651,89 +574,3 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
     )
 }
 
-interface MembersSectionProps {
-    currentUserId: string | null
-}
-
-// Organisationens medlemmer, med en dropdown pr. medlem til at tildele
-// en rolle. Den indloggede administrators egen række er skrivebeskyttet
-// - databasen blokerer selv-tildeling, men UI'en undgår at vise
-// kontrollen for ikke at friste til et forsøg, der alligevel fejler.
-function MembersSection({ currentUserId }: MembersSectionProps) {
-    const { data: members, isLoading: loadingMembers, error: membersError } = useGetOrganisationMembersQuery()
-    const { data: roles } = useGetOrganisationRolesQuery()
-    const [assignRole, { error: assignError }] = useAssignRoleMutation()
-    const [savingUserId, setSavingUserId] = useState<string | null>(null)
-
-    async function handleAssign(member: OrganisationMember, roleId: string) {
-        if (!roleId) return
-        setSavingUserId(member.id)
-        try {
-            await assignRole({ userId: member.id, roleId }).unwrap()
-        } catch {
-            // Fejlen vises via assignError.
-        } finally {
-            setSavingUserId(null)
-        }
-    }
-
-    const listError = readableError(membersError)
-    const actionError = readableError(assignError)
-
-    if (loadingMembers) {
-        return <p className="text-secondary">Indlæser medlemmer...</p>
-    }
-
-    if (listError) {
-        return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                {listError}
-            </div>
-        )
-    }
-
-    if (!members || members.length === 0) {
-        return <p className="text-secondary">Organisationen har ingen medlemmer endnu.</p>
-    }
-
-    return (
-        <div>
-            {actionError && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                    {actionError}
-                </div>
-            )}
-
-            <ul className="divide-y divide-border-gray border-t border-border-gray">
-                {members.map((member) => {
-                    const isSelf = member.id === currentUserId
-
-                    return (
-                        <li key={member.id} className="py-3 flex flex-wrap items-center justify-between gap-4">
-                            <div>
-                                <p className="font-medium">{member.firstName} {member.lastName}</p>
-                                <p className="text-sm text-secondary">{member.email}</p>
-                            </div>
-
-                            {isSelf ? (
-                                <p className="text-sm text-secondary italic">Du kan ikke tildele dig selv en rolle</p>
-                            ) : (
-                                <select
-                                    value={member.roleId ?? ''}
-                                    onChange={(e) => handleAssign(member, e.target.value)}
-                                    disabled={savingUserId === member.id}
-                                    className="rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-60"
-                                >
-                                    <option value="" disabled>Vælg rolle</option>
-                                    {(roles ?? []).map((role) => (
-                                        <option key={role.id} value={role.id}>{role.name}</option>
-                                    ))}
-                                </select>
-                            )}
-                        </li>
-                    )
-                })}
-            </ul>
-        </div>
-    )
-}

@@ -1,5 +1,5 @@
 // src/components/pendingRequestBanner/PendingRequestBanner.tsx
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useGetMyPendingRequestQuery } from '../../store/apis/membershipApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 
@@ -10,6 +10,7 @@ import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 // brugeren er på.
 export default function PendingRequestBanner() {
     const { pathname } = useLocation()
+    const [searchParams] = useSearchParams()
     const { data: pendingRequest, isLoading: loadingRequest } = useGetMyPendingRequestQuery()
     const { data: profile, isLoading: loadingProfile } = useGetMyProfileQuery()
 
@@ -25,17 +26,22 @@ export default function PendingRequestBanner() {
         )
     }
 
-    // Ingen profil = ikke logget ind (fx på /login og /signup), og på selve
-    // organisationssiden (som nu også rummer "Anmod om medlemskab") ville
-    // opfordringen være overflødig.
-    if (!profile || profile.activeOrganisationId || pathname === '/organisation') {
+    // Ingen profil = ikke logget ind (fx på /login og /signup). Organisation
+    // (US-65) er en fane på dashboardet i stedet for en selvstændig side -
+    // på dette tidspunkt ved vi allerede (via activeOrganisationId ovenfor)
+    // at brugeren ingen aktiv organisation har, så dashboardets Organisation-
+    // fane er den, der reelt vises, når intet ?tab= peger på en anden fane
+    // (se Dashboard.tsx's default-fane-logik - hold de to i sync).
+    const tabParam = searchParams.get('tab')
+    const onDashboardOrganisationTab = pathname === '/dashboard' && tabParam !== 'oversigt' && tabParam !== 'administration'
+    if (!profile || profile.activeOrganisationId || onDashboardOrganisationTab) {
         return null
     }
 
     return (
         <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
             Du er ikke medlem af en organisation endnu.{' '}
-            <Link to="/organisation" className="font-semibold underline hover:no-underline">
+            <Link to="/dashboard?tab=organisation" className="font-semibold underline hover:no-underline">
                 Opret eller anmod om medlemskab
             </Link>
         </div>

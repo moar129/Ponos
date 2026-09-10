@@ -42,5 +42,21 @@ export interface UpdatePrivilegeInput {
 
 export interface AssignRoleInput {
     userId: string
-    roleId: string
+    // null = fjern rollen (medlemmet bliver et almindeligt medlem uden
+    // administrative privilegier) - RLS'ens escalation-guard tillader
+    // eksplicit "role_id is null" for alle med manage_roles, ikke kun
+    // fulde administratorer.
+    roleId: string | null
+}
+
+// Props til komponenter flyttet fra RolesPage.tsx ind i
+// RolesPrivilegesPanel.tsx (US-65).
+export interface RoleCardProps {
+    role: Role
+    privileges: Privilege[]
+}
+
+export interface PrivilegeRowProps {
+    privilege: Privilege
+    roleName: string
 }

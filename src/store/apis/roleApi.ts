@@ -204,8 +204,10 @@ export const roleApi = supabaseApi.injectEndpoints({
         }),
 
         // Tildeler en rolle til et medlem af den aktive organisation
-        // (US-11). US-59: opdaterer nu medlemmets membership-række for
-        // netop denne organisation, ikke profiles. Databasens
+        // (US-11), eller fjerner rollen (roleId: null) så medlemmet bliver
+        // et almindeligt medlem uden administrative privilegier. US-59:
+        // opdaterer nu medlemmets membership-række for netop denne
+        // organisation, ikke profiles. Databasens
         // trg_prevent_self_membership_role_change afviser, hvis
         // administratoren forsøger at tildele sig selv en rolle - UI'en
         // undgår desuden at vise kontrollen for administratorens egen række.
