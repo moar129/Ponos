@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useDeleteNewsMutation, useGetNewsByIdQuery } from '../../store/apis/newsApi'
 import { MANAGE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
+import { isRichText, sanitizeRichText } from '../../lib/richText'
 
 function readableError(err: unknown): string | null {
     if (!err) return null
@@ -69,7 +70,7 @@ export function NewsDetailPage() {
                     <div className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <h1 className="text-xl font-semibold text-primary">{news.title}</h1>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-primary leading-tight">{news.title}</h1>
                                 <p className="text-sm text-secondary mt-1">{formatDate(news.publishedAt)}</p>
                             </div>
 
@@ -101,9 +102,18 @@ export function NewsDetailPage() {
                             </div>
                         )}
 
-                        {news.description && (
-                            <p className="text-secondary mt-4 whitespace-pre-wrap">{news.description}</p>
-                        )}
+                        {/* Nyheder oprettet før rich text-editoren er ren tekst og
+                            vises som hidtil; formateret indhold saniteres igen her,
+                            så en gammel række aldrig kan nå DOM'en urørt. */}
+                        {news.description &&
+                            (isRichText(news.description) ? (
+                                <div
+                                    className="rich-text text-secondary mt-4"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeRichText(news.description) }}
+                                />
+                            ) : (
+                                <p className="text-secondary mt-4 whitespace-pre-wrap">{news.description}</p>
+                            ))}
 
                         {news.url && (
                             <a
@@ -112,7 +122,7 @@ export function NewsDetailPage() {
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-sm text-primary hover:underline mt-4 w-fit"
                             >
-                                Læs mere
+                                Læs hele artiklen
                                 <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                         )}

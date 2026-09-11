@@ -1,7 +1,3 @@
-// Hvor en nyhed stammer fra - 'manual' er skrevet direkte af en admin,
-// 'api' er importeret via organisationens konfigurerede nyheds-API.
-export type NewsSourceKind = 'manual' | 'api'
-
 export interface News {
     id: string
     organisationId: string
@@ -9,12 +5,9 @@ export interface News {
     description: string | null
     pictureUrl: string | null
     publishedAt: string
-    // Link til original-artiklen (valgfri) - vises som "Læs mere" på kortet.
+    // Link til en original-artikel (valgfri, indtastet af admin) - vises som
+    // "Læs mere" på detalje-siden.
     url: string | null
-    source: NewsSourceKind
-    // Dedup-nøgle for API-importerede nyheder (null ved manuel oprettelse) -
-    // undgår at samme nyhed importeres flere gange ved gentagne "Hent nu".
-    externalRef: string | null
 }
 
 export interface CreateNewsInput {
@@ -33,21 +26,6 @@ export interface UpdateNewsInput {
     pictureUrl?: string | null
     url?: string | null
     publishedAt?: string
-}
-
-// En organisations konfigurerede nyheds-API (US-57) - 0-1 pr. organisation.
-// api_key er credential-agtig data, kun manage_news-indehavere kan
-// læse/redigere den (RLS), ligesom denne type kun bruges bag samme gate.
-export interface NewsSource {
-    id: string
-    organisationId: string
-    endpointUrl: string
-    apiKey: string | null
-}
-
-export interface UpsertNewsSourceInput {
-    endpointUrl: string
-    apiKey?: string | null
 }
 
 export interface NewsCardProps {

@@ -1031,18 +1031,26 @@ Som bruger vil jeg kunne se organisationens aktuelle nyheder, så jeg kan holde 
 - Brugeren kan se en liste over organisationens nyheder.
 - En nyhed viser titel.
 - En nyhed viser beskrivelse.
+- Beskrivelsen kan formateres af administratoren: fed, kursiv, understreget, punktopstilling, nummereret liste, overskrifter, indrykning og links i teksten.
 - En nyhed kan vise et billede, hvis et billede er tilgængeligt.
 - En nyhed viser dato/tidspunkt.
-- En nyhed kan vise et link ("Læs mere") til original-artiklen, hvis et link er tilgængeligt.
+- En nyhed kan vise et link ("Læs hele artiklen") til den oprindelige artikel, hvis et link er tilgængeligt.
 - En administrator (manage_news) kan oprette, redigere og slette nyheder for organisationen.
 
 ---
 
-## US-57 – Hente nyheder fra en organisations egen eksterne API
+## US-57 – Hente nyheder fra en organisations egen eksterne API (UDGÅET)
 
 **Priority:** Low
 
-**Note (opdateret):** Ingen konkret ekstern API er valgt af nogen organisation endnu. Frem for automatisk baggrunds-sync (som ville kræve cron/edge-function-infrastruktur, som ikke findes i dette repo) konfigurerer hver organisation selv sin egen API-adresse (+ evt. nøgle), og en administrator henter derfra på forespørgsel.
+**Status: UDGÅET 2026-09-11.** Implementeringen (tabellen `news_sources`, kolonnerne `news.source`/`news.external_ref`, "Hent nu"-knappen og `NewsSourcePanel`) er fjernet igen. Nyheder oprettes udelukkende manuelt på siden af en administrator (US-56). Begrundelsen, fundet ved at undersøge om hentningen kunne gøres generisk (vilkårlig kilde):
+
+- **Browseren kan ikke læse de relevante feeds.** `dr.dk/nyheder/service/feeds/allenyheder`, `tv2east.dk/rss`, `tv2kosmopol.dk/rss`, `tv2fyn.dk/rss` og `tv2nord.dk/rss` svarer 200, men sender ingen `Access-Control-Allow-Origin`. Kun 2 af 8 testede danske feeds (Altinget, TV2 Bornholm) kan hentes direkte fra klienten. Generisk hentning ville kræve en Supabase Edge Function — server-side infrastruktur som projektet ikke har.
+- **Feed-autodiscovery virker ikke.** Hverken dr.dk, nyheder.tv2.dk, altinget.dk, tv2east.dk, politiken.dk eller berlingske.dk har `<link rel="alternate" type="application/rss+xml">` i deres HTML, så "indsæt sitets adresse, vi finder feedet" kan ikke leveres.
+- **Aggregatorer er udelukket.** Bing News Search API blev nedlagt 11. august 2025. Bing News RSS og Google News RSS svarer, men uden billeder, med tracking-redirect-links, og med vilkår der kun tillader personlig, ikke-kommerciel brug — uforeneligt med et multi-tenant produkt.
+- **Ingen organisation har en nyheds-API.** Funktionen blev aldrig testet mod et rigtigt endpoint, fordi der ikke fandtes et at pege på.
+
+Story og acceptkriterier bevares nedenfor som dokumentation af analysen.
 
 ### User Story
 
@@ -1321,7 +1329,7 @@ Som administrator vil jeg kunne invitere en eksisterende bruger til min organisa
 
 - US-55 – Filtrer statistik
 - US-56 – Se nyheder
-- US-57 – Hent nyheder fra ekstern API
+- US-57 – Hent nyheder fra ekstern API (udgået)
 
 ---
 
@@ -1415,7 +1423,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 ### News/API
 
 - US-56
-- US-57
+- US-57 (udgået)
 
 ---
 

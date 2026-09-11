@@ -5,7 +5,6 @@ import { useDeleteNewsMutation, useGetNewsQuery } from '../../store/apis/newsApi
 import { MANAGE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { NewsCard } from '../../components/News/NewsCard'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
-import { NewsSourcePanel } from '../../components/News/NewsSourcePanel'
 import type { News } from '../../types/news/newsType'
 
 function readableError(err: unknown): string | null {
@@ -16,9 +15,8 @@ function readableError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.'
 }
 
-// US-56 + US-57: nyheder er organisationens egne (opslagstavle-stil) -
-// admin opretter/redigerer/sletter manuelt (gated bag manage_news), og
-// kan valgfrit konfigurere en ekstern API som en supplerende kilde.
+// US-56: nyheder er organisationens egne (opslagstavle-stil) - admin
+// opretter/redigerer/sletter dem manuelt, gated bag manage_news.
 export function NewsPage() {
     const { data: news, isLoading, error: listError } = useGetNewsQuery()
     const { hasPrivilege: canManage } = useHasPrivilege(MANAGE_NEWS_PRIVILEGE)
@@ -76,8 +74,6 @@ export function NewsPage() {
                     {errorMessage}
                 </div>
             )}
-
-            {canManage && <NewsSourcePanel />}
 
             {isLoading ? (
                 <p className="text-secondary">Indlæser nyheder...</p>

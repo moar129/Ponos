@@ -273,11 +273,13 @@ create index idx_stat_values_snapshot on public.statistics_values (snapshot_id);
 
 
 -- ---------------------------------------------------------------------
--- 13. NEWS (US-56/US-57 - org-scoped opslagstavle, ikke længere global)
+-- 13. NEWS (US-56 - org-scoped opslagstavle, ikke længere global)
 -- Oprindeligt global+service-role-only; ændret efter afklaring med
 -- bruger til at være organisationens egne nyheder, oprettet manuelt af
--- admin (manage_news) og/eller importeret fra organisationens egen
--- konfigurerbare eksterne API (news_sources, se 13.1).
+-- en admin (manage_news).
+-- US-57 (import fra en ekstern nyheds-API) er udgået 2026-09-11, og
+-- tabellen news_sources samt kolonnerne source/external_ref er droppet
+-- igen - se userStories.md US-57 for begrundelsen.
 -- ---------------------------------------------------------------------
 create table public.news (
   id               uuid primary key default gen_random_uuid(),
@@ -286,29 +288,10 @@ create table public.news (
   description      text,
   picture_url      text,
   published_at     timestamptz not null default now(),
-  url              text,                             -- link til original-artiklen, valgfri (tilføjet i opfølgning)
-  source           text not null default 'manual',  -- 'manual' | 'api'
-  external_ref     text                              -- dedup-nøgle for API-importerede nyheder, null ved manuel oprettelse
+  url              text                               -- link til en original-artikel, valgfri (indtastes af admin)
 );
 
 create index idx_news_organisation on public.news (organisation_id);
-create unique index news_org_external_ref_unique on public.news (organisation_id, external_ref) where external_ref is not null;
-
--- ---------------------------------------------------------------------
--- 13.1 NEWS_SOURCES (US-57 - en organisations egen eksterne nyheds-API)
--- 0-1 række pr. organisation. api_key er credential-agtig data - kun
--- manage_news-indehavere kan læse/redigere (se RLS 16.9). Hentning sker
--- admin-trigget fra klienten ("Hent nu"), ikke via cron/service-role,
--- da repoet ikke har edge-function/cron-infrastruktur.
--- ---------------------------------------------------------------------
-create table public.news_sources (
-  id               uuid primary key default gen_random_uuid(),
-  organisation_id  uuid not null unique references public.organisations(id) on delete cascade,
-  endpoint_url     text not null,
-  api_key          text,
-  created_at       timestamptz not null default now(),
-  updated_at       timestamptz not null default now()
-);
 
 
 -- =====================================================================
@@ -1165,7 +1148,6 @@ alter table public.task_materials          enable row level security;
 alter table public.statistics_snapshots    enable row level security;
 alter table public.statistics_values       enable row level security;
 alter table public.news                    enable row level security;
-alter table public.news_sources            enable row level security;
 
 
 -- ---------------------------------------------------------------------
@@ -1480,9 +1462,10 @@ create policy "Medlemmer kan oprette statistik-værdier for egen organisation"
 
 
 -- ---------------------------------------------------------------------
--- 16.9 NEWS / NEWS_SOURCES (US-56/US-57 - org-scoped, skrivning gated af
--- manage_news. Oprindeligt global+select-only+service-role-sync; ændret
--- efter afklaring med bruger, se 13/13.1.)
+-- 16.9 NEWS (US-56 - org-scoped, skrivning gated af manage_news.
+-- Oprindeligt global+select-only+service-role-sync; ændret efter
+-- afklaring med bruger, se 13. news_sources-policyen er fjernet igen
+-- sammen med tabellen, da US-57 udgik.)
 -- ---------------------------------------------------------------------
 create policy "Se nyheder i egen organisation"
   on public.news for select
@@ -1491,14 +1474,6 @@ create policy "Se nyheder i egen organisation"
 
 create policy "Administrer nyheder i egen organisation"
   on public.news for all
-  to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'));
-
--- news_sources: ingen SELECT-for-alle-policy - kun manage_news-indehavere
--- må se/redigere, da api_key er credential-agtig data.
-create policy "Administrer nyheds-API-kilde i egen organisation"
-  on public.news_sources for all
   to authenticated
   using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'))
   with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'));
