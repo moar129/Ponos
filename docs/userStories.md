@@ -1250,6 +1250,44 @@ Som administrator vil jeg kunne invitere en eksisterende bruger til min organisa
 
 ---
 
+## US-68 – Nulstil adgangskode
+
+**Priority:** High
+
+### User Story
+
+Som bruger, der har glemt sin adgangskode, vil jeg kunne sætte en ny, så jeg kan komme ind på min konto igen uden at skulle bede en anden om hjælp.
+
+### Acceptance Criteria
+
+- Brugeren kan fra loginsiden komme til en side, hvor en glemt adgangskode kan sættes på ny.
+- Brugeren bekræfter sin identitet med email, fornavn og efternavn.
+- Systemet afslører ikke, om der findes en konto med den indtastede email, og heller ikke hvilket felt der var forkert.
+- Den nye adgangskode har samme krav som ved oprettelse (mindst 6 tegn, indtastet to gange ens).
+- Efter et vellykket skift sendes brugeren til login og kan logge ind med den nye adgangskode; den gamle virker ikke længere.
+- **Kendt begrænsning (prototype):** hele flowet foregår på hjemmesiden, uden bekræftelse på mail. Identitetstjekket er derfor svagt - enhver, der kender en brugers email og navn, kan sætte en ny adgangskode. Bevidst valgt, fordi projektet er en prototype, der ikke sættes i drift. Skal erstattes af et mailbaseret flow, før systemet deployes.
+
+---
+
+## US-69 – Skift adgangskode
+
+**Priority:** Medium
+
+### User Story
+
+Som indlogget bruger vil jeg kunne skifte min adgangskode fra min profilside, så jeg kan holde min konto sikker uden først at skulle logges ud.
+
+### Acceptance Criteria
+
+- En indlogget bruger kan skifte sin adgangskode fra sin profilside.
+- Skiftet kræver, at brugeren indtaster sin nuværende adgangskode korrekt.
+- Den nye adgangskode har samme krav som ved oprettelse og skal indtastes to gange ens.
+- Den nye adgangskode må ikke være den samme som den nuværende.
+- Brugeren forbliver logget ind efter skiftet og får en kvittering.
+- Ved næste login virker kun den nye adgangskode.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1274,6 +1312,7 @@ Som administrator vil jeg kunne invitere en eksisterende bruger til min organisa
 
 - US-06 – Se medlemsanmodninger
 - US-08 – Afvise medlemsanmodning
+- US-68 – Nulstil adgangskode
 - US-11 – Tildel rolle
 - US-59 – Være medlem af flere organisationer
 - US-16 – Rediger item
@@ -1299,6 +1338,7 @@ Som administrator vil jeg kunne invitere en eksisterende bruger til min organisa
 
 - US-03 – Se profil
 - US-04 – Rediger profil
+- US-69 – Skift adgangskode
 - US-09 – Se organisation
 - US-10 – Rediger organisation
 - US-12 – Opret rolle
