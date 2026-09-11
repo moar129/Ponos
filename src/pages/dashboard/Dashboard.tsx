@@ -71,14 +71,18 @@ export default function Dashboard() {
 
     const visibleTabs = TOP_TABS.filter((tab) => tab.key !== 'administration' || canSeeAdministration)
 
+    // shrink-0 + whitespace-nowrap: fanen skal beholde sin bredde og lade
+    // rækken scrolle, i stedet for at blive mast sammen og brække teksten
+    // midt over. Polstringen strammes ind på små skærme, så scrollen først
+    // bliver nødvendig, når der reelt ikke er plads.
     const tabClass = (tab: DashboardTab) =>
-        `flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
+        `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeTab === tab
             ? 'border-primary text-primary'
             : 'border-transparent text-secondary hover:text-primary'
         }`
 
     return (
-        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
+        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-900">
             <div className="mb-6">
                 <h1 className="text-xl font-semibold text-primary">Dashboard</h1>
                 <p className="text-sm text-secondary">
@@ -86,7 +90,11 @@ export default function Dashboard() {
                 </p>
             </div>
 
-            <div className="flex gap-2 border-b border-border-gray mb-6">
+            {/* Fanerne fylder mere end en telefonskærm uanset hvor meget
+                polstringen strammes, så rækken scroller vandret i stedet for
+                at løbe ud over kortets kant. Den grå linje ligger på selve
+                beholderen og scroller derfor ikke med. */}
+            <div className="flex gap-1 sm:gap-2 border-b border-border-gray mb-6 overflow-x-auto no-scrollbar">
                 {visibleTabs.map((tab) => (
                     <button
                         key={tab.key}

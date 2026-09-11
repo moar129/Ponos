@@ -61,3 +61,16 @@
     color: var(--color-secondary);
     opacity: 0.7;
 }
+/* Fanerækker der kan scrolles vandret, når de ikke kan være på skærmen
+   (dashboardets faner og underfaner). Tailwind har ingen utility til at
+   skjule scrollbaren, og en synlig vandret scrollbar lige over den grå
+   fane-linje ser ud som en fejl. Selve scrollen er uændret - det er kun
+   scrollbaren der skjules, og den delvist synlige næste fane er så det,
+   der viser at der er mere. */
+.no-scrollbar {
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
