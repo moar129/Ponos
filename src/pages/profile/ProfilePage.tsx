@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { LogOut, User } from 'lucide-react'
 import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/apis/profileApi'
 import { useSignOutMutation } from '../../store/apis/authApi'
+import ChangePasswordForm from '../../components/profile/ChangePasswordForm'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
 
 // Tom formular-tilstand, indtil brugeren trykker "Rediger profil" og
@@ -275,6 +276,15 @@ export default function ProfilePage() {
                         </button>
                     </div>
                 </>
+            )}
+
+            {/* US-69: eget afsnit nederst. Skjules under redigering, så
+                der ikke står to formularer oven på hinanden. */}
+            {!isEditing && (
+                <section className="mt-8 pt-6 border-t border-border-gray">
+                    <h2 className="text-lg font-semibold text-primary mb-4">Adgangskode</h2>
+                    <ChangePasswordForm />
+                </section>
             )}
         </div>
     )

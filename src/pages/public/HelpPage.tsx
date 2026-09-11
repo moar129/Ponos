@@ -165,16 +165,26 @@ export default function HelpPage() {
                                 <Link to="/bruger" className="text-primary font-medium hover:underline">
                                     din profil
                                 </Link>
-                                . Navn, beskrivelse og billede kan du selv rette. Email og rolle kan du
-                                ikke - rollen hører til organisationen, og den er det en administrator,
-                                der giver dig.
+                                . Navn, beskrivelse, billede og adgangskode kan du selv rette. Email og
+                                rolle kan du ikke - rollen hører til organisationen, og den er det en
+                                administrator, der giver dig.
                             </p>
                         </FaqItem>
 
                         <FaqItem question="Jeg har glemt min adgangskode">
                             <p>
-                                Den kan du desværre ikke selv nulstille endnu - den funktion er på vej.
-                                Indtil da skriver du til{' '}
+                                Klik{' '}
+                                <Link
+                                    to="/glemt-adgangskode"
+                                    className="text-primary font-medium hover:underline"
+                                >
+                                    "Glemt din adgangskode?"
+                                </Link>{' '}
+                                på loginsiden. Du bekræfter kontoen med din email og dit navn og vælger
+                                en ny adgangskode med det samme.
+                            </p>
+                            <p>
+                                Driller det, skriver du til{' '}
                                 <a
                                     href={`mailto:${CONTACT_EMAIL}`}
                                     className="text-primary font-medium hover:underline"

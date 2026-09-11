@@ -4,6 +4,7 @@ import { Footer } from './components/footerComponent';
 import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
 import SignUp from './pages/logIn/SignUp'
 import Login from './pages/logIn/Login'
+import ForgotPassword from './pages/logIn/ForgotPassword'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
@@ -48,6 +49,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          {/* US-68: glemt adgangskode - skal være offentlig, brugeren er
+              per definition ikke logget ind */}
+          <Route path="/glemt-adgangskode" element={<ForgotPassword />} />
 
           {/* Offentlige sider - tilgængelige både logget ind og ud */}
           <Route path="/om-os" element={<AboutPage />} />

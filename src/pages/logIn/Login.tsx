@@ -1,11 +1,16 @@
 // src/pages/login/Login.tsx
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 export default function Login() {
     const navigate = useNavigate()
+
+    // US-68: ForgotPassword sender hertil med ?nulstillet=1 efter et
+    // gennemført skift, så kvitteringen står, hvor man skal bruge den.
+    const [searchParams] = useSearchParams()
+    const passwordWasReset = searchParams.get('nulstillet') === '1'
 
     // Formfelter: brugerens input
     const [email, setEmail] = useState('')
@@ -42,6 +47,13 @@ export default function Login() {
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
                 <h1 className="text-xl font-semibold text-primary mb-6">Log ind</h1>
+
+                {passwordWasReset && (
+                    <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                        Din adgangskode er ændret. Log ind med den nye.
+                    </div>
+                )}
+
                 {error && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                         {error}
@@ -68,6 +80,9 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
                     />
+                    <p className="mt-2 text-sm">
+                        <Link to="/glemt-adgangskode" className="text-accent hover:underline">Glemt din adgangskode?</Link>
+                    </p>
                 </div>
 
                 <button

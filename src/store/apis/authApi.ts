@@ -2,6 +2,7 @@
 import type { Session } from '@supabase/supabase-js'
 import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
+import type { ChangePasswordInput, ResetPasswordInput } from '../../types/auth/authType'
 
 export const authApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -65,7 +66,79 @@ export const authApi = supabaseApi.injectEndpoints({
                 return { data: undefined }
             },
         }),
+
+        // US-68: sætter en ny adgangskode for en UDLOGGET bruger, som har
+        // glemt sin. PROTOTYPE uden mailbekræftelse - RPC'en er den eneste
+        // kontrol, og den nøjes med email + fornavn + efternavn. Kommer der
+        // rigtig mailbekræftelse på senere, er det kun rpc-kaldet herunder
+        // der skal skiftes til resetPasswordForEmail/verifyOtp; siden og
+        // mutationen kan blive stående.
+        // Ingen invalidatesTags: brugeren er ikke logget ind, så der er
+        // intet bruger-afhængigt i cachen at opdatere.
+        resetPassword: builder.mutation<void, ResetPasswordInput>({
+            queryFn: async ({ email, firstName, lastName, password }) => {
+                const { error } = await supabase.rpc('reset_password_prototype', {
+                    p_email: email.trim(),
+                    p_first_name: firstName.trim(),
+                    p_last_name: lastName.trim(),
+                    p_new_password: password,
+                })
+
+                if (error) {
+                    // RPC'ens raise exception-beskeder er allerede danske og
+                    // bevidst ens uanset hvad der ikke passede, så de kan
+                    // vises direkte til brugeren.
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+        }),
+
+        // US-69: skifter adgangskoden for en INDLOGGET bruger. Har ikke
+        // US-68's prototype-forbehold - identiteten bevises af trin 1.
+        changePassword: builder.mutation<void, ChangePasswordInput>({
+            queryFn: async ({ currentPassword, newPassword }) => {
+                // Emailen tages fra den session, appen allerede har (lokalt
+                // opslag, ingen ekstra kald til serveren), så brugeren ikke
+                // skal taste sin egen email igen.
+                const { data: sessionData } = await supabase.auth.getSession()
+                const email = sessionData.session?.user.email
+
+                if (!email) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'Du er ikke logget ind.' } }
+                }
+
+                // Trin 1 ER verifikationen: Supabase kræver ikke selv den
+                // nuværende adgangskode for updateUser, så uden dette trin
+                // kunne en efterladt, åben browser bruges til at låse ejeren
+                // ude af sin egen konto.
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password: currentPassword,
+                })
+
+                if (signInError) {
+                    // Intet er ændret på dette tidspunkt.
+                    return { error: { status: 'CUSTOM_ERROR', error: 'Din nuværende adgangskode er forkert.' } }
+                }
+
+                // Trin 2: selve skiftet. Brugeren forbliver logget ind.
+                const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+
+                if (updateError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'Adgangskoden kunne ikke ændres. Prøv igen.' } }
+                }
+
+                return { data: undefined }
+            },
+        }),
     }),
 })
 
-export const { useGetSessionQuery, useSignOutMutation } = authApi
+export const {
+    useGetSessionQuery,
+    useSignOutMutation,
+    useResetPasswordMutation,
+    useChangePasswordMutation,
+} = authApi

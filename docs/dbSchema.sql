@@ -1127,6 +1127,62 @@ $$;
 grant execute on function public.invite_member(text) to authenticated;
 
 
+-- 15.17 US-68: nulstiller en glemt adgangskode UDEN mailbekræftelse.
+-- Skrives til auth.users direkte, da den der har glemt sin kode per
+-- definition ikke er logget ind og derfor ikke kan bruge GoTrues
+-- updateUser. Derfor også grant til anon, ikke kun authenticated.
+--
+-- PROTOTYPE-FORBEHOLD (bevidst beslutning, projektet deployes ikke):
+-- email + fornavn + efternavn er hele identitetskontrollen. Enhver der
+-- kender de tre ting - og anon-nøglen ligger i browser-bundtet, så
+-- funktionen kan kaldes uden om vores egen side - kan overtage kontoen.
+-- Som et lille værn (ikke rigtig sikkerhed) svarer funktionen med én og
+-- samme fejl uanset hvad der ikke passede, så den ikke kan bruges til at
+-- afprøve hvilke emails der findes. Skal erstattes af
+-- resetPasswordForEmail/verifyOtp, hvis systemet nogensinde deployes.
+--
+-- gen_salt('bf', 10) er samme bcrypt-cost som GoTrue selv skriver, så
+-- hashet kan læses af login bagefter. search_path udvides med
+-- extensions, fordi crypt/gen_salt bor der på et Supabase-projekt.
+-- Bevidst udeladt: sletning af auth.sessions (ville logge brugeren ud på
+-- andre enheder) - en ekstra rørelse ved GoTrues tabeller som prototypen
+-- ikke har brug for.
+create or replace function public.reset_password_prototype(
+  p_email text, p_first_name text, p_last_name text, p_new_password text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare v_user_id uuid;
+begin
+  if length(p_new_password) < 6 then
+    raise exception 'Adgangskoden skal være mindst 6 tegn.';
+  end if;
+
+  select id into v_user_id
+  from public.profiles
+  where lower(email)      = lower(trim(p_email))
+    and lower(first_name) = lower(trim(p_first_name))
+    and lower(last_name)  = lower(trim(p_last_name));
+
+  -- Én samlet fejl: afslører hverken om emailen findes, eller hvilket
+  -- felt der ikke passede.
+  if v_user_id is null then
+    raise exception 'Oplysningerne passer ikke på en konto.';
+  end if;
+
+  update auth.users
+  set encrypted_password = crypt(p_new_password, gen_salt('bf', 10)),
+      updated_at = now()
+  where id = v_user_id;
+end;
+$$;
+
+grant execute on function public.reset_password_prototype(text, text, text, text) to anon, authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
