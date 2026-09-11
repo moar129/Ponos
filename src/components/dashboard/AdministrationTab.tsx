@@ -61,15 +61,18 @@ export function AdministrationTab() {
         return <p className="text-secondary">Du har ikke rettigheder til nogen administrative funktioner.</p>
     }
 
+    // Samme regler som dashboardets top-faner (se Dashboard.tsx): fanen
+    // beholder sin bredde, rækken scroller. Her er der op til fem faner, så
+    // det slår igennem allerede på en tablet.
     const tabClass = (tab: AdminSubTab) =>
-        `flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeSubTab === tab
+        `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeSubTab === tab
             ? 'border-primary text-primary'
             : 'border-transparent text-secondary hover:text-primary'
         }`
 
     return (
         <div>
-            <div className="flex gap-2 border-b border-border-gray mb-6">
+            <div className="flex gap-1 sm:gap-2 border-b border-border-gray mb-6 overflow-x-auto no-scrollbar">
                 {tabs.map((tab) => (
                     <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={tabClass(tab.key)}>
                         <tab.icon className="w-4 h-4" />

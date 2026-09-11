@@ -185,11 +185,11 @@ export function OrganisationTab() {
                     </div>
                 ) : (
                     <>
-                        <div className="flex gap-2 mb-6 border-b border-border-gray">
+                        <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
                             <button
                                 type="button"
                                 onClick={() => setNoOrgTab('create')}
-                                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                                     noOrgTab === 'create'
                                         ? 'border-primary text-primary'
                                         : 'border-transparent text-secondary hover:text-primary'
@@ -200,7 +200,7 @@ export function OrganisationTab() {
                             <button
                                 type="button"
                                 onClick={() => setNoOrgTab('request')}
-                                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                                     noOrgTab === 'request'
                                         ? 'border-primary text-primary'
                                         : 'border-transparent text-secondary hover:text-primary'
@@ -212,7 +212,7 @@ export function OrganisationTab() {
                                 <button
                                     type="button"
                                     onClick={() => setNoOrgTab('memberships')}
-                                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                                         noOrgTab === 'memberships'
                                             ? 'border-primary text-primary'
                                             : 'border-transparent text-secondary hover:text-primary'
@@ -225,7 +225,7 @@ export function OrganisationTab() {
                                 <button
                                     type="button"
                                     onClick={() => setNoOrgTab('invitations')}
-                                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                                         noOrgTab === 'invitations'
                                             ? 'border-primary text-primary'
                                             : 'border-transparent text-secondary hover:text-primary'
@@ -323,11 +323,11 @@ export function OrganisationTab() {
             {/* US-59: en bruger kan være medlem af flere organisationer -
                 "Mine organisationer" viser dem alle og lader brugeren skifte
                 hvilken der er aktiv. */}
-            <div className="flex gap-2 mb-6 border-b border-border-gray">
+            <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
                 <button
                     type="button"
                     onClick={() => switchOrgTab('details')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                         orgTab === 'details'
                             ? 'border-primary text-primary'
                             : 'border-transparent text-secondary hover:text-primary'
@@ -338,7 +338,7 @@ export function OrganisationTab() {
                 <button
                     type="button"
                     onClick={() => switchOrgTab('memberships')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                         orgTab === 'memberships'
                             ? 'border-primary text-primary'
                             : 'border-transparent text-secondary hover:text-primary'
@@ -349,7 +349,7 @@ export function OrganisationTab() {
                 <button
                     type="button"
                     onClick={() => switchOrgTab('request')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                         orgTab === 'request'
                             ? 'border-primary text-primary'
                             : 'border-transparent text-secondary hover:text-primary'
@@ -360,7 +360,7 @@ export function OrganisationTab() {
                 <button
                     type="button"
                     onClick={() => switchOrgTab('create')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                         orgTab === 'create'
                             ? 'border-primary text-primary'
                             : 'border-transparent text-secondary hover:text-primary'
@@ -372,7 +372,7 @@ export function OrganisationTab() {
                     <button
                         type="button"
                         onClick={() => switchOrgTab('invitations')}
-                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                        className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                             orgTab === 'invitations'
                                 ? 'border-primary text-primary'
                                 : 'border-transparent text-secondary hover:text-primary'
