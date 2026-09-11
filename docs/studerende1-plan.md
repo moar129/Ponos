@@ -8,6 +8,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 |---|---|
 | 09/09 | Jeg oprettede US-59-specifikationen for medlemskab af flere organisationer og beskrev den videre implementeringsplan. |
 | 11/09 | Jeg rettede header- og footer-navigationen: US-65's slettede links (Anmodninger/Roller/Organisation) var kommet tilbage som døde links, US-45's org-gate og US-56's Nyheder-link var gået tabt. Alt gendannet, plus ny login-gate og "Log ind"-knap. Se US-45- og US-56-rækkerne. |
+| 11/09 | Jeg byggede en offentlig forside på `/` (ad-hoc, ingen user story) og oprettede `/statistik` som pladsholder-rute, så de fire "Statistik"-links kunne flyttes væk fra `/`. Se afsnittet "Forside (ad-hoc)" nedenfor. |
+| 11/09 | Jeg gav den udloggede header samme struktur som den indloggede: Forside/Log ind i nav-slottet med `getNavLinkClass`, nyt "Opret konto" i guld til højre, og fælles hamburger under 1024px. Se "Headeren: samme struktur logget ud som logget ind". |
 
 ## Næste op
 
@@ -405,6 +407,29 @@ alter table public.news drop column if exists source;
 **Frontend fjernet:** `NewsSourcePanel.tsx` (slettet), `getNewsSource`/`upsertNewsSource`/`fetchFromNewsSource` + `ExternalNewsItem`/`deriveExternalRef` (newsApi.ts), `NewsSource`/`UpsertNewsSourceInput`/`NewsSourceKind` + `News.source`/`News.externalRef` (newsType.ts), tag `'NewsSource'` (supabaseApi.ts, også ude af `USER_SCOPED_TAGS`), panel-renderingen i `NewsPage.tsx`.
 
 **Bevaret:** hele US-56 - `/nyheder`, `/nyheder/:id`, opret/rediger/slet, Dashboard-slideren, `manage_news`-privilegiet og `news.url`-feltet ("Læs mere", nu altid indtastet manuelt).
+
+## Forside (ad-hoc, 2026-09-11) — offentlig landing page på `/`
+
+Ingen user story; tilføjet efter bruger-forespørgsel. `/` renderede før `<div />` — en tom side mellem header og footer, og intet sted der forklarede hvad Ponos er.
+
+**Ny forside** `src/pages/landing/LandingPage.tsx` + seks sektioner i `src/components/landing/` (Hero, Problem, Features, Flow, Partner, Cta), tekst hentet fra `Project.md` §1-5. Indloggede redirectes til `/dashboard` (`useGetSessionQuery` + `<Navigate replace />`), så forsiden kun er for udloggede. Headeren har fået et "Forside"-link, der kun vises udlogget.
+
+**`App.tsx`:** `<main>`'ens `max-w-7xl mx-auto p-6`-wrapper er gjort betinget (`pathname === '/'`), så forsidens hero kan gå kant-til-kant og flyde sammen med den navy header. Kun ruten `/` rammer den nye gren; alle andre sider er uændrede.
+
+**`/statistik` oprettet som pladsholder** (`src/pages/statistik/StatisticsPage.tsx`, bag `ProtectedRoute` + eget `activeOrganisationId`-tjek med samme tom-tilstand som `OverviewTab`). Dette var en **forudsætning, ikke en ekstra:** fire steder brugte `/` som stand-in for den endnu ikke byggede Statistik-side (`headerComponent.tsx` desktop+mobil, `footerComponent.tsx`, `OverviewTab.tsx`) — uden repegning ville enhver indlogget bruger, der klikkede "Statistik", lande på marketing-forsiden. Selve Statistik-siden tilhører en anden studerende; her står kun skallen med en "kommer snart"-bjælke (genbruger `PlaceholderBar.tsx`), så URL'en er reserveret til dem.
+
+### Headeren: samme struktur logget ud som logget ind (2026-09-11)
+
+Den udloggede header var skrevet ad-hoc omkring ét enkelt "Log ind"-link og lignede derfor et andet design end den indloggede. Rettet i `headerComponent.tsx`, så begge tilstande deler de samme tre zoner: logo til venstre, `<nav>` i midten, handlinger til højre.
+
+- **Fælles stil:** Forside og Log ind bruger nu den eksisterende `getNavLinkClass` frem for egne klassestrenge — samme padding, tekststørrelse, ikoner og hvide aktiv-underline som Dashboard/Opgaver/Statistik. Log ind blev `NavLink` i stedet for `Link`, så den også markeres aktiv på `/login`. Pointen med at genbruge funktionen frem for at kopiere dens klasser er, at de to tilstande så ikke kan drive fra hinanden igen.
+- **Nyt "Opret konto"** → `/signup` i guld (`bg-accent`/`hover:bg-accent-hover`, samme tokens som forsidens CTA'er). Headeren havde ingen vej til `/signup` før. Bevidst `Link` og ikke `NavLink`: en aktiv-underline oven på en fyldt knap giver ikke mening.
+- **Fælles hamburger:** knappen lå inde i `isAuthenticated`-grenen og gælder nu begge tilstande. Under 1024px klapper både nav'en og guldknappen sammen, præcis som de indloggede links gør, og alle tre punkter ligger i mobilmenuen. Genbruger den eksisterende `mobileNavOpen`-state og resize-effekten — ingen ny state.
+- **Bemærk:** udlogget under 1024px består headeren dermed af logo + hamburger alene. Hverken Log ind eller Opret konto er ét klik væk på mobil; forsidens egne CTA'er er den direkte vej derhen. Valgt bevidst frem for at lade guldknappen blive stående og kun gemme Log ind bag menuen.
+
+Corolab nævnes i Partner-sektionen (medlemsdrevet non-profit i Roskilde siden 2016, link til corolab.dk). Testmiljøet nævnes bevidst **ikke** ved navn — forsiden holdes generisk, jf. `Project.md` §3.3.
+
+Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints. **Udskudt:** footerens `/om-os`, `/kontakt`, `/hjaelp` er stadig døde ruter, og der findes fortsat ingen catch-all 404-rute.
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8
 

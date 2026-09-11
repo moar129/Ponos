@@ -52,7 +52,7 @@ export function OverviewTab() {
                         icon={ClipboardList}
                     />
                     <QuickLinkCard
-                        to="/"
+                        to="/statistik"
                         label="Statistik"
                         description="Se indsigt og statistik for organisationen."
                         icon={BarChart3}
