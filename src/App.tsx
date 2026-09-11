@@ -6,12 +6,11 @@ import SignUp from './pages/logIn/SignUp'
 import Login from './pages/logIn/Login'
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/dashboard/Dashboard'
-import MembershipRequestsPage from './pages/organisation/MembershipRequestsPage';
 import PendingRequestBanner from './components/pendingRequestBanner/PendingRequestBanner';
 import { TasksPage } from './pages/Task/TaskPage';
+import { NewsPage } from './pages/News/NewsPage';
+import { NewsDetailPage } from './pages/News/NewsDetailPage';
 import ProfilePage from './pages/profile/ProfilePage';
-import OrganisationPage from './pages/organisation/OrganisationPage';
-import RolesPage from './pages/roles/RolesPage';
 import { useGetSessionQuery } from './store/apis/authApi';
 
 function App() {
@@ -38,11 +37,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/medlemsanmodninger" element={<MembershipRequestsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
-            <Route path="/organisation" element={<OrganisationPage />} />
-            <Route path="/roller" element={<RolesPage />} />
             <Route path="/datalager" element={<DataLayerPage />} />
+            <Route path="/nyheder" element={<NewsPage />} />
+            <Route path="/nyheder/:id" element={<NewsDetailPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
         </Routes>

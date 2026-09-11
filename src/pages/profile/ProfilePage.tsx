@@ -239,8 +239,8 @@ export default function ProfilePage() {
                                 {profile.organisationName ?? 'Ingen organisation'}
                             </dd>
                         </div>
-                        {/* Rolle vises kun, hvis brugeren er medlem af en organisation */}
-                        {profile.organisationId && (
+                        {/* Rolle vises kun, hvis brugeren har en aktiv organisation */}
+                        {profile.activeOrganisationId && (
                             <div className="py-3 flex justify-between gap-4">
                                 <dt className="text-sm text-secondary">Rolle</dt>
                                 <dd className="text-sm text-right">

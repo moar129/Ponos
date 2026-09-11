@@ -5,24 +5,16 @@ import {
   ClipboardList,
   BarChart3,
   Database,
+  Newspaper,
   Bell,
   User,
   ChevronDown,
   LogOut,
-  UserPlus,
-  Building2,
-  ShieldCheck,
-  Menu,
-  X,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useSignOutMutation } from '../store/apis/authApi';
-import {
-  MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-  MANAGE_ROLES_PRIVILEGE,
-  useHasPrivilege,
-} from '../store/apis/privilegeApi';
+import { useGetMyOrganisationQuery } from '../store/apis/organisationApi';
 
 export function Header() {
   const navigate = useNavigate();
@@ -30,8 +22,12 @@ export function Header() {
   const { data: profile } = useGetMyProfileQuery();
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
 
-  const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE);
-  const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE);
+  // Opgaver/Statistik/Datalager giver ikke mening uden en aktiv organisation
+  // (samme antagelse som OverviewTab). Viser linkene som udgangspunkt for at
+  // undgå flicker, og skjuler dem først når det er bekræftet at der ingen
+  // org er - Header renders også på fx /login, hvor organisation altid er null.
+  const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery();
+  const hasOrganisation = loadingOrganisation || !!organisation;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -106,35 +102,30 @@ export function Header() {
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/tasks" className={getNavLinkClass}>
-            <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-            <span>Opgaver</span>
-          </NavLink>
-
-          <NavLink to="/" className={getNavLinkClass}>
-            <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-            <span>Statistik</span>
-          </NavLink>
-
-          <NavLink to="/datalager" className={getNavLinkClass}>
-            <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-            <span>Datalager</span>
-          </NavLink>
-
-          {canManageMembershipRequests && (
-            <NavLink to="/medlemsanmodninger" className={getNavLinkClass}>
-              <UserPlus className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-              <span>Anmodninger</span>
+        {hasOrganisation && (
+          <>
+            <NavLink to="/tasks" className={getNavLinkClass}>
+              <ClipboardList className="w-5 h-5" />
+              <span>Opgaver</span>
             </NavLink>
-          )}
 
-          {canManageRoles && (
-            <NavLink to="/roller" className={getNavLinkClass}>
-              <ShieldCheck className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-              <span>Roller</span>
+            <NavLink to="/" className={getNavLinkClass}>
+              <BarChart3 className="w-5 h-5" />
+              <span>Statistik</span>
             </NavLink>
-          )}
-        </nav>
+
+            <NavLink to="/datalager" className={getNavLinkClass}>
+              <Database className="w-5 h-5" />
+              <span>Datalager</span>
+            </NavLink>
+
+            <NavLink to="/nyheder" className={getNavLinkClass}>
+              <Newspaper className="w-5 h-5" />
+              <span>Nyheder</span>
+            </NavLink>
+          </>
+        )}
+      </nav>
 
         {/* Højre side: Notifikation + Bruger Profil + mobil hamburger */}
         <div className="flex items-center gap-2 lg:gap-3 xl:gap-5 shrink-0">
@@ -174,54 +165,32 @@ export function Header() {
               <ChevronDown className={`hidden lg:block w-4 h-4 text-slate-300 transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {menuOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg border border-border-gray py-1 z-50"
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg border border-border-gray py-1 z-50"
+            >
+              <Link
+                to="/bruger"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors"
               >
-                <Link
-                  to="/bruger"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  Se profil
-                </Link>
-                <Link
-                  to="/organisation"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors"
-                >
-                  <Building2 className="w-4 h-4" />
-                  Organisation
-                </Link>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={handleSignOut}
-                  disabled={signingOut}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors disabled:opacity-60 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  {signingOut ? 'Logger ud...' : 'Log ud'}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Hamburger-knap: kun synlig under lg, hvor nav'en er skjult */}
-          <button
-            type="button"
-            onClick={() => setMobileNavOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={mobileNavOpen}
-            aria-label={mobileNavOpen ? 'Luk menu' : 'Åbn menu'}
-            className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
-          >
-            {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+                <User className="w-4 h-4" />
+                Se profil
+              </Link>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors disabled:opacity-60 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                {signingOut ? 'Logger ud...' : 'Log ud'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

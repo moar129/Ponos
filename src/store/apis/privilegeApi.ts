@@ -13,6 +13,9 @@ export const ADMIN_PRIVILEGE = 'admin'
 export const MANAGE_ROLES_PRIVILEGE = 'manage_roles'
 export const MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'manage_membership_requests'
 export const MANAGE_ORGANISATION_PRIVILEGE = 'manage_organisation'
+export const MANAGE_MEMBERS_PRIVILEGE = 'manage_members'
+export const MANAGE_INVITATIONS_PRIVILEGE = 'manage_invitations'
+export const MANAGE_NEWS_PRIVILEGE = 'manage_news'
 
 // Kendte systemprivilegier med brugervenlige, danske labels - bruges til
 // at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
@@ -25,6 +28,9 @@ export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
     { name: MANAGE_ROLES_PRIVILEGE, label: 'Administrere roller og privilegier' },
     { name: MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, label: 'Behandle medlemsanmodninger' },
     { name: MANAGE_ORGANISATION_PRIVILEGE, label: 'Redigere organisation' },
+    { name: MANAGE_MEMBERS_PRIVILEGE, label: 'Fjerne medlemmer' },
+    { name: MANAGE_INVITATIONS_PRIVILEGE, label: 'Invitere medlemmer' },
+    { name: MANAGE_NEWS_PRIVILEGE, label: 'Administrere nyheder' },
 ]
 
 // Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets
@@ -58,7 +64,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
 
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('role_id')
+                    .select('active_organisation_id')
                     .eq('id', userData.user.id)
                     .maybeSingle()
 
@@ -66,16 +72,34 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
                 }
 
-                // Uden rolle (fx nyoprettet bruger uden organisation) er
-                // der ingen privilegier - og intet ekstra opslag at lave.
-                if (!profile?.role_id) {
+                // Uden aktiv organisation (fx nyoprettet bruger) er der
+                // ingen privilegier - og intet ekstra opslag at lave.
+                if (!profile?.active_organisation_id) {
+                    return { data: [] }
+                }
+
+                // Rollen ligger på memberships (US-59) - brugerens rolle i
+                // DEN AKTIVE organisation, ikke nødvendigvis i alle sine
+                // organisationer.
+                const { data: membership, error: membershipError } = await supabase
+                    .from('memberships')
+                    .select('role_id')
+                    .eq('user_id', userData.user.id)
+                    .eq('organisation_id', profile.active_organisation_id)
+                    .maybeSingle()
+
+                if (membershipError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: membershipError.message } }
+                }
+
+                if (!membership?.role_id) {
                     return { data: [] }
                 }
 
                 const { data, error } = await supabase
                     .from('privileges')
                     .select('name')
-                    .eq('role_id', profile.role_id)
+                    .eq('role_id', membership.role_id)
 
                 if (error) {
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }

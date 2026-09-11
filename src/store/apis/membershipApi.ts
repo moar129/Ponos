@@ -51,7 +51,8 @@ export const membershipApi = supabaseApi.injectEndpoints({
         }),
 
         // Sender en medlemsanmodning for den indloggede bruger til den
-        // valgte organisation. Bruges af OrganisationPage.tsx.
+        // valgte organisation. Bruges af dashboardets Organisation-fane
+        // (OrganisationTab.tsx).
         requestMembership: builder.mutation<void, { organisationId: string }>({
             queryFn: async ({ organisationId }) => {
                 // Finder den aktuelt indloggede bruger direkte fra Supabase
@@ -196,8 +197,9 @@ export const membershipApi = supabaseApi.injectEndpoints({
             // 'Profile' invalideres også: accepterer man en anmodning,
             // ændres ansøgerens organisation - og ser man sin egen liste,
             // skal banneret opdateres. 'Role' invalideres, så det
-            // nyaccepterede medlem straks dukker op i medlemslisten på
-            // /roller uden at admin skal genindlæse siden.
+            // nyaccepterede medlem straks dukker op i medlemslisten i
+            // dashboardets Administration-fane uden at admin skal
+            // genindlæse siden.
             invalidatesTags: ['MembershipRequest', 'Profile', 'PendingRequest', 'Role'],
         }),
     }),

@@ -1016,38 +1016,44 @@ Som bruger vil jeg kunne filtrere statistik efter relevante data, så jeg kan fo
 
 # 10. News / API
 
-## US-56 – Se nyheder
+## US-56 – Se og administrere nyheder
 
 **Priority:** Low
 
+**Note (opdateret):** Nyheder er organisationens egne (opslagstavle-stil, som Slack/Basecamp), ikke et globalt feed - hver organisation har sine egne nyheder, isoleret via RLS ligesom øvrige data (jf. `dbSchema.sql` §13/§16.9).
+
 ### User Story
 
-Som bruger vil jeg kunne se aktuelle nyheder, så jeg kan holde mig opdateret om relevant information.
+Som bruger vil jeg kunne se organisationens aktuelle nyheder, så jeg kan holde mig opdateret om relevant information. Som administrator (manage_news-privilegiet) vil jeg desuden kunne oprette, redigere og slette nyheder manuelt.
 
 ### Acceptance Criteria
 
-- Brugeren kan se en liste over tilgængelige nyheder.
+- Brugeren kan se en liste over organisationens nyheder.
 - En nyhed viser titel.
 - En nyhed viser beskrivelse.
 - En nyhed kan vise et billede, hvis et billede er tilgængeligt.
 - En nyhed viser dato/tidspunkt.
+- En nyhed kan vise et link ("Læs mere") til original-artiklen, hvis et link er tilgængeligt.
+- En administrator (manage_news) kan oprette, redigere og slette nyheder for organisationen.
 
 ---
 
-## US-57 – Hent nyheder fra ekstern API
+## US-57 – Hente nyheder fra en organisations egen eksterne API
 
 **Priority:** Low
 
+**Note (opdateret):** Ingen konkret ekstern API er valgt af nogen organisation endnu. Frem for automatisk baggrunds-sync (som ville kræve cron/edge-function-infrastruktur, som ikke findes i dette repo) konfigurerer hver organisation selv sin egen API-adresse (+ evt. nøgle), og en administrator henter derfra på forespørgsel.
+
 ### User Story
 
-Som system vil jeg kunne hente nyheder fra en ekstern API, så aktuelle nyheder kan vises automatisk på Ponos' forside.
+Som administrator vil jeg kunne konfigurere organisationens egen eksterne nyheds-API og hente nyheder derfra, så aktuelle nyheder kan importeres uden at skulle skrives ind manuelt hver gang.
 
 ### Acceptance Criteria
 
-- Systemet kan sende en forespørgsel til den valgte API.
-- Systemet kan modtage nyhedsdata.
-- Modtagne nyheder kan vises på forsiden.
-- Nyheder kan indeholde titel, beskrivelse, billede og publiceringstidspunkt.
+- En administrator (manage_news) kan konfigurere organisationens nyheds-API-adresse (og evt. en API-nøgle).
+- Systemet kan sende en forespørgsel til organisationens konfigurerede API.
+- Systemet kan modtage nyhedsdata og importere dem som nyheder for organisationen.
+- Nyheder kan indeholde titel, beskrivelse, billede, publiceringstidspunkt og link til original-artiklen.
 - Hvis API'et ikke er tilgængeligt, håndteres fejlen uden at resten af Ponos stopper.
 
 ---
@@ -1160,6 +1166,82 @@ Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slett
 
 ---
 
+## US-64 – Slette en organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne slette min organisation permanent, så jeg kan lukke den ned, når jeg enten er det eneste tilbageværende medlem og ikke længere har brug for den, eller når organisationen som helhed skal lukke - uanset om der stadig er andre medlemmer i den.
+
+### Acceptance Criteria
+
+- Kun en administrator af organisationen kan slette den.
+- Givet at administratoren sletter organisationen, når sletningen gennemføres, så fjernes organisationens data (roller, privilegier, medlemskaber, lokationer, kategorier, items, opgaver, statistik) permanent.
+- Givet at organisationen har andre medlemmer end den, der sletter, når organisationen slettes, så mister alle øvrige medlemmer deres adgang til organisationen med det samme.
+- Givet at den slettede organisation var administratorens (eller et andet medlems) aktive organisation, så står brugeren uden aktiv organisation, eller får automatisk en anden af sine resterende organisationer som aktiv, hvis brugeren er medlem af flere.
+- Givet at administratoren forsøger at slette organisationen, når handlingen udføres, så kræves en tydelig bekræftelse, da sletningen ikke kan fortrydes.
+
+---
+
+## US-65 – Administration og organisation samlet på dashboardet
+
+**Priority:** Medium
+
+### User Story
+
+Som bruger vil jeg kunne finde organisationens oplysninger og - hvis jeg er administrator - roller, medlemsanmodninger og organisationens indstillinger ét samlet sted på dashboardet, så jeg ikke skal navigere mellem flere separate sider eller header-menuer for at udføre disse opgaver.
+
+### Acceptance Criteria
+
+- Dashboardet har en "Organisation"-fane (alle brugere): se organisation, "Mine organisationer" (skift aktiv, forlad), anmod om medlemskab, opret organisation.
+- Dashboardet har en "Administration"-fane, der kun vises for brugere med mindst ét administrativt privilegie.
+- Administration-fanen samler roller & privilegier, medlemsanmodninger og organisationens indstillinger (rediger navn, slet organisation).
+- Hver administrativ funktion er fortsat kun synlig for brugere med det specifikke privilegie, den kræver.
+- De tidligere separate sider til roller, medlemsanmodninger og organisation (`/roller`, `/medlemsanmodninger`, `/organisation`) er nedlagt, inkl. "Organisation"-linket i header-dropdownet; funktionaliteten er uændret, kun placeringen er flyttet.
+- Dashboardets "Oversigt"-fane viser genveje til andre sider (Datalager, Opgaver) og et tal for brugerens egne opgaver, ikke kun organisationens samlede item-/opgave-antal.
+- Adgangskontrol håndhæves fortsat server-side (RLS); ingen nye rettigheder introduceres.
+
+---
+
+## US-66 – Fjerne medlem fra organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne fjerne et medlem fra min organisation, så jeg kan holde medlemslisten opdateret, hvis nogen ikke længere skal have adgang.
+
+### Acceptance Criteria
+
+- Kun en bruger med privilegiet `manage_members` (eller admin) kan fjerne et medlem.
+- En bruger kan ikke fjerne sig selv - "Forlad organisation" bruges til det.
+- En bruger med kun `manage_members` (ikke fuld administrator) kan ikke fjerne et medlem, hvis medlemmets rolle bærer admin-privilegiet.
+- Fjernelse er scopet til administratorens AKTIVE organisation.
+- Det fjernede medlem mister adgangen til organisationens data med det samme, og får automatisk en anden af sine resterende organisationer som aktiv, hvis de er medlem af flere.
+- Handlingen kræver en bekræftelse, da den ikke kan fortrydes af administratoren (medlemmet skal inviteres/anmode igen).
+
+---
+
+## US-67 – Invitere bruger til organisation
+
+**Priority:** Medium
+
+### User Story
+
+Som administrator vil jeg kunne invitere en eksisterende bruger til min organisation via deres email, så jeg ikke skal vente på at de selv finder frem til at anmode om medlemskab.
+
+### Acceptance Criteria
+
+- Kun en bruger med privilegiet `manage_invitations` (eller admin) kan sende invitationer.
+- Administratoren indtaster en præcis email; findes der en Ponos-bruger med den email, oprettes en invitation, ellers vises en tydelig fejl. Der sendes ingen email - modtageren ser invitationen ved næste login.
+- En bruger kan ikke inviteres, hvis de allerede er medlem, eller allerede har en ventende invitation til organisationen.
+- Modtageren kan se og acceptere/afvise invitationen (fx på dashboardets Organisation-fane), uanset om de har en aktiv organisation i forvejen.
+- Ved accept bliver brugeren medlem uden automatisk rolle (samme som ved accept af en medlemsanmodning).
+- Administratoren kan fortryde/annullere en ventende invitation, før modtageren har svaret.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1230,6 +1312,10 @@ Som administrator vil jeg kunne styre adgangen til at oprette, redigere og slett
 - US-61 – Forlade en organisation
 - US-62 – Granulære skriverettigheder i Datalayer
 - US-63 – Granulære skriverettigheder i Opgaver
+- US-64 – Slette en organisation
+- US-65 – Administration og organisation samlet på dashboardet
+- US-66 – Fjerne medlem fra organisation
+- US-67 – Invitere bruger til organisation
 
 ## Low
 
@@ -1286,7 +1372,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**24 stories**
+**28 stories**
 
 ### Bruger & login
 
@@ -1307,6 +1393,9 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-59
 - US-60
 - US-61
+- US-64
+- US-66
+- US-67
 
 ### Roller & privileges
 
@@ -1321,6 +1410,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-45
 - US-46
 - US-47
+- US-65
 
 ### News/API
 

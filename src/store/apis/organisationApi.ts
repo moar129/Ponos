@@ -1,7 +1,7 @@
 // src/store/apis/organisationApi.ts
-import { supabaseApi } from './supabaseApi'
+import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { CreateOrganisationInput, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import type { CreateOrganisationInput, MyMembership, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -29,7 +29,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('organisation_id')
+                    .select('active_organisation_id')
                     .eq('id', userData.user.id)
                     .maybeSingle()
 
@@ -37,14 +37,14 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
                 }
 
-                if (!profile?.organisation_id) {
+                if (!profile?.active_organisation_id) {
                     return { data: null }
                 }
 
                 const { data, error } = await supabase
                     .from('organisations')
                     .select('id, name')
-                    .eq('id', profile.organisation_id)
+                    .eq('id', profile.active_organisation_id)
                     .maybeSingle()
 
                 if (error) {
@@ -82,7 +82,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('organisation_id')
+                    .select('active_organisation_id')
                     .eq('id', userData.user.id)
                     .maybeSingle()
 
@@ -90,7 +90,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
                 }
 
-                if (!profile?.organisation_id) {
+                if (!profile?.active_organisation_id) {
                     return {
                         error: { status: 'CUSTOM_ERROR', error: 'Du er ikke medlem af en organisation.' },
                     }
@@ -99,7 +99,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase
                     .from('organisations')
                     .update({ name })
-                    .eq('id', profile.organisation_id)
+                    .eq('id', profile.active_organisation_id)
 
                 if (error) {
                     // Postgres-fejlkode 23505 = unique constraint violation
@@ -156,11 +156,127 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 return { data: { id: data.id, name: data.name } }
             },
 
-            // Organisation (den nye org), Profile (organisation_id/role_id
-            // ændret) og Privilege (brugeren har nu admin-privilegiet) skal
-            // alle hentes friske, så resten af UI'en (header, /bruger,
-            // /organisation) opdaterer sig selv uden reload.
-            invalidatesTags: ['Organisation', 'Profile', 'Privilege'],
+            // Organisation (den nye org), Profile (active_organisation_id
+            // ændret), Privilege (brugeren har nu admin-privilegiet) og
+            // Membership (nyt medlemskab oprettet) skal alle hentes friske,
+            // så resten af UI'en (header, /bruger, dashboardets Organisation-
+            // fane) opdaterer sig selv uden reload.
+            invalidatesTags: ['Organisation', 'Profile', 'Privilege', 'Membership'],
+        }),
+
+        // Henter alle organisationer brugeren er medlem af (US-59), til
+        // listen "Mine organisationer" på /organisation. isActive markerer
+        // hvilken der p.t. er aktiv organisation. Kører server-side som
+        // RPC'en get_my_memberships (security definer) i stedet for
+        // separate klient-forespørgsler: roles-tabellens RLS ("Se roller i
+        // egen organisation") er scopet til brugerens AKTIVE organisation,
+        // så et almindeligt klient-opslag kunne ikke se rollenavnet for en
+        // organisation, der ikke lige er aktiv - viste fejlagtigt "Ingen
+        // rolle tildelt" for dem. RPC'en omgår det ved at læse alt i én
+        // atomisk, uden RLS-begrænsning på selve opslaget.
+        getMyMemberships: builder.query<MyMembership[], void>({
+            queryFn: async () => {
+                const { data, error } = await supabase.rpc('get_my_memberships')
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                type MyMembershipRow = {
+                    organisation_id: string
+                    organisation_name: string
+                    role_id: string | null
+                    role_name: string | null
+                    is_active: boolean
+                    is_admin: boolean
+                    member_count: number
+                }
+
+                return {
+                    data: ((data ?? []) as MyMembershipRow[]).map((row) => ({
+                        organisationId: row.organisation_id,
+                        organisationName: row.organisation_name,
+                        roleName: row.role_name,
+                        isActive: row.is_active,
+                        isAdmin: row.is_admin,
+                        memberCount: row.member_count,
+                    })),
+                }
+            },
+
+            providesTags: ['Membership'],
+        }),
+
+        // Skifter brugerens aktive organisation (US-59). Kører server-side
+        // som RPC'en set_active_organisation, som validerer at brugeren
+        // faktisk er medlem, før profiles.active_organisation_id ændres -
+        // klienten opdaterer aldrig den kolonne direkte.
+        setActiveOrganisation: builder.mutation<void, { organisationId: string }>({
+            queryFn: async ({ organisationId }) => {
+                const { error } = await supabase.rpc('set_active_organisation', {
+                    p_organisation_id: organisationId,
+                })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: [...USER_SCOPED_TAGS],
+        }),
+
+        // Forlader en organisation (US-61). Kører server-side som RPC'en
+        // leave_organisation, som blokerer hvis brugeren er organisationens
+        // eneste administrator, og - hvis den forladte organisation var
+        // aktiv - automatisk vælger en anden af brugerens resterende
+        // medlemskaber som ny aktiv organisation (samme "automatisk skift"-
+        // mønster som ved oprettelse, US-60). Returnerer den nye aktive
+        // organisation (eller null, hvis brugeren ikke har flere
+        // medlemskaber tilbage), så UI'en kan vise hvilken organisation
+        // brugeren nu er på.
+        leaveOrganisation: builder.mutation<Organisation | null, { organisationId: string }>({
+            queryFn: async ({ organisationId }) => {
+                const { data, error } = await supabase.rpc('leave_organisation', {
+                    p_organisation_id: organisationId,
+                })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: data ? { id: data.id, name: data.name } : null }
+            },
+
+            invalidatesTags: [...USER_SCOPED_TAGS],
+        }),
+
+        // Sletter en organisation permanent (US-64). Kører server-side som
+        // RPC'en delete_organisation, som kun tillader det for en reel
+        // administrator af DEN organisation (ikke nødvendigvis brugerens
+        // aktive) - ingen "sidste medlem"-restriktion, dækker både "alene
+        // tilbage" og "organisationen lukker ned med andre medlemmer
+        // tilbage". Alt underliggende data (opgaver, items, kategorier,
+        // lokationer, statistik, roller, medlemskaber) cascader automatisk
+        // via eksisterende FK'er. Returnerer den slettende brugers nye
+        // aktive organisation (eller null), udfyldt kun hvis den slettede
+        // org var brugerens egen aktive - samme mønster som
+        // leaveOrganisation.
+        deleteOrganisation: builder.mutation<Organisation | null, { organisationId: string }>({
+            queryFn: async ({ organisationId }) => {
+                const { data, error } = await supabase.rpc('delete_organisation', {
+                    p_organisation_id: organisationId,
+                })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: data ? { id: data.id, name: data.name } : null }
+            },
+
+            invalidatesTags: [...USER_SCOPED_TAGS],
         }),
     }),
 })
@@ -169,4 +285,8 @@ export const {
     useGetMyOrganisationQuery,
     useUpdateMyOrganisationMutation,
     useCreateOrganisationMutation,
+    useGetMyMembershipsQuery,
+    useSetActiveOrganisationMutation,
+    useLeaveOrganisationMutation,
+    useDeleteOrganisationMutation,
 } = organisationApi
