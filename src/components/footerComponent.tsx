@@ -2,11 +2,7 @@ import { MapPin, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetSessionQuery } from '../store/apis/authApi';
-import {
-  MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-  MANAGE_ROLES_PRIVILEGE,
-  useHasPrivilege,
-} from '../store/apis/privilegeApi';
+import { useGetMyProfileQuery } from '../store/apis/profileApi';
 
 export function Footer() {
   // Samme kilde som resten af appen (App.tsx holder denne aktiv, og den
@@ -14,8 +10,11 @@ export function Footer() {
   const { data: session, isLoading: isLoadingSession } = useGetSessionQuery();
   const isAuthenticated = !!session;
 
-  const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE);
-  const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE);
+  // Samme org-gate som headeren - holdes bevidst identisk, så de to nav-
+  // lister ikke driver fra hinanden igen. Genbruger headerens allerede
+  // hentede profil-query (samme cache, ingen ekstra netværkskald).
+  const { data: profile, isLoading: loadingProfile } = useGetMyProfileQuery();
+  const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
 
   const linkClass =
     'hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline transition-colors';
@@ -47,14 +46,13 @@ export function Footer() {
           ) : isAuthenticated ? (
             <ul className="space-y-2 text-xs text-slate-400">
               <li><Link to="/dashboard" className={linkClass}>Dashboard</Link></li>
-              <li><Link to="/tasks" className={linkClass}>Opgaver</Link></li>
-              <li><Link to="/" className={linkClass}>Statistik</Link></li>
-              <li><Link to="/datalager" className={linkClass}>Datalager</Link></li>
-              {canManageMembershipRequests && (
-                <li><Link to="/medlemsanmodninger" className={linkClass}>Anmodninger</Link></li>
-              )}
-              {canManageRoles && (
-                <li><Link to="/roller" className={linkClass}>Roller</Link></li>
+              {hasOrganisation && (
+                <>
+                  <li><Link to="/tasks" className={linkClass}>Opgaver</Link></li>
+                  <li><Link to="/" className={linkClass}>Statistik</Link></li>
+                  <li><Link to="/datalager" className={linkClass}>Datalager</Link></li>
+                  <li><Link to="/nyheder" className={linkClass}>Nyheder</Link></li>
+                </>
               )}
             </ul>
           ) : (
