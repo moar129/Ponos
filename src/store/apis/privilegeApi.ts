@@ -17,6 +17,16 @@ export const MANAGE_MEMBERS_PRIVILEGE = 'manage_members'
 export const MANAGE_INVITATIONS_PRIVILEGE = 'manage_invitations'
 export const MANAGE_NEWS_PRIVILEGE = 'manage_news'
 
+// Fase 2 (US-62/US-63). Tilføjet FØR de tilhørende RLS-policies, så en
+// organisation kan nå at tildele privilegierne til sine roller inden
+// skrivning gates - ellers ville alle menige medlemmer miste skrive-
+// adgang i Datalayer/Opgaver i samme sekund SQL'en køres. Indtil da har
+// de ingen effekt: ingen policy tjekker dem endnu.
+// Se docs/migrations/us-62-datalayer-write-privileges.sql og
+// docs/migrations/us-63-tasks-write-privileges.sql.
+export const MANAGE_DATALAYER_PRIVILEGE = 'manage_datalayer'
+export const MANAGE_TASKS_PRIVILEGE = 'manage_tasks'
+
 // Kendte systemprivilegier med brugervenlige, danske labels - bruges til
 // at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
 // privilegie til en rolle. En organisation kan ikke forventes at kende
@@ -31,6 +41,8 @@ export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
     { name: MANAGE_MEMBERS_PRIVILEGE, label: 'Fjerne medlemmer' },
     { name: MANAGE_INVITATIONS_PRIVILEGE, label: 'Invitere medlemmer' },
     { name: MANAGE_NEWS_PRIVILEGE, label: 'Administrere nyheder' },
+    { name: MANAGE_DATALAYER_PRIVILEGE, label: 'Administrere datalager' },
+    { name: MANAGE_TASKS_PRIVILEGE, label: 'Administrere opgaver' },
 ]
 
 // Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets

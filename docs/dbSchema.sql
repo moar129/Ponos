@@ -15,6 +15,10 @@ create type e_item_status as enum (
 
 create type e_membership_request_status as enum ('Pending', 'Accepted', 'Rejected');
 
+-- Studerende 3's tilføjelse - dokumenteret her fra DB-eksport
+-- 2026-09-11, ikke ændret af os. Bruges af tasks.priority (afsnit 10).
+create type e_task_priority as enum ('Low', 'Medium', 'High', 'Critical');
+
 
 -- ---------------------------------------------------------------------
 -- 2. ORGANISATION
@@ -205,7 +209,38 @@ create index idx_items_status on public.data_layer_items (status);
 
 
 -- ---------------------------------------------------------------------
+-- 9.5 TASK ROOM (Studerende 3's tilføjelse)
+-- Dokumenteret her fra DB-eksport 2026-09-11 - IKKE oprettet eller
+-- ændret af Studerende 1. Tabellen stod indtil da slet ikke i denne fil,
+-- selvom den har eksisteret i databasen et stykke tid.
+--
+-- Et "rum" er en gruppering af opgaver inden for en organisation
+-- (tasks.room_id, afsnit 10). Placeret her - FØR tasks - fordi tasks'
+-- FK peger på den.
+--
+-- required_role_id er Studerende 3's eget rolle-gate-koncept på
+-- rum-niveau. Kolonnen findes i skemaet og i src/types/Task/Task.ts, men
+-- bruges IKKE af nogen query eller UI endnu. Den overlapper konceptuelt
+-- med US-63's planlagte manage_tasks-privilegie (to forskellige
+-- adgangsmodeller) - se docs/migrations/us-63-tasks-write-privileges.sql,
+-- spørgsmål 3.
+-- ---------------------------------------------------------------------
+create table public.task_rooms (
+  id                uuid primary key default gen_random_uuid(),
+  organisation_id   uuid not null references public.organisations(id) on delete cascade,
+  name              text not null,
+  required_role_id  uuid references public.roles(id) on delete set null,
+  created_at        timestamptz not null default now()
+);
+
+create index idx_task_rooms_org on public.task_rooms (organisation_id);
+
+
+-- ---------------------------------------------------------------------
 -- 10. TASK (tilhører organisation)
+-- De tre sidste kolonner (room_id, priority, max_assignees) og
+-- idx_tasks_room er Studerende 3's tilføjelser - dokumenteret her fra
+-- DB-eksport 2026-09-11, ikke ændret af os.
 -- ---------------------------------------------------------------------
 create table public.tasks (
   id               uuid primary key default gen_random_uuid(),
@@ -214,11 +249,15 @@ create table public.tasks (
   description      text,
   start_date       timestamptz,
   end_date         timestamptz,
-  status           e_task_status not null default 'Started'
+  status           e_task_status not null default 'Started',
+  room_id          uuid references public.task_rooms(id) on delete set null,
+  priority         e_task_priority,
+  max_assignees    int
 );
 
 create index idx_tasks_org on public.tasks (organisation_id);
 create index idx_tasks_status on public.tasks (status);
+create index idx_tasks_room on public.tasks (room_id);
 
 -- AssignedTo: mange-til-mange mellem Task og User
 create table public.task_assignees (
@@ -375,8 +414,35 @@ $$;
 
 
 -- =====================================================================
--- 15. TRIGGERS
+-- 15. TRIGGERS OG RPC-FUNKTIONER
 -- =====================================================================
+--
+-- OM `grant execute ... to authenticated` NEDENFOR (fundet ved
+-- skema-eksport 2026-09-11): de linjer er reelt REDUNDANTE og giver et
+-- falsk indtryk af, at anon er lukket ude. Postgres giver som default
+-- `execute` på en ny funktion til rollen PUBLIC, som både `anon` og
+-- `authenticated` arver - alle funktionerne i denne fil er derfor
+-- kaldbare af en UDLOGGET klient med anon-nøglen (som ligger i
+-- browser-bundtet).
+--
+-- Det er ikke udnytteligt i dag: hver RPC afviser selv en udlogget
+-- kalder, enten med en eksplicit `if auth.uid() is null`-guard eller ved
+-- at auth_profile_org() returnerer null. Eneste funktion uden eksplicit
+-- guard er invite_member (15.16), som reddes af det sidste - held frem
+-- for design.
+--
+-- reset_password_prototype (15.17) SKAL være anon-tilgængelig, jf.
+-- US-68. Resten kunne lukkes som forsvar i dybden med et par linjer pr.
+-- funktion - mønsteret er:
+--
+--     revoke execute on function public.<navn>(<argtyper>) from anon, public;
+--     grant  execute on function public.<navn>(<argtyper>) to authenticated;
+--
+-- Begge linjer er nødvendige: `revoke ... from public` fjerner også den
+-- rettighed, authenticated arvede derfra, så den skal gives igen direkte.
+-- Effekten for en udlogget kalder er 42501 i stedet for den danske
+-- fejlbesked - ellers ingen ændring. Ikke gjort: der er ingen kendt
+-- sårbarhed at lukke, og hver RPC forsvarer sig allerede selv.
 
 -- 15.1 Opret automatisk en profile-række når en ny bruger oprettes i
 -- Supabase Auth (US-01: Opret konto). Forventer first_name/last_name i
@@ -1198,6 +1264,7 @@ alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.tasks                   enable row level security;
+alter table public.task_rooms              enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_materials          enable row level security;
@@ -1213,6 +1280,23 @@ create policy "Se egen organisation"
   on public.organisations for select
   to authenticated
   using (id = public.auth_profile_org());
+
+-- Dokumenteret fra DB-eksport 2026-09-11: policyen fandtes i databasen,
+-- men stod ikke i denne fil. Den er forudsætningen for at en bruger UDEN
+-- (eller med en anden) aktiv organisation kan vælge en organisation i
+-- "Anmod om medlemskab"-dropdownen på Organisation-fanen - "Se egen
+-- organisation" ovenfor ville ellers skjule hele listen for netop den
+-- bruger, der har brug for den.
+--
+-- Konsekvens: navn og id på ALLE organisationer er læsbare for enhver
+-- indlogget bruger. Bevidst afvejning - en organisation skal kunne findes
+-- for at man kan anmode om at blive medlem. Ingen data BAG organisationen
+-- eksponeres: alle øvrige tabeller er stadig scopet til
+-- auth_profile_org().
+create policy "Alle autentificerede kan se organisationsliste"
+  on public.organisations for select
+  to authenticated
+  using (true);
 
 create policy "Opret organisation (bootstrap)"
   on public.organisations for insert
@@ -1488,6 +1572,52 @@ create policy "Administrer task_materials for opgaver i egen organisation"
 
 
 -- ---------------------------------------------------------------------
+-- 16.7b TASK_ROOMS (Studerende 3's domæne)
+-- Dokumenteret fra DB-eksport 2026-09-11 - ikke oprettet eller ændret af
+-- Studerende 1. Tabellen og dens policies stod indtil da slet ikke i
+-- denne fil.
+--
+-- BEMÆRK: der er FIRE policies, ikke to. Ud over de to danske findes to
+-- ENGELSKE DUBLETTER, som dækker det samme, men inliner
+-- profiles.active_organisation_id i stedet for at kalde
+-- auth_profile_org(). Funktionelt er de identiske i dag, men de er en
+-- fælde for US-63: RLS-policies OR'es, så det er IKKE nok at stramme
+-- "Medlemmer kan administrere task rooms ..." - INSERT ville stadig
+-- slippe igennem via "Users can create task rooms in their
+-- organisation". Begge dubletter skal droppes samtidig. Se
+-- docs/migrations/us-63-tasks-write-privileges.sql, afsnit C.
+-- ---------------------------------------------------------------------
+create policy "Se task rooms i egen organisation"
+  on public.task_rooms for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org());
+
+create policy "Medlemmer kan administrere task rooms i egen organisation"
+  on public.task_rooms for all
+  to authenticated
+  using (organisation_id = public.auth_profile_org())
+  with check (organisation_id = public.auth_profile_org());
+
+-- Dublet af "Se task rooms i egen organisation" ovenfor.
+create policy "Users can view task rooms in their organisation"
+  on public.task_rooms for select
+  to authenticated
+  using (
+    organisation_id = (select active_organisation_id from public.profiles where id = auth.uid())
+  );
+
+-- Dublet-agtig: dækker INSERT, som "Medlemmer kan administrere ..."
+-- (for all) allerede dækker. Det er denne, der gør en gating af
+-- for all-policyen virkningsløs.
+create policy "Users can create task rooms in their organisation"
+  on public.task_rooms for insert
+  to authenticated
+  with check (
+    organisation_id = (select active_organisation_id from public.profiles where id = auth.uid())
+  );
+
+
+-- ---------------------------------------------------------------------
 -- 16.8 STATISTICS SNAPSHOTS / VALUES
 -- (Studerende 3's domæne — org-scoped læsning; skrivning sker typisk
 -- server-side/via funktion når snapshots genereres.)
@@ -1556,6 +1686,18 @@ create policy "Se egne medlemskaber eller medlemskaber i egen organisation"
 -- rolle"/manage_roles-policies - en bruger med kun manage_roles må ikke
 -- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
 -- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
+--
+-- BUGFIX 2026-09-11 (fundet ved en skema-eksport, ikke under test):
+-- subqueryen stod oprindeligt som `where p.role_id = role_id`. Et
+-- ukvalificeret kolonnenavn opløses til den INDERSTE tabel, så Postgres
+-- gemte udtrykket som `p.role_id = p.role_id` - altid sandt.
+-- `not exists (...)` blev dermed altid falsk, og guarden ramte alt for
+-- bredt: en bruger med manage_roles men uden admin kunne ikke tildele
+-- NOGEN rolle overhovedet, kun "ingen rolle" (role_id = null).
+-- Aldrig opdaget under test, fordi en fuld administrator kortslutter
+-- OR-udtrykket på public.has_privilege('admin') og derfor er upåvirket.
+-- Rettet til en eksplicit `memberships.role_id`-kvalificering nedenfor.
+-- SQL'en er kørt og testet i browseren 2026-09-11.
 create policy "Tildel rolle til medlemskaber i egen organisation"
   on public.memberships for update
   to authenticated
@@ -1568,10 +1710,10 @@ create policy "Tildel rolle til medlemskaber i egen organisation"
     and public.has_privilege_or_admin('manage_roles')
     and (
       public.has_privilege('admin')
-      or role_id is null
+      or memberships.role_id is null
       or not exists (
         select 1 from public.privileges p
-        where p.role_id = role_id and p.name = 'admin'
+        where p.role_id = memberships.role_id and p.name = 'admin'
       )
     )
   );

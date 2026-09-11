@@ -47,6 +47,9 @@ There is no test framework configured in this repo (no vitest/jest, no `*.test.*
 
 - `docs/` (`Project.md`, `userStories.md`, `dbSchema.sql`) is tracked in git — consult it for the full product spec, user stories, and DB schema when deeper context is needed.
 - `docs/studerende1-plan.md` — progress tracker for Student 1's user stories (Access, Organisation & Overview). Check "Næste op" at the top for the current task; update it after finishing a story.
+- `docs/migrations/` — SQL waiting to be run by the user, one file per change (header + rollback comment). Delete a file once it's been run and its content is in `dbSchema.sql`; the folder only holds pending work. See its README.
+- `docs/exportSchema.sql` — run in the Supabase SQL Editor to dump the *actual* schema (policies, functions, triggers, grants, indexes) as CSV. Use it when `dbSchema.sql` might have drifted; it had, on 2026-09-11. Don't commit the CSV — read it, then delete it.
+- No Docker or `pg_dump` on this machine, so `supabase db dump` won't work — `exportSchema.sql` is the way to inspect the live schema.
 - Code (identifiers, comments) is written in English. UI-facing text (labels, buttons, errors) stays Danish — the product is for Danish speakers.
 - Git commits are made by the user, not Claude.
 - No CI and no Docker setup exist in this repo.
