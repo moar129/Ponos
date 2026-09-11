@@ -20,7 +20,8 @@ export function LandingHero() {
             <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-28">
                 <div className="max-w-3xl">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-semibold tracking-wide text-slate-100 leading-tight">
-                        Se hvad I har. <br className="hidden sm:block" />{' '} Se hvem der gør hvad.<br className="hidden sm:block" />{' '}
+                        Se hvad I har. <br className="hidden sm:block" />{' '} 
+                        Se hvem der gør hvad.<br className="hidden sm:block" />{' '}
                         Se hvad jeres data fortæller.
                     </h1>
 

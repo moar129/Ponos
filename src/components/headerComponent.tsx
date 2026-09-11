@@ -12,6 +12,9 @@ import {
   LogOut,
   Menu,
   X,
+  Home,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
@@ -121,9 +124,11 @@ export function Header() {
           </span>
         </Link>
 
-        {/* Desktop navigation: kompakt fra lg, fuld luft fra xl.
-            Kræver login - en udlogget bruger har ingen sider at gå til. */}
-        {isAuthenticated && (
+        {/* Desktop navigation: kompakt fra lg, fuld luft fra xl. Under lg
+            klapper den sammen i hamburgeren - det gælder begge tilstande, så
+            headeren har samme tre zoner (logo, navigation, handlinger) uanset
+            om man er logget ind. */}
+        {isAuthenticated ? (
           <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
             <NavLink to="/dashboard" className={getNavLinkClass}>
               <LayoutDashboard className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
@@ -154,12 +159,30 @@ export function Header() {
               </>
             )}
           </nav>
+        ) : (
+          // Samme klasse og samme slot som ovenfor, så de to tilstande står
+          // ens. Forside hører kun til her - er man logget ind, hører man
+          // hjemme på dashboardet, og "/" redirecter derhen alligevel.
+          !isLoadingSession && (
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
+              <NavLink to="/" className={getNavLinkClass}>
+                <Home className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                <span>Forside</span>
+              </NavLink>
+
+              <NavLink to="/login" className={getNavLinkClass}>
+                <LogIn className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                <span>Log ind</span>
+              </NavLink>
+            </nav>
+          )
         )}
 
-        {/* Højre side: Notifikation + Bruger Profil + mobil hamburger, eller
-            "Log ind" når man ikke er logget ind. Mens sessionen endnu hentes
-            vises ingen af delene, så "Log ind" ikke blinker forbi for en
-            bruger der faktisk er logget ind. */}
+        {/* Højre side: handlingerne. Logget ind er det notifikationer og
+            profil, logget ud "Opret konto". Hamburgeren er fælles og ligger
+            derfor uden for if/else'en. Mens sessionen endnu hentes vises
+            ingen af delene, så den udloggede header ikke blinker forbi for
+            en bruger der faktisk er logget ind. */}
         <div className="flex items-center gap-2 lg:gap-3 xl:gap-5 shrink-0">
           {isAuthenticated ? (
             <>
@@ -231,78 +254,99 @@ export function Header() {
                 )}
               </div>
 
-              {/* Hamburger-knap: kun synlig under lg, hvor nav'en er skjult */}
-              <button
-                type="button"
-                onClick={() => setMobileNavOpen((open) => !open)}
-                aria-haspopup="menu"
-                aria-expanded={mobileNavOpen}
-                aria-label={mobileNavOpen ? 'Luk menu' : 'Åbn menu'}
-                className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
-              >
-                {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
             </>
           ) : (
+            /* Primær handling, derfor guld - samme par som forsidens hero'er
+               ("Opret konto" i accent, "Log ind" som link). Bevidst Link og
+               ikke NavLink: en aktiv-underline oven på en fyldt knap giver
+               ikke mening. Samme geometri som nav-linkene, så den flugter med
+               dem. Under lg ligger den i hamburgeren sammen med resten. */
             !isLoadingSession && (
-              <>
-                {/* Forside-linket hører kun til den udloggede tilstand - er
-                    man logget ind, hører man hjemme på dashboardet, og "/"
-                    redirecter derhen alligevel. Ligger her frem for i
-                    <nav>'en, som er hidden under lg: hamburgeren er også
-                    skjult for udloggede, så linket ville forsvinde på mobil. */}
-                <NavLink
-                  to="/"
-                  className={({ isActive }) =>
-                    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                      ? 'text-white'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                    }`
-                  }
-                >
-                  Forside
-                </NavLink>
-                <Link
-                  to="/login"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
-                >
-                  Log ind
-                </Link>
-              </>
+              <Link
+                to="/signup"
+                className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-accent text-primary hover:bg-accent-hover transition-colors"
+              >
+                <UserPlus className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                <span>Opret konto</span>
+              </Link>
             )
+          )}
+
+          {/* Hamburger-knap: kun synlig under lg, hvor nav'en er skjult.
+              Fælles for begge tilstande. */}
+          {!isLoadingSession && (
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((open) => !open)}
+              aria-haspopup="menu"
+              aria-expanded={mobileNavOpen}
+              aria-label={mobileNavOpen ? 'Luk menu' : 'Åbn menu'}
+              className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+            >
+              {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           )}
         </div>
       </div>
 
-      {/* Mobil navigation: dropper ned under headeren, kun under lg */}
-      {isAuthenticated && mobileNavOpen && (
+      {/* Mobil navigation: dropper ned under headeren, kun under lg.
+          Indeholder alt det, desktop-headeren viser i de to øvrige zoner -
+          også "Opret konto", så knappen ikke forsvinder på mobil. */}
+      {mobileNavOpen && (
         <nav className="lg:hidden border-t border-slate-800 bg-primary px-4 py-3 space-y-1">
-          <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-            <LayoutDashboard className="w-5 h-5 shrink-0" />
-            <span>Dashboard</span>
-          </NavLink>
-
-          {hasOrganisation && (
+          {isAuthenticated ? (
             <>
-              <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <ClipboardList className="w-5 h-5 shrink-0" />
-                <span>Opgaver</span>
+              <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                <LayoutDashboard className="w-5 h-5 shrink-0" />
+                <span>Dashboard</span>
               </NavLink>
 
-              <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <BarChart3 className="w-5 h-5 shrink-0" />
-                <span>Statistik</span>
+              {hasOrganisation && (
+                <>
+                  <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <ClipboardList className="w-5 h-5 shrink-0" />
+                    <span>Opgaver</span>
+                  </NavLink>
+
+                  <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <BarChart3 className="w-5 h-5 shrink-0" />
+                    <span>Statistik</span>
+                  </NavLink>
+
+                  <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <Database className="w-5 h-5 shrink-0" />
+                    <span>Datalager</span>
+                  </NavLink>
+
+                  <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <Newspaper className="w-5 h-5 shrink-0" />
+                    <span>Nyheder</span>
+                  </NavLink>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <NavLink to="/" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                <Home className="w-5 h-5 shrink-0" />
+                <span>Forside</span>
               </NavLink>
 
-              <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <Database className="w-5 h-5 shrink-0" />
-                <span>Datalager</span>
+              <NavLink to="/login" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                <LogIn className="w-5 h-5 shrink-0" />
+                <span>Log ind</span>
               </NavLink>
 
-              <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <Newspaper className="w-5 h-5 shrink-0" />
-                <span>Nyheder</span>
-              </NavLink>
+              {/* Beholder guldet i menuen, så hierarkiet er det samme som på
+                  desktop - samme geometri som de to punkter over, bare fyldt. */}
+              <Link
+                to="/signup"
+                onClick={() => setMobileNavOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-accent text-primary hover:bg-accent-hover transition-colors"
+              >
+                <UserPlus className="w-5 h-5 shrink-0" />
+                <span>Opret konto</span>
+              </Link>
             </>
           )}
         </nav>
