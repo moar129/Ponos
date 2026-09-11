@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import { useCreateNewsMutation, useUpdateNewsMutation } from '../../store/apis/newsApi'
+import { RichTextEditor } from '../TextEditor/RichTextEditor'
+import { isEmptyRichText, plainTextToRichText, richTextToPlainText, sanitizeRichText } from '../../lib/richText'
 import type { NewsFormModalProps } from '../../types/news/newsType'
+
+// Blødt loft, kun for at fange et utilsigtet indsat kæmpedokument -
+// ikke en forretningsregel, og derfor heller ingen DB-constraint.
+const MAX_DESCRIPTION_LENGTH = 20000
 
 interface FormState {
     title: string
@@ -32,7 +38,9 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
             editingNews
                 ? {
                       title: editingNews.title,
-                      description: editingNews.description ?? '',
+                      // Nyheder fra før editoren er ren tekst - konverteres, så
+                      // deres linjeskift ikke forsvinder i contentEditable.
+                      description: plainTextToRichText(editingNews.description ?? ''),
                       pictureUrl: editingNews.pictureUrl ?? '',
                       url: editingNews.url ?? '',
                   }
@@ -57,11 +65,17 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
             setValidationError('Nyhedens titel skal udfyldes.')
             return
         }
+
+        const isDescriptionEmpty = isEmptyRichText(form.description)
+        if (!isDescriptionEmpty && richTextToPlainText(form.description).length > MAX_DESCRIPTION_LENGTH) {
+            setValidationError(`Beskrivelsen er for lang (maks. ${MAX_DESCRIPTION_LENGTH.toLocaleString('da-DK')} tegn).`)
+            return
+        }
         setValidationError(null)
 
         const payload = {
             title: form.title.trim(),
-            description: form.description.trim() || null,
+            description: isDescriptionEmpty ? null : sanitizeRichText(form.description),
             pictureUrl: form.pictureUrl.trim() || null,
             url: form.url.trim() || null,
         }
@@ -80,7 +94,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6 relative">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl p-6 relative">
                 <button
                     type="button"
                     onClick={onClose}
@@ -114,12 +128,11 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
 
                     <div>
                         <label className="block text-sm text-secondary mb-1" htmlFor="news-description">Beskrivelse</label>
-                        <textarea
+                        <RichTextEditor
                             id="news-description"
-                            rows={4}
                             value={form.description}
-                            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            onChange={(html) => setForm((f) => ({ ...f, description: html }))}
+                            placeholder="Skriv nyheden her..."
                         />
                     </div>
 
@@ -136,7 +149,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="news-url">Link (valgfri)</label>
+                        <label className="block text-sm text-secondary mb-1" htmlFor="news-url">Link til oprindelig artikel (valgfri)</label>
                         <input
                             id="news-url"
                             type="text"
@@ -145,6 +158,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                             placeholder="https://..."
                             className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
                         />
+                        <p className="text-xs text-secondary mt-1">Vises som "Læs hele artiklen" nederst på nyheden.</p>
                     </div>
 
                     <div className="flex gap-3 pt-2">

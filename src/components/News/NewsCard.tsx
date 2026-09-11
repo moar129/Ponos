@@ -1,6 +1,7 @@
 // src/components/News/NewsCard.tsx
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Trash2 } from 'lucide-react'
+import { richTextToPlainText } from '../../lib/richText'
 import type { NewsCardProps } from '../../types/news/newsType'
 
 function formatDate(value: string): string {
@@ -66,8 +67,12 @@ export function NewsCard({ news, canManage, onEdit, onDelete }: NewsCardProps) {
                     )}
                 </div>
 
+                {/* Uddrag som ren tekst - en formateret beskrivelse ville ellers
+                    vise rå tags gennem line-clamp. */}
                 {news.description && (
-                    <p className="text-sm text-secondary mt-3 line-clamp-3 whitespace-pre-wrap">{news.description}</p>
+                    <p className="text-sm text-secondary mt-3 line-clamp-3 whitespace-pre-wrap">
+                        {richTextToPlainText(news.description)}
+                    </p>
                 )}
             </div>
         </div>

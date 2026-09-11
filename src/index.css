@@ -1,10 +1,63 @@
 @import "tailwindcss";
 
-@theme { 
-    --color-primary: #071B33; 
-    --color-secondary: #3E5574; 
-    --color-accent: #C7975D; 
+@theme {
+    --color-primary: #071B33;
+    --color-secondary: #3E5574;
+    --color-accent: #C7975D;
     --color-accent-hover: #B5854B;
-    --color-border-gray: #C8C7C7; 
-    --color-bg-gray: #DCDCDC; 
+    --color-border-gray: #C8C7C7;
+    --color-bg-gray: #DCDCDC;
+}
+
+/* Formateret tekst fra RichTextEditor - Tailwinds preflight nulstiller
+   h2/ul/ol, så de skal stilles eksplicit her (typography-pluginnet er
+   ikke installeret). Samme klasse bruges på editorens skriveflade og
+   alle visningssteder, så det skrevne ser ud som det viste. */
+.rich-text h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin: 1.25rem 0 0.5rem;
+}
+
+.rich-text h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin: 1rem 0 0.375rem;
+}
+
+.rich-text p {
+    margin: 0.5rem 0;
+}
+
+.rich-text ul,
+.rich-text ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.rich-text ul { list-style: disc; }
+.rich-text ol { list-style: decimal; }
+.rich-text li { margin: 0.125rem 0; }
+
+/* execCommand('indent') pakker et afsnit i <blockquote> uden for lister -
+   det bruges her som ren indrykning, ikke som citat. */
+.rich-text blockquote {
+    margin: 0.5rem 0 0.5rem 2.5rem;
+}
+
+.rich-text a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.rich-text > :first-child { margin-top: 0; }
+.rich-text > :last-child { margin-bottom: 0; }
+
+/* Pladsholder i den tomme editor (contentEditable har ingen indbygget). */
+.rich-text[contenteditable]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-secondary);
+    opacity: 0.7;
 }

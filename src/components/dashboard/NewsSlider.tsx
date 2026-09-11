@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Newspaper } from 'lucide-react'
 import { useGetNewsQuery } from '../../store/apis/newsApi'
+import { richTextToPlainText } from '../../lib/richText'
 
 const MAX_SLIDES = 10
 const AUTO_ADVANCE_MS = 6000
@@ -11,7 +12,7 @@ function formatDate(value: string): string {
     return new Date(value).toLocaleDateString('da-DK', { day: 'numeric', month: 'long' })
 }
 
-// US-56/US-57: Dashboard-Oversigtens nyheds-widget - kører automatisk
+// US-56: Dashboard-Oversigtens nyheds-widget - kører automatisk
 // igennem de seneste MAX_SLIDES nyheder, med manuel prev/next + dots.
 // Pause på hover, så man kan nå at læse/klikke uden at den skifter under en.
 export function NewsSlider() {
@@ -78,7 +79,7 @@ export function NewsSlider() {
                                     <p className="font-medium text-white truncate">{current.title}</p>
                                     <p className="text-xs text-white/80 mt-0.5">{formatDate(current.publishedAt)}</p>
                                     {current.description && (
-                                        <p className="text-sm text-white/90 mt-1 line-clamp-2">{current.description}</p>
+                                        <p className="text-sm text-white/90 mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
                                     )}
                                 </div>
                             </>
@@ -87,7 +88,7 @@ export function NewsSlider() {
                                 <p className="font-medium text-primary truncate">{current.title}</p>
                                 <p className="text-xs text-secondary mt-0.5">{formatDate(current.publishedAt)}</p>
                                 {current.description && (
-                                    <p className="text-sm text-secondary mt-1 line-clamp-2">{current.description}</p>
+                                    <p className="text-sm text-secondary mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
                                 )}
                             </div>
                         )}
