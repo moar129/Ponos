@@ -106,12 +106,20 @@ export function Header() {
     <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md relative z-40">
       <div className="px-4 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
         {/* Logo -> Går til /dashboard */}
-        <Link to="/dashboard" className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity shrink-0 min-w-0">
-          <img src={logo} alt="PONOS Logo" className="w-9 h-9 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
-          <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100 truncate">
-            PONOS
-          </span>
-        </Link>
+       {/* Logo -> Går til /dashboard */}
+<Link to="/dashboard" className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity shrink-0 min-w-0">
+  <img src={logo} alt="PONOS Logo" className="w-9 h-9 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
+ <span className="flex items-center gap-1.5 min-w-0 truncate">
+  <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100">
+    PONOS
+  </span>
+  {profile?.organisationName && (
+    <span className="hidden sm:inline text-sm lg:text-base font-medium tracking-normal text-slate-300 truncate">
+      – {profile.organisationName}
+    </span>
+  )}
+</span>
+</Link>
 
         {/* Desktop navigation: kompakt fra lg, fuld luft fra xl */}
         <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">

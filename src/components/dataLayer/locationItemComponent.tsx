@@ -33,11 +33,11 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
           ) : (
             <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg overflow-hidden">
               {items.map((item) => (
-                <button
+               <button
                   key={item.id}
                   type="button"
                   onClick={() => onSelectItem(item)}
-                  className="w-full flex items-center justify-between gap-4 p-3 bg-slate-900 hover:bg-slate-800/70 text-left transition-colors"
+                  className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 bg-slate-900 hover:bg-slate-800/70 text-left transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-100 truncate">{item.name}</p>
