@@ -7,6 +7,8 @@ type QueryError = { status: 'CUSTOM_ERROR'; error: string }
 interface CreateTaskInput {
     title: string
     description: string
+    start_date: string | null
+    end_date: string | null
     priority: ETaskPriority | null
     max_assignees: number | null
     room_id?: string | null
@@ -17,6 +19,8 @@ interface UpdateTaskInput {
     title: string
     description: string
     priority: ETaskPriority | null
+    start_date: string | null
+    end_date: string | null
     max_assignees: number | null
     room_id?: string | null
 }
@@ -107,7 +111,7 @@ export const taskApi = supabaseApi.injectEndpoints({
         }),
 
         createTask: builder.mutation<Task, CreateTaskInput>({
-            queryFn: async ({ title, description, priority, max_assignees, room_id }) => {
+            queryFn: async ({ title, description, start_date, end_date, priority, max_assignees, room_id }) => {
                 try {
                     const organisationId = await getAuthenticatedOrganisationId()
                     const { data, error } = await supabase
@@ -116,6 +120,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                             organisation_id: organisationId,
                             title,
                             description,
+                            start_date,
+                            end_date,
                             priority,
                             status: 'Started',
                             max_assignees,
@@ -139,6 +145,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                 id,
                 title,
                 description,
+                start_date,
+                end_date,
                 priority,
                 max_assignees,
                 room_id,
@@ -151,6 +159,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .update({
                             title,
                             description,
+                            start_date,
+                            end_date,
                             priority,
                             max_assignees,
                             room_id,
@@ -411,6 +421,48 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: ['MyTasks'],
         }),
 
+        deleteTask: builder.mutation<void, string>({
+            queryFn: async (taskId) => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId();
+
+                    const { error } = await supabase
+                        .from('tasks')
+                        .delete()
+                        .eq('id', taskId)
+                        .eq('organisation_id', organisationId);
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        };
+                    }
+
+                    return { data: undefined };
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved sletning af opgave';
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    };
+                }
+            },
+            invalidatesTags: (_result, _error, taskId) => [
+                { type: 'Task', id: taskId },
+                { type: 'Task', id: 'LIST' },
+                'MyTasks',
+            ],
+        }),
+
     }),
 })
 
@@ -425,4 +477,5 @@ export const {
     useAssignToTaskMutation,
     useUnassignFromTaskMutation,
     useGetMyTaskIdsQuery,
+    useDeleteTaskMutation,
 } = taskApi
