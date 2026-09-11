@@ -15,13 +15,11 @@ CREATE TABLE public.profiles (
   description text,
   note_admin text,
   url_picture text,
-  organisation_id uuid,
-  role_id uuid,
+  active_organisation_id uuid,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id),
-  CONSTRAINT profiles_organisation_id_fkey FOREIGN KEY (organisation_id) REFERENCES public.organisations(id),
-  CONSTRAINT profiles_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id)
+  CONSTRAINT profiles_organisation_id_fkey FOREIGN KEY (active_organisation_id) REFERENCES public.organisations(id)
 );
 CREATE TABLE public.roles (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -145,7 +143,10 @@ CREATE TABLE public.news (
   description text,
   picture_url text,
   published_at timestamp with time zone NOT NULL DEFAULT now(),
-  CONSTRAINT news_pkey PRIMARY KEY (id)
+  organisation_id uuid NOT NULL,
+  url text,
+  CONSTRAINT news_pkey PRIMARY KEY (id),
+  CONSTRAINT news_organisation_id_fkey FOREIGN KEY (organisation_id) REFERENCES public.organisations(id)
 );
 CREATE TABLE public.task_rooms (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -156,4 +157,28 @@ CREATE TABLE public.task_rooms (
   CONSTRAINT task_rooms_pkey PRIMARY KEY (id),
   CONSTRAINT task_rooms_organisation_id_fkey FOREIGN KEY (organisation_id) REFERENCES public.organisations(id),
   CONSTRAINT task_rooms_required_role_id_fkey FOREIGN KEY (required_role_id) REFERENCES public.roles(id)
+);
+CREATE TABLE public.memberships (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  organisation_id uuid NOT NULL,
+  role_id uuid,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT memberships_pkey PRIMARY KEY (id),
+  CONSTRAINT memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id),
+  CONSTRAINT memberships_organisation_id_fkey FOREIGN KEY (organisation_id) REFERENCES public.organisations(id),
+  CONSTRAINT memberships_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id)
+);
+CREATE TABLE public.membership_invitations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  organisation_id uuid NOT NULL,
+  invited_user_id uuid NOT NULL,
+  invited_by uuid,
+  status USER-DEFINED NOT NULL DEFAULT 'Pending'::e_membership_request_status,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  reviewed_at timestamp with time zone,
+  CONSTRAINT membership_invitations_pkey PRIMARY KEY (id),
+  CONSTRAINT membership_invitations_organisation_id_fkey FOREIGN KEY (organisation_id) REFERENCES public.organisations(id),
+  CONSTRAINT membership_invitations_invited_user_id_fkey FOREIGN KEY (invited_user_id) REFERENCES public.profiles(id),
+  CONSTRAINT membership_invitations_invited_by_fkey FOREIGN KEY (invited_by) REFERENCES public.profiles(id)
 );
