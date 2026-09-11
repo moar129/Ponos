@@ -17,7 +17,6 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
-
   const isAssigned =
     currentUserId !== null && assignees.includes(currentUserId);
 
@@ -38,7 +37,6 @@ export function TaskCard({ task }: TaskCardProps) {
       await assignToTask({ taskId: task.id });
     }
   };
-
   const getPriorityColor = (
     priority: TaskCardProps['task']['priority']
   ) => {
@@ -166,8 +164,8 @@ export function TaskCard({ task }: TaskCardProps) {
               handleAssignment();
             }}
             className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${isAssigned
-                ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
-                : 'border-black hover:bg-black hover:text-white'
+              ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+              : 'border-black hover:bg-black hover:text-white'
               }`}
           >
             {isAssigned ? 'Afmeld' : 'Tilmeld'}
@@ -259,7 +257,6 @@ export function TaskCard({ task }: TaskCardProps) {
               </div>
             </div>
 
-            {/* FOOTER */}
             <div className="flex justify-end">
               <button
                 type="button"

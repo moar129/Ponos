@@ -421,6 +421,48 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: ['MyTasks'],
         }),
 
+        deleteTask: builder.mutation<void, string>({
+            queryFn: async (taskId) => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId();
+
+                    const { error } = await supabase
+                        .from('tasks')
+                        .delete()
+                        .eq('id', taskId)
+                        .eq('organisation_id', organisationId);
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        };
+                    }
+
+                    return { data: undefined };
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved sletning af opgave';
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    };
+                }
+            },
+            invalidatesTags: (_result, _error, taskId) => [
+                { type: 'Task', id: taskId },
+                { type: 'Task', id: 'LIST' },
+                'MyTasks',
+            ],
+        }),
+
     }),
 })
 
@@ -435,4 +477,5 @@ export const {
     useAssignToTaskMutation,
     useUnassignFromTaskMutation,
     useGetMyTaskIdsQuery,
+    useDeleteTaskMutation,
 } = taskApi
