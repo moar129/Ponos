@@ -13,7 +13,16 @@ import { NewsDetailPage } from './pages/News/NewsDetailPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import LandingPage from './pages/landing/LandingPage';
 import StatisticsPage from './pages/statistik/StatisticsPage';
+import AboutPage from './pages/public/AboutPage';
+import ContactPage from './pages/public/ContactPage';
+import HelpPage from './pages/public/HelpPage';
+import NotFoundPage from './pages/public/NotFoundPage';
 import { useGetSessionQuery } from './store/apis/authApi';
+
+// Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
+// headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
+// selv deres indhold på plads med en egen max-w-7xl pr. sektion.
+const FULL_WIDTH_ROUTES = ['/', '/om-os', '/kontakt', '/hjaelp'];
 
 function App() {
   // Holder session-queryen aktiv hele appens levetid.
@@ -21,12 +30,10 @@ function App() {
   // så login/logout slår igennem uden sideskift eller refresh.
   useGetSessionQuery();
 
-  // Forsiden er den eneste side med kant-til-kant sektioner (navy hero der
-  // flyder sammen med headeren), så den slipper ud af <main>'ens fælles
-  // max-w-7xl-wrapper og styrer selv sine bredder. Alle andre ruter rammer
-  // den uændrede gren.
+  // Se FULL_WIDTH_ROUTES ovenfor. Alle andre ruter - inkl. 404-siden -
+  // rammer den uændrede gren.
   const { pathname } = useLocation();
-  const isLanding = pathname === '/';
+  const isFullWidth = FULL_WIDTH_ROUTES.includes(pathname);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
@@ -35,12 +42,17 @@ function App() {
       {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}
       <PendingRequestBanner />
       {/* HOVEDINDHOLD / ROUTER */}
-      <main className={isLanding ? 'flex-1 w-full text-black' : 'flex-1 max-w-7xl w-full mx-auto p-6 text-black'}>
+      <main className={isFullWidth ? 'flex-1 w-full text-black' : 'flex-1 max-w-7xl w-full mx-auto p-6 text-black'}>
         <Routes>
           {/* tilføj flere ruter efter behov */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+
+          {/* Offentlige sider - tilgængelige både logget ind og ud */}
+          <Route path="/om-os" element={<AboutPage />} />
+          <Route path="/kontakt" element={<ContactPage />} />
+          <Route path="/hjaelp" element={<HelpPage />} />
 
           {/* Alle ruter inde i denne wrapper kræver login */}
           <Route element={<ProtectedRoute />}>
@@ -53,6 +65,9 @@ function App() {
             <Route path="/nyheder/:id" element={<NewsDetailPage />} />
             {/* tilføj flere ruter efter behov */}
           </Route>
+
+          {/* Ukendt URL - skal stå sidst, så den kun rammer det ingen andre tog */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 

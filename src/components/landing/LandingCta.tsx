@@ -1,9 +1,22 @@
 // src/components/landing/LandingCta.tsx
 import { Link } from 'react-router-dom'
+import { useGetSessionQuery } from '../../store/apis/authApi'
 
 // Afsluttende opfordring, så man ikke skal scrolle op igen. Samme navy som
 // footeren der følger lige under, så siden lukker i ét bånd.
+//
+// Bruges også af de offentlige undersider (/om-os, /kontakt, /hjaelp), som
+// modsat forsiden ER tilgængelige for indloggede - og "Opret konto" giver
+// ingen mening for en, der allerede har en. Gaten ligger derfor her, ét
+// sted, i stedet for som en gentaget betingelse på hver side. Queryen er
+// samme cache som App.tsx holder aktiv; ingen ekstra netværkskald.
 export function LandingCta() {
+    const { data: session } = useGetSessionQuery()
+
+    if (session) {
+        return null
+    }
+
     return (
         <section className="bg-primary">
             <div className="max-w-7xl mx-auto px-6 py-16 text-center">

@@ -1,5 +1,6 @@
 // src/components/landing/LandingPartner.tsx
 import { ExternalLink } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 // Hvem platformen laves for. Alt indhold her er faktuelt gengivet fra
 // corolab.dk - ingen tal eller påstande der ikke står på deres egen side.
@@ -82,15 +83,24 @@ export function LandingPartner() {
                         eksempler.
                     </p>
 
-                    <a
-                        href="https://corolab.dk/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
-                    >
-                        Læs mere på corolab.dk
-                        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                    </a>
+                    {/* Denne sektion er den korte udgave; /om-os er den lange.
+                        Nøgletallene og de seks CO-områder bliver liggende her og
+                        gentages bevidst ikke derovre. */}
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-3">
+                        <Link to="/om-os" className="text-sm text-accent hover:underline">
+                            Mere om projektet
+                        </Link>
+
+                        <a
+                            href="https://corolab.dk/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
+                        >
+                            Læs mere på corolab.dk
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>

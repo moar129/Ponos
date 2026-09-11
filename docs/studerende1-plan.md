@@ -10,6 +10,7 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 | 11/09 | Jeg rettede header- og footer-navigationen: US-65's slettede links (Anmodninger/Roller/Organisation) var kommet tilbage som døde links, US-45's org-gate og US-56's Nyheder-link var gået tabt. Alt gendannet, plus ny login-gate og "Log ind"-knap. Se US-45- og US-56-rækkerne. |
 | 11/09 | Jeg byggede en offentlig forside på `/` (ad-hoc, ingen user story) og oprettede `/statistik` som pladsholder-rute, så de fire "Statistik"-links kunne flyttes væk fra `/`. Se afsnittet "Forside (ad-hoc)" nedenfor. |
 | 11/09 | Jeg gav den udloggede header samme struktur som den indloggede: Forside/Log ind i nav-slottet med `getNavLinkClass`, nyt "Opret konto" i guld til højre, og fælles hamburger under 1024px. Se "Headeren: samme struktur logget ud som logget ind". |
+| 11/09 | Jeg byggede `/om-os`, `/kontakt` og `/hjaelp` (footerens tre døde links) plus en catch-all 404-side, så "Udskudt"-listen er tom. Kontakt er info + mailto uden formular; hjælpesiden har FAQ på native `<details>`. Se afsnittet "Om os, Kontakt og Hjælp & support". |
 
 ## Næste op
 
@@ -429,7 +430,33 @@ Den udloggede header var skrevet ad-hoc omkring ét enkelt "Log ind"-link og lig
 
 Corolab nævnes i Partner-sektionen (medlemsdrevet non-profit i Roskilde siden 2016, link til corolab.dk). Testmiljøet nævnes bevidst **ikke** ved navn — forsiden holdes generisk, jf. `Project.md` §3.3.
 
-Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints. **Udskudt:** footerens `/om-os`, `/kontakt`, `/hjaelp` er stadig døde ruter, og der findes fortsat ingen catch-all 404-rute.
+Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints.
+
+## Om os, Kontakt og Hjælp & support (ad-hoc, 2026-09-11) — de sidste døde links
+
+Ingen user story; tilføjet efter bruger-forespørgsel. Footeren har siden US-65-oprydningen linket til `/om-os`, `/kontakt` og `/hjaelp`, men ingen af ruterne fandtes — og uden catch-all stod siden bare blank mellem header og footer. Begge punkter på "Udskudt"-listen er hermed lukket.
+
+**Tre nye offentlige sider** i `src/pages/public/` med fælles navy titel-bånd (`components/public/PageHero.tsx` — samme `bg-primary` som headeren, men uden hero'ens vandmærke og CTA'er og med lavere højde, så en underside ikke ligner endnu en forside):
+
+- **`/om-os`** — hvorfor Ponos findes (dybere end forsidens `LandingProblem`: prisen ved manglende overblik), fire principper som `<dl>` (generisk, data genbruges, tal der regner sig selv, adgang håndhævet i databasen), og "Bag projektet". Sidstnævnte er bevidst **upersonlig** (afklaret med bruger): studieprojekt i samarbejde med Corolab, ingen navne, intet uddannelsessted. Corolabs nøgletal og de seks CO-områder bliver liggende i `LandingPartner` og gentages **ikke** — forsiden er den korte udgave, `/om-os` den lange, og de er linket sammen ("Mere om projektet").
+- **`/kontakt`** — ren kontaktinfo + mailto, **ingen formular** (afklaret med bruger). En formular ville kræve en `contact_messages`-tabel med anon insert-policy og en, der læser den; en formular der lover et svar, ingen modtager kan give, er værre end en adresse.
+- **`/hjaelp`** — "Kom godt i gang" i tre trin plus FAQ som native `<details>/<summary>` (`FaqItem.tsx`): ingen state, ingen `aria-expanded` at holde i sync, tastatur og Ctrl+F virker gratis. **Svarene er skrevet ud fra koden, ikke ud fra hvordan det burde virke** — aktiv organisation som forudsætning, privilegier der skjuler knapper, flere medlemskaber med én aktiv, invitation kræver eksisterende konto, sidste-admin-spærren. Ændrer man den adfærd, skal svaret rettes med.
+
+**404-rute** (`NotFoundPage.tsx`, `<Route path="*">` sidst i `<Routes>`) — ligger bevidst i `<main>`s almindelige wrapper, ikke kant-til-kant: en fejlside skal ikke ligne en marketingside. Knappen peger på `/` udlogget og `/dashboard` indlogget.
+
+**Adgang:** siderne er offentlige for **alle**, også indloggede (afklaret med bruger) — ingen redirect som forsidens. Derfor gater `LandingCta.tsx` nu sig selv på `useGetSessionQuery()` og returnerer `null`, når der er en session: "Opret konto" giver ingen mening for en, der har en. Gaten ligger ét sted i stedet for som en gentaget betingelse på hver af de tre sider; adfærden på `/` er uændret, da `LandingPage` allerede redirecter indloggede væk.
+
+**`App.tsx`:** `isLanding` er blevet til `FULL_WIDTH_ROUTES` (`/`, `/om-os`, `/kontakt`, `/hjaelp`), da fire ruter nu styrer deres egne bredder.
+
+**`src/lib/contact.ts`:** `CONTACT_EMAIL`/`CONTACT_LOCATION` ét sted, brugt af både footeren og `/kontakt` — to hardcodede kopier er præcis det mønster, der lod header- og footer-navigationen drive fra hinanden tidligere. Adressen `info@ponos.dk` er **en pladsholder** (bekræftet med bruger); når den rigtige kommer, rettes den dér og kun dér.
+
+**Footeren:** de tre sider har fået deres **egen liste** ("Om Ponos") i stedet for en plads i Navigation. Navigation er appens egne sider og skifter med login-tilstanden; "Om Ponos" handler om produktet selv og er ens for alle, så den har ingen login-gate. De to lister deler ét felt i footerens 3-kolonne-grid (indre `grid-cols-2`) og står derfor tæt sammen — et fjerde topniveau-felt skubbede dem for langt fra hinanden. (Rækkefølge af rettelser efter bruger-feedback: først lagt ind i begge Navigation-lister, så egen kolonne, så trukket sammen.) Headeren er urørt; de tre sider hører til i footeren.
+
+**Kendt, accepteret adfærd:** FAQ'ens dyb-links til `/dashboard?tab=organisation` og `/bruger` er beskyttede ruter, og `ProtectedRoute` sender en udlogget læser til `/login` **uden** at huske destinationen. Login er det rigtige næste skridt for dem alligevel; at få ProtectedRoute til at huske målet rører alle beskyttede ruter og er en selvstændig ændring.
+
+**Fundet undervejs (ikke rettet):** der findes **ingen nulstil-adgangskode-funktion** i appen — intet `resetPasswordForEmail`/`updateUser` nogen steder i `src/`. FAQ-posten henviser derfor til mail. Bruger har besluttet, at nulstilling bliver en **egen user story senere**; posten skal rettes med den.
+
+Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints.
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8
 
