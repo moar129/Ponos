@@ -8,6 +8,7 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 |---|---|
 | 09/09 | Jeg oprettede US-59-specifikationen for medlemskab af flere organisationer og beskrev den videre implementeringsplan. |
 | 11/09 | Jeg rettede header- og footer-navigationen: US-65's slettede links (Anmodninger/Roller/Organisation) var kommet tilbage som døde links, US-45's org-gate og US-56's Nyheder-link var gået tabt. Alt gendannet, plus ny login-gate og "Log ind"-knap. Se US-45- og US-56-rækkerne. |
+| 11/09 | Jeg byggede en offentlig forside på `/` (ad-hoc, ingen user story) og oprettede `/statistik` som pladsholder-rute, så de fire "Statistik"-links kunne flyttes væk fra `/`. Se afsnittet "Forside (ad-hoc)" nedenfor. |
 
 ## Næste op
 
@@ -405,6 +406,20 @@ alter table public.news drop column if exists source;
 **Frontend fjernet:** `NewsSourcePanel.tsx` (slettet), `getNewsSource`/`upsertNewsSource`/`fetchFromNewsSource` + `ExternalNewsItem`/`deriveExternalRef` (newsApi.ts), `NewsSource`/`UpsertNewsSourceInput`/`NewsSourceKind` + `News.source`/`News.externalRef` (newsType.ts), tag `'NewsSource'` (supabaseApi.ts, også ude af `USER_SCOPED_TAGS`), panel-renderingen i `NewsPage.tsx`.
 
 **Bevaret:** hele US-56 - `/nyheder`, `/nyheder/:id`, opret/rediger/slet, Dashboard-slideren, `manage_news`-privilegiet og `news.url`-feltet ("Læs mere", nu altid indtastet manuelt).
+
+## Forside (ad-hoc, 2026-09-11) — offentlig landing page på `/`
+
+Ingen user story; tilføjet efter bruger-forespørgsel. `/` renderede før `<div />` — en tom side mellem header og footer, og intet sted der forklarede hvad Ponos er.
+
+**Ny forside** `src/pages/landing/LandingPage.tsx` + seks sektioner i `src/components/landing/` (Hero, Problem, Features, Flow, Partner, Cta), tekst hentet fra `Project.md` §1-5. Indloggede redirectes til `/dashboard` (`useGetSessionQuery` + `<Navigate replace />`), så forsiden kun er for udloggede. Headeren har fået et "Forside"-link, der kun vises udlogget — placeret i højre-klyngen ved siden af "Log ind", ikke i `<nav>`'en, som er `hidden lg:flex` og ville skjule linket på mobil (hamburgeren er også skjult for udloggede).
+
+**`App.tsx`:** `<main>`'ens `max-w-7xl mx-auto p-6`-wrapper er gjort betinget (`pathname === '/'`), så forsidens hero kan gå kant-til-kant og flyde sammen med den navy header. Kun ruten `/` rammer den nye gren; alle andre sider er uændrede.
+
+**`/statistik` oprettet som pladsholder** (`src/pages/statistik/StatisticsPage.tsx`, bag `ProtectedRoute` + eget `activeOrganisationId`-tjek med samme tom-tilstand som `OverviewTab`). Dette var en **forudsætning, ikke en ekstra:** fire steder brugte `/` som stand-in for den endnu ikke byggede Statistik-side (`headerComponent.tsx` desktop+mobil, `footerComponent.tsx`, `OverviewTab.tsx`) — uden repegning ville enhver indlogget bruger, der klikkede "Statistik", lande på marketing-forsiden. Selve Statistik-siden tilhører en anden studerende; her står kun skallen med en "kommer snart"-bjælke (genbruger `PlaceholderBar.tsx`), så URL'en er reserveret til dem.
+
+Corolab nævnes i Partner-sektionen (medlemsdrevet non-profit i Roskilde siden 2016, link til corolab.dk). Testmiljøet nævnes bevidst **ikke** ved navn — forsiden holdes generisk, jf. `Project.md` §3.3.
+
+Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints. **Udskudt:** footerens `/om-os`, `/kontakt`, `/hjaelp` er stadig døde ruter, og der findes fortsat ingen catch-all 404-rute.
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8
 

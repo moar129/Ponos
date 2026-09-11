@@ -49,7 +49,7 @@ export function Footer() {
               {hasOrganisation && (
                 <>
                   <li><Link to="/tasks" className={linkClass}>Opgaver</Link></li>
-                  <li><Link to="/" className={linkClass}>Statistik</Link></li>
+                  <li><Link to="/statistik" className={linkClass}>Statistik</Link></li>
                   <li><Link to="/datalager" className={linkClass}>Datalager</Link></li>
                   <li><Link to="/nyheder" className={linkClass}>Nyheder</Link></li>
                 </>

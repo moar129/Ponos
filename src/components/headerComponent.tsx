@@ -137,7 +137,7 @@ export function Header() {
                   <span>Opgaver</span>
                 </NavLink>
 
-                <NavLink to="/" className={getNavLinkClass}>
+                <NavLink to="/statistik" className={getNavLinkClass}>
                   <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
                   <span>Statistik</span>
                 </NavLink>
@@ -245,12 +245,30 @@ export function Header() {
             </>
           ) : (
             !isLoadingSession && (
-              <Link
-                to="/login"
-                className="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
-              >
-                Log ind
-              </Link>
+              <>
+                {/* Forside-linket hører kun til den udloggede tilstand - er
+                    man logget ind, hører man hjemme på dashboardet, og "/"
+                    redirecter derhen alligevel. Ligger her frem for i
+                    <nav>'en, som er hidden under lg: hamburgeren er også
+                    skjult for udloggede, så linket ville forsvinde på mobil. */}
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                      ? 'text-white'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    }`
+                  }
+                >
+                  Forside
+                </NavLink>
+                <Link
+                  to="/login"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
+                >
+                  Log ind
+                </Link>
+              </>
             )
           )}
         </div>
@@ -271,7 +289,7 @@ export function Header() {
                 <span>Opgaver</span>
               </NavLink>
 
-              <NavLink to="/" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+              <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                 <BarChart3 className="w-5 h-5 shrink-0" />
                 <span>Statistik</span>
               </NavLink>
