@@ -72,6 +72,26 @@ export interface ItemDetailComponentProps {
 
 export type ItemStatus = DataLayerItem['itemStatus'];
 
+export const ALL_ITEM_STATUSES: ItemStatus[] = [
+  'Available',
+  'Reserved',
+  'OutOfStock',
+  'InUse',
+  'Missing',
+  'Damaged',
+  'Maintenance',
+];
+
+export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
+  Available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  Reserved: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  OutOfStock: 'bg-red-500/10 text-red-400 border-red-500/20',
+  InUse: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+  Missing: 'bg-red-500/10 text-red-400 border-red-500/20',
+  Damaged: 'bg-red-500/10 text-red-400 border-red-500/20',
+  Maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+};
+
 export interface ItemRow {
   key: string;
   name: string;

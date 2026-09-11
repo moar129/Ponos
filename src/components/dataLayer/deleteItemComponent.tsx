@@ -1,8 +1,8 @@
-// components/dataLayer/deleteItemsComponent.tsx
 import { useState } from 'react';
 import { AlertTriangle, Loader2, X } from 'lucide-react';
 import { useDeleteItemMutation } from '../../store/apis/categoryApi';
 import type { DeleteItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: DeleteItemsComponentProps) {
@@ -21,8 +21,8 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
       await Promise.all(ids.map((id) => deleteItem({ id }).unwrap()));
       onDeleted(ids);
       onClose();
-    } catch {
-      setFormError('Kunne ikke slette alle valgte items. Prøv igen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke slette alle valgte items. Prøv igen.'));
       setIsDeleting(false);
     }
   };

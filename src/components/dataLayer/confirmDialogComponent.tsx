@@ -1,4 +1,3 @@
-// components/dataLayer/confirmDialogComponent.tsx
 import { AlertTriangle, Loader2, X } from 'lucide-react';
 import type { ConfirmDialogComponentProps } from '../../types/dataLayer/datalayerTypes';
 
@@ -28,7 +27,7 @@ export function ConfirmDialogComponent({
             <h2 className="text-base font-semibold text-slate-100">{title}</h2>
             <p className="text-sm text-slate-400 mt-1">{message}</p>
           </div>
-          <button onClick={onCancel} className="ml-auto p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-white shrink-0">
+          <button type="button" onClick={onCancel} className="ml-auto p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-white shrink-0" title="Luk" aria-label="Luk dialog">
             <X className="w-4 h-4" />
           </button>
         </div>

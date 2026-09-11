@@ -1,4 +1,3 @@
-// utils/dataLayer/aggregateItems.ts
 import type { DataLayerCat, AggregatedItem } from '../../../types/dataLayer/datalayerTypes';
 
 

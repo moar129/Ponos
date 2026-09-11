@@ -1,4 +1,3 @@
-// components/dataLayer/FilterPanelComponent.tsx
 import type { FilterPanelComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 
@@ -21,7 +20,7 @@ export function FilterPanelComponent({
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
-      <div className="absolute right-0 top-full mt-2 z-50 w-72 bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl p-4 space-y-4">
+     <div className="absolute right-0 top-full mt-2 z-50 w-72 max-w-[calc(100vw-2rem)] bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-100">Filter</h3>
           {hasActiveFilters && (

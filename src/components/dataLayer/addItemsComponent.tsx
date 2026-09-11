@@ -1,13 +1,11 @@
-// components/dataLayer/AddItemsComponent.tsx
 import { useState } from 'react';
 import { X, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useAddItemsMutation } from '../../store/apis/categoryApi';
-import type { AddItemsComponentProps, ItemRow, ItemStatus } from '../../types/dataLayer/datalayerTypes';
+import type { AddItemsComponentProps, ItemRow } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 import { LocationPickerComponent } from './locationsPickerComponent';
 
-const STATUS_OPTIONS: ItemStatus[] = [
-  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance',
-];
 
 function emptyRow(): ItemRow {
   return { key: crypto.randomUUID(), name: '', description: '', quantity: 1, itemStatus: 'Available' };
@@ -58,8 +56,8 @@ export function AddItemsComponent({
 
       onSuccess?.();
       resetAndClose();
-    } catch {
-      setFormError('Kunne ikke oprette items. Prøv igen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke oprette items. Prøv igen.'));
     }
   };
 
@@ -71,7 +69,7 @@ export function AddItemsComponent({
             <h2 className="text-lg font-semibold text-slate-100">Tilføj items</h2>
             {categoryTitle && <p className="text-xs text-slate-400 mt-0.5">Til kategori: {categoryTitle}</p>}
           </div>
-          <button onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white">
+          <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white" title="Luk" aria-label="Luk modal">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -100,6 +98,7 @@ export function AddItemsComponent({
                   disabled={rows.length === 1}
                   className="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30"
                   title="Fjern item"
+                  aria-label="Fjern item"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -130,10 +129,10 @@ export function AddItemsComponent({
                 />
                 <select
                   value={row.itemStatus}
-                  onChange={(e) => updateRow(row.key, { itemStatus: e.target.value as ItemStatus })}
+                  onChange={(e) => updateRow(row.key, { itemStatus: e.target.value as (typeof ALL_ITEM_STATUSES)[number] })}
                   className="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
                 >
-                  {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}
+                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
               </div>
             </div>

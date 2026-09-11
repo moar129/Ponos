@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AlertTriangle, Loader2, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { useDeleteCategoryMutation } from '../../store/apis/categoryApi';
 import type { DataLayerCat, SubCategoryCheckboxProps, DeleteCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../ErrorMessage';
 
 
 function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCategoryCheckboxProps) {
@@ -99,8 +100,8 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
       await Promise.all(idsToDelete.map((id) => deleteCategory({ id }).unwrap()));
       onDeleted(idsToDelete);
       onClose();
-    } catch {
-      setFormError('Kunne ikke slette alle valgte kategorier. Prøv igen.');
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Kunne ikke slette alle valgte kategorier. Prøv igen.'));
       setIsDeleting(false);
     }
   };
