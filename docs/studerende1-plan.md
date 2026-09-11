@@ -11,6 +11,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 | 11/09 | Jeg byggede en offentlig forside på `/` (ad-hoc, ingen user story) og oprettede `/statistik` som pladsholder-rute, så de fire "Statistik"-links kunne flyttes væk fra `/`. Se afsnittet "Forside (ad-hoc)" nedenfor. |
 | 11/09 | Jeg gav den udloggede header samme struktur som den indloggede: Forside/Log ind i nav-slottet med `getNavLinkClass`, nyt "Opret konto" i guld til højre, og fælles hamburger under 1024px. Se "Headeren: samme struktur logget ud som logget ind". |
 | 11/09 | Jeg byggede `/om-os`, `/kontakt` og `/hjaelp` (footerens tre døde links) plus en catch-all 404-side, så "Udskudt"-listen er tom. Kontakt er info + mailto uden formular; hjælpesiden har FAQ på native `<details>`. Se afsnittet "Om os, Kontakt og Hjælp & support". |
+| 11/09 | Jeg oprettede US-68 (nulstil adgangskode) og US-69 (skift adgangskode) i `userStories.md` og skrev den fulde implementeringsspec ned. **Kun dokumentation - ingen kode skrevet, ingen SQL kørt.** US-68 blev efter bruger-beslutning specificeret uden mailbekræftelse, fordi projektet er en prototype; forbeholdet står både i storyen og i specen. |
+| 11/09 | Jeg byggede US-68 og US-69 efter specen. `/glemt-adgangskode` + RPC `reset_password_prototype` (§15.17, kørt i Supabase) og "Adgangskode"-afsnittet på `/bruger`. Begge testet i browseren og bekræftet virkende. Prototype-forbeholdet på US-68 står stadig - flowet er uden mail. |
 
 ## Næste op
 
@@ -18,16 +20,18 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 Stadig UDSKUDT - kræver Tasks-domænet fra en anden studerende, som endnu ikke er klar (bekræftet med bruger 2026-09-10). Fuld implementeringsspec ligger klar i afsnittet "Fase 2-spec" længere nede. **Bemærk ved genoptagelse:** en frisk session der undersøgte Tasks-domænet 2026-09-10 fandt at der endnu ingen `deleteTask`-mutation/UI findes, og at "Tilmeld/Afmeld" (task_assignees) i dag er en selvbetjenings-handling (enhver kan til-/afmelde sig selv) - Fase 2-specens forslag om at gate task_assignees blankt bag `manage_tasks` ville ændre den eksisterende adfærd. Afklar med bruger, hvordan task_assignees skal gates (selvbetjening åben, kun "administrer ANDRES tilmelding" gated), før SQL'en fra Fase 2-specen køres for Opgave-tabellerne. US-62 (Datalayer) har ingen tilsvarende ubesvarede spørgsmål og kan formentlig køres isoleret, hvis Opgave-delen fortsat er blokeret.
 
-I mellemtiden blev US-56 + US-57 (Nyheder) lavet ad-hoc, da de ikke afhænger af andre studerende. US-56 er FÆRDIG, testet og committet af bruger (enkelt-nyhed-side og Dashboard-slider tilføjet undervejs efter bruger-feedback). **US-57 er UDGÅET 2026-09-11** og rullet helt tilbage - browseren kan ikke læse DR's/TV2's feeds (ingen CORS-headers), og ingen organisation havde en nyheds-API; se afsnittet "US-57 udgået" nedenfor. Næste skridt herfra: US-62/US-63 (Fase 2), når Tasks-domænet er klar - ellers er der ikke flere uafhængige opgaver tilbage på listen.
+I mellemtiden blev US-56 + US-57 (Nyheder) lavet ad-hoc, da de ikke afhænger af andre studerende. US-56 er FÆRDIG, testet og committet af bruger (enkelt-nyhed-side og Dashboard-slider tilføjet undervejs efter bruger-feedback). **US-57 er UDGÅET 2026-09-11** og rullet helt tilbage - browseren kan ikke læse DR's/TV2's feeds (ingen CORS-headers), og ingen organisation havde en nyheds-API; se afsnittet "US-57 udgået" nedenfor.
 
-(US-58, US-59, US-60, US-61, US-64, US-65, US-66 og US-67 blev alle tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
+US-68 + US-69 (adgangskode) er FÆRDIGE 2026-09-11 - bygget, SQL kørt, testet i browseren. Se deres rækker i statustabellen og spec-afsnittet nederst. **Husk:** US-68 er en prototype-løsning uden mailbekræftelse og skal erstattes af et mailbaseret flow, før noget sættes i drift. Næste skridt herfra er derfor US-62/US-63 (Fase 2), når Tasks-domænet er klar.
+
+(US-58, US-59, US-60, US-61, US-64, US-65, US-66, US-67, US-68 og US-69 blev alle tilføjet ad-hoc efter forespørgsel, uden for den planlagte rækkefølge - se noter nedenfor.)
 
 ## Status
 
 | # | Story | Prioritet | Status | Note |
 |---|---|---|---|---|
 | US-01 | Opret konto | Critical | Done | SignUp.tsx + DB trigger komplet |
-| US-02 | Login | Critical | Delvist | Login/redirect virker; banner viser nu "ingen organisation" + link til anmodning; `/`-ruten er stadig ikke beskyttet |
+| US-02 | Login | Critical | Delvist | Login/redirect virker; banner viser nu "ingen organisation" + link til anmodning; `/`-ruten er stadig ikke beskyttet. En glemt adgangskode kan man nu selv nulstille (US-68, link på loginsiden), og skifte den fra profilen (US-69) - begge Done |
 | US-58 | Opret organisation | Critical | Done | `create_organisation`-RPC (`dbSchema.sql` §15.7-15.8) + case-insensitivt unikt navn (`organisations_name_unique`) kørt og testet i Supabase; opret-formular på `/organisation`, slået sammen med US-05's anmod-flow i samme UI (faner) |
 | US-03 | Se profil | Medium | Done | `/bruger` (ProfilePage.tsx) + profileApi.ts; header viser nu rigtigt navn/rolle |
 | US-04 | Rediger profil | Medium | Done | Rediger navn, beskrivelse, billed-URL; email/rolle/org er read-only |
@@ -52,6 +56,8 @@ I mellemtiden blev US-56 + US-57 (Nyheder) lavet ad-hoc, da de ikke afhænger af
 | US-65 | Administration og organisation samlet på dashboardet | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel under planlægning af US-45/46/47, siden udvidet efter endnu en forespørgsel (se `userStories.md`). Roller & privilegier (`RolesPage.tsx`), medlemsanmodninger (`MembershipRequestsPage.tsx`) og organisationens rediger/slet (dele af `OrganisationPage.tsx`) er flyttet ind i dashboardets Administration-fane som selvstændige, individuelt privilegie-gatede paneler (`RolesPrivilegesPanel.tsx`, `MembershipRequestsPanel.tsx`, `OrganisationAdminPanel.tsx`). Resten af `OrganisationPage.tsx` (se org, mine organisationer, anmod, opret) er flyttet til en ny, ikke-privilegie-gated Organisation-fane (`OrganisationTab.tsx`). De tre gamle sider og deres ruter (`/roller`, `/medlemsanmodninger`, `/organisation`) samt header-nav/dropdown-links er slettet - dashboardet har nu URL-drevet fane-state (`?tab=...`). Oversigt-fanen udvidet med "dine opgaver"-tal og genvejskort til Datalager/Opgaver (`QuickLinkCard.tsx`), samt en venlig tom-tilstand for brugere uden aktiv organisation i stedet for tre ens fejlbeskeder. Organisation-tab/Administration-organisation-panel fik desuden en header (ikon + navn + "Administrator"-badge) og et "Antal medlemmer"-nøgletal i stedet for bare navnet (genbruger allerede hentet `useGetMyMembershipsQuery`-data, ingen nye kald/SQL). **Bug fundet+rettet under test:** "Roller & privilegier"-panelet havde en nestet underfane til "Medlemmer" - tre niveauer af faner oven i hinanden (Dashboard > Administration > Roller & privilegier > Medlemmer) med to identisk navngivne "Roller & privilegier" (top-niveau og fane-niveau) virkede forvirrende. Rettet ved at gøre "Medlemmer" til en sideordnet fane ved siden af "Roller & privilegier" i Administration (ny `MembersPanel.tsx`, udtrukket fra `RolesPrivilegesPanel.tsx`). Ren frontend-omstrukturering, ingen RLS/SQL-ændringer. Manuelt testet og bekræftet virkende i browseren efter rettelsen. **UI-fejl fundet+rettet 2026-09-11:** alle tre fanerækker (top-fanerne i `Dashboard.tsx`, Administrations underfaner, Organisations underfaner) var `flex gap-2` uden hverken ombrydning eller scroll, så fanerne løb ud over kortets kant på mobil - top-fanerne fylder ~380px mod ~295px tilgængelig bredde på 375px, og underfanerne har op til fem faner. Rettet med `overflow-x-auto` + ny `.no-scrollbar`-utility i `index.css` (Tailwind har ingen, og en synlig vandret scrollbar over den grå fane-linje ser ud som en fejl), `shrink-0 whitespace-nowrap` på hver fane så den ikke mases sammen, og skalerende afstand (`gap-1 sm:gap-2`, `px-3 sm:px-4`) så scrollen først træder i kraft, når der reelt ikke er plads. Dashboard-kortets `p-8` er samtidig gjort responsivt (`p-4 sm:p-6 lg:p-8`) - 32px polstring hele vejen rundt på en telefon var i sig selv en del af pladsproblemet. Top-fanerne og Administrations underfaner manglede desuden `-mb-px`, som Organisations underfaner havde, så den aktive streg lå forskelligt i forhold til den grå linje de tre steder; nu ens. |
 | US-66 | Fjerne medlem fra organisation | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel. Ny RPC `remove_member(p_user_id)` (security definer, modelleret efter `leave_organisation`) - scopet til administratorens AKTIVE organisation, blokerer selv-fjernelse, og har en escalation-guard: kun en reel administrator (`admin`-privilegiet) må fjerne et medlem, hvis rolle bærer admin-privilegiet. Ny privilegie `manage_members`. Frontend: `MembersPanel.tsx` har nu en uafhængigt gated "Fjern"-knap pr. medlem (bekræft-trin), med samme escalation-guard genskabt client-side (skjuler knappen for en manage_members-only bruger over for et admin-medlem). SQL kørt og bekræftet i Supabase - `dbSchema.sql` opdateret (§15.14). Manuelt testet og bekræftet virkende i browseren (fjern almindeligt medlem, knap skjult for manage_members-only over for admin, fuld admin kan fjerne admin, fjernet bruger mister adgang/får ny aktiv org). |
 | US-67 | Invitere bruger til organisation | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel. Ny tabel `membership_invitations` (mirror af `membership_requests`, men admin-initieret i stedet for bruger-initieret) + trigger `handle_membership_invitation_status_change` (samme mønster som `handle_membership_request_status_change`) + RPC `invite_member(p_email)` (slår email op, validerer, opretter invitation) + RLS-policies (modtager svarer selv, admin kan annullere en ventende invitation). To nye, snævre RLS-tilføjelser på `organisations`/`profiles` lader hhv. modtageren se organisationens navn og administratoren se den invitteredes navn/email, uden at det kræver et eksisterende medlemskab (samme mønster som `is_pending_requester_to_my_org()`). Ny privilegie `manage_invitations`. Frontend: ny `InvitationsPanel.tsx` (admin-side: invitér + annullér), ny `InvitationsSection` i `OrganisationTab.tsx` (modtager-side: acceptér/afvis, betinget fane som "Mine organisationer"), `PendingRequestBanner.tsx` viser nu også en ventende invitation. **Bug fundet+rettet under test:** modtageren kunne ikke acceptere en invitation. Årsag: `handle_membership_invitation_status_change` opdaterer `profiles.active_organisation_id` for `invited_user_id` - ved en ANMODNING er det altid en ADMIN der godkender (rammer aldrig admins egen profil-række), men ved en INVITATION er det MODTAGEREN SELV der accepterer sin egen række, så opdateringen rammer `auth.uid()`s egen profil og udløste `trg_prevent_self_role_org_change` ("Du kan ikke ændre din egen organisationstilknytning direkte."). Rettet ved at tilføje samme `ponos.bypass_self_role_org_change`-flag som `create_organisation`/`set_active_organisation`/`leave_organisation`/`delete_organisation` allerede bruger - samme klasse fejl som er set flere gange før i dette projekt (se US-59/64-rækkerne). SQL kørt og bekræftet i Supabase - `dbSchema.sql` opdateret (§6.6, §15.15-15.16, §16.1/16.2/16.11). Manuelt testet og bekræftet virkende i browseren efter rettelsen (invitér, fejlbeskeder for ikke-eksisterende/allerede-medlem/dublet, accept, afvis, annullér, banner, inviteret bruger uden aktiv org). |
+| US-68 | Nulstil adgangskode | High | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel 2026-09-11. Opdaget under arbejdet med `/hjaelp`: der fandtes intet `resetPasswordForEmail`/`updateUser` i `src/`, så FAQ-posten "Jeg har glemt min adgangskode" måtte skrives som "skriv til os". Bygget 2026-09-11 efter specen i afsnittet "US-68 + US-69 – Adgangskode" nederst. Ny RPC `reset_password_prototype(p_email, p_first_name, p_last_name, p_new_password)` (`dbSchema.sql` §15.17, security definer, `grant` til `anon` + `authenticated`, skriver bcrypt-hash direkte i `auth.users`). Frontend: ny side `ForgotPassword.tsx` → offentlig rute `/glemt-adgangskode`, `resetPassword`-mutation i `authApi.ts` (RTK Query, ikke direkte `supabase`-kald som de ældre login-sider), `ResetPasswordInput` i ny `src/types/auth/authType.ts`, "Glemt din adgangskode?"-link + grøn `?nulstillet=1`-kvittering på `Login.tsx`. SQL kørt og bekræftet i Supabase. Manuelt testet og bekræftet virkende i browseren (validering uden serverkald, identisk fejl for forkert navn og ukendt email, gammel kode afvist / ny kode virker efter nulstilling). **Prototype-forbehold (bruger-beslutning):** hele flowet foregår på hjemmesiden uden mail, fordi projektet ikke deployes. Identitetstjekket er kun email + fornavn + efternavn, og RPC'en er `grant`et til `anon` - enhver, der kender en brugers navn og email, kan overtage kontoen. Bevidst valgt, men **skal erstattes af et mailbaseret flow, før noget sættes i drift**; kun RPC-kaldet i `resetPassword` skal skiftes den dag, siden og mutationen består. |
+| US-69 | Skift adgangskode | Medium | Done | Ny story, tilføjet ad-hoc efter bruger-forespørgsel 2026-09-11, sammen med US-68. Den indloggede halvdel: `/bruger` kunne rette navn/beskrivelse/billede, men ikke adgangskoden. Bygget 2026-09-11. **Ingen SQL** - ren Supabase Auth. `changePassword`-mutation i `authApi.ts` med to trin: `signInWithPassword` med den nuværende kode (dét er verifikationen - Supabase kræver den ikke selv for `updateUser`, så uden trinnet kunne en efterladt, åben browser låse ejeren ude af sin egen konto), derefter `updateUser({ password })`. Emailen tages fra den eksisterende session, så brugeren ikke skal taste den igen. Ny `ChangePasswordForm.tsx` (`src/components/profile/`, egen komponent frem for endnu 60 linjer i den 281 linjer lange `ProfilePage.tsx`) som eget "Adgangskode"-afsnit nederst på siden. Har **ikke** US-68's prototype-forbehold: brugeren er logget ind og bekræfter sin nuværende adgangskode, så identiteten er faktisk bevist. **Ændret efter bruger-feedback under test:** formularen lå oprindeligt åben på siden; den er nu foldet sammen bag en "Skift adgangskode"-knap med Skift/Annuller nedenunder, samme mønster som sidens "Rediger profil". Manuelt testet og bekræftet virkende i browseren (forkert nuværende kode ændrer intet, ny = nuværende fanges af valideringen, rigtigt skift giver grøn kvittering og brugeren forbliver logget ind). |
 
 **Sidefund under planlægning (ikke rettet, kun flagget):** `organisations`-tabellens eneste SELECT-policy er scopet til `id = auth_profile_org()` - en bruger uden aktiv organisation (eller med en anden aktiv) kan formentlig ikke se andre organisationers navn/id via "vælg organisation"-dropdownen i `OrganisationTab.tsx` (anmod/opret-fanerne). Ikke undersøgt til bunds eller rettet - værd at teste/tjekke ved lejlighed.
 
@@ -454,9 +460,127 @@ Ingen user story; tilføjet efter bruger-forespørgsel. Footeren har siden US-65
 
 **Kendt, accepteret adfærd:** FAQ'ens dyb-links til `/dashboard?tab=organisation` og `/bruger` er beskyttede ruter, og `ProtectedRoute` sender en udlogget læser til `/login` **uden** at huske destinationen. Login er det rigtige næste skridt for dem alligevel; at få ProtectedRoute til at huske målet rører alle beskyttede ruter og er en selvstændig ændring.
 
-**Fundet undervejs (ikke rettet):** der findes **ingen nulstil-adgangskode-funktion** i appen — intet `resetPasswordForEmail`/`updateUser` nogen steder i `src/`. FAQ-posten henviser derfor til mail. Bruger har besluttet, at nulstilling bliver en **egen user story senere**; posten skal rettes med den.
+**Fundet undervejs (RETTET 2026-09-11):** der fandtes **ingen nulstil-adgangskode-funktion** i appen — intet `resetPasswordForEmail`/`updateUser` nogen steder i `src/`. FAQ-posten henviste derfor til mail. Bruger besluttede, at nulstilling blev en **egen user story** — det blev US-68 (og US-69 for den indloggede variant), se spec-afsnittet nedenfor. Begge er nu bygget, og de to FAQ-poster er rettet: "Jeg har glemt min adgangskode" peger på `/glemt-adgangskode` (mail står tilbage som sidste udvej), og "Hvordan retter jeg mit navn eller profilbillede?" nævner nu også adgangskoden.
 
 Ingen SQL, ingen RLS, ingen nye dependencies eller endpoints.
+
+## US-68 + US-69 – Adgangskode (spec — UDFØRT 2026-09-11)
+
+Skrevet 2026-09-11 efter aftale med bruger: **dokumentationen først, koden bagefter.** Specen blev derefter **udført samme dag**: SQL'en er kørt i Supabase, alle filerne nedenfor er skrevet, og begge stories er testet i browseren og bekræftet virkende. Afsnittet står uændret som beskrivelse af det byggede — **én afvigelse**, aftalt med bruger under test: US-69's formular ligger ikke åben på profilsiden, men er foldet sammen bag en "Skift adgangskode"-knap med Skift/Annuller nedenunder (samme mønster som sidens "Rediger profil"), og kvitteringen vises over knappen, når formularen folder sig sammen igen.
+
+Prototype-forbeholdet nedenfor gælder stadig og er ikke løst af, at koden nu findes.
+
+To stories i samme runde, fordi de deler kode og deres tekster skal passe sammen:
+
+- **US-68 – Nulstil adgangskode** (udlogget, prototype uden mail) — hoveddelen.
+- **US-69 – Skift adgangskode på profilsiden** (indlogget, bekræftet med den nuværende kode) — lille tilføjelse, bygges bagefter oven på samme `authApi`-mønster.
+
+### Prototype-forbeholdet (US-68)
+
+Uden mail findes der intet bevis for, at det er den rigtige person, der beder om en ny kode: **enhver, der kender en brugers email og navn, kan overtage kontoen.** Anon-nøglen ligger i browser-bundtet, så RPC'en kan kaldes af hvem som helst, ikke kun af vores egen side.
+
+Det er en bevidst beslutning truffet med bruger (prototype-projekt, deployes ikke), ikke en forglemmelse. Flowet er specificeret, så **kun ét lag skal skiftes**, hvis der senere kommer mail på: siderne og `authApi`-mutationen består, kun RPC-kaldet bliver til `resetPasswordForEmail`/`verifyOtp`. Som et lille værn — ikke som rigtig sikkerhed — kræver formularen både email, fornavn og efternavn, og RPC'en svarer med én og samme fejl uanset hvad der ikke passede, så den ikke kan bruges til at afprøve, hvilke emails der findes.
+
+US-69 har ikke forbeholdet: dér er brugeren logget ind og bekræfter sin nuværende kode.
+
+### SQL (US-68) — køres først, når vi går i gang
+
+Én ny funktion, `dbSchema.sql` §15.17. Samme facon som `invite_member` (§15.16): `security definer`, `raise exception` med danske beskeder, `grant execute` til sidst — her dog til **`anon`**, da den, der har glemt sin kode, per definition ikke er logget ind.
+
+```sql
+create or replace function public.reset_password_prototype(
+  p_email text, p_first_name text, p_last_name text, p_new_password text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public, extensions   -- pgcrypto ligger i extensions på Supabase
+as $$
+declare v_user_id uuid;
+begin
+  if length(p_new_password) < 6 then
+    raise exception 'Adgangskoden skal være mindst 6 tegn.';
+  end if;
+
+  select id into v_user_id
+  from public.profiles
+  where lower(email)      = lower(trim(p_email))
+    and lower(first_name) = lower(trim(p_first_name))
+    and lower(last_name)  = lower(trim(p_last_name));
+
+  -- Én samlet fejl: afslører hverken om emailen findes, eller hvilket
+  -- felt der ikke passede.
+  if v_user_id is null then
+    raise exception 'Oplysningerne passer ikke på en konto.';
+  end if;
+
+  update auth.users
+  set encrypted_password = crypt(p_new_password, gen_salt('bf', 10)),
+      updated_at = now()
+  where id = v_user_id;
+end;
+$$;
+
+grant execute on function public.reset_password_prototype(text, text, text, text) to anon, authenticated;
+```
+
+Detaljer der er tjekket, ikke gættet: `pgcrypto` er allerede installeret (`dbSchema.sql:4`), `profiles` har `first_name`/`last_name`/`email` og `id` som FK til `auth.users` (`dbSchema.sql:44-54`), og `gen_salt('bf', 10)` giver samme bcrypt-cost, som GoTrue selv skriver, så hashet kan læses af login bagefter. `search_path` udvides med `extensions`, fordi husets funktioner ellers kun har `public`, og `crypt`/`gen_salt` bor i `extensions` på et Supabase-projekt.
+
+**Bevidst udeladt:** `delete from auth.sessions where user_id = …`. Det ville logge brugeren ud på alle andre enheder, men er en ekstra rørelse ved GoTrues egne tabeller, som prototypen ikke har brug for.
+
+### Frontend US-68
+
+**Ny fil `src/pages/logIn/ForgotPassword.tsx` → rute `/glemt-adgangskode`.** Én formular, samme kort som `Login.tsx` (`flex items-center justify-center px-2 py-15 …` + `bg-white rounded-lg shadow-md p-8 max-w-md w-full`) og samme input-/knapklasser. Felter: E-mail, Fornavn, Efternavn, Ny adgangskode, Gentag ny adgangskode.
+
+- Klient-validering først, med *præcis samme danske tekster* som `SignUp.tsx`, så de to steder ikke driver fra hinanden: alle felter udfyldt, mindst 6 tegn (`'Adgangskoden skal være mindst 6 tegn.'`), felterne skal matche (`'Adgangskoderne matcher ikke.'`).
+- Fejl fra RPC'en vises, som de kommer (de er allerede danske), i den røde boks fra `Login.tsx:46`.
+- Succes → `navigate('/login?nulstillet=1', { replace: true })`.
+- Under knappen en lille, ærlig note i `text-xs text-secondary`: "Prototype: der sendes ingen bekræftelse på mail." Fjernes igen, når rigtig mailbekræftelse kommer på.
+- Nederst link tilbage til `/login`. Siden tager ingen props → ingen ny fil i `src/types/`.
+
+**`src/store/apis/authApi.ts`:** én ny mutation ved siden af `signOut`, samme `queryFn`-mønster og `CUSTOM_ERROR`-form som resten af filen:
+
+```ts
+resetPassword: builder.mutation<void, { email: string; firstName: string; lastName: string; password: string }>(…)
+```
+
+Kalder `supabase.rpc('reset_password_prototype', { … })`. Ingen `invalidatesTags` — brugeren er ikke logget ind, og der er intet i cachen at opdatere. Argumenttypen lægges i `src/types/auth/authType.ts` (ny mappe; der findes ingen `auth`-domænemappe endnu) efter husreglen om at prop-/argumenttyper ikke står inline.
+
+Hvorfor RTK Query, når `Login.tsx`/`SignUp.tsx` kalder `supabase` direkte? Fordi CLAUDE.md foreskriver RTK Query til serverkald, og de to login-sider er ældre kode fra før migreringen. Nyt arbejde lægges det rigtige sted; de gamle sider omskrives **ikke** i denne omgang.
+
+**`src/pages/logIn/Login.tsx`:** link "Glemt din adgangskode?" under adgangskode-feltet i samme `text-accent hover:underline` som "Opret konto"-linket. Læser `useSearchParams()`: med `?nulstillet=1` vises den grønne kvittering øverst — samme klasser som resten af appen (`rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2`, jf. `ProfilePage.tsx:139`): "Din adgangskode er ændret. Log ind med den nye." `signInWithPassword`-kaldet røres ikke.
+
+**`src/App.tsx`:** én offentlig rute ved siden af `/login`/`/signup` (uden for `ProtectedRoute`, og **før** catch-all'en). `FULL_WIDTH_ROUTES` udvides **ikke** — formularsider bruger `<main>`s almindelige wrapper, som `/login` gør.
+
+### Frontend US-69
+
+**Ny fil `src/components/profile/ChangePasswordForm.tsx`** (ny mappe) — egen komponent frem for endnu 60 linjer i `ProfilePage.tsx` (281 linjer i forvejen), jf. CLAUDE.mds "keep components small and focused". Tager ingen props → ingen ny fil i `src/types/`. Tre felter: Nuværende adgangskode, Ny adgangskode, Gentag ny adgangskode. Samme validering og tekster som `SignUp.tsx`, plus "Den nye adgangskode skal være forskellig fra den nuværende."
+
+**`src/store/apis/authApi.ts`:** `changePassword: builder.mutation<void, { currentPassword: string; newPassword: string }>` med to trin i samme `queryFn`:
+
+1. `signInWithPassword({ email: <brugerens egen fra sessionen>, password: currentPassword })` — **det er verifikationen**. Supabase kræver ikke selv den nuværende kode for `updateUser`, så uden dette trin kunne en efterladt, åben browser bruges til at låse ejeren ude af sin egen konto. Fejler kaldet → `'Din nuværende adgangskode er forkert.'`, og intet er ændret.
+2. `updateUser({ password: newPassword })` → ved fejl `'Adgangskoden kunne ikke ændres. Prøv igen.'`
+
+Emailen tages fra den session, `useGetSessionQuery` allerede holder i cachen — ingen ekstra opslag, og brugeren skal ikke taste sin egen email igen.
+
+**Bivirkning, som er i orden:** trin 1 giver en ny session for den samme bruger, så `onAuthStateChange` fyrer `SIGNED_IN` og invaliderer `USER_SCOPED_TAGS` (`authApi.ts:44`). Profil/organisation/privilegier hentes altså friskt bagefter — et par spildte kald, men det er den eksisterende, korrekte adfærd, og der laves ingen undtagelse i listeneren for at undgå det.
+
+Brugeren forbliver **logget ind** efter skiftet (modsat US-68, hvor intet var bevist) og får kvitteringen "Din adgangskode er ændret."
+
+**`src/pages/profile/ProfilePage.tsx`:** `<ChangePasswordForm />` indsættes som eget afsnit nederst under kontooplysningerne, med overskriften "Adgangskode" i samme stil som sidens øvrige afsnit. Resten af siden røres ikke.
+
+### `src/pages/public/HelpPage.tsx` — to FAQ-poster, når koden er lavet
+
+- **"Jeg har glemt min adgangskode"** (`HelpPage.tsx:174`): fra "den funktion er på vej — skriv til os" til den rigtige vej (klik "Glemt din adgangskode?" på loginsiden, bekræft med email og navn, vælg en ny kode), med link til `/glemt-adgangskode`. Sætningen om at skrive til `CONTACT_EMAIL` bliver stående som sidste udvej.
+- **"Hvordan retter jeg mit navn eller billede?"** (`HelpPage.tsx:165`): "Navn, beskrivelse og billede kan du selv rette" udvides med adgangskoden.
+
+### Verifikationsliste (til den runde, hvor der kodes)
+
+1. SQL'en køres af bruger i Supabase SQL Editor; `dbSchema.sql` opdateres først bagefter, som dokumentation af det kørte.
+2. `npm run build` + `npm run lint`. Baseline: **14 præeksisterende `no-explicit-any`-fejl + 1 warning** (`categoryApi.ts`/`newsApi.ts`/dataLayer) — ingen nye må komme til.
+3. US-68 i browseren: link på loginsiden; forkert navn til rigtig email og ukendt email giver *nøjagtig samme* besked; validering fanger korte/uens koder uden kald til Supabase; rigtige oplysninger fører til `/login` med grøn kvittering, hvor den gamle kode afvises og den nye virker.
+4. US-69 i browseren: "Adgangskode"-afsnit på `/bruger`; forkert nuværende kode giver fejl og ændrer intet; ny kode = nuværende afvises af valideringen; rigtigt skift giver grøn kvittering, brugeren er stadig logget ind, og siden viser stadig rigtigt navn/organisation.
+5. `/hjaelp`: begge FAQ-poster passer. 375px: `/glemt-adgangskode` står som `/login`, og `/bruger`s nye afsnit bryder ikke layoutet.
 
 ## Fase 2-spec (US-62 + US-63) — klar til udførelse ved trin 8
 
