@@ -17,6 +17,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
+
   const isAssigned =
     currentUserId !== null && assignees.includes(currentUserId);
 
@@ -37,6 +38,7 @@ export function TaskCard({ task }: TaskCardProps) {
       await assignToTask({ taskId: task.id });
     }
   };
+
   const getPriorityColor = (
     priority: TaskCardProps['task']['priority']
   ) => {
@@ -65,7 +67,6 @@ export function TaskCard({ task }: TaskCardProps) {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-
     });
   };
 
@@ -163,10 +164,11 @@ export function TaskCard({ task }: TaskCardProps) {
               e.stopPropagation();
               handleAssignment();
             }}
-            className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${isAssigned
-              ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
-              : 'border-black hover:bg-black hover:text-white'
-              }`}
+            className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${
+              isAssigned
+                ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+                : 'border-black hover:bg-black hover:text-white'
+            }`}
           >
             {isAssigned ? 'Afmeld' : 'Tilmeld'}
           </button>
@@ -177,7 +179,9 @@ export function TaskCard({ task }: TaskCardProps) {
       {isDetailsOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setIsDetailsOpen(false)}
+          onClick={() => {
+            setIsDetailsOpen(false);
+          }}
         >
           <div
             className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
@@ -195,9 +199,12 @@ export function TaskCard({ task }: TaskCardProps) {
                 </p>
               </div>
 
+              {/* LUK */}
               <button
                 type="button"
-                onClick={() => setIsDetailsOpen(false)}
+                onClick={() => {
+                  setIsDetailsOpen(false);
+                }}
                 className="text-gray-500 hover:text-gray-900"
               >
                 X
@@ -257,10 +264,13 @@ export function TaskCard({ task }: TaskCardProps) {
               </div>
             </div>
 
+            {/* HANDLINGER */}
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => setIsDetailsOpen(false)}
+                onClick={() => {
+                  setIsDetailsOpen(false);
+                }}
                 className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
               >
                 Luk
