@@ -1,16 +1,15 @@
 // src/components/dashboard/OverviewTab.tsx
-import { Database, ClipboardList, ListChecks, Building2, BarChart3, Bell } from 'lucide-react'
+import { Database, ClipboardList, Building2, BarChart3, Bell } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import { QuickLinkCard } from './QuickLinkCard'
 import { PlaceholderBar } from './PlaceholderBar'
 import { NewsSlider } from './NewsSlider'
+import { MyTasksWidget } from './MyTasksWidget'
 
-// US-65: genveje til Datalager/Opgaver/Statistik, samt placeholder-
-// bjælker til funktioner uden data/backend endnu - "Dine opgaver" (afventer
-// at Opgave-siden/task-modellen bliver færdig) og "Notifikationer" (intet
-// datamodel/user story endnu). Nyheder (US-56/US-57) har fået sin egen
-// slider-widget nedenfor (NewsSlider) i stedet for en placeholder.
+// US-65: genveje til Datalager/Opgaver/Statistik, "Dine opgaver" (US-74)
+// og en placeholder-bjælke til "Notifikationer" (afventer US-71/72).
+// Nyheder (US-56) har sin egen slider-widget nedenfor (NewsSlider).
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
 
@@ -61,11 +60,7 @@ export function OverviewTab() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <PlaceholderBar
-                    label="Dine opgaver"
-                    description="Overblik over dine tildelte opgaver kommer snart."
-                    icon={ListChecks}
-                />
+                <MyTasksWidget />
                 <PlaceholderBar
                     label="Notifikationer"
                     description="Notifikationer kommer snart."
