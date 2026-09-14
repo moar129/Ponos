@@ -1288,6 +1288,30 @@ Som indlogget bruger vil jeg kunne skifte min adgangskode fra min profilside, s�
 
 ---
 
+## US-70 – Se afsluttede opgaver
+
+**Priority:** Medium
+
+**Note (afgrænsning):** Story'en dækker KUN visningen. At markere en opgave som færdig hører under US-39 (Ændre opgavestatus) og findes ikke i UI'et endnu - `updateTaskStatus` er skrevet i `taskApi.ts`, men bruges intet sted. Visningen vil derfor være tom, indtil US-39 er bygget.
+
+**Note (afslutningstidspunkt):** `tasks` har ingen `completed_at`-kolonne, så der findes ikke et registreret tidspunkt for, hvornår en opgave faktisk blev færdig. Visningen bruger `end_date` (den planlagte slutdato) til visning og sortering.
+
+### User Story
+
+Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med deres detaljer, så jeg kan følge op på udført arbejde.
+
+### Acceptance Criteria
+
+- Administratoren kan åbne en visning af afsluttede opgaver.
+- Visningen indeholder kun opgaver med status Færdig.
+- Visningen indeholder kun opgaver fra administratorens aktive organisation.
+- For den enkelte opgave kan administratoren se titel, beskrivelse, rum, prioritet, start- og slutdato, tilmeldte brugere og tilknyttede materialer med mængde.
+- Visningen er kun tilgængelig for brugere med privilegiet `admin` eller `manage_tasks`.
+- Administratoren kan søge og filtrere i listen.
+- Er ingen opgaver afsluttet, vises en forklarende tom-tilstand i stedet for en fejl.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1364,6 +1388,7 @@ Som indlogget bruger vil jeg kunne skifte min adgangskode fra min profilside, s�
 - US-65 – Administration og organisation samlet på dashboardet
 - US-66 – Fjerne medlem fra organisation
 - US-67 – Invitere bruger til organisation
+- US-70 – Se afsluttede opgaver
 
 ## Low
 
@@ -1420,7 +1445,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**28 stories**
+**29 stories**
 
 ### Bruger & login
 
@@ -1459,6 +1484,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 - US-46
 - US-47
 - US-65
+- US-70
 
 ### News/API
 
