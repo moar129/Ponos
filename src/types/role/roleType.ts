@@ -14,11 +14,13 @@ export interface Privilege {
 // Et medlem af organisationen, som kan tildeles en rolle (US-11).
 // roleId/roleName er null, hvis medlemmet endnu ikke har en rolle.
 export interface OrganisationMember {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    roleId: string | null
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roleId: string | null;
+  roleName: string | null;
+  urlPicture: string | null;
 }
 
 export interface CreateRoleInput {

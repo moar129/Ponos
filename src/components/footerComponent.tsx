@@ -4,6 +4,7 @@ import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetSessionQuery } from '../store/apis/authApi';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { CONTACT_EMAIL, CONTACT_LOCATION } from '../lib/contact';
+import { MessageSquareText } from 'lucide-react';
 
 export function Footer() {
   // Samme kilde som resten af appen (App.tsx holder denne aktiv, og den
@@ -61,6 +62,7 @@ export function Footer() {
                     <li><Link to="/statistik" className={linkClass}>Statistik</Link></li>
                     <li><Link to="/datalager" className={linkClass}>Datalager</Link></li>
                     <li><Link to="/nyheder" className={linkClass}>Nyheder</Link></li>
+                    <li><Link to="/beskeder" className={linkClass}>Beskeder</Link></li>
                   </>
                 )}
               </ul>

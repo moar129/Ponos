@@ -15,6 +15,7 @@ import {
   Home,
   LogIn,
   UserPlus,
+  MessageSquareText
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
@@ -155,6 +156,10 @@ export function Header() {
                 <NavLink to="/nyheder" className={getNavLinkClass}>
                   <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
                   <span>Nyheder</span>
+                </NavLink>
+                <NavLink to="/beskeder" className={getNavLinkClass}>
+                  <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                  <span>Beskeder</span>
                 </NavLink>
               </>
             )}
@@ -321,6 +326,10 @@ export function Header() {
                   <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                     <Newspaper className="w-5 h-5 shrink-0" />
                     <span>Nyheder</span>
+                  </NavLink>
+                  <NavLink to="/beskeder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <MessageSquareText className="w-5 h-5 shrink-0" />
+                    <span>Beskeder</span>
                   </NavLink>
                 </>
               )}
