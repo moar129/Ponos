@@ -827,6 +827,8 @@ Som bruger vil jeg kunne se de opgaver, jeg er ansvarlig for eller deltager i, s
 
 **Priority:** Critical
 
+**Note (opdateret 2026-09-14):** Kriteriet "Dashboardet indeholder mindst én oversigt over Datalayer-data" er justeret, efter at nøgletals-kortene blev droppet (US-46/US-47 udgået). Dashboardet giver i stedet adgang til Datalayer via et genvejskort, og opgave-oversigten dækkes af US-74 (Se egne opgaver på dashboardet). Skal der senere igen vises Datalayer-data direkte på dashboardet, hører det under en ny story.
+
 ### User Story
 
 Som bruger vil jeg kunne se et dashboard, så jeg hurtigt kan få et overblik over organisationens aktivitet.
@@ -835,15 +837,17 @@ Som bruger vil jeg kunne se et dashboard, så jeg hurtigt kan få et overblik ov
 
 - Brugeren kan åbne dashboardet.
 - Dashboardet viser data fra brugerens organisation.
-- Dashboardet indeholder mindst én oversigt over Datalayer-data.
-- Dashboardet indeholder mindst én oversigt over opgaver.
+- Dashboardet giver adgang til organisationens Datalayer, som minimum via en genvej dertil.
+- Dashboardet indeholder mindst én oversigt over opgaver (dækkes af US-74).
 - Brugeren kan ikke se data fra andre organisationer.
 
 ---
 
-## US-46 – Se antal items
+## US-46 – Se antal items (UDGÅET)
 
 **Priority:** High
+
+**Status: UDGÅET 2026-09-14.** Nøgletals-kortene på dashboardet er droppet efter bruger-beslutning. De var bygget som `StatCard.tsx` i dashboardets Oversigt-fane, men blev fjernet igen under US-65 og bygges ikke op på ny; `StatCard.tsx` er slettet. Oversigt-fanen består derfor af genveje, "Dine opgaver" (US-74) og nyhedsslideren - ingen tælleværdier. Story og acceptkriterier bevares nedenfor som dokumentation.
 
 ### User Story
 
@@ -857,9 +861,11 @@ Som bruger vil jeg kunne se det samlede antal items, så jeg kan få et hurtigt 
 
 ---
 
-## US-47 – Se antal opgaver
+## US-47 – Se antal opgaver (UDGÅET)
 
 **Priority:** High
+
+**Status: UDGÅET 2026-09-14.** Samme beslutning som US-46 - nøgletals-kortene på dashboardet er droppet. Overblikket over opgaver på dashboardet dækkes i stedet af US-74 (Se egne opgaver på dashboardet), som viser brugerens faktiske opgaver frem for et samlet tal. Story og acceptkriterier bevares nedenfor som dokumentation.
 
 ### User Story
 
@@ -1312,6 +1318,118 @@ Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med d
 
 ---
 
+## US-71 – Notifikationer ved relevante hændelser
+
+**Priority:** High
+
+**Note (fundament):** Story'en dækker datamodellen (ny `notifications`-tabel med RLS) og de server-side triggers/RPC'er, der opretter notifikationer. US-72 og US-73 kan ikke bygges før denne.
+
+**Note (afgrænsning, opgaver):** `tasks` har hverken `created_by` eller `updated_at`, og tilmelding til en opgave er selvbetjening i dag (`assignToTask` i `taskApi.ts`, US-63 ikke kørt). "Du er tildelt en opgave" dækker derfor reelt egen tilmelding, og notifikationen kan ikke navngive, hvem der ændrede en opgave.
+
+**Note (levering):** Der sendes ingen email, og der bruges ikke Supabase Realtime. Notifikationer findes kun i appen.
+
+### User Story
+
+Som medlem af en organisation vil jeg automatisk modtage en notifikation, når der sker noget, der er relevant for mig, så jeg ikke selv skal lede efter ændringer.
+
+### Acceptance Criteria
+
+- Systemet gemmer en notifikation med modtager, organisation, type, tekst, valgfrit link til det berørte objekt, læst-status og oprettelsestidspunkt.
+- Notifikationer oprettes server-side via trigger eller RPC, aldrig fra frontenden.
+- En notifikation tilhører præcis én modtager og én organisation.
+- En bruger kan kun læse sine egne notifikationer, og dette håndhæves af Row Level Security, ikke kun i UI'et.
+- Notifikationstyper angives som en værdi, så nye typer kan tilføjes uden ændring af tabellens kolonner.
+- Medlemskab: Brugeren får en notifikation, når egen medlemsanmodning accepteres eller afvises, når brugeren modtager en invitation, og når brugeren fjernes fra en organisation.
+- Medlemskab (administration): Brugere med `admin` eller `manage_membership_requests` får en notifikation ved ny medlemsanmodning, og brugere med `admin` eller `manage_invitations` får en notifikation, når en invitation accepteres eller afvises.
+- Opgaver: Brugeren får en notifikation, når brugeren tilmeldes en opgave, og når en opgave, brugeren er tilmeldt, ændrer status eller redigeres.
+- Opgaver: Brugeren får en notifikation, når en opgave, brugeren er tilmeldt, slettes; den notifikation har intet link, da objektet ikke længere findes.
+- Roller: Brugeren får en notifikation, når brugerens rolle i organisationen ændres.
+- Nyheder: Alle medlemmer af organisationen får en notifikation, når der oprettes en nyhed. Redigering og sletning af en nyhed udløser ingen notifikation.
+- En bruger modtager kun notifikationer for organisationer, brugeren er medlem af.
+- Sletning af det objekt, en notifikation peger på, må ikke fejle; notifikationen fjernes eller mister blot sit link.
+- Der oprettes ingen notifikation til den bruger, der selv udløste hændelsen.
+
+---
+
+## US-72 – Se egne notifikationer
+
+**Priority:** High
+
+**Note (erstatter placeholder):** Story'en afløser den deaktiverede klokke i headeren (`headerComponent.tsx`) og `PlaceholderBar`-feltet "Notifikationer" på dashboardet (`OverviewTab.tsx`).
+
+**Note (afhængighed):** Kræver US-71. Uden datamodellen er visningen altid tom.
+
+### User Story
+
+Som bruger vil jeg kunne se mine notifikationer og hvor mange ulæste jeg har, så jeg hurtigt kan opdage, hvad der er sket.
+
+### Acceptance Criteria
+
+- Klokkeikonet i headeren viser antallet af ulæste notifikationer i brugerens aktive organisation.
+- Brugeren kan åbne en liste over egne notifikationer med nyeste øverst.
+- For den enkelte notifikation kan brugeren se tekst, tidspunkt og om den er læst.
+- Har notifikationen et tilknyttet objekt, kan brugeren navigere direkte til det.
+- Listen indeholder kun notifikationer fra brugerens aktive organisation, og både liste og tæller opdateres, når brugeren skifter organisation.
+- Har brugeren ingen aktiv organisation, vises klokken uden tæller.
+- Har brugeren ingen notifikationer, vises en forklarende tom-tilstand i stedet for en fejl.
+- Loading- og fejltilstand håndteres i både tæller og liste.
+- Notifikationer hentes ved opslag og cache-invalidering, ikke ved push; live-opdatering er ikke en del af story'en.
+
+---
+
+## US-73 – Markér notifikationer som læst
+
+**Priority:** Medium
+
+**Note (afhængighed):** Kræver US-71 og US-72.
+
+### User Story
+
+Som bruger vil jeg kunne markere notifikationer som læst, så tælleren afspejler det, jeg rent faktisk har set.
+
+### Acceptance Criteria
+
+- Brugeren kan markere en enkelt notifikation som læst.
+- Brugeren kan markere alle sine notifikationer i den aktive organisation som læst på én gang.
+- At åbne en notifikation markerer den automatisk som læst.
+- Ulæst-tælleren i headeren opdateres, så snart en notifikation markeres som læst.
+- En bruger kan kun ændre læst-status på sine egne notifikationer, og dette håndhæves af Row Level Security.
+- Handlingen påvirker kun notifikationer i brugerens aktive organisation.
+- Fejler markeringen, vises en fejlbesked, og visningen ruller tilbage til den tidligere tilstand.
+- **Afgrænsning:** Brugeren kan ikke markere en læst notifikation som ulæst igen og kan ikke slette notifikationer.
+
+---
+
+## US-74 – Se egne opgaver på dashboardet
+
+**Priority:** High
+
+**Note (afgrænsning, link):** Rækkerne er ikke klikbare i denne story. Opgavedetaljer vises i dag som en modal uden egen adresse (`TaskCard.tsx`), så der findes intet at linke til. En klikbar række tilføjes som opfølgning, når en detaljevisning med egen adresse findes - det hører under US-36 (Se opgavedetaljer).
+
+**Note (afgrænsning, ejerskab):** Story'en dækker kun dashboard-widget'en. Visningen af egne opgaver på selve opgavesiden er US-44 og er allerede bygget som "Dine opgaver"-kolonnen i `TaskPage.tsx`. Widget'en genbruger de eksisterende endpoints `getTasks` og `getMyTaskIds` (`taskApi.ts`) og ændrer intet i opgavesidens filer.
+
+**Note (ingen SQL):** RLS lader allerede organisationens medlemmer læse `tasks`, og `task_assignees` er server-side scopet til den aktive organisation (`dbSchema.sql` §16.7). Der kræves hverken migration eller nye endpoints.
+
+### User Story
+
+Som bruger vil jeg kunne se mine egne opgaver på dashboardet, så jeg med det samme kan se, hvad jeg skal lave, uden først at åbne opgavesiden.
+
+### Acceptance Criteria
+
+- Dashboardets Oversigt-fane viser et felt "Dine opgaver" med brugerens egne opgaver i stedet for den nuværende "kommer snart"-bjælke.
+- Feltet indeholder kun opgaver, brugeren selv er tilmeldt, og kun fra brugerens aktive organisation.
+- Feltet viser højst 5 opgaver ad gangen, sorteret efter prioritet med den højeste først og derefter efter nærmeste slutdato.
+- Opgaver med status Færdig indgår ikke i feltet.
+- For den enkelte opgave kan brugeren se titel, status, prioritet og slutdato.
+- Mangler en opgave prioritet eller slutdato, vises rækken uden den værdi i stedet for at fejle eller blive udeladt.
+- Har brugeren ingen opgaver, vises en forklarende tom-tilstand i stedet for en fejl.
+- Skifter brugeren aktiv organisation, opdateres feltet.
+- Loading- og fejltilstand håndteres i feltet.
+- **Afgrænsning:** Opgaverne i feltet kan ikke åbnes ved klik; brugeren går fortsat via opgavesiden.
+- **Afgrænsning:** Feltet dækker kun opgaver, brugeren er tilmeldt (`task_assignees`), ikke opgaver hvor brugeren alene er deltager (`task_participants`) - den relation bruges ikke af nogen kode i dag.
+
+---
+
 # 11. Prioriteringsoversigt
 
 ## Critical
@@ -1351,12 +1469,15 @@ Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med d
 - US-36 – Se opgavedetaljer
 - US-38 – Tildele opgave
 - US-44 – Se egne opgaver
-- US-46 – Se antal items
-- US-47 – Se antal opgaver
+- US-46 – Se antal items (udgået)
+- US-47 – Se antal opgaver (udgået)
 - US-49 – Statistik over kategorier
 - US-50 – Statistik over itemstatus
 - US-51 – Statistik over opgavestatus
 - US-52 – Gem statistik
+- US-71 – Notifikationer ved relevante hændelser
+- US-72 – Se egne notifikationer
+- US-74 – Se egne opgaver på dashboardet
 
 ## Medium
 
@@ -1389,6 +1510,7 @@ Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med d
 - US-66 – Fjerne medlem fra organisation
 - US-67 – Invitere bruger til organisation
 - US-70 – Se afsluttede opgaver
+- US-73 – Markér notifikationer som læst
 
 ## Low
 
@@ -1435,8 +1557,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 ## Dashboard og statistik
 
 - US-45 – Se dashboard
-- US-46 – Se antal items
-- US-47 – Se antal opgaver
+- US-74 – Se egne opgaver på dashboardet
 - US-48 – Generer statistik
 
 ---
@@ -1445,7 +1566,7 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 
 ## Studerende 1 – Adgang, Organisation & Overblik
 
-**29 stories**
+**33 stories**
 
 ### Bruger & login
 
@@ -1481,10 +1602,17 @@ MVP'en skal indeholde den funktionalitet, der er nødvendig for at demonstrere e
 ### Dashboard
 
 - US-45
-- US-46
-- US-47
+- US-46 (udgået)
+- US-47 (udgået)
 - US-65
 - US-70
+- US-74
+
+### Notifikationer
+
+- US-71
+- US-72
+- US-73
 
 ### News/API
 
