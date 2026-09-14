@@ -50,7 +50,7 @@ export function NewsDetailPage() {
     const errorMessage = readableError(queryError) ?? readableError(deleteError)
 
     return (
-        <div className="space-y-6 max-w-3xl mx-auto">
+        <div className="space-y-6 max-w-8xl mx-auto">
             <Link to="/nyheder" className="flex items-center gap-1 text-sm text-secondary hover:text-primary w-fit">
                 <ArrowLeft className="w-4 h-4" />
                 Tilbage til nyheder
