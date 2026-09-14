@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
     useUpdateTaskMutation,
-    useDeleteTaskMutation,
 } from '../../store/apis/taskApi';
 import type { ETaskPriority, Task } from '../../types/Task/Task';
 
@@ -53,9 +52,6 @@ export function EditTaskModal({
         task.max_assignees
     );
     const [updateTask, { isLoading, error }] = useUpdateTaskMutation();
-
-    const [deleteTask, { isLoading: isDeleting, error: deleteError }] =
-        useDeleteTaskMutation();
 
     if (!isOpen) {
         return null;
@@ -179,26 +175,7 @@ export function EditTaskModal({
             // Fejlen vises gennem error
         }
     };
-
-    const handleDelete = async () => {
-        const confirmed = window.confirm(
-            `Er du sikker på, at du vil slette opgaven "${task.title}"?`
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        try {
-            await deleteTask(task.id).unwrap();
-            onClose();
-        } catch {
-            // Fejlen vises gennem deleteError
-        }
-    };
-    const errorMessage =
-        readableError(error) ?? readableError(deleteError);
-
+    const errorMessage = readableError(error);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -385,29 +362,12 @@ export function EditTaskModal({
 
                 {/* BUTTONS */}
                 <div className="mt-6 flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={handleDelete}
-                        disabled={isLoading || isDeleting}
-                        className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white disabled:opacity-60"
-                    >
-                        {isDeleting ? 'Sletter...' : 'Slet opgave'}
-                    </button>
-
                     <div className="flex gap-3">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            disabled={isLoading || isDeleting}
-                            className="rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 disabled:opacity-60"
-                        >
-                            Annuller
-                        </button>
 
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            disabled={isLoading || isDeleting || !title.trim()}
+                            disabled={isLoading  || !title.trim()}
                             className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
                         >
                             {isLoading ? 'Gemmer...' : 'Gem ændringer'}

@@ -5,6 +5,7 @@ import {
 
 } from '../../store/apis/taskApi';
 import type { ETaskPriority } from '../../types/Task/Task';
+import { MoreVertical } from 'lucide-react';
 
 interface CreateTaskModalProps {
     isOpen: boolean;
@@ -39,7 +40,8 @@ export function CreateTaskModal({
     const [endDate, setEndDate] = useState('');
     const [priority, setPriority] = useState<ETaskPriority | null>(null);
     const [maxAssignees, setMaxAssignees] = useState<number | null>(null);
-    const [roomId, setRoomId] = useState<string | null>(selectedRoomId); const [createTask, { isLoading, error }] = useCreateTaskMutation();
+const [roomId, setRoomId] = useState<string | null>(selectedRoomId);
+const [createTask, { isLoading, error }] = useCreateTaskMutation();
     const { data: rooms = [] } = useGetRoomsQuery();
 
     if (!isOpen) {
@@ -90,7 +92,7 @@ export function CreateTaskModal({
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-900"
                     >
-                        X
+                        <MoreVertical />
                     </button>
                 </div>
 
