@@ -1,6 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
+import {
+  CREATE_DATALAYER_PRIVILEGE,
+  DELETE_DATALAYER_PRIVILEGE,
+  READ_DATALAYER_PRIVILEGE,
+  UPDATE_DATALAYER_PRIVILEGE,
+  useHasPrivilege,
+} from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
@@ -26,6 +33,10 @@ import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin } from '
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
+  const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_DATALAYER_PRIVILEGE);
+  const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
+  const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_DATALAYER_PRIVILEGE);
+  const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -235,6 +246,22 @@ export function DataLayerPage() {
     [categoryTree, searchQuery]
   );
 
+  if (loadingReadPrivilege) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+      </div>
+    );
+  }
+
+  if (!canRead) {
+    return (
+      <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+        Du har ikke adgang til at se datalageret i denne organisation.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <AddCategoryComponent
@@ -263,9 +290,18 @@ export function DataLayerPage() {
         onClose={() => setIsAddItemsModalOpen(false)}
         categoryId={selectedCategory?.id ?? null}
         categoryTitle={selectedCategory?.title}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
 
-      <ItemDetailComponent item={selectedItem} onClose={() => setSelectedItem(null)} />
+      <ItemDetailComponent
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
+      />
 
       <DeleteItemsComponent
         isOpen={isDeleteItemsOpen}
@@ -278,6 +314,8 @@ export function DataLayerPage() {
         isOpen={isLocationManagerOpen}
         onClose={() => setIsLocationManagerOpen(false)}
         onViewItems={(loc) => setLocationItemsTarget(loc)}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
 
       <LocationItemsComponent
@@ -386,20 +424,25 @@ export function DataLayerPage() {
                     onAddSubCategory={handleOpenAddModal}
                     onEditCategory={setEditCategoryTarget}
                     onDeleteCategory={setDeleteCategoryTarget}
+                    canCreate={canCreate}
+                    canUpdate={canUpdate}
+                    canDelete={canDelete}
                   />
                 ))}
               </div>
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleOpenAddModal(null)}
-            className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Opret kategori</span>
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={() => handleOpenAddModal(null)}
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Opret kategori</span>
+            </button>
+          )}
         </div>
 
         <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-4 sm:p-6 shadow-sm md:min-h-[500px]">
@@ -416,7 +459,7 @@ export function DataLayerPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  {isSelectMode ? (
+                  {canDelete && (isSelectMode ? (
                     <button
                       type="button"
                       onClick={exitSelectMode}
@@ -434,16 +477,18 @@ export function DataLayerPage() {
                     >
                       <span>Vælg</span>
                     </button>
-                  )}
+                  ))}
 
-                  <button
-                    type="button"
-                    onClick={() => setIsAddItemsModalOpen(true)}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Tilføj items</span>
-                  </button>
+                  {canCreate && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAddItemsModalOpen(true)}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Tilføj items</span>
+                    </button>
+                  )}
                 </div>
               </div>
 

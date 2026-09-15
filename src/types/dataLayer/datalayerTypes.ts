@@ -41,6 +41,10 @@ export interface CategoryTreeNodeProps {
   onAddSubCategory: (parentId: string) => void;
   onEditCategory: (category: DataLayerCat) => void; // ny
   onDeleteCategory: (category: DataLayerCat) => void; // ny
+  // Fase 3: create/read/update/delete_datalayer - gater knapperne pr. handling.
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface AddCategoryComponentProps {
@@ -62,11 +66,21 @@ export interface AddItemsComponentProps {
   categoryId: string | null;
   categoryTitle?: string;
   onSuccess?: () => void;
+  // Fase 3: sendes videre til LocationPickerComponent for lokationsfeltet.
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface ItemDetailComponentProps {
   item: AggregatedItem | null;
   onClose: () => void;
+  // Fase 3: create/read/update/delete_datalayer - ét fælles domæne for
+  // items OG lokationer, så samme tre booleans sendes videre til
+  // LocationPickerComponent (lokations-feltet i redigerings-visningen).
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 
@@ -124,6 +138,9 @@ export interface DeleteItemsComponentProps {
 export interface LocationManagerComponentProps {
   isOpen: boolean;
   onClose: () => void;
+  // Fase 3: create/update/delete_datalayer - gater rediger/slet-knapperne.
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface ConfirmDialogComponentProps {
@@ -139,7 +156,12 @@ export interface ConfirmDialogComponentProps {
 export interface LocationPickerComponentProps {
   value: string | null;
   onChange: (locationId: string | null) => void;
-  onViewItems?: (location: ItemLocation) => void; 
+  onViewItems?: (location: ItemLocation) => void;
+  // Fase 3: create/update/delete_datalayer - canCreate gater "+ Opret ny
+  // lokation", canUpdate/canDelete sendes videre til LocationManagerComponent.
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface FilterPanelComponentProps {

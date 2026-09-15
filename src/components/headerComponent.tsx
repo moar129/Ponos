@@ -19,6 +19,7 @@ import {
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 
 export function Header() {
   const navigate = useNavigate();
@@ -41,6 +42,12 @@ export function Header() {
   // svar uden et ekstra kald på hver side. Skjuler indtil profilen er hentet,
   // så en bruger uden organisation aldrig ser links, der ikke virker for dem.
   const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
+
+  // Fase 3: Datalager-/Nyheder-linkene kræver hhv. read_datalayer og
+  // read_news (eller admin) - Opgaver/Statistik under hasOrganisation er
+  // ikke ændret.
+  const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
+  const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -147,15 +154,19 @@ export function Header() {
                   <span>Statistik</span>
                 </NavLink>
 
-                <NavLink to="/datalager" className={getNavLinkClass}>
-                  <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Datalager</span>
-                </NavLink>
+                {canReadDatalayer && (
+                  <NavLink to="/datalager" className={getNavLinkClass}>
+                    <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <span>Datalager</span>
+                  </NavLink>
+                )}
 
-                <NavLink to="/nyheder" className={getNavLinkClass}>
-                  <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Nyheder</span>
-                </NavLink>
+                {canReadNews && (
+                  <NavLink to="/nyheder" className={getNavLinkClass}>
+                    <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <span>Nyheder</span>
+                  </NavLink>
+                )}
               </>
             )}
           </nav>
@@ -313,15 +324,19 @@ export function Header() {
                     <span>Statistik</span>
                   </NavLink>
 
-                  <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <Database className="w-5 h-5 shrink-0" />
-                    <span>Datalager</span>
-                  </NavLink>
+                  {canReadDatalayer && (
+                    <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <Database className="w-5 h-5 shrink-0" />
+                      <span>Datalager</span>
+                    </NavLink>
+                  )}
 
-                  <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <Newspaper className="w-5 h-5 shrink-0" />
-                    <span>Nyheder</span>
-                  </NavLink>
+                  {canReadNews && (
+                    <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <Newspaper className="w-5 h-5 shrink-0" />
+                      <span>Nyheder</span>
+                    </NavLink>
+                  )}
                 </>
               )}
             </>
