@@ -10,6 +10,13 @@ import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, Update
 // prevent_admin_role_change-trigger, som bruger samme konvention).
 export const ADMIN_ROLE_NAME = 'Admin'
 
+// Navnet på organisationens beskyttede standardrolle (Fase 3) - tildeles
+// automatisk ved medlemskab og fungerer som fallback, når en anden rolle
+// slettes (se prevent_default_role_change/reassign_members_before_role_delete
+// i dbSchema.sql). Bruges her til at låse netop denne rolle mod omdøb/
+// slet i UI'en, samme mønster som ADMIN_ROLE_NAME.
+export const MEMBER_ROLE_NAME = 'Medlem'
+
 // Slår den indloggede brugers AKTIVE organisation op (US-59). Samme
 // mønster som updateMyOrganisation i organisationApi.ts - roller/
 // tildelinger skal altid ske inden for administratorens aktive

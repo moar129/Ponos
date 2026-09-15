@@ -22,7 +22,8 @@ async function getAuthenticatedOrganisationId(): Promise<string> {
     return profileData.active_organisation_id
 }
 
-// 42501 = RLS afviste - bruger uden manage_news-privilegiet forsøgte at
+// 42501 = RLS afviste - bruger uden det relevante privilegie
+// (create_news/update_news/delete_news, Fase 3) forsøgte at
 // oprette/redigere/slette. Samme mønster som privilegeApi.ts/roleApi.ts.
 function mapNewsError(error: { code?: string; message: string }, action: string): { status: 'CUSTOM_ERROR'; error: string } {
     if (error.code === '42501') {

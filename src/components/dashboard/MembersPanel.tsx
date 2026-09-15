@@ -8,17 +8,13 @@ import {
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
-    MANAGE_MEMBERS_PRIVILEGE,
-    MANAGE_ROLES_PRIVILEGE,
+    DELETE_MEMBERS_PRIVILEGE,
+    UPDATE_ROLES_PRIVILEGE,
     useGetOrganisationPrivilegesQuery,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import type { OrganisationMember } from '../../types/role/roleType'
-
-// Sentinel-værdi for "Standard medlem (ingen rolle)" i rolle-tildelings-
-// dropdownen - vælges roleId sættes til null (fjerner rollen helt).
-const NO_ROLE_OPTION = '__none__'
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -37,15 +33,15 @@ function readableError(err: unknown): string | null {
 // privilegier"-panelet, hvilket gav tre niveauer af faner oven i
 // hinanden og virkede forvirrende; nu en sideordnet fane i stedet.
 // Rolle-dropdownen og "Fjern"-knappen er uafhængigt privilegie-gatede
-// (manage_roles hhv. manage_members) - en bruger kan have det ene uden
-// det andet.
+// (update_roles hhv. delete_members, Fase 3) - en bruger kan have det
+// ene uden det andet.
 export function MembersPanel() {
     const { data: myProfile } = useGetMyProfileQuery()
     const { data: members, isLoading: loadingMembers, error: membersError } = useGetOrganisationMembersQuery()
     const { data: roles } = useGetOrganisationRolesQuery()
     const { data: privileges } = useGetOrganisationPrivilegesQuery()
-    const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
-    const { hasPrivilege: canManageMembers } = useHasPrivilege(MANAGE_MEMBERS_PRIVILEGE)
+    const { hasPrivilege: canManageRoles } = useHasPrivilege(UPDATE_ROLES_PRIVILEGE)
+    const { hasPrivilege: canManageMembers } = useHasPrivilege(DELETE_MEMBERS_PRIVILEGE)
     const { hasPrivilege: isFullAdmin } = useHasPrivilege(ADMIN_PRIVILEGE)
     const [assignRole, { error: assignError }] = useAssignRoleMutation()
     const [removeMember, { error: removeError }] = useRemoveMemberMutation()
@@ -55,8 +51,7 @@ export function MembersPanel() {
 
     const currentUserId = myProfile?.id ?? null
 
-    async function handleAssign(member: OrganisationMember, value: string) {
-        const roleId = value === NO_ROLE_OPTION ? null : value
+    async function handleAssign(member: OrganisationMember, roleId: string) {
         setSavingUserId(member.id)
         try {
             await assignRole({ userId: member.id, roleId }).unwrap()
@@ -132,12 +127,11 @@ export function MembersPanel() {
                                         <>
                                             {canManageRoles && (
                                                 <select
-                                                    value={member.roleId ?? NO_ROLE_OPTION}
+                                                    value={member.roleId ?? ''}
                                                     onChange={(e) => handleAssign(member, e.target.value)}
                                                     disabled={savingUserId === member.id}
                                                     className="rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-60"
                                                 >
-                                                    <option value={NO_ROLE_OPTION}>Standard medlem (ingen rolle)</option>
                                                     {(roles ?? []).map((role) => (
                                                         <option key={role.id} value={role.id}>{role.name}</option>
                                                     ))}
