@@ -6,7 +6,6 @@ import {
   BarChart3,
   Database,
   Newspaper,
-  Bell,
   User,
   ChevronDown,
   LogOut,

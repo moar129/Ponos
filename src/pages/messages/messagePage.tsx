@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquareText, Users, Plus } from 'lucide-react';
+import { MessageSquareText, Plus } from 'lucide-react';
 import { ConversationListComponent } from '../../components/messages/conversationListComponent';
 import { ContactListComponent } from '../../components/messages/contactListComponent';
 import { ConversationComponent } from '../../components/messages/conversationComponent';
