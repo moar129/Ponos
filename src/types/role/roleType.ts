@@ -17,11 +17,13 @@ export interface Privilege {
 // handle_membership_request_status_change) - roleId er kun null som et
 // forsvarsnet, hvis noget skulle gå galt i seedingen.
 export interface OrganisationMember {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    roleId: string | null
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roleId: string | null;
+  roleName: string | null;
+  urlPicture: string | null;
 }
 
 export interface CreateRoleInput {

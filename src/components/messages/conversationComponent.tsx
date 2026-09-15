@@ -1,0 +1,233 @@
+import { useEffect, useRef, useState } from 'react';
+import { Send, Loader2, MessageSquareText } from 'lucide-react';
+import {
+  useGetMessagesQuery,
+  useGetOrCreateDirectConversationMutation,
+  useSendMessageMutation,
+} from '../../store/apis/messageApi';
+import type { OrganisationMember } from '../../types/role/roleType';
+
+interface ConversationComponentProps {
+  conversationId: string | null;
+  contact: OrganisationMember;
+  currentUserId: string;
+  onConversationCreated?: (conversationId: string) => void;
+}
+
+function getInitials(firstName: string, lastName: string): string {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+}
+
+export function ConversationComponent({
+  conversationId,
+  contact,
+  currentUserId,
+  onConversationCreated,
+}: ConversationComponentProps) {
+  const [message, setMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const [getOrCreateDirectConversation, { isLoading: isCreatingConversation }] =
+    useGetOrCreateDirectConversationMutation();
+
+  const [sendMessage, { isLoading: isSending }] =
+    useSendMessageMutation();
+
+  const {
+    data: messages = [],
+    isLoading: isLoadingMessages,
+    error: messagesError,
+  } = useGetMessagesQuery(conversationId!, {
+    skip: !conversationId,
+  });
+
+  // Scroll kun selve beskedområdet til den nyeste besked.
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end',
+    });
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    const trimmedMessage = message.trim();
+
+    if (!trimmedMessage || isSending || isCreatingConversation) {
+      return;
+    }
+
+    try {
+      let activeConversationId = conversationId;
+
+      // Opret først samtalen, når den første besked sendes.
+      if (!activeConversationId) {
+        activeConversationId = await getOrCreateDirectConversation({
+          otherUserId: contact.id,
+        }).unwrap();
+
+        onConversationCreated?.(activeConversationId);
+      }
+
+      await sendMessage({
+        conversationId: activeConversationId,
+        content: trimmedMessage,
+      }).unwrap();
+
+      setMessage('');
+    } catch (error) {
+      console.error('Kunne ikke sende besked:', error);
+    }
+  };
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      void handleSendMessage();
+    }
+  };
+
+  const isBusy = isSending || isCreatingConversation;
+
+  return (
+    <div className="h-full min-h-0 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 shrink-0">
+        <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
+          {contact.urlPicture ? (
+            <img
+              src={contact.urlPicture}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            getInitials(contact.firstName, contact.lastName)
+          )}
+        </div>
+
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-slate-100 truncate">
+            {contact.firstName} {contact.lastName}
+          </p>
+
+          <p className="text-xs text-slate-400 truncate">
+            {contact.roleName ?? 'Ingen rolle'}
+          </p>
+        </div>
+      </div>
+
+      {/* Beskeder */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-4">
+        {!conversationId ? (
+          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+
+            <p className="text-sm">Ingen beskeder endnu</p>
+
+            <p className="text-xs mt-1 text-slate-500">
+              Skriv den første besked til {contact.firstName}.
+            </p>
+          </div>
+        ) : isLoadingMessages ? (
+          <div className="h-full flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+          </div>
+        ) : messagesError ? (
+          <div className="flex justify-center">
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              Kunne ikke hente beskeder.
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+
+            <p className="text-sm">Ingen beskeder endnu</p>
+
+            <p className="text-xs mt-1 text-slate-500">
+              Skriv den første besked til {contact.firstName}.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {messages.map((msg) => {
+              const isOwnMessage = msg.senderId === currentUserId;
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${
+                    isOwnMessage ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-xl px-3 py-2 ${
+                      isOwnMessage
+                        ? 'bg-[#C7975D] text-[#071B33]'
+                        : 'bg-slate-800 text-slate-100'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {msg.content}
+                    </p>
+
+                    <p
+                      className={`text-[10px] mt-1 ${
+                        isOwnMessage
+                          ? 'text-[#071B33]/60'
+                          : 'text-slate-500'
+                      }`}
+                    >
+                      {new Date(msg.createdAt).toLocaleString('da-DK', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      {/* Beskedfelt */}
+      <div className="border-t border-slate-800 p-3 shrink-0">
+        <div className="flex items-end gap-2">
+          <textarea
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={`Skriv en besked til ${contact.firstName}...`}
+            rows={1}
+            disabled={isBusy}
+            className="flex-1 resize-none bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] disabled:opacity-50"
+          />
+
+          <button
+            type="button"
+            onClick={() => void handleSendMessage()}
+            disabled={!message.trim() || isBusy}
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#C7975D] text-[#071B33] hover:bg-[#B5854B] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            aria-label="Send besked"
+          >
+            {isBusy ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        <p className="text-[10px] text-slate-500 mt-1">
+          Tryk Enter for at sende · Shift + Enter for ny linje
+        </p>
+      </div>
+    </div>
+  );
+}
