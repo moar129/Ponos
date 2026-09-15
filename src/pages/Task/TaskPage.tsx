@@ -132,7 +132,7 @@ export function TasksPage() {
                 </div>
             </header>
 
-            <div className="border-b border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm">
+            <div className="border-b border-gray-200 bg-white/90 shadow-sm">
                 <RoomBar
                     rooms={rooms}
                     selectedRoomId={selectedRoomId}

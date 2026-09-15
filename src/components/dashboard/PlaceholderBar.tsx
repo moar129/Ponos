@@ -2,8 +2,8 @@
 import type { PlaceholderBarProps } from '../../types/dashboard/dashboardType'
 
 // Fuld-bredde "kommer snart"-bjælke til Oversigt-fanen, brugt til
-// funktioner uden data/backend endnu (Dine opgaver, Notifikationer,
-// Nyheder) - rent visuelt, ingen queries.
+// funktioner uden data/backend endnu (pt. kun Notifikationer) - rent
+// visuelt, ingen queries.
 export function PlaceholderBar({ label, description, icon: Icon }: PlaceholderBarProps) {
     return (
         <div className="flex items-center gap-4 rounded-lg border border-dashed border-border-gray bg-bg-gray/40 p-5">

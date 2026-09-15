@@ -82,7 +82,7 @@ export default function Dashboard() {
         }`
 
     return (
-        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-900">
+        <div className="max-w-8xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-900">
             <div className="mb-6">
                 <h1 className="text-xl font-semibold text-primary">Dashboard</h1>
                 <p className="text-sm text-secondary">
