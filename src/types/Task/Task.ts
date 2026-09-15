@@ -8,8 +8,12 @@ export interface Task {
   organisation_id: string;
   title: string;
   description: string | null;
+  
+  created_at: string;
   start_date: string | null;
   end_date: string | null;
+  finished_at: string | null;
+
   status: ETaskStatus;
   priority: ETaskPriority | null;
   max_assignees: number | null;
