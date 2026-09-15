@@ -1,7 +1,7 @@
 // src/store/apis/messageApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { ConversationSummary, Message } from '../../types/messages/messagesTypes'
+import type { ConversationParticipant, ConversationSummary, Message } from '../../types/messages/messagesTypes'
 
 export const messageApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -118,6 +118,66 @@ export const messageApi = supabaseApi.injectEndpoints({
                 'Conversation', // opdaterer "seneste besked"-forhåndsvisningen i samtalelisten
             ],
         }),
+
+        // Opretter en gruppesamtale (US-B5). Opretteren tilføjes automatisk;
+        // alle valgte deltagere skal være medlem af samme aktive organisation
+        // som mig - RPC'en validerer det atomisk.
+        createGroupConversation: builder.mutation<string, { name: string; participantIds: string[] }>({
+            queryFn: async ({ name, participantIds }) => {
+                const { data, error } = await supabase.rpc('create_group_conversation', {
+                    p_name: name,
+                    p_participant_ids: participantIds,
+                })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: data as string }
+            },
+
+            invalidatesTags: ['Conversation'],
+        }),
+
+        // Henter deltagerne i en samtale med navn/billede, så gruppebeskeder kan
+        // vise hvem der har sendt hvad (US-B6). RLS på conversation_participants
+        // afgrænser allerede til samtaler, jeg selv deltager i.
+        getConversationParticipants: builder.query<ConversationParticipant[], string>({
+            queryFn: async (conversationId) => {
+                const { data: participants, error: participantsError } = await supabase
+                    .from('conversation_participants')
+                    .select('user_id')
+                    .eq('conversation_id', conversationId)
+
+                if (participantsError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: participantsError.message } }
+                }
+
+                if (!participants || participants.length === 0) {
+                    return { data: [] }
+                }
+
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, first_name, last_name, url_picture')
+                    .in('id', participants.map((p) => p.user_id))
+
+                if (profilesError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                }
+
+                return {
+                    data: (profiles ?? []).map((profile) => ({
+                        userId: profile.id,
+                        firstName: profile.first_name,
+                        lastName: profile.last_name,
+                        urlPicture: profile.url_picture,
+                    })),
+                }
+            },
+
+            providesTags: (_result, _error, conversationId) => [{ type: 'Conversation', id: conversationId }],
+        }),
     }),
 })
 
@@ -126,4 +186,6 @@ export const {
     useGetOrCreateDirectConversationMutation,
     useGetMessagesQuery,
     useSendMessageMutation,
+    useCreateGroupConversationMutation,
+    useGetConversationParticipantsQuery,
 } = messageApi

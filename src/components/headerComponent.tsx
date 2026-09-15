@@ -20,6 +20,7 @@ import {
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
+import { NotificationBellComponent } from './notification/notificationBellComponent';
 
 export function Header() {
   const navigate = useNavigate();
@@ -194,15 +195,7 @@ export function Header() {
               {/* Notifikationer er endnu ikke bygget (ingen tabel, ingen rute,
                   ingen user story) - ikonet bliver stående som en deaktiveret
                   knap i stedet for et link til en side der ikke findes. */}
-              <button
-                type="button"
-                disabled
-                aria-label="Notifikationer (kommer snart)"
-                title="Kommer snart"
-                className="relative p-2 text-slate-500 rounded-full cursor-not-allowed"
-              >
-                <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
-              </button>
+             <NotificationBellComponent />
 
               {/* Bruger Profil -> åbner dropdown med "Se profil" og "Log ud" */}
               <div className="relative" ref={menuRef}>
