@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { TaskCardProps } from '../../types/Task/Task';
 import {
   useGetTaskAssigneesQuery,
+  useGetOrganisationEmployeesQuery,
   useAssignToTaskMutation,
   useUnassignFromTaskMutation,
 } from '../../store/apis/taskApi';
@@ -12,14 +13,26 @@ export function TaskCard({ task }: TaskCardProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
+
+  const [assigneeNames, setAssigneeNames] = useState<
+    Record<string, string>
+  >({});
 
   const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
+  const { data: employees = [] } = useGetOrganisationEmployeesQuery();
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
 
-  const isAssigned =
-    currentUserId !== null && assignees.includes(currentUserId);
+  const currentAssignee = assignees.find(
+    (assignee) => assignee.user_id === currentUserId
+  );
+
+  const isAssigned = currentAssignee !== undefined;
+
+  const canUnassignSelf =
+    currentAssignee?.assigned_by === currentUserId;
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -31,11 +44,54 @@ export function TaskCard({ task }: TaskCardProps) {
     getCurrentUser();
   }, []);
 
+  useEffect(() => {
+    const getAssigneeNames = async () => {
+      if (assignees.length === 0) {
+        setAssigneeNames({});
+        return;
+      }
+
+      const userIds = assignees.map(
+        (assignee) => assignee.user_id
+      );
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .in('id', userIds);
+
+      if (error || !data) {
+        return;
+      }
+
+      const names: Record<string, string> = {};
+
+      data.forEach((profile) => {
+        names[profile.id] =
+          `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim();
+      });
+
+      setAssigneeNames(names);
+    };
+
+    getAssigneeNames();
+  }, [assignees]);
+
   const handleAssignment = async () => {
-    if (isAssigned) {
-      await unassignFromTask({ taskId: task.id });
-    } else {
-      await assignToTask({ taskId: task.id });
+    if (canUnassignSelf) {
+      await unassignFromTask({
+        taskId: task.id,
+        userId: currentUserId!,
+      });
+
+      return;
+    }
+
+    if (!isAssigned && currentUserId) {
+      await assignToTask({
+        taskId: task.id,
+        userId: currentUserId,
+      });
     }
   };
 
@@ -133,6 +189,54 @@ export function TaskCard({ task }: TaskCardProps) {
           </span>
         </div>
 
+        {/* ANSVARLIGE */}
+        <div className="mb-6">
+          <span className="mb-3 block text-xs font-bold uppercase text-gray-500">
+            Ansvarlige
+          </span>
+
+          {assignees.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              Ingen er tildelt endnu.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {assignees.map((assignee) => {
+                const name =
+                  assigneeNames[assignee.user_id] || 'Ukendt bruger';
+
+                const assignedByMe =
+                  assignee.assigned_by === currentUserId;
+
+                return (
+                  <div
+                    key={assignee.user_id}
+                    className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        👤 {name}
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        {assignedByMe
+                          ? 'Tilmeldt af dig'
+                          : 'Tildelt af en anden'}
+                      </p>
+                    </div>
+
+                    {assignee.user_id === currentUserId && (
+                      <span className="text-xs font-semibold text-gray-500">
+                        Dig
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* DATOER */}
         <div className="mb-5 flex gap-8 border-t border-gray-200 pt-3 text-sm text-gray-500">
           <div>
@@ -160,17 +264,23 @@ export function TaskCard({ task }: TaskCardProps) {
         {task.status === 'Started' && (
           <button
             type="button"
+            disabled={isAssigned && !canUnassignSelf}
             onClick={(e) => {
               e.stopPropagation();
               handleAssignment();
             }}
-            className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${
-              isAssigned
-                ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+            className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+              ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+              : isAssigned
+                ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
                 : 'border-black hover:bg-black hover:text-white'
-            }`}
+              }`}
           >
-            {isAssigned ? 'Afmeld' : 'Tilmeld'}
+            {canUnassignSelf
+              ? 'Afmeld'
+              : isAssigned
+                ? 'Tildelt dig'
+                : 'Tilmeld'}
           </button>
         )}
       </div>
@@ -241,6 +351,62 @@ export function TaskCard({ task }: TaskCardProps) {
               </span>
             </div>
 
+            {/* ANSVARLIGE */}
+            <div className="mb-6">
+              <span className="mb-3 block text-xs font-bold uppercase text-gray-500">
+                Ansvarlige
+              </span>
+
+              {assignees.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  Ingen er tildelt endnu.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {assignees.map((assignee) => {
+                    const name =
+                      assigneeNames[assignee.user_id] || 'Ukendt bruger';
+
+                    const assignedByMe =
+                      assignee.assigned_by === currentUserId;
+
+                    return (
+                      <div
+                        key={assignee.user_id}
+                        className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-800">
+                            👤 {name}
+                          </p>
+
+                          <p className="text-xs text-gray-500">
+                            {assignedByMe
+                              ? 'Tilmeldt af dig'
+                              : 'Tildelt af en anden'}
+                          </p>
+                        </div>
+
+                        {assignee.user_id === currentUserId && (
+                          <span className="text-xs font-semibold text-gray-500">
+                            Dig
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsEmployeePickerOpen(true)}
+                className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-800"
+              >
+                + Tilføj medarbejder
+              </button>
+            </div>
+
             {/* DATOER */}
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 p-4">
@@ -271,6 +437,105 @@ export function TaskCard({ task }: TaskCardProps) {
                 onClick={() => {
                   setIsDetailsOpen(false);
                 }}
+                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+              >
+                Luk
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EMPLOYEE PICKER */}
+      {isEmployeePickerOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setIsEmployeePickerOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* HEADER */}
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Tilføj medarbejder
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Vælg hvem der skal tildeles opgaven
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsEmployeePickerOpen(false)}
+                className="text-gray-500 hover:text-gray-900"
+              >
+                X
+              </button>
+            </div>
+
+            {/* MEDARBEJDERE */}
+            <div className="max-h-80 space-y-2 overflow-y-auto">
+              {employees
+                .filter(
+                  (employee) =>
+                    !assignees.some(
+                      (assignee) => assignee.user_id === employee.id
+                    )
+                )
+                .map((employee) => {
+                  const name =
+                    `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim();
+
+                  return (
+                    <button
+                      key={employee.id}
+                      type="button"
+                      onClick={async () => {
+                        await assignToTask({
+                          taskId: task.id,
+                          userId: employee.id,
+                        });
+
+                        setIsEmployeePickerOpen(false);
+                      }}
+                      className="w-full rounded-lg border border-gray-200 px-4 py-3 text-left transition hover:border-gray-400 hover:bg-gray-50"
+                    >
+                      {(name || employee.email) && (
+                        <p className="font-medium text-gray-800">
+                          👤 {name || employee.email}
+                        </p>
+                      )}
+
+                      {employee.email && (
+                        <p className="text-xs text-gray-500">
+                          {employee.email}
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
+
+              {employees.filter(
+                (employee) =>
+                  !assignees.some(
+                    (assignee) => assignee.user_id === employee.id
+                  )
+              ).length === 0 && (
+                  <p className="py-4 text-center text-sm text-gray-500">
+                    Der er ingen medarbejdere at tildele.
+                  </p>
+                )}
+            </div>
+
+            {/* LUK */}
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsEmployeePickerOpen(false)}
                 className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
               >
                 Luk

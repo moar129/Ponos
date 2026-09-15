@@ -27,6 +27,12 @@ export  interface Room {
   created_at: string;
 }
 
+export interface TaskAssignee {
+  user_id: string;
+  assigned_by: string;
+  assigned_at: string;
+}
+
 export interface TaskState {
   tasks: Task[];
   rooms: Room[];
