@@ -1515,27 +1515,27 @@ create policy "Bruger kan opdatere egen profil"
 -- manage_roles - se studerende1-plan.md "Fase 3" for domæne-mappingen.
 -- update_roles dækker OGSÅ at redigere en rolles privilegier, se 16.4.)
 -- ---------------------------------------------------------------------
--- Bugfix 2026-09-15 (samme rodårsag som privileges-fixet ovenfor): den
+-- Bugfix 2026-09-15 #1 (samme rodårsag som privileges-fixet ovenfor): den
 -- oprindelige Fase 3-version gated ALLE læsninger bag read_roles/admin,
 -- hvilket også blokerede profileApi.ts's lookupName('roles', roleId) -
 -- brugt til at vise EGET rollenavn på profilsiden (/bruger). Uden
 -- read_roles blev opslaget tavst RLS-filtreret til ingen række, så
 -- profilsiden viste "Ingen rolle tildelt", selvom brugeren havde en
--- rolle. Tilføjet en gren, der altid tillader en bruger at se SIN EGEN
--- rolle-række, uanset read_roles.
+-- rolle. Først rettet med en gren for at se SIN EGEN rolle-række.
+--
+-- Bugfix 2026-09-15 #2 (fundet ved merge med origin/main): en ny
+-- besked-funktions kontaktliste (contactListComponent.tsx) bruger
+-- roleApi.ts's getOrganisationMembers() til at vise ALLE medlemmers
+-- rollenavne, ikke kun ens eget - egen-rolle-grenen fra #1 var derfor
+-- ikke nok. roles-tabellen indeholder kun id/name/organisation_id -
+-- intet følsomt (det følsomme er PRIVILEGE-LISTEN pr. rolle, stadig
+-- gated i 16.4 nedenfor) - så SELECT er åbnet helt for org-medlemmer
+-- igen, samme adfærd som før Fase 3. read_roles bevarer sin betydning
+-- for privileges-tabellen.
 create policy "Se roller i egen organisation"
   on public.roles for select
   to authenticated
-  using (
-    organisation_id = public.auth_profile_org()
-    and (
-      public.has_privilege_or_admin('read_roles')
-      or id in (
-        select role_id from public.memberships
-        where user_id = auth.uid() and organisation_id = public.auth_profile_org()
-      )
-    )
-  );
+  using (organisation_id = public.auth_profile_org());
 
 create policy "Opret roller i egen organisation"
   on public.roles for insert

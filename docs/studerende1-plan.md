@@ -739,6 +739,8 @@ Migrationsfil 1-4 er kørt og bekræftet (2026-09-15). **To bugs fundet+rettet u
 
 **Mangler stadig:** escalation-guards (punkt E i test-listen), og Opgaver-checkpointet med Studerende 3 (se afsnittet "Fase 3 - granulære CRUD-privilegier" nederst).
 
+**4. Merge med `origin/main` (2026-09-15):** en stor merge (notifikationer, beskeder, Task-rum m.m. fra andre studerende) landede på branchen. Kun `headerComponent.tsx` gav en reel konflikt - løst ved at beholde begge sider (notifikationsklokke + Beskeder-link fra `origin/main`, `read_datalayer`/`read_news`-gating fra Fase 3). `npm run build` grønt efter løsning, filen staged - **merge'et er IKKE committet, det er brugerens skridt.** Fundet samtidig: `roleApi.ts` er ændret af merge'et til at bruge `getOrganisationMembers()` som kontaktliste til den nye besked-funktion, og slår nu rollenavne op for ALLE medlemmer (ikke kun egen) direkte i `roles`-tabellen - ramte `read_roles`-gatingen fra bugfix #1 ovenfor, så rollenavne forsvandt for alle uden `read_roles` i kontaktlisten. **Rettet (bugfix #2, kørt og bekræftet):** `roles`-SELECT åbnet helt for org-medlemmer igen (kun id/name - intet følsomt), samme adfærd som før Fase 3. `privileges`-tabellen (den faktiske rettighedsliste) forbliver korrekt gated. `dbSchema.sql` §16.3 opdateret.
+
 ## Konventioner
 
 - Kode (variabelnavne, funktionsnavne, kommentarer) skrives på engelsk.
