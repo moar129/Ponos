@@ -315,7 +315,7 @@ create index idx_stat_values_snapshot on public.statistics_values (snapshot_id);
 -- 13. NEWS (US-56 - org-scoped opslagstavle, ikke længere global)
 -- Oprindeligt global+service-role-only; ændret efter afklaring med
 -- bruger til at være organisationens egne nyheder, oprettet manuelt af
--- en admin (manage_news).
+-- en admin (Fase 3: create_news/read_news/update_news/delete_news).
 -- US-57 (import fra en ekstern nyheds-API) er udgået 2026-09-11, og
 -- tabellen news_sources samt kolonnerne source/external_ref er droppet
 -- igen - se userStories.md US-57 for begrundelsen.
@@ -378,6 +378,9 @@ $$;
 -- uafhængigt tildelelige privilegie (fx "manage_roles",
 -- "manage_membership_requests", "manage_organisation") - admin skal
 -- altid kunne alt, uanset hvilke granulære privilegier der er tildelt.
+-- Fase 3 (2026-09-15) splitter hvert af disse domæne-privilegier videre
+-- op i create/read/update/delete_X - se afsnit 16 for de aktuelle navne;
+-- funktionen selv er uændret, kun hvilke navne der sendes ind.
 create or replace function public.has_privilege_or_admin(p_name text)
 returns boolean
 language sql
@@ -386,6 +389,25 @@ security definer
 set search_path = public
 as $$
   select public.has_privilege(p_name) or public.has_privilege('admin');
+$$;
+
+-- Bugfix 2026-09-15: tjekker om en VILKÅRLIG rolle (ikke nødvendigvis
+-- kaldeprofilens egen) bærer et givent privilegie, uden om RLS på
+-- privileges-tabellen. Nødvendig fordi escalation-guarden i "Tildel rolle
+-- til medlemskaber"-policyen (16.10) læser privileges direkte i en
+-- subquery - en bruger med update_roles men UDEN read_roles ville ellers
+-- få den subquery tavst RLS-filtreret til 0 rækker, så guarden aldrig
+-- kunne se om målrollen bar admin-privilegiet.
+create or replace function public.role_has_privilege(p_role_id uuid, p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.privileges where role_id = p_role_id and name = p_name
+  );
 $$;
 
 
@@ -403,7 +425,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.has_privilege_or_admin('manage_membership_requests') and exists (
+  select public.has_privilege_or_admin('read_membership_requests') and exists (
     select 1
     from public.membership_requests mr
     where mr.user_id = p_user_id
@@ -505,19 +527,27 @@ create trigger trg_prevent_self_role_org_change
 -- profiles - brugeren kan allerede være medlem/have en aktiv organisation
 -- andetsteds, som ikke må påvirkes. Aktiv organisation sættes derfor kun,
 -- hvis brugeren ikke allerede har én.
+-- Fase 3: tildeler nu organisationens "Medlem"-standardrolle i stedet
+-- for at lade role_id stå null - se 15.6b.
 create or replace function public.handle_membership_request_status_change()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_default_role_id uuid;
 begin
   if new.status = 'Accepted' and old.status is distinct from 'Accepted' then
     new.reviewed_at := coalesce(new.reviewed_at, now());
     new.reviewed_by := coalesce(new.reviewed_by, auth.uid());
 
-    insert into public.memberships (user_id, organisation_id)
-    values (new.user_id, new.organisation_id)
+    select id into v_default_role_id
+    from public.roles
+    where organisation_id = new.organisation_id and name = 'Medlem';
+
+    insert into public.memberships (user_id, organisation_id, role_id)
+    values (new.user_id, new.organisation_id, v_default_role_id)
     on conflict (user_id, organisation_id) do nothing;
 
     update public.profiles
@@ -656,6 +686,88 @@ create trigger trg_prevent_admin_role_change
   for each row execute function public.prevent_admin_role_change();
 
 
+-- 15.6b Fase 3 (granulære CRUD-privilegier, 2026-09-15): Read blev et
+-- rigtigt, tildelbart privilegie i stedet for åbent for alle organisations-
+-- medlemmer. Et medlem UDEN rolle ville derved miste al læseadgang, så
+-- hver organisation får nu en beskyttet standardrolle "Medlem" (parallelt
+-- til "Admin"), som memberships falder tilbage til - se create_organisation
+-- (15.8), handle_membership_request_status_change (15.3) og
+-- handle_membership_invitation_status_change (15.15), som alle tildeler
+-- "Medlem" i stedet for at lade role_id stå null. "Medlem" starter bevidst
+-- med minimal adgang (kun read_news) - alt andet skal en admin eksplicit
+-- tildele via en anden rolle.
+--
+-- Beskytter rollen "Medlem" mod omdøb/slet, ubetinget af hvilke
+-- privilegier den bærer (modsat prevent_admin_role_change, som kun låser
+-- "Admin" når den rent faktisk har admin-privilegiet) - "Medlem" er
+-- organisationens "gulv", og skal altid findes. Respekterer samme
+-- ponos.bypass_admin_protection-flag som 15.5/15.6, så delete_organisation
+-- (15.13) stadig kan kaskade-slette den sammen med resten af organisationen.
+create or replace function public.prevent_default_role_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if old.name <> 'Medlem' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if tg_op = 'DELETE' then
+    raise exception 'Standardrollen Medlem kan ikke slettes.';
+  end if;
+
+  if new.name is distinct from old.name then
+    raise exception 'Standardrollen Medlem kan ikke omdøbes.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_default_role_change
+  before update or delete on public.roles
+  for each row execute function public.prevent_default_role_change();
+
+
+-- 15.6c Fase 3: når en (ikke-beskyttet) rolle slettes, overføres dens
+-- medlemmer til organisationens "Medlem"-rolle i stedet for at blive
+-- rolleløse. Kører BEFORE DELETE, så memberships.role_id (fk ... on
+-- delete set null, se afsnit 6.5) er peget væk fra rollen, inden selve
+-- sletningen sker - FK'ens `set null` rammer derfor kun, hvis "Medlem"
+-- selv skulle mangle (forsvarsnet, bør aldrig ske i praksis).
+create or replace function public.reassign_members_before_role_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_default_role_id uuid;
+begin
+  select id into v_default_role_id
+  from public.roles
+  where organisation_id = old.organisation_id and name = 'Medlem';
+
+  update public.memberships
+    set role_id = v_default_role_id
+    where role_id = old.id;
+
+  return old;
+end;
+$$;
+
+create trigger trg_reassign_members_before_role_delete
+  before delete on public.roles
+  for each row execute function public.reassign_members_before_role_delete();
+
+
 -- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
 -- kaldende brugers egen aktive organisation (bruger opretter og bliver
 -- selv admin) - trg_prevent_self_role_org_change (15.2) blokerer normalt
@@ -691,6 +803,8 @@ $$;
 -- hhv. trg_prevent_self_role_org_change. US-60: en bruger, der allerede
 -- har et eller flere medlemskaber, kan også oprette en ny organisation
 -- her - eneste guard er login og et udfyldt navn.
+-- Fase 3: seeder nu ÉN organisations-standardrolle "Medlem" (med
+-- read_news) samtidig med "Admin" - se 15.6b for beskyttelsen af den.
 create or replace function public.create_organisation(p_name text)
 returns public.organisations
 language plpgsql
@@ -698,9 +812,10 @@ security definer
 set search_path = public
 as $$
 declare
-  v_org      public.organisations;
-  v_role_id  uuid;
-  v_user_id  uuid := auth.uid();
+  v_org            public.organisations;
+  v_admin_role_id  uuid;
+  v_member_role_id uuid;
+  v_user_id        uuid := auth.uid();
 begin
   if v_user_id is null then
     raise exception 'Du skal være logget ind for at oprette en organisation.';
@@ -716,13 +831,20 @@ begin
 
   insert into public.roles (organisation_id, name)
   values (v_org.id, 'Admin')
-  returning id into v_role_id;
+  returning id into v_admin_role_id;
 
   insert into public.privileges (role_id, name)
-  values (v_role_id, 'admin');
+  values (v_admin_role_id, 'admin');
+
+  insert into public.roles (organisation_id, name)
+  values (v_org.id, 'Medlem')
+  returning id into v_member_role_id;
+
+  insert into public.privileges (role_id, name)
+  values (v_member_role_id, 'read_news');
 
   insert into public.memberships (user_id, organisation_id, role_id)
-  values (v_user_id, v_org.id, v_role_id);
+  values (v_user_id, v_org.id, v_admin_role_id);
 
   -- Lokal til denne transaktion (tredje argument 'true') - nulstilles
   -- automatisk ved commit, påvirker ingen andre requests.
@@ -743,8 +865,9 @@ $$;
 grant execute on function public.create_organisation(text) to authenticated;
 
 
--- 15.9 US-59: en bruger med manage_roles må ikke kunne tildele SIG SELV
--- en rolle via en memberships-opdatering (samme escalation-tanke som
+-- 15.9 US-59: en bruger med update_roles (Fase 3, tidligere manage_roles)
+-- må ikke kunne tildele SIG SELV en rolle via en memberships-opdatering
+-- (samme escalation-tanke som
 -- prevent_self_role_org_change havde for profiles.role_id før US-59).
 create or replace function public.prevent_self_membership_role_change()
 returns trigger
@@ -1059,7 +1182,7 @@ begin
     raise exception 'Du er ikke medlem af en organisation.';
   end if;
 
-  if not public.has_privilege_or_admin('manage_members') then
+  if not public.has_privilege_or_admin('delete_members') then
     raise exception 'Du har ikke rettigheder til at fjerne medlemmer.';
   end if;
 
@@ -1113,18 +1236,26 @@ grant execute on function public.remove_member(uuid) to authenticated;
 -- organisationstilknytning direkte."), som blokerede accept. Samme
 -- bypass-flag som create_organisation/set_active_organisation/
 -- leave_organisation/delete_organisation bruger er derfor nødvendigt her.
+-- Fase 3: tildeler nu organisationens "Medlem"-standardrolle i stedet
+-- for at lade role_id stå null - se 15.6b.
 create or replace function public.handle_membership_invitation_status_change()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_default_role_id uuid;
 begin
   if new.status = 'Accepted' and old.status is distinct from 'Accepted' then
     new.reviewed_at := coalesce(new.reviewed_at, now());
 
-    insert into public.memberships (user_id, organisation_id)
-    values (new.invited_user_id, new.organisation_id)
+    select id into v_default_role_id
+    from public.roles
+    where organisation_id = new.organisation_id and name = 'Medlem';
+
+    insert into public.memberships (user_id, organisation_id, role_id)
+    values (new.invited_user_id, new.organisation_id, v_default_role_id)
     on conflict (user_id, organisation_id) do nothing;
 
     perform set_config('ponos.bypass_self_role_org_change', 'true', true);
@@ -1161,7 +1292,7 @@ begin
     raise exception 'Du er ikke medlem af en organisation.';
   end if;
 
-  if not public.has_privilege_or_admin('manage_invitations') then
+  if not public.has_privilege_or_admin('create_invitations') then
     raise exception 'Du har ikke rettigheder til at invitere medlemmer.';
   end if;
 
@@ -1306,7 +1437,7 @@ create policy "Opret organisation (bootstrap)"
 create policy "Rediger egen organisation"
   on public.organisations for update
   to authenticated
-  using (id = public.auth_profile_org() and public.has_privilege_or_admin('manage_organisation'));
+  using (id = public.auth_profile_org() and public.has_privilege_or_admin('update_organisation'));
 
 -- US-67: lader en inviteret bruger se NAVNET på organisationen, de er
 -- inviteret til, selvom det ikke er deres aktive organisation (eller de
@@ -1361,7 +1492,7 @@ create policy "Admin kan se inviterede profiler i egen organisation"
   on public.profiles for select
   to authenticated
   using (
-    public.has_privilege_or_admin('manage_invitations')
+    public.has_privilege_or_admin('read_invitations')
     and exists (
       select 1 from public.membership_invitations mi
       where mi.invited_user_id = profiles.id
@@ -1380,19 +1511,38 @@ create policy "Bruger kan opdatere egen profil"
 
 
 -- ---------------------------------------------------------------------
--- 16.3 ROLES
+-- 16.3 ROLES (Fase 3: create/read/update/delete_roles erstatter
+-- manage_roles - se studerende1-plan.md "Fase 3" for domæne-mappingen.
+-- update_roles dækker OGSÅ at redigere en rolles privilegier, se 16.4.)
 -- ---------------------------------------------------------------------
+-- Bugfix 2026-09-15 (samme rodårsag som privileges-fixet ovenfor): den
+-- oprindelige Fase 3-version gated ALLE læsninger bag read_roles/admin,
+-- hvilket også blokerede profileApi.ts's lookupName('roles', roleId) -
+-- brugt til at vise EGET rollenavn på profilsiden (/bruger). Uden
+-- read_roles blev opslaget tavst RLS-filtreret til ingen række, så
+-- profilsiden viste "Ingen rolle tildelt", selvom brugeren havde en
+-- rolle. Tilføjet en gren, der altid tillader en bruger at se SIN EGEN
+-- rolle-række, uanset read_roles.
 create policy "Se roller i egen organisation"
   on public.roles for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (
+    organisation_id = public.auth_profile_org()
+    and (
+      public.has_privilege_or_admin('read_roles')
+      or id in (
+        select role_id from public.memberships
+        where user_id = auth.uid() and organisation_id = public.auth_profile_org()
+      )
+    )
+  );
 
 create policy "Opret roller i egen organisation"
   on public.roles for insert
   to authenticated
   with check (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('create_roles')
   );
 
 create policy "Rediger roller i egen organisation"
@@ -1400,7 +1550,7 @@ create policy "Rediger roller i egen organisation"
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
   );
 
 create policy "Slet roller i egen organisation"
@@ -1408,21 +1558,36 @@ create policy "Slet roller i egen organisation"
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('delete_roles')
   );
 
 
 -- ---------------------------------------------------------------------
--- 16.4 PRIVILEGES
+-- 16.4 PRIVILEGES (Fase 3: at ændre en rolles privilegie-sæt er en
+-- update af rollen, derfor update_roles - ikke splittet yderligere)
 -- ---------------------------------------------------------------------
+-- Bugfix 2026-09-15 (fundet under browser-test): den oprindelige Fase
+-- 3-version gated ALLE læsninger bag read_roles/admin, hvilket også
+-- blokerede getMyPrivileges() - hver brugers egen læsning af SIN EGEN
+-- rolles privilegier (til useHasPrivilege/client-side UI-gating). Tilføjet
+-- en gren, der altid tillader en bruger at se privilegierne på egen
+-- aktuelle rolle, uanset read_roles. Den org-brede administrative læsning
+-- (alle roller) forbliver gated af read_roles/admin.
 create policy "Se privilegier i egen organisation"
   on public.privileges for select
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
+    and (
+      public.has_privilege_or_admin('read_roles')
+      or role_id in (
+        select role_id from public.memberships
+        where user_id = auth.uid() and organisation_id = public.auth_profile_org()
+      )
+    )
   );
 
--- Escalation-guard (sikkerhed): en bruger med kun manage_roles må ikke
+-- Escalation-guard (sikkerhed): en bruger med kun update_roles må ikke
 -- kunne oprette/omdøbe et privilegie TIL "admin" - kun en reel admin må.
 -- WITH CHECK ser det NYE (post-update) navn.
 create policy "Opret privilegier i egen organisation"
@@ -1430,7 +1595,7 @@ create policy "Opret privilegier i egen organisation"
   to authenticated
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
     and (name <> 'admin' or public.has_privilege('admin'))
   );
 
@@ -1439,11 +1604,11 @@ create policy "Rediger privilegier i egen organisation"
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
   )
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
     and (name <> 'admin' or public.has_privilege('admin'))
   );
 
@@ -1452,7 +1617,7 @@ create policy "Slet privilegier i egen organisation"
   to authenticated
   using (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
   );
 
 
@@ -1469,7 +1634,7 @@ create policy "Se egne anmodninger eller anmodninger i egen org"
   to authenticated
   using (
     user_id = auth.uid()
-    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_membership_requests'))
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_membership_requests'))
   );
 
 create policy "Accepter/afvis anmodninger i egen organisation"
@@ -1477,7 +1642,7 @@ create policy "Accepter/afvis anmodninger i egen organisation"
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_membership_requests')
+    and public.has_privilege_or_admin('update_membership_requests')
   );
 
 
@@ -1648,21 +1813,33 @@ create policy "Medlemmer kan oprette statistik-værdier for egen organisation"
 
 
 -- ---------------------------------------------------------------------
--- 16.9 NEWS (US-56 - org-scoped, skrivning gated af manage_news.
--- Oprindeligt global+select-only+service-role-sync; ændret efter
--- afklaring med bruger, se 13. news_sources-policyen er fjernet igen
--- sammen med tabellen, da US-57 udgik.)
+-- 16.9 NEWS (US-56 - org-scoped. Fase 3: create/read/update/delete_news
+-- erstatter manage_news, inkl. LÆSNING som nu også gates - "Medlem"-
+-- standardrollen (15.6b) har read_news som udgangspunkt. Oprindeligt
+-- global+select-only+service-role-sync; ændret efter afklaring med
+-- bruger, se 13. news_sources-policyen er fjernet igen sammen med
+-- tabellen, da US-57 udgik.)
 -- ---------------------------------------------------------------------
 create policy "Se nyheder i egen organisation"
   on public.news for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_news'));
 
-create policy "Administrer nyheder i egen organisation"
-  on public.news for all
+create policy "Opret nyheder i egen organisation"
+  on public.news for insert
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_news'));
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_news'));
+
+create policy "Rediger nyheder i egen organisation"
+  on public.news for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_news'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_news'));
+
+create policy "Slet nyheder i egen organisation"
+  on public.news for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_news'));
 
 
 -- ---------------------------------------------------------------------
@@ -1683,9 +1860,10 @@ create policy "Se egne medlemskaber eller medlemskaber i egen organisation"
   );
 
 -- Escalation-guard (sikkerhed): samme mønster som de øvrige "Tildel
--- rolle"/manage_roles-policies - en bruger med kun manage_roles må ikke
--- kunne give sig selv/andre en rolle, der bærer admin-privilegiet - kun
--- en reel admin må det. WITH CHECK ser den NYE (post-update) role_id.
+-- rolle"/update_roles-policies (Fase 3, tidligere manage_roles) - en
+-- bruger med kun update_roles må ikke kunne give sig selv/andre en
+-- rolle, der bærer admin-privilegiet - kun en reel admin må det. WITH
+-- CHECK ser den NYE (post-update) role_id.
 --
 -- BUGFIX 2026-09-11 (fundet ved en skema-eksport, ikke under test):
 -- subqueryen stod oprindeligt som `where p.role_id = role_id`. Et
@@ -1703,18 +1881,15 @@ create policy "Tildel rolle til medlemskaber i egen organisation"
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
   )
   with check (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_roles')
+    and public.has_privilege_or_admin('update_roles')
     and (
       public.has_privilege('admin')
       or memberships.role_id is null
-      or not exists (
-        select 1 from public.privileges p
-        where p.role_id = memberships.role_id and p.name = 'admin'
-      )
+      or not public.role_has_privilege(memberships.role_id, 'admin')
     )
   );
 
@@ -1732,7 +1907,7 @@ create policy "Se egne invitationer eller invitationer i egen organisation"
   to authenticated
   using (
     invited_user_id = auth.uid()
-    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('manage_invitations'))
+    or (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_invitations'))
   );
 
 -- Modtageren accepterer/afviser selv sin egen invitation.
@@ -1748,6 +1923,6 @@ create policy "Admin kan annullere ventende invitation i egen organisation"
   to authenticated
   using (
     organisation_id = public.auth_profile_org()
-    and public.has_privilege_or_admin('manage_invitations')
+    and public.has_privilege_or_admin('delete_invitations')
     and status = 'Pending'
   );

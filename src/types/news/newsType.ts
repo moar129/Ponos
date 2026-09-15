@@ -30,7 +30,8 @@ export interface UpdateNewsInput {
 
 export interface NewsCardProps {
     news: News
-    canManage: boolean
+    canUpdate: boolean
+    canDelete: boolean
     onEdit: (news: News) => void
     onDelete: (news: News) => void
 }

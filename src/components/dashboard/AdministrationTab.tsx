@@ -3,11 +3,18 @@ import { useState } from 'react'
 import { Building2, KeyRound, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
-    MANAGE_INVITATIONS_PRIVILEGE,
-    MANAGE_MEMBERS_PRIVILEGE,
-    MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-    MANAGE_ORGANISATION_PRIVILEGE,
-    MANAGE_ROLES_PRIVILEGE,
+    CREATE_INVITATIONS_PRIVILEGE,
+    CREATE_ROLES_PRIVILEGE,
+    DELETE_INVITATIONS_PRIVILEGE,
+    DELETE_MEMBERS_PRIVILEGE,
+    DELETE_ROLES_PRIVILEGE,
+    READ_INVITATIONS_PRIVILEGE,
+    READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    READ_ROLES_PRIVILEGE,
+    UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    UPDATE_ORGANISATION_PRIVILEGE,
+    UPDATE_ROLES_PRIVILEGE,
+    useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
 import type { AdminSubTab } from '../../types/dashboard/dashboardType'
@@ -31,18 +38,31 @@ interface SubTabDef {
 // fane med en fane indeni) - det gav tre niveauer af faner oven i
 // hinanden og virkede forvirrende.
 export function AdministrationTab() {
-    const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
-    const { hasPrivilege: canManageMembers } = useHasPrivilege(MANAGE_MEMBERS_PRIVILEGE)
-    const { hasPrivilege: canManageInvitations } = useHasPrivilege(MANAGE_INVITATIONS_PRIVILEGE)
-    const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
-    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
+    const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
+        CREATE_ROLES_PRIVILEGE,
+        READ_ROLES_PRIVILEGE,
+        UPDATE_ROLES_PRIVILEGE,
+        DELETE_ROLES_PRIVILEGE,
+    ])
+    const { hasPrivilege: canAssignRoles } = useHasPrivilege(UPDATE_ROLES_PRIVILEGE)
+    const { hasPrivilege: canManageMembers } = useHasPrivilege(DELETE_MEMBERS_PRIVILEGE)
+    const { hasPrivilege: canManageInvitations } = useHasAnyPrivilege([
+        CREATE_INVITATIONS_PRIVILEGE,
+        READ_INVITATIONS_PRIVILEGE,
+        DELETE_INVITATIONS_PRIVILEGE,
+    ])
+    const { hasPrivilege: canManageMembershipRequests } = useHasAnyPrivilege([
+        READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
+        UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    ])
+    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
 
     const tabs: SubTabDef[] = []
-    if (canManageRoles) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
-    // "Medlemmer" viser rolle-tildeling (manage_roles) og/eller "Fjern"
-    // (manage_members) - fanen er synlig hvis mindst én af de to er til
+    if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
+    // "Medlemmer" viser rolle-tildeling (update_roles) og/eller "Fjern"
+    // (delete_members) - fanen er synlig hvis mindst én af de to er til
     // stede, panelet selv gater hver kontrol uafhængigt (US-66).
-    if (canManageRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
+    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
     if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
     if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })

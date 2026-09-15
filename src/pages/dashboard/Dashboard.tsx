@@ -5,11 +5,18 @@ import type { LucideIcon } from 'lucide-react'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import {
-    MANAGE_INVITATIONS_PRIVILEGE,
-    MANAGE_MEMBERS_PRIVILEGE,
-    MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-    MANAGE_ORGANISATION_PRIVILEGE,
-    MANAGE_ROLES_PRIVILEGE,
+    CREATE_INVITATIONS_PRIVILEGE,
+    CREATE_ROLES_PRIVILEGE,
+    DELETE_INVITATIONS_PRIVILEGE,
+    DELETE_MEMBERS_PRIVILEGE,
+    DELETE_ROLES_PRIVILEGE,
+    READ_INVITATIONS_PRIVILEGE,
+    READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    READ_ROLES_PRIVILEGE,
+    UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    UPDATE_ORGANISATION_PRIVILEGE,
+    UPDATE_ROLES_PRIVILEGE,
+    useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
 import type { DashboardTab } from '../../types/dashboard/dashboardType'
@@ -41,13 +48,25 @@ const TOP_TABS: TopTabDef[] = [
 export default function Dashboard() {
     const { data: profile } = useGetMyProfileQuery()
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
-    const { hasPrivilege: canManageRoles } = useHasPrivilege(MANAGE_ROLES_PRIVILEGE)
-    const { hasPrivilege: canManageMembers } = useHasPrivilege(MANAGE_MEMBERS_PRIVILEGE)
-    const { hasPrivilege: canManageInvitations } = useHasPrivilege(MANAGE_INVITATIONS_PRIVILEGE)
-    const { hasPrivilege: canManageMembershipRequests } = useHasPrivilege(MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE)
-    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(MANAGE_ORGANISATION_PRIVILEGE)
+    const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
+        CREATE_ROLES_PRIVILEGE,
+        READ_ROLES_PRIVILEGE,
+        UPDATE_ROLES_PRIVILEGE,
+        DELETE_ROLES_PRIVILEGE,
+    ])
+    const { hasPrivilege: canManageMembers } = useHasPrivilege(DELETE_MEMBERS_PRIVILEGE)
+    const { hasPrivilege: canManageInvitations } = useHasAnyPrivilege([
+        CREATE_INVITATIONS_PRIVILEGE,
+        READ_INVITATIONS_PRIVILEGE,
+        DELETE_INVITATIONS_PRIVILEGE,
+    ])
+    const { hasPrivilege: canManageMembershipRequests } = useHasAnyPrivilege([
+        READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
+        UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
+    ])
+    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
     const canSeeAdministration =
-        canManageRoles || canManageMembers || canManageInvitations || canManageMembershipRequests || canManageOrganisation
+        canSeeRolesDomain || canManageMembers || canManageInvitations || canManageMembershipRequests || canManageOrganisation
 
     const [searchParams, setSearchParams] = useSearchParams()
     const rawTab = searchParams.get('tab')

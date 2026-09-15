@@ -2,7 +2,13 @@
 import { useState } from 'react'
 import { Newspaper, Plus } from 'lucide-react'
 import { useDeleteNewsMutation, useGetNewsQuery } from '../../store/apis/newsApi'
-import { MANAGE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
+import {
+    CREATE_NEWS_PRIVILEGE,
+    DELETE_NEWS_PRIVILEGE,
+    READ_NEWS_PRIVILEGE,
+    UPDATE_NEWS_PRIVILEGE,
+    useHasPrivilege,
+} from '../../store/apis/privilegeApi'
 import { NewsCard } from '../../components/News/NewsCard'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
 import type { News } from '../../types/news/newsType'
@@ -16,10 +22,14 @@ function readableError(err: unknown): string | null {
 }
 
 // US-56: nyheder er organisationens egne (opslagstavle-stil) - admin
-// opretter/redigerer/sletter dem manuelt, gated bag manage_news.
+// opretter/redigerer/sletter dem manuelt. Fase 3: create/read/update/
+// delete_news er nu uafhængige privilegier i stedet for ét manage_news.
 export function NewsPage() {
     const { data: news, isLoading, error: listError } = useGetNewsQuery()
-    const { hasPrivilege: canManage } = useHasPrivilege(MANAGE_NEWS_PRIVILEGE)
+    const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_NEWS_PRIVILEGE)
+    const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_NEWS_PRIVILEGE)
+    const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_NEWS_PRIVILEGE)
+    const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_NEWS_PRIVILEGE)
     const [deleteNews, { isLoading: deleting, error: deleteError }] = useDeleteNewsMutation()
 
     const [isFormOpen, setIsFormOpen] = useState(false)
@@ -57,7 +67,7 @@ export function NewsPage() {
                     <h1 className="text-xl font-semibold text-primary">Nyheder</h1>
                 </div>
 
-                {canManage && (
+                {canCreate && (
                     <button
                         type="button"
                         onClick={openCreate}
@@ -75,8 +85,10 @@ export function NewsPage() {
                 </div>
             )}
 
-            {isLoading ? (
+            {isLoading || loadingReadPrivilege ? (
                 <p className="text-secondary">Indlæser nyheder...</p>
+            ) : !canRead ? (
+                <p className="text-secondary">Du har ikke adgang til at se nyheder i denne organisation.</p>
             ) : !news || news.length === 0 ? (
                 <p className="text-secondary">Der er ingen nyheder endnu.</p>
             ) : (
@@ -85,7 +97,8 @@ export function NewsPage() {
                         <NewsCard
                             key={item.id}
                             news={item}
-                            canManage={canManage}
+                            canUpdate={canUpdate}
+                            canDelete={canDelete}
                             onEdit={openEdit}
                             onDelete={setDeleteTarget}
                         />

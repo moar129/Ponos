@@ -8,41 +8,149 @@ import type { CreatePrivilegeInput, Privilege, UpdatePrivilegeInput } from '../.
 // bruger has_privilege_or_admin(), som altid tillader admin.
 export const ADMIN_PRIVILEGE = 'admin'
 
-// Granulære privilegienavne (Fase 1) - matcher navnene RLS-policies
-// tjekker via has_privilege_or_admin() i dbSchema.sql.
-export const MANAGE_ROLES_PRIVILEGE = 'manage_roles'
-export const MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'manage_membership_requests'
-export const MANAGE_ORGANISATION_PRIVILEGE = 'manage_organisation'
-export const MANAGE_MEMBERS_PRIVILEGE = 'manage_members'
-export const MANAGE_INVITATIONS_PRIVILEGE = 'manage_invitations'
-export const MANAGE_NEWS_PRIVILEGE = 'manage_news'
+// Fase 3: granulære CRUD-privilegier - hvert domæne har sit eget sæt af
+// create/read/update/delete-privilegier i stedet for ét fælles manage_X.
+// Kun de operationer der reelt findes for domænet er oprettet (fx intet
+// create_organisation - organisation oprettes via en selvbetjent RPC).
+// Se docs/studerende1-plan.md (Fase 3) for domæne-mappingen og
+// docs/migrations/fase3-*.sql for de tilhørende RLS-policies.
+export const CREATE_ROLES_PRIVILEGE = 'create_roles'
+export const READ_ROLES_PRIVILEGE = 'read_roles'
+export const UPDATE_ROLES_PRIVILEGE = 'update_roles'
+export const DELETE_ROLES_PRIVILEGE = 'delete_roles'
 
-// Fase 2 (US-62/US-63). Tilføjet FØR de tilhørende RLS-policies, så en
-// organisation kan nå at tildele privilegierne til sine roller inden
-// skrivning gates - ellers ville alle menige medlemmer miste skrive-
-// adgang i Datalayer/Opgaver i samme sekund SQL'en køres. Indtil da har
-// de ingen effekt: ingen policy tjekker dem endnu.
-// Se docs/migrations/us-62-datalayer-write-privileges.sql og
-// docs/migrations/us-63-tasks-write-privileges.sql.
-export const MANAGE_DATALAYER_PRIVILEGE = 'manage_datalayer'
-export const MANAGE_TASKS_PRIVILEGE = 'manage_tasks'
+export const UPDATE_ORGANISATION_PRIVILEGE = 'update_organisation'
+
+export const READ_MEMBERSHIP_REQUESTS_PRIVILEGE = 'read_membership_requests'
+export const UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE = 'update_membership_requests'
+
+export const DELETE_MEMBERS_PRIVILEGE = 'delete_members'
+
+export const CREATE_INVITATIONS_PRIVILEGE = 'create_invitations'
+export const READ_INVITATIONS_PRIVILEGE = 'read_invitations'
+export const DELETE_INVITATIONS_PRIVILEGE = 'delete_invitations'
+
+export const CREATE_NEWS_PRIVILEGE = 'create_news'
+export const READ_NEWS_PRIVILEGE = 'read_news'
+export const UPDATE_NEWS_PRIVILEGE = 'update_news'
+export const DELETE_NEWS_PRIVILEGE = 'delete_news'
+
+// Datalager (Studerende 2's domæne) og Opgaver (Studerende 3's domæne) -
+// RLS-policies er skrevet (docs/migrations/fase3-datalayer-privileges.sql
+// / fase3-tasks-privileges.sql), men IKKE kørt endnu. Konstanterne findes
+// allerede her, så roller kan nå at få tildelt privilegierne, før
+// gatingen slås til.
+export const CREATE_DATALAYER_PRIVILEGE = 'create_datalayer'
+export const READ_DATALAYER_PRIVILEGE = 'read_datalayer'
+export const UPDATE_DATALAYER_PRIVILEGE = 'update_datalayer'
+export const DELETE_DATALAYER_PRIVILEGE = 'delete_datalayer'
+
+export const CREATE_TASKS_PRIVILEGE = 'create_tasks'
+export const READ_TASKS_PRIVILEGE = 'read_tasks'
+export const UPDATE_TASKS_PRIVILEGE = 'update_tasks'
+export const DELETE_TASKS_PRIVILEGE = 'delete_tasks'
+
+type PrivilegeOp = 'create' | 'read' | 'update' | 'delete'
+
+interface PrivilegeDomain {
+    domain: string
+    domainLabel: string
+    // Kun de operationer domænet reelt understøtter er til stede.
+    ops: Partial<Record<PrivilegeOp, string>>
+}
+
+// Domænernes CRUD-privilegier grupperet - bruges til at bygge
+// "Tilføj privilegie"-dropdownen pr. domæne i stedet for en flad liste.
+export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
+    {
+        domain: 'roles',
+        domainLabel: 'Roller og privilegier',
+        ops: {
+            create: CREATE_ROLES_PRIVILEGE,
+            read: READ_ROLES_PRIVILEGE,
+            update: UPDATE_ROLES_PRIVILEGE,
+            delete: DELETE_ROLES_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'organisation',
+        domainLabel: 'Organisation',
+        ops: { update: UPDATE_ORGANISATION_PRIVILEGE },
+    },
+    {
+        domain: 'membership_requests',
+        domainLabel: 'Medlemsanmodninger',
+        ops: { read: READ_MEMBERSHIP_REQUESTS_PRIVILEGE, update: UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE },
+    },
+    {
+        domain: 'members',
+        domainLabel: 'Medlemmer',
+        ops: { delete: DELETE_MEMBERS_PRIVILEGE },
+    },
+    {
+        domain: 'invitations',
+        domainLabel: 'Invitationer',
+        ops: {
+            create: CREATE_INVITATIONS_PRIVILEGE,
+            read: READ_INVITATIONS_PRIVILEGE,
+            delete: DELETE_INVITATIONS_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'news',
+        domainLabel: 'Nyheder',
+        ops: {
+            create: CREATE_NEWS_PRIVILEGE,
+            read: READ_NEWS_PRIVILEGE,
+            update: UPDATE_NEWS_PRIVILEGE,
+            delete: DELETE_NEWS_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'datalayer',
+        domainLabel: 'Datalager',
+        ops: {
+            create: CREATE_DATALAYER_PRIVILEGE,
+            read: READ_DATALAYER_PRIVILEGE,
+            update: UPDATE_DATALAYER_PRIVILEGE,
+            delete: DELETE_DATALAYER_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'tasks',
+        domainLabel: 'Opgaver',
+        ops: {
+            create: CREATE_TASKS_PRIVILEGE,
+            read: READ_TASKS_PRIVILEGE,
+            update: UPDATE_TASKS_PRIVILEGE,
+            delete: DELETE_TASKS_PRIVILEGE,
+        },
+    },
+]
+
+const OP_LABELS: Record<PrivilegeOp, string> = {
+    create: 'Opret',
+    read: 'Se',
+    update: 'Redigér',
+    delete: 'Slet',
+}
 
 // Kendte systemprivilegier med brugervenlige, danske labels - bruges til
 // at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
-// privilegie til en rolle. En organisation kan ikke forventes at kende
-// eller stave de bogstavelige privilegienavne, RLS-policies tjekker.
-// Privileges-tabellen tillader stadig vilkårlige navne (US-13 er skrevet
-// generisk), så UI'en har også en "Andet"-mulighed med fritekst.
+// privilegie til en rolle. Afledt af PRIVILEGE_DOMAINS ("Domæne —
+// Operation", fx "Nyheder — Opret"). En organisation kan ikke forventes
+// at kende eller stave de bogstavelige privilegienavne, RLS-policies
+// tjekker. Privileges-tabellen tillader stadig vilkårlige navne (US-13
+// er skrevet generisk), så UI'en har også en "Andet"-mulighed med
+// fritekst.
 export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
     { name: ADMIN_PRIVILEGE, label: 'Fuld administrator (kan alt)' },
-    { name: MANAGE_ROLES_PRIVILEGE, label: 'Administrere roller og privilegier' },
-    { name: MANAGE_MEMBERSHIP_REQUESTS_PRIVILEGE, label: 'Behandle medlemsanmodninger' },
-    { name: MANAGE_ORGANISATION_PRIVILEGE, label: 'Redigere organisation' },
-    { name: MANAGE_MEMBERS_PRIVILEGE, label: 'Fjerne medlemmer' },
-    { name: MANAGE_INVITATIONS_PRIVILEGE, label: 'Invitere medlemmer' },
-    { name: MANAGE_NEWS_PRIVILEGE, label: 'Administrere nyheder' },
-    { name: MANAGE_DATALAYER_PRIVILEGE, label: 'Administrere datalager' },
-    { name: MANAGE_TASKS_PRIVILEGE, label: 'Administrere opgaver' },
+    ...PRIVILEGE_DOMAINS.flatMap((domain) =>
+        (Object.entries(domain.ops) as [PrivilegeOp, string][]).map(([op, name]) => ({
+            name,
+            label: `${domain.domainLabel} — ${OP_LABELS[op]}`,
+        })),
+    ),
 ]
 
 // Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets
@@ -50,6 +158,20 @@ export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
 // custom-privilegier, der ikke er i listen.
 export function privilegeLabel(name: string): string {
     return KNOWN_PRIVILEGES.find((p) => p.name === name)?.label ?? name
+}
+
+// Samme som privilegeLabel, men returnerer kun operations-delen ("Opret",
+// "Se", ...) uden domænenavnet foran - bruges når domænet allerede vises
+// som en overskrift (fx den grupperede "Tilføj privilegie"-dropdown).
+// Falder tilbage til den fulde label for admin/custom-privilegier, der
+// ikke hører til noget domæne.
+export function privilegeOpLabel(name: string): string {
+    for (const domain of PRIVILEGE_DOMAINS) {
+        for (const [op, opName] of Object.entries(domain.ops) as [PrivilegeOp, string][]) {
+            if (opName === name) return OP_LABELS[op]
+        }
+    }
+    return privilegeLabel(name)
 }
 
 export const privilegeApi = supabaseApi.injectEndpoints({
@@ -265,6 +387,20 @@ export function useHasPrivilege(name: string): { hasPrivilege: boolean; isLoadin
 
     return {
         hasPrivilege: (privileges?.includes(name) || privileges?.includes(ADMIN_PRIVILEGE)) ?? false,
+        isLoading,
+    }
+}
+
+// Samme som useHasPrivilege, men tjekker om brugeren har MINDST ét af
+// flere privilegier. Bruges til at afgøre synlighed af en hel fane/
+// sektion, hvor et domæne nu kan have op til 4 relevante privilegie-
+// navne (Fase 3) i stedet for ét enkelt manage_X.
+export function useHasAnyPrivilege(names: string[]): { hasPrivilege: boolean; isLoading: boolean } {
+    const { data: privileges, isLoading } = useGetMyPrivilegesQuery()
+
+    return {
+        hasPrivilege:
+            (privileges?.includes(ADMIN_PRIVILEGE) || names.some((name) => privileges?.includes(name))) ?? false,
         isLoading,
     }
 }

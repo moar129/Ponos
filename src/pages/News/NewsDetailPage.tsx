@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useDeleteNewsMutation, useGetNewsByIdQuery } from '../../store/apis/newsApi'
-import { MANAGE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
+import { DELETE_NEWS_PRIVILEGE, UPDATE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
 import { isRichText, sanitizeRichText } from '../../lib/richText'
 
@@ -31,7 +31,8 @@ export function NewsDetailPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { data: news, isLoading, error: queryError } = useGetNewsByIdQuery(id ?? '', { skip: !id })
-    const { hasPrivilege: canManage } = useHasPrivilege(MANAGE_NEWS_PRIVILEGE)
+    const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_NEWS_PRIVILEGE)
+    const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_NEWS_PRIVILEGE)
     const [deleteNews, { isLoading: deleting, error: deleteError }] = useDeleteNewsMutation()
 
     const [isFormOpen, setIsFormOpen] = useState(false)
@@ -74,24 +75,28 @@ export function NewsDetailPage() {
                                 <p className="text-sm text-secondary mt-1">{formatDate(news.publishedAt)}</p>
                             </div>
 
-                            {canManage && (
+                            {(canUpdate || canDelete) && (
                                 <div className="flex items-center gap-1 shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsFormOpen(true)}
-                                        aria-label="Rediger nyhed"
-                                        className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setConfirmingDelete(true)}
-                                        aria-label="Slet nyhed"
-                                        className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    {canUpdate && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsFormOpen(true)}
+                                            aria-label="Rediger nyhed"
+                                            className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                    {canDelete && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setConfirmingDelete(true)}
+                                            aria-label="Slet nyhed"
+                                            className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>

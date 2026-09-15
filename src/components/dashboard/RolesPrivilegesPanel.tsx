@@ -4,6 +4,7 @@ import type { FormEvent } from 'react'
 import { Check, ChevronDown, Lock, Pencil, Trash2, X } from 'lucide-react'
 import {
     ADMIN_ROLE_NAME,
+    MEMBER_ROLE_NAME,
     useCreateRoleMutation,
     useDeleteRoleMutation,
     useGetOrganisationRolesQuery,
@@ -11,8 +12,9 @@ import {
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
-    KNOWN_PRIVILEGES,
+    PRIVILEGE_DOMAINS,
     privilegeLabel,
+    privilegeOpLabel,
     useCreatePrivilegeMutation,
     useDeletePrivilegeMutation,
     useGetOrganisationPrivilegesQuery,
@@ -137,6 +139,13 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     // Matcher databasens prevent_admin_role_change-trigger.
     const isAdminRole = role.name === ADMIN_ROLE_NAME && privileges.some((p) => p.name === ADMIN_PRIVILEGE)
 
+    // Standardrollen "Medlem" (Fase 3) er altid låst - den er fallback
+    // for nye medlemmer og for medlemmer, hvis rolle bliver slettet, så
+    // organisationen ville miste sit "gulv" hvis den kunne omdøbes/
+    // slettes. Matcher databasens prevent_default_role_change-trigger.
+    const isDefaultRole = role.name === MEMBER_ROLE_NAME
+    const isLockedRole = isAdminRole || isDefaultRole
+
     const [updateRole, { isLoading: renaming, error: renameError }] = useUpdateRoleMutation()
     const [deleteRole, { isLoading: deleting, error: deleteError }] = useDeleteRoleMutation()
     const [createPrivilege] = useCreatePrivilegeMutation()
@@ -155,16 +164,28 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     // RLS'ens escalation-guard, så vi tilbyder den ikke i UI'en.
     const { hasPrivilege: isFullAdmin } = useHasPrivilege(ADMIN_PRIVILEGE)
 
-    // Kun de kendte privilegier, rollen ikke allerede har - undgår at
-    // friste til et dublet-forsøg, som RLS/unique-constraint alligevel
-    // ville afvise. "Andet" er altid med sidst, så man kan skrive et
-    // custom privilegienavn (US-13 er skrevet generisk).
-    const availablePrivileges = KNOWN_PRIVILEGES.filter(
-        (known) =>
-            !privileges.some((existing) => existing.name === known.name) &&
-            (known.name !== ADMIN_PRIVILEGE || isFullAdmin),
-    )
-    const pickerOptions = [...availablePrivileges, { name: CUSTOM_PRIVILEGE_OPTION, label: 'Andet (indtast selv)...' }]
+    // Grupperet pr. domæne (Fase 3: op til 4 CRUD-privilegier pr. domæne
+    // gør en flad liste uoverskuelig). Kun de operationer rollen ikke
+    // allerede har - undgår at friste til et dublet-forsøg, som RLS/
+    // unique-constraint alligevel ville afvise.
+    const pickerGroups: { heading: string | null; options: { name: string; label: string }[] }[] = [
+        {
+            heading: null,
+            options:
+                !privileges.some((existing) => existing.name === ADMIN_PRIVILEGE) && isFullAdmin
+                    ? [{ name: ADMIN_PRIVILEGE, label: privilegeLabel(ADMIN_PRIVILEGE) }]
+                    : [],
+        },
+        ...PRIVILEGE_DOMAINS.map((domain) => ({
+            heading: domain.domainLabel,
+            options: (Object.values(domain.ops) as string[])
+                .filter((name) => !privileges.some((existing) => existing.name === name))
+                .map((name) => ({ name, label: privilegeOpLabel(name) })),
+        })).filter((group) => group.options.length > 0),
+        // "Andet" er altid med sidst, så man kan skrive et custom
+        // privilegienavn (US-13 er skrevet generisk).
+        { heading: null, options: [{ name: CUSTOM_PRIVILEGE_OPTION, label: 'Andet (indtast selv)...' }] },
+    ].filter((group) => group.options.length > 0)
 
     function togglePrivilege(name: string) {
         setSelectedPrivileges((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]))
@@ -333,10 +354,14 @@ function RoleCard({ role, privileges }: RoleCardProps) {
             ) : (
                 <div className="flex items-center justify-between gap-2 mb-2">
                     <p className="font-medium">{role.name}</p>
-                    {isAdminRole ? (
+                    {isLockedRole ? (
                         <span
                             className="flex items-center gap-1 text-xs text-secondary italic"
-                            title="Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes"
+                            title={
+                                isAdminRole
+                                    ? 'Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes'
+                                    : 'Standardrollen Medlem kan ikke omdøbes eller slettes'
+                            }
                         >
                             <Lock className="w-3.5 h-3.5" />
                             Låst
@@ -398,19 +423,28 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                             role="listbox"
                             className="absolute left-0 top-full mt-1 w-64 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg border border-border-gray py-1 z-10"
                         >
-                            {pickerOptions.map((p) => (
-                                <label
-                                    key={p.name}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedPrivileges.includes(p.name)}
-                                        onChange={() => togglePrivilege(p.name)}
-                                        className="rounded border-border-gray"
-                                    />
-                                    {p.label}
-                                </label>
+                            {pickerGroups.map((group, groupIndex) => (
+                                <div key={group.heading ?? `ungrouped-${groupIndex}`}>
+                                    {group.heading && (
+                                        <p className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wide text-secondary/70">
+                                            {group.heading}
+                                        </p>
+                                    )}
+                                    {group.options.map((p) => (
+                                        <label
+                                            key={p.name}
+                                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedPrivileges.includes(p.name)}
+                                                onChange={() => togglePrivilege(p.name)}
+                                                className="rounded border-border-gray"
+                                            />
+                                            {p.label}
+                                        </label>
+                                    ))}
+                                </div>
                             ))}
                         </div>
                     )}
