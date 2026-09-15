@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
     useCreateTaskMutation,
     useGetRoomsQuery,
-
 } from '../../store/apis/taskApi';
 import type { ETaskPriority } from '../../types/Task/Task';
 import { MoreVertical } from 'lucide-react';
@@ -15,9 +14,16 @@ interface CreateTaskModalProps {
 
 function readableError(err: unknown): string | null {
     if (!err) return null;
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
+
+    if (
+        typeof err === 'object' &&
+        err !== null &&
+        'error' in err &&
+        typeof err.error === 'string'
+    ) {
         return err.error;
     }
+
     return 'Noget gik galt. Prøv igen.';
 }
 
@@ -27,21 +33,15 @@ export function CreateTaskModal({
     selectedRoomId,
 }: CreateTaskModalProps) {
     const today = new Date().toISOString().split('T')[0];
-    const isValidDate = (date: string) => {
-        if (!date) return true;
-
-        return date >= today;
-    };
-
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [startDate, setStartDate] = useState(today);
     const [endDate, setEndDate] = useState('');
     const [priority, setPriority] = useState<ETaskPriority | null>(null);
     const [maxAssignees, setMaxAssignees] = useState<number | null>(null);
-const [roomId, setRoomId] = useState<string | null>(selectedRoomId);
-const [createTask, { isLoading, error }] = useCreateTaskMutation();
+    const [roomId, setRoomId] = useState<string | null>(selectedRoomId);
+
+    const [createTask, { isLoading, error }] = useCreateTaskMutation();
     const { data: rooms = [] } = useGetRoomsQuery();
 
     if (!isOpen) {
@@ -54,12 +54,12 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
         }
 
         try {
-            console.log('Opretter opgave med room_id:', selectedRoomId);
+            console.log('Opretter opgave med room_id:', roomId);
 
             await createTask({
                 title: title.trim(),
                 description: description.trim(),
-                start_date: startDate || null,
+                start_date: today,
                 end_date: endDate || null,
                 priority,
                 max_assignees: maxAssignees,
@@ -68,25 +68,27 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
 
             setTitle('');
             setDescription('');
-            setStartDate('');
             setEndDate('');
             setPriority(null);
             setMaxAssignees(null);
+            setRoomId(selectedRoomId);
+
             onClose();
         } catch {
             // handled through mutation error state
         }
-    }
+    };
 
     const errorMessage = readableError(error);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-900">
                         Opret Opgave
                     </h2>
+
                     <button
                         type="button"
                         onClick={onClose}
@@ -97,12 +99,13 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                 </div>
 
                 {errorMessage && (
-                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
 
                 <div className="space-y-4">
+                    {/* TITEL */}
                     <div>
                         <label
                             htmlFor="task-title"
@@ -110,6 +113,7 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         >
                             Titel
                         </label>
+
                         <input
                             id="task-title"
                             type="text"
@@ -120,6 +124,7 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         />
                     </div>
 
+                    {/* BESKRIVELSE */}
                     <div>
                         <label
                             htmlFor="task-description"
@@ -134,7 +139,8 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Opgavens beskrivelse"
                             rows={5}
-                            className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 break-words" />
+                            className="w-full resize-y break-words rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
+                        />
                     </div>
 
                     {/* RUM */}
@@ -149,7 +155,9 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         <select
                             id="task-room"
                             value={roomId ?? ''}
-                            onChange={(e) => setRoomId(e.target.value || null)}
+                            onChange={(e) =>
+                                setRoomId(e.target.value || null)
+                            }
                             className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
                         >
                             <option value="">Vælg rum</option>
@@ -162,7 +170,9 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         </select>
                     </div>
 
+                    {/* DATOER */}
                     <div className="grid grid-cols-2 gap-4">
+                        {/* STARTDATO */}
                         <div>
                             <label
                                 htmlFor="task-start-date"
@@ -174,19 +184,13 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                             <input
                                 id="task-start-date"
                                 type="date"
-                                value={startDate}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-
-                                    if (isValidDate(value)) {
-                                        setStartDate(value);
-                                    }
-                                }}
-                                min={startDate || today}
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
+                                value={today}
+                                readOnly
+                                className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-gray-500 outline-none"
                             />
                         </div>
 
+                        {/* SLUTDATO */}
                         <div>
                             <label
                                 htmlFor="task-end-date"
@@ -199,19 +203,14 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                                 id="task-end-date"
                                 type="date"
                                 value={endDate}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-
-                                    if (isValidDate(value)) {
-                                        setEndDate(value);
-                                    }
-                                }}
-                                min={startDate || today}
+                                min={today}
+                                onChange={(e) => setEndDate(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
                             />
                         </div>
                     </div>
 
+                    {/* PRIORITET */}
                     <div>
                         <label
                             htmlFor="task-priority"
@@ -219,6 +218,7 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         >
                             Prioritet
                         </label>
+
                         <select
                             id="task-priority"
                             value={priority ?? ''}
@@ -239,6 +239,7 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                         </select>
                     </div>
 
+                    {/* ANTAL PERSONER */}
                     <div>
                         <label
                             htmlFor="task-max-assignees"
@@ -270,6 +271,7 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
                     </div>
                 </div>
 
+                {/* KNAPPER */}
                 <div className="mt-6 flex justify-end gap-3">
                     <button
                         type="button"
@@ -291,4 +293,4 @@ const [createTask, { isLoading, error }] = useCreateTaskMutation();
             </div>
         </div>
     );
-};
+}
