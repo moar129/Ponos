@@ -9,10 +9,13 @@ import { getErrorMessage } from '../../ErrorMessage';
 interface ItemDetailComponentProps {
   item: AggregatedItem | null;
   onClose: () => void;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 
-export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps) {
+export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -88,7 +91,7 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {!isEditing && (
+            {!isEditing && canUpdate && (
               <button
                 onClick={() => setIsEditing(true)}
                 className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
@@ -158,7 +161,13 @@ export function ItemDetailComponent({ item, onClose }: ItemDetailComponentProps)
             <div className="col-span-2">
               <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Lokation</span>
               {isEditing ? (
-                <LocationPickerComponent value={itemLocationId} onChange={setItemLocationId} />
+                <LocationPickerComponent
+                  value={itemLocationId}
+                  onChange={setItemLocationId}
+                  canCreate={canCreate}
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
+                />
               ) : (
                 <span className="text-slate-200">{currentLocationName ?? 'Ingen lokation'}</span>
               )}

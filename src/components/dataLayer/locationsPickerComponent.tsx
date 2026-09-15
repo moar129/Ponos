@@ -6,7 +6,7 @@ import type { LocationPickerComponentProps } from '../../types/dataLayer/datalay
 import { getErrorMessage } from '../../ErrorMessage';
 
 
-export function LocationPickerComponent({ value, onChange }: LocationPickerComponentProps) {
+export function LocationPickerComponent({ value, onChange, canCreate, canUpdate, canDelete }: LocationPickerComponentProps) {
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
   const [isCreating, setIsCreating] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
@@ -46,16 +46,18 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="block text-xs text-slate-400 uppercase tracking-wide">Lokation</label>
-        <button
-          type="button"
-          onClick={() => setIsManaging(true)}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#C7975D]"
-          title="Administrer lokationer"
-          aria-label="Administrer lokationer"
-        >
-          <Settings2 className="w-3.5 h-3.5" />
-          Administrer
-        </button>
+        {(canUpdate || canDelete) && (
+          <button
+            type="button"
+            onClick={() => setIsManaging(true)}
+            className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#C7975D]"
+            title="Administrer lokationer"
+            aria-label="Administrer lokationer"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            Administrer
+          </button>
+        )}
       </div>
 
       {isCreating ? (
@@ -114,7 +116,7 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>{loc.name}</option>
             ))}
-            <option value="__new__">+ Opret ny lokation…</option>
+            {canCreate && <option value="__new__">+ Opret ny lokation…</option>}
           </select>
         </div>
       )}
@@ -122,6 +124,8 @@ export function LocationPickerComponent({ value, onChange }: LocationPickerCompo
       <LocationManagerComponent
         isOpen={isManaging}
         onClose={() => setIsManaging(false)}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
     </div>
   );

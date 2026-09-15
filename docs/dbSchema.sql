@@ -1515,27 +1515,27 @@ create policy "Bruger kan opdatere egen profil"
 -- manage_roles - se studerende1-plan.md "Fase 3" for domæne-mappingen.
 -- update_roles dækker OGSÅ at redigere en rolles privilegier, se 16.4.)
 -- ---------------------------------------------------------------------
--- Bugfix 2026-09-15 (samme rodårsag som privileges-fixet ovenfor): den
+-- Bugfix 2026-09-15 #1 (samme rodårsag som privileges-fixet ovenfor): den
 -- oprindelige Fase 3-version gated ALLE læsninger bag read_roles/admin,
 -- hvilket også blokerede profileApi.ts's lookupName('roles', roleId) -
 -- brugt til at vise EGET rollenavn på profilsiden (/bruger). Uden
 -- read_roles blev opslaget tavst RLS-filtreret til ingen række, så
 -- profilsiden viste "Ingen rolle tildelt", selvom brugeren havde en
--- rolle. Tilføjet en gren, der altid tillader en bruger at se SIN EGEN
--- rolle-række, uanset read_roles.
+-- rolle. Først rettet med en gren for at se SIN EGEN rolle-række.
+--
+-- Bugfix 2026-09-15 #2 (fundet ved merge med origin/main): en ny
+-- besked-funktions kontaktliste (contactListComponent.tsx) bruger
+-- roleApi.ts's getOrganisationMembers() til at vise ALLE medlemmers
+-- rollenavne, ikke kun ens eget - egen-rolle-grenen fra #1 var derfor
+-- ikke nok. roles-tabellen indeholder kun id/name/organisation_id -
+-- intet følsomt (det følsomme er PRIVILEGE-LISTEN pr. rolle, stadig
+-- gated i 16.4 nedenfor) - så SELECT er åbnet helt for org-medlemmer
+-- igen, samme adfærd som før Fase 3. read_roles bevarer sin betydning
+-- for privileges-tabellen.
 create policy "Se roller i egen organisation"
   on public.roles for select
   to authenticated
-  using (
-    organisation_id = public.auth_profile_org()
-    and (
-      public.has_privilege_or_admin('read_roles')
-      or id in (
-        select role_id from public.memberships
-        where user_id = auth.uid() and organisation_id = public.auth_profile_org()
-      )
-    )
-  );
+  using (organisation_id = public.auth_profile_org());
 
 create policy "Opret roller i egen organisation"
   on public.roles for insert
@@ -1648,42 +1648,74 @@ create policy "Accepter/afvis anmodninger i egen organisation"
 
 -- ---------------------------------------------------------------------
 -- 16.6 LOCATIONS / DATA LAYER CATEGORIES / DATA LAYER ITEMS
--- (Studerende 2's domæne — grundlæggende org-scoped adgang er sat op
--- her som fælles fundament. Skriv-policies kan strammes/udvides af
--- Studerende 2 ift. deres egne user stories.)
+-- (Studerende 2's domæne. Fase 3 (2026-09-15): create/read/update/
+-- delete_datalayer erstatter den tidligere åbne adgang for alle org-
+-- medlemmer - LÆSNING gates nu også, ikke kun skrivning. Frontend-
+-- gating bygget og godkendt af Studerende 2 samtidig, se
+-- docs/studerende1-plan.md "Fase 3".)
 -- ---------------------------------------------------------------------
 create policy "Se lokationer i egen organisation"
   on public.locations for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_datalayer'));
 
-create policy "Medlemmer kan oprette/redigere/slette lokationer i egen organisation"
-  on public.locations for all
+create policy "Opret lokationer i egen organisation"
+  on public.locations for insert
   to authenticated
-  using (organisation_id = public.auth_profile_org())
-  with check (organisation_id = public.auth_profile_org());
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_datalayer'));
+
+create policy "Rediger lokationer i egen organisation"
+  on public.locations for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'));
+
+create policy "Slet lokationer i egen organisation"
+  on public.locations for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_datalayer'));
 
 create policy "Se datalayer-kategorier i egen organisation"
   on public.data_layer_categories for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_datalayer'));
 
-create policy "Medlemmer kan oprette/redigere/slette kategorier i egen organisation"
-  on public.data_layer_categories for all
+create policy "Opret datalayer-kategorier i egen organisation"
+  on public.data_layer_categories for insert
   to authenticated
-  using (organisation_id = public.auth_profile_org())
-  with check (organisation_id = public.auth_profile_org());
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_datalayer'));
+
+create policy "Rediger datalayer-kategorier i egen organisation"
+  on public.data_layer_categories for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'));
+
+create policy "Slet datalayer-kategorier i egen organisation"
+  on public.data_layer_categories for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_datalayer'));
 
 create policy "Se datalayer-items i egen organisation"
   on public.data_layer_items for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_datalayer'));
 
-create policy "Medlemmer kan oprette/redigere/slette items i egen organisation"
-  on public.data_layer_items for all
+create policy "Opret datalayer-items i egen organisation"
+  on public.data_layer_items for insert
   to authenticated
-  using (organisation_id = public.auth_profile_org())
-  with check (organisation_id = public.auth_profile_org());
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_datalayer'));
+
+create policy "Rediger datalayer-items i egen organisation"
+  on public.data_layer_items for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'));
+
+create policy "Slet datalayer-items i egen organisation"
+  on public.data_layer_items for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_datalayer'));
 
 
 -- ---------------------------------------------------------------------

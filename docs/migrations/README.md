@@ -18,18 +18,11 @@ Den sidste regel er bevidst: når ændringen står i `dbSchema.sql`, er filen re
 
 | Fil | Story | Status |
 |---|---|---|
-| `fase3-medlem-rolle.sql` | Fase 3 | Klar — kør FØRST |
-| `fase3-roles-organisation-privileges.sql` | Fase 3 | Klar — efter medlem-rolle |
-| `fase3-membership-members-invitations-privileges.sql` | Fase 3 | Klar — efter medlem-rolle |
-| `fase3-news-privileges.sql` | Fase 3 | Klar — efter medlem-rolle |
-| `fase3-datalayer-privileges.sql` | Fase 3 (US-62) | Vent — frontend-gating i Studerende 2's filer mangler |
 | `fase3-tasks-privileges.sql` | Fase 3 (US-63) | Vent — aftale med Studerende 3 mangler |
 
-Erstatter de tidligere `us-62-datalayer-write-privileges.sql`/`us-63-tasks-write-privileges.sql` (slettet 2026-09-15, aldrig kørt) - designet om fra ét `manage_X`-privilegie til fuldt CRUD, se `docs/studerende1-plan.md` (Fase 3).
+Erstatter den tidligere `us-63-tasks-write-privileges.sql` (slettet 2026-09-15, aldrig kørt) - designet om fra ét `manage_tasks`-privilegie til fuldt CRUD, se `docs/studerende1-plan.md` (Fase 3).
 
-`fase3-combined-1-4-RUN-NOW.sql` er en engangs-sammenkopiering af de fire klar-filer (1-4, IKKE Datalayer/Opgaver), til at køre alt i én omgang i Supabase SQL Editor. Samme regel som CSV-eksporten nedenfor: **slet den igen efter kørsel** - de fire originale filer er kilden, denne er ren bekvemmelighed.
-
-Kørt og slettet: `2026-09-11-fix-memberships-role-guard.sql` (US-11, Fase 1-bugfix) — se `dbSchema.sql` §16.10 og "Skema-eksport og drift-fund" i `studerende1-plan.md`.
+Kørt og slettet: `2026-09-11-fix-memberships-role-guard.sql` (US-11, Fase 1-bugfix); `fase3-medlem-rolle.sql`, `fase3-roles-organisation-privileges.sql`, `fase3-membership-members-invitations-privileges.sql`, `fase3-news-privileges.sql`, tre Fase 3-bugfixes (privileges-self-read, roles-self-read, migrér gamle privilegienavne), og `fase3-datalayer-privileges.sql` (US-62) — alle 2026-09-15. Se `dbSchema.sql` og "Fase 3"-afsnittet i `studerende1-plan.md` for detaljer.
 
 ## Drift-tjek
 

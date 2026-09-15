@@ -12,7 +12,7 @@ function emptyRow(): ItemRow {
 }
 
 export function AddItemsComponent({
-  isOpen, onClose, categoryId, categoryTitle, onSuccess,
+  isOpen, onClose, categoryId, categoryTitle, onSuccess, canCreate, canUpdate, canDelete,
 }: AddItemsComponentProps) {
   const [rows, setRows] = useState<ItemRow[]>([emptyRow()]);
   const [locationId, setLocationId] = useState<string | null>(null);
@@ -82,7 +82,13 @@ export function AddItemsComponent({
           )}
 
           <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg">
-            <LocationPickerComponent value={locationId} onChange={setLocationId} />
+            <LocationPickerComponent
+              value={locationId}
+              onChange={setLocationId}
+              canCreate={canCreate}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
+            />
             <p className="text-[11px] text-slate-500 mt-1.5">
               Denne lokation bruges til alle items i denne oprettelse.
             </p>

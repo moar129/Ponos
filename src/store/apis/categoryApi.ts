@@ -33,6 +33,16 @@ function flattenCategoryIds(cat: DataLayerCat): { type: 'Category' | 'Item'; id:
   ];
 }
 
+// 42501 = RLS afviste - bruger uden det relevante privilegie
+// (create/update/delete_datalayer, Fase 3) forsøgte at oprette/redigere/
+// slette. Samme mønster som newsApi.ts.
+function mapDatalayerError(error: { code?: string; message: string }, action: string): { status: 'CUSTOM_ERROR'; error: string } {
+  if (error.code === '42501') {
+    return { status: 'CUSTOM_ERROR', error: `Du har ikke rettigheder til at ${action}.` };
+  }
+  return { status: 'CUSTOM_ERROR', error: error.message };
+}
+
 async function getAuthenticatedOrganisationId(): Promise<string> {
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) {
@@ -125,7 +135,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDatalayerError(error, 'oprette kategorien') };
           }
 
           return { data: data.id };
@@ -141,7 +151,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('data_layer_categories').update(changes).eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'redigere kategorien') };
         }
 
         return { data: undefined };
@@ -154,7 +164,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('data_layer_categories').delete().eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'slette kategorien') };
         }
 
         return { data: undefined };
@@ -182,7 +192,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDatalayerError(error, 'oprette itemet') };
           }
 
           return { data: data.id };
@@ -214,7 +224,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .select('id');
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDatalayerError(error, 'oprette items') };
           }
 
           return { data: (data ?? []).map((row) => row.id) };
@@ -238,7 +248,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
           .eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'redigere itemet') };
         }
 
         return { data: undefined };
@@ -251,7 +261,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('data_layer_items').delete().eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'slette itemet') };
         }
 
         return { data: undefined };
@@ -312,7 +322,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDatalayerError(error, 'oprette lokationen') };
           }
 
           return { data: data.id };
@@ -328,7 +338,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('locations').update(changes).eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'redigere lokationen') };
         }
 
         return { data: undefined };
@@ -344,7 +354,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('locations').delete().eq('id', id);
 
         if (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+          return { error: mapDatalayerError(error, 'slette lokationen') };
         }
 
         return { data: undefined };

@@ -2,6 +2,7 @@
 import { Database, ClipboardList, Building2, BarChart3, Bell } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { QuickLinkCard } from './QuickLinkCard'
 import { PlaceholderBar } from './PlaceholderBar'
 import { NewsSlider } from './NewsSlider'
@@ -12,6 +13,8 @@ import { MyTasksWidget } from './MyTasksWidget'
 // Nyheder (US-56) har sin egen slider-widget nedenfor (NewsSlider).
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
+    const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE)
+    const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE)
 
     // En bruger uden aktiv organisation ville ellers se en tom side uden
     // forklaring - vis i stedet én venlig besked med en genvej til
@@ -38,12 +41,14 @@ export function OverviewTab() {
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3">Genveje</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <QuickLinkCard
-                        to="/datalager"
-                        label="Datalager"
-                        description="Se og administrer items, kategorier og lokationer."
-                        icon={Database}
-                    />
+                    {canReadDatalayer && (
+                        <QuickLinkCard
+                            to="/datalager"
+                            label="Datalager"
+                            description="Se og administrer items, kategorier og lokationer."
+                            icon={Database}
+                        />
+                    )}
                     <QuickLinkCard
                         to="/tasks"
                         label="Opgaver"
@@ -68,7 +73,7 @@ export function OverviewTab() {
                 />
             </div>
 
-            <NewsSlider />
+            {canReadNews && <NewsSlider />}
         </div>
     )
 }

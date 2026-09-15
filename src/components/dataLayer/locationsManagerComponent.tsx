@@ -10,7 +10,7 @@ import type { ItemLocation, LocationManagerComponentProps } from '../../types/da
 import { getErrorMessage } from '../../ErrorMessage';
 
 
-export function LocationManagerComponent({ isOpen, onClose, onViewItems }: LocationManagerComponentProps & {
+export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpdate, canDelete }: LocationManagerComponentProps & {
   onViewItems?: (location: ItemLocation) => void;
 }) {
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
@@ -146,24 +146,28 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems }: Locat
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
-                        className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white"
-                        title="Rediger"
-                        aria-label="Rediger lokation"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
-                        className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400"
-                        title="Slet"
-                        aria-label="Slet lokation"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canUpdate && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
+                          className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white"
+                          title="Rediger"
+                          aria-label="Rediger lokation"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
+                          className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400"
+                          title="Slet"
+                          aria-label="Slet lokation"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
