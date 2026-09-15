@@ -6,7 +6,6 @@ import {
   BarChart3,
   Database,
   Newspaper,
-  Bell,
   User,
   ChevronDown,
   LogOut,
@@ -15,11 +14,13 @@ import {
   Home,
   LogIn,
   UserPlus,
+  MessageSquareText
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
+import { NotificationBellComponent } from './notification/notificationBellComponent';
 
 export function Header() {
   const navigate = useNavigate();
@@ -167,6 +168,10 @@ export function Header() {
                     <span>Nyheder</span>
                   </NavLink>
                 )}
+                <NavLink to="/beskeder" className={getNavLinkClass}>
+                  <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                  <span>Beskeder</span>
+                </NavLink>
               </>
             )}
           </nav>
@@ -200,15 +205,7 @@ export function Header() {
               {/* Notifikationer er endnu ikke bygget (ingen tabel, ingen rute,
                   ingen user story) - ikonet bliver stående som en deaktiveret
                   knap i stedet for et link til en side der ikke findes. */}
-              <button
-                type="button"
-                disabled
-                aria-label="Notifikationer (kommer snart)"
-                title="Kommer snart"
-                className="relative p-2 text-slate-500 rounded-full cursor-not-allowed"
-              >
-                <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
-              </button>
+             <NotificationBellComponent />
 
               {/* Bruger Profil -> åbner dropdown med "Se profil" og "Log ud" */}
               <div className="relative" ref={menuRef}>
@@ -337,6 +334,10 @@ export function Header() {
                       <span>Nyheder</span>
                     </NavLink>
                   )}
+                  <NavLink to="/beskeder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <MessageSquareText className="w-5 h-5 shrink-0" />
+                    <span>Beskeder</span>
+                  </NavLink>
                 </>
               )}
             </>

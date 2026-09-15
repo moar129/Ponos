@@ -61,6 +61,7 @@ export function Footer() {
                     <li><Link to="/statistik" className={linkClass}>Statistik</Link></li>
                     <li><Link to="/datalager" className={linkClass}>Datalager</Link></li>
                     <li><Link to="/nyheder" className={linkClass}>Nyheder</Link></li>
+                    <li><Link to="/beskeder" className={linkClass}>Beskeder</Link></li>
                   </>
                 )}
               </ul>

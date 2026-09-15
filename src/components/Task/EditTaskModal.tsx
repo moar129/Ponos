@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
     useUpdateTaskMutation,
-    useDeleteTaskMutation,
 } from '../../store/apis/taskApi';
 import type { ETaskPriority, Task } from '../../types/Task/Task';
 
@@ -52,10 +51,8 @@ export function EditTaskModal({
     const [maxAssignees, setMaxAssignees] = useState<number | null>(
         task.max_assignees
     );
-    const [updateTask, { isLoading, error }] = useUpdateTaskMutation();
 
-    const [deleteTask, { isLoading: isDeleting, error: deleteError }] =
-        useDeleteTaskMutation();
+    const [updateTask, { isLoading, error }] = useUpdateTaskMutation();
 
     if (!isOpen) {
         return null;
@@ -88,71 +85,8 @@ export function EditTaskModal({
         if (!title.trim()) {
             return;
         }
+
         setDateError(null);
-        /*
-         * DATE VALIDATION
-         *
-         * Date-inputtet gemmer datoen som YYYY-MM-DD.
-         * Vi validerer først her, når brugeren trykker "Gem".
-         */
-
-        if (startDate) {
-            // Datoen skal være komplet
-            if (startDate.length !== 10) {
-                setDateError('Startdatoen er ikke gyldig.');
-                return;
-            }
-
-            // År 0000 og tidligere år er ikke tilladt
-            const startYear = Number(startDate.slice(0, 4));
-
-            if (
-                !Number.isInteger(startYear) ||
-                startYear < new Date().getFullYear()
-            ) {
-                setDateError(
-                    'Startdatoen skal være i år eller senere.'
-                );
-                return;
-            }
-
-            // Startdatoen må ikke være før i dag
-            if (startDate < today) {
-                setDateError(
-                    'Startdatoen må ikke være før i dag.'
-                );
-                return;
-            }
-        }
-
-        if (endDate) {
-            // Datoen skal være komplet
-            if (endDate.length !== 10) {
-                setDateError('Slutdatoen er ikke gyldig.');
-                return;
-            }
-
-            // År 0000 og tidligere år er ikke tilladt
-            const endYear = Number(endDate.slice(0, 4));
-
-            if (
-                !Number.isInteger(endYear) ||
-                endYear < new Date().getFullYear()
-            ) {
-                setDateError(
-                    'Slutdatoen skal være i år eller senere.'
-                );
-                return;
-            }
-
-            // Slutdatoen må ikke være før i dag
-            if (endDate < today) {
-                setDateError(
-                    'Slutdatoen må ikke være før i dag.'
-                );
-                return;
-            }
-        }
 
         // Slutdato må ikke være før startdato
         if (startDate && endDate && endDate < startDate) {
@@ -180,25 +114,7 @@ export function EditTaskModal({
         }
     };
 
-    const handleDelete = async () => {
-        const confirmed = window.confirm(
-            `Er du sikker på, at du vil slette opgaven "${task.title}"?`
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        try {
-            await deleteTask(task.id).unwrap();
-            onClose();
-        } catch {
-            // Fejlen vises gennem deleteError
-        }
-    };
-    const errorMessage =
-        readableError(error) ?? readableError(deleteError);
-
+    const errorMessage = readableError(error);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -287,12 +203,8 @@ export function EditTaskModal({
                                 id="edit-task-start-date"
                                 type="date"
                                 value={startDate}
-                                onChange={(e) => {
-                                    setStartDate(e.target.value);
-                                    setDateError(null);
-                                }}
-                                min={today}
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
+                                readOnly
+                                className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-gray-500 outline-none"
                             />
                         </div>
 
@@ -309,11 +221,11 @@ export function EditTaskModal({
                                 id="edit-task-end-date"
                                 type="date"
                                 value={endDate}
+                                min={startDate || undefined}
                                 onChange={(e) => {
                                     setEndDate(e.target.value);
                                     setDateError(null);
                                 }}
-                                min={startDate || today}
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
                             />
                         </div>
@@ -385,29 +297,11 @@ export function EditTaskModal({
 
                 {/* BUTTONS */}
                 <div className="mt-6 flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={handleDelete}
-                        disabled={isLoading || isDeleting}
-                        className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white disabled:opacity-60"
-                    >
-                        {isDeleting ? 'Sletter...' : 'Slet opgave'}
-                    </button>
-
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            onClick={handleClose}
-                            disabled={isLoading || isDeleting}
-                            className="rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 disabled:opacity-60"
-                        >
-                            Annuller
-                        </button>
-
-                        <button
-                            type="button"
                             onClick={handleSubmit}
-                            disabled={isLoading || isDeleting || !title.trim()}
+                            disabled={isLoading || !title.trim()}
                             className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
                         >
                             {isLoading ? 'Gemmer...' : 'Gem ændringer'}

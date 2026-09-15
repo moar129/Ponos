@@ -29,6 +29,11 @@ interface CreateRoomInput {
     name: string
 }
 
+interface UpdateRoomInput {
+    id: string
+    name: string
+}
+
 interface UpdateTaskStatusInput {
     id: string
     status: ETaskStatus
@@ -221,6 +226,51 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }],
+        }),
+
+        updateRoom: builder.mutation<Room, UpdateRoomInput>({
+            queryFn: async ({ id, name }) => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId()
+
+                    const { data, error } = await supabase
+                        .from('task_rooms')
+                        .update({
+                            name,
+                        })
+                        .eq('id', id)
+                        .eq('organisation_id', organisationId)
+                        .select()
+                        .single()
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    return { data: data as Room }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved redigering af rum'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            invalidatesTags: (_result, _error, { id }) => [
+                { type: 'TaskRoom', id },
+                { type: 'TaskRoom', id: 'LIST' },
+            ],
         }),
 
         updateTaskStatus: builder.mutation<Task, UpdateTaskStatusInput>({
@@ -421,16 +471,106 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: ['MyTasks'],
         }),
 
+        deleteRoom: builder.mutation<
+            void,
+            {
+                roomId: string
+                taskIdsToDelete: string[]
+            }
+        >({
+            queryFn: async ({ roomId, taskIdsToDelete }) => {
+                try {
+                    const organisationId =
+                        await getAuthenticatedOrganisationId()
+
+                    // Slet de opgaver brugeren har valgt
+                    if (taskIdsToDelete.length > 0) {
+                        const { error: deleteTasksError } =
+                            await supabase
+                                .from('tasks')
+                                .delete()
+                                .in('id', taskIdsToDelete)
+                                .eq('organisation_id', organisationId)
+
+                        if (deleteTasksError) {
+                            return {
+                                error: {
+                                    status: 'CUSTOM_ERROR',
+                                    error: deleteTasksError.message,
+                                } as QueryError,
+                            }
+                        }
+                    }
+
+                    // Flyt resterende opgaver til "Uden rum"
+                    const { error: updateTasksError } =
+                        await supabase
+                            .from('tasks')
+                            .update({
+                                room_id: null,
+                            })
+                            .eq('room_id', roomId)
+                            .eq('organisation_id', organisationId)
+
+                    if (updateTasksError) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: updateTasksError.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    // Slet selve rummet
+                    const { error: deleteRoomError } =
+                        await supabase
+                            .from('task_rooms')
+                            .delete()
+                            .eq('id', roomId)
+                            .eq('organisation_id', organisationId)
+
+                    if (deleteRoomError) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: deleteRoomError.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    return { data: undefined }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved sletning af rum'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            invalidatesTags: (_result, _error, { roomId }) => [
+                { type: 'TaskRoom', id: roomId },
+                { type: 'TaskRoom', id: 'LIST' },
+                { type: 'Task', id: 'LIST' },
+                'MyTasks',
+            ],
+        }),
+
         deleteTask: builder.mutation<void, string>({
             queryFn: async (taskId) => {
                 try {
-                    const organisationId = await getAuthenticatedOrganisationId();
+                    const organisationId = await getAuthenticatedOrganisationId()
 
                     const { error } = await supabase
                         .from('tasks')
                         .delete()
                         .eq('id', taskId)
-                        .eq('organisation_id', organisationId);
+                        .eq('organisation_id', organisationId)
 
                     if (error) {
                         return {
@@ -438,22 +578,22 @@ export const taskApi = supabaseApi.injectEndpoints({
                                 status: 'CUSTOM_ERROR',
                                 error: error.message,
                             } as QueryError,
-                        };
+                        }
                     }
 
-                    return { data: undefined };
+                    return { data: undefined }
                 } catch (err: unknown) {
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved sletning af opgave';
+                            : 'Fejl ved sletning af opgave'
 
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
                             error: message,
                         } as QueryError,
-                    };
+                    }
                 }
             },
             invalidatesTags: (_result, _error, taskId) => [
@@ -474,8 +614,10 @@ export const {
     useCreateRoomMutation,
     useUpdateTaskMutation,
     useUpdateTaskStatusMutation,
+    useUpdateRoomMutation,
+    useDeleteRoomMutation,
+    useDeleteTaskMutation,
     useAssignToTaskMutation,
     useUnassignFromTaskMutation,
     useGetMyTaskIdsQuery,
-    useDeleteTaskMutation,
 } = taskApi
