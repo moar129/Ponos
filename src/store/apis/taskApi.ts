@@ -554,6 +554,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             invalidatesTags: (_result, _error, { taskId }) => [
                 'MyTasks',
+                { type: 'Task', id: 'LIST' },
                 {
                     type: 'Task',
                     id: `${taskId}-ASSIGNEES`,
@@ -605,6 +606,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             invalidatesTags: (_result, _error, { taskId }) => [
                 'MyTasks',
+                { type: 'Task', id: 'LIST' },
                 {
                     type: 'Task',
                     id: `${taskId}-ASSIGNEES`,
@@ -661,6 +663,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             invalidatesTags: (_result, _error, { taskId }) => [
                 'MyTasks',
+                { type: 'Task', id: 'LIST' },
                 {
                     type: 'Task',
                     id: `${taskId}-ASSIGNEES`,
