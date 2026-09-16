@@ -146,7 +146,17 @@ export function GroupConversationComponent({
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((msg, index) => {
+                        {messages.map((msg, index) => {
+              if (msg.messageType === 'system') {
+                return (
+                  <div key={msg.id} className="flex justify-center">
+                    <p className="text-[11px] text-slate-500 bg-slate-900/60 rounded-full px-3 py-1">
+                      {msg.content}
+                    </p>
+                  </div>
+                );
+              }
+
               const isOwnMessage = msg.senderId === currentUserId;
               const sender = participantById.get(msg.senderId);
 
@@ -158,6 +168,7 @@ export function GroupConversationComponent({
 
               return (
                 <div key={msg.id} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                  {/* ... resten af den eksisterende gren er uændret ... */}
                   {!isOwnMessage && (
                     <div className="w-7 h-7 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-[10px] shrink-0 overflow-hidden self-end">
                       {sender?.urlPicture ? (

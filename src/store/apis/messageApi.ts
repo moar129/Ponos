@@ -61,11 +61,11 @@ export const messageApi = supabaseApi.injectEndpoints({
 
         // Henter beskederne i en given samtale (US-B4). RLS afgrænser
         // allerede til samtaler, jeg selv deltager i.
-        getMessages: builder.query<Message[], string>({
+                getMessages: builder.query<Message[], string>({
     queryFn: async (conversationId) => {
         const { data, error } = await supabase
             .from('messages')
-            .select('id, conversation_id, sender_id, content, created_at')
+            .select('id, conversation_id, sender_id, content, created_at, message_type')
             .eq('conversation_id', conversationId)
             .order('created_at', { ascending: true })
 
@@ -80,6 +80,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                 senderId: row.sender_id,
                 content: row.content,
                 createdAt: row.created_at,
+                messageType: (row.message_type ?? 'user') as 'user' | 'system',
             })),
         }
     },
@@ -100,19 +101,17 @@ export const messageApi = supabaseApi.injectEndpoints({
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
-                (payload) => {
+                                (payload) => {
                     const row = payload.new as {
                         id: string
                         conversation_id: string
                         sender_id: string
                         content: string
                         created_at: string
+                        message_type: 'user' | 'system'
                     }
 
                     updateCachedData((draft) => {
-                        // Undgår dubletter: afsenderens egen sendMessage
-                        // trigger allerede en refetch via invalidatesTags,
-                        // så beskeden kan nå cachen ad to veje.
                         if (draft.some((m) => m.id === row.id)) return
                         draft.push({
                             id: row.id,
@@ -120,6 +119,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                             senderId: row.sender_id,
                             content: row.content,
                             createdAt: row.created_at,
+                            messageType: row.message_type ?? 'user',
                         })
                     })
                 }

@@ -14,6 +14,7 @@ export interface Message {
   senderId: string;
   content: string;
   createdAt: string;
+  messageType: 'user' | 'system';
 }
 
 export interface ConversationSummary {
@@ -24,14 +25,6 @@ export interface ConversationSummary {
   urlPicture: string | null;
   lastMessage: string | null;
   lastMessageAt: string | null;
-}
-
-export interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
-  createdAt: string;
 }
 
 export interface ConversationParticipant {
