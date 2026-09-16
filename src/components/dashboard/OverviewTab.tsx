@@ -8,9 +8,10 @@ import { PlaceholderBar } from './PlaceholderBar'
 import { NewsSlider } from './NewsSlider'
 import { MyTasksWidget } from './MyTasksWidget'
 
-// US-65: genveje til Datalager/Opgaver/Statistik, "Dine opgaver" (US-74)
-// og en placeholder-bjælke til "Notifikationer" (afventer US-71/72).
-// Nyheder (US-56) har sin egen slider-widget nedenfor (NewsSlider).
+// US-65: "Dine opgaver" (US-74) og Notifikations-placeholderen øverst
+// (mest handlingsrelevant), genveje til Datalager/Opgaver/Statistik
+// derunder, Nyheder (US-56) nederst. Notifikationer er stadig kun en
+// "kommer snart"-bjælke - rigtig funktionalitet afventer US-71/72.
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE)
@@ -38,6 +39,15 @@ export function OverviewTab() {
 
     return (
         <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <MyTasksWidget />
+                <PlaceholderBar
+                    label="Notifikationer"
+                    description="Notifikationer kommer snart."
+                    icon={Bell}
+                />
+            </div>
+
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3">Genveje</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -62,15 +72,6 @@ export function OverviewTab() {
                         icon={BarChart3}
                     />
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <MyTasksWidget />
-                <PlaceholderBar
-                    label="Notifikationer"
-                    description="Notifikationer kommer snart."
-                    icon={Bell}
-                />
             </div>
 
             {canReadNews && <NewsSlider />}

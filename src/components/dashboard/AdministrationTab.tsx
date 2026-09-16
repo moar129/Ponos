@@ -88,32 +88,37 @@ export function AdministrationTab() {
         return <p className="text-secondary">Du har ikke rettigheder til nogen administrative funktioner.</p>
     }
 
-    // Samme regler som dashboardets top-faner (se Dashboard.tsx): fanen
-    // beholder sin bredde, rækken scroller. Her er der op til fem faner, så
-    // det slår igennem allerede på en tablet.
-    const tabClass = (tab: AdminSubTab) =>
-        `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeSubTab === tab
-            ? 'border-primary text-primary'
-            : 'border-transparent text-secondary hover:text-primary'
+    // Vertikal sidebar-nav i stedet for horisontale sub-tabs: skalerer
+    // bedre efterhånden som flere administrative paneler tilføjes, og
+    // undgår at fanerækken løber tør for bredde på mobil (den krævede
+    // tidligere en separat overflow-scroll-fix). På mobil ligger navet
+    // stadig som en vandret scrollende række øverst, men bliver en
+    // lodret liste fra sm og op.
+    const navItemClass = (tab: AdminSubTab) =>
+        `flex shrink-0 sm:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
+            ? 'bg-accent/15 text-primary'
+            : 'text-secondary hover:bg-bg-gray hover:text-primary'
         }`
 
     return (
-        <div>
-            <div className="flex gap-1 sm:gap-2 border-b border-border-gray mb-6 overflow-x-auto no-scrollbar">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
                 {tabs.map((tab) => (
-                    <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={tabClass(tab.key)}>
-                        <tab.icon className="w-4 h-4" />
+                    <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={navItemClass(tab.key)}>
+                        <tab.icon className="w-4 h-4 shrink-0" />
                         {tab.label}
                     </button>
                 ))}
-            </div>
+            </nav>
 
-            {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
-            {activeSubTab === 'members' && <MembersPanel />}
-            {activeSubTab === 'invitations' && <InvitationsPanel />}
-            {activeSubTab === 'requests' && <MembershipRequestsPanel />}
-            {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
-            {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
+            <div className="flex-1 min-w-0">
+                {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
+                {activeSubTab === 'members' && <MembersPanel />}
+                {activeSubTab === 'invitations' && <InvitationsPanel />}
+                {activeSubTab === 'requests' && <MembershipRequestsPanel />}
+                {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+                {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
+            </div>
         </div>
     )
 }

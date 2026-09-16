@@ -1,7 +1,8 @@
 // src/components/dashboard/OrganisationTab.tsx
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Building2 } from 'lucide-react'
+import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
     useCreateOrganisationMutation,
@@ -22,6 +23,15 @@ import type { InvitationRowProps, RespondInvitationInput } from '../../types/mem
 
 type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 
+// Samme vertikale sidebar-nav-stil som AdministrationTab.tsx, genbrugt
+// her for et konsistent udtryk på tværs af dashboardets faner.
+function orgNavItemClass(active: boolean): string {
+    return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
+        ? 'bg-accent/15 text-primary'
+        : 'text-secondary hover:bg-bg-gray hover:text-primary'
+    }`
+}
+
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
 function readableApiError(err: unknown): string | null {
@@ -40,6 +50,12 @@ type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 // brugere (ikke privilegie-gated, i modsætning til Administration-
 // fanen). Rediger/slet organisation ligger i Administration-fanen (se
 // OrganisationAdminPanel.tsx).
+//
+// "Organisation"-underfanen (navn, admin-badge, medlemsantal) vises kun
+// for administratorer af den aktive organisation - for et menigt medlem
+// er de tal ikke handlingsrelevante, og fjernes for at rydde op i antal
+// faner. Menige medlemmer lander i stedet direkte på "Mine
+// organisationer".
 //
 // Bruger uden organisation: samme fane tilbyder både "Opret organisation"
 // (US-58) og "Anmod om medlemskab" (US-05) som to underfaner, da det er
@@ -184,131 +200,111 @@ export function OrganisationTab() {
                         Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
                     </div>
                 ) : (
-                    <>
-                        <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
-                            <button
-                                type="button"
-                                onClick={() => setNoOrgTab('create')}
-                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                    noOrgTab === 'create'
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-secondary hover:text-primary'
-                                }`}
-                            >
-                                Opret organisation
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setNoOrgTab('request')}
-                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                    noOrgTab === 'request'
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-secondary hover:text-primary'
-                                }`}
-                            >
-                                Anmod om medlemskab
-                            </button>
-                            {hasOtherMemberships && (
-                                <button
-                                    type="button"
-                                    onClick={() => setNoOrgTab('memberships')}
-                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                        noOrgTab === 'memberships'
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-secondary hover:text-primary'
-                                    }`}
-                                >
-                                    Mine organisationer
-                                </button>
-                            )}
-                            {(pendingInvitations?.length ?? 0) > 0 && (
-                                <button
-                                    type="button"
-                                    onClick={() => setNoOrgTab('invitations')}
-                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                        noOrgTab === 'invitations'
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-secondary hover:text-primary'
-                                    }`}
-                                >
-                                    Invitationer ({pendingInvitations?.length})
-                                </button>
-                            )}
-                        </div>
+                    (() => {
+                        const noOrgTabDefs: { key: NoOrgTab; label: string; icon: LucideIcon }[] = [
+                            { key: 'create', label: 'Opret organisation', icon: Plus },
+                            { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
+                            ...(hasOtherMemberships
+                                ? [{ key: 'memberships' as NoOrgTab, label: 'Mine organisationer', icon: Users }]
+                                : []),
+                            ...((pendingInvitations?.length ?? 0) > 0
+                                ? [{ key: 'invitations' as NoOrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
+                                : []),
+                        ]
 
-                        {noOrgTab === 'memberships' ? (
-                            <MyMembershipsSection />
-                        ) : noOrgTab === 'invitations' ? (
-                            <InvitationsSection />
-                        ) : noOrgTab === 'create' ? (
-                            <>
-                                {(createValidationError || createErrorMessage) && (
-                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                                        {createValidationError ?? createErrorMessage}
-                                    </div>
-                                )}
-                                <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
-                                        <input
-                                            id="create-name"
-                                            type="text"
-                                            value={createName}
-                                            onChange={(e) => setCreateName(e.target.value)}
-                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        disabled={creating}
-                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
-                                    >
-                                        {creating ? 'Opretter...' : 'Opret organisation'}
-                                    </button>
-                                </form>
-                            </>
-                        ) : requestSuccess ? (
-                            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                                Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
-                            </div>
-                        ) : (
-                            <>
-                                {requestErrorMessage && (
-                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                                        {requestErrorMessage}
-                                    </div>
-                                )}
-                                <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
-                                        <select
-                                            id="request-org"
-                                            value={selectedOrgId}
-                                            onChange={(e) => setSelectedOrgId(e.target.value)}
-                                            disabled={loadingOrganisations}
-                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        return (
+                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                                <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
+                                    {noOrgTabDefs.map((tab) => (
+                                        <button
+                                            key={tab.key}
+                                            type="button"
+                                            onClick={() => setNoOrgTab(tab.key)}
+                                            className={orgNavItemClass(noOrgTab === tab.key)}
                                         >
-                                            <option value="" disabled>
-                                                {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
-                                            </option>
-                                            {organisations.map((org) => (
-                                                <option key={org.id} value={org.id}>
-                                                    {org.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        disabled={requesting || !selectedOrgId}
-                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
-                                    >
-                                        {requesting ? 'Sender anmodning...' : 'Send anmodning'}
-                                    </button>
-                                </form>
-                            </>
-                        )}
-                    </>
+                                            <tab.icon className="w-4 h-4 shrink-0" />
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </nav>
+
+                                <div className="flex-1 min-w-0">
+                                    {noOrgTab === 'memberships' ? (
+                                        <MyMembershipsSection />
+                                    ) : noOrgTab === 'invitations' ? (
+                                        <InvitationsSection />
+                                    ) : noOrgTab === 'create' ? (
+                                        <>
+                                            {(createValidationError || createErrorMessage) && (
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                    {createValidationError ?? createErrorMessage}
+                                                </div>
+                                            )}
+                                            <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
+                                                <div>
+                                                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
+                                                    <input
+                                                        id="create-name"
+                                                        type="text"
+                                                        value={createName}
+                                                        onChange={(e) => setCreateName(e.target.value)}
+                                                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={creating}
+                                                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                                >
+                                                    {creating ? 'Opretter...' : 'Opret organisation'}
+                                                </button>
+                                            </form>
+                                        </>
+                                    ) : requestSuccess ? (
+                                        <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                                            Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {requestErrorMessage && (
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                    {requestErrorMessage}
+                                                </div>
+                                            )}
+                                            <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
+                                                <div>
+                                                    <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
+                                                    <select
+                                                        id="request-org"
+                                                        value={selectedOrgId}
+                                                        onChange={(e) => setSelectedOrgId(e.target.value)}
+                                                        disabled={loadingOrganisations}
+                                                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                                    >
+                                                        <option value="" disabled>
+                                                            {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
+                                                        </option>
+                                                        {organisations.map((org) => (
+                                                            <option key={org.id} value={org.id}>
+                                                                {org.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={requesting || !selectedOrgId}
+                                                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                                >
+                                                    {requesting ? 'Sender anmodning...' : 'Send anmodning'}
+                                                </button>
+                                            </form>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    })()
                 )}
             </div>
         )
@@ -317,113 +313,87 @@ export function OrganisationTab() {
     // Bruges til at vise antal medlemmer + rolle-badge på "Organisation"-
     // underfanen nedenfor - allerede hentet ovenfor til no-org-grenen.
     const activeMembership = memberships?.find((m) => m.isActive) ?? null
+    const isOrgAdmin = activeMembership?.isAdmin ?? false
+
+    // Rolle-baseret fane-sæt: "Organisation" (navn/badge/medlemsantal) er
+    // kun relevant for administratoren af den aktive organisation. Et
+    // menigt medlem ser derfor kun de handlingsorienterede faner, og
+    // lander på "Mine organisationer" i stedet.
+    const orgTabDefs: { key: OrgTab; label: string; icon: LucideIcon }[] = [
+        ...(isOrgAdmin ? [{ key: 'details' as OrgTab, label: 'Organisation', icon: Building2 }] : []),
+        { key: 'memberships', label: 'Mine organisationer', icon: Users },
+        { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
+        { key: 'create', label: 'Opret organisation', icon: Plus },
+        ...((pendingInvitations?.length ?? 0) > 0
+            ? [{ key: 'invitations' as OrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
+            : []),
+    ]
+    const effectiveOrgTab: OrgTab = orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
 
     return (
-        <div>
-            {/* US-59: en bruger kan være medlem af flere organisationer -
-                "Mine organisationer" viser dem alle og lader brugeren skifte
-                hvilken der er aktiv. */}
-            <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('details')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'details'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Organisation
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('memberships')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'memberships'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Mine organisationer
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('request')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'request'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Anmod om medlemskab
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('create')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'create'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Opret organisation
-                </button>
-                {(pendingInvitations?.length ?? 0) > 0 && (
+        // US-59: en bruger kan være medlem af flere organisationer -
+        // "Mine organisationer" viser dem alle og lader brugeren skifte
+        // hvilken der er aktiv. Samme sidebar-nav-layout som
+        // AdministrationTab.tsx, for et konsistent udtryk på tværs af
+        // dashboardets faner.
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
+                {orgTabDefs.map((tab) => (
                     <button
+                        key={tab.key}
                         type="button"
-                        onClick={() => switchOrgTab('invitations')}
-                        className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                            orgTab === 'invitations'
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-secondary hover:text-primary'
-                        }`}
+                        onClick={() => switchOrgTab(tab.key)}
+                        className={orgNavItemClass(effectiveOrgTab === tab.key)}
                     >
-                        Invitationer ({pendingInvitations?.length})
+                        <tab.icon className="w-4 h-4 shrink-0" />
+                        {tab.label}
                     </button>
+                ))}
+            </nav>
+
+            <div className="flex-1 min-w-0">
+                {effectiveOrgTab === 'memberships' ? (
+                    <MyMembershipsSection />
+                ) : effectiveOrgTab === 'request' ? (
+                    <RequestMembershipSection />
+                ) : effectiveOrgTab === 'create' ? (
+                    <CreateOrganisationSection onCreated={handleOrganisationCreated} />
+                ) : effectiveOrgTab === 'invitations' ? (
+                    <InvitationsSection />
+                ) : (
+                    <>
+                        {createdOrgName && (
+                            <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                                Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
+                                <Building2 className="w-7 h-7 text-secondary" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
+                                    {activeMembership?.isAdmin && (
+                                        <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
+                                            Administrator
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                            </div>
+                        </div>
+
+                        <dl className="divide-y divide-border-gray border-t border-border-gray">
+                            <div className="py-3 flex justify-between gap-4">
+                                <dt className="text-sm text-secondary">Antal medlemmer</dt>
+                                <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                            </div>
+                        </dl>
+                    </>
                 )}
             </div>
-
-            {orgTab === 'memberships' ? (
-                <MyMembershipsSection />
-            ) : orgTab === 'request' ? (
-                <RequestMembershipSection />
-            ) : orgTab === 'create' ? (
-                <CreateOrganisationSection onCreated={handleOrganisationCreated} />
-            ) : orgTab === 'invitations' ? (
-                <InvitationsSection />
-            ) : (
-                <>
-                    {createdOrgName && (
-                        <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                            Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
-                        </div>
-                    )}
-
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                            <Building2 className="w-7 h-7 text-secondary" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
-                                {activeMembership?.isAdmin && (
-                                    <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
-                                        Administrator
-                                    </span>
-                                )}
-                            </div>
-                            <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
-                        </div>
-                    </div>
-
-                    <dl className="divide-y divide-border-gray border-t border-border-gray">
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Antal medlemmer</dt>
-                            <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
-                        </div>
-                    </dl>
-                </>
-            )}
         </div>
     )
 }
