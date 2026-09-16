@@ -249,7 +249,7 @@ export function DataLayerPage() {
   if (loadingReadPrivilege) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+        <Loader2 className="w-6 h-6 animate-spin text-accent" />
       </div>
     );
   }
@@ -333,7 +333,7 @@ export function DataLayerPage() {
       )}
 
       {/* Toolbar: søgning + Lokationer/Filter. Stables lodret på mobil, wrapper på tablet, én linje fra lg. */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 bg-[#0B132A] p-3 sm:p-4 rounded-xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 bg-surface p-3 sm:p-4 rounded-xl border border-slate-800 shadow-sm">
         <div className="relative w-full lg:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -343,7 +343,7 @@ export function DataLayerPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent transition-colors"
           />
           <GlobalSearchResultsComponent
             isOpen={isSearchFocused && searchQuery.trim().length > 0}
@@ -371,14 +371,14 @@ export function DataLayerPage() {
               onClick={() => setIsFilterOpen((prev) => !prev)}
               className={`w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
                 selectedStatuses.size > 0 || selectedCategoryFilterIds.size > 0
-                  ? 'bg-[#C7975D]/10 border-[#C7975D] text-[#C7975D]'
+                  ? 'bg-accent/10 border-accent text-accent'
                   : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
               }`}
             >
               <Filter className="w-4 h-4 shrink-0" />
               <span>Filter</span>
               {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
-                <span className="ml-1 text-xs bg-[#C7975D] text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
+                <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
                   {selectedStatuses.size + selectedCategoryFilterIds.size}
                 </span>
               )}
@@ -401,7 +401,7 @@ export function DataLayerPage() {
 
       {/* Hovedlayout: stables på mobil/tablet-portræt, splittes fra md */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-[#0B132A] rounded-xl border border-slate-800 p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px]">
+        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-surface rounded-xl border border-slate-800 p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px]">
           <div>
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -411,7 +411,7 @@ export function DataLayerPage() {
 
             {isLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
               </div>
             ) : (
               <div className="space-y-1 max-h-[300px] md:max-h-none overflow-y-auto">
@@ -437,7 +437,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddModal(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Opret kategori</span>
@@ -445,7 +445,7 @@ export function DataLayerPage() {
           )}
         </div>
 
-        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-4 sm:p-6 shadow-sm md:min-h-[500px]">
+        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-surface rounded-xl border border-slate-800 p-4 sm:p-6 shadow-sm md:min-h-[500px]">
           {selectedCategory ? (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
@@ -483,7 +483,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddItemsModalOpen(true)}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Tilføj items</span>
@@ -499,7 +499,7 @@ export function DataLayerPage() {
                   placeholder="Filtrer items i denne kategori..."
                   value={localItemSearch}
                   onChange={(e) => setLocalItemSearch(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -530,7 +530,7 @@ export function DataLayerPage() {
                   <button
                     type="button"
                     onClick={() => { resetFilters(); setLocalItemSearch(''); }}
-                    className="text-xs text-[#C7975D] hover:text-[#e0ac6f] mt-2"
+                    className="text-xs text-accent hover:text-[#e0ac6f] mt-2"
                   >
                     Ryd filtre
                   </button>
@@ -551,7 +551,7 @@ export function DataLayerPage() {
                             checked={selectedItemIds.has(item.id)}
                             onChange={() => toggleItemSelected(item.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+                            className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-accent focus:ring-accent shrink-0"
                           />
                         )}
                         <div className="min-w-0">

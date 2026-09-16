@@ -63,7 +63,7 @@ export function AddItemsComponent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+      <div className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <div>
             <h2 className="text-lg font-semibold text-slate-100">Tilføj items</h2>
@@ -116,7 +116,7 @@ export function AddItemsComponent({
                   placeholder="Navn *"
                   value={row.name}
                   onChange={(e) => updateRow(row.key, { name: e.target.value })}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                 />
                 <input
                   type="number"
@@ -124,19 +124,19 @@ export function AddItemsComponent({
                   placeholder="Antal"
                   value={row.quantity}
                   onChange={(e) => updateRow(row.key, { quantity: Number(e.target.value) })}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                 />
                 <input
                   type="text"
                   placeholder="Beskrivelse"
                   value={row.description}
                   onChange={(e) => updateRow(row.key, { description: e.target.value })}
-                  className="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                  className="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                 />
                 <select
                   value={row.itemStatus}
                   onChange={(e) => updateRow(row.key, { itemStatus: e.target.value as (typeof ALL_ITEM_STATUSES)[number] })}
-                  className="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                  className="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 >
                   {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
@@ -144,7 +144,7 @@ export function AddItemsComponent({
             </div>
           ))}
 
-          <button type="button" onClick={addRow} className="flex items-center gap-2 text-sm text-[#C7975D] hover:text-[#e0ac6f] font-medium">
+          <button type="button" onClick={addRow} className="flex items-center gap-2 text-sm text-accent hover:text-[#e0ac6f] font-medium">
             <Plus className="w-4 h-4" />
             Tilføj endnu et item
           </button>
@@ -158,7 +158,7 @@ export function AddItemsComponent({
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             Opret items

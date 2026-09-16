@@ -50,7 +50,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
           <button
             type="button"
             onClick={() => setIsManaging(true)}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#C7975D]"
+            className="flex items-center gap-1 text-xs text-slate-400 hover:text-accent"
             title="Administrer lokationer"
             aria-label="Administrer lokationer"
           >
@@ -68,21 +68,21 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             placeholder="Navn på ny lokation *"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
           />
           <input
             type="text"
             placeholder="Adresse (valgfrit)"
             value={newAddress}
             onChange={(e) => setNewAddress(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
           />
            <input
               type="text"
               placeholder="Beskrivelse (valgfrit)"
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
             />
           <div className="flex items-center justify-end gap-2">
             <button
@@ -96,7 +96,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               type="button"
               onClick={handleCreate}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-xs font-medium disabled:opacity-60"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
             >
               {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               Opret &amp; vælg
@@ -110,7 +110,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             value={value ?? ''}
             onChange={(e) => handleSelectChange(e.target.value)}
             disabled={isLoading}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D] appearance-none"
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent appearance-none"
           >
             <option value="">Ingen lokation</option>
             {locations.map((loc) => (

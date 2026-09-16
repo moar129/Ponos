@@ -91,13 +91,13 @@ function RolesSection() {
                         value={newRoleName}
                         onChange={(e) => setNewRoleName(e.target.value)}
                         placeholder="Fx Frivilligkoordinator"
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={creatingRole}
-                    className="bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creatingRole ? 'Opretter...' : 'Opret rolle'}
                 </button>
@@ -309,7 +309,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         autoFocus
-                        className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                        className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                     />
                     <button
                         type="submit"
@@ -338,7 +338,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         type="button"
                         onClick={handleDelete}
                         disabled={deleting}
-                        className="bg-[#C7975D] text-white rounded-md px-3 py-1.5 text-sm font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-3 py-1.5 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {deleting ? 'Sletter...' : 'Ja, slet'}
                     </button>
@@ -412,7 +412,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         onClick={() => setPickerOpen((open) => !open)}
                         aria-haspopup="listbox"
                         aria-expanded={pickerOpen}
-                        className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-left text-slate-300 focus:outline-none focus:border-[#C7975D]"
+                        className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-left text-slate-300 focus:outline-none focus:border-accent"
                     >
                         <span>{pickerButtonLabel}</span>
                         <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} />
@@ -439,7 +439,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                                                 type="checkbox"
                                                 checked={selectedPrivileges.includes(p.name)}
                                                 onChange={() => togglePrivilege(p.name)}
-                                                className="rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D]"
+                                                className="rounded border-slate-600 bg-slate-950 text-accent focus:ring-accent"
                                             />
                                             {p.label}
                                         </label>
@@ -457,7 +457,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                             onChange={(e) => setCustomPrivilegeName(e.target.value)}
                             placeholder="Fx custom_privilegie"
                             autoFocus
-                            className="flex-1 min-w-[160px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                            className="flex-1 min-w-[160px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                         />
                     )}
                     <button
@@ -522,7 +522,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         autoFocus
-                        className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                        className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-accent"
                     />
                     <button
                         type="submit"

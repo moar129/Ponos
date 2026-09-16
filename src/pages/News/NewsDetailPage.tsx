@@ -51,28 +51,28 @@ export function NewsDetailPage() {
     const errorMessage = readableError(queryError) ?? readableError(deleteError)
 
     return (
-        <div className="space-y-6 max-w-8xl mx-auto">
-            <Link to="/nyheder" className="flex items-center gap-1 text-sm text-secondary hover:text-primary w-fit">
+        <div className="bg-surface rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-100 max-w-8xl mx-auto space-y-6">
+            <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline w-fit">
                 <ArrowLeft className="w-4 h-4" />
                 Tilbage til nyheder
             </Link>
 
             {isLoading ? (
-                <p className="text-secondary">Indlæser nyhed...</p>
+                <p className="text-slate-400">Indlæser nyhed...</p>
             ) : !news ? (
-                <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                     {errorMessage ?? 'Nyheden blev ikke fundet.'}
                 </div>
             ) : (
-                <article className="rounded-lg border border-border-gray overflow-hidden bg-white">
+                <article className="rounded-lg border border-slate-800 overflow-hidden bg-surface">
                     {news.pictureUrl && (
                         <img src={news.pictureUrl} alt="" className="w-full max-h-96 object-cover" />
                     )}
                     <div className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-primary leading-tight">{news.title}</h1>
-                                <p className="text-sm text-secondary mt-1">{formatDate(news.publishedAt)}</p>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-slate-100 leading-tight">{news.title}</h1>
+                                <p className="text-sm text-slate-400 mt-1">{formatDate(news.publishedAt)}</p>
                             </div>
 
                             {(canUpdate || canDelete) && (
@@ -82,7 +82,7 @@ export function NewsDetailPage() {
                                             type="button"
                                             onClick={() => setIsFormOpen(true)}
                                             aria-label="Rediger nyhed"
-                                            className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
+                                            className="p-1.5 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
@@ -92,7 +92,7 @@ export function NewsDetailPage() {
                                             type="button"
                                             onClick={() => setConfirmingDelete(true)}
                                             aria-label="Slet nyhed"
-                                            className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
+                                            className="p-1.5 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -102,7 +102,7 @@ export function NewsDetailPage() {
                         </div>
 
                         {errorMessage && (
-                            <div className="mt-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                            <div className="mt-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                                 {errorMessage}
                             </div>
                         )}
@@ -113,11 +113,11 @@ export function NewsDetailPage() {
                         {news.description &&
                             (isRichText(news.description) ? (
                                 <div
-                                    className="rich-text text-secondary mt-4"
+                                    className="rich-text text-slate-300 mt-4"
                                     dangerouslySetInnerHTML={{ __html: sanitizeRichText(news.description) }}
                                 />
                             ) : (
-                                <p className="text-secondary mt-4 whitespace-pre-wrap">{news.description}</p>
+                                <p className="text-slate-300 mt-4 whitespace-pre-wrap">{news.description}</p>
                             ))}
 
                         {news.url && (
@@ -125,7 +125,7 @@ export function NewsDetailPage() {
                                 href={news.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-sm text-primary hover:underline mt-4 w-fit"
+                                className="flex items-center gap-1 text-sm text-accent hover:underline mt-4 w-fit"
                             >
                                 Læs hele artiklen
                                 <ExternalLink className="w-3.5 h-3.5" />
@@ -139,15 +139,15 @@ export function NewsDetailPage() {
 
             {confirmingDelete && news && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-                    <div className="w-full max-w-sm bg-white rounded-lg shadow-xl p-5">
-                        <p className="text-sm text-primary font-medium mb-1">Slet "{news.title}"?</p>
-                        <p className="text-sm text-secondary mb-4">Dette kan ikke fortrydes.</p>
+                    <div className="w-full max-w-sm bg-surface border border-slate-800 rounded-lg shadow-xl p-5">
+                        <p className="text-sm text-slate-100 font-medium mb-1">Slet "{news.title}"?</p>
+                        <p className="text-sm text-slate-400 mb-4">Dette kan ikke fortrydes.</p>
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={handleDelete}
                                 disabled={deleting}
-                                className="bg-red-700 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-800 transition-colors disabled:opacity-60"
+                                className="bg-red-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-60"
                             >
                                 {deleting ? 'Sletter...' : 'Slet'}
                             </button>
@@ -155,7 +155,7 @@ export function NewsDetailPage() {
                                 type="button"
                                 onClick={() => setConfirmingDelete(false)}
                                 disabled={deleting}
-                                className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                                className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
                             >
                                 Annuller
                             </button>

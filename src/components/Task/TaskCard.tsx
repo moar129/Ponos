@@ -175,11 +175,11 @@ export function TaskCard({ task }: TaskCardProps) {
       {/* TASK CARD */}
       <div
         onClick={() => setIsDetailsOpen(true)}
-        className="w-full cursor-pointer rounded-xl border-2 border-gray-300 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+        className="w-full cursor-pointer rounded-xl border-2 border-slate-800 bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
       >
         {/* HEADER */}
         <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-xl font-bold">{task.title}</h3>
+          <h3 className="text-xl font-bold text-slate-100">{task.title}</h3>
 
           <button
             type="button"
@@ -187,19 +187,19 @@ export function TaskCard({ task }: TaskCardProps) {
               e.stopPropagation();
               setIsEditOpen(true);
             }}
-            className="text-blue-500 hover:text-blue-700"
+            className="text-blue-400 hover:text-blue-300"
           >
             Rediger
           </button>
         </div>
 
         {/* BESKRIVELSE */}
-        <div className="relative mb-5 min-h-[100px] rounded-lg border border-gray-200 bg-[#f1f3f5] p-4">
-          <span className="absolute -top-3 left-3 bg-[#f1f3f5] px-2 text-xs font-bold uppercase text-gray-500">
+        <div className="relative mb-5 min-h-[100px] rounded-lg border border-slate-800 bg-slate-900 p-4">
+          <span className="absolute -top-3 left-3 bg-slate-900 px-2 text-xs font-bold uppercase text-slate-500">
             Info
           </span>
 
-          <p className="break-words text-sm text-gray-700 hyphens-auto">
+          <p className="break-words text-sm text-slate-300 hyphens-auto">
             {task.description || 'Ingen beskrivelse'}
           </p>
         </div>
@@ -216,7 +216,7 @@ export function TaskCard({ task }: TaskCardProps) {
             </span>
           )}
 
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
             {task.max_assignees === null
               ? 'Ingen begrænsning'
               : `Maks. ${task.max_assignees} personer`}
@@ -225,12 +225,12 @@ export function TaskCard({ task }: TaskCardProps) {
 
         {/* ANSVARLIGE */}
         <div className="mb-6">
-          <span className="mb-3 block text-xs font-bold uppercase text-gray-500">
+          <span className="mb-3 block text-xs font-bold uppercase text-slate-500">
             Ansvarlige
           </span>
 
           {assignees.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-400">
               Ingen er tildelt endnu.
             </p>
           ) : (
@@ -247,7 +247,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 return (
                   <div
                     key={assignee.user_id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
+                    className="flex items-center justify-between rounded-lg border border-slate-800 px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
                       {profile?.url_picture ? (
@@ -257,17 +257,17 @@ export function TaskCard({ task }: TaskCardProps) {
                           className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-bold text-slate-300">
                           {getInitials(name)}
                         </div>
                       )}
 
                       <div>
-                        <p className="font-medium text-gray-800">
+                        <p className="font-medium text-slate-100">
                           {name}
                         </p>
 
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           {assignedByMe
                             ? 'Tilmeldt af dig'
                             : 'Tildelt af en anden'}
@@ -276,7 +276,7 @@ export function TaskCard({ task }: TaskCardProps) {
                     </div>
 
                     {assignee.user_id === currentUserId && (
-                      <span className="text-xs font-semibold text-gray-500">
+                      <span className="text-xs font-semibold text-slate-500">
                         Dig
                       </span>
                     )}
@@ -288,23 +288,23 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
 
         {/* DATOER */}
-        <div className="mb-5 flex gap-8 border-t border-gray-200 pt-3 text-sm text-gray-500">
+        <div className="mb-5 flex gap-8 border-t border-slate-800 pt-3 text-sm text-slate-400">
           <div>
-            <span className="block text-xs font-semibold uppercase text-gray-400">
+            <span className="block text-xs font-semibold uppercase text-slate-500">
               Start
             </span>
 
-            <span className="font-medium text-gray-600">
+            <span className="font-medium text-slate-300">
               {formatDate(task.start_date)}
             </span>
           </div>
 
           <div>
-            <span className="block text-xs font-semibold uppercase text-gray-400">
+            <span className="block text-xs font-semibold uppercase text-slate-500">
               Slut
             </span>
 
-            <span className="font-medium text-gray-600">
+            <span className="font-medium text-slate-300">
               {formatDate(task.end_date)}
             </span>
           </div>
@@ -320,10 +320,10 @@ export function TaskCard({ task }: TaskCardProps) {
               handleAssignment();
             }}
             className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
-                ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+                ? 'border-red-800 text-red-400 hover:bg-red-600 hover:text-white'
                 : isAssigned
-                  ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
-                  : 'border-black hover:bg-black hover:text-white'
+                  ? 'cursor-not-allowed border-slate-700 bg-slate-800 text-slate-500'
+                  : 'border-accent text-accent hover:bg-accent hover:text-white'
               }`}
           >
             {canUnassignSelf
@@ -344,17 +344,17 @@ export function TaskCard({ task }: TaskCardProps) {
           }}
         >
           <div
-            className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
+            className="w-full max-w-lg rounded-xl bg-surface border border-slate-800 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* HEADER */}
             <div className="mb-6 flex items-start justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-slate-100">
                   {task.title}
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-slate-400">
                   Opgavedetaljer
                 </p>
               </div>
@@ -365,19 +365,19 @@ export function TaskCard({ task }: TaskCardProps) {
                 onClick={() => {
                   setIsDetailsOpen(false);
                 }}
-                className="text-gray-500 hover:text-gray-900"
+                className="text-slate-400 hover:text-slate-100"
               >
                 X
               </button>
             </div>
 
             {/* BESKRIVELSE */}
-            <div className="mb-5 rounded-lg border border-gray-200 bg-[#f1f3f5] p-4">
-              <span className="mb-2 block text-xs font-bold uppercase text-gray-500">
+            <div className="mb-5 rounded-lg border border-slate-800 bg-slate-900 p-4">
+              <span className="mb-2 block text-xs font-bold uppercase text-slate-500">
                 Beskrivelse
               </span>
 
-              <p className="break-words text-sm text-gray-700">
+              <p className="break-words text-sm text-slate-300">
                 {task.description || 'Ingen beskrivelse'}
               </p>
             </div>
@@ -394,7 +394,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 </span>
               )}
 
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
                 {task.max_assignees === null
                   ? 'Ingen begrænsning'
                   : `Maks. ${task.max_assignees} personer`}
@@ -403,12 +403,12 @@ export function TaskCard({ task }: TaskCardProps) {
 
             {/* ANSVARLIGE */}
             <div className="mb-6">
-              <span className="mb-3 block text-xs font-bold uppercase text-gray-500">
+              <span className="mb-3 block text-xs font-bold uppercase text-slate-500">
                 Ansvarlige
               </span>
 
               {assignees.length === 0 ? (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-400">
                   Ingen er tildelt endnu.
                 </p>
               ) : (
@@ -425,7 +425,7 @@ export function TaskCard({ task }: TaskCardProps) {
                     return (
                       <div
                         key={assignee.user_id}
-                        className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
+                        className="flex items-center justify-between rounded-lg border border-slate-800 px-4 py-3"
                       >
                         <div className="flex items-center gap-3">
                           {profile?.url_picture ? (
@@ -435,17 +435,17 @@ export function TaskCard({ task }: TaskCardProps) {
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-bold text-slate-300">
                               {getInitials(name)}
                             </div>
                           )}
 
                           <div>
-                            <p className="font-medium text-gray-800">
+                            <p className="font-medium text-slate-100">
                               {name}
                             </p>
 
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               {assignedByMe
                                 ? 'Tilmeldt af dig'
                                 : 'Tildelt af en anden'}
@@ -455,7 +455,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
                         <div className="flex items-center gap-3">
                           {assignee.user_id === currentUserId && (
-                            <span className="text-xs font-semibold text-gray-500">
+                            <span className="text-xs font-semibold text-slate-500">
                               Dig
                             </span>
                           )}
@@ -468,7 +468,7 @@ export function TaskCard({ task }: TaskCardProps) {
                                 userId: assignee.user_id,
                               });
                             }}
-                            className="text-xs font-semibold text-red-600 hover:text-red-800"
+                            className="text-xs font-semibold text-red-400 hover:text-red-300"
                           >
                             Fjern
                           </button>
@@ -482,7 +482,7 @@ export function TaskCard({ task }: TaskCardProps) {
               <button
                 type="button"
                 onClick={() => setIsEmployeePickerOpen(true)}
-                className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-800"
+                className="mt-3 text-sm font-semibold text-blue-400 hover:text-blue-300"
               >
                 + Tilføj medarbejder
               </button>
@@ -490,22 +490,22 @@ export function TaskCard({ task }: TaskCardProps) {
 
             {/* DATOER */}
             <div className="mb-6 grid grid-cols-2 gap-4">
-              <div className="rounded-lg border border-gray-200 p-4">
-                <span className="block text-xs font-semibold uppercase text-gray-400">
+              <div className="rounded-lg border border-slate-800 p-4">
+                <span className="block text-xs font-semibold uppercase text-slate-500">
                   Startdato
                 </span>
 
-                <span className="mt-1 block font-medium text-gray-700">
+                <span className="mt-1 block font-medium text-slate-300">
                   {formatFullDate(task.start_date)}
                 </span>
               </div>
 
-              <div className="rounded-lg border border-gray-200 p-4">
-                <span className="block text-xs font-semibold uppercase text-gray-400">
+              <div className="rounded-lg border border-slate-800 p-4">
+                <span className="block text-xs font-semibold uppercase text-slate-500">
                   Slutdato
                 </span>
 
-                <span className="mt-1 block font-medium text-gray-700">
+                <span className="mt-1 block font-medium text-slate-300">
                   {formatFullDate(task.end_date)}
                 </span>
               </div>
@@ -518,7 +518,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 onClick={() => {
                   setIsDetailsOpen(false);
                 }}
-                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+                className="rounded-lg bg-slate-800 px-5 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700"
               >
                 Luk
               </button>
@@ -534,17 +534,17 @@ export function TaskCard({ task }: TaskCardProps) {
           onClick={() => setIsEmployeePickerOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-xl bg-surface border border-slate-800 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* HEADER */}
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-xl font-bold text-slate-100">
                   Tilføj medarbejder
                 </h3>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-slate-400">
                   Vælg hvem der skal tildeles opgaven
                 </p>
               </div>
@@ -552,15 +552,15 @@ export function TaskCard({ task }: TaskCardProps) {
               <button
                 type="button"
                 onClick={() => setIsEmployeePickerOpen(false)}
-                className="text-gray-500 hover:text-gray-900"
+                className="text-slate-400 hover:text-slate-100"
               >
                 X
               </button>
             </div>
 
             {/* ANTAL ANSVARLIGE */}
-            <div className="mb-4 rounded-lg bg-gray-50 px-4 py-3">
-              <p className="text-sm font-semibold text-gray-700">
+            <div className="mb-4 rounded-lg bg-slate-900 px-4 py-3">
+              <p className="text-sm font-semibold text-slate-300">
                 Ansvarlige:{' '}
                 {task.max_assignees === null
                   ? assignees.length
@@ -569,7 +569,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
               {task.max_assignees !== null &&
                 assignees.length >= task.max_assignees && (
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     Maksimalt antal medarbejdere er nået.
                   </p>
                 )}
@@ -578,7 +578,7 @@ export function TaskCard({ task }: TaskCardProps) {
             {/* MEDARBEJDERE */}
             {task.max_assignees !== null &&
               assignees.length >= task.max_assignees ? (
-              <p className="py-6 text-center text-sm text-gray-500">
+              <p className="py-6 text-center text-sm text-slate-400">
                 Der er ikke flere ledige pladser på opgaven.
               </p>
             ) : (
@@ -607,7 +607,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
                           setIsEmployeePickerOpen(false);
                         }}
-                        className="w-full rounded-lg border border-gray-200 px-4 py-3 text-left transition hover:border-gray-400 hover:bg-gray-50"
+                        className="w-full rounded-lg border border-slate-800 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
                       >
                         <div className="flex items-center gap-3">
                           {employee.url_picture ? (
@@ -617,7 +617,7 @@ export function TaskCard({ task }: TaskCardProps) {
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-bold text-slate-300">
                               {getInitials(
                                 name || employee.email || '?'
                               )}
@@ -626,13 +626,13 @@ export function TaskCard({ task }: TaskCardProps) {
 
                           <div>
                             {(name || employee.email) && (
-                              <p className="font-medium text-gray-800">
+                              <p className="font-medium text-slate-100">
                                 {name || employee.email}
                               </p>
                             )}
 
                             {employee.email && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-slate-500">
                                 {employee.email}
                               </p>
                             )}
@@ -649,7 +649,7 @@ export function TaskCard({ task }: TaskCardProps) {
                         assignee.user_id === employee.id
                     )
                 ).length === 0 && (
-                    <p className="py-4 text-center text-sm text-gray-500">
+                    <p className="py-4 text-center text-sm text-slate-400">
                       Der er ingen medarbejdere at tildele.
                     </p>
                   )}
@@ -661,7 +661,7 @@ export function TaskCard({ task }: TaskCardProps) {
               <button
                 type="button"
                 onClick={() => setIsEmployeePickerOpen(false)}
-                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+                className="rounded-lg bg-slate-800 px-5 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700"
               >
                 Luk
               </button>

@@ -14,7 +14,7 @@ export function GlobalSearchResultsComponent({
   const preventBlur = (e: MouseEvent) => e.preventDefault();
 
   return (
-    <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">
+    <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-surface border border-slate-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">
       {!hasResults ? (
         <p className="p-4 text-sm text-slate-400 text-center">Ingen resultater for "{query}"</p>
       ) : (
@@ -30,7 +30,7 @@ export function GlobalSearchResultsComponent({
                   onClick={() => onSelectCategory(cat)}
                   className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-800/70 text-left"
                 >
-                  <Folder className="w-4 h-4 text-[#C7975D] shrink-0" />
+                  <Folder className="w-4 h-4 text-accent shrink-0" />
                   <span className="text-sm text-slate-200 truncate">{cat.title}</span>
                 </button>
               ))}

@@ -130,7 +130,7 @@ export function MembersPanel() {
                                                     value={member.roleId ?? ''}
                                                     onChange={(e) => handleAssign(member, e.target.value)}
                                                     disabled={savingUserId === member.id}
-                                                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D] disabled:opacity-60"
+                                                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent disabled:opacity-60"
                                                 >
                                                     {(roles ?? []).map((role) => (
                                                         <option key={role.id} value={role.id}>{role.name}</option>

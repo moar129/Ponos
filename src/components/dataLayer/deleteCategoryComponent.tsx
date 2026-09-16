@@ -28,7 +28,7 @@ function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCate
           type="checkbox"
           checked={isChecked}
           onChange={() => onToggle(category.id)}
-          className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+          className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-accent focus:ring-accent shrink-0"
         />
 
         <span className="text-sm text-slate-200 truncate">{category.title}</span>
@@ -109,7 +109,7 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3 p-5 border-b border-slate-800">
@@ -137,7 +137,7 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
 
           <div className="flex items-center gap-2 py-1.5 px-1.5 rounded-md bg-slate-900 border border-slate-800 mb-1">
             <span className="w-4 shrink-0" />
-            <input type="checkbox" checked disabled className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] shrink-0" />
+            <input type="checkbox" checked disabled className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-accent shrink-0" />
             <span className="text-sm font-medium text-slate-100 truncate">{category.title}</span>
             {category.items.length > 0 && (
               <span className="text-xs text-slate-500 shrink-0">({category.items.length} items)</span>

@@ -115,31 +115,20 @@ export function TasksPage() {
 
     if (tasksLoading || roomsLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-surface text-slate-100">
                 <p className="font-semibold">Henter opgaver...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f4f4f2] text-[#111827]">
-            <header className="border-b border-gray-200 bg-white text-gray-900 px-8 py-5">
-                <div className="relative max-w-[1600px] mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-8" />
-                    <div className="flex items-center gap-5">
-                        <div className="relative" />
-                    </div>
-                </div>
-            </header>
-
-            <div className="border-b border-gray-200 bg-white/90 shadow-sm">
-                <RoomBar
-                    rooms={rooms}
-                    selectedRoomId={selectedRoomId}
-                    onSelectRoom={setSelectedRoomId}
-                    onAddRoom={() => setIsAddRoomOpen(true)}
-                />
-            </div>
+        <div className="min-h-screen flex flex-col bg-surface text-slate-100">
+            <RoomBar
+                rooms={rooms}
+                selectedRoomId={selectedRoomId}
+                onSelectRoom={setSelectedRoomId}
+                onAddRoom={() => setIsAddRoomOpen(true)}
+            />
 
             <FilterBar
                 isFilterOpen={isFilterOpen}
@@ -158,15 +147,15 @@ export function TasksPage() {
 
             {isAddRoomOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Opret rum</h3>
+                    <div className="w-full max-w-md rounded-2xl bg-surface border border-slate-800 p-6 shadow-xl">
+                        <h3 className="text-xl font-bold text-slate-100 mb-4">Opret rum</h3>
 
                         <input
                             type="text"
                             value={newRoomName}
                             onChange={(e) => setNewRoomName(e.target.value)}
                             placeholder="Skriv navn på rum"
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                            className="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 px-3 py-2 text-sm outline-none focus:border-accent"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleAddRoom();
@@ -182,7 +171,7 @@ export function TasksPage() {
                                     setIsAddRoomOpen(false);
                                     setNewRoomName('');
                                 }}
-                                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600"
+                                className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 transition-colors"
                             >
                                 Annullér
                             </button>
@@ -190,7 +179,7 @@ export function TasksPage() {
                             <button
                                 type="button"
                                 onClick={handleAddRoom}
-                                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+                                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                             >
                                 Gem rum
                             </button>
@@ -201,16 +190,16 @@ export function TasksPage() {
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
                 {pageError && (
-                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                         {pageError}
                     </div>
                 )}
 
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Opgaver</h1>
+                        <h1 className="text-3xl font-bold text-slate-100">Opgaver</h1>
 
-                        <p className="text-gray-500 mt-1">
+                        <p className="text-slate-400 mt-1">
                             Få overblik over arbejdet, der skal udføres.
                         </p>
                     </div>
@@ -218,7 +207,7 @@ export function TasksPage() {
                     <button
                         type="button"
                         onClick={() => setIsCreateTaskOpen(true)}
-                        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                     >
                         Opret opgave
                     </button>
@@ -227,13 +216,13 @@ export function TasksPage() {
                 <div className="grid grid-cols-2 gap-8 items-start">
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">Opgaver tilgængelige</h2>
-                            <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <h2 className="font-bold text-lg text-slate-100">Opgaver tilgængelige</h2>
+                            <span className="bg-slate-800 text-slate-300 text-xs font-bold px-2.5 py-1 rounded-full">
                                 {availableTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4 min-h-[500px] space-y-4">
                             {availableTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
@@ -241,7 +230,7 @@ export function TasksPage() {
                                 />
                             ))}
                             {availableTasks.length === 0 && (
-                                <p className="text-gray-500 text-sm py-8 text-center">
+                                <p className="text-slate-400 text-sm py-8 text-center">
                                     Ingen tilgængelige opgaver
                                 </p>
                             )}
@@ -250,13 +239,13 @@ export function TasksPage() {
 
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">I gang</h2>
-                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <h2 className="font-bold text-lg text-slate-100">I gang</h2>
+                            <span className="bg-blue-500/15 text-blue-400 text-xs font-bold px-2.5 py-1 rounded-full">
                                 {myTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4 min-h-[500px] space-y-4">
                             {myTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
@@ -264,7 +253,7 @@ export function TasksPage() {
                                 />
                             ))}
                             {myTasks.length === 0 && (
-                                <p className="text-gray-500 text-sm py-8 text-center">
+                                <p className="text-slate-400 text-sm py-8 text-center">
                                     Ingen opgaver i gang
                                 </p>
                             )}

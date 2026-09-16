@@ -132,7 +132,7 @@ export function OrganisationAdminPanel() {
                             type="text"
                             value={form.name}
                             onChange={(e) => setForm({ name: e.target.value })}
-                            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                         />
                     </div>
 
@@ -140,7 +140,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? 'Gemmer...' : 'Gem ændringer'}
                         </button>
@@ -174,7 +174,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="button"
                             onClick={() => startEdit(organisation)}
-                            className="bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             Rediger organisation
                         </button>
@@ -261,7 +261,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     type="text"
                     value={typedName}
                     onChange={(e) => setTypedName(e.target.value)}
-                    className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                    className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 />
             </div>
 
@@ -270,7 +270,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     type="checkbox"
                     checked={dataLossAcked}
                     onChange={(e) => setDataLossAcked(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D]"
+                    className="mt-0.5 rounded border-slate-600 bg-slate-950 text-accent focus:ring-accent"
                 />
                 Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.
             </label>
@@ -281,7 +281,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                         type="checkbox"
                         checked={memberImpactAcked}
                         onChange={(e) => setMemberImpactAcked(e.target.checked)}
-                        className="mt-0.5 rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D]"
+                        className="mt-0.5 rounded border-slate-600 bg-slate-950 text-accent focus:ring-accent"
                     />
                     Jeg forstår at de {otherMemberCount} andre medlemmer mister deres adgang med det samme.
                 </label>

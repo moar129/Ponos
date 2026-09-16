@@ -60,18 +60,18 @@ export function NewsPage() {
     const errorMessage = readableError(listError) ?? readableError(deleteError)
 
     return (
-        <div className="space-y-6">
+        <div className="bg-surface rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-100 space-y-6">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <Newspaper className="w-6 h-6 text-secondary" />
-                    <h1 className="text-xl font-semibold text-primary">Nyheder</h1>
+                    <Newspaper className="w-6 h-6 text-slate-400" />
+                    <h1 className="text-xl font-semibold text-slate-100">Nyheder</h1>
                 </div>
 
                 {canCreate && (
                     <button
                         type="button"
                         onClick={openCreate}
-                        className="flex items-center gap-2 bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors"
+                        className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors"
                     >
                         <Plus className="w-4 h-4" />
                         Opret nyhed
@@ -80,17 +80,17 @@ export function NewsPage() {
             </div>
 
             {errorMessage && (
-                <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                     {errorMessage}
                 </div>
             )}
 
             {isLoading || loadingReadPrivilege ? (
-                <p className="text-secondary">Indlæser nyheder...</p>
+                <p className="text-slate-400">Indlæser nyheder...</p>
             ) : !canRead ? (
-                <p className="text-secondary">Du har ikke adgang til at se nyheder i denne organisation.</p>
+                <p className="text-slate-400">Du har ikke adgang til at se nyheder i denne organisation.</p>
             ) : !news || news.length === 0 ? (
-                <p className="text-secondary">Der er ingen nyheder endnu.</p>
+                <p className="text-slate-400">Der er ingen nyheder endnu.</p>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {news.map((item) => (
@@ -110,15 +110,15 @@ export function NewsPage() {
 
             {deleteTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-                    <div className="w-full max-w-sm bg-white rounded-lg shadow-xl p-5">
-                        <p className="text-sm text-primary font-medium mb-1">Slet "{deleteTarget.title}"?</p>
-                        <p className="text-sm text-secondary mb-4">Dette kan ikke fortrydes.</p>
+                    <div className="w-full max-w-sm bg-surface border border-slate-800 rounded-lg shadow-xl p-5">
+                        <p className="text-sm text-slate-100 font-medium mb-1">Slet "{deleteTarget.title}"?</p>
+                        <p className="text-sm text-slate-400 mb-4">Dette kan ikke fortrydes.</p>
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={confirmDelete}
                                 disabled={deleting}
-                                className="bg-red-700 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-800 transition-colors disabled:opacity-60"
+                                className="bg-red-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-60"
                             >
                                 {deleting ? 'Sletter...' : 'Slet'}
                             </button>
@@ -126,7 +126,7 @@ export function NewsPage() {
                                 type="button"
                                 onClick={() => setDeleteTarget(null)}
                                 disabled={deleting}
-                                className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                                className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
                             >
                                 Annuller
                             </button>

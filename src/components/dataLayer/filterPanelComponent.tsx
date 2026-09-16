@@ -20,11 +20,11 @@ export function FilterPanelComponent({
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
-     <div className="absolute right-0 top-full mt-2 z-50 w-72 max-w-[calc(100vw-2rem)] bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl p-4 space-y-4">
+     <div className="absolute right-0 top-full mt-2 z-50 w-72 max-w-[calc(100vw-2rem)] bg-surface border border-slate-800 rounded-xl shadow-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-100">Filter</h3>
           {hasActiveFilters && (
-            <button type="button" onClick={onClear} className="text-xs text-[#C7975D] hover:text-[#e0ac6f]">
+            <button type="button" onClick={onClear} className="text-xs text-accent hover:text-[#e0ac6f]">
               Ryd filtre
             </button>
           )}
@@ -39,7 +39,7 @@ export function FilterPanelComponent({
                   type="checkbox"
                   checked={selectedStatuses.has(status)}
                   onChange={() => onToggleStatus(status)}
-                  className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] focus:ring-[#C7975D]"
+                  className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-accent focus:ring-accent"
                 />
                 {status}
               </label>
@@ -57,7 +57,7 @@ export function FilterPanelComponent({
                     type="checkbox"
                     checked={selectedCategoryIds.has(cat.id)}
                     onChange={() => onToggleCategory(cat.id)}
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] focus:ring-[#C7975D]"
+                    className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-accent focus:ring-accent"
                   />
                   <span className="truncate">{cat.title}</span>
                 </label>

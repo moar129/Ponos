@@ -83,13 +83,13 @@ export function InvitationsPanel() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="navn@eksempel.dk"
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={inviting || !email.trim()}
-                    className="bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {inviting ? 'Sender...' : 'Send invitation'}
                 </button>

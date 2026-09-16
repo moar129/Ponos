@@ -28,7 +28,7 @@ export function OverviewTab() {
                 </p>
                 <Link
                     to="/dashboard?tab=organisation"
-                    className="inline-flex items-center gap-2 text-[#C7975D] font-medium hover:underline"
+                    className="inline-flex items-center gap-2 text-accent font-medium hover:underline"
                 >
                     <Building2 className="w-4 h-4" />
                     Gå til Organisation

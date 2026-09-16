@@ -60,12 +60,12 @@ export function CompletedTasksPanel() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Søg efter titel eller beskrivelse..."
-                    className="flex-1 min-w-[200px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                    className="flex-1 min-w-[200px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 />
                 <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value as ETaskPriority | 'all')}
-                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 >
                     <option value="all">Alle prioriteter</option>
                     {(Object.keys(PRIORITY_LABELS) as ETaskPriority[]).map((priority) => (

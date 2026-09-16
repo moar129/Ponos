@@ -96,12 +96,12 @@ export default function Dashboard() {
     // bliver nødvendig, når der reelt ikke er plads.
     const tabClass = (tab: DashboardTab) =>
         `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeTab === tab
-            ? 'border-[#C7975D] text-[#C7975D]'
+            ? 'border-accent text-accent'
             : 'border-transparent text-slate-400 hover:text-slate-100'
         }`
 
     return (
-        <div className="bg-[#0B132A] rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-100">
+        <div className="bg-surface rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-slate-100">
             <div className="mb-6">
                 <h1 className="text-xl font-semibold text-slate-100">Dashboard</h1>
                 <p className="text-sm text-slate-400">

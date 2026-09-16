@@ -50,13 +50,13 @@ export function EditRoomModal({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl bg-surface border border-slate-800 p-6 shadow-2xl">
                 <div className="mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-xl font-semibold text-slate-100">
                         Rediger rum
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-slate-400">
                         Vælg et rum og rediger navnet.
                     </p>
                 </div>
@@ -66,7 +66,7 @@ export function EditRoomModal({
                     <div>
                         <label
                             htmlFor="edit-room-select"
-                            className="mb-1 block text-sm font-medium text-gray-700"
+                            className="mb-1 block text-sm font-medium text-slate-300"
                         >
                             Vælg rum
                         </label>
@@ -75,7 +75,7 @@ export function EditRoomModal({
                             id="edit-room-select"
                             value={selectedRoomId}
                             onChange={(e) => handleRoomChange(e.target.value)}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#C7975D] focus:outline-none"
+                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 text-sm focus:border-accent focus:outline-none"
                         >
                             <option value="">Vælg rum</option>
 
@@ -90,7 +90,7 @@ export function EditRoomModal({
                     <div>
                         <label
                             htmlFor="edit-room-name"
-                            className="mb-1 block text-sm font-medium text-gray-700"
+                            className="mb-1 block text-sm font-medium text-slate-300"
                         >
                             Navn
                         </label>
@@ -102,12 +102,12 @@ export function EditRoomModal({
                             onChange={(e) => setRoomName(e.target.value)}
                             disabled={!selectedRoomId}
                             placeholder="Indtast rumnavn"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#C7975D] focus:outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 px-3 py-2 text-sm focus:border-accent focus:outline-none disabled:bg-slate-800 disabled:text-slate-500"
                         />
                     </div>
 
                     {isError && (
-                        <p className="text-sm text-red-600">
+                        <p className="text-sm text-red-400">
                             Kunne ikke redigere rummet. Prøv igen.
                         </p>
                     )}
@@ -117,7 +117,7 @@ export function EditRoomModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                        className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800"
                     >
                         Annuller
                     </button>
@@ -130,7 +130,7 @@ export function EditRoomModal({
                             !selectedRoomId ||
                             !roomName.trim()
                         }
-                        className="rounded-lg bg-[#C7975D] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isLoading ? 'Gemmer...' : 'Gem ændringer'}
                     </button>

@@ -97,13 +97,13 @@ export function AdministrationTab() {
     // scrollende fanerække.
     const navItemClass = (tab: AdminSubTab) =>
         `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
-            ? 'bg-[#C7975D]/15 text-[#C7975D]'
+            ? 'bg-accent/15 text-accent'
             : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
         }`
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-surface p-2 md:p-3">
                 {tabs.map((tab) => (
                     <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={navItemClass(tab.key)}>
                         <tab.icon className="w-4 h-4 shrink-0" />
@@ -112,7 +112,7 @@ export function AdministrationTab() {
                 ))}
             </nav>
 
-            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-surface p-4 sm:p-6">
                 {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
                 {activeSubTab === 'members' && <MembersPanel />}
                 {activeSubTab === 'invitations' && <InvitationsPanel />}

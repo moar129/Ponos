@@ -73,18 +73,18 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-md"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <div className="flex items-center gap-2 min-w-0">
-            <Package className="w-5 h-5 text-[#C7975D] shrink-0" />
+            <Package className="w-5 h-5 text-accent shrink-0" />
             {isEditing ? (
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-100 focus:outline-none focus:border-accent"
               />
             ) : (
               <h2 className="text-lg font-semibold text-slate-100 truncate">{item.name}</h2>
@@ -120,7 +120,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Beskrivelse"
               rows={3}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
             />
           ) : (
             <p className="text-sm text-slate-300">{item.description || 'Ingen beskrivelse'}</p>
@@ -135,7 +135,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                   min={0}
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 />
               ) : (
                 <span className="text-slate-200">{item.quantity}</span>
@@ -147,7 +147,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                 <select
                   value={itemStatus}
                   onChange={(e) => setItemStatus(e.target.value as (typeof ALL_ITEM_STATUSES)[number])}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
                 >
                   {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
@@ -195,7 +195,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
               type="button"
               onClick={handleSave}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Gem

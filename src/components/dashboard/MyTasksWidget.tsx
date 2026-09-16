@@ -53,7 +53,7 @@ export function MyTasksWidget() {
     const error = readableError(tasksError) ?? readableError(myTaskIdsError)
 
     return (
-        <div className="rounded-lg border border-slate-800 bg-[#0B132A] p-5">
+        <div className="rounded-lg border border-slate-800 bg-surface p-5">
             <div className="flex items-center gap-2 mb-3">
                 <ListChecks className="w-5 h-5 text-slate-400" />
                 <h3 className="font-medium text-slate-100">Mine opgaver</h3>

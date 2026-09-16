@@ -67,7 +67,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
@@ -86,7 +86,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
 
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+              <Loader2 className="w-6 h-6 animate-spin text-accent" />
             </div>
           ) : locations.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">Ingen lokationer oprettet endnu.</p>
@@ -100,21 +100,21 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Navn"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
                     />
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="Adresse"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
                     />
                     <input
                       type="text"
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       placeholder="Beskrivelse"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-[#C7975D]"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
                     />
                     <div className="flex items-center justify-end gap-2">
                       <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">
@@ -124,7 +124,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                         type="button"
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-xs font-medium disabled:opacity-60"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
                       >
                         {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                         Gem

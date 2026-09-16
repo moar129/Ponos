@@ -16,7 +16,7 @@ export function ConfirmDialogComponent({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={onCancel}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-sm"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-sm"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3 p-5">

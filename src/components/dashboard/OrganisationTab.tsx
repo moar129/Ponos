@@ -27,7 +27,7 @@ type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 // her for et konsistent udtryk på tværs af dashboardets faner.
 function orgNavItemClass(active: boolean): string {
     return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
-        ? 'bg-[#C7975D]/15 text-[#C7975D]'
+        ? 'bg-accent/15 text-accent'
         : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
     }`
 }
@@ -196,7 +196,7 @@ export function OrganisationTab() {
                 </p>
 
                 {pendingRequest ? (
-                    <div className="rounded-md bg-[#C7975D]/10 border border-[#C7975D]/40 text-[#C7975D] text-sm px-3 py-2">
+                    <div className="rounded-md bg-accent/10 border border-accent/40 text-accent text-sm px-3 py-2">
                         Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
                     </div>
                 ) : (
@@ -214,7 +214,7 @@ export function OrganisationTab() {
 
                         return (
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
+                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-surface p-2 md:p-3">
                                     {noOrgTabDefs.map((tab) => (
                                         <button
                                             key={tab.key}
@@ -228,7 +228,7 @@ export function OrganisationTab() {
                                     ))}
                                 </nav>
 
-                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
+                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-surface p-4 sm:p-6">
                                     {noOrgTab === 'memberships' ? (
                                         <MyMembershipsSection />
                                     ) : noOrgTab === 'invitations' ? (
@@ -248,13 +248,13 @@ export function OrganisationTab() {
                                                         type="text"
                                                         value={createName}
                                                         onChange={(e) => setCreateName(e.target.value)}
-                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                                                     />
                                                 </div>
                                                 <button
                                                     type="submit"
                                                     disabled={creating}
-                                                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {creating ? 'Opretter...' : 'Opret organisation'}
                                                 </button>
@@ -279,7 +279,7 @@ export function OrganisationTab() {
                                                         value={selectedOrgId}
                                                         onChange={(e) => setSelectedOrgId(e.target.value)}
                                                         disabled={loadingOrganisations}
-                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                                                     >
                                                         <option value="" disabled>
                                                             {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
@@ -294,7 +294,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={requesting || !selectedOrgId}
-                                                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {requesting ? 'Sender anmodning...' : 'Send anmodning'}
                                                 </button>
@@ -337,7 +337,7 @@ export function OrganisationTab() {
         // AdministrationTab.tsx og DataLayerPage.tsx (Kategorier/Items-
         // splittet), for et konsistent udtryk på tværs af appen.
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-surface p-2 md:p-3">
                 {orgTabDefs.map((tab) => (
                     <button
                         key={tab.key}
@@ -351,7 +351,7 @@ export function OrganisationTab() {
                 ))}
             </nav>
 
-            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-surface p-4 sm:p-6">
                 {effectiveOrgTab === 'memberships' ? (
                     <MyMembershipsSection />
                 ) : effectiveOrgTab === 'request' ? (
@@ -376,7 +376,7 @@ export function OrganisationTab() {
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-lg font-semibold text-slate-100">{organisation.name}</h3>
                                     {activeMembership?.isAdmin && (
-                                        <span className="text-xs font-medium bg-[#C7975D]/15 text-[#C7975D] rounded-full px-2 py-0.5">
+                                        <span className="text-xs font-medium bg-accent/15 text-accent rounded-full px-2 py-0.5">
                                             Administrator
                                         </span>
                                     )}
@@ -482,7 +482,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-[#C7975D] text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? 'Behandler...' : 'Ja'}
                     </button>
@@ -501,7 +501,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-[#C7975D] text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         Acceptér
                     </button>
@@ -577,7 +577,7 @@ function RequestMembershipSection() {
 
     if (pendingRequest) {
         return (
-            <div className="rounded-md bg-[#C7975D]/10 border border-[#C7975D]/40 text-[#C7975D] text-sm px-3 py-2">
+            <div className="rounded-md bg-accent/10 border border-accent/40 text-accent text-sm px-3 py-2">
                 Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
             </div>
         )
@@ -618,7 +618,7 @@ function RequestMembershipSection() {
                             value={selectedOrgId}
                             onChange={(e) => setSelectedOrgId(e.target.value)}
                             disabled={loadingOrganisations}
-                            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                         >
                             <option value="" disabled>
                                 {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
@@ -633,7 +633,7 @@ function RequestMembershipSection() {
                     <button
                         type="submit"
                         disabled={requesting || !selectedOrgId}
-                        className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                        className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {requesting ? 'Sender anmodning...' : 'Send anmodning'}
                     </button>
@@ -690,13 +690,13 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
                         type="text"
                         value={createName}
                         onChange={(e) => setCreateName(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creating ? 'Opretter...' : 'Opret organisation'}
                 </button>
@@ -801,7 +801,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
 
                 <div className="flex items-center gap-2">
                     {membership.isActive ? (
-                        <span className="text-sm font-medium text-[#C7975D]">Aktiv</span>
+                        <span className="text-sm font-medium text-accent">Aktiv</span>
                     ) : (
                         <button
                             type="button"

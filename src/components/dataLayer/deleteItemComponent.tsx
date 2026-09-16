@@ -30,7 +30,7 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3 p-5 border-b border-slate-800">

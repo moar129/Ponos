@@ -18,16 +18,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   inProgressCount
 }) => {
   return (
-    <div className="bg-white border-b border-gray-200 px-8 py-3">
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+    <div className="bg-surface border-b border-slate-800">
+      <div className="max-w-[1600px] mx-auto px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleFilter}
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all
               ${isFilterOpen
-                ? 'border-gray-900 bg-gray-900 text-white'
-                : 'border-gray-300 text-gray-700 hover:border-gray-900 hover:text-gray-900'}
+                ? 'border-accent bg-accent text-white'
+                : 'border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-100'}
             `}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,12 +43,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Søg opgaver..."
-            className="w-56 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-900"
+            className="w-56 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-4 py-2 text-sm outline-none placeholder:text-slate-500 focus:border-accent"
           />
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-slate-400">
             {availableCount} tilgængelige · {inProgressCount} i gang
           </span>
         </div>

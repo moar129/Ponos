@@ -44,13 +44,13 @@ export function NewsSlider() {
     const hasImage = !!current?.pictureUrl
 
     return (
-        <div className="rounded-lg border border-slate-800 bg-[#0B132A] p-5">
+        <div className="rounded-lg border border-slate-800 bg-surface p-5">
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <Newspaper className="w-5 h-5 text-slate-400" />
                     <h3 className="font-medium text-slate-100">Nyheder</h3>
                 </div>
-                <Link to="/nyheder" className="flex items-center gap-1 text-sm text-[#C7975D] hover:underline shrink-0">
+                <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     Se alle nyheder
                     <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -125,7 +125,7 @@ export function NewsSlider() {
                                             i === index
                                                 ? hasImage
                                                     ? 'bg-white'
-                                                    : 'bg-[#C7975D]'
+                                                    : 'bg-accent'
                                                 : hasImage
                                                   ? 'bg-white/50 hover:bg-white/80'
                                                   : 'bg-slate-700 hover:bg-slate-500'

@@ -8,12 +8,12 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <div className="flex items-center gap-2 min-w-0">
-            <MapPin className="w-5 h-5 text-[#C7975D] shrink-0" />
+            <MapPin className="w-5 h-5 text-accent shrink-0" />
             <div className="min-w-0">
               <h2 className="text-lg font-semibold text-slate-100 truncate">{location.name}</h2>
               {location.address && <p className="text-xs text-slate-400 truncate">{location.address}</p>}

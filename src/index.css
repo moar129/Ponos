@@ -7,23 +7,30 @@
     --color-accent-hover: #B5854B;
     --color-border-gray: #C8C7C7;
     --color-bg-gray: #DCDCDC;
+    /* Mørk navy-baggrund til Dashboard/Datalager/Opgaver/Nyheder-temaet
+       (US-65 redesign) - adskilt fra --color-primary, som stadig betyder
+       "mørk tekst på lys bund" alle andre steder i appen (auth,
+       header/footer, landing, profil). */
+    --color-surface: #0B132A;
 }
 
 /* Formateret tekst fra RichTextEditor - Tailwinds preflight nulstiller
    h2/ul/ol, så de skal stilles eksplicit her (typography-pluginnet er
    ikke installeret). Samme klasse bruges på editorens skriveflade og
-   alle visningssteder, så det skrevne ser ud som det viste. */
+   alle visningssteder, så det skrevne ser ud som det viste. Kun brugt af
+   Nyheder (mørkt tema), derfor slate/accent i stedet for --color-primary/
+   -secondary (som stadig er lys-tema-semantik andre steder i appen). */
 .rich-text h2 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--color-primary);
+    color: var(--color-slate-100);
     margin: 1.25rem 0 0.5rem;
 }
 
 .rich-text h3 {
     font-size: 1.05rem;
     font-weight: 600;
-    color: var(--color-primary);
+    color: var(--color-slate-100);
     margin: 1rem 0 0.375rem;
 }
 
@@ -48,7 +55,7 @@
 }
 
 .rich-text a {
-    color: var(--color-primary);
+    color: var(--color-accent);
     text-decoration: underline;
 }
 
@@ -58,7 +65,7 @@
 /* Pladsholder i den tomme editor (contentEditable har ingen indbygget). */
 .rich-text[contenteditable]:empty::before {
     content: attr(data-placeholder);
-    color: var(--color-secondary);
+    color: var(--color-slate-500);
     opacity: 0.7;
 }
 /* Fanerækker der kan scrolles vandret, når de ikke kan være på skærmen
