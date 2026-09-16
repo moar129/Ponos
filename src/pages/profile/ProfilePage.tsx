@@ -2,10 +2,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/apis/profileApi'
 import { useSignOutMutation } from '../../store/apis/authApi'
 import ChangePasswordForm from '../../components/profile/ChangePasswordForm'
+import { Avatar } from '../../components/common/Avatar'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
 
 // Tom formular-tilstand, indtil brugeren trykker "Rediger profil" og
@@ -117,17 +118,13 @@ export default function ProfilePage() {
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
             {/* Overskrift med profilbillede/ikon og navn */}
             <div className="flex items-center gap-4 mb-6">
-                {profile.urlPicture ? (
-                    <img
-                        src={profile.urlPicture}
-                        alt=""
-                        className="w-16 h-16 rounded-full object-cover border border-border-gray"
-                    />
-                ) : (
-                    <div className="w-16 h-16 rounded-full bg-bg-gray flex items-center justify-center">
-                        <User className="w-8 h-8 text-secondary" />
-                    </div>
-                )}
+                <Avatar
+                    firstName={profile.firstName}
+                    lastName={profile.lastName}
+                    urlPicture={profile.urlPicture}
+                    className="w-16 h-16 bg-bg-gray text-secondary border border-border-gray"
+                    textClassName="text-xl"
+                />
                 <div>
                     <h1 className="text-xl font-semibold text-primary">
                         {profile.firstName} {profile.lastName}

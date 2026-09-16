@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
+import { Avatar } from './common/Avatar';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
@@ -216,13 +217,13 @@ export function Header() {
                   aria-expanded={menuOpen}
                   className="flex items-center gap-2 xl:gap-3 hover:opacity-90 transition-opacity cursor-pointer"
                 >
-                  <div className="w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-semibold overflow-hidden shrink-0">
-                    {profile?.urlPicture ? (
-                      <img src={profile.urlPicture} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-5 h-5 xl:w-6 xl:h-6 text-slate-700" />
-                    )}
-                  </div>
+                  <Avatar
+                    firstName={profile?.firstName}
+                    lastName={profile?.lastName}
+                    urlPicture={profile?.urlPicture}
+                    className="w-8 h-8 xl:w-10 xl:h-10 bg-slate-200 text-slate-800"
+                    textClassName="text-xs xl:text-sm"
+                  />
                   <div className="hidden 2xl:flex flex-col text-left">
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
