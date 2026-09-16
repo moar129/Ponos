@@ -44,6 +44,11 @@ interface AssignToTaskInput {
     userId: string
 }
 
+interface RemoveAssigneeInput {
+    taskId: string
+    userId: string
+}
+
 async function getAuthenticatedOrganisationId(): Promise<string> {
     const { data: authData, error: authError } = await supabase.auth.getUser()
     if (authError || !authData.user) {
@@ -122,6 +127,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 first_name: string | null
                 last_name: string | null
                 email: string | null
+                url_picture: string | null
             }[],
             void
         >({
@@ -161,7 +167,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         await supabase
                             .from('profiles')
                             .select(
-                                'id, first_name, last_name, email'
+                                'id, first_name, last_name, email, url_picture'
                             )
                             .in('id', userIds)
 
@@ -180,6 +186,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             first_name: profile.first_name,
                             last_name: profile.last_name,
                             email: profile.email,
+                            url_picture: profile.url_picture,
                         })),
                     }
                 } catch (err: unknown) {
@@ -512,6 +519,63 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
+
+        removeAssigneeFromTask: builder.mutation<void, RemoveAssigneeInput>({
+            queryFn: async ({ taskId, userId }) => {
+                try {
+                    const { data: authData, error: authError } =
+                        await supabase.auth.getUser()
+
+                    if (authError || !authData.user) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: 'Du skal være logget ind.',
+                            } as QueryError,
+                        }
+                    }
+
+                    const { error } = await supabase
+                        .from('task_assignees')
+                        .delete()
+                        .eq('task_id', taskId)
+                        .eq('user_id', userId)
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    return {
+                        data: undefined,
+                    }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved fjernelse af medarbejder fra opgaven'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                'MyTasks',
+                {
+                    type: 'Task',
+                    id: `${taskId}-ASSIGNEES`,
+                },
+            ],
+        }),
+
         getMyTaskIds: builder.query<string[], void>({
             queryFn: async () => {
                 try {
@@ -706,5 +770,6 @@ export const {
     useDeleteTaskMutation,
     useAssignToTaskMutation,
     useUnassignFromTaskMutation,
+    useRemoveAssigneeFromTaskMutation,
     useGetMyTaskIdsQuery,
 } = taskApi

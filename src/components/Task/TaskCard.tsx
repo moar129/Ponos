@@ -5,6 +5,7 @@ import {
   useGetOrganisationEmployeesQuery,
   useAssignToTaskMutation,
   useUnassignFromTaskMutation,
+  useRemoveAssigneeFromTaskMutation,
 } from '../../store/apis/taskApi';
 import { EditTaskModal } from './EditTaskModal';
 import { supabase } from '../../lib/supabase';
@@ -15,8 +16,14 @@ export function TaskCard({ task }: TaskCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
 
-  const [assigneeNames, setAssigneeNames] = useState<
-    Record<string, string>
+  const [assigneeProfiles, setAssigneeProfiles] = useState<
+    Record<
+      string,
+      {
+        name: string;
+        url_picture: string | null;
+      }
+    >
   >({});
 
   const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
@@ -24,6 +31,8 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
+  const [removeAssigneeFromTask] =
+    useRemoveAssigneeFromTaskMutation();
 
   const currentAssignee = assignees.find(
     (assignee) => assignee.user_id === currentUserId
@@ -45,9 +54,9 @@ export function TaskCard({ task }: TaskCardProps) {
   }, []);
 
   useEffect(() => {
-    const getAssigneeNames = async () => {
+    const getAssigneeProfiles = async () => {
       if (assignees.length === 0) {
-        setAssigneeNames({});
+        setAssigneeProfiles({});
         return;
       }
 
@@ -57,24 +66,32 @@ export function TaskCard({ task }: TaskCardProps) {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name')
+        .select('id, first_name, last_name, url_picture')
         .in('id', userIds);
 
       if (error || !data) {
         return;
       }
 
-      const names: Record<string, string> = {};
+      const profiles: Record<
+        string,
+        {
+          name: string;
+          url_picture: string | null;
+        }
+      > = {};
 
       data.forEach((profile) => {
-        names[profile.id] =
-          `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim();
+        profiles[profile.id] = {
+          name: `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
+          url_picture: profile.url_picture,
+        };
       });
 
-      setAssigneeNames(names);
+      setAssigneeProfiles(profiles);
     };
 
-    getAssigneeNames();
+    getAssigneeProfiles();
   }, [assignees]);
 
   const handleAssignment = async () => {
@@ -134,6 +151,23 @@ export function TaskCard({ task }: TaskCardProps) {
       month: 'long',
       year: 'numeric',
     });
+  };
+
+  const getInitials = (name: string) => {
+    const parts = name.split(' ').filter(Boolean);
+
+    if (parts.length === 0) {
+      return '?';
+    }
+
+    if (parts.length === 1) {
+      return parts[0].charAt(0).toUpperCase();
+    }
+
+    return (
+      parts[0].charAt(0) +
+      parts[parts.length - 1].charAt(0)
+    ).toUpperCase();
   };
 
   return (
@@ -202,8 +236,10 @@ export function TaskCard({ task }: TaskCardProps) {
           ) : (
             <div className="space-y-2">
               {assignees.map((assignee) => {
-                const name =
-                  assigneeNames[assignee.user_id] || 'Ukendt bruger';
+                const profile =
+                  assigneeProfiles[assignee.user_id];
+
+                const name = profile?.name || 'Ukendt bruger';
 
                 const assignedByMe =
                   assignee.assigned_by === currentUserId;
@@ -213,16 +249,30 @@ export function TaskCard({ task }: TaskCardProps) {
                     key={assignee.user_id}
                     className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
                   >
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        👤 {name}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      {profile?.url_picture ? (
+                        <img
+                          src={profile.url_picture}
+                          alt={name}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                          {getInitials(name)}
+                        </div>
+                      )}
 
-                      <p className="text-xs text-gray-500">
-                        {assignedByMe
-                          ? 'Tilmeldt af dig'
-                          : 'Tildelt af en anden'}
-                      </p>
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {name}
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          {assignedByMe
+                            ? 'Tilmeldt af dig'
+                            : 'Tildelt af en anden'}
+                        </p>
+                      </div>
                     </div>
 
                     {assignee.user_id === currentUserId && (
@@ -270,10 +320,10 @@ export function TaskCard({ task }: TaskCardProps) {
               handleAssignment();
             }}
             className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
-              ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
-              : isAssigned
-                ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
-                : 'border-black hover:bg-black hover:text-white'
+                ? 'border-red-300 text-red-600 hover:bg-red-600 hover:text-white'
+                : isAssigned
+                  ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
+                  : 'border-black hover:bg-black hover:text-white'
               }`}
           >
             {canUnassignSelf
@@ -364,8 +414,10 @@ export function TaskCard({ task }: TaskCardProps) {
               ) : (
                 <div className="space-y-2">
                   {assignees.map((assignee) => {
-                    const name =
-                      assigneeNames[assignee.user_id] || 'Ukendt bruger';
+                    const profile =
+                      assigneeProfiles[assignee.user_id];
+
+                    const name = profile?.name || 'Ukendt bruger';
 
                     const assignedByMe =
                       assignee.assigned_by === currentUserId;
@@ -375,23 +427,52 @@ export function TaskCard({ task }: TaskCardProps) {
                         key={assignee.user_id}
                         className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3"
                       >
-                        <div>
-                          <p className="font-medium text-gray-800">
-                            👤 {name}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          {profile?.url_picture ? (
+                            <img
+                              src={profile.url_picture}
+                              alt={name}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                              {getInitials(name)}
+                            </div>
+                          )}
 
-                          <p className="text-xs text-gray-500">
-                            {assignedByMe
-                              ? 'Tilmeldt af dig'
-                              : 'Tildelt af en anden'}
-                          </p>
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {name}
+                            </p>
+
+                            <p className="text-xs text-gray-500">
+                              {assignedByMe
+                                ? 'Tilmeldt af dig'
+                                : 'Tildelt af en anden'}
+                            </p>
+                          </div>
                         </div>
 
-                        {assignee.user_id === currentUserId && (
-                          <span className="text-xs font-semibold text-gray-500">
-                            Dig
-                          </span>
-                        )}
+                        <div className="flex items-center gap-3">
+                          {assignee.user_id === currentUserId && (
+                            <span className="text-xs font-semibold text-gray-500">
+                              Dig
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await removeAssigneeFromTask({
+                                taskId: task.id,
+                                userId: assignee.user_id,
+                              });
+                            }}
+                            className="text-xs font-semibold text-red-600 hover:text-red-800"
+                          >
+                            Fjern
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -477,59 +558,103 @@ export function TaskCard({ task }: TaskCardProps) {
               </button>
             </div>
 
-            {/* MEDARBEJDERE */}
-            <div className="max-h-80 space-y-2 overflow-y-auto">
-              {employees
-                .filter(
-                  (employee) =>
-                    !assignees.some(
-                      (assignee) => assignee.user_id === employee.id
-                    )
-                )
-                .map((employee) => {
-                  const name =
-                    `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim();
+            {/* ANTAL ANSVARLIGE */}
+            <div className="mb-4 rounded-lg bg-gray-50 px-4 py-3">
+              <p className="text-sm font-semibold text-gray-700">
+                Ansvarlige:{' '}
+                {task.max_assignees === null
+                  ? assignees.length
+                  : `${assignees.length} / ${task.max_assignees}`}
+              </p>
 
-                  return (
-                    <button
-                      key={employee.id}
-                      type="button"
-                      onClick={async () => {
-                        await assignToTask({
-                          taskId: task.id,
-                          userId: employee.id,
-                        });
-
-                        setIsEmployeePickerOpen(false);
-                      }}
-                      className="w-full rounded-lg border border-gray-200 px-4 py-3 text-left transition hover:border-gray-400 hover:bg-gray-50"
-                    >
-                      {(name || employee.email) && (
-                        <p className="font-medium text-gray-800">
-                          👤 {name || employee.email}
-                        </p>
-                      )}
-
-                      {employee.email && (
-                        <p className="text-xs text-gray-500">
-                          {employee.email}
-                        </p>
-                      )}
-                    </button>
-                  );
-                })}
-
-              {employees.filter(
-                (employee) =>
-                  !assignees.some(
-                    (assignee) => assignee.user_id === employee.id
-                  )
-              ).length === 0 && (
-                  <p className="py-4 text-center text-sm text-gray-500">
-                    Der er ingen medarbejdere at tildele.
+              {task.max_assignees !== null &&
+                assignees.length >= task.max_assignees && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Maksimalt antal medarbejdere er nået.
                   </p>
                 )}
             </div>
+
+            {/* MEDARBEJDERE */}
+            {task.max_assignees !== null &&
+              assignees.length >= task.max_assignees ? (
+              <p className="py-6 text-center text-sm text-gray-500">
+                Der er ikke flere ledige pladser på opgaven.
+              </p>
+            ) : (
+              <div className="max-h-80 space-y-2 overflow-y-auto">
+                {employees
+                  .filter(
+                    (employee) =>
+                      !assignees.some(
+                        (assignee) =>
+                          assignee.user_id === employee.id
+                      )
+                  )
+                  .map((employee) => {
+                    const name =
+                      `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim();
+
+                    return (
+                      <button
+                        key={employee.id}
+                        type="button"
+                        onClick={async () => {
+                          await assignToTask({
+                            taskId: task.id,
+                            userId: employee.id,
+                          });
+
+                          setIsEmployeePickerOpen(false);
+                        }}
+                        className="w-full rounded-lg border border-gray-200 px-4 py-3 text-left transition hover:border-gray-400 hover:bg-gray-50"
+                      >
+                        <div className="flex items-center gap-3">
+                          {employee.url_picture ? (
+                            <img
+                              src={employee.url_picture}
+                              alt={name || employee.email || 'Medarbejder'}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                              {getInitials(
+                                name || employee.email || '?'
+                              )}
+                            </div>
+                          )}
+
+                          <div>
+                            {(name || employee.email) && (
+                              <p className="font-medium text-gray-800">
+                                {name || employee.email}
+                              </p>
+                            )}
+
+                            {employee.email && (
+                              <p className="text-xs text-gray-500">
+                                {employee.email}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+
+                {employees.filter(
+                  (employee) =>
+                    !assignees.some(
+                      (assignee) =>
+                        assignee.user_id === employee.id
+                    )
+                ).length === 0 && (
+                    <p className="py-4 text-center text-sm text-gray-500">
+                      Der er ingen medarbejdere at tildele.
+                    </p>
+                  )}
+              </div>
+            )}
 
             {/* LUK */}
             <div className="mt-5 flex justify-end">
