@@ -46,3 +46,20 @@ export interface TaskCardProps {
   task: Task;
   onJoin?: () => void;
 }
+
+export interface CompletedTaskAssignee {
+  id: string;
+  name: string;
+}
+
+export interface CompletedTaskMaterial {
+  itemId: string;
+  name: string;
+  quantity: number;
+}
+
+export interface CompletedTaskDetails extends Task {
+  roomName: string | null;
+  assignees: CompletedTaskAssignee[];
+  materials: CompletedTaskMaterial[];
+}
