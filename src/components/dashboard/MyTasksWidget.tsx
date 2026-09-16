@@ -56,7 +56,7 @@ export function MyTasksWidget() {
         <div className="rounded-lg border border-border-gray p-5">
             <div className="flex items-center gap-2 mb-3">
                 <ListChecks className="w-5 h-5 text-secondary" />
-                <h3 className="font-medium text-primary">Dine opgaver</h3>
+                <h3 className="font-medium text-primary">Mine opgaver</h3>
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (
