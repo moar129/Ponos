@@ -53,25 +53,25 @@ export function MyTasksWidget() {
     const error = readableError(tasksError) ?? readableError(myTaskIdsError)
 
     return (
-        <div className="rounded-lg border border-border-gray p-5">
+        <div className="rounded-lg border border-slate-800 bg-[#0B132A] p-5">
             <div className="flex items-center gap-2 mb-3">
-                <ListChecks className="w-5 h-5 text-secondary" />
-                <h3 className="font-medium text-primary">Mine opgaver</h3>
+                <ListChecks className="w-5 h-5 text-slate-400" />
+                <h3 className="font-medium text-slate-100">Mine opgaver</h3>
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (
-                <p className="text-sm text-secondary">Indlæser dine opgaver...</p>
+                <p className="text-sm text-slate-400">Indlæser dine opgaver...</p>
             ) : error ? (
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-400">{error}</p>
             ) : myTasks.length === 0 ? (
-                <p className="text-sm text-secondary">Du er ikke tilmeldt nogen opgaver endnu.</p>
+                <p className="text-sm text-slate-400">Du er ikke tilmeldt nogen opgaver endnu.</p>
             ) : (
-                <ul className="divide-y divide-border-gray">
+                <ul className="divide-y divide-slate-800">
                     {myTasks.map((task) => (
                         <li key={task.id} className="py-2.5 first:pt-0 last:pb-0">
-                            <p className="font-medium text-primary truncate">{task.title}</p>
+                            <p className="font-medium text-slate-100 truncate">{task.title}</p>
                             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                                <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary">
+                                <span className="rounded-full bg-slate-800 px-2 py-0.5 font-medium text-slate-300">
                                     {STATUS_LABELS[task.status]}
                                 </span>
                                 {task.priority && (
@@ -80,7 +80,7 @@ export function MyTasksWidget() {
                                     </span>
                                 )}
                                 {task.end_date && (
-                                    <span className="text-secondary">Slut {formatDate(task.end_date)}</span>
+                                    <span className="text-slate-400">Slut {formatDate(task.end_date)}</span>
                                 )}
                             </div>
                         </li>

@@ -27,8 +27,8 @@ type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 // her for et konsistent udtryk på tværs af dashboardets faner.
 function orgNavItemClass(active: boolean): string {
     return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
-        ? 'bg-accent/15 text-primary'
-        : 'text-secondary hover:bg-bg-gray hover:text-primary'
+        ? 'bg-[#C7975D]/15 text-[#C7975D]'
+        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
     }`
 }
 
@@ -170,12 +170,12 @@ export function OrganisationTab() {
     const readableError = readableApiError
 
     if (isLoading || loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser organisation...</p>
+        return <p className="text-slate-400">Indlæser organisation...</p>
     }
 
     if (queryError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                 {readableError(queryError)}
             </div>
         )
@@ -188,15 +188,15 @@ export function OrganisationTab() {
 
         return (
             <div>
-                <h2 className="text-lg font-semibold text-primary mb-2">Ingen aktiv organisation</h2>
-                <p className="text-sm text-secondary mb-6">
+                <h2 className="text-lg font-semibold text-slate-100 mb-2">Ingen aktiv organisation</h2>
+                <p className="text-sm text-slate-400 mb-6">
                     {hasOtherMemberships
                         ? 'Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under "Mine organisationer", eller opret/anmod om en ny.'
                         : 'Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.'}
                 </p>
 
                 {pendingRequest ? (
-                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+                    <div className="rounded-md bg-[#C7975D]/10 border border-[#C7975D]/40 text-[#C7975D] text-sm px-3 py-2">
                         Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
                     </div>
                 ) : (
@@ -213,8 +213,8 @@ export function OrganisationTab() {
                         ]
 
                         return (
-                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                                <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
                                     {noOrgTabDefs.map((tab) => (
                                         <button
                                             key={tab.key}
@@ -228,7 +228,7 @@ export function OrganisationTab() {
                                     ))}
                                 </nav>
 
-                                <div className="flex-1 min-w-0">
+                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
                                     {noOrgTab === 'memberships' ? (
                                         <MyMembershipsSection />
                                     ) : noOrgTab === 'invitations' ? (
@@ -236,50 +236,50 @@ export function OrganisationTab() {
                                     ) : noOrgTab === 'create' ? (
                                         <>
                                             {(createValidationError || createErrorMessage) && (
-                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                                                     {createValidationError ?? createErrorMessage}
                                                 </div>
                                             )}
                                             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
+                                                    <label className="block text-sm text-slate-400 mb-1" htmlFor="create-name">Organisationens navn</label>
                                                     <input
                                                         id="create-name"
                                                         type="text"
                                                         value={createName}
                                                         onChange={(e) => setCreateName(e.target.value)}
-                                                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
                                                     />
                                                 </div>
                                                 <button
                                                     type="submit"
                                                     disabled={creating}
-                                                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                                                 >
                                                     {creating ? 'Opretter...' : 'Opret organisation'}
                                                 </button>
                                             </form>
                                         </>
                                     ) : requestSuccess ? (
-                                        <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                                        <div className="rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
                                             Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
                                         </div>
                                     ) : (
                                         <>
                                             {requestErrorMessage && (
-                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                                                     {requestErrorMessage}
                                                 </div>
                                             )}
                                             <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
+                                                    <label className="block text-sm text-slate-400 mb-1" htmlFor="request-org">Vælg organisation</label>
                                                     <select
                                                         id="request-org"
                                                         value={selectedOrgId}
                                                         onChange={(e) => setSelectedOrgId(e.target.value)}
                                                         disabled={loadingOrganisations}
-                                                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
                                                     >
                                                         <option value="" disabled>
                                                             {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
@@ -294,7 +294,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={requesting || !selectedOrgId}
-                                                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                                                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                                                 >
                                                     {requesting ? 'Sender anmodning...' : 'Send anmodning'}
                                                 </button>
@@ -333,11 +333,11 @@ export function OrganisationTab() {
     return (
         // US-59: en bruger kan være medlem af flere organisationer -
         // "Mine organisationer" viser dem alle og lader brugeren skifte
-        // hvilken der er aktiv. Samme sidebar-nav-layout som
-        // AdministrationTab.tsx, for et konsistent udtryk på tværs af
-        // dashboardets faner.
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-            <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
+        // hvilken der er aktiv. Samme 12-kolonne grid-layout som
+        // AdministrationTab.tsx og DataLayerPage.tsx (Kategorier/Items-
+        // splittet), for et konsistent udtryk på tværs af appen.
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
                 {orgTabDefs.map((tab) => (
                     <button
                         key={tab.key}
@@ -351,7 +351,7 @@ export function OrganisationTab() {
                 ))}
             </nav>
 
-            <div className="flex-1 min-w-0">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
                 {effectiveOrgTab === 'memberships' ? (
                     <MyMembershipsSection />
                 ) : effectiveOrgTab === 'request' ? (
@@ -363,31 +363,31 @@ export function OrganisationTab() {
                 ) : (
                     <>
                         {createdOrgName && (
-                            <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                            <div className="mb-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
                                 Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
                             </div>
                         )}
 
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                                <Building2 className="w-7 h-7 text-secondary" />
+                            <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
+                                <Building2 className="w-7 h-7 text-slate-400" />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
+                                    <h3 className="text-lg font-semibold text-slate-100">{organisation.name}</h3>
                                     {activeMembership?.isAdmin && (
-                                        <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
+                                        <span className="text-xs font-medium bg-[#C7975D]/15 text-[#C7975D] rounded-full px-2 py-0.5">
                                             Administrator
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                                <p className="text-sm text-slate-400">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
                             </div>
                         </div>
 
-                        <dl className="divide-y divide-border-gray border-t border-border-gray">
+                        <dl className="divide-y divide-slate-800 border-t border-slate-800">
                             <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary">Antal medlemmer</dt>
+                                <dt className="text-sm text-slate-400">Antal medlemmer</dt>
                                 <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
                             </div>
                         </dl>
@@ -430,17 +430,17 @@ function InvitationsSection() {
     return (
         <div>
             {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                     {listError ?? actionError}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-secondary">Indlæser invitationer...</p>
+                <p className="text-slate-400">Indlæser invitationer...</p>
             ) : !invitations || invitations.length === 0 ? (
-                <p className="text-secondary">Du har ingen ventende invitationer.</p>
+                <p className="text-slate-400">Du har ingen ventende invitationer.</p>
             ) : (
-                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                <ul className="divide-y divide-slate-800 border-t border-slate-800">
                     {invitations.map((invitation) => (
                         <li key={invitation.id} className="py-4">
                             <InvitationRow
@@ -468,12 +468,12 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p className="font-medium">{invitation.organisationName}</p>
-                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+                <p className="text-xs text-slate-400 mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-secondary max-w-xs">
+                    <p className="text-sm text-slate-400 max-w-xs">
                         {decision.decision === 'Accepted'
                             ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
                             : `Er du sikker på, at invitationen skal afvises?`}
@@ -482,7 +482,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="bg-[#C7975D] text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                     >
                         {submitting ? 'Behandler...' : 'Ja'}
                     </button>
@@ -490,7 +490,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={onCancel}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
                     >
                         Annuller
                     </button>
@@ -501,7 +501,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="bg-[#C7975D] text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                     >
                         Acceptér
                     </button>
@@ -509,7 +509,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Rejected' })}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
                     >
                         Afvis
                     </button>
@@ -572,12 +572,12 @@ function RequestMembershipSection() {
     }
 
     if (loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser...</p>
+        return <p className="text-slate-400">Indlæser...</p>
     }
 
     if (pendingRequest) {
         return (
-            <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+            <div className="rounded-md bg-[#C7975D]/10 border border-[#C7975D]/40 text-[#C7975D] text-sm px-3 py-2">
                 Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
             </div>
         )
@@ -585,7 +585,7 @@ function RequestMembershipSection() {
 
     if (requestSuccess) {
         return (
-            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
                 Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
             </div>
         )
@@ -602,23 +602,23 @@ function RequestMembershipSection() {
     return (
         <>
             {requestErrorMessage && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                     {requestErrorMessage}
                 </div>
             )}
 
             {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary">Der er ingen andre organisationer at anmode om medlemskab af.</p>
+                <p className="text-slate-400">Der er ingen andre organisationer at anmode om medlemskab af.</p>
             ) : (
                 <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
+                        <label className="block text-sm text-slate-400 mb-1" htmlFor="request-org">Vælg organisation</label>
                         <select
                             id="request-org"
                             value={selectedOrgId}
                             onChange={(e) => setSelectedOrgId(e.target.value)}
                             disabled={loadingOrganisations}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
                         >
                             <option value="" disabled>
                                 {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
@@ -633,7 +633,7 @@ function RequestMembershipSection() {
                     <button
                         type="submit"
                         disabled={requesting || !selectedOrgId}
-                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                     >
                         {requesting ? 'Sender anmodning...' : 'Send anmodning'}
                     </button>
@@ -677,26 +677,26 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
     return (
         <>
             {(createValidationError || createErrorMessage) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                     {createValidationError ?? createErrorMessage}
                 </div>
             )}
 
             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                 <div>
-                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name-existing">Organisationens navn</label>
+                    <label className="block text-sm text-slate-400 mb-1" htmlFor="create-name-existing">Organisationens navn</label>
                     <input
                         id="create-name-existing"
                         type="text"
                         value={createName}
                         onChange={(e) => setCreateName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="self-start bg-[#C7975D] text-white rounded-md px-4 py-2 font-medium hover:bg-[#b5854b] transition-colors disabled:opacity-60"
                 >
                     {creating ? 'Opretter...' : 'Opret organisation'}
                 </button>
@@ -729,31 +729,31 @@ function MyMembershipsSection() {
     }
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser dine organisationer...</p>
+        return <p className="text-slate-400">Indlæser dine organisationer...</p>
     }
 
     const listError = readableApiError(queryError)
     if (listError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                 {listError}
             </div>
         )
     }
 
     if (!memberships || memberships.length === 0) {
-        return <p className="text-secondary">Du er ikke medlem af nogen organisationer.</p>
+        return <p className="text-slate-400">Du er ikke medlem af nogen organisationer.</p>
     }
 
     return (
         <div>
             {actionMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
                     {actionMessage}
                 </div>
             )}
 
-            <ul className="divide-y divide-border-gray border-t border-border-gray">
+            <ul className="divide-y divide-slate-800 border-t border-slate-800">
                 {memberships.map((membership: MyMembership) => (
                     <MembershipRow
                         key={membership.organisationId}
@@ -796,18 +796,18 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <p className="font-medium">{membership.organisationName}</p>
-                    <p className="text-sm text-secondary">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
+                    <p className="text-sm text-slate-400">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                     {membership.isActive ? (
-                        <span className="text-sm font-medium text-accent">Aktiv</span>
+                        <span className="text-sm font-medium text-[#C7975D]">Aktiv</span>
                     ) : (
                         <button
                             type="button"
                             onClick={handleSwitch}
                             disabled={switching}
-                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
                             {switching ? 'Skifter...' : 'Gør aktiv'}
                         </button>
@@ -815,12 +815,12 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
 
                     {confirmingLeave ? (
                         <>
-                            <span className="text-sm text-secondary">Er du sikker?</span>
+                            <span className="text-sm text-slate-400">Er du sikker?</span>
                             <button
                                 type="button"
                                 onClick={handleLeave}
                                 disabled={leaving}
-                                className="text-red-700 text-sm font-medium hover:underline disabled:opacity-60"
+                                className="text-red-400 text-sm font-medium hover:underline disabled:opacity-60"
                             >
                                 {leaving ? 'Forlader...' : 'Ja, forlad'}
                             </button>
@@ -828,7 +828,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                                 type="button"
                                 onClick={() => setConfirmingLeave(false)}
                                 disabled={leaving}
-                                className="text-secondary text-sm hover:underline disabled:opacity-60"
+                                className="text-slate-400 text-sm hover:underline disabled:opacity-60"
                             >
                                 Annuller
                             </button>
@@ -837,7 +837,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                         <button
                             type="button"
                             onClick={() => setConfirmingLeave(true)}
-                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                            className="rounded-md border border-red-900/40 px-3 py-1.5 text-sm font-medium text-red-400 hover:bg-red-950/40 transition-colors"
                         >
                             Forlad
                         </button>
@@ -845,7 +845,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                 </div>
             </div>
 
-            {actionError && <p className="text-red-700 text-xs mt-2">{actionError}</p>}
+            {actionError && <p className="text-red-400 text-xs mt-2">{actionError}</p>}
         </li>
     )
 }

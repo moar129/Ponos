@@ -22,13 +22,13 @@ export function OverviewTab() {
     // Organisation-fanen.
     if (!loadingOrganisation && !organisation) {
         return (
-            <div className="rounded-md border border-border-gray p-5 text-center">
-                <p className="text-secondary mb-3">
+            <div className="rounded-md border border-slate-800 p-5 text-center">
+                <p className="text-slate-400 mb-3">
                     Du har ingen aktiv organisation endnu, så der er intet at vise her.
                 </p>
                 <Link
                     to="/dashboard?tab=organisation"
-                    className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                    className="inline-flex items-center gap-2 text-[#C7975D] font-medium hover:underline"
                 >
                     <Building2 className="w-4 h-4" />
                     Gå til Organisation
@@ -49,7 +49,7 @@ export function OverviewTab() {
             </div>
 
             <div>
-                <h2 className="text-sm font-medium text-secondary mb-3">Genveje</h2>
+                <h2 className="text-sm font-medium text-slate-400 mb-3">Genveje</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {canReadDatalayer && (
                         <QuickLinkCard

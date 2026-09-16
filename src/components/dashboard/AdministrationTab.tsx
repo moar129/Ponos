@@ -85,24 +85,25 @@ export function AdministrationTab() {
         : (tabs[0]?.key ?? null)
 
     if (tabs.length === 0) {
-        return <p className="text-secondary">Du har ikke rettigheder til nogen administrative funktioner.</p>
+        return <p className="text-slate-400">Du har ikke rettigheder til nogen administrative funktioner.</p>
     }
 
-    // Vertikal sidebar-nav i stedet for horisontale sub-tabs: skalerer
-    // bedre efterhånden som flere administrative paneler tilføjes, og
-    // undgår at fanerækken løber tør for bredde på mobil (den krævede
-    // tidligere en separat overflow-scroll-fix). På mobil ligger navet
-    // stadig som en vandret scrollende række øverst, men bliver en
-    // lodret liste fra sm og op.
+    // Samme layout-mønster som DataLayerPage.tsx (Kategorier/Items-splittet):
+    // en 12-kolonne grid der giver nav'et sin egen boksede panel-kolonne,
+    // og indholdet en anden - i stedet for at nav'et bare er en fast
+    // 208px-bred stribe. Kolonne-forholdet strammes til (4/12 → 3/12)
+    // fra xl, så indholdet får mere plads på brede skærme uden at nav'et
+    // bliver unødigt bredt. Mobil (under md) beholder den vandret
+    // scrollende fanerække.
     const navItemClass = (tab: AdminSubTab) =>
-        `flex shrink-0 sm:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
-            ? 'bg-accent/15 text-primary'
-            : 'text-secondary hover:bg-bg-gray hover:text-primary'
+        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
+            ? 'bg-[#C7975D]/15 text-[#C7975D]'
+            : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
         }`
 
     return (
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-            <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0 overflow-x-auto sm:overflow-visible no-scrollbar border-b sm:border-b-0 sm:border-r border-border-gray pb-2 sm:pb-0 sm:pr-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-slate-800 bg-[#0B132A] p-2 md:p-3">
                 {tabs.map((tab) => (
                     <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={navItemClass(tab.key)}>
                         <tab.icon className="w-4 h-4 shrink-0" />
@@ -111,7 +112,7 @@ export function AdministrationTab() {
                 ))}
             </nav>
 
-            <div className="flex-1 min-w-0">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-slate-800 bg-[#0B132A] p-4 sm:p-6">
                 {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
                 {activeSubTab === 'members' && <MembersPanel />}
                 {activeSubTab === 'invitations' && <InvitationsPanel />}
