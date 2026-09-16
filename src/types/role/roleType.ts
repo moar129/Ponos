@@ -12,13 +12,18 @@ export interface Privilege {
 }
 
 // Et medlem af organisationen, som kan tildeles en rolle (US-11).
-// roleId/roleName er null, hvis medlemmet endnu ikke har en rolle.
+// Fase 3: alle medlemmer har altid mindst standardrollen "Medlem"
+// (auto-tildelt ved medlemskab, se create_organisation/
+// handle_membership_request_status_change) - roleId er kun null som et
+// forsvarsnet, hvis noget skulle gå galt i seedingen.
 export interface OrganisationMember {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    roleId: string | null
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roleId: string | null;
+  roleName: string | null;
+  urlPicture: string | null;
 }
 
 export interface CreateRoleInput {
@@ -42,11 +47,10 @@ export interface UpdatePrivilegeInput {
 
 export interface AssignRoleInput {
     userId: string
-    // null = fjern rollen (medlemmet bliver et almindeligt medlem uden
-    // administrative privilegier) - RLS'ens escalation-guard tillader
-    // eksplicit "role_id is null" for alle med manage_roles, ikke kun
-    // fulde administratorer.
-    roleId: string | null
+    // Fase 3: kan ikke længere være null - et medlem kan ikke gøres
+    // rolleløst. "Fjern rolle" i UI'en tildeler i stedet organisationens
+    // beskyttede "Medlem"-standardrolle.
+    roleId: string
 }
 
 // Props til komponenter flyttet fra RolesPage.tsx ind i

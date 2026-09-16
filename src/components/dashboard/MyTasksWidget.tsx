@@ -1,7 +1,8 @@
 // src/components/dashboard/MyTasksWidget.tsx
 import { ListChecks } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
-import type { ETaskPriority, ETaskStatus, Task } from '../../types/Task/Task'
+import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
+import type { ETaskStatus, Task } from '../../types/Task/Task'
 
 const MAX_TASKS = 5
 
@@ -10,28 +11,6 @@ const STATUS_LABELS: Record<ETaskStatus, string> = {
     Started: 'Tilgængelig',
     InProgress: 'I gang',
     Completed: 'Færdig',
-}
-
-const PRIORITY_LABELS: Record<ETaskPriority, string> = {
-    Low: 'Lav',
-    Medium: 'Mellem',
-    High: 'Høj',
-    Critical: 'Kritisk',
-}
-
-// Samme farver som TaskCard.tsx.
-const PRIORITY_COLORS: Record<ETaskPriority, string> = {
-    Low: 'bg-green-100 text-green-700',
-    Medium: 'bg-yellow-100 text-yellow-700',
-    High: 'bg-orange-100 text-orange-700',
-    Critical: 'bg-red-100 text-red-700',
-}
-
-const PRIORITY_RANK: Record<ETaskPriority, number> = {
-    Critical: 1,
-    High: 2,
-    Medium: 3,
-    Low: 4,
 }
 
 // Genskaber bevidst sortTasks fra TaskPage.tsx (Studerende 3's fil) i
@@ -47,10 +26,6 @@ function sortByPriorityThenEndDate(a: Task, b: Task): number {
     if (a.end_date) return -1
     if (b.end_date) return 1
     return 0
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })
 }
 
 function readableError(err: unknown): string | null {
@@ -81,7 +56,7 @@ export function MyTasksWidget() {
         <div className="rounded-lg border border-border-gray p-5">
             <div className="flex items-center gap-2 mb-3">
                 <ListChecks className="w-5 h-5 text-secondary" />
-                <h3 className="font-medium text-primary">Dine opgaver</h3>
+                <h3 className="font-medium text-primary">Mine opgaver</h3>
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (

@@ -6,7 +6,6 @@ import {
   BarChart3,
   Database,
   Newspaper,
-  Bell,
   User,
   ChevronDown,
   LogOut,
@@ -15,10 +14,14 @@ import {
   Home,
   LogIn,
   UserPlus,
+  MessageSquareText
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
+import { Avatar } from './common/Avatar';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
+import { NotificationBellComponent } from './notification/notificationBellComponent';
 
 export function Header() {
   const navigate = useNavigate();
@@ -41,6 +44,12 @@ export function Header() {
   // svar uden et ekstra kald på hver side. Skjuler indtil profilen er hentet,
   // så en bruger uden organisation aldrig ser links, der ikke virker for dem.
   const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
+
+  // Fase 3: Datalager-/Nyheder-linkene kræver hhv. read_datalayer og
+  // read_news (eller admin) - Opgaver/Statistik under hasOrganisation er
+  // ikke ændret.
+  const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
+  const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -147,14 +156,22 @@ export function Header() {
                   <span>Statistik</span>
                 </NavLink>
 
-                <NavLink to="/datalager" className={getNavLinkClass}>
-                  <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Datalager</span>
-                </NavLink>
+                {canReadDatalayer && (
+                  <NavLink to="/datalager" className={getNavLinkClass}>
+                    <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <span>Datalager</span>
+                  </NavLink>
+                )}
 
-                <NavLink to="/nyheder" className={getNavLinkClass}>
-                  <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Nyheder</span>
+                {canReadNews && (
+                  <NavLink to="/nyheder" className={getNavLinkClass}>
+                    <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <span>Nyheder</span>
+                  </NavLink>
+                )}
+                <NavLink to="/beskeder" className={getNavLinkClass}>
+                  <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                  <span>Beskeder</span>
                 </NavLink>
               </>
             )}
@@ -189,15 +206,7 @@ export function Header() {
               {/* Notifikationer er endnu ikke bygget (ingen tabel, ingen rute,
                   ingen user story) - ikonet bliver stående som en deaktiveret
                   knap i stedet for et link til en side der ikke findes. */}
-              <button
-                type="button"
-                disabled
-                aria-label="Notifikationer (kommer snart)"
-                title="Kommer snart"
-                className="relative p-2 text-slate-500 rounded-full cursor-not-allowed"
-              >
-                <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
-              </button>
+             <NotificationBellComponent />
 
               {/* Bruger Profil -> åbner dropdown med "Se profil" og "Log ud" */}
               <div className="relative" ref={menuRef}>
@@ -208,13 +217,13 @@ export function Header() {
                   aria-expanded={menuOpen}
                   className="flex items-center gap-2 xl:gap-3 hover:opacity-90 transition-opacity cursor-pointer"
                 >
-                  <div className="w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-semibold overflow-hidden shrink-0">
-                    {profile?.urlPicture ? (
-                      <img src={profile.urlPicture} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-5 h-5 xl:w-6 xl:h-6 text-slate-700" />
-                    )}
-                  </div>
+                  <Avatar
+                    firstName={profile?.firstName}
+                    lastName={profile?.lastName}
+                    urlPicture={profile?.urlPicture}
+                    className="w-8 h-8 xl:w-10 xl:h-10 bg-slate-200 text-slate-800"
+                    textClassName="text-xs xl:text-sm"
+                  />
                   <div className="hidden 2xl:flex flex-col text-left">
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
@@ -313,14 +322,22 @@ export function Header() {
                     <span>Statistik</span>
                   </NavLink>
 
-                  <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <Database className="w-5 h-5 shrink-0" />
-                    <span>Datalager</span>
-                  </NavLink>
+                  {canReadDatalayer && (
+                    <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <Database className="w-5 h-5 shrink-0" />
+                      <span>Datalager</span>
+                    </NavLink>
+                  )}
 
-                  <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <Newspaper className="w-5 h-5 shrink-0" />
-                    <span>Nyheder</span>
+                  {canReadNews && (
+                    <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <Newspaper className="w-5 h-5 shrink-0" />
+                      <span>Nyheder</span>
+                    </NavLink>
+                  )}
+                  <NavLink to="/beskeder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                    <MessageSquareText className="w-5 h-5 shrink-0" />
+                    <span>Beskeder</span>
                   </NavLink>
                 </>
               )}

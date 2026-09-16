@@ -10,6 +10,13 @@ import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, Update
 // prevent_admin_role_change-trigger, som bruger samme konvention).
 export const ADMIN_ROLE_NAME = 'Admin'
 
+// Navnet på organisationens beskyttede standardrolle (Fase 3) - tildeles
+// automatisk ved medlemskab og fungerer som fallback, når en anden rolle
+// slettes (se prevent_default_role_change/reassign_members_before_role_delete
+// i dbSchema.sql). Bruges her til at låse netop denne rolle mod omdøb/
+// slet i UI'en, samme mønster som ADMIN_ROLE_NAME.
+export const MEMBER_ROLE_NAME = 'Medlem'
+
 // Slår den indloggede brugers AKTIVE organisation op (US-59). Samme
 // mønster som updateMyOrganisation i organisationApi.ts - roller/
 // tildelinger skal altid ske inden for administratorens aktive
@@ -157,6 +164,10 @@ export const roleApi = supabaseApi.injectEndpoints({
         // stedet for en PostgREST-join (samme mønster som
         // getPendingMembershipRequests i membershipApi.ts), da en enkelt
         // fejlende join ellers ville vælte hele medlemslisten.
+        // Henter medlemmerne af administratorens AKTIVE organisation, så de kan
+// tildeles en rolle (US-11) og bruges som kontaktliste (US-B1). Rolle-
+// navn og profilbillede hentes med, så kontaktlisten kan vise dem uden
+// et ekstra kald per medlem.
         getOrganisationMembers: builder.query<OrganisationMember[], void>({
             queryFn: async () => {
                 const org = await getActiveOrganisationId()
@@ -177,26 +188,41 @@ export const roleApi = supabaseApi.injectEndpoints({
                     return { data: [] }
                 }
 
-                const { data: profiles, error: profilesError } = await supabase
-                    .from('profiles')
-                    .select('id, first_name, last_name, email')
-                    .in('id', memberships.map((membership) => membership.user_id))
-                    .order('first_name')
+                const [{ data: profiles, error: profilesError }, { data: roles, error: rolesError }] = await Promise.all([
+                    supabase
+                        .from('profiles')
+                        .select('id, first_name, last_name, email, url_picture')
+                        .in('id', memberships.map((m) => m.user_id))
+                        .order('first_name'),
+                    supabase
+                        .from('roles')
+                        .select('id, name')
+                        .eq('organisation_id', org.organisationId),
+                ])
 
                 if (profilesError) {
                     return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
                 }
+                if (rolesError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: rolesError.message } }
+                }
 
-                const roleIdByUserId = new Map(memberships.map((membership) => [membership.user_id, membership.role_id]))
+                const roleIdByUserId = new Map(memberships.map((m) => [m.user_id, m.role_id]))
+                const roleNameById = new Map((roles ?? []).map((r) => [r.id, r.name]))
 
                 return {
-                    data: (profiles ?? []).map((profile) => ({
-                        id: profile.id,
-                        firstName: profile.first_name,
-                        lastName: profile.last_name,
-                        email: profile.email,
-                        roleId: roleIdByUserId.get(profile.id) ?? null,
-                    })),
+                    data: (profiles ?? []).map((profile) => {
+                        const roleId = roleIdByUserId.get(profile.id) ?? null
+                        return {
+                            id: profile.id,
+                            firstName: profile.first_name,
+                            lastName: profile.last_name,
+                            email: profile.email,
+                            roleId,
+                            roleName: roleId ? roleNameById.get(roleId) ?? null : null,
+                            urlPicture: profile.url_picture,
+                        }
+                    }),
                 }
             },
 

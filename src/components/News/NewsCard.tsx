@@ -13,10 +13,11 @@ function formatDate(value: string): string {
 }
 
 // Ét nyhedskort - US-56's acceptkriterier (titel, beskrivelse, evt.
-// billede, dato). Rediger/slet vises kun når canManage (manage_news).
-// Kortet er klikbart og åbner /nyheder/:id - rediger/slet-knapperne
-// stopper propagation, så de ikke også trigger navigation.
-export function NewsCard({ news, canManage, onEdit, onDelete }: NewsCardProps) {
+// billede, dato). Rediger/slet vises uafhængigt af hinanden (Fase 3:
+// update_news hhv. delete_news). Kortet er klikbart og åbner
+// /nyheder/:id - rediger/slet-knapperne stopper propagation, så de ikke
+// også trigger navigation.
+export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsCardProps) {
     const navigate = useNavigate()
 
     return (
@@ -39,30 +40,34 @@ export function NewsCard({ news, canManage, onEdit, onDelete }: NewsCardProps) {
                         <p className="text-xs text-secondary mt-0.5">{formatDate(news.publishedAt)}</p>
                     </div>
 
-                    {canManage && (
+                    {(canUpdate || canDelete) && (
                         <div className="flex items-center gap-1 shrink-0">
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onEdit(news)
-                                }}
-                                aria-label="Rediger nyhed"
-                                className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
-                            >
-                                <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDelete(news)
-                                }}
-                                aria-label="Slet nyhed"
-                                className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                            {canUpdate && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onEdit(news)
+                                    }}
+                                    aria-label="Rediger nyhed"
+                                    className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                </button>
+                            )}
+                            {canDelete && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onDelete(news)
+                                    }}
+                                    aria-label="Slet nyhed"
+                                    className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

@@ -1,6 +1,6 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { ETaskPriority, ETaskStatus, Room, Task, TaskAssignee, } from '../../types/Task/Task'
+import type { CompletedTaskDetails, ETaskPriority, ETaskStatus, Room, Task, TaskAssignee } from '../../types/Task/Task'
 
 type QueryError = { status: 'CUSTOM_ERROR'; error: string }
 
@@ -93,6 +93,98 @@ export const taskApi = supabaseApi.injectEndpoints({
                         ...result.map((task) => ({ type: 'Task' as const, id: task.id })),
                     ]
                     : [{ type: 'Task' as const, id: 'LIST' }],
+        }),
+
+        // US-70: alle afsluttede opgaver i aktiv organisation, med rum-navn,
+        // tilmeldte (navne) og materialer (navn + mængde) samlet ind via
+        // batch-opslag - samme mønster som roleApi.ts/messageApi.ts'
+        // profil-batch-opslag, da getTasks ikke selv joiner disse relationer.
+        getCompletedTasks: builder.query<CompletedTaskDetails[], void>({
+            queryFn: async () => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId()
+                    const { data: tasks, error: tasksError } = await supabase
+                        .from('tasks')
+                        .select('*')
+                        .eq('organisation_id', organisationId)
+                        .eq('status', 'Completed')
+
+                    if (tasksError) return { error: { status: 'CUSTOM_ERROR', error: tasksError.message } as QueryError }
+                    if (!tasks || tasks.length === 0) return { data: [] }
+
+                    const taskIds = tasks.map((task) => task.id)
+
+                    const [assigneesResult, materialsResult] = await Promise.all([
+                        supabase.from('task_assignees').select('task_id,user_id').in('task_id', taskIds),
+                        supabase.from('task_materials').select('task_id,item_id,quantity').in('task_id', taskIds),
+                    ])
+
+                    if (assigneesResult.error) {
+                        return { error: { status: 'CUSTOM_ERROR', error: assigneesResult.error.message } as QueryError }
+                    }
+                    if (materialsResult.error) {
+                        return { error: { status: 'CUSTOM_ERROR', error: materialsResult.error.message } as QueryError }
+                    }
+
+                    const assigneeRows = assigneesResult.data ?? []
+                    const materialRows = materialsResult.data ?? []
+
+                    const userIds = [...new Set(assigneeRows.map((row) => row.user_id))]
+                    const itemIds = [...new Set(materialRows.map((row) => row.item_id))]
+                    const roomIds = [...new Set(tasks.map((task) => task.room_id).filter((id): id is string => id !== null))]
+
+                    const [profilesResult, itemsResult, roomsResult] = await Promise.all([
+                        userIds.length > 0
+                            ? supabase.from('profiles').select('id,first_name,last_name').in('id', userIds)
+                            : Promise.resolve({ data: [], error: null }),
+                        itemIds.length > 0
+                            ? supabase.from('data_layer_items').select('id,name').in('id', itemIds)
+                            : Promise.resolve({ data: [], error: null }),
+                        roomIds.length > 0
+                            ? supabase.from('task_rooms').select('id,name').in('id', roomIds)
+                            : Promise.resolve({ data: [], error: null }),
+                    ])
+
+                    if (profilesResult.error) {
+                        return { error: { status: 'CUSTOM_ERROR', error: profilesResult.error.message } as QueryError }
+                    }
+                    if (itemsResult.error) {
+                        return { error: { status: 'CUSTOM_ERROR', error: itemsResult.error.message } as QueryError }
+                    }
+                    if (roomsResult.error) {
+                        return { error: { status: 'CUSTOM_ERROR', error: roomsResult.error.message } as QueryError }
+                    }
+
+                    const profileNameById = new Map(
+                        (profilesResult.data ?? []).map((profile) => [profile.id, `${profile.first_name} ${profile.last_name}`.trim()])
+                    )
+                    const itemNameById = new Map((itemsResult.data ?? []).map((item) => [item.id, item.name as string]))
+                    const roomNameById = new Map((roomsResult.data ?? []).map((room) => [room.id, room.name as string]))
+
+                    const data: CompletedTaskDetails[] = tasks.map((task) => ({
+                        ...(task as Task),
+                        roomName: task.room_id ? (roomNameById.get(task.room_id) ?? null) : null,
+                        assignees: assigneeRows
+                            .filter((row) => row.task_id === task.id)
+                            .map((row) => ({ id: row.user_id, name: profileNameById.get(row.user_id) ?? 'Ukendt bruger' })),
+                        materials: materialRows
+                            .filter((row) => row.task_id === task.id)
+                            .map((row) => ({
+                                itemId: row.item_id,
+                                name: itemNameById.get(row.item_id) ?? 'Ukendt materiale',
+                                quantity: row.quantity,
+                            })),
+                    }))
+
+                    data.sort((a, b) => (b.end_date ?? '').localeCompare(a.end_date ?? ''))
+
+                    return { data }
+                } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'Fejl ved hentning af afsluttede opgaver'
+                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
+                }
+            },
+            providesTags: [{ type: 'Task' as const, id: 'LIST' }],
         }),
 
         getRooms: builder.query<Room[], void>({
@@ -758,6 +850,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 
 export const {
     useGetTasksQuery,
+    useGetCompletedTasksQuery,
     useGetRoomsQuery,
     useGetOrganisationEmployeesQuery,
     useGetTaskAssigneesQuery,

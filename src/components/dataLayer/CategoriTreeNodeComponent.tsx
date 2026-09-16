@@ -9,6 +9,9 @@ export function CategoryTreeNode({
   onAddSubCategory,
   onEditCategory,
   onDeleteCategory,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: CategoryTreeNodeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
@@ -53,44 +56,50 @@ export function CategoryTreeNode({
           at holde træet roligt at se på.
         */}
         <div className="flex items-center shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditCategory(category);
-            }}
-            className="p-1.5 lg:p-1 hover:bg-slate-600 rounded text-slate-300 transition-colors"
-            title="Rediger kategori"
-            aria-label="Rediger kategori"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditCategory(category);
+              }}
+              className="p-1.5 lg:p-1 hover:bg-slate-600 rounded text-slate-300 transition-colors"
+              title="Rediger kategori"
+              aria-label="Rediger kategori"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddSubCategory(category.id);
-            }}
-            className="p-1.5 lg:p-1 hover:bg-slate-600 rounded text-slate-300 transition-colors ml-0.5 sm:ml-1"
-            title="Tilføj underkategori"
-            aria-label="Tilføj underkategori"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddSubCategory(category.id);
+              }}
+              className="p-1.5 lg:p-1 hover:bg-slate-600 rounded text-slate-300 transition-colors ml-0.5 sm:ml-1"
+              title="Tilføj underkategori"
+              aria-label="Tilføj underkategori"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteCategory(category);
-            }}
-            className="p-1.5 lg:p-1 hover:bg-red-500/20 rounded text-slate-300 hover:text-red-400 transition-colors ml-0.5 sm:ml-1"
-            title="Slet kategori"
-            aria-label="Slet kategori"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canDelete && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteCategory(category);
+              }}
+              className="p-1.5 lg:p-1 hover:bg-red-500/20 rounded text-slate-300 hover:text-red-400 transition-colors ml-0.5 sm:ml-1"
+              title="Slet kategori"
+              aria-label="Slet kategori"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -105,6 +114,9 @@ export function CategoryTreeNode({
               onAddSubCategory={onAddSubCategory}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
+              canCreate={canCreate}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
             />
           ))}
         </div>
