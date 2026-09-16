@@ -40,3 +40,24 @@ export interface ConversationParticipant {
   lastName: string;
   urlPicture: string | null;
 }
+
+export interface ManageGroupMembersComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  conversationId: string;
+  groupName: string;
+}
+
+export interface GroupConversationComponentProps {
+  conversationId: string;
+  groupName: string;
+  currentUserId: string;
+  onLeft?: () => void;
+}
+
+export interface GroupConversationComponentProps {
+  conversationId: string;
+  groupName: string;
+  currentUserId: string;
+  onLeft?: () => void;
+}

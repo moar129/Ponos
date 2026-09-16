@@ -8,5 +8,6 @@ export interface AppNotification {
   link: string | null
   referenceId: string | null
   isRead: boolean
+  dismissedAt: string | null
   createdAt: string
 }

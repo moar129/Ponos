@@ -1,16 +1,20 @@
 // components/messages/groupConversationComponent.tsx
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Send, Loader2, MessageSquareText, Users } from 'lucide-react';
+import { Send, Loader2, MessageSquareText, Users, UserCog, LogOut } from 'lucide-react';
 import {
   useGetMessagesQuery,
   useGetConversationParticipantsQuery,
   useSendMessageMutation,
+  useLeaveGroupConversationMutation,
 } from '../../store/apis/messageApi';
+import { ManageGroupMembersComponent } from './manageGroupMembersComponent';
+import { ConfirmDialogComponent } from '../dataLayer/confirmDialogComponent';
 
 interface GroupConversationComponentProps {
   conversationId: string;
   groupName: string;
   currentUserId: string;
+  onLeft?: () => void;
 }
 
 function getInitials(firstName: string, lastName: string): string {
@@ -21,8 +25,11 @@ export function GroupConversationComponent({
   conversationId,
   groupName,
   currentUserId,
+  onLeft,
 }: GroupConversationComponentProps) {
   const [message, setMessage] = useState('');
+  const [isManageMembersOpen, setIsManageMembersOpen] = useState(false);
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const { data: messages = [], isLoading: isLoadingMessages, error: messagesError } =
@@ -31,6 +38,8 @@ export function GroupConversationComponent({
   const { data: participants = [] } = useGetConversationParticipantsQuery(conversationId);
 
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+  const [leaveGroupConversation, { isLoading: isLeaving, error: leaveError }] =
+    useLeaveGroupConversationMutation();
 
   const participantById = useMemo(
     () => new Map(participants.map((p) => [p.userId, p])),
@@ -60,6 +69,30 @@ export function GroupConversationComponent({
     }
   };
 
+  const handleLeave = async () => {
+    try {
+      await leaveGroupConversation({ conversationId }).unwrap();
+      setConfirmingLeave(false);
+      onLeft?.();
+    } catch {
+      // Fejlen vises i dialogen via readableLeaveError() - den lukkes ikke,
+      // så brugeren kan se fejlen og evt. prøve igen.
+    }
+  };
+
+  function readableLeaveError(): string | null {
+    if (!leaveError) return null;
+    if (
+      typeof leaveError === 'object' &&
+      leaveError !== null &&
+      'error' in leaveError &&
+      typeof leaveError.error === 'string'
+    ) {
+      return leaveError.error;
+    }
+    return 'Noget gik galt. Prøv igen.';
+  }
+
   return (
     <div className="h-full min-h-0 flex flex-col overflow-hidden">
       {/* Header */}
@@ -67,12 +100,30 @@ export function GroupConversationComponent({
         <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center shrink-0">
           <Users className="w-5 h-5" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-slate-100 truncate">{groupName}</p>
           <p className="text-xs text-slate-400 truncate">
             {participants.length} deltager{participants.length !== 1 ? 'e' : ''}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsManageMembersOpen(true)}
+          className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
+          title="Administrer medlemmer"
+          aria-label="Administrer medlemmer"
+        >
+          <UserCog className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setConfirmingLeave(true)}
+          className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
+          title="Forlad gruppen"
+          aria-label="Forlad gruppen"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Beskeder */}
@@ -173,6 +224,27 @@ export function GroupConversationComponent({
         </div>
         <p className="text-[10px] text-slate-500 mt-1">Tryk Enter for at sende · Shift + Enter for ny linje</p>
       </div>
+
+      <ManageGroupMembersComponent
+        isOpen={isManageMembersOpen}
+        onClose={() => setIsManageMembersOpen(false)}
+        conversationId={conversationId}
+        groupName={groupName}
+      />
+
+      <ConfirmDialogComponent
+        isOpen={confirmingLeave}
+        title="Forlad gruppen?"
+        message={
+          readableLeaveError()
+            ? `Er du sikker på, at du vil forlade "${groupName}"? ${readableLeaveError()}`
+            : `Er du sikker på, at du vil forlade "${groupName}"? Du kan blive tilføjet igen af et andet medlem senere.`
+        }
+        confirmLabel="Forlad"
+        isLoading={isLeaving}
+        onConfirm={handleLeave}
+        onCancel={() => setConfirmingLeave(false)}
+      />
     </div>
   );
 }
