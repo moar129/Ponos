@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MessageSquareText, Plus } from 'lucide-react';
 import { ConversationListComponent } from '../../components/messages/conversationListComponent';
 import { ContactListComponent } from '../../components/messages/contactListComponent';
@@ -14,6 +15,7 @@ import type { ConversationSummary } from '../../types/messages/messagesTypes';
 type Tab = 'conversations' | 'contacts';
 
 export function MessagesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('conversations');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedContact, setSelectedContact] = useState<OrganisationMember | null>(null);
@@ -40,6 +42,23 @@ export function MessagesPage() {
     setSelectedContact(contact ?? null);
     setSelectedGroup(null);
   };
+
+  // Åbner den samtale, en notifikations-link peger på (?conversation=<id>).
+  // Venter på både samtale- og medlemslisten, så en 1:1-samtale kan finde
+  // sin kontakt korrekt, før den vælges.
+  useEffect(() => {
+    const conversationParam = searchParams.get('conversation');
+    if (!conversationParam) return;
+    if (conversations.length === 0) return;
+
+    const conversation = conversations.find((c) => c.conversationId === conversationParam);
+    if (!conversation) return;
+    if (!conversation.isGroup && members.length === 0) return;
+
+    handleSelectConversation(conversationParam);
+    setActiveTab('conversations');
+    setSearchParams({}, { replace: true });
+  }, [conversations, members, searchParams]);
 
   const handleSelectContact = (contact: OrganisationMember) => {
     const conversation = conversations.find((c) => c.otherUserId === contact.id && !c.isGroup);
@@ -140,11 +159,15 @@ export function MessagesPage() {
             currentUserId={myProfile?.id ?? ''}
             onConversationCreated={handleConversationCreated}
           />
-        ) : selectedGroup ? (
+       ) : selectedGroup ? (
           <GroupConversationComponent
             conversationId={selectedGroup.conversationId}
             groupName={selectedGroup.displayName ?? 'Unavngivet gruppe'}
             currentUserId={myProfile?.id ?? ''}
+            onLeft={() => {
+              setSelectedGroup(null);
+              setSelectedConversationId(null);
+            }}
           />
         ) : (
           <div className="h-full flex items-center justify-center">
