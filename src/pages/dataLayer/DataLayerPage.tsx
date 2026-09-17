@@ -362,6 +362,7 @@ export function DataLayerPage() {
         isOpen={!!editCategoryTarget}
         onClose={() => setEditCategoryTarget(null)}
         category={editCategoryTarget}
+        categoryTree={categoryTree}
       />
 
       <DeleteCategoryComponent

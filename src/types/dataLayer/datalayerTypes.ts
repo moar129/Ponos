@@ -16,6 +16,7 @@ export interface DataLayerCat {
   items: DataLayerItem[];
   subCategories: DataLayerCat[];
   organisationId: string;
+  parentCategoryId: string | null;
 }
 
 export interface ItemLocation {
@@ -52,6 +53,13 @@ export interface CategoryTreeNodeProps {
   isMoving: boolean;
   onMoveUp: (category: DataLayerCat) => void;
   onMoveDown: (category: DataLayerCat) => void;
+}
+
+export interface EditCategoryComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  category: DataLayerCat | null;
+  categoryTree: DataLayerCat[];
 }
 
 export interface AddCategoryComponentProps {
