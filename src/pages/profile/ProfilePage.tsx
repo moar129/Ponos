@@ -102,7 +102,7 @@ export default function ProfilePage() {
 
     if (queryError) {
         return (
-            <div className="max-w-2xl mx-auto rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                 {readableError(queryError)}
             </div>
         )
@@ -115,7 +115,7 @@ export default function ProfilePage() {
     const saveError = readableError(mutationError)
 
     return (
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary">
             {/* Overskrift med profilbillede/ikon og navn */}
             <div className="flex items-center gap-4 mb-6">
                 <Avatar
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                             type="text"
                             value={form.firstName}
                             onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                             type="text"
                             value={form.lastName}
                             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                             rows={3}
                             value={form.description ?? ''}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                             type="url"
                             value={form.urlPicture ?? ''}
                             onChange={(e) => setForm({ ...form, urlPicture: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
@@ -202,7 +202,7 @@ export default function ProfilePage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? 'Gemmer...' : 'Gem ændringer'}
                         </button>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                         <button
                             type="button"
                             onClick={() => startEdit(profile)}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             Rediger profil
                         </button>

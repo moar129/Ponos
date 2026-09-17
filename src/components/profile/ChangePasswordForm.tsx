@@ -99,7 +99,7 @@ export default function ChangePasswordForm() {
                 <button
                     type="button"
                     onClick={startEdit}
-                    className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                 >
                     Skift adgangskode
                 </button>
@@ -123,7 +123,7 @@ export default function ChangePasswordForm() {
                     autoComplete="current-password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
@@ -135,7 +135,7 @@ export default function ChangePasswordForm() {
                     autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
@@ -147,7 +147,7 @@ export default function ChangePasswordForm() {
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
@@ -155,7 +155,7 @@ export default function ChangePasswordForm() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {isLoading ? 'Skifter...' : 'Skift adgangskode'}
                 </button>
