@@ -68,10 +68,13 @@ export function AdministrationTab() {
 
     const tabs: SubTabDef[] = []
     if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
-    // "Medlemmer" viser rolle-tildeling (update_roles) og/eller "Fjern"
-    // (delete_members) - fanen er synlig hvis mindst én af de to er til
-    // stede, panelet selv gater hver kontrol uafhængigt (US-66).
-    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
+    // "Medlemmer & roller" viser rolle-tildeling (update_roles) og/eller
+    // "Fjern" (delete_members) - fanen er synlig hvis mindst én af de to
+    // er til stede, panelet selv gater hver kontrol uafhængigt (US-66).
+    // Navnet er bevidst udvidet (2026-09-17, bruger-feedback): "Medlemmer"
+    // alene afslørede ikke at rolletildeling foregår her, ikke under
+    // "Roller & privilegier".
+    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer og tildel rolle', icon: Users })
     if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
     if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
