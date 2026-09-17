@@ -1,11 +1,7 @@
 // components/messaging/ConversationListComponent.tsx
 import { Loader2, MessageSquareText, Users } from 'lucide-react';
 import { useGetMyConversationsQuery } from '../../store/apis/messageApi';
-
-interface ConversationListComponentProps {
-  selectedConversationId?: string | null;
-  onSelectConversation?: (conversationId: string) => void;
-}
+import type { ConversationListComponentProps } from '../../types/messages/messagesTypes';
 
 function getInitials(name: string | null): string {
   if (!name) return '?';
@@ -50,38 +46,51 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
 
   return (
     <ul className="divide-y divide-slate-800">
-      {conversations.map((conv) => {
-        const isSelected = selectedConversationId === conv.conversationId;
-        return (
-          <li key={conv.conversationId}>
-            <button
-              type="button"
-              onClick={() => onSelectConversation?.(conv.conversationId)}
-              className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                isSelected ? 'bg-slate-800' : 'hover:bg-slate-800/50'
-              }`}
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
-                {conv.isGroup ? (
-                  <Users className="w-5 h-5" />
-                ) : conv.urlPicture ? (
-                  <img src={conv.urlPicture} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  getInitials(conv.displayName)
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-100 truncate">
-                  {conv.displayName ?? 'Unavngivet samtale'}
-                </p>
-                <p className="text-xs text-slate-400 truncate">
-                  {conv.lastMessage ?? 'Ingen beskeder endnu'}
-                </p>
-              </div>
-            </button>
-          </li>
-        );
-      })}
+        {conversations.map((conv) => {
+            const isSelected = selectedConversationId === conv.conversationId;
+            return (
+                <li key={conv.conversationId}>
+                    <button
+                        type="button"
+                        onClick={() => onSelectConversation?.(conv.conversationId)}
+                        className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
+                            isSelected ? 'bg-slate-800' : 'hover:bg-slate-800/50'
+                        }`}
+                    >
+                        <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
+                            {conv.isGroup ? (
+                                <Users className="w-5 h-5" />
+                            ) : conv.urlPicture ? (
+                                <img src={conv.urlPicture} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                getInitials(conv.displayName)
+                            )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                                <p
+                                    className={`text-sm truncate ${
+                                        conv.unread ? 'font-semibold text-white' : 'font-medium text-slate-100'
+                                    }`}
+                                >
+                                    {conv.displayName ?? 'Unavngivet samtale'}
+                                </p>
+                                {/* Ulæst-prik - vises kun når der er nyt siden jeg sidst læste samtalen. */}
+                                {conv.unread && (
+                                    <span
+                                        className="w-2 h-2 rounded-full bg-[#C7975D] shrink-0"
+                                        aria-label="Ulæste beskeder"
+                                    />
+                                )}
+                            </div>
+                            <p className={`text-xs truncate ${conv.unread ? 'text-slate-200' : 'text-slate-400'}`}>
+                                {conv.lastMessage ?? 'Ingen beskeder endnu'}
+                            </p>
+                        </div>
+                    </button>
+                </li>
+            );
+        })}
     </ul>
   );
 }
