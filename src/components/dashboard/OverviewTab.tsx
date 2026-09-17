@@ -1,17 +1,16 @@
 // src/components/dashboard/OverviewTab.tsx
-import { Database, ClipboardList, Building2, BarChart3, Bell } from 'lucide-react'
+import { Database, ClipboardList, Building2, BarChart3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { QuickLinkCard } from './QuickLinkCard'
-import { PlaceholderBar } from './PlaceholderBar'
 import { NewsSlider } from './NewsSlider'
 import { MyTasksWidget } from './MyTasksWidget'
+import { NotificationsWidget } from './NotificationsWidget'
 
-// US-65: "Dine opgaver" (US-74) og Notifikations-placeholderen øverst
-// (mest handlingsrelevant), genveje til Datalager/Opgaver/Statistik
-// derunder, Nyheder (US-56) nederst. Notifikationer er stadig kun en
-// "kommer snart"-bjælke - rigtig funktionalitet afventer US-71/72.
+// US-65: "Dine opgaver" (US-74) og Notifikationer (US-72, seneste 10 med
+// Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), genveje til
+// Datalager/Opgaver/Statistik derunder, Nyheder (US-56) nederst.
 export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE)
@@ -41,11 +40,7 @@ export function OverviewTab() {
         <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MyTasksWidget />
-                <PlaceholderBar
-                    label="Notifikationer"
-                    description="Notifikationer kommer snart."
-                    icon={Bell}
-                />
+                <NotificationsWidget />
             </div>
 
             <div>

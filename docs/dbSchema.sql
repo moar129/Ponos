@@ -13,7 +13,7 @@ create type e_item_status as enum (
   'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance'
 );
 
-create type e_membership_request_status as enum ('Pending', 'Accepted', 'Rejected');
+create type e_request_status as enum ('Pending', 'Accepted', 'Rejected');
 
 -- Studerende 3's tilføjelse - dokumenteret her fra DB-eksport
 -- 2026-09-11, ikke ændret af os. Bruges af tasks.priority (afsnit 10).
@@ -91,7 +91,7 @@ create table public.membership_requests (
   id               uuid primary key default gen_random_uuid(),
   user_id          uuid not null references public.profiles(id) on delete cascade,
   organisation_id  uuid not null references public.organisations(id) on delete cascade,
-  status           e_membership_request_status not null default 'Pending',
+  status           e_request_status not null default 'Pending',
   requested_at     timestamptz not null default now(),
   reviewed_at      timestamptz,
   reviewed_by      uuid references public.profiles(id) on delete set null
@@ -133,7 +133,7 @@ create index idx_memberships_org on public.memberships (organisation_id);
 -- 6.6 MEMBERSHIP INVITATION (US-67 - mirror af membership_requests, men
 -- ADMIN-initieret i stedet for bruger-initieret: invited_by = afsenderen,
 -- invited_user_id = modtageren, som selv skal acceptere/afvise).
--- Genbruger e_membership_request_status (samme facon: Pending/Accepted/
+-- Genbruger e_request_status (samme facon: Pending/Accepted/
 -- Rejected), ingen ny enum-type nødvendig.
 -- ---------------------------------------------------------------------
 create table public.membership_invitations (
@@ -141,7 +141,7 @@ create table public.membership_invitations (
   organisation_id  uuid not null references public.organisations(id) on delete cascade,
   invited_user_id  uuid not null references public.profiles(id) on delete cascade,
   invited_by       uuid references public.profiles(id) on delete set null,
-  status           e_membership_request_status not null default 'Pending',
+  status           e_request_status not null default 'Pending',
   created_at       timestamptz not null default now(),
   reviewed_at      timestamptz
 );

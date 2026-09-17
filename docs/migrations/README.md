@@ -22,7 +22,7 @@ Den sidste regel er bevidst: når ændringen står i `dbSchema.sql`, er filen re
 
 Erstatter den tidligere `us-63-tasks-write-privileges.sql` (slettet 2026-09-15, aldrig kørt) - designet om fra ét `manage_tasks`-privilegie til fuldt CRUD, se `docs/studerende1-plan.md` (Fase 3).
 
-Kørt og slettet: `2026-09-11-fix-memberships-role-guard.sql` (US-11, Fase 1-bugfix); `fase3-medlem-rolle.sql`, `fase3-roles-organisation-privileges.sql`, `fase3-membership-members-invitations-privileges.sql`, `fase3-news-privileges.sql`, tre Fase 3-bugfixes (privileges-self-read, roles-self-read, migrér gamle privilegienavne), og `fase3-datalayer-privileges.sql` (US-62) — alle 2026-09-15. Se `dbSchema.sql` og "Fase 3"-afsnittet i `studerende1-plan.md` for detaljer.
+Kørt og slettet: `2026-09-11-fix-memberships-role-guard.sql` (US-11, Fase 1-bugfix); `fase3-medlem-rolle.sql`, `fase3-roles-organisation-privileges.sql`, `fase3-membership-members-invitations-privileges.sql`, `fase3-news-privileges.sql`, tre Fase 3-bugfixes (privileges-self-read, roles-self-read, migrér gamle privilegienavne), og `fase3-datalayer-privileges.sql` (US-62) — alle 2026-09-15. `2026-09-17-rename-request-status-enum.sql` (rettelse, generaliserer enum-navn) — 2026-09-17. Se `dbSchema.sql` og "Fase 3"-afsnittet i `studerende1-plan.md` for detaljer.
 
 ## Drift-tjek
 
