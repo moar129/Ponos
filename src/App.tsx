@@ -38,7 +38,7 @@ function App() {
   const isFullWidth = FULL_WIDTH_ROUTES.includes(pathname);
 
   return (
-    <div className={`min-h-screen flex flex-col justify-between text-slate-100 ${isFullWidth ? 'bg-white' : 'bg-slate-950'}`}>
+    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
       {/* HEADER */}
       <Header />
       {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}

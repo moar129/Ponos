@@ -45,12 +45,12 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs text-slate-400 uppercase tracking-wide">Lokation</label>
+        <label className="block text-xs text-secondary uppercase tracking-wide">Lokation</label>
         {(canUpdate || canDelete) && (
           <button
             type="button"
             onClick={() => setIsManaging(true)}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-accent"
+            className="flex items-center gap-1 text-xs text-secondary hover:text-accent"
             title="Administrer lokationer"
             aria-label="Administrer lokationer"
           >
@@ -61,34 +61,34 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
       </div>
 
       {isCreating ? (
-        <div className="p-3 bg-slate-950 border border-slate-700 rounded-lg space-y-2">
-          {createError && <p className="text-xs text-red-400">{createError}</p>}
+        <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2">
+          {createError && <p className="text-xs text-red-600">{createError}</p>}
           <input
             type="text"
             placeholder="Navn på ny lokation *"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
           />
           <input
             type="text"
             placeholder="Adresse (valgfrit)"
             value={newAddress}
             onChange={(e) => setNewAddress(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
           />
            <input
               type="text"
               placeholder="Beskrivelse (valgfrit)"
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
             />
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => { setIsCreating(false); setCreateError(null); }}
-              className="px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800"
+              className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray"
             >
               Annullér
             </button>
@@ -105,12 +105,12 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         </div>
       ) : (
         <div className="relative">
-          <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
           <select
             value={value ?? ''}
             onChange={(e) => handleSelectChange(e.target.value)}
             disabled={isLoading}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent appearance-none"
+            className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none"
           >
             <option value="">Ingen lokation</option>
             {locations.map((loc) => (

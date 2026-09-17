@@ -30,7 +30,7 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
         event.preventDefault();
         void handleSend();
       }}
-      className="flex items-end gap-2 border-t border-slate-800 p-3"
+      className="flex items-end gap-2 border-t border-border-gray p-3"
     >
       <textarea
         rows={1}
@@ -44,13 +44,13 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
             event.currentTarget.form?.requestSubmit();
           }
         }}
-        className="min-h-10 flex-1 resize-none rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-[#C7975D] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-10 flex-1 resize-none rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
 
       <button
         type="submit"
         disabled={disabled || isSending || !content.trim()}
-        className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#C7975D] px-4 text-sm font-semibold text-[#0B132A] transition-colors hover:bg-[#d8aa70] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-primary transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Send className="h-4 w-4" />
         {isSending ? 'Sender...' : 'Send'}

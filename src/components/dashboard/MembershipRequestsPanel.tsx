@@ -60,17 +60,17 @@ export function MembershipRequestsPanel() {
     return (
         <div>
             {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                     {listError ?? actionError}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-slate-400">Indlæser anmodninger...</p>
+                <p className="text-secondary">Indlæser anmodninger...</p>
             ) : !requests || requests.length === 0 ? (
-                <p className="text-slate-400">Der er ingen ventende anmodninger.</p>
+                <p className="text-secondary">Der er ingen ventende anmodninger.</p>
             ) : (
-                <ul className="divide-y divide-slate-800 border-t border-slate-800">
+                <ul className="divide-y divide-border-gray border-t border-border-gray">
                     {requests.map((request) => (
                         <li key={request.id} className="py-4">
                             <RequestRow
@@ -100,15 +100,15 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                 <p className="font-medium">
                     {request.firstName} {request.lastName}
                 </p>
-                <p className="text-sm text-slate-400">{request.email}</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-sm text-secondary">{request.email}</p>
+                <p className="text-xs text-secondary mt-1">
                     Anmodet {formatDate(request.requestedAt)}
                 </p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-slate-400 max-w-xs">
+                    <p className="text-sm text-secondary max-w-xs">
                         {decision.decision === 'Accepted'
                             ? `Er du sikker på, at ${request.firstName} skal optages i organisationen?`
                             : `Er du sikker på, at anmodningen skal afvises? ${request.firstName} kan anmode igen senere.`}
@@ -125,7 +125,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         type="button"
                         onClick={onCancel}
                         disabled={submitting}
-                        className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
                     >
                         Annuller
                     </button>
@@ -145,7 +145,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         type="button"
                         onClick={() => onSelect({ requestId: request.id, decision: 'Rejected' })}
                         disabled={submitting}
-                        className="flex items-center gap-2 rounded-md border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors disabled:opacity-60"
+                        className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
                     >
                         <X className="w-4 h-4" />
                         Afvis

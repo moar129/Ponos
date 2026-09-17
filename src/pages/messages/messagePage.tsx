@@ -73,16 +73,16 @@ export function MessagesPage() {
       />
 
       {/* VENSTRE SIDE */}
-      <div className="md:col-span-4 lg:col-span-3 bg-[#0B132A] rounded-xl border border-slate-800 shadow-sm overflow-hidden flex flex-col min-h-0">
+      <div className="md:col-span-4 lg:col-span-3 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden flex flex-col min-h-0">
         {/* Faner */}
-        <div className="flex border-b border-slate-800 shrink-0">
+        <div className="flex border-b border-border-gray shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('conversations')}
             className={`flex-1 px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
               activeTab === 'conversations'
-                ? 'text-[#C7975D] border-b-2 border-[#C7975D]'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             Samtaler
@@ -93,8 +93,8 @@ export function MessagesPage() {
             onClick={() => setActiveTab('contacts')}
             className={`flex-1 px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
               activeTab === 'contacts'
-                ? 'text-[#C7975D] border-b-2 border-[#C7975D]'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             Alle kontakter
@@ -103,11 +103,11 @@ export function MessagesPage() {
 
         {/* Ny gruppe-knap - kun relevant på Samtaler-fanen */}
         {activeTab === 'conversations' && (
-          <div className="p-3 border-b border-slate-800 shrink-0">
+          <div className="p-3 border-b border-border-gray shrink-0">
             <button
               type="button"
               onClick={() => setIsCreateGroupOpen(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray"
             >
               <Plus className="w-4 h-4" />
               Ny gruppe
@@ -132,7 +132,7 @@ export function MessagesPage() {
       </div>
 
       {/* SAMTALE / GRUPPE */}
-      <div className="md:col-span-8 lg:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 shadow-sm overflow-hidden min-h-0">
+      <div className="md:col-span-8 lg:col-span-9 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden min-h-0">
         {selectedContact ? (
           <ConversationComponent
             conversationId={selectedConversationId}
@@ -148,8 +148,8 @@ export function MessagesPage() {
           />
         ) : (
           <div className="h-full flex items-center justify-center">
-            <div className="flex flex-col items-center text-center text-slate-400 px-4">
-              <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+            <div className="flex flex-col items-center text-center text-secondary px-4">
+              <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary" />
               <p className="text-sm">
                 Vælg en samtale, eller find en kollega under "Alle kontakter"
               </p>

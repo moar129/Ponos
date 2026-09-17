@@ -84,23 +84,23 @@ export function CreateTaskModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-lg rounded-xl bg-surface border border-slate-800 p-6 shadow-xl">
+            <div className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl">
                 <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-slate-100">
+                    <h2 className="text-xl font-semibold text-primary">
                         Opret Opgave
                     </h2>
 
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-slate-400 hover:text-slate-100"
+                        className="text-secondary hover:text-primary"
                     >
                         <X />
                     </button>
                 </div>
 
                 {errorMessage && (
-                    <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                    <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
@@ -110,7 +110,7 @@ export function CreateTaskModal({
                     <div>
                         <label
                             htmlFor="task-title"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Titel
                         </label>
@@ -121,7 +121,7 @@ export function CreateTaskModal({
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Opgavens titel"
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         />
                     </div>
 
@@ -129,7 +129,7 @@ export function CreateTaskModal({
                     <div>
                         <label
                             htmlFor="task-description"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Beskrivelse
                         </label>
@@ -140,7 +140,7 @@ export function CreateTaskModal({
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Opgavens beskrivelse"
                             rows={5}
-                            className="w-full resize-y break-words rounded-lg border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full resize-y break-words rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         />
                     </div>
 
@@ -148,7 +148,7 @@ export function CreateTaskModal({
                     <div>
                         <label
                             htmlFor="task-room"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Rum
                         </label>
@@ -159,7 +159,7 @@ export function CreateTaskModal({
                             onChange={(e) =>
                                 setRoomId(e.target.value || null)
                             }
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         >
                             <option value="">Vælg rum</option>
 
@@ -177,7 +177,7 @@ export function CreateTaskModal({
                         <div>
                             <label
                                 htmlFor="task-start-date"
-                                className="mb-1 block text-sm font-medium text-slate-300"
+                                className="mb-1 block text-sm font-medium text-secondary"
                             >
                                 Startdato
                             </label>
@@ -187,7 +187,7 @@ export function CreateTaskModal({
                                 type="date"
                                 value={today}
                                 readOnly
-                                className="w-full cursor-not-allowed rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-500 outline-none"
+                                className="w-full cursor-not-allowed rounded-lg border border-border-gray bg-bg-gray px-3 py-2 text-secondary outline-none"
                             />
                         </div>
 
@@ -195,7 +195,7 @@ export function CreateTaskModal({
                         <div>
                             <label
                                 htmlFor="task-end-date"
-                                className="mb-1 block text-sm font-medium text-slate-300"
+                                className="mb-1 block text-sm font-medium text-secondary"
                             >
                                 Slutdato
                             </label>
@@ -206,7 +206,7 @@ export function CreateTaskModal({
                                 value={endDate}
                                 min={today}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                                className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                             />
                         </div>
                     </div>
@@ -215,7 +215,7 @@ export function CreateTaskModal({
                     <div>
                         <label
                             htmlFor="task-priority"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Prioritet
                         </label>
@@ -230,7 +230,7 @@ export function CreateTaskModal({
                                         : (e.target.value as ETaskPriority)
                                 )
                             }
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         >
                             <option value="">Ingen prioritet</option>
                             <option value="Low">Lav</option>
@@ -244,7 +244,7 @@ export function CreateTaskModal({
                     <div>
                         <label
                             htmlFor="task-max-assignees"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Antal personer
                         </label>
@@ -259,7 +259,7 @@ export function CreateTaskModal({
                                         : Number(e.target.value)
                                 )
                             }
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         >
                             <option value="">Ingen begrænsning</option>
                             <option value="1">1 person</option>
@@ -277,7 +277,7 @@ export function CreateTaskModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg px-4 py-2 text-slate-300 hover:bg-slate-800"
+                        className="rounded-lg px-4 py-2 text-secondary hover:bg-bg-gray"
                     >
                         Annuller
                     </button>

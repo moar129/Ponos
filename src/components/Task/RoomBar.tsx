@@ -15,7 +15,7 @@ export function RoomBar({
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
 
     return (
-        <div className="w-full bg-surface">
+        <div className="w-full bg-white">
             <div className="max-w-[1600px] mx-auto px-8">
                 <div className="flex items-center gap-1">
 
@@ -27,7 +27,7 @@ export function RoomBar({
                                 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition
                                 ${selectedRoomId === null
                                     ? 'border-accent text-accent'
-                                    : 'border-transparent text-slate-400 hover:text-slate-100'
+                                    : 'border-transparent text-secondary hover:text-primary'
                                 }
                             `}
                         >
@@ -45,7 +45,7 @@ export function RoomBar({
                                     px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition
                                     ${selectedRoomId === room.id
                                         ? 'border-accent text-accent'
-                                        : 'border-transparent text-slate-400 hover:text-slate-100'
+                                        : 'border-transparent text-secondary hover:text-primary'
                                     }
                                 `}
                             >
@@ -55,7 +55,7 @@ export function RoomBar({
 
                         <button
                             onClick={onAddRoom}
-                            className="px-4 py-3 text-lg text-slate-500 hover:text-slate-100 transition"
+                            className="px-4 py-3 text-lg text-secondary hover:text-primary transition"
                             title="Opret rum"
                         >
                             +
@@ -67,21 +67,21 @@ export function RoomBar({
                         <button
                             type="button"
                             onClick={() => setIsMenuOpen((open) => !open)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                            className="rounded-lg p-2 text-secondary hover:bg-bg-gray hover:text-primary"
                             aria-label="Flere handlinger"
                         >
                             <MoreHorizontal size={22} />
                         </button>
 
                         {isMenuOpen && (
-                            <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-slate-800 bg-surface py-1 shadow-lg">
+                            <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-border-gray bg-white py-1 shadow-lg">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setIsMenuOpen(false);
                                         setIsEditRoomOpen(true);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm font-medium text-slate-300 hover:bg-slate-800"
+                                    className="w-full px-4 py-2 text-left text-sm font-medium text-secondary hover:bg-bg-gray"
                                 >
                                     Rediger rum
                                 </button>
@@ -92,7 +92,7 @@ export function RoomBar({
                                         setIsMenuOpen(false);
                                         setIsDeleteRoomOpen(true);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm font-medium text-red-400 hover:bg-red-500/10"
+                                    className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
                                 >
                                     Slet et rum
                                 </button>

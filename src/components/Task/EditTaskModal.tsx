@@ -119,18 +119,18 @@ export function EditTaskModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg rounded-xl bg-surface border border-slate-800 p-6 shadow-xl">
+            <div className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl">
 
                 {/* HEADER */}
                 <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-slate-100">
+                    <h2 className="text-xl font-semibold text-primary">
                         Rediger Opgave
                     </h2>
 
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="text-slate-400 hover:text-slate-100"
+                        className="text-secondary hover:text-primary"
                     >
                         <X />
                     </button>
@@ -138,7 +138,7 @@ export function EditTaskModal({
 
                 {/* API ERROR */}
                 {errorMessage && (
-                    <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                    <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                         {errorMessage}
                     </div>
                 )}
@@ -149,7 +149,7 @@ export function EditTaskModal({
                     <div>
                         <label
                             htmlFor="edit-task-title"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Titel
                         </label>
@@ -159,7 +159,7 @@ export function EditTaskModal({
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         />
                     </div>
 
@@ -167,7 +167,7 @@ export function EditTaskModal({
                     <div>
                         <label
                             htmlFor="edit-task-description"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Beskrivelse
                         </label>
@@ -177,13 +177,13 @@ export function EditTaskModal({
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={5}
-                            className="w-full resize-y break-words rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full resize-y break-words rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         />
                     </div>
 
                     {/* DATE ERROR */}
                     {dateError && (
-                        <div className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                             {dateError}
                         </div>
                     )}
@@ -195,7 +195,7 @@ export function EditTaskModal({
                         <div>
                             <label
                                 htmlFor="edit-task-start-date"
-                                className="mb-1 block text-sm font-medium text-slate-300"
+                                className="mb-1 block text-sm font-medium text-secondary"
                             >
                                 Startdato
                             </label>
@@ -205,7 +205,7 @@ export function EditTaskModal({
                                 type="date"
                                 value={startDate}
                                 readOnly
-                                className="w-full cursor-not-allowed rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-500 outline-none"
+                                className="w-full cursor-not-allowed rounded-lg border border-border-gray bg-bg-gray px-3 py-2 text-secondary outline-none"
                             />
                         </div>
 
@@ -213,7 +213,7 @@ export function EditTaskModal({
                         <div>
                             <label
                                 htmlFor="edit-task-end-date"
-                                className="mb-1 block text-sm font-medium text-slate-300"
+                                className="mb-1 block text-sm font-medium text-secondary"
                             >
                                 Slutdato
                             </label>
@@ -227,7 +227,7 @@ export function EditTaskModal({
                                     setEndDate(e.target.value);
                                     setDateError(null);
                                 }}
-                                className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                                className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                             />
                         </div>
                     </div>
@@ -236,7 +236,7 @@ export function EditTaskModal({
                     <div>
                         <label
                             htmlFor="edit-task-priority"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Prioritet
                         </label>
@@ -251,7 +251,7 @@ export function EditTaskModal({
                                         : (e.target.value as ETaskPriority)
                                 )
                             }
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         >
                             <option value="">Ingen prioritet</option>
                             <option value="Low">Lav</option>
@@ -265,7 +265,7 @@ export function EditTaskModal({
                     <div>
                         <label
                             htmlFor="edit-task-max-assignees"
-                            className="mb-1 block text-sm font-medium text-slate-300"
+                            className="mb-1 block text-sm font-medium text-secondary"
                         >
                             Antal personer
                         </label>
@@ -280,7 +280,7 @@ export function EditTaskModal({
                                         : Number(e.target.value)
                                 )
                             }
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:border-accent"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent"
                         >
                             <option value="">
                                 Ingen begrænsning

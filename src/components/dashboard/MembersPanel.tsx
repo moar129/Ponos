@@ -83,30 +83,30 @@ export function MembersPanel() {
     const actionError = readableError(assignError) ?? readableError(removeError)
 
     if (loadingMembers) {
-        return <p className="text-slate-400">Indlæser medlemmer...</p>
+        return <p className="text-secondary">Indlæser medlemmer...</p>
     }
 
     if (listError) {
         return (
-            <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                 {listError}
             </div>
         )
     }
 
     if (!members || members.length === 0) {
-        return <p className="text-slate-400">Organisationen har ingen medlemmer endnu.</p>
+        return <p className="text-secondary">Organisationen har ingen medlemmer endnu.</p>
     }
 
     return (
         <div>
             {actionError && (
-                <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                     {actionError}
                 </div>
             )}
 
-            <ul className="divide-y divide-slate-800 border-t border-slate-800">
+            <ul className="divide-y divide-border-gray border-t border-border-gray">
                 {members.map((member) => {
                     const isSelf = member.id === currentUserId
                     const memberIsAdmin = member.roleId !== null && roleIdsWithAdmin.has(member.roleId)
@@ -117,12 +117,12 @@ export function MembersPanel() {
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <p className="font-medium">{member.firstName} {member.lastName}</p>
-                                    <p className="text-sm text-slate-400">{member.email}</p>
+                                    <p className="text-sm text-secondary">{member.email}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
                                     {isSelf ? (
-                                        <p className="text-sm text-slate-400 italic">Du kan ikke ændre din egen række</p>
+                                        <p className="text-sm text-secondary italic">Du kan ikke ændre din egen række</p>
                                     ) : (
                                         <>
                                             {canManageRoles && (
@@ -130,7 +130,7 @@ export function MembersPanel() {
                                                     value={member.roleId ?? ''}
                                                     onChange={(e) => handleAssign(member, e.target.value)}
                                                     disabled={savingUserId === member.id}
-                                                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent disabled:opacity-60"
+                                                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-60"
                                                 >
                                                     {(roles ?? []).map((role) => (
                                                         <option key={role.id} value={role.id}>{role.name}</option>
@@ -142,7 +142,7 @@ export function MembersPanel() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setConfirmingRemoveId(member.id)}
-                                                    className="rounded-md border border-red-900/40 px-3 py-1.5 text-sm font-medium text-red-400 hover:bg-red-950/40 transition-colors"
+                                                    className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                                                 >
                                                     Fjern
                                                 </button>
@@ -154,14 +154,14 @@ export function MembersPanel() {
 
                             {confirmingRemoveId === member.id && (
                                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                                    <span className="text-sm text-slate-400">
+                                    <span className="text-sm text-secondary">
                                         Er du sikker på at du vil fjerne {member.firstName} {member.lastName} fra organisationen?
                                     </span>
                                     <button
                                         type="button"
                                         onClick={() => handleRemove(member)}
                                         disabled={removingUserId === member.id}
-                                        className="text-red-400 text-sm font-medium hover:underline disabled:opacity-60"
+                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60"
                                     >
                                         {removingUserId === member.id ? 'Fjerner...' : 'Ja, fjern'}
                                     </button>
@@ -169,7 +169,7 @@ export function MembersPanel() {
                                         type="button"
                                         onClick={() => setConfirmingRemoveId(null)}
                                         disabled={removingUserId === member.id}
-                                        className="text-slate-400 text-sm hover:underline disabled:opacity-60"
+                                        className="text-secondary text-sm hover:underline disabled:opacity-60"
                                     >
                                         Annuller
                                     </button>

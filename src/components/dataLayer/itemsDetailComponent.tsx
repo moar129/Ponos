@@ -73,10 +73,10 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleClose}>
       <div
-        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-md"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+        <div className="flex items-center justify-between p-4 border-b border-border-gray">
           <div className="flex items-center gap-2 min-w-0">
             <Package className="w-5 h-5 text-accent shrink-0" />
             {isEditing ? (
@@ -84,24 +84,24 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                className="bg-white border border-border-gray rounded-lg px-2 py-1 text-sm text-primary focus:outline-none focus:border-accent"
               />
             ) : (
-              <h2 className="text-lg font-semibold text-slate-100 truncate">{item.name}</h2>
+              <h2 className="text-lg font-semibold text-primary truncate">{item.name}</h2>
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {!isEditing && canUpdate && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary"
                 title="Rediger item"
                 aria-label="Rediger item"
               >
                 <Pencil className="w-4 h-4" />
               </button>
             )}
-            <button type="button" onClick={handleClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white" title="Luk" aria-label="Luk modal">
+            <button type="button" onClick={handleClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary" title="Luk" aria-label="Luk modal">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -109,7 +109,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
 
         <div className="p-4 space-y-4">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {formError}
             </div>
           )}
@@ -120,46 +120,46 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Beskrivelse"
               rows={3}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
             />
           ) : (
-            <p className="text-sm text-slate-300">{item.description || 'Ingen beskrivelse'}</p>
+            <p className="text-sm text-secondary">{item.description || 'Ingen beskrivelse'}</p>
           )}
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Antal</span>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Antal</span>
               {isEditing ? (
                 <input
                   type="number"
                   min={0}
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                  className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
                 />
               ) : (
-                <span className="text-slate-200">{item.quantity}</span>
+                <span className="text-primary">{item.quantity}</span>
               )}
             </div>
             <div>
-              <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Status</span>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Status</span>
               {isEditing ? (
                 <select
                   value={itemStatus}
                   onChange={(e) => setItemStatus(e.target.value as (typeof ALL_ITEM_STATUSES)[number])}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                  className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
                 >
                   {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
               ) : (
-                <span className={`inline-block px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+                <span className={`inline-block px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-bg-gray text-secondary border-border-gray'}`}>
                   {item.itemStatus}
                 </span>
               )}
             </div>
 
             <div className="col-span-2">
-              <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Lokation</span>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Lokation</span>
               {isEditing ? (
                 <LocationPickerComponent
                   value={itemLocationId}
@@ -169,25 +169,25 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                   canDelete={canDelete}
                 />
               ) : (
-                <span className="text-slate-200">{currentLocationName ?? 'Ingen lokation'}</span>
+                <span className="text-primary">{currentLocationName ?? 'Ingen lokation'}</span>
               )}
             </div>
 
             {item.isFromSubCategory && !isEditing && (
               <div className="col-span-2">
-                <span className="block text-xs text-slate-500 uppercase tracking-wide mb-1">Kategori</span>
-                <span className="text-slate-200">{item.sourceCategoryTitle}</span>
+                <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Kategori</span>
+                <span className="text-primary">{item.sourceCategoryTitle}</span>
               </div>
             )}
           </div>
         </div>
 
         {isEditing && (
-          <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
             <button
               type="button"
               onClick={() => { setIsEditing(false); setFormError(null); }}
-              className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800"
+              className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray"
             >
               Annullér
             </button>

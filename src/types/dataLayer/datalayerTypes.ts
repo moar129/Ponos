@@ -97,13 +97,13 @@ export const ALL_ITEM_STATUSES: ItemStatus[] = [
 ];
 
 export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
-  Available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  Reserved: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  OutOfStock: 'bg-red-500/10 text-red-400 border-red-500/20',
-  InUse: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  Missing: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Damaged: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  Available: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Reserved: 'bg-amber-50 text-amber-700 border-amber-200',
+  OutOfStock: 'bg-red-50 text-red-700 border-red-200',
+  InUse: 'bg-sky-50 text-sky-700 border-sky-200',
+  Missing: 'bg-red-50 text-red-700 border-red-200',
+  Damaged: 'bg-red-50 text-red-700 border-red-200',
+  Maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
 export interface ItemRow {

@@ -41,15 +41,15 @@ export function EditCategoryComponent({ isOpen, onClose, category }: EditCategor
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-md"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <h2 className="text-lg font-semibold text-slate-100">Rediger kategori</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border-gray">
+          <h2 className="text-lg font-semibold text-primary">Rediger kategori</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary"
             title="Luk"
             aria-label="Luk modal"
           >
@@ -59,24 +59,24 @@ export function EditCategoryComponent({ isOpen, onClose, category }: EditCategor
 
         <div className="p-4 space-y-3">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {formError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs text-slate-400 uppercase tracking-wide mb-1">Titel</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1">Titel</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-800">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray">
             Annullér
           </button>
           <button

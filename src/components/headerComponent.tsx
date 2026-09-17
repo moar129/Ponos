@@ -228,7 +228,7 @@ export function Header() {
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-300">
                       {profile?.roleName ?? 'Ingen rolle'}
                     </span>
                   </div>

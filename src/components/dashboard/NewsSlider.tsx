@@ -44,11 +44,11 @@ export function NewsSlider() {
     const hasImage = !!current?.pictureUrl
 
     return (
-        <div className="rounded-lg border border-slate-800 bg-surface p-5">
+        <div className="rounded-lg border border-border-gray bg-white p-5">
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                    <Newspaper className="w-5 h-5 text-slate-400" />
-                    <h3 className="font-medium text-slate-100">Nyheder</h3>
+                    <Newspaper className="w-5 h-5 text-secondary" />
+                    <h3 className="font-medium text-primary">Nyheder</h3>
                 </div>
                 <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     Se alle nyheder
@@ -57,14 +57,14 @@ export function NewsSlider() {
             </div>
 
             {isLoading ? (
-                <p className="text-sm text-slate-400">Indlæser nyheder...</p>
+                <p className="text-sm text-secondary">Indlæser nyheder...</p>
             ) : !current ? (
-                <p className="text-sm text-slate-400">Der er ingen nyheder endnu.</p>
+                <p className="text-sm text-secondary">Der er ingen nyheder endnu.</p>
             ) : (
                 <div
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
-                    className="relative rounded-md overflow-hidden border border-slate-800"
+                    className="relative rounded-md overflow-hidden border border-border-gray"
                 >
                     {/* Billedet er selve baggrunden når sat - ellers ren hvid baggrund. */}
                     <Link
@@ -84,11 +84,11 @@ export function NewsSlider() {
                                 </div>
                             </>
                         ) : (
-                            <div className={`h-full flex flex-col justify-center bg-slate-900 p-4 sm:px-12 ${slides.length > 1 ? 'pb-8' : ''}`}>
-                                <p className="font-medium text-slate-100 truncate">{current.title}</p>
-                                <p className="text-xs text-slate-400 mt-0.5">{formatDate(current.publishedAt)}</p>
+                            <div className={`h-full flex flex-col justify-center bg-bg-gray/40 p-4 sm:px-12 ${slides.length > 1 ? 'pb-8' : ''}`}>
+                                <p className="font-medium text-primary truncate">{current.title}</p>
+                                <p className="text-xs text-secondary mt-0.5">{formatDate(current.publishedAt)}</p>
                                 {current.description && (
-                                    <p className="text-sm text-slate-400 mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
+                                    <p className="text-sm text-secondary mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
                                 )}
                             </div>
                         )}
@@ -128,7 +128,7 @@ export function NewsSlider() {
                                                     : 'bg-accent'
                                                 : hasImage
                                                   ? 'bg-white/50 hover:bg-white/80'
-                                                  : 'bg-slate-700 hover:bg-slate-500'
+                                                  : 'bg-border-gray hover:bg-secondary'
                                         }`}
                                     />
                                 ))}

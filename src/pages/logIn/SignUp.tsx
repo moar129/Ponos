@@ -96,8 +96,8 @@ export default function SignUp() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-surface border border-slate-800 rounded-lg shadow-md p-8 max-w-md w-full text-slate-100">
-                <h1 className="text-xl font-semibold text-slate-100 mb-6">Opret konto</h1>
+            <form onSubmit={handleSubmit} className="bg-white border border-border-gray rounded-lg shadow-md p-8 max-w-md w-full text-primary">
+                <h1 className="text-xl font-semibold text-primary mb-6">Opret konto</h1>
 
                 {/* Fejlbesked vises kun hvis error er sat */}
                 {error && (
@@ -107,57 +107,57 @@ export default function SignUp() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-slate-300 mb-1" htmlFor="firstName">Fornavn</label>
+                    <label className="block text-sm text-secondary mb-1" htmlFor="firstName">Fornavn</label>
                     <input
                         id="firstName"
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-slate-300 mb-1" htmlFor="lastName">Efternavn</label>
+                    <label className="block text-sm text-secondary mb-1" htmlFor="lastName">Efternavn</label>
                     <input
                         id="lastName"
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-slate-300 mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary mb-1" htmlFor="email">E-mail</label>
                     <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-slate-300 mb-1" htmlFor="password">Adgangskode</label>
+                    <label className="block text-sm text-secondary mb-1" htmlFor="password">Adgangskode</label>
                     <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-slate-300 mb-1" htmlFor="confirmPassword">Gentag adgangskode</label>
+                    <label className="block text-sm text-secondary mb-1" htmlFor="confirmPassword">Gentag adgangskode</label>
                     <input
                         id="confirmPassword"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
@@ -170,7 +170,7 @@ export default function SignUp() {
                 </button>
 
                 {/* Link til login-siden - ruten "/login" matcher Login.tsx */}
-                <p className="mt-4 text-sm text-slate-400 text-center">
+                <p className="mt-4 text-sm text-secondary text-center">
                     Har du allerede en konto? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
                 </p>
             </form>

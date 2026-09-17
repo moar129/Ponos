@@ -75,16 +75,16 @@ export function NotificationBellComponent() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-lg bg-[#0B132A] border border-slate-800 shadow-xl z-50"
+          className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-lg bg-white border border-border-gray shadow-xl z-50"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-            <h3 className="text-sm font-semibold text-slate-100">Notifikationer</h3>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray">
+            <h3 className="text-sm font-semibold text-primary">Notifikationer</h3>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={() => markAllRead()}
                 disabled={isMarkingAll}
-                className="flex items-center gap-1 text-xs text-[#C7975D] hover:text-[#e0ac6f] disabled:opacity-60"
+                className="flex items-center gap-1 text-xs text-accent hover:text-accent-hover disabled:opacity-60"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 Markér alle som læst
@@ -94,31 +94,31 @@ export function NotificationBellComponent() {
 
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-5 h-5 animate-spin text-[#C7975D]" />
+              <Loader2 className="w-5 h-5 animate-spin text-accent" />
             </div>
           ) : notifications.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8 px-4">Ingen notifikationer endnu.</p>
+            <p className="text-sm text-secondary text-center py-8 px-4">Ingen notifikationer endnu.</p>
           ) : (
-            <ul className="divide-y divide-slate-800">
+            <ul className="divide-y divide-border-gray">
               {notifications.map((notification) => (
                 <li key={notification.id}>
                   <button
                     type="button"
                     onClick={() => handleSelect(notification)}
                     className={`w-full text-left px-4 py-3 transition-colors ${
-                      notification.isRead ? 'hover:bg-slate-800/50' : 'bg-slate-800/40 hover:bg-slate-800/70'
+                      notification.isRead ? 'hover:bg-bg-gray/50' : 'bg-accent/10 hover:bg-accent/15'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm text-slate-100 truncate">{notification.title}</p>
+                      <p className="text-sm text-primary truncate">{notification.title}</p>
                       {!notification.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-[#C7975D] shrink-0 mt-1.5" />
+                        <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                       )}
                     </div>
                     {notification.body && (
-                      <p className="text-xs text-slate-400 truncate mt-0.5">{notification.body}</p>
+                      <p className="text-xs text-secondary truncate mt-0.5">{notification.body}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 mt-1">{timeAgo(notification.createdAt)}</p>
+                    <p className="text-[11px] text-secondary mt-1">{timeAgo(notification.createdAt)}</p>
                   </button>
                 </li>
               ))}

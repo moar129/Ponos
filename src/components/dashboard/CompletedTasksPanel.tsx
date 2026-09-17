@@ -28,19 +28,19 @@ export function CompletedTasksPanel() {
     const error = readableError(tasksError)
 
     if (isLoading) {
-        return <p className="text-slate-400">Indlæser afsluttede opgaver...</p>
+        return <p className="text-secondary">Indlæser afsluttede opgaver...</p>
     }
 
     if (error) {
         return (
-            <div className="rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
                 {error}
             </div>
         )
     }
 
     if (!tasks || tasks.length === 0) {
-        return <p className="text-slate-400">Ingen opgaver er markeret som afsluttede endnu.</p>
+        return <p className="text-secondary">Ingen opgaver er markeret som afsluttede endnu.</p>
     }
 
     const filteredTasks = tasks.filter((task) => {
@@ -60,12 +60,12 @@ export function CompletedTasksPanel() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Søg efter titel eller beskrivelse..."
-                    className="flex-1 min-w-[200px] rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                    className="flex-1 min-w-[200px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
                 />
                 <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value as ETaskPriority | 'all')}
-                    className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
                 >
                     <option value="all">Alle prioriteter</option>
                     {(Object.keys(PRIORITY_LABELS) as ETaskPriority[]).map((priority) => (
@@ -75,9 +75,9 @@ export function CompletedTasksPanel() {
             </div>
 
             {filteredTasks.length === 0 ? (
-                <p className="text-slate-400">Ingen opgaver matcher søgningen/filteret.</p>
+                <p className="text-secondary">Ingen opgaver matcher søgningen/filteret.</p>
             ) : (
-                <ul className="divide-y divide-slate-800 border-t border-slate-800">
+                <ul className="divide-y divide-border-gray border-t border-border-gray">
                     {filteredTasks.map((task) => (
                         <CompletedTaskRow
                             key={task.id}
@@ -105,7 +105,7 @@ function CompletedTaskRow({
         <li className="py-3">
             <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 text-left">
                 <div>
-                    <p className="font-medium text-slate-100">{task.title}</p>
+                    <p className="font-medium text-primary">{task.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                         {task.priority && (
                             <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
@@ -113,27 +113,27 @@ function CompletedTaskRow({
                             </span>
                         )}
                         {task.end_date && (
-                            <span className="text-slate-400">Slut {formatDate(task.end_date)}</span>
+                            <span className="text-secondary">Slut {formatDate(task.end_date)}</span>
                         )}
                     </div>
                 </div>
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-secondary shrink-0" /> : <ChevronDown className="w-4 h-4 text-secondary shrink-0" />}
             </button>
 
             {isExpanded && (
-                <div className="mt-3 space-y-2 text-sm text-slate-400">
+                <div className="mt-3 space-y-2 text-sm text-secondary">
                     <p>{task.description || 'Ingen beskrivelse.'}</p>
-                    <p><span className="font-medium text-slate-100">Rum:</span> {task.roomName ?? 'Intet rum'}</p>
+                    <p><span className="font-medium text-primary">Rum:</span> {task.roomName ?? 'Intet rum'}</p>
                     <p>
-                        <span className="font-medium text-slate-100">Periode:</span>{' '}
+                        <span className="font-medium text-primary">Periode:</span>{' '}
                         {task.start_date ? formatDate(task.start_date) : 'Ukendt'} – {task.end_date ? formatDate(task.end_date) : 'Ukendt'}
                     </p>
                     <div>
-                        <span className="font-medium text-slate-100">Tilmeldte:</span>{' '}
+                        <span className="font-medium text-primary">Tilmeldte:</span>{' '}
                         {task.assignees.length > 0 ? task.assignees.map((a) => a.name).join(', ') : 'Ingen tilmeldte'}
                     </div>
                     <div>
-                        <span className="font-medium text-slate-100">Materialer:</span>{' '}
+                        <span className="font-medium text-primary">Materialer:</span>{' '}
                         {task.materials.length > 0
                             ? task.materials.map((m) => `${m.name} (${m.quantity})`).join(', ')
                             : 'Ingen materialer'}

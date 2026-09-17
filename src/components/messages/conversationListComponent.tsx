@@ -26,14 +26,14 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+        <Loader2 className="w-6 h-6 animate-spin text-accent" />
       </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="m-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      <div className="m-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
         {errorMessage}
       </div>
     );
@@ -41,15 +41,15 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
 
   if (conversations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400 px-4">
-        <MessageSquareText className="w-8 h-8 mb-2 stroke-[1.5] text-slate-500" />
+      <div className="flex flex-col items-center justify-center py-12 text-center text-secondary px-4">
+        <MessageSquareText className="w-8 h-8 mb-2 stroke-[1.5] text-secondary" />
         <p className="text-sm">Ingen samtaler endnu. Find en kollega under "Alle kontakter" for at starte en.</p>
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-slate-800">
+    <ul className="divide-y divide-border-gray">
       {conversations.map((conv) => {
         const isSelected = selectedConversationId === conv.conversationId;
         return (
@@ -58,10 +58,10 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
               type="button"
               onClick={() => onSelectConversation?.(conv.conversationId)}
               className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                isSelected ? 'bg-slate-800' : 'hover:bg-slate-800/50'
+                isSelected ? 'bg-bg-gray' : 'hover:bg-bg-gray/50'
               }`}
             >
-              <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
                 {conv.isGroup ? (
                   <Users className="w-5 h-5" />
                 ) : conv.urlPicture ? (
@@ -71,10 +71,10 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-100 truncate">
+                <p className="text-sm font-medium text-primary truncate">
                   {conv.displayName ?? 'Unavngivet samtale'}
                 </p>
-                <p className="text-xs text-slate-400 truncate">
+                <p className="text-xs text-secondary truncate">
                   {conv.lastMessage ?? 'Ingen beskeder endnu'}
                 </p>
               </div>

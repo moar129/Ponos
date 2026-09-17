@@ -67,19 +67,19 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-surface border border-slate-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <h2 className="text-lg font-semibold text-slate-100">Administrer lokationer</h2>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white">
+        <div className="flex items-center justify-between p-4 border-b border-border-gray">
+          <h2 className="text-lg font-semibold text-primary">Administrer lokationer</h2>
+          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-4 overflow-y-auto flex-1 space-y-2">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {formError}
             </div>
           )}
@@ -89,10 +89,10 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
               <Loader2 className="w-6 h-6 animate-spin text-accent" />
             </div>
           ) : locations.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">Ingen lokationer oprettet endnu.</p>
+            <p className="text-sm text-secondary text-center py-8">Ingen lokationer oprettet endnu.</p>
           ) : (
            locations.map((loc) => (
-              <div key={loc.id} className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+              <div key={loc.id} className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden">
                 {editTarget?.id === loc.id ? (
                   <div className="p-3 space-y-2">
                     <input
@@ -100,24 +100,24 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Navn"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
                     />
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="Adresse"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
                     />
                     <input
                       type="text"
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       placeholder="Beskrivelse"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
                     />
                     <div className="flex items-center justify-end gap-2">
-                      <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">
+                      <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray">
                         Annullér
                       </button>
                       <button
@@ -135,14 +135,14 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                   <div
                     onClick={onViewItems ? () => onViewItems(loc) : undefined}
                     className={`w-full flex items-center justify-between gap-3 text-left p-3 transition-colors ${
-                      onViewItems ? 'hover:bg-slate-800/50 cursor-pointer' : ''
+                      onViewItems ? 'hover:bg-bg-gray/60 cursor-pointer' : ''
                     }`}
                   >
                     <div className="min-w-0 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
+                      <MapPin className="w-4 h-4 text-secondary shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm text-slate-200 truncate">{loc.name}</p>
-                        {loc.address && <p className="text-xs text-slate-500 truncate">{loc.address}</p>}
+                        <p className="text-sm text-primary truncate">{loc.name}</p>
+                        {loc.address && <p className="text-xs text-secondary truncate">{loc.address}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -150,7 +150,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
-                          className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white"
+                          className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary"
                           title="Rediger"
                           aria-label="Rediger lokation"
                         >
@@ -161,7 +161,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
-                          className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400"
+                          className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600"
                           title="Slet"
                           aria-label="Slet lokation"
                         >
