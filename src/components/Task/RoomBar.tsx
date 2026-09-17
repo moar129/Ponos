@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import type { RoomBarProps } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
@@ -16,6 +16,20 @@ export function RoomBar({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditRoomOpen, setIsEditRoomOpen] = useState(false);
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isMenuOpen) return;
+
+        function handlePointerDown(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        }
+
+        document.addEventListener('mousedown', handlePointerDown);
+        return () => document.removeEventListener('mousedown', handlePointerDown);
+    }, [isMenuOpen]);
 
     return (
         <div className="w-full bg-white">
@@ -69,7 +83,7 @@ export function RoomBar({
 
                     {/* MORE MENU */}
                     {(canUpdate || canDelete) && (
-                        <div className="relative ml-auto flex-shrink-0">
+                        <div className="relative ml-auto flex-shrink-0" ref={menuRef}>
                             <button
                                 type="button"
                                 onClick={() => setIsMenuOpen((open) => !open)}
