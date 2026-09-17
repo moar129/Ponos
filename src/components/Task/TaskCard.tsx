@@ -10,7 +10,7 @@ import {
 import { EditTaskModal } from './EditTaskModal';
 import { supabase } from '../../lib/supabase';
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -181,16 +181,18 @@ export function TaskCard({ task }: TaskCardProps) {
         <div className="mb-4 flex items-start justify-between">
           <h3 className="text-xl font-bold text-primary">{task.title}</h3>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditOpen(true);
-            }}
-            className="text-blue-600 hover:text-blue-700"
-          >
-            Rediger
-          </button>
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditOpen(true);
+              }}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              Rediger
+            </button>
+          )}
         </div>
 
         {/* BESKRIVELSE */}
@@ -460,18 +462,20 @@ export function TaskCard({ task }: TaskCardProps) {
                             </span>
                           )}
 
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              await removeAssigneeFromTask({
-                                taskId: task.id,
-                                userId: assignee.user_id,
-                              });
-                            }}
-                            className="text-xs font-semibold text-red-600 hover:text-red-700"
-                          >
-                            Fjern
-                          </button>
+                          {canUpdate && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                await removeAssigneeFromTask({
+                                  taskId: task.id,
+                                  userId: assignee.user_id,
+                                });
+                              }}
+                              className="text-xs font-semibold text-red-600 hover:text-red-700"
+                            >
+                              Fjern
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -479,13 +483,15 @@ export function TaskCard({ task }: TaskCardProps) {
                 </div>
               )}
 
-              <button
-                type="button"
-                onClick={() => setIsEmployeePickerOpen(true)}
-                className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
-              >
-                + Tilføj medarbejder
-              </button>
+              {canUpdate && (
+                <button
+                  type="button"
+                  onClick={() => setIsEmployeePickerOpen(true)}
+                  className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  + Tilføj medarbejder
+                </button>
+              )}
             </div>
 
             {/* DATOER */}
@@ -675,6 +681,8 @@ export function TaskCard({ task }: TaskCardProps) {
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         task={task}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
     </>
   );

@@ -805,6 +805,13 @@ $$;
 -- her - eneste guard er login og et udfyldt navn.
 -- Fase 3: seeder nu ÉN organisations-standardrolle "Medlem" (med
 -- read_news) samtidig med "Admin" - se 15.6b for beskyttelsen af den.
+-- Fase 3 trin 6 (2026-09-17): "Medlem" får nu også read_tasks, så
+-- menige medlemmer kan se opgaver/Afsluttede opgaver fra dag ét (uden
+-- den ville de miste al opgave-adgang, når 16.7's SELECT-policy blev
+-- privilegie-gated). Eksisterende organisationers "Medlem"-rolle fik
+-- privilegiet ved et engangs-backfill (docs/migrations/
+-- fase3-tasks-privileges.sql, del F) - ingen ny kode nødvendig her,
+-- kun denne funktion for NYE organisationer.
 create or replace function public.create_organisation(p_name text)
 returns public.organisations
 language plpgsql
@@ -841,7 +848,7 @@ begin
   returning id into v_member_role_id;
 
   insert into public.privileges (role_id, name)
-  values (v_member_role_id, 'read_news');
+  values (v_member_role_id, 'read_news'), (v_member_role_id, 'read_tasks');
 
   insert into public.memberships (user_id, organisation_id, role_id)
   values (v_user_id, v_org.id, v_admin_role_id);
@@ -1380,6 +1387,50 @@ $$;
 grant execute on function public.reset_password_prototype(text, text, text, text) to anon, authenticated;
 
 
+-- 15.18 Fase 3 trin 6 (2026-09-17): selvbetjent statusskift på opgaver.
+-- En rå UPDATE på tasks.status kræver update_tasks (16.7), hvilket ville
+-- blokere en almindelig tilmeldts "markér som færdig"/"genåbn" - RLS kan
+-- ikke kolonne-begrænse en almindelig UPDATE-policy. Denne security
+-- definer-RPC tillader ENTEN en, der selv er tilmeldt opgaven (uanset
+-- privilegier), ELLER update_tasks/admin. Kaldes fra taskApi.ts'
+-- updateTaskStatus i stedet for et direkte .update(). Rettet 2026-09-17:
+-- manglede et eksplicit ::e_task_status-cast (p_status er text, kolonnen
+-- er enum'en) - Postgres caster ikke automatisk text->enum i en UPDATE.
+-- Fejlede med "column status is of type e_task_status but expression is
+-- of type text" ved "Genåbn" i CompletedTasksPanel.tsx.
+create or replace function public.set_task_status(p_task_id uuid, p_status text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_is_assignee boolean;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not exists (select 1 from public.tasks where id = p_task_id and organisation_id = v_org_id) then
+    raise exception 'Opgaven findes ikke i din organisation.';
+  end if;
+
+  v_is_assignee := exists (
+    select 1 from public.task_assignees where task_id = p_task_id and user_id = auth.uid()
+  );
+
+  if not (v_is_assignee or public.has_privilege_or_admin('update_tasks')) then
+    raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.';
+  end if;
+
+  update public.tasks set status = p_status::public.e_task_status where id = p_task_id;
+end;
+$$;
+
+grant execute on function public.set_task_status(uuid, text) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -1720,98 +1771,151 @@ create policy "Slet datalayer-items i egen organisation"
 
 -- ---------------------------------------------------------------------
 -- 16.7 TASKS / TASK_ASSIGNEES / TASK_PARTICIPANTS / TASK_MATERIALS
--- (Studerende 3's domæne — samme princip som ovenfor: org-scoped
--- fundament, som Studerende 3 kan tilpasse/udbygge.)
+-- (Studerende 3's domæne. Fase 3 trin 6 (2026-09-17, docs/migrations/
+-- fase3-tasks-privileges.sql): create/read/update/delete_tasks erstatter
+-- den tidligere åbne adgang for alle org-medlemmer - LÆSNING gates nu
+-- også. Godkendt af bruger 2026-09-17 i forbindelse med CRUD på
+-- Afsluttede opgaver (US-70, CompletedTasksPanel.tsx). task_assignees'
+-- selvbetjening (til-/afmeld sig selv) er bevaret uafhængigt af
+-- privilegier; tilmelde/afmelde EN ANDEN kræver update_tasks (rettet
+-- 2026-09-17, oprindeligt split på create_tasks/delete_tasks - se
+-- kommentaren ved task_assignees' insert/delete-policies nedenfor).
+-- "Medlem"-standardrollen (15.6b) har read_tasks som udgangspunkt (se
+-- 15.8). task_rooms.required_role_id forbliver bevidst urørt/uafklaret.)
 -- ---------------------------------------------------------------------
 create policy "Se opgaver i egen organisation"
   on public.tasks for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
 
-create policy "Medlemmer kan oprette/redigere/slette opgaver i egen organisation"
-  on public.tasks for all
+create policy "Opret opgaver i egen organisation"
+  on public.tasks for insert
   to authenticated
-  using (organisation_id = public.auth_profile_org())
-  with check (organisation_id = public.auth_profile_org());
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+
+create policy "Rediger opgaver i egen organisation"
+  on public.tasks for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+
+create policy "Slet opgaver i egen organisation"
+  on public.tasks for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_tasks'));
 
 create policy "Se task_assignees for opgaver i egen organisation"
   on public.task_assignees for select
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_tasks')
+  );
 
-create policy "Administrer task_assignees for opgaver i egen organisation"
+-- Enhver må til-/afmelde SIG SELV, uafhængigt af privilegier.
+create policy "Til- og afmeld sig selv fra opgaver i egen organisation"
   on public.task_assignees for all
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()))
-  with check (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    user_id = auth.uid()
+    and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+  )
+  with check (
+    user_id = auth.uid()
+    and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+  );
+
+-- Tilmelde/afmelde EN ANDEN (tilføj/fjern medarbejder i TaskCard.tsx) hører
+-- begge under update_tasks ("Rediger opgaver") - rettet 2026-09-17 (docs/
+-- migrations/2026-09-17-tasks-assignee-privilege-fix.sql), oprindeligt
+-- split på create_tasks (insert)/delete_tasks (delete), ændret efter
+-- bruger-forespørgsel under browser-test.
+create policy "Tilmeld andre til opgaver i egen organisation"
+  on public.task_assignees for insert
+  to authenticated
+  with check (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  );
+
+create policy "Afmeld andre fra opgaver i egen organisation"
+  on public.task_assignees for delete
+  to authenticated
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  );
 
 create policy "Se task_participants for opgaver i egen organisation"
   on public.task_participants for select
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_tasks')
+  );
 
 create policy "Administrer task_participants for opgaver i egen organisation"
   on public.task_participants for all
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()))
-  with check (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  )
+  with check (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  );
 
 create policy "Se task_materials for opgaver i egen organisation"
   on public.task_materials for select
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_tasks')
+  );
 
 create policy "Administrer task_materials for opgaver i egen organisation"
   on public.task_materials for all
   to authenticated
-  using (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()))
-  with check (task_id in (select id from public.tasks where organisation_id = public.auth_profile_org()));
+  using (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  )
+  with check (
+    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('update_tasks')
+  );
 
 
 -- ---------------------------------------------------------------------
 -- 16.7b TASK_ROOMS (Studerende 3's domæne)
--- Dokumenteret fra DB-eksport 2026-09-11 - ikke oprettet eller ændret af
--- Studerende 1. Tabellen og dens policies stod indtil da slet ikke i
--- denne fil.
---
--- BEMÆRK: der er FIRE policies, ikke to. Ud over de to danske findes to
--- ENGELSKE DUBLETTER, som dækker det samme, men inliner
--- profiles.active_organisation_id i stedet for at kalde
--- auth_profile_org(). Funktionelt er de identiske i dag, men de er en
--- fælde for US-63: RLS-policies OR'es, så det er IKKE nok at stramme
--- "Medlemmer kan administrere task rooms ..." - INSERT ville stadig
--- slippe igennem via "Users can create task rooms in their
--- organisation". Begge dubletter skal droppes samtidig. Se
--- docs/migrations/us-63-tasks-write-privileges.sql, afsnit C.
+-- Fase 3 trin 6 (2026-09-17): samme create/read/update/delete_tasks-
+-- gating som 16.7. De to engelske dubletpolicies fra den oprindelige
+-- DB-eksport ("Users can view/create task rooms in their organisation")
+-- er droppet samtidig med at "Medlemmer kan administrere ..." blev
+-- splittet op - ellers ville RLS-policies OR'es og gøre gatingen af
+-- INSERT/SELECT virkningsløs.
 -- ---------------------------------------------------------------------
 create policy "Se task rooms i egen organisation"
   on public.task_rooms for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
 
-create policy "Medlemmer kan administrere task rooms i egen organisation"
-  on public.task_rooms for all
-  to authenticated
-  using (organisation_id = public.auth_profile_org())
-  with check (organisation_id = public.auth_profile_org());
-
--- Dublet af "Se task rooms i egen organisation" ovenfor.
-create policy "Users can view task rooms in their organisation"
-  on public.task_rooms for select
-  to authenticated
-  using (
-    organisation_id = (select active_organisation_id from public.profiles where id = auth.uid())
-  );
-
--- Dublet-agtig: dækker INSERT, som "Medlemmer kan administrere ..."
--- (for all) allerede dækker. Det er denne, der gør en gating af
--- for all-policyen virkningsløs.
-create policy "Users can create task rooms in their organisation"
+create policy "Opret task rooms i egen organisation"
   on public.task_rooms for insert
   to authenticated
-  with check (
-    organisation_id = (select active_organisation_id from public.profiles where id = auth.uid())
-  );
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+
+create policy "Rediger task rooms i egen organisation"
+  on public.task_rooms for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+
+create policy "Slet task rooms i egen organisation"
+  on public.task_rooms for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_tasks'));
 
 
 -- ---------------------------------------------------------------------

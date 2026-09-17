@@ -1,7 +1,9 @@
 // src/components/dashboard/CompletedTasksPanel.tsx
 import { useState } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useGetCompletedTasksQuery } from '../../store/apis/taskApi'
+import { ChevronDown, ChevronUp, Pencil, RotateCcw } from 'lucide-react'
+import { useGetCompletedTasksQuery, useUpdateTaskStatusMutation } from '../../store/apis/taskApi'
+import { EditTaskModal } from '../Task/EditTaskModal'
+import { DELETE_TASKS_PRIVILEGE, UPDATE_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { PRIORITY_COLORS, PRIORITY_LABELS, formatDate } from '../../utils/taskDisplay'
 import type { CompletedTaskDetails, ETaskPriority } from '../../types/Task/Task'
 
@@ -14,18 +16,27 @@ function readableError(err: unknown): string | null {
 }
 
 // US-70: organisationens afsluttede opgaver med fulde detaljer, til
-// opfølgning på udført arbejde. Ren visning - "marker som færdig" hører
-// til US-39 (Studerende 3, endnu ikke bygget), så listen er reelt tom
-// indtil da; testdata sættes manuelt i Supabase. Ekspanderbar række i
-// stedet for en separat modal - ingen ny modal-komponent nødvendig, og
-// EditTaskModal.tsx (Studerende 3's fil) røres ikke.
+// opfølgning på udført arbejde. Ekspanderbar række til detaljer (i stedet
+// for en separat detalje-modal). Fase 3 trin 6 (2026-09-17): Rediger/
+// Genåbn/Slet er tilføjet, gated på update_tasks/delete_tasks - genbruger
+// Opgave-domænets EditTaskModal (indeholder nu selv slet) og
+// updateTaskStatus (kalder set_task_status-RPC'en).
 export function CompletedTasksPanel() {
     const { data: tasks, isLoading, error: tasksError } = useGetCompletedTasksQuery()
     const [searchTerm, setSearchTerm] = useState('')
     const [priorityFilter, setPriorityFilter] = useState<ETaskPriority | 'all'>('all')
     const [expandedId, setExpandedId] = useState<string | null>(null)
+    const [editingTask, setEditingTask] = useState<CompletedTaskDetails | null>(null)
 
+    const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE)
+    const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE)
+    const [updateTaskStatus, { isLoading: isReopening, error: reopenError }] = useUpdateTaskStatusMutation()
+
+    // Kun listens EGEN hentefejl blokerer hele panelet - en fejl ved
+    // genåbning må ikke fjerne den allerede indlæste liste, så den vises
+    // i stedet inline i den ekspanderede række.
     const error = readableError(tasksError)
+    const reopenErrorMessage = readableError(reopenError)
 
     if (isLoading) {
         return <p className="text-secondary">Indlæser afsluttede opgaver...</p>
@@ -84,9 +95,25 @@ export function CompletedTasksPanel() {
                             task={task}
                             isExpanded={expandedId === task.id}
                             onToggle={() => setExpandedId(expandedId === task.id ? null : task.id)}
+                            canUpdate={canUpdate}
+                            canDelete={canDelete}
+                            onEdit={() => setEditingTask(task)}
+                            onReopen={() => updateTaskStatus({ id: task.id, status: 'InProgress' })}
+                            isReopening={isReopening}
+                            reopenErrorMessage={reopenErrorMessage}
                         />
                     ))}
                 </ul>
+            )}
+
+            {editingTask && (
+                <EditTaskModal
+                    isOpen={editingTask !== null}
+                    onClose={() => setEditingTask(null)}
+                    task={editingTask}
+                    canUpdate={canUpdate}
+                    canDelete={canDelete}
+                />
             )}
         </div>
     )
@@ -96,10 +123,22 @@ function CompletedTaskRow({
     task,
     isExpanded,
     onToggle,
+    canUpdate,
+    canDelete,
+    onEdit,
+    onReopen,
+    isReopening,
+    reopenErrorMessage,
 }: {
     task: CompletedTaskDetails
     isExpanded: boolean
     onToggle: () => void
+    canUpdate: boolean
+    canDelete: boolean
+    onEdit: () => void
+    onReopen: () => void
+    isReopening: boolean
+    reopenErrorMessage: string | null
 }) {
     return (
         <li className="py-3">
@@ -138,6 +177,33 @@ function CompletedTaskRow({
                             ? task.materials.map((m) => `${m.name} (${m.quantity})`).join(', ')
                             : 'Ingen materialer'}
                     </div>
+
+                    {(canUpdate || canDelete) && (
+                        <div className="flex flex-wrap items-center gap-4 pt-2">
+                            <button
+                                type="button"
+                                onClick={onEdit}
+                                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                            >
+                                <Pencil className="w-3.5 h-3.5" />
+                                Rediger
+                            </button>
+                            {canUpdate && (
+                                <button
+                                    type="button"
+                                    onClick={onReopen}
+                                    disabled={isReopening}
+                                    className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-60"
+                                >
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                    {isReopening ? 'Genåbner...' : 'Genåbn'}
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    {reopenErrorMessage && (
+                        <p className="text-sm text-red-700">{reopenErrorMessage}</p>
+                    )}
                 </div>
             )}
         </li>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+    useDeleteTaskMutation,
     useUpdateTaskMutation,
 } from '../../store/apis/taskApi';
 import type { ETaskPriority, Task } from '../../types/Task/Task';
@@ -9,6 +10,8 @@ interface EditTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: Task;
+    canUpdate: boolean;
+    canDelete: boolean;
 }
 
 function readableError(err: unknown): string | null {
@@ -30,10 +33,13 @@ export function EditTaskModal({
     isOpen,
     onClose,
     task,
+    canUpdate,
+    canDelete,
 }: EditTaskModalProps) {
     const today = new Date().toISOString().split('T')[0];
 
     const [dateError, setDateError] = useState<string | null>(null);
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description ?? '');
 
@@ -54,6 +60,7 @@ export function EditTaskModal({
     );
 
     const [updateTask, { isLoading, error }] = useUpdateTaskMutation();
+    const [deleteTask, { isLoading: isDeleting, error: deleteError }] = useDeleteTaskMutation();
 
     if (!isOpen) {
         return null;
@@ -78,8 +85,18 @@ export function EditTaskModal({
 
         setMaxAssignees(task.max_assignees);
         setDateError(null);
+        setIsConfirmingDelete(false);
 
         onClose();
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteTask(task.id).unwrap();
+            onClose();
+        } catch {
+            // Fejlen vises gennem deleteError
+        }
     };
 
     const handleSubmit = async () => {
@@ -116,6 +133,7 @@ export function EditTaskModal({
     };
 
     const errorMessage = readableError(error);
+    const deleteErrorMessage = readableError(deleteError);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -302,13 +320,56 @@ export function EditTaskModal({
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            disabled={isLoading || !title.trim()}
+                            disabled={isLoading || !title.trim() || !canUpdate}
                             className="rounded-lg bg-accent px-4 py-2 text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {isLoading ? 'Gemmer...' : 'Gem ændringer'}
                         </button>
                     </div>
+
+                    {canDelete && !isConfirmingDelete && (
+                        <button
+                            type="button"
+                            onClick={() => setIsConfirmingDelete(true)}
+                            className="text-sm font-medium text-red-600 hover:text-red-700"
+                        >
+                            Slet opgave
+                        </button>
+                    )}
                 </div>
+
+                {/* SLET-BEKRÆFTELSE */}
+                {isConfirmingDelete && (
+                    <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3">
+                        <p className="mb-3 text-sm text-red-700">
+                            Er du sikker på at du vil slette "{task.title}"? Dette kan ikke fortrydes.
+                        </p>
+
+                        {deleteErrorMessage && (
+                            <p className="mb-2 text-sm text-red-700">{deleteErrorMessage}</p>
+                        )}
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-60"
+                            >
+                                {isDeleting ? 'Sletter...' : 'Ja, slet'}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsConfirmingDelete(false)}
+                                disabled={isDeleting}
+                                className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-border-gray transition-colors disabled:opacity-60"
+                            >
+                                Annuller
+                            </button>
+                        </div>
+                    </div>
+                )}
 
             </div>
         </div>

@@ -1298,13 +1298,13 @@ Som indlogget bruger vil jeg kunne skifte min adgangskode fra min profilside, s�
 
 **Priority:** Medium
 
-**Note (afgrænsning):** Story'en dækker KUN visningen. At markere en opgave som færdig hører under US-39 (Ændre opgavestatus) og findes ikke i UI'et endnu - `updateTaskStatus` er skrevet i `taskApi.ts`, men bruges intet sted. Visningen vil derfor være tom, indtil US-39 er bygget.
+**Note (afgrænsning, opdateret 2026-09-17):** Story'en dækkede oprindeligt KUN visningen - markér som færdig hørte under US-39. Efter bruger-forespørgsel 2026-09-17 er Rediger/Genåbn/Slet tilføjet direkte til denne story (Fase 3 trin 6, se `docs/studerende1-plan.md`) i stedet for som en ny story, da det er samme visning der udvides. `updateTaskStatus` (nu via `set_task_status`-RPC'en) bruges til "Genåbn" (sætter status tilbage til `InProgress`).
 
 **Note (afslutningstidspunkt):** `tasks` har ingen `completed_at`-kolonne, så der findes ikke et registreret tidspunkt for, hvornår en opgave faktisk blev færdig. Visningen bruger `end_date` (den planlagte slutdato) til visning og sortering.
 
 ### User Story
 
-Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med deres detaljer, så jeg kan følge op på udført arbejde.
+Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med deres detaljer, og redigere, genåbne eller slette dem, så jeg kan følge op på og rette i udført arbejde.
 
 ### Acceptance Criteria
 
@@ -1312,7 +1312,9 @@ Som administrator vil jeg kunne se alle organisationens afsluttede opgaver med d
 - Visningen indeholder kun opgaver med status Færdig.
 - Visningen indeholder kun opgaver fra administratorens aktive organisation.
 - For den enkelte opgave kan administratoren se titel, beskrivelse, rum, prioritet, start- og slutdato, tilmeldte brugere og tilknyttede materialer med mængde.
-- Visningen er kun tilgængelig for brugere med privilegiet `admin` eller `manage_tasks`.
+- Visningen er kun tilgængelig for brugere med privilegiet `admin` eller `read_tasks`.
+- En bruger med `update_tasks` kan redigere en afsluttet opgaves felter og genåbne den (status tilbage til I gang).
+- En bruger med `delete_tasks` kan slette en afsluttet opgave permanent, efter en bekræftelse.
 - Administratoren kan søge og filtrere i listen.
 - Er ingen opgaver afsluttet, vises en forklarende tom-tilstand i stedet for en fejl.
 
@@ -1404,7 +1406,7 @@ Som bruger vil jeg kunne markere notifikationer som læst, så tælleren afspejl
 
 **Priority:** High
 
-**Note (afgrænsning, link):** Rækkerne er ikke klikbare i denne story. Opgavedetaljer vises i dag som en modal uden egen adresse (`TaskCard.tsx`), så der findes intet at linke til. En klikbar række tilføjes som opfølgning, når en detaljevisning med egen adresse findes - det hører under US-36 (Se opgavedetaljer).
+**Note (afgrænsning, link, opdateret 2026-09-17):** Rækkerne åbner en read-only preview-modal (`TaskDetailsModal.tsx`, dashboard-domænet) med titel, beskrivelse, status, prioritet, ansvarlige og datoer - ingen skrive-handlinger. Modalen + widget-header har begge et "Gå til opgaver"-link til `/tasks` for fuld håndtering. Der findes stadig ingen rigtig opgave-adresse (`/tasks/:id`) - det kræver US-36 (Se opgavedetaljer), som hører til Tasks-domænet. Det blokerer stadig notifikations-linket (US-71/US-72's opgave-hændelser) og enhver ægte deep-link til en enkelt opgave.
 
 **Note (afgrænsning, ejerskab):** Story'en dækker kun dashboard-widget'en. Visningen af egne opgaver på selve opgavesiden er US-44 og er allerede bygget som "Dine opgaver"-kolonnen i `TaskPage.tsx`. Widget'en genbruger de eksisterende endpoints `getTasks` og `getMyTaskIds` (`taskApi.ts`) og ændrer intet i opgavesidens filer.
 

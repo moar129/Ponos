@@ -11,6 +11,13 @@ import {
     useGetTasksQuery,
     useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
+import {
+    CREATE_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
+    READ_TASKS_PRIVILEGE,
+    UPDATE_TASKS_PRIVILEGE,
+    useHasPrivilege,
+} from '../../store/apis/privilegeApi';
 
 function readableError(err: unknown): string | null {
     if (!err) return null;
@@ -30,6 +37,10 @@ export function TasksPage() {
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
     const [createRoom, { error: createRoomError }] = useCreateRoomMutation();
 
+    const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_TASKS_PRIVILEGE);
+    const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_TASKS_PRIVILEGE);
+    const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE);
+    const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE);
 
     const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useGetTasksQuery();
     const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = useGetRoomsQuery();
@@ -113,10 +124,18 @@ export function TasksPage() {
         readableError(roomsError) ??
         readableError(createRoomError);
 
-    if (tasksLoading || roomsLoading) {
+    if (tasksLoading || roomsLoading || loadingReadPrivilege) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary">
                 <p className="font-semibold">Henter opgaver...</p>
+            </div>
+        );
+    }
+
+    if (!canRead) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white text-primary">
+                <p className="text-secondary">Du har ikke adgang til at se opgaver i denne organisation.</p>
             </div>
         );
     }
@@ -128,6 +147,9 @@ export function TasksPage() {
                 selectedRoomId={selectedRoomId}
                 onSelectRoom={setSelectedRoomId}
                 onAddRoom={() => setIsAddRoomOpen(true)}
+                canCreate={canCreate}
+                canUpdate={canUpdate}
+                canDelete={canDelete}
             />
 
             <FilterBar
@@ -204,13 +226,15 @@ export function TasksPage() {
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={() => setIsCreateTaskOpen(true)}
-                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-                    >
-                        Opret opgave
-                    </button>
+                    {canCreate && (
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateTaskOpen(true)}
+                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+                        >
+                            Opret opgave
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-8 items-start">
@@ -227,6 +251,8 @@ export function TasksPage() {
                                 <TaskCard
                                     key={task.id}
                                     task={task}
+                                    canUpdate={canUpdate}
+                                    canDelete={canDelete}
                                 />
                             ))}
                             {availableTasks.length === 0 && (
@@ -250,6 +276,8 @@ export function TasksPage() {
                                 <TaskCard
                                     key={task.id}
                                     task={task}
+                                    canUpdate={canUpdate}
+                                    canDelete={canDelete}
                                 />
                             ))}
                             {myTasks.length === 0 && (

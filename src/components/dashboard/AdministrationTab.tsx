@@ -11,10 +11,11 @@ import {
     READ_INVITATIONS_PRIVILEGE,
     READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
     READ_ROLES_PRIVILEGE,
-    READ_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
     UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     UPDATE_ORGANISATION_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
+    UPDATE_TASKS_PRIVILEGE,
     useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
@@ -58,10 +59,12 @@ export function AdministrationTab() {
         UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     ])
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
-    // US-70: AC nævner admin/manage_tasks, men manage_tasks er erstattet af
-    // granulære CRUD-privilegier i Fase 3 - read_tasks bruges i stedet
-    // (admin er stadig altid inkluderet via useHasPrivilege).
-    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE)
+    // Fane kræver rent faktisk manage-ret (update/delete_tasks), ikke bare
+    // read_tasks - en ren "Medlem" (kun read_tasks) skal se opgaver via det
+    // almindelige /tasks-link, ikke via Administration (rettet 2026-09-17
+    // efter bruger-feedback: "se"-privilegiet alene giver ikke adgang til
+    // Administration noget sted, kun rettigheder der reelt kan bruges der).
+    const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
 
     const tabs: SubTabDef[] = []
     if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })

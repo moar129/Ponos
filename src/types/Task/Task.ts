@@ -46,11 +46,16 @@ export interface RoomBarProps {
   selectedRoomId: string | null;
   onSelectRoom: (roomId: string | null) => void;
   onAddRoom: () => void;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface TaskCardProps {
   task: Task;
   onJoin?: () => void;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface CompletedTaskAssignee {
