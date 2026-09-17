@@ -188,7 +188,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
                 e.stopPropagation();
                 setIsEditOpen(true);
               }}
-              className="text-blue-600 hover:text-blue-700"
+              className="text-accent hover:text-accent-hover"
             >
               Rediger
             </button>
