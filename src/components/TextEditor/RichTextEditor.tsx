@@ -188,12 +188,14 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
 
     const buttonClass = (isActive: boolean) =>
         `p-1.5 rounded-md transition-colors ${
-            isActive ? 'bg-bg-gray text-primary' : 'text-secondary hover:text-primary hover:bg-bg-gray'
+            isActive
+                ? 'bg-bg-gray dark:bg-slate-700 text-primary dark:text-slate-100'
+                : 'text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700'
         }`
 
     return (
-        <div className="rounded-md border border-border-gray bg-white focus-within:ring-2 focus-within:ring-accent">
-            <div className="flex flex-wrap items-center gap-1 border-b border-border-gray px-2 py-1.5">
+        <div className="rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-accent">
+            <div className="flex flex-wrap items-center gap-1 border-b border-border-gray dark:border-slate-700 px-2 py-1.5">
                 {/* Dropdownen må IKKE have preventDefault på mousedown - det
                     forhindrer den i at åbne i Chrome. Markeringen genskabes i
                     stedet fra savedRangeRef inde i run(). */}
@@ -201,14 +203,14 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                     value={blockTag}
                     onChange={(e) => run('formatBlock', `<${e.target.value}>`)}
                     aria-label="Typografi"
-                    className="text-sm text-secondary bg-transparent rounded-md px-1 py-1 hover:bg-bg-gray focus:outline-none"
+                    className="text-sm text-secondary dark:text-slate-400 bg-transparent rounded-md px-1 py-1 hover:bg-bg-gray dark:hover:bg-slate-700 focus:outline-none"
                 >
                     <option value="p">Normal</option>
                     <option value="h2">Overskrift</option>
                     <option value="h3">Underoverskrift</option>
                 </select>
 
-                <span className="w-px h-5 bg-border-gray mx-1" />
+                <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
                 <button type="button" onMouseDown={preventBlur} onClick={() => run('bold')} aria-label="Fed" aria-pressed={activeCommands.has('bold')} className={buttonClass(activeCommands.has('bold'))}>
                     <Bold className="w-4 h-4" />
@@ -220,7 +222,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                     <Underline className="w-4 h-4" />
                 </button>
 
-                <span className="w-px h-5 bg-border-gray mx-1" />
+                <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
                 <button type="button" onMouseDown={preventBlur} onClick={() => run('insertUnorderedList')} aria-label="Punktopstilling" aria-pressed={activeCommands.has('insertUnorderedList')} className={buttonClass(activeCommands.has('insertUnorderedList'))}>
                     <List className="w-4 h-4" />
@@ -229,7 +231,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                     <ListOrdered className="w-4 h-4" />
                 </button>
 
-                <span className="w-px h-5 bg-border-gray mx-1" />
+                <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
                 <button type="button" onMouseDown={preventBlur} onClick={() => run('outdent')} aria-label="Ryk ud" className={buttonClass(false)}>
                     <Outdent className="w-4 h-4" />
@@ -238,7 +240,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                     <Indent className="w-4 h-4" />
                 </button>
 
-                <span className="w-px h-5 bg-border-gray mx-1" />
+                <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
                 <button type="button" onMouseDown={preventBlur} onClick={openLinkPanel} aria-label="Indsæt link" aria-pressed={linkDraft !== null} className={buttonClass(linkDraft !== null)}>
                     <Link2 className="w-4 h-4" />
@@ -248,7 +250,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
             {/* Inline link-række frem for window.prompt, som er blokeret i
                 nogle browsere og bryder med appens øvrige inline-paneler. */}
             {linkDraft !== null && (
-                <div className="flex flex-wrap items-center gap-2 border-b border-border-gray px-2 py-2 bg-bg-gray/40">
+                <div className="flex flex-wrap items-center gap-2 border-b border-border-gray dark:border-slate-700 px-2 py-2 bg-bg-gray/40 dark:bg-slate-700/40">
                     <input
                         ref={linkTextRef}
                         type="text"
@@ -257,7 +259,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         onKeyDown={handleLinkKeyDown}
                         placeholder="Tekst der vises"
                         aria-label="Linkets tekst"
-                        className="flex-1 min-w-40 rounded-md border border-border-gray bg-white text-primary px-2 py-1 text-sm focus:outline-none focus:border-accent"
+                        className="flex-1 min-w-40 rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-2 py-1 text-sm focus:outline-none focus:border-accent"
                     />
                     <input
                         type="text"
@@ -266,7 +268,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         onKeyDown={handleLinkKeyDown}
                         placeholder="https://..."
                         aria-label="Linkets adresse"
-                        className="flex-1 min-w-40 rounded-md border border-border-gray bg-white text-primary px-2 py-1 text-sm focus:outline-none focus:border-accent"
+                        className="flex-1 min-w-40 rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-2 py-1 text-sm focus:outline-none focus:border-accent"
                     />
                     <button
                         type="button"
@@ -279,7 +281,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         type="button"
                         onClick={() => setLinkDraft(null)}
                         aria-label="Annuller link"
-                        className="p-1 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors shrink-0"
+                        className="p-1 rounded-md text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors shrink-0"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -298,7 +300,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                 onPaste={handlePaste}
                 onKeyUp={syncToolbarState}
                 onMouseUp={syncToolbarState}
-                className="rich-text min-h-40 max-h-96 overflow-y-auto px-3 py-2 text-primary focus:outline-none"
+                className="rich-text min-h-40 max-h-96 overflow-y-auto px-3 py-2 text-primary dark:text-slate-100 focus:outline-none"
             />
         </div>
     )

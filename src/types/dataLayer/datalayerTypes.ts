@@ -114,13 +114,13 @@ export const ALL_ITEM_STATUSES: ItemStatus[] = [
 ];
 
 export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
-  Available: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Reserved: 'bg-amber-50 text-amber-700 border-amber-200',
-  OutOfStock: 'bg-red-50 text-red-700 border-red-200',
-  InUse: 'bg-sky-50 text-sky-700 border-sky-200',
-  Missing: 'bg-red-50 text-red-700 border-red-200',
-  Damaged: 'bg-red-50 text-red-700 border-red-200',
-  Maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
+  Available: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+  Reserved: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+  OutOfStock: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  InUse: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800',
+  Missing: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  Damaged: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  Maintenance: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
 };
 
 export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {

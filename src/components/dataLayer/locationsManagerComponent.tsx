@@ -92,11 +92,11 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border-gray">
-          <h2 className="text-lg font-semibold text-primary">Administrer lokationer</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Administrer lokationer</h2>
           <div className="flex items-center gap-1">
             {canCreate && !isCreating && (
               <button
@@ -108,7 +108,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                 Ny lokation
               </button>
             )}
-            <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary">
+            <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -116,40 +116,40 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
 
         <div className="p-4 overflow-y-auto flex-1 space-y-2">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               {formError}
             </div>
           )}
 
           {isCreating && (
-            <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2">
-              {createError && <p className="text-xs text-red-600">{createError}</p>}
+            <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
+              {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
               <input
                 type="text"
                 placeholder="Navn på ny lokation *"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
               <input
                 type="text"
                 placeholder="Adresse (valgfrit)"
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
-                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
               <input
                 type="text"
                 placeholder="Beskrivelse (valgfrit)"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => { setIsCreating(false); setCreateError(null); }}
-                  className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray"
+                  className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                 >
                   Annullér
                 </button>
@@ -171,10 +171,10 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
               <Loader2 className="w-6 h-6 animate-spin text-accent" />
             </div>
           ) : locations.length === 0 ? (
-            <p className="text-sm text-secondary text-center py-8">Ingen lokationer oprettet endnu.</p>
+            <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">Ingen lokationer oprettet endnu.</p>
           ) : (
            locations.map((loc) => (
-              <div key={loc.id} className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden">
+              <div key={loc.id} className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden dark:bg-slate-800/40 dark:border-slate-700">
                 {editTarget?.id === loc.id ? (
                   <div className="p-3 space-y-2">
                     <input
@@ -182,24 +182,24 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Navn"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="Adresse"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <input
                       type="text"
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       placeholder="Beskrivelse"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <div className="flex items-center justify-end gap-2">
-                      <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray">
+                      <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
                         Annullér
                       </button>
                       <button
@@ -217,14 +217,14 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                   <div
                     onClick={onViewItems ? () => onViewItems(loc) : undefined}
                     className={`w-full flex items-center justify-between gap-3 text-left p-3 transition-colors ${
-                      onViewItems ? 'hover:bg-bg-gray/60 cursor-pointer' : ''
+                      onViewItems ? 'hover:bg-bg-gray/60 dark:hover:bg-slate-700/60 cursor-pointer' : ''
                     }`}
                   >
                     <div className="min-w-0 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-secondary shrink-0" />
+                      <MapPin className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" />
                       <div className="min-w-0">
-                        <p className="text-sm text-primary truncate">{loc.name}</p>
-                        {loc.address && <p className="text-xs text-secondary truncate">{loc.address}</p>}
+                        <p className="text-sm text-primary truncate dark:text-slate-100">{loc.name}</p>
+                        {loc.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{loc.address}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -232,7 +232,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
-                          className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary"
+                          className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
                           title="Rediger"
                           aria-label="Rediger lokation"
                         >
@@ -243,7 +243,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
-                          className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600"
+                          className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
                           title="Slet"
                           aria-label="Slet lokation"
                         >

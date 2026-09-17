@@ -8,14 +8,14 @@ export function QuickLinkCard({ to, label, description, icon: Icon }: QuickLinkC
     return (
         <Link
             to={to}
-            className="flex items-center gap-4 rounded-lg border border-border-gray bg-white p-5 hover:border-accent hover:bg-bg-gray/40 transition-colors"
+            className="flex items-center gap-4 rounded-lg border border-border-gray bg-white p-5 hover:border-accent hover:bg-bg-gray/40 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700/40"
         >
-            <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                <Icon className="w-6 h-6 text-secondary" />
+            <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
+                <Icon className="w-6 h-6 text-secondary dark:text-slate-400" />
             </div>
             <div>
-                <p className="font-medium text-primary">{label}</p>
-                <p className="text-sm text-secondary">{description}</p>
+                <p className="font-medium text-primary dark:text-slate-100">{label}</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{description}</p>
             </div>
         </Link>
     )

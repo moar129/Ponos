@@ -91,7 +91,7 @@ export default function ChangePasswordForm() {
         return (
             <>
                 {savedMessage && (
-                    <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md bg-green-50 dark:bg-emerald-900/30 border border-green-200 dark:border-emerald-800 text-green-700 dark:text-emerald-400 text-sm px-3 py-2">
                         Din adgangskode er ændret.
                     </div>
                 )}
@@ -110,44 +110,44 @@ export default function ChangePasswordForm() {
     return (
         <form onSubmit={handleSubmit}>
             {error && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
                     {error}
                 </div>
             )}
 
             <div className="mb-4">
-                <label className="block text-sm text-secondary mb-1" htmlFor="currentPassword">Nuværende adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="currentPassword">Nuværende adgangskode</label>
                 <input
                     id="currentPassword"
                     type="password"
                     autoComplete="current-password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
             <div className="mb-4">
-                <label className="block text-sm text-secondary mb-1" htmlFor="newPassword">Ny adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="newPassword">Ny adgangskode</label>
                 <input
                     id="newPassword"
                     type="password"
                     autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
             <div className="mb-6">
-                <label className="block text-sm text-secondary mb-1" htmlFor="confirmNewPassword">Gentag ny adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmNewPassword">Gentag ny adgangskode</label>
                 <input
                     id="confirmNewPassword"
                     type="password"
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                 />
             </div>
 
@@ -163,7 +163,7 @@ export default function ChangePasswordForm() {
                     type="button"
                     onClick={cancelEdit}
                     disabled={isLoading}
-                    className="rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    className="rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                 >
                     Annuller
                 </button>

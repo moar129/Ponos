@@ -175,13 +175,13 @@ export function GroupConversationComponent({
   return (
     <div className="h-full min-h-0 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border-gray shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border-gray shrink-0 dark:border-slate-700">
         <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
           <Users className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-primary truncate">{groupName}</p>
-          <p className="text-xs text-secondary truncate">
+          <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{groupName}</p>
+          <p className="text-xs text-secondary truncate dark:text-slate-400">
             {participants.length} deltager{participants.length !== 1 ? 'e' : ''}
           </p>
         </div>
@@ -213,15 +213,15 @@ export function GroupConversationComponent({
           </div>
         ) : messagesError ? (
           <div className="flex justify-center">
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               Kunne ikke hente beskeder.
             </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-secondary">
-            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary" />
+          <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
             <p className="text-sm">Ingen beskeder endnu</p>
-            <p className="text-xs mt-1 text-secondary">Skriv den første besked til gruppen.</p>
+            <p className="text-xs mt-1 text-secondary dark:text-slate-400">Skriv den første besked til gruppen.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -229,7 +229,7 @@ export function GroupConversationComponent({
               if (msg.messageType === 'system') {
                 return (
                   <div key={msg.id} className="flex justify-center">
-                    <p className="text-[11px] text-secondary bg-bg-gray rounded-full px-3 py-1">
+                    <p className="text-[11px] text-secondary bg-bg-gray rounded-full px-3 py-1 dark:text-slate-400 dark:bg-slate-700">
                       {msg.content}
                     </p>
                   </div>
@@ -266,7 +266,7 @@ export function GroupConversationComponent({
 
                   <div className="max-w-[75%]">
                     {showSenderName && (
-                      <p className="text-[11px] text-secondary mb-0.5 ml-1">
+                      <p className="text-[11px] text-secondary mb-0.5 ml-1 dark:text-slate-400">
                         {sender ? `${sender.firstName} ${sender.lastName}` : 'Ukendt bruger'}
                       </p>
                     )}
@@ -301,7 +301,7 @@ export function GroupConversationComponent({
 
                       <div
                         className={`rounded-xl px-3 py-2 ${
-                          isOwnMessage ? 'bg-accent text-primary' : 'bg-bg-gray text-primary'
+                          isOwnMessage ? 'bg-accent text-primary' : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
                         }`}
                       >
                         {msg.deletedAt ? (
@@ -309,7 +309,7 @@ export function GroupConversationComponent({
                         ) : isEditing ? (
                           <div className="flex flex-col gap-2">
                             {editErrorMessage && (
-                              <p className="text-xs text-red-800">
+                              <p className="text-xs text-red-800 dark:text-red-400">
                                 {editErrorMessage}
                               </p>
                             )}
@@ -373,7 +373,7 @@ export function GroupConversationComponent({
                         )}
 
                         <div className={`mt-1 flex items-center gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary'}`}>
+                          <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
                             {new Date(msg.createdAt).toLocaleString('da-DK', {
                               day: '2-digit',
                               month: '2-digit',
@@ -400,7 +400,7 @@ export function GroupConversationComponent({
       </div>
 
       {/* Beskedfelt */}
-      <div className="border-t border-border-gray p-3 shrink-0">
+      <div className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700">
         <div className="flex items-end gap-2">
           <textarea
             value={message}
@@ -409,7 +409,7 @@ export function GroupConversationComponent({
             placeholder={`Skriv en besked til ${groupName}...`}
             rows={1}
             disabled={isSending}
-            className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50"
+            className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
           <button
             type="button"
@@ -421,7 +421,7 @@ export function GroupConversationComponent({
             {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
-        <p className="text-[10px] text-secondary mt-1">Tryk Enter for at sende · Shift + Enter for ny linje</p>
+        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">Tryk Enter for at sende · Shift + Enter for ny linje</p>
       </div>
 
       <ManageGroupMembersComponent

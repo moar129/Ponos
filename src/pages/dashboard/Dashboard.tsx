@@ -111,14 +111,14 @@ export default function Dashboard() {
     const tabClass = (tab: DashboardTab) =>
         `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeTab === tab
             ? 'border-accent text-accent'
-            : 'border-transparent text-secondary hover:text-primary'
+            : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
         }`
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:bg-slate-800 dark:text-slate-100">
             <div className="mb-6">
-                <h1 className="text-xl font-semibold text-primary">Dashboard</h1>
-                <p className="text-sm text-secondary">
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100">Dashboard</h1>
+                <p className="text-sm text-secondary dark:text-slate-400">
                     Velkommen{profile ? `, ${profile.firstName}` : ''}.
                 </p>
             </div>
@@ -127,7 +127,7 @@ export default function Dashboard() {
                 polstringen strammes, så rækken scroller vandret i stedet for
                 at løbe ud over kortets kant. Den grå linje ligger på selve
                 beholderen og scroller derfor ikke med. */}
-            <div className="flex gap-1 sm:gap-2 border-b border-border-gray mb-6 overflow-x-auto no-scrollbar">
+            <div className="flex gap-1 sm:gap-2 border-b border-border-gray dark:border-slate-700 mb-6 overflow-x-auto no-scrollbar">
                 {visibleTabs.map((tab) => (
                     <button
                         key={tab.key}

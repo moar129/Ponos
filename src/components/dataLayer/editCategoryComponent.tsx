@@ -73,15 +73,15 @@ export function EditCategoryComponent({ isOpen, onClose, category, categoryTree 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md dark:bg-slate-800 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border-gray">
-          <h2 className="text-lg font-semibold text-primary">Rediger kategori</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Rediger kategori</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary"
+            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
             title="Luk"
             aria-label="Luk modal"
           >
@@ -91,27 +91,27 @@ export function EditCategoryComponent({ isOpen, onClose, category, categoryTree 
 
         <div className="p-4 space-y-3">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               {formError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1">Titel</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Titel</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
           </div>
 
           <div>
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1">Overordnet kategori</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Overordnet kategori</label>
             <select
               value={selectedParentId ?? ''}
               onChange={(e) => setSelectedParentId(e.target.value || null)}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             >
               <option value="">Ingen (hovedkategori)</option>
               {parentOptions.map((opt) => (
@@ -121,8 +121,8 @@ export function EditCategoryComponent({ isOpen, onClose, category, categoryTree 
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
             Annullér
           </button>
           <button

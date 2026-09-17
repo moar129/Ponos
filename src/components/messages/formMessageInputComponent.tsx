@@ -30,7 +30,7 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
         event.preventDefault();
         void handleSend();
       }}
-      className="flex items-end gap-2 border-t border-border-gray p-3"
+      className="flex items-end gap-2 border-t border-border-gray p-3 dark:border-slate-700"
     >
       <textarea
         rows={1}
@@ -44,7 +44,7 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
             event.currentTarget.form?.requestSubmit();
           }
         }}
-        className="min-h-10 flex-1 resize-none rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-10 flex-1 resize-none rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
       />
 
       <button

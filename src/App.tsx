@@ -39,13 +39,13 @@ function App() {
   const isFullWidth = FULL_WIDTH_ROUTES.includes(pathname);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-100">
+    <div className="min-h-screen flex flex-col justify-between bg-white dark:bg-slate-900">
       {/* HEADER */}
       <Header />
       {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}
       <PendingRequestBanner />
       {/* HOVEDINDHOLD / ROUTER */}
-      <main className={isFullWidth ? 'flex-1 w-full text-black' : 'flex-1 max-w-8xl w-full mx-auto p-6 text-black'}>
+      <main className={isFullWidth ? 'flex-1 w-full text-black dark:text-slate-100' : 'flex-1 max-w-8xl w-full mx-auto p-6 text-black dark:text-slate-100'}>
         <Routes>
           {/* tilføj flere ruter efter behov */}
           <Route path="/" element={<LandingPage />} />

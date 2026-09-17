@@ -8,13 +8,13 @@ import { LandingFeatureCard } from './LandingFeatureCard'
 // når brugeren er logget ind.
 export function LandingFeatures() {
     return (
-        <section className="bg-bg-gray/40 border-y border-border-gray">
+        <section className="bg-bg-gray/40 dark:bg-slate-800/40 border-y border-border-gray dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary">
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                         Tre spørgsmål, ét sted
                     </h2>
-                    <p className="mt-4 text-secondary">
+                    <p className="mt-4 text-secondary dark:text-slate-400">
                         Ponos er bygget op om de tre spørgsmål, enhver organisation skal kunne svare
                         på om sig selv.
                     </p>

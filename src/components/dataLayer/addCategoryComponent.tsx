@@ -49,13 +49,13 @@ export function AddCategoryComponent({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-white border border-border-gray rounded-xl shadow-2xl p-6 relative"
+        className="w-full max-w-md bg-white border border-border-gray rounded-xl shadow-2xl p-6 relative dark:bg-slate-800 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 text-secondary hover:text-primary p-1 rounded-lg hover:bg-bg-gray transition-colors"
+          className="absolute right-4 top-4 text-secondary hover:text-primary p-1 rounded-lg hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
           aria-label="Luk modal"
         >
           <X className="w-5 h-5" />
@@ -66,28 +66,28 @@ export function AddCategoryComponent({
             <FolderPlus className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-primary">
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">
               {parentId ? 'Opret underkategori' : 'Opret hovedkategori'}
             </h2>
             {parentId && parentPath && parentPath.length > 0 && (
-              <p className="text-xs text-secondary mt-0.5">
-                Forælder: <strong className="text-primary font-medium">{parentPath.join(' > ')}</strong>
+              <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">
+                Forælder: <strong className="text-primary font-medium dark:text-slate-100">{parentPath.join(' > ')}</strong>
               </p>
             )}
           </div>
         </div>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm" role="alert">
+          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400" role="alert">
             {errorMsg}
           </div>
         )}
 
         <form action={handleSubmitAction} className="space-y-4">
-          <label className="block text-xs font-medium text-secondary">
+          <label className="block text-xs font-medium text-secondary dark:text-slate-400">
             <div className="mb-1.5 flex items-center gap-1">
               Kategorinavn
-              <span aria-hidden="true" className="text-red-600">*</span>
+              <span aria-hidden="true" className="text-red-600 dark:text-red-400">*</span>
             </div>
             <input
               name="title"
@@ -95,15 +95,15 @@ export function AddCategoryComponent({
               required
               aria-required="true"
               placeholder="F.eks. Elektronik, Kabler eller Værktøj..."
-              className="w-full bg-white border border-border-gray rounded-lg px-3.5 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors font-normal"
+              className="w-full bg-white border border-border-gray rounded-lg px-3.5 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors font-normal dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
           </label>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-gray mt-6">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-gray mt-6 dark:border-slate-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100"
             >
               Annullér
             </button>

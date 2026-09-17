@@ -28,8 +28,8 @@ type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 // her for et konsistent udtryk på tværs af dashboardets faner.
 function orgNavItemClass(active: boolean): string {
     return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
-        ? 'bg-accent/15 text-primary'
-        : 'text-secondary hover:bg-bg-gray hover:text-primary'
+        ? 'bg-accent/15 text-primary dark:text-slate-100'
+        : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
     }`
 }
 
@@ -146,12 +146,12 @@ export function OrganisationTab() {
     const readableError = readableApiError
 
     if (isLoading || loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser organisation...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser organisation...</p>
     }
 
     if (queryError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {readableError(queryError)}
             </div>
         )
@@ -164,15 +164,15 @@ export function OrganisationTab() {
 
         return (
             <div>
-                <h2 className="text-lg font-semibold text-primary mb-2">Ingen aktiv organisation</h2>
-                <p className="text-sm text-secondary mb-6">
+                <h2 className="text-lg font-semibold text-primary mb-2 dark:text-slate-100">Ingen aktiv organisation</h2>
+                <p className="text-sm text-secondary mb-6 dark:text-slate-400">
                     {hasOtherMemberships
                         ? 'Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under "Mine organisationer", eller opret/anmod om en ny.'
                         : 'Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.'}
                 </p>
 
                 {pendingRequest ? (
-                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
                         Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
                     </div>
                 ) : (
@@ -190,7 +190,7 @@ export function OrganisationTab() {
 
                         return (
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3">
+                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
                                     {noOrgTabDefs.map((tab) => (
                                         <button
                                             key={tab.key}
@@ -204,7 +204,7 @@ export function OrganisationTab() {
                                     ))}
                                 </nav>
 
-                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6">
+                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
                                     {noOrgTab === 'memberships' ? (
                                         <MyMembershipsSection />
                                     ) : noOrgTab === 'invitations' ? (
@@ -212,19 +212,19 @@ export function OrganisationTab() {
                                     ) : noOrgTab === 'create' ? (
                                         <>
                                             {(createValidationError || createErrorMessage) && (
-                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                                                     {createValidationError ?? createErrorMessage}
                                                 </div>
                                             )}
                                             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name">Organisationens navn</label>
                                                     <input
                                                         id="create-name"
                                                         type="text"
                                                         value={createName}
                                                         onChange={(e) => setCreateName(e.target.value)}
-                                                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent"
+                                                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                                     />
                                                 </div>
                                                 <button
@@ -237,19 +237,19 @@ export function OrganisationTab() {
                                             </form>
                                         </>
                                     ) : requestSuccess ? (
-                                        <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                                        <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                                             Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
                                         </div>
                                     ) : (
                                         <>
                                             {requestErrorMessage && (
-                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                                                     {requestErrorMessage}
                                                 </div>
                                             )}
                                             <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1">Vælg organisation</label>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
                                                     <OrganisationPickerComponent
                                                         organisations={organisations}
                                                         isLoading={loadingOrganisations}
@@ -303,7 +303,7 @@ export function OrganisationTab() {
         // AdministrationTab.tsx og DataLayerPage.tsx (Kategorier/Items-
         // splittet), for et konsistent udtryk på tværs af appen.
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
                 {orgTabDefs.map((tab) => (
                     <button
                         key={tab.key}
@@ -317,7 +317,7 @@ export function OrganisationTab() {
                 ))}
             </nav>
 
-            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
                 {effectiveOrgTab === 'memberships' ? (
                     <MyMembershipsSection />
                 ) : effectiveOrgTab === 'request' ? (
@@ -329,31 +329,31 @@ export function OrganisationTab() {
                 ) : (
                     <>
                         {createdOrgName && (
-                            <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                            <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                                 Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
                             </div>
                         )}
 
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                                <Building2 className="w-7 h-7 text-secondary" />
+                            <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
+                                <Building2 className="w-7 h-7 text-secondary dark:text-slate-400" />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
+                                    <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                                     {activeMembership?.isAdmin && (
-                                        <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
+                                        <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5 dark:text-slate-100">
                                             Administrator
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                                <p className="text-sm text-secondary dark:text-slate-400">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
                             </div>
                         </div>
 
-                        <dl className="divide-y divide-border-gray border-t border-border-gray">
+                        <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                             <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary">Antal medlemmer</dt>
+                                <dt className="text-sm text-secondary dark:text-slate-400">Antal medlemmer</dt>
                                 <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
                             </div>
                         </dl>
@@ -396,15 +396,15 @@ function InvitationsSection() {
     return (
         <div>
             {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {listError ?? actionError}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-secondary">Indlæser invitationer...</p>
+                <p className="text-secondary dark:text-slate-400">Indlæser invitationer...</p>
             ) : !invitations || invitations.length === 0 ? (
-                <p className="text-secondary">Du har ingen ventende invitationer.</p>
+                <p className="text-secondary dark:text-slate-400">Du har ingen ventende invitationer.</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray">
                     {invitations.map((invitation) => (
@@ -434,12 +434,12 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p className="font-medium">{invitation.organisationName}</p>
-                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+                <p className="text-xs text-secondary mt-1 dark:text-slate-400">Inviteret {formatDate(invitation.invitedAt)}</p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-secondary max-w-xs">
+                    <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'Accepted'
                             ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
                             : `Er du sikker på, at invitationen skal afvises?`}
@@ -456,7 +456,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={onCancel}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Annuller
                     </button>
@@ -475,7 +475,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Rejected' })}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Afvis
                     </button>
@@ -512,12 +512,12 @@ function RequestMembershipSection() {
     }
 
     if (loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser...</p>
     }
 
     if (pendingRequest) {
         return (
-            <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+            <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
                 Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
             </div>
         )
@@ -525,7 +525,7 @@ function RequestMembershipSection() {
 
     if (requestSuccess) {
         return (
-            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                 Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
             </div>
         )
@@ -542,17 +542,17 @@ function RequestMembershipSection() {
     return (
         <>
             {requestErrorMessage && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {requestErrorMessage}
                 </div>
             )}
 
             {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary">Der er ingen andre organisationer at anmode om medlemskab af.</p>
+                <p className="text-secondary dark:text-slate-400">Der er ingen andre organisationer at anmode om medlemskab af.</p>
             ) : (
                 <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1">Vælg organisation</label>
+                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
                         <OrganisationPickerComponent
                             organisations={availableOrganisations}
                             isLoading={loadingOrganisations}
@@ -607,20 +607,20 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
     return (
         <>
             {(createValidationError || createErrorMessage) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {createValidationError ?? createErrorMessage}
                 </div>
             )}
 
             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                 <div>
-                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name-existing">Organisationens navn</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name-existing">Organisationens navn</label>
                     <input
                         id="create-name-existing"
                         type="text"
                         value={createName}
                         onChange={(e) => setCreateName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                 </div>
                 <button
@@ -659,26 +659,26 @@ function MyMembershipsSection() {
     }
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser dine organisationer...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser dine organisationer...</p>
     }
 
     const listError = readableApiError(queryError)
     if (listError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {listError}
             </div>
         )
     }
 
     if (!memberships || memberships.length === 0) {
-        return <p className="text-secondary">Du er ikke medlem af nogen organisationer.</p>
+        return <p className="text-secondary dark:text-slate-400">Du er ikke medlem af nogen organisationer.</p>
     }
 
     return (
         <div>
             {actionMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                     {actionMessage}
                 </div>
             )}
@@ -726,7 +726,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <p className="font-medium">{membership.organisationName}</p>
-                    <p className="text-sm text-secondary">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
+                    <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -737,7 +737,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                             type="button"
                             onClick={handleSwitch}
                             disabled={switching}
-                            className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
+                            className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
                             {switching ? 'Skifter...' : 'Gør aktiv'}
                         </button>
@@ -745,12 +745,12 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
 
                     {confirmingLeave ? (
                         <>
-                            <span className="text-sm text-secondary">Er du sikker?</span>
+                            <span className="text-sm text-secondary dark:text-slate-400">Er du sikker?</span>
                             <button
                                 type="button"
                                 onClick={handleLeave}
                                 disabled={leaving}
-                                className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60"
+                                className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                             >
                                 {leaving ? 'Forlader...' : 'Ja, forlad'}
                             </button>
@@ -758,7 +758,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                                 type="button"
                                 onClick={() => setConfirmingLeave(false)}
                                 disabled={leaving}
-                                className="text-secondary text-sm hover:underline disabled:opacity-60"
+                                className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                             >
                                 Annuller
                             </button>
@@ -767,7 +767,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                         <button
                             type="button"
                             onClick={() => setConfirmingLeave(true)}
-                            className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                            className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                         >
                             Forlad
                         </button>
@@ -775,7 +775,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                 </div>
             </div>
 
-            {actionError && <p className="text-red-600 text-xs mt-2">{actionError}</p>}
+            {actionError && <p className="text-red-600 text-xs mt-2 dark:text-red-400">{actionError}</p>}
         </li>
     )
 }

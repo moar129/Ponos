@@ -69,26 +69,26 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
             onClick={onClose}
         >
             <div
-                className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl"
+                className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="mb-6 flex items-start justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-primary">{task.title}</h2>
-                        <p className="mt-1 text-sm text-secondary">Opgavedetaljer</p>
+                        <h2 className="text-2xl font-bold text-primary dark:text-slate-100">{task.title}</h2>
+                        <p className="mt-1 text-sm text-secondary dark:text-slate-400">Opgavedetaljer</p>
                     </div>
-                    <button type="button" onClick={onClose} className="text-secondary hover:text-primary">
+                    <button type="button" onClick={onClose} className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100">
                         X
                     </button>
                 </div>
 
-                <div className="mb-5 rounded-lg border border-border-gray bg-bg-gray/40 p-4">
-                    <span className="mb-2 block text-xs font-bold uppercase text-secondary">Beskrivelse</span>
-                    <p className="break-words text-sm text-secondary">{task.description || 'Ingen beskrivelse'}</p>
+                <div className="mb-5 rounded-lg border border-border-gray bg-bg-gray/40 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                    <span className="mb-2 block text-xs font-bold uppercase text-secondary dark:text-slate-400">Beskrivelse</span>
+                    <p className="break-words text-sm text-secondary dark:text-slate-400">{task.description || 'Ingen beskrivelse'}</p>
                 </div>
 
                 <div className="mb-5 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary">
+                    <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
                         {STATUS_LABELS[task.status]}
                     </span>
                     {task.priority && (
@@ -99,10 +99,10 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
                 </div>
 
                 <div className="mb-6">
-                    <span className="mb-3 block text-xs font-bold uppercase text-secondary">Ansvarlige</span>
+                    <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">Ansvarlige</span>
 
                     {assignees.length === 0 ? (
-                        <p className="text-sm text-secondary">Ingen er tildelt endnu.</p>
+                        <p className="text-sm text-secondary dark:text-slate-400">Ingen er tildelt endnu.</p>
                     ) : (
                         <div className="space-y-2">
                             {assignees.map((assignee) => {
@@ -112,7 +112,7 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
                                 return (
                                     <div
                                         key={assignee.user_id}
-                                        className="flex items-center gap-3 rounded-lg border border-border-gray px-4 py-3"
+                                        className="flex items-center gap-3 rounded-lg border border-border-gray px-4 py-3 dark:border-slate-700"
                                     >
                                         {profile?.url_picture ? (
                                             <img
@@ -121,11 +121,11 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
                                                 className="h-10 w-10 rounded-full object-cover"
                                             />
                                         ) : (
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-gray text-sm font-bold text-primary">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-gray text-sm font-bold text-primary dark:bg-slate-700 dark:text-slate-100">
                                                 {getInitials(name)}
                                             </div>
                                         )}
-                                        <p className="font-medium text-primary">{name}</p>
+                                        <p className="font-medium text-primary dark:text-slate-100">{name}</p>
                                     </div>
                                 )
                             })}
@@ -134,13 +134,13 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
                 </div>
 
                 <div className="mb-6 grid grid-cols-2 gap-4">
-                    <div className="rounded-lg border border-border-gray p-4">
-                        <span className="block text-xs font-semibold uppercase text-secondary">Startdato</span>
-                        <span className="mt-1 block font-medium text-primary">{formatFullDate(task.start_date)}</span>
+                    <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
+                        <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">Startdato</span>
+                        <span className="mt-1 block font-medium text-primary dark:text-slate-100">{formatFullDate(task.start_date)}</span>
                     </div>
-                    <div className="rounded-lg border border-border-gray p-4">
-                        <span className="block text-xs font-semibold uppercase text-secondary">Slutdato</span>
-                        <span className="mt-1 block font-medium text-primary">{formatFullDate(task.end_date)}</span>
+                    <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
+                        <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">Slutdato</span>
+                        <span className="mt-1 block font-medium text-primary dark:text-slate-100">{formatFullDate(task.end_date)}</span>
                     </div>
                 </div>
 
@@ -151,7 +151,7 @@ export function TaskDetailsModal({ task, onClose }: { task: Task; onClose: () =>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300"
+                        className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
                     >
                         Luk
                     </button>

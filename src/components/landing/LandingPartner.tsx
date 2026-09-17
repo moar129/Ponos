@@ -27,14 +27,14 @@ const FOCUS_AREAS = [
 
 export function LandingPartner() {
     return (
-        <section className="bg-white border-t border-border-gray">
+        <section className="bg-white dark:bg-slate-900 border-t border-border-gray dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary">Om projektet</h2>
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">Om projektet</h2>
 
-                    <p className="mt-4 text-secondary">
+                    <p className="mt-4 text-secondary dark:text-slate-400">
                         Ponos udvikles for{' '}
-                        <strong className="font-semibold text-primary">Corolab</strong>, en
+                        <strong className="font-semibold text-primary dark:text-slate-100">Corolab</strong>, en
                         medlemsdrevet non-profit i Roskilde. Siden 2016 har de samlet virksomheder,
                         uddannelser og offentlige organisationer om projekter, som ingen af dem kunne
                         løfte alene. Som de selv formulerer det: "I partnerskaber gør vi en forskel for
@@ -45,23 +45,23 @@ export function LandingPartner() {
                 {/* Nøgletal, ikke et diagram: fire selvstændige tal uden
                     sammenligning eller tidsserie. Værdien står i sans som
                     resten af UI'en - serif er forbeholdt PONOS-ordmærket. */}
-                <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-6 rounded-lg bg-bg-gray/40 border border-border-gray p-6">
+                <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-6 rounded-lg bg-bg-gray/40 dark:bg-slate-800/40 border border-border-gray dark:border-slate-700 p-6">
                     {KEY_FIGURES.map((figure) => (
                         <div key={figure.label}>
-                            <span className="block text-2xl sm:text-3xl font-semibold text-primary">
+                            <span className="block text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                                 {figure.value}
                             </span>
-                            <span className="block text-sm text-secondary mt-1">{figure.label}</span>
+                            <span className="block text-sm text-secondary dark:text-slate-400 mt-1">{figure.label}</span>
                         </div>
                     ))}
                 </div>
 
-                <p className="mt-3 text-xs text-secondary">
+                <p className="mt-3 text-xs text-secondary dark:text-slate-400">
                     Corolabs egne tal, hentet fra corolab.dk i september 2026.
                 </p>
 
                 <div className="max-w-3xl">
-                    <p className="mt-8 text-secondary">
+                    <p className="mt-8 text-secondary dark:text-slate-400">
                         Arbejdet er delt op i seks områder, der spænder fra at skabe kontakterne til at
                         skaffe finansieringen og stille faciliteterne til rådighed.
                     </p>
@@ -70,14 +70,14 @@ export function LandingPartner() {
                 <dl className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
                     {FOCUS_AREAS.map((area) => (
                         <div key={area.name}>
-                            <dt className="font-semibold text-primary">{area.name}</dt>
-                            <dd className="text-sm text-secondary mt-0.5">{area.description}</dd>
+                            <dt className="font-semibold text-primary dark:text-slate-100">{area.name}</dt>
+                            <dd className="text-sm text-secondary dark:text-slate-400 mt-0.5">{area.description}</dd>
                         </div>
                     ))}
                 </dl>
 
                 <div className="max-w-3xl">
-                    <p className="mt-8 text-secondary">
+                    <p className="mt-8 text-secondary dark:text-slate-400">
                         Det er testmiljøerne under CO-lab, Ponos bliver afprøvet i. Her skal platformen
                         håndtere en rigtig organisations ressourcer og opgaver frem for konstruerede
                         eksempler.

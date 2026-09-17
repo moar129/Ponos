@@ -61,15 +61,15 @@ export function NotificationsWidget() {
     const tabClass = (tab: NotificationFilter) =>
         `px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${filter === tab
             ? 'bg-accent/10 text-accent'
-            : 'text-secondary hover:text-primary'
+            : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
         }`
 
     return (
-        <div className="rounded-lg border border-border-gray bg-white p-5">
+        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
             <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-secondary" />
-                    <h3 className="font-medium text-primary">Notifikationer</h3>
+                    <Bell className="w-5 h-5 text-secondary dark:text-slate-400" />
+                    <h3 className="font-medium text-primary dark:text-slate-100">Notifikationer</h3>
                 </div>
                 <div className="flex items-center gap-1">
                     <button type="button" onClick={() => setFilter('all')} className={tabClass('all')}>
@@ -82,32 +82,32 @@ export function NotificationsWidget() {
             </div>
 
             {isLoading ? (
-                <p className="text-sm text-secondary">Indlæser notifikationer...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Indlæser notifikationer...</p>
             ) : errorMessage ? (
-                <p className="text-sm text-red-600">{errorMessage}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
             ) : visible.length === 0 ? (
-                <p className="text-sm text-secondary">
+                <p className="text-sm text-secondary dark:text-slate-400">
                     {filter === 'unread' ? 'Ingen ulæste notifikationer.' : 'Ingen notifikationer endnu.'}
                 </p>
             ) : (
-                <ul className="divide-y divide-border-gray">
+                <ul className="divide-y divide-border-gray dark:divide-slate-700">
                     {visible.map((notification) => (
                         <li key={notification.id}>
                             <button
                                 type="button"
                                 onClick={() => handleSelect(notification)}
-                                className="w-full text-left px-2 py-2.5 -mx-2 rounded-md transition-colors hover:bg-bg-gray/50"
+                                className="w-full text-left px-2 py-2.5 -mx-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
                             >
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="font-medium text-primary truncate">{notification.title}</p>
+                                    <p className="font-medium text-primary truncate dark:text-slate-100">{notification.title}</p>
                                     {!notification.isRead && (
                                         <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                                     )}
                                 </div>
                                 {notification.body && (
-                                    <p className="text-sm text-secondary truncate mt-0.5">{notification.body}</p>
+                                    <p className="text-sm text-secondary truncate mt-0.5 dark:text-slate-400">{notification.body}</p>
                                 )}
-                                <p className="text-xs text-secondary mt-1">{timeAgo(notification.createdAt)}</p>
+                                <p className="text-xs text-secondary mt-1 dark:text-slate-400">{timeAgo(notification.createdAt)}</p>
                             </button>
                         </li>
                     ))}

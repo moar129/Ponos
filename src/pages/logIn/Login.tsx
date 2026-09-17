@@ -45,8 +45,8 @@ export default function Login() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white border border-border-gray rounded-lg shadow-md p-8 max-w-md w-full text-primary">
-                <h1 className="text-xl font-semibold text-primary mb-6">Log ind</h1>
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">Log ind</h1>
 
                 {passwordWasReset && (
                     <div className="mb-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
@@ -61,24 +61,24 @@ export default function Login() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
                     <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="password">Adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Adgangskode</label>
                     <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                     <p className="mt-2 text-sm">
                         <Link to="/glemt-adgangskode" className="text-accent hover:underline">Glemt din adgangskode?</Link>
@@ -93,7 +93,7 @@ export default function Login() {
                     {loading ? 'Logger ind...' : 'Log ind'}
                 </button>
 
-                <p className="mt-4 text-sm text-secondary text-center">
+                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
                     Har du ikke en konto? <Link to="/signup" className="text-accent hover:underline">Opret konto</Link>
                 </p>
             </form>

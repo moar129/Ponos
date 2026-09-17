@@ -24,11 +24,11 @@ export function CategoryTreeNode({
   const isSelected = selectedCategoryId === category.id;
 
   return (
-    <div className="ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray my-0.5">
+    <div className="ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray my-0.5 dark:border-slate-700">
       <div
         className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
-            ? 'bg-accent/15 text-primary font-medium'
-            : 'text-secondary hover:bg-bg-gray/60 hover:text-primary'
+            ? 'bg-accent/15 text-primary font-medium dark:text-slate-100'
+            : 'text-secondary hover:bg-bg-gray/60 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
           }`}
         onClick={() => onSelectCategory(category)}
       >
@@ -40,7 +40,7 @@ export function CategoryTreeNode({
                 e.stopPropagation();
                 onToggleExpand(category.id);
               }}
-              className="p-0.5 hover:bg-border-gray rounded text-secondary hover:text-primary shrink-0"
+              className="p-0.5 hover:bg-border-gray rounded text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
             >
               {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -49,7 +49,7 @@ export function CategoryTreeNode({
           )}
 
           <Folder
-            className={`w-4 h-4 shrink-0 ${isSelected ? 'text-accent' : 'text-secondary group-hover:text-accent'
+            className={`w-4 h-4 shrink-0 ${isSelected ? 'text-accent' : 'text-secondary group-hover:text-accent dark:text-slate-400'
               }`}
           />
           <span className="text-sm truncate">{category.title}</span>
@@ -70,7 +70,7 @@ export function CategoryTreeNode({
                 onMoveUp(category);
               }}
               disabled={isFirst || isMoving}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors disabled:opacity-30 disabled:pointer-events-none dark:hover:bg-slate-700 dark:text-slate-400"
               title="Flyt op"
               aria-label="Flyt op"
             >
@@ -86,7 +86,7 @@ export function CategoryTreeNode({
                 onMoveDown(category);
               }}
               disabled={isLast || isMoving}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 disabled:opacity-30 disabled:pointer-events-none"
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 disabled:opacity-30 disabled:pointer-events-none dark:hover:bg-slate-700 dark:text-slate-400"
               title="Flyt ned"
               aria-label="Flyt ned"
             >
@@ -101,7 +101,7 @@ export function CategoryTreeNode({
                 e.stopPropagation();
                 onEditCategory(category);
               }}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1"
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 dark:hover:bg-slate-700 dark:text-slate-400"
               title="Rediger kategori"
               aria-label="Rediger kategori"
             >
@@ -116,7 +116,7 @@ export function CategoryTreeNode({
                 e.stopPropagation();
                 onAddSubCategory(category.id);
               }}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1"
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 dark:hover:bg-slate-700 dark:text-slate-400"
               title="Tilføj underkategori"
               aria-label="Tilføj underkategori"
             >
@@ -131,7 +131,7 @@ export function CategoryTreeNode({
                 e.stopPropagation();
                 onDeleteCategory(category);
               }}
-              className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 sm:ml-1"
+              className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 sm:ml-1 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
               title="Slet kategori"
               aria-label="Slet kategori"
             >

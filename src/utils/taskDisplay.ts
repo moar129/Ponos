@@ -11,10 +11,10 @@ export const PRIORITY_LABELS: Record<ETaskPriority, string> = {
 }
 
 export const PRIORITY_COLORS: Record<ETaskPriority, string> = {
-    Low: 'bg-green-100 text-green-700',
-    Medium: 'bg-yellow-100 text-yellow-700',
-    High: 'bg-orange-100 text-orange-700',
-    Critical: 'bg-red-100 text-red-700',
+    Low: 'bg-green-100 text-green-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    Medium: 'bg-yellow-100 text-yellow-700 dark:bg-amber-900/30 dark:text-amber-400',
+    High: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    Critical: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 }
 
 export const PRIORITY_RANK: Record<ETaskPriority, number> = {

@@ -63,9 +63,9 @@ export default function ForgotPassword() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white border border-border-gray rounded-lg shadow-md p-8 max-w-md w-full text-primary">
-                <h1 className="text-xl font-semibold text-primary mb-2">Nulstil adgangskode</h1>
-                <p className="text-sm text-secondary mb-6">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-2">Nulstil adgangskode</h1>
+                <p className="text-sm text-secondary dark:text-slate-400 mb-6">
                     Bekræft din konto med e-mail og navn, og vælg en ny adgangskode.
                 </p>
 
@@ -76,57 +76,57 @@ export default function ForgotPassword() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
                     <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="firstName">Fornavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
                     <input
                         id="firstName"
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="lastName">Efternavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
                     <input
                         id="lastName"
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="password">Ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Ny adgangskode</label>
                     <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="confirmPassword">Gentag ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">Gentag ny adgangskode</label>
                     <input
                         id="confirmPassword"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray bg-white text-primary px-3 py-2 focus:outline-none focus:border-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
@@ -140,11 +140,11 @@ export default function ForgotPassword() {
 
                 {/* Ærlig note om prototypen - fjernes, når rigtig
                     mailbekræftelse kommer på. */}
-                <p className="mt-3 text-xs text-secondary text-center">
+                <p className="mt-3 text-xs text-secondary dark:text-slate-400 text-center">
                     Prototype: der sendes ingen bekræftelse på mail.
                 </p>
 
-                <p className="mt-4 text-sm text-secondary text-center">
+                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
                     Kom du i tanke om den? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
                 </p>
             </form>

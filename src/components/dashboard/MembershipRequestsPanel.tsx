@@ -60,17 +60,17 @@ export function MembershipRequestsPanel() {
     return (
         <div>
             {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {listError ?? actionError}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-secondary">Indlæser anmodninger...</p>
+                <p className="text-secondary dark:text-slate-400">Indlæser anmodninger...</p>
             ) : !requests || requests.length === 0 ? (
-                <p className="text-secondary">Der er ingen ventende anmodninger.</p>
+                <p className="text-secondary dark:text-slate-400">Der er ingen ventende anmodninger.</p>
             ) : (
-                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {requests.map((request) => (
                         <li key={request.id} className="py-4">
                             <RequestRow
@@ -100,15 +100,15 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                 <p className="font-medium">
                     {request.firstName} {request.lastName}
                 </p>
-                <p className="text-sm text-secondary">{request.email}</p>
-                <p className="text-xs text-secondary mt-1">
+                <p className="text-sm text-secondary dark:text-slate-400">{request.email}</p>
+                <p className="text-xs text-secondary mt-1 dark:text-slate-400">
                     Anmodet {formatDate(request.requestedAt)}
                 </p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-secondary max-w-xs">
+                    <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'Accepted'
                             ? `Er du sikker på, at ${request.firstName} skal optages i organisationen?`
                             : `Er du sikker på, at anmodningen skal afvises? ${request.firstName} kan anmode igen senere.`}
@@ -125,7 +125,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         type="button"
                         onClick={onCancel}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Annuller
                     </button>
@@ -145,7 +145,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         type="button"
                         onClick={() => onSelect({ requestId: request.id, decision: 'Rejected' })}
                         disabled={submitting}
-                        className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60"
+                        className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         <X className="w-4 h-4" />
                         Afvis

@@ -82,10 +82,10 @@ export function NotificationBellComponent() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white border border-border-gray shadow-xl z-50 overflow-hidden flex flex-col"
+          className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray shrink-0">
-            <h3 className="text-sm font-semibold text-primary">Notifikationer</h3>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray dark:border-slate-700 shrink-0">
+            <h3 className="text-sm font-semibold text-primary dark:text-slate-100">Notifikationer</h3>
             {unreadCount > 0 && (
               <button
                 type="button"
@@ -105,28 +105,28 @@ export function NotificationBellComponent() {
                 <Loader2 className="w-5 h-5 animate-spin text-accent" />
               </div>
             ) : notifications.length === 0 ? (
-              <p className="text-sm text-secondary text-center py-8 px-4">Ingen notifikationer endnu.</p>
+              <p className="text-sm text-secondary dark:text-slate-400 text-center py-8 px-4">Ingen notifikationer endnu.</p>
             ) : (
-              <ul className="divide-y divide-border-gray">
+              <ul className="divide-y divide-border-gray dark:divide-slate-700">
                 {notifications.map((notification) => (
                   <li key={notification.id} className="group relative">
                     <button
                       type="button"
                       onClick={() => handleSelect(notification)}
                       className={`w-full text-left pl-4 pr-9 py-3 transition-colors ${
-                        notification.isRead ? 'hover:bg-bg-gray/50' : 'bg-accent/10 hover:bg-accent/15'
+                        notification.isRead ? 'hover:bg-bg-gray/50 dark:hover:bg-slate-700' : 'bg-accent/10 hover:bg-accent/15'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm text-primary truncate">{notification.title}</p>
+                        <p className="text-sm text-primary dark:text-slate-100 truncate">{notification.title}</p>
                         {!notification.isRead && (
                           <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                         )}
                       </div>
                       {notification.body && (
-                        <p className="text-xs text-secondary truncate mt-0.5">{notification.body}</p>
+                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notification.body}</p>
                       )}
-                      <p className="text-[11px] text-secondary mt-1">{timeAgo(notification.createdAt)}</p>
+                      <p className="text-[11px] text-secondary dark:text-slate-400 mt-1">{timeAgo(notification.createdAt)}</p>
                     </button>
 
                     <button
@@ -144,7 +144,7 @@ export function NotificationBellComponent() {
             )}
           </div>
 
-          <div className="border-t border-border-gray shrink-0">
+          <div className="border-t border-border-gray dark:border-slate-700 shrink-0">
             <button
               type="button"
               onClick={() => {

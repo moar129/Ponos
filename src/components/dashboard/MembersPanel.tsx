@@ -83,30 +83,30 @@ export function MembersPanel() {
     const actionError = readableError(assignError) ?? readableError(removeError)
 
     if (loadingMembers) {
-        return <p className="text-secondary">Indlæser medlemmer...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser medlemmer...</p>
     }
 
     if (listError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {listError}
             </div>
         )
     }
 
     if (!members || members.length === 0) {
-        return <p className="text-secondary">Organisationen har ingen medlemmer endnu.</p>
+        return <p className="text-secondary dark:text-slate-400">Organisationen har ingen medlemmer endnu.</p>
     }
 
     return (
         <div>
             {actionError && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {actionError}
                 </div>
             )}
 
-            <ul className="divide-y divide-border-gray border-t border-border-gray">
+            <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                 {members.map((member) => {
                     const isSelf = member.id === currentUserId
                     const memberIsAdmin = member.roleId !== null && roleIdsWithAdmin.has(member.roleId)
@@ -117,12 +117,12 @@ export function MembersPanel() {
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <p className="font-medium">{member.firstName} {member.lastName}</p>
-                                    <p className="text-sm text-secondary">{member.email}</p>
+                                    <p className="text-sm text-secondary dark:text-slate-400">{member.email}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
                                     {isSelf ? (
-                                        <p className="text-sm text-secondary italic">Du kan ikke ændre din egen række</p>
+                                        <p className="text-sm text-secondary italic dark:text-slate-400">Du kan ikke ændre din egen række</p>
                                     ) : (
                                         <>
                                             {canManageRoles && (
@@ -130,7 +130,7 @@ export function MembersPanel() {
                                                     value={member.roleId ?? ''}
                                                     onChange={(e) => handleAssign(member, e.target.value)}
                                                     disabled={savingUserId === member.id}
-                                                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-60"
+                                                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                                 >
                                                     {(roles ?? []).map((role) => (
                                                         <option key={role.id} value={role.id}>{role.name}</option>
@@ -142,7 +142,7 @@ export function MembersPanel() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setConfirmingRemoveId(member.id)}
-                                                    className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                                                    className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                                                 >
                                                     Fjern
                                                 </button>
@@ -154,14 +154,14 @@ export function MembersPanel() {
 
                             {confirmingRemoveId === member.id && (
                                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                                    <span className="text-sm text-secondary">
+                                    <span className="text-sm text-secondary dark:text-slate-400">
                                         Er du sikker på at du vil fjerne {member.firstName} {member.lastName} fra organisationen?
                                     </span>
                                     <button
                                         type="button"
                                         onClick={() => handleRemove(member)}
                                         disabled={removingUserId === member.id}
-                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60"
+                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                                     >
                                         {removingUserId === member.id ? 'Fjerner...' : 'Ja, fjern'}
                                     </button>
@@ -169,7 +169,7 @@ export function MembersPanel() {
                                         type="button"
                                         onClick={() => setConfirmingRemoveId(null)}
                                         disabled={removingUserId === member.id}
-                                        className="text-secondary text-sm hover:underline disabled:opacity-60"
+                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                                     >
                                         Annuller
                                     </button>

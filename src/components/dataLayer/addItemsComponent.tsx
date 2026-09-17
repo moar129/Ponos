@@ -63,25 +63,25 @@ export function AddItemsComponent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-border-gray">
+      <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700">
+        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div>
-            <h2 className="text-lg font-semibold text-primary">Tilføj items</h2>
-            {categoryTitle && <p className="text-xs text-secondary mt-0.5">Til kategori: {categoryTitle}</p>}
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Tilføj items</h2>
+            {categoryTitle && <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">Til kategori: {categoryTitle}</p>}
           </div>
-          <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary" title="Luk" aria-label="Luk modal">
+          <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk modal">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-4 overflow-y-auto space-y-3">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               {formError}
             </div>
           )}
 
-          <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg">
+          <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg dark:bg-slate-800/40 dark:border-slate-700">
             <LocationPickerComponent
               value={locationId}
               onChange={setLocationId}
@@ -89,20 +89,20 @@ export function AddItemsComponent({
               canUpdate={canUpdate}
               canDelete={canDelete}
             />
-            <p className="text-[11px] text-secondary mt-1.5">
+            <p className="text-[11px] text-secondary mt-1.5 dark:text-slate-400">
               Denne lokation bruges til alle items i denne oprettelse.
             </p>
           </div>
 
           {rows.map((row, idx) => (
-            <div key={row.key} className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2">
+            <div key={row.key} className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-secondary uppercase tracking-wide">Item {idx + 1}</span>
+                <span className="text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Item {idx + 1}</span>
                 <button
                   type="button"
                   onClick={() => removeRow(row.key)}
                   disabled={rows.length === 1}
-                  className="p-1 rounded text-secondary hover:text-red-600 hover:bg-red-50 disabled:opacity-30"
+                  className="p-1 rounded text-secondary hover:text-red-600 hover:bg-red-50 disabled:opacity-30 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-900/30"
                   title="Fjern item"
                   aria-label="Fjern item"
                 >
@@ -116,7 +116,7 @@ export function AddItemsComponent({
                   placeholder="Navn *"
                   value={row.name}
                   onChange={(e) => updateRow(row.key, { name: e.target.value })}
-                  className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                  className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="number"
@@ -124,19 +124,19 @@ export function AddItemsComponent({
                   placeholder="Antal"
                   value={row.quantity}
                   onChange={(e) => updateRow(row.key, { quantity: Number(e.target.value) })}
-                  className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                  className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
                   placeholder="Beskrivelse"
                   value={row.description}
                   onChange={(e) => updateRow(row.key, { description: e.target.value })}
-                  className="sm:col-span-2 bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                  className="sm:col-span-2 bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <select
                   value={row.itemStatus}
                   onChange={(e) => updateRow(row.key, { itemStatus: e.target.value as (typeof ALL_ITEM_STATUSES)[number] })}
-                  className="sm:col-span-2 bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+                  className="sm:col-span-2 bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 >
                   {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
@@ -150,8 +150,8 @@ export function AddItemsComponent({
           </button>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
-          <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
+          <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
             Annullér
           </button>
           <button

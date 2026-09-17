@@ -59,11 +59,11 @@ export function MyTasksWidget() {
     const error = readableError(tasksError) ?? readableError(myTaskIdsError)
 
     return (
-        <div className="rounded-lg border border-border-gray bg-white p-5">
+        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
             <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
-                    <ListChecks className="w-5 h-5 text-secondary" />
-                    <h3 className="font-medium text-primary">Mine opgaver</h3>
+                    <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
+                    <h3 className="font-medium text-primary dark:text-slate-100">Mine opgaver</h3>
                 </div>
                 <Link to="/tasks" className="text-sm text-accent hover:underline">
                     Gå til opgaver
@@ -71,23 +71,23 @@ export function MyTasksWidget() {
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (
-                <p className="text-sm text-secondary">Indlæser dine opgaver...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Indlæser dine opgaver...</p>
             ) : error ? (
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             ) : myTasks.length === 0 ? (
-                <p className="text-sm text-secondary">Du er ikke tilmeldt nogen opgaver endnu.</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Du er ikke tilmeldt nogen opgaver endnu.</p>
             ) : (
-                <ul className="divide-y divide-border-gray">
+                <ul className="divide-y divide-border-gray dark:divide-slate-700">
                     {myTasks.map((task) => (
                         <li key={task.id}>
                             <button
                                 type="button"
                                 onClick={() => setSelectedTask(task)}
-                                className="w-full text-left py-2.5 -mx-2 px-2 rounded-md transition-colors hover:bg-bg-gray/50"
+                                className="w-full text-left py-2.5 -mx-2 px-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
                             >
-                                <p className="font-medium text-primary truncate">{task.title}</p>
+                                <p className="font-medium text-primary truncate dark:text-slate-100">{task.title}</p>
                                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                                    <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary">
+                                    <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary dark:bg-slate-700 dark:text-slate-400">
                                         {STATUS_LABELS[task.status]}
                                     </span>
                                     {task.priority && (
@@ -96,7 +96,7 @@ export function MyTasksWidget() {
                                         </span>
                                     )}
                                     {task.end_date && (
-                                        <span className="text-secondary">Slut {formatDate(task.end_date)}</span>
+                                        <span className="text-secondary dark:text-slate-400">Slut {formatDate(task.end_date)}</span>
                                     )}
                                 </div>
                             </button>

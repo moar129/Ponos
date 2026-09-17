@@ -39,19 +39,19 @@ export function CompletedTasksPanel() {
     const reopenErrorMessage = readableError(reopenError)
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser afsluttede opgaver...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser afsluttede opgaver...</p>
     }
 
     if (error) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {error}
             </div>
         )
     }
 
     if (!tasks || tasks.length === 0) {
-        return <p className="text-secondary">Ingen opgaver er markeret som afsluttede endnu.</p>
+        return <p className="text-secondary dark:text-slate-400">Ingen opgaver er markeret som afsluttede endnu.</p>
     }
 
     const filteredTasks = tasks.filter((task) => {
@@ -71,12 +71,12 @@ export function CompletedTasksPanel() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Søg efter titel eller beskrivelse..."
-                    className="flex-1 min-w-[200px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
+                    className="flex-1 min-w-[200px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 />
                 <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value as ETaskPriority | 'all')}
-                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
+                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
                     <option value="all">Alle prioriteter</option>
                     {(Object.keys(PRIORITY_LABELS) as ETaskPriority[]).map((priority) => (
@@ -86,9 +86,9 @@ export function CompletedTasksPanel() {
             </div>
 
             {filteredTasks.length === 0 ? (
-                <p className="text-secondary">Ingen opgaver matcher søgningen/filteret.</p>
+                <p className="text-secondary dark:text-slate-400">Ingen opgaver matcher søgningen/filteret.</p>
             ) : (
-                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {filteredTasks.map((task) => (
                         <CompletedTaskRow
                             key={task.id}
@@ -144,7 +144,7 @@ function CompletedTaskRow({
         <li className="py-3">
             <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 text-left">
                 <div>
-                    <p className="font-medium text-primary">{task.title}</p>
+                    <p className="font-medium text-primary dark:text-slate-100">{task.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                         {task.priority && (
                             <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
@@ -152,27 +152,27 @@ function CompletedTaskRow({
                             </span>
                         )}
                         {task.end_date && (
-                            <span className="text-secondary">Slut {formatDate(task.end_date)}</span>
+                            <span className="text-secondary dark:text-slate-400">Slut {formatDate(task.end_date)}</span>
                         )}
                     </div>
                 </div>
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-secondary shrink-0" /> : <ChevronDown className="w-4 h-4 text-secondary shrink-0" />}
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" /> : <ChevronDown className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" />}
             </button>
 
             {isExpanded && (
-                <div className="mt-3 space-y-2 text-sm text-secondary">
+                <div className="mt-3 space-y-2 text-sm text-secondary dark:text-slate-400">
                     <p>{task.description || 'Ingen beskrivelse.'}</p>
-                    <p><span className="font-medium text-primary">Rum:</span> {task.roomName ?? 'Intet rum'}</p>
+                    <p><span className="font-medium text-primary dark:text-slate-100">Rum:</span> {task.roomName ?? 'Intet rum'}</p>
                     <p>
-                        <span className="font-medium text-primary">Periode:</span>{' '}
+                        <span className="font-medium text-primary dark:text-slate-100">Periode:</span>{' '}
                         {task.start_date ? formatDate(task.start_date) : 'Ukendt'} – {task.end_date ? formatDate(task.end_date) : 'Ukendt'}
                     </p>
                     <div>
-                        <span className="font-medium text-primary">Tilmeldte:</span>{' '}
+                        <span className="font-medium text-primary dark:text-slate-100">Tilmeldte:</span>{' '}
                         {task.assignees.length > 0 ? task.assignees.map((a) => a.name).join(', ') : 'Ingen tilmeldte'}
                     </div>
                     <div>
-                        <span className="font-medium text-primary">Materialer:</span>{' '}
+                        <span className="font-medium text-primary dark:text-slate-100">Materialer:</span>{' '}
                         {task.materials.length > 0
                             ? task.materials.map((m) => `${m.name} (${m.quantity})`).join(', ')
                             : 'Ingen materialer'}
@@ -183,7 +183,7 @@ function CompletedTaskRow({
                             <button
                                 type="button"
                                 onClick={onEdit}
-                                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
                             >
                                 <Pencil className="w-3.5 h-3.5" />
                                 Rediger
@@ -193,7 +193,7 @@ function CompletedTaskRow({
                                     type="button"
                                     onClick={onReopen}
                                     disabled={isReopening}
-                                    className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-60"
+                                    className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-60 dark:text-emerald-400 dark:hover:text-emerald-300"
                                 >
                                     <RotateCcw className="w-3.5 h-3.5" />
                                     {isReopening ? 'Genåbner...' : 'Genåbn'}
@@ -202,7 +202,7 @@ function CompletedTaskRow({
                         </div>
                     )}
                     {reopenErrorMessage && (
-                        <p className="text-sm text-red-700">{reopenErrorMessage}</p>
+                        <p className="text-sm text-red-700 dark:text-red-400">{reopenErrorMessage}</p>
                     )}
                 </div>
             )}

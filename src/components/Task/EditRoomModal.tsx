@@ -50,13 +50,13 @@ export function EditRoomModal({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-2xl dark:bg-slate-800 dark:border-slate-700">
                 <div className="mb-6">
-                    <h2 className="text-xl font-semibold text-primary">
+                    <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
                         Rediger rum
                     </h2>
 
-                    <p className="mt-1 text-sm text-secondary">
+                    <p className="mt-1 text-sm text-secondary dark:text-slate-400">
                         Vælg et rum og rediger navnet.
                     </p>
                 </div>
@@ -66,7 +66,7 @@ export function EditRoomModal({
                     <div>
                         <label
                             htmlFor="edit-room-select"
-                            className="mb-1 block text-sm font-medium text-secondary"
+                            className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
                             Vælg rum
                         </label>
@@ -75,7 +75,7 @@ export function EditRoomModal({
                             id="edit-room-select"
                             value={selectedRoomId}
                             onChange={(e) => handleRoomChange(e.target.value)}
-                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
                             <option value="">Vælg rum</option>
 
@@ -90,7 +90,7 @@ export function EditRoomModal({
                     <div>
                         <label
                             htmlFor="edit-room-name"
-                            className="mb-1 block text-sm font-medium text-secondary"
+                            className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
                             Navn
                         </label>
@@ -102,12 +102,12 @@ export function EditRoomModal({
                             onChange={(e) => setRoomName(e.target.value)}
                             disabled={!selectedRoomId}
                             placeholder="Indtast rumnavn"
-                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none disabled:bg-bg-gray disabled:text-secondary"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none disabled:bg-bg-gray disabled:text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
                         />
                     </div>
 
                     {isError && (
-                        <p className="text-sm text-red-700">
+                        <p className="text-sm text-red-700 dark:text-red-400">
                             Kunne ikke redigere rummet. Prøv igen.
                         </p>
                     )}
@@ -117,7 +117,7 @@ export function EditRoomModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray"
+                        className="rounded-lg px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         Annuller
                     </button>

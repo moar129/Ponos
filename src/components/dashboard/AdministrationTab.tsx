@@ -91,7 +91,7 @@ export function AdministrationTab() {
         : (tabs[0]?.key ?? null)
 
     if (tabs.length === 0) {
-        return <p className="text-secondary">Du har ikke rettigheder til nogen administrative funktioner.</p>
+        return <p className="text-secondary dark:text-slate-400">Du har ikke rettigheder til nogen administrative funktioner.</p>
     }
 
     // Samme layout-mønster som DataLayerPage.tsx (Kategorier/Items-splittet):
@@ -103,13 +103,13 @@ export function AdministrationTab() {
     // scrollende fanerække.
     const navItemClass = (tab: AdminSubTab) =>
         `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
-            ? 'bg-accent/15 text-primary'
-            : 'text-secondary hover:bg-bg-gray hover:text-primary'
+            ? 'bg-accent/15 text-primary dark:text-slate-100'
+            : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
         }`
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
                 {tabs.map((tab) => (
                     <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={navItemClass(tab.key)}>
                         <tab.icon className="w-4 h-4 shrink-0" />
@@ -118,7 +118,7 @@ export function AdministrationTab() {
                 ))}
             </nav>
 
-            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6">
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
                 {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
                 {activeSubTab === 'members' && <MembersPanel />}
                 {activeSubTab === 'invitations' && <InvitationsPanel />}
