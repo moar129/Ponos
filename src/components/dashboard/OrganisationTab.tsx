@@ -1,18 +1,19 @@
 // src/components/dashboard/OrganisationTab.tsx
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 import {
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
+    useGetOrganisationsQuery,
     useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
 import { useGetMyPendingInvitationsQuery, useRespondToInvitationMutation } from '../../store/apis/invitationApi'
+import { OrganisationPickerComponent } from './organisationPickerComponent'
 import type {
     CreateOrganisationSectionProps,
     MembershipRowProps,
@@ -98,40 +99,15 @@ export function OrganisationTab() {
     const [createName, setCreateName] = useState('')
     const [createValidationError, setCreateValidationError] = useState<string | null>(null)
 
-    const [organisations, setOrganisations] = useState<Organisation[]>([])
-    const [loadingOrganisations, setLoadingOrganisations] = useState(true)
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
 
     // Henter listen af organisationer man kan anmode om medlemskab af, kun
     // relevant for brugere uden egen organisation - undgår et unødvendigt
     // kald for brugere der allerede er medlem et sted.
-    useEffect(() => {
-        if (isLoading || organisation) return
-
-        let cancelled = false
-
-        async function fetchOrganisations() {
-            const { data, error } = await supabase
-                .from('organisations')
-                .select('id, name')
-                .order('name')
-
-            if (cancelled) return
-
-            if (error) {
-                console.error('Kunne ikke hente organisationer:', error.message)
-            } else {
-                setOrganisations(data)
-            }
-            setLoadingOrganisations(false)
-        }
-
-        fetchOrganisations()
-        return () => {
-            cancelled = true
-        }
-    }, [isLoading, organisation])
+    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery(undefined, {
+        skip: isLoading || !!organisation,
+    })
 
     async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -273,23 +249,13 @@ export function OrganisationTab() {
                                             )}
                                             <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
-                                                    <select
-                                                        id="request-org"
+                                                    <label className="block text-sm text-secondary mb-1">Vælg organisation</label>
+                                                    <OrganisationPickerComponent
+                                                        organisations={organisations}
+                                                        isLoading={loadingOrganisations}
                                                         value={selectedOrgId}
-                                                        onChange={(e) => setSelectedOrgId(e.target.value)}
-                                                        disabled={loadingOrganisations}
-                                                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent"
-                                                    >
-                                                        <option value="" disabled>
-                                                            {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
-                                                        </option>
-                                                        {organisations.map((org) => (
-                                                            <option key={org.id} value={org.id}>
-                                                                {org.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                                        onChange={setSelectedOrgId}
+                                                    />
                                                 </div>
                                                 <button
                                                     type="submit"
@@ -530,35 +496,9 @@ function RequestMembershipSection() {
     const { data: memberships } = useGetMyMembershipsQuery()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
 
-    const [organisations, setOrganisations] = useState<Organisation[]>([])
-    const [loadingOrganisations, setLoadingOrganisations] = useState(true)
+    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery()
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function fetchOrganisations() {
-            const { data, error } = await supabase
-                .from('organisations')
-                .select('id, name')
-                .order('name')
-
-            if (cancelled) return
-
-            if (error) {
-                console.error('Kunne ikke hente organisationer:', error.message)
-            } else {
-                setOrganisations(data)
-            }
-            setLoadingOrganisations(false)
-        }
-
-        fetchOrganisations()
-        return () => {
-            cancelled = true
-        }
-    }, [])
 
     async function handleRequestSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -612,23 +552,13 @@ function RequestMembershipSection() {
             ) : (
                 <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
-                        <select
-                            id="request-org"
+                        <label className="block text-sm text-secondary mb-1">Vælg organisation</label>
+                        <OrganisationPickerComponent
+                            organisations={availableOrganisations}
+                            isLoading={loadingOrganisations}
                             value={selectedOrgId}
-                            onChange={(e) => setSelectedOrgId(e.target.value)}
-                            disabled={loadingOrganisations}
-                            className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent"
-                        >
-                            <option value="" disabled>
-                                {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
-                            </option>
-                            {availableOrganisations.map((org) => (
-                                <option key={org.id} value={org.id}>
-                                    {org.name}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={setSelectedOrgId}
+                        />
                     </div>
                     <button
                         type="submit"
