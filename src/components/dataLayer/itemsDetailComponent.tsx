@@ -1,21 +1,14 @@
-import { useState, useEffect } from 'react';
-import { X, Package, Pencil, Loader2, Save } from 'lucide-react';
-import { useUpdateItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
+import { useState, useEffect, useRef } from 'react';
+import { X, Package, Pencil, Trash2, Loader2, Save } from 'lucide-react';
+import { useUpdateItemMutation, useDeleteItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import { LocationPickerComponent } from './locationsPickerComponent';
-import type { AggregatedItem } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { ConfirmDialogComponent } from './confirmDialogComponent';
+import type { ItemDetailComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
-interface ItemDetailComponentProps {
-  item: AggregatedItem | null;
-  onClose: () => void;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-}
 
-
-export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
+export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -23,8 +16,13 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
   const [itemStatus, setItemStatus] = useState<(typeof ALL_ITEM_STATUSES)[number]>('Available');
   const [itemLocationId, setItemLocationId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [pendingDiscardAction, setPendingDiscardAction] = useState<'close' | 'cancel' | null>(null);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [updateItem, { isLoading }] = useUpdateItemMutation();
+  const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
   const { data: locations = [] } = useGetItemLocationsQuery();
 
   useEffect(() => {
@@ -36,16 +34,56 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
       setItemLocationId(item.itemLocationId ?? null);
       setIsEditing(false);
       setFormError(null);
+      setPendingDiscardAction(null);
+      setIsConfirmingDelete(false);
+      setDeleteError(null);
     }
   }, [item]);
 
+  useEffect(() => {
+    if (isEditing) nameInputRef.current?.focus();
+  }, [isEditing]);
+
+  const hasUnsavedChanges =
+    !!item &&
+    (name !== item.name ||
+      description !== (item.description ?? '') ||
+      quantity !== item.quantity ||
+      itemStatus !== item.itemStatus ||
+      itemLocationId !== (item.itemLocationId ?? null));
+
+  useEffect(() => {
+    if (!item) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') requestClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, isEditing, hasUnsavedChanges]);
+
   if (!item) return null;
 
-  const currentLocationName = locations.find((l) => l.id === item.itemLocationId)?.name;
+  const currentLocation = locations.find((l) => l.id === item.itemLocationId);
 
-  const handleClose = () => {
+  const requestClose = () => {
+    if (isEditing && hasUnsavedChanges) {
+      setPendingDiscardAction('close');
+      return;
+    }
     setIsEditing(false);
     onClose();
+  };
+
+  const requestCancelEdit = () => {
+    if (hasUnsavedChanges) {
+      setPendingDiscardAction('cancel');
+      return;
+    }
+    setIsEditing(false);
+    setFormError(null);
   };
 
   const handleSave = async () => {
@@ -64,14 +102,33 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
         itemLocationId,
       }).unwrap();
 
-      handleClose(); // luk modalen, så listen viser opdaterede data
+      setIsEditing(false);
+      onClose(); // luk modalen, så listen viser opdaterede data
     } catch (err) {
       setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer. Prøv igen.'));
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteItem({ id: item.id }).unwrap();
+      setIsConfirmingDelete(false);
+      onClose();
+    } catch (err) {
+      setDeleteError(getErrorMessage(err, 'Kunne ikke slette itemet. Prøv igen.'));
+    }
+  };
+
+  const handleEnterSaves = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleClose}>
+    <>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={requestClose}>
       <div
         className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
@@ -79,16 +136,24 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
         <div className="flex items-center justify-between p-4 border-b border-border-gray">
           <div className="flex items-center gap-2 min-w-0">
             <Package className="w-5 h-5 text-accent shrink-0" />
-            {isEditing ? (
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-white border border-border-gray rounded-lg px-2 py-1 text-sm text-primary focus:outline-none focus:border-accent"
-              />
-            ) : (
-              <h2 className="text-lg font-semibold text-primary truncate">{item.name}</h2>
-            )}
+            <div className="min-w-0">
+              {isEditing ? (
+                <h2 className="text-lg font-semibold text-primary truncate">Rediger item</h2>
+              ) : (
+                <h2 className="text-lg font-semibold text-primary truncate">{item.name}</h2>
+              )}
+              {!isEditing && (() => {
+                const parts = item.sourceCategoryTitle.split(' > ');
+                const current = parts[parts.length - 1];
+                const ancestors = parts.slice(0, -1);
+                return (
+                  <p className="text-xs text-secondary truncate">
+                    I kategori: {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
+                    <strong className="text-primary font-medium">{current}</strong>
+                  </p>
+                );
+              })()}
+            </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {!isEditing && canUpdate && (
@@ -101,7 +166,17 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                 <Pencil className="w-4 h-4" />
               </button>
             )}
-            <button type="button" onClick={handleClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary" title="Luk" aria-label="Luk modal">
+            {!isEditing && canDelete && (
+              <button
+                onClick={() => setIsConfirmingDelete(true)}
+                className="p-1.5 rounded-md hover:bg-red-50 text-secondary hover:text-red-600"
+                title="Slet item"
+                aria-label="Slet item"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+            <button type="button" onClick={requestClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary" title="Luk" aria-label="Luk modal">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -114,33 +189,24 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
             </div>
           )}
 
-          {isEditing ? (
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Beskrivelse"
-              rows={3}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
-            />
-          ) : (
-            <p className="text-sm text-secondary">{item.description || 'Ingen beskrivelse'}</p>
+          {isEditing && (
+            <div>
+              <label htmlFor="item-name-input" className="block text-xs text-secondary uppercase tracking-wide mb-1">
+                Navn <span aria-hidden="true" className="text-red-600">*</span>
+              </label>
+              <input
+                id="item-name-input"
+                ref={nameInputRef}
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={handleEnterSaves}
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              />
+            </div>
           )}
 
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Antal</span>
-              {isEditing ? (
-                <input
-                  type="number"
-                  min={0}
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
-                />
-              ) : (
-                <span className="text-primary">{item.quantity}</span>
-              )}
-            </div>
             <div>
               <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Status</span>
               {isEditing ? (
@@ -149,17 +215,34 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                   onChange={(e) => setItemStatus(e.target.value as (typeof ALL_ITEM_STATUSES)[number])}
                   className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
                 >
-                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{ITEM_STATUS_LABELS[status]}</option>)}
                 </select>
               ) : (
-                <span className={`inline-block px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-bg-gray text-secondary border-border-gray'}`}>
-                  {item.itemStatus}
+                <span className={`inline-block px-2 py-0.5 rounded border text-sm ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-bg-gray text-secondary border-border-gray'}`}>
+                  {ITEM_STATUS_LABELS[item.itemStatus]}
                 </span>
+              )}
+            </div>
+            <div>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Antal</span>
+              {isEditing ? (
+                <input
+                  type="number"
+                  min={0}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(0, Number(e.target.value)))}
+                  onKeyDown={handleEnterSaves}
+                  className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent"
+                />
+              ) : (
+                <span className="text-primary">{item.quantity}</span>
               )}
             </div>
 
             <div className="col-span-2">
-              <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Lokation</span>
+              {!isEditing && (
+                <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Lokation</span>
+              )}
               {isEditing ? (
                 <LocationPickerComponent
                   value={itemLocationId}
@@ -168,16 +251,33 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
                   canUpdate={canUpdate}
                   canDelete={canDelete}
                 />
+              ) : currentLocation ? (
+                <button
+                  type="button"
+                  onClick={() => onViewLocation(currentLocation)}
+                  className="text-primary hover:text-accent hover:underline underline-offset-2 text-left"
+                  title="Vis items på denne lokation"
+                >
+                  {currentLocation.name}
+                </button>
               ) : (
-                <span className="text-primary">{currentLocationName ?? 'Ingen lokation'}</span>
+                <span className="text-secondary">Ingen lokation</span>
               )}
             </div>
+          </div>
 
-            {item.isFromSubCategory && !isEditing && (
-              <div className="col-span-2">
-                <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Kategori</span>
-                <span className="text-primary">{item.sourceCategoryTitle}</span>
-              </div>
+          <div>
+            <span className="block text-xs text-secondary uppercase tracking-wide mb-1">Beskrivelse</span>
+            {isEditing ? (
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Beskrivelse"
+                rows={3}
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              />
+            ) : (
+              <p className="text-sm text-secondary">{item.description || 'Ingen beskrivelse'}</p>
             )}
           </div>
         </div>
@@ -186,7 +286,7 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
           <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
             <button
               type="button"
-              onClick={() => { setIsEditing(false); setFormError(null); }}
+              onClick={requestCancelEdit}
               className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray"
             >
               Annullér
@@ -204,5 +304,31 @@ export function ItemDetailComponent({ item, onClose, canCreate, canUpdate, canDe
         )}
       </div>
     </div>
+
+    <ConfirmDialogComponent
+      isOpen={pendingDiscardAction !== null}
+      title="Kassér ændringer?"
+      message="Dine ændringer er ikke gemt."
+      confirmLabel="Kassér"
+      onConfirm={() => {
+        const action = pendingDiscardAction;
+        setPendingDiscardAction(null);
+        setIsEditing(false);
+        setFormError(null);
+        if (action === 'close') onClose();
+      }}
+      onCancel={() => setPendingDiscardAction(null)}
+    />
+
+    <ConfirmDialogComponent
+      isOpen={isConfirmingDelete}
+      title="Slet item?"
+      message={`"${item.name}" bliver slettet permanent.${deleteError ? ` ${deleteError}` : ''}`}
+      confirmLabel="Slet"
+      isLoading={isDeleting}
+      onConfirm={handleDelete}
+      onCancel={() => { setIsConfirmingDelete(false); setDeleteError(null); }}
+    />
+    </>
   );
 }

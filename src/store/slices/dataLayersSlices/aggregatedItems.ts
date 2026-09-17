@@ -1,37 +1,39 @@
 import type { DataLayerCat, AggregatedItem } from '../../../types/dataLayer/datalayerTypes';
 
 
-export function getAggregatedItems(category: DataLayerCat): AggregatedItem[] {
+export function getAggregatedItems(category: DataLayerCat, ancestorTitles: string[] = []): AggregatedItem[] {
   const result: AggregatedItem[] = [];
 
-  function walk(cat: DataLayerCat, isRoot: boolean) {
+  function walk(cat: DataLayerCat, path: string[], isRoot: boolean) {
+    const currentPath = [...path, cat.title];
     for (const item of cat.items) {
       result.push({
         ...item,
-        sourceCategoryTitle: cat.title,
+        sourceCategoryTitle: currentPath.join(' > '),
         isFromSubCategory: !isRoot,
       });
     }
     for (const sub of cat.subCategories) {
-      walk(sub, false);
+      walk(sub, currentPath, false);
     }
   }
 
-  walk(category, true);
+  walk(category, ancestorTitles, true);
   return result;
 }
 
 export function flattenAllItems(categoryTree: DataLayerCat[]): AggregatedItem[] {
   const result: AggregatedItem[] = [];
 
-  function walk(cat: DataLayerCat) {
+  function walk(cat: DataLayerCat, path: string[]) {
+    const currentPath = [...path, cat.title];
     for (const item of cat.items) {
-      result.push({ ...item, sourceCategoryTitle: cat.title, isFromSubCategory: false });
+      result.push({ ...item, sourceCategoryTitle: currentPath.join(' > '), isFromSubCategory: false });
     }
-    for (const sub of cat.subCategories) walk(sub);
+    for (const sub of cat.subCategories) walk(sub, currentPath);
   }
 
-  for (const root of categoryTree) walk(root);
+  for (const root of categoryTree) walk(root, []);
   return result;
 }
 

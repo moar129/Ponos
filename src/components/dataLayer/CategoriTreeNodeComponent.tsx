@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import type { CategoryTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
-import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
 export function CategoryTreeNode({
   category,
@@ -12,8 +11,15 @@ export function CategoryTreeNode({
   canCreate,
   canUpdate,
   canDelete,
+  expandedCategoryIds,
+  onToggleExpand,
+  isFirst,
+  isLast,
+  isMoving,
+  onMoveUp,
+  onMoveDown,
 }: CategoryTreeNodeProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = expandedCategoryIds.has(category.id);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
   const isSelected = selectedCategoryId === category.id;
 
@@ -32,7 +38,7 @@ export function CategoryTreeNode({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsOpen(!isOpen);
+                onToggleExpand(category.id);
               }}
               className="p-0.5 hover:bg-border-gray rounded text-secondary hover:text-primary shrink-0"
             >
@@ -61,9 +67,41 @@ export function CategoryTreeNode({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
+                onMoveUp(category);
+              }}
+              disabled={isFirst || isMoving}
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              title="Flyt op"
+              aria-label="Flyt op"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveDown(category);
+              }}
+              disabled={isLast || isMoving}
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 disabled:opacity-30 disabled:pointer-events-none"
+              title="Flyt ned"
+              aria-label="Flyt ned"
+            >
+              <ArrowDown className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
                 onEditCategory(category);
               }}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors"
+              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1"
               title="Rediger kategori"
               aria-label="Rediger kategori"
             >
@@ -105,7 +143,7 @@ export function CategoryTreeNode({
 
       {isOpen && hasSubCategories && (
         <div className="mt-0.5">
-          {category.subCategories.map((subCat) => (
+          {category.subCategories.map((subCat, idx) => (
             <CategoryTreeNode
               key={subCat.id}
               category={subCat}
@@ -117,6 +155,13 @@ export function CategoryTreeNode({
               canCreate={canCreate}
               canUpdate={canUpdate}
               canDelete={canDelete}
+              expandedCategoryIds={expandedCategoryIds}
+              onToggleExpand={onToggleExpand}
+              isFirst={idx === 0}
+              isLast={idx === category.subCategories.length - 1}
+              isMoving={isMoving}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
             />
           ))}
         </div>

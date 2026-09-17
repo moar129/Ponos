@@ -1,4 +1,5 @@
 import type { FilterPanelComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 
 
 export function FilterPanelComponent({
@@ -41,7 +42,9 @@ export function FilterPanelComponent({
                   onChange={() => onToggleStatus(status)}
                   className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent"
                 />
-                {status}
+                <span className={`px-2 py-0.5 rounded border text-sm ${ITEM_STATUS_STYLES[status]}`}>
+                  {ITEM_STATUS_LABELS[status]}
+                </span>
               </label>
             ))}
           </div>

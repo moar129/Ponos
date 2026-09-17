@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { X, Pencil, Trash2, Loader2, Save, MapPin } from 'lucide-react';
+import { X, Pencil, Trash2, Loader2, Save, MapPin, Plus } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
   useDeleteLocationMutation,
+  useAddLocationMutation,
 } from '../../store/apis/categoryApi';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
 import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
 
-export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpdate, canDelete }: LocationManagerComponentProps & {
+export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCreate, canUpdate, canDelete }: LocationManagerComponentProps & {
   onViewItems?: (location: ItemLocation) => void;
 }) {
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
@@ -21,10 +22,34 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ItemLocation | null>(null);
 
+  const [isCreating, setIsCreating] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newAddress, setNewAddress] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const [updateLocation, { isLoading: isSaving }] = useUpdateLocationMutation();
   const [deleteLocation, { isLoading: isDeleting }] = useDeleteLocationMutation();
+  const [addLocation, { isLoading: isAdding }] = useAddLocationMutation();
 
   if (!isOpen) return null;
+
+  const handleCreate = async () => {
+    if (!newName.trim()) {
+      setCreateError('Navn er påkrævet.');
+      return;
+    }
+    try {
+      await addLocation({ name: newName.trim(), address: newAddress.trim() || null, description: newDescription.trim() || null }).unwrap();
+      setIsCreating(false);
+      setNewName('');
+      setNewAddress('');
+      setNewDescription('');
+      setCreateError(null);
+    } catch (err) {
+      setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
+    }
+  };
 
   const startEdit = (loc: ItemLocation) => {
     setEditTarget(loc);
@@ -72,15 +97,72 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canUpda
       >
         <div className="flex items-center justify-between p-4 border-b border-border-gray">
           <h2 className="text-lg font-semibold text-primary">Administrer lokationer</h2>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {canCreate && !isCreating && (
+              <button
+                type="button"
+                onClick={() => { setIsCreating(true); setCreateError(null); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Ny lokation
+              </button>
+            )}
+            <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="p-4 overflow-y-auto flex-1 space-y-2">
           {formError && (
             <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {formError}
+            </div>
+          )}
+
+          {isCreating && (
+            <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2">
+              {createError && <p className="text-xs text-red-600">{createError}</p>}
+              <input
+                type="text"
+                placeholder="Navn på ny lokation *"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              />
+              <input
+                type="text"
+                placeholder="Adresse (valgfrit)"
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              />
+              <input
+                type="text"
+                placeholder="Beskrivelse (valgfrit)"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
+              />
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setIsCreating(false); setCreateError(null); }}
+                  className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray"
+                >
+                  Annullér
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreate}
+                  disabled={isAdding}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
+                >
+                  {isAdding && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Opret
+                </button>
+              </div>
             </div>
           )}
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Settings2, Loader2 } from 'lucide-react';
+import { MapPin, Settings2, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
 import { LocationManagerComponent } from './locationsManagerComponent';
 import type { LocationPickerComponentProps } from '../../types/dataLayer/datalayerTypes';
@@ -55,7 +55,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             aria-label="Administrer lokationer"
           >
             <Settings2 className="w-3.5 h-3.5" />
-            Administrer
+            Administrer lokationer
           </button>
         )}
       </div>
@@ -110,7 +110,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             value={value ?? ''}
             onChange={(e) => handleSelectChange(e.target.value)}
             disabled={isLoading}
-            className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none"
+            className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none"
           >
             <option value="">Ingen lokation</option>
             {locations.map((loc) => (
@@ -118,12 +118,14 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             ))}
             {canCreate && <option value="__new__">+ Opret ny lokation…</option>}
           </select>
+          <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
         </div>
       )}
 
       <LocationManagerComponent
         isOpen={isManaging}
         onClose={() => setIsManaging(false)}
+        canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
       />

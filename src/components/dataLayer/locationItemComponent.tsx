@@ -1,5 +1,6 @@
 import { X, MapPin, Package } from 'lucide-react';
 import type { LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 
 
 export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem }: LocationItemsComponentProps) {
@@ -43,9 +44,9 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
                     <p className="text-sm font-medium text-primary truncate">{item.name}</p>
                     <p className="text-xs text-secondary truncate">{item.sourceCategoryTitle}</p>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0 text-xs text-secondary">
+                  <div className="flex items-center gap-3 shrink-0 text-sm text-secondary">
                     <span>Antal: {item.quantity}</span>
-                    <span className="px-2 py-0.5 rounded bg-bg-gray text-secondary">{item.itemStatus}</span>
+                    <span className={`px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{ITEM_STATUS_LABELS[item.itemStatus]}</span>
                   </div>
                 </button>
               ))}

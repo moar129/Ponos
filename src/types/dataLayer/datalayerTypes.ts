@@ -45,13 +45,21 @@ export interface CategoryTreeNodeProps {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  expandedCategoryIds: Set<string>;
+  onToggleExpand: (id: string) => void;
+  isFirst: boolean;
+  isLast: boolean;
+  isMoving: boolean;
+  onMoveUp: (category: DataLayerCat) => void;
+  onMoveDown: (category: DataLayerCat) => void;
 }
 
 export interface AddCategoryComponentProps {
   isOpen: boolean;
   onClose: () => void;
   parentId: string | null;
-  parentTitle?: string;
+  parentPath?: string[];
+  nextRank: number;
   onSuccess: (newCategoryId: string) => void;
 }
 
@@ -75,6 +83,7 @@ export interface AddItemsComponentProps {
 export interface ItemDetailComponentProps {
   item: AggregatedItem | null;
   onClose: () => void;
+  onViewLocation: (location: ItemLocation) => void;
   // Fase 3: create/read/update/delete_datalayer - ét fælles domæne for
   // items OG lokationer, så samme tre booleans sendes videre til
   // LocationPickerComponent (lokations-feltet i redigerings-visningen).
@@ -104,6 +113,16 @@ export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
   Missing: 'bg-red-50 text-red-700 border-red-200',
   Damaged: 'bg-red-50 text-red-700 border-red-200',
   Maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
+};
+
+export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
+  Available: 'Tilgængelig',
+  Reserved: 'Reserveret',
+  OutOfStock: 'Udsolgt',
+  InUse: 'I brug',
+  Missing: 'Mangler',
+  Damaged: 'Beskadiget',
+  Maintenance: 'Vedligehold',
 };
 
 export interface ItemRow {
@@ -138,7 +157,8 @@ export interface DeleteItemsComponentProps {
 export interface LocationManagerComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  // Fase 3: create/update/delete_datalayer - gater rediger/slet-knapperne.
+  // Fase 3: create/update/delete_datalayer - gater opret/rediger/slet-knapperne.
+  canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
 }

@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 import { Folder, Package } from 'lucide-react';
 import type { GlobalSearchResultsComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 
 
 export function GlobalSearchResultsComponent({
@@ -55,7 +56,7 @@ export function GlobalSearchResultsComponent({
                       <p className="text-xs text-secondary truncate">{item.sourceCategoryTitle}</p>
                     </div>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded bg-bg-gray text-secondary shrink-0">{item.itemStatus}</span>
+                  <span className={`text-sm px-2 py-0.5 rounded border shrink-0 ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{ITEM_STATUS_LABELS[item.itemStatus]}</span>
                 </button>
               ))}
             </div>

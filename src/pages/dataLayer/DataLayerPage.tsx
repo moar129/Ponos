@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
+import { useGetCategoryTreeQuery, useUpdateCategoryMutation } from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -9,7 +9,7 @@ import {
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
@@ -21,6 +21,7 @@ import { FilterPanelComponent } from '../../components/dataLayer/filterPanelComp
 import { LocationManagerComponent } from '../../components/dataLayer/locationsManagerComponent';
 import { LocationItemsComponent } from '../../components/dataLayer/locationItemComponent';
 import { GlobalSearchResultsComponent } from '../../components/dataLayer/globalSearchComponent';
+import { getErrorMessage } from '../../ErrorMessage';
 import {
   getAggregatedItems,
   flattenAllItems,
@@ -47,7 +48,12 @@ export function DataLayerPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addParentId, setAddParentId] = useState<string | null>(null);
-  const [addParentTitle, setAddParentTitle] = useState<string | undefined>(undefined);
+  const [addParentPath, setAddParentPath] = useState<string[] | undefined>(undefined);
+  const [addNextRank, setAddNextRank] = useState(1);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(new Set());
+  const [moveCategoryError, setMoveCategoryError] = useState<string | null>(null);
+  const [isMovingCategory, setIsMovingCategory] = useState(false);
+  const [updateCategory] = useUpdateCategoryMutation();
 
   const [editCategoryTarget, setEditCategoryTarget] = useState<DataLayerCat | null>(null);
 
@@ -83,6 +89,73 @@ export function DataLayerPage() {
     return null;
   }
 
+  function getCategoryPath(
+    categories: DataLayerCat[],
+    id: string
+  ): DataLayerCat[] | null {
+    for (const cat of categories) {
+      if (cat.id === id) return [cat];
+      if (cat.subCategories.length > 0) {
+        const found = getCategoryPath(cat.subCategories, id);
+        if (found) return [cat, ...found];
+      }
+    }
+    return null;
+  }
+
+  const toggleExpandCategory = (id: string) => {
+    setExpandedCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  function findSiblingsArray(
+    categories: DataLayerCat[],
+    id: string
+  ): DataLayerCat[] | null {
+    if (categories.some((cat) => cat.id === id)) return categories;
+    for (const cat of categories) {
+      const found = findSiblingsArray(cat.subCategories, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  const handleMoveCategory = async (category: DataLayerCat, direction: 'up' | 'down') => {
+    if (isMovingCategory) return;
+
+    const siblings = findSiblingsArray(categoryTree, category.id);
+    if (!siblings) return;
+
+    const idx = siblings.findIndex((cat) => cat.id === category.id);
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= siblings.length) return;
+
+    const reordered = [...siblings];
+    [reordered[idx], reordered[targetIdx]] = [reordered[targetIdx], reordered[idx]];
+
+    const updates = reordered
+      .map((cat, i) => ({ id: cat.id, rank: i + 1, changed: cat.rank !== i + 1 }))
+      .filter((update) => update.changed)
+      .map(({ id, rank }) => ({ id, rank }));
+
+    setIsMovingCategory(true);
+    try {
+      setMoveCategoryError(null);
+      await Promise.all(updates.map((update) => updateCategory(update).unwrap()));
+    } catch (err) {
+      setMoveCategoryError(getErrorMessage(err, 'Kunne ikke flytte kategorien.'));
+    } finally {
+      setIsMovingCategory(false);
+    }
+  };
+
   useEffect(() => {
     if (categoryTree.length > 0) {
       if (categoryIdFromUrl) {
@@ -112,15 +185,24 @@ export function DataLayerPage() {
   const handleOpenAddModal = (parentId: string | null) => {
     setAddParentId(parentId);
     if (parentId) {
+      const path = getCategoryPath(categoryTree, parentId);
+      setAddParentPath(path?.map((cat) => cat.title));
       const parentCat = findCategoryInTree(categoryTree, parentId);
-      setAddParentTitle(parentCat?.title);
+      setAddNextRank((parentCat?.subCategories.length ?? 0) + 1);
     } else {
-      setAddParentTitle(undefined);
+      setAddParentPath(undefined);
+      setAddNextRank(categoryTree.length + 1);
     }
     setIsAddModalOpen(true);
   };
 
   const handleCategoryAdded = (newCategoryId: string) => {
+    if (addParentId) {
+      const path = getCategoryPath(categoryTree, addParentId);
+      if (path) {
+        setExpandedCategoryIds((prev) => new Set([...prev, ...path.map((cat) => cat.id)]));
+      }
+    }
     setSearchParams({ catId: newCategoryId });
   };
 
@@ -192,10 +274,13 @@ export function DataLayerPage() {
       ? (error as { error: string }).error
       : null;
 
-  const aggregatedItems = useMemo(
-    () => (selectedCategory ? getAggregatedItems(selectedCategory) : []),
-    [selectedCategory]
-  );
+  const aggregatedItems = useMemo(() => {
+    if (!selectedCategory) return [];
+    const path = getCategoryPath(categoryTree, selectedCategory.id);
+    const ancestorTitles = path ? path.slice(0, -1).map((c) => c.title) : [];
+    return getAggregatedItems(selectedCategory, ancestorTitles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, categoryTree]);
 
   const descendantCategories = useMemo(
     () => (selectedCategory ? getDescendantCategories(selectedCategory) : []),
@@ -268,7 +353,8 @@ export function DataLayerPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         parentId={addParentId}
-        parentTitle={addParentTitle}
+        parentPath={addParentPath}
+        nextRank={addNextRank}
         onSuccess={handleCategoryAdded}
       />
 
@@ -298,6 +384,7 @@ export function DataLayerPage() {
       <ItemDetailComponent
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
+        onViewLocation={(loc) => { setSelectedItem(null); setLocationItemsTarget(loc); }}
         canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
@@ -314,6 +401,7 @@ export function DataLayerPage() {
         isOpen={isLocationManagerOpen}
         onClose={() => setIsLocationManagerOpen(false)}
         onViewItems={(loc) => setLocationItemsTarget(loc)}
+        canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
       />
@@ -409,13 +497,19 @@ export function DataLayerPage() {
               </h2>
             </div>
 
+            {moveCategoryError && (
+              <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                {moveCategoryError}
+              </div>
+            )}
+
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-accent" />
               </div>
             ) : (
               <div className="space-y-1 max-h-[300px] md:max-h-none overflow-y-auto">
-                {categoryTree.map((cat) => (
+                {categoryTree.map((cat, idx) => (
                   <CategoryTreeNode
                     key={cat.id}
                     category={cat}
@@ -427,6 +521,13 @@ export function DataLayerPage() {
                     canCreate={canCreate}
                     canUpdate={canUpdate}
                     canDelete={canDelete}
+                    expandedCategoryIds={expandedCategoryIds}
+                    onToggleExpand={toggleExpandCategory}
+                    isFirst={idx === 0}
+                    isLast={idx === categoryTree.length - 1}
+                    isMoving={isMovingCategory}
+                    onMoveUp={(c) => handleMoveCategory(c, 'up')}
+                    onMoveDown={(c) => handleMoveCategory(c, 'down')}
                   />
                 ))}
               </div>
@@ -475,7 +576,7 @@ export function DataLayerPage() {
                       disabled={displayedItems.length === 0}
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray disabled:opacity-50"
                     >
-                      <span>Vælg</span>
+                      <span>Vælg til sletning</span>
                     </button>
                   ))}
 
@@ -570,10 +671,10 @@ export function DataLayerPage() {
                       </div>
 
                       {/* Antal/status: på egen linje under navnet på mobil, ved siden af fra sm */}
-                      <div className="flex items-center gap-3 shrink-0 text-xs text-secondary">
-                        <span className="sm:w-16 sm:text-right">Antal: {item.quantity}</span>
-                        <span className="sm:w-24 sm:text-center px-2 py-0.5 rounded bg-bg-gray text-secondary">
-                          {item.itemStatus}
+                      <div className="flex items-center gap-3 shrink-0 text-sm text-secondary">
+                        <span className="sm:w-20 sm:text-right">Antal: {item.quantity}</span>
+                        <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
+                          {ITEM_STATUS_LABELS[item.itemStatus]}
                         </span>
                       </div>
                     </button>
