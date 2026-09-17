@@ -20,6 +20,7 @@ import HelpPage from './pages/public/HelpPage';
 import NotFoundPage from './pages/public/NotFoundPage';
 import { useGetSessionQuery } from './store/apis/authApi';
 import { MessagesPage } from './pages/messages/messagePage';
+import NotificationPage from './pages/notification/notificationPage';
 
 // Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
 // headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
@@ -68,7 +69,9 @@ function App() {
             <Route path="/datalager" element={<DataLayerPage />} />
             <Route path="/nyheder" element={<NewsPage />} />
             <Route path="/nyheder/:id" element={<NewsDetailPage />} />
+            <Route path="/notifikationer" element={<NotificationPage />} />
             <Route path="/beskeder" element={<MessagesPage />} />
+
             {/* tilføj flere ruter efter behov */}
           </Route>
 

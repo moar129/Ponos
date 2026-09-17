@@ -1,11 +1,12 @@
 // components/notifications/notificationBellComponent.tsx
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Loader2, CheckCheck } from 'lucide-react';
+import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
+  useDismissNotificationMutation, // ændret fra useDeleteNotificationMutation
 } from '../../store/apis/notificationApi';
 import type { AppNotification } from '../../types/notification/notificationTypes';
 
@@ -25,9 +26,10 @@ export function NotificationBellComponent() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const { data: notifications = [], isLoading } = useGetMyNotificationsQuery();
+  const { data: notifications = [], isLoading } = useGetMyNotificationsQuery({ limit: 8 });
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsReadMutation();
+  const [dismissNotification] = useDismissNotificationMutation(); // ændret
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -54,6 +56,11 @@ export function NotificationBellComponent() {
     }
   };
 
+  const handleDismiss = async (event: React.MouseEvent, notificationId: string) => {
+    event.stopPropagation();
+    await dismissNotification({ id: notificationId }); // ændret
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -75,9 +82,9 @@ export function NotificationBellComponent() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-lg bg-white border border-border-gray shadow-xl z-50"
+          className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white border border-border-gray shadow-xl z-50 overflow-hidden flex flex-col"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray shrink-0">
             <h3 className="text-sm font-semibold text-primary">Notifikationer</h3>
             {unreadCount > 0 && (
               <button
@@ -92,38 +99,63 @@ export function NotificationBellComponent() {
             )}
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-5 h-5 animate-spin text-accent" />
-            </div>
-          ) : notifications.length === 0 ? (
-            <p className="text-sm text-secondary text-center py-8 px-4">Ingen notifikationer endnu.</p>
-          ) : (
-            <ul className="divide-y divide-border-gray">
-              {notifications.map((notification) => (
-                <li key={notification.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelect(notification)}
-                    className={`w-full text-left px-4 py-3 transition-colors ${
-                      notification.isRead ? 'hover:bg-bg-gray/50' : 'bg-accent/10 hover:bg-accent/15'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm text-primary truncate">{notification.title}</p>
-                      {!notification.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
+          <div className="max-h-80 overflow-y-auto">
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-accent" />
+              </div>
+            ) : notifications.length === 0 ? (
+              <p className="text-sm text-secondary text-center py-8 px-4">Ingen notifikationer endnu.</p>
+            ) : (
+              <ul className="divide-y divide-border-gray">
+                {notifications.map((notification) => (
+                  <li key={notification.id} className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(notification)}
+                      className={`w-full text-left pl-4 pr-9 py-3 transition-colors ${
+                        notification.isRead ? 'hover:bg-bg-gray/50' : 'bg-accent/10 hover:bg-accent/15'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm text-primary truncate">{notification.title}</p>
+                        {!notification.isRead && (
+                          <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
+                        )}
+                      </div>
+                      {notification.body && (
+                        <p className="text-xs text-secondary truncate mt-0.5">{notification.body}</p>
                       )}
-                    </div>
-                    {notification.body && (
-                      <p className="text-xs text-secondary truncate mt-0.5">{notification.body}</p>
-                    )}
-                    <p className="text-[11px] text-secondary mt-1">{timeAgo(notification.createdAt)}</p>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                      <p className="text-[11px] text-secondary mt-1">{timeAgo(notification.createdAt)}</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleDismiss(e, notification.id)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Skjul notifikation"
+                      aria-label="Skjul notifikation"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="border-t border-border-gray shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/notifikationer');
+              }}
+              className="w-full text-center text-xs text-accent hover:text-accent-hover py-2.5 transition-colors"
+            >
+              Se alle notifikationer
+            </button>
+          </div>
         </div>
       )}
     </div>

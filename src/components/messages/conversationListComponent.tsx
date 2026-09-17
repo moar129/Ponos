@@ -1,11 +1,7 @@
 // components/messaging/ConversationListComponent.tsx
 import { Loader2, MessageSquareText, Users } from 'lucide-react';
 import { useGetMyConversationsQuery } from '../../store/apis/messageApi';
-
-interface ConversationListComponentProps {
-  selectedConversationId?: string | null;
-  onSelectConversation?: (conversationId: string) => void;
-}
+import type { ConversationListComponentProps } from '../../types/messages/messagesTypes';
 
 function getInitials(name: string | null): string {
   if (!name) return '?';
@@ -70,10 +66,23 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
                   getInitials(conv.displayName)
                 )}
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-primary truncate">
-                  {conv.displayName ?? 'Unavngivet samtale'}
-                </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p
+                    className={`text-sm truncate ${
+                      conv.unread ? 'font-semibold text-primary' : 'font-medium text-primary'
+                    }`}
+                  >
+                    {conv.displayName ?? 'Unavngivet samtale'}
+                  </p>
+                  {/* Ulæst-prik - vises kun når der er nyt siden jeg sidst læste samtalen. */}
+                  {conv.unread && (
+                    <span
+                      className="w-2 h-2 rounded-full bg-accent shrink-0"
+                      aria-label="Ulæste beskeder"
+                    />
+                  )}
+                </div>
                 <p className="text-xs text-secondary truncate">
                   {conv.lastMessage ?? 'Ingen beskeder endnu'}
                 </p>
