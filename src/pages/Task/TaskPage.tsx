@@ -266,7 +266,7 @@ export function TasksPage() {
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg text-primary">I gang</h2>
-                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full">
                                 {myTasks.length}
                             </span>
                         </div>
