@@ -4,7 +4,8 @@ import {
     useGetRoomsQuery,
 } from '../../store/apis/taskApi';
 import type { ETaskPriority } from '../../types/Task/Task';
-import { MoreVertical } from 'lucide-react';
+import { X } from 'lucide-react';
+
 
 interface CreateTaskModalProps {
     isOpen: boolean;
@@ -94,7 +95,7 @@ export function CreateTaskModal({
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-900"
                     >
-                        <MoreVertical />
+                        <X />
                     </button>
                 </div>
 

@@ -27,6 +27,12 @@ export  interface Room {
   created_at: string;
 }
 
+export interface TaskAssignee {
+  user_id: string;
+  assigned_by: string;
+  assigned_at: string;
+}
+
 export interface TaskState {
   tasks: Task[];
   rooms: Room[];
@@ -45,4 +51,21 @@ export interface RoomBarProps {
 export interface TaskCardProps {
   task: Task;
   onJoin?: () => void;
+}
+
+export interface CompletedTaskAssignee {
+  id: string;
+  name: string;
+}
+
+export interface CompletedTaskMaterial {
+  itemId: string;
+  name: string;
+  quantity: number;
+}
+
+export interface CompletedTaskDetails extends Task {
+  roomName: string | null;
+  assignees: CompletedTaskAssignee[];
+  materials: CompletedTaskMaterial[];
 }

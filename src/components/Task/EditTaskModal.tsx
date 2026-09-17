@@ -3,6 +3,7 @@ import {
     useUpdateTaskMutation,
 } from '../../store/apis/taskApi';
 import type { ETaskPriority, Task } from '../../types/Task/Task';
+import { X } from 'lucide-react';
 
 interface EditTaskModalProps {
     isOpen: boolean;
@@ -131,7 +132,7 @@ export function EditTaskModal({
                         onClick={handleClose}
                         className="text-gray-500 hover:text-gray-900"
                     >
-                        X
+                        <X />
                     </button>
                 </div>
 

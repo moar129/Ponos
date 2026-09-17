@@ -1,6 +1,6 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
-import { Building2, KeyRound, Send, UserPlus, Users } from 'lucide-react'
+import { Building2, CheckCircle2, KeyRound, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
     CREATE_INVITATIONS_PRIVILEGE,
@@ -11,6 +11,7 @@ import {
     READ_INVITATIONS_PRIVILEGE,
     READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
     READ_ROLES_PRIVILEGE,
+    READ_TASKS_PRIVILEGE,
     UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     UPDATE_ORGANISATION_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
@@ -23,6 +24,7 @@ import { MembersPanel } from './MembersPanel'
 import { InvitationsPanel } from './InvitationsPanel'
 import { MembershipRequestsPanel } from './MembershipRequestsPanel'
 import { OrganisationAdminPanel } from './OrganisationAdminPanel'
+import { CompletedTasksPanel } from './CompletedTasksPanel'
 
 interface SubTabDef {
     key: AdminSubTab
@@ -56,6 +58,10 @@ export function AdministrationTab() {
         UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     ])
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
+    // US-70: AC nævner admin/manage_tasks, men manage_tasks er erstattet af
+    // granulære CRUD-privilegier i Fase 3 - read_tasks bruges i stedet
+    // (admin er stadig altid inkluderet via useHasPrivilege).
+    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE)
 
     const tabs: SubTabDef[] = []
     if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
@@ -66,6 +72,7 @@ export function AdministrationTab() {
     if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
     if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
+    if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: 'Afsluttede opgaver', icon: CheckCircle2 })
 
     const [selectedSubTab, setSelectedSubTab] = useState<AdminSubTab | null>(null)
 
@@ -106,6 +113,7 @@ export function AdministrationTab() {
             {activeSubTab === 'invitations' && <InvitationsPanel />}
             {activeSubTab === 'requests' && <MembershipRequestsPanel />}
             {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+            {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
         </div>
     )
 }
