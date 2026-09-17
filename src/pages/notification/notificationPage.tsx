@@ -61,18 +61,18 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="bg-[#0B132A] rounded-xl border border-slate-800 shadow-sm max-w-2xl mx-auto">
-      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800">
+    <div className="bg-white rounded-xl border border-border-gray shadow-sm max-w-2xl mx-auto">
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border-gray">
         <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-[#C7975D]" />
-          <h1 className="text-lg font-semibold text-slate-100">Notifikationer</h1>
+          <Bell className="w-5 h-5 text-accent" />
+          <h1 className="text-lg font-semibold text-primary">Notifikationer</h1>
         </div>
         {unreadCount > 0 && (
           <button
             type="button"
             onClick={() => markAllRead()}
             disabled={isMarkingAll}
-            className="flex items-center gap-1.5 text-sm text-[#C7975D] hover:text-[#e0ac6f] disabled:opacity-60"
+            className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
           >
             <CheckCheck className="w-4 h-4" />
             Markér alle som læst
@@ -82,19 +82,19 @@ export default function NotificationsPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+          <Loader2 className="w-6 h-6 animate-spin text-accent" />
         </div>
       ) : errorMessage ? (
-        <div className="m-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+        <div className="m-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
           {errorMessage}
         </div>
       ) : notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400 px-4">
-          <Bell className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+        <div className="flex flex-col items-center justify-center py-16 text-center text-secondary px-4">
+          <Bell className="w-10 h-10 mb-3 stroke-[1.5] text-secondary" />
           <p className="text-sm">Ingen notifikationer endnu.</p>
         </div>
       ) : (
-        <ul className="divide-y divide-slate-800">
+        <ul className="divide-y divide-border-gray">
           {notifications.map((notification) => {
             const isDismissed = !!notification.dismissedAt;
             return (
@@ -104,8 +104,8 @@ export default function NotificationsPage() {
                     isDismissed
                       ? 'opacity-60'
                       : notification.isRead
-                      ? 'hover:bg-slate-800/40'
-                      : 'bg-slate-800/30 hover:bg-slate-800/60'
+                      ? 'hover:bg-bg-gray/50'
+                      : 'bg-accent/10 hover:bg-accent/15'
                   }`}
                 >
                   <button
@@ -115,19 +115,19 @@ export default function NotificationsPage() {
                   >
                     <div className="flex items-center gap-2">
                       {!notification.isRead && !isDismissed && (
-                        <span className="w-2 h-2 rounded-full bg-[#C7975D] shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                       )}
-                      <p className="text-sm font-medium text-slate-100 truncate">{notification.title}</p>
+                      <p className="text-sm font-medium text-primary truncate">{notification.title}</p>
                       {isDismissed && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 shrink-0">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary shrink-0">
                           Skjult
                         </span>
                       )}
                     </div>
                     {notification.body && (
-                      <p className="text-sm text-slate-400 mt-1 line-clamp-2">{notification.body}</p>
+                      <p className="text-sm text-secondary mt-1 line-clamp-2">{notification.body}</p>
                     )}
-                    <p className="text-xs text-slate-500 mt-1.5">{formatDate(notification.createdAt)}</p>
+                    <p className="text-xs text-secondary mt-1.5">{formatDate(notification.createdAt)}</p>
                   </button>
 
                   <div className="flex items-center gap-1 shrink-0">
@@ -135,7 +135,7 @@ export default function NotificationsPage() {
                       <button
                         type="button"
                         onClick={(e) => handleUndismiss(e, notification.id)}
-                        className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-slate-200 transition-colors"
+                        className="p-2 rounded-lg hover:bg-bg-gray text-secondary hover:text-primary transition-colors"
                         title="Vis i klokken igen"
                         aria-label="Vis i klokken igen"
                       >
@@ -145,7 +145,7 @@ export default function NotificationsPage() {
                       <button
                         type="button"
                         onClick={(e) => handleUndismiss(e, notification.id)}
-                        className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-slate-200 transition-colors opacity-0"
+                        className="p-2 rounded-lg hover:bg-bg-gray text-secondary hover:text-primary transition-colors opacity-0"
                         disabled
                         aria-hidden="true"
                       >
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
                     <button
                       type="button"
                       onClick={(e) => handleDelete(e, notification.id)}
-                      className="p-2 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
+                      className="p-2 rounded-lg hover:bg-red-500/10 text-secondary hover:text-red-500 transition-colors"
                       title="Slet permanent"
                       aria-label="Slet notifikation permanent"
                     >

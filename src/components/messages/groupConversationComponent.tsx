@@ -229,7 +229,7 @@ export function GroupConversationComponent({
               if (msg.messageType === 'system') {
                 return (
                   <div key={msg.id} className="flex justify-center">
-                    <p className="text-[11px] text-slate-500 bg-slate-900/60 rounded-full px-3 py-1">
+                    <p className="text-[11px] text-secondary bg-bg-gray rounded-full px-3 py-1">
                       {msg.content}
                     </p>
                   </div>

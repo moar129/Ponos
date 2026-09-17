@@ -102,16 +102,16 @@ export function ManageGroupMembersComponent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+      <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-border-gray">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-slate-100">Medlemmer</h2>
-            <p className="text-xs text-slate-400 mt-0.5 truncate">{groupName}</p>
+            <h2 className="text-lg font-semibold text-primary">Medlemmer</h2>
+            <p className="text-xs text-secondary mt-0.5 truncate">{groupName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary"
             title="Luk"
             aria-label="Luk modal"
           >
@@ -121,39 +121,39 @@ export function ManageGroupMembersComponent({
 
         <div className="p-4 space-y-4 overflow-y-auto">
           {errorMessage && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {errorMessage}
             </div>
           )}
 
           {/* Nuværende medlemmer */}
           <div>
-            <label className="block text-xs text-slate-400 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5">
               Nuværende medlemmer ({participants.length})
             </label>
             {loadingParticipants ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="w-5 h-5 animate-spin text-[#C7975D]" />
+                <Loader2 className="w-5 h-5 animate-spin text-accent" />
               </div>
             ) : (
-              <ul className="border border-slate-800 rounded-lg divide-y divide-slate-800 max-h-48 overflow-y-auto">
+              <ul className="border border-border-gray rounded-lg divide-y divide-border-gray max-h-48 overflow-y-auto">
                 {participants.map((participant) => (
                   <li key={participant.userId} className="flex items-center gap-3 p-2.5">
-                    <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
+                    <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
                       {participant.urlPicture ? (
                         <img src={participant.urlPicture} alt="" className="w-full h-full object-cover" />
                       ) : (
                         getInitials(participant.firstName, participant.lastName)
                       )}
                     </div>
-                    <p className="text-sm text-slate-100 truncate flex-1 min-w-0">
+                    <p className="text-sm text-primary truncate flex-1 min-w-0">
                       {participant.firstName} {participant.lastName}
                     </p>
                     <button
                       type="button"
                       onClick={() => handleRemove(participant.userId)}
                       disabled={removingId === participant.userId}
-                      className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0"
+                      className="p-1.5 rounded-md text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0"
                       title="Fjern fra gruppen"
                       aria-label={`Fjern ${participant.firstName} fra gruppen`}
                     >
@@ -172,48 +172,48 @@ export function ManageGroupMembersComponent({
           {/* Tilføj nye medlemmer */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-slate-400 uppercase tracking-wide">Tilføj medlemmer</label>
+              <label className="block text-xs text-secondary uppercase tracking-wide">Tilføj medlemmer</label>
               {selectedIds.size > 0 && (
-                <span className="text-xs text-[#C7975D]">{selectedIds.size} valgt</span>
+                <span className="text-xs text-accent">{selectedIds.size} valgt</span>
               )}
             </div>
 
             <div className="relative mb-2">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
               <input
                 type="text"
                 placeholder="Søg efter kontakt eller rolle..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent"
               />
             </div>
 
-            <div className="border border-slate-800 rounded-lg max-h-48 overflow-y-auto">
+            <div className="border border-border-gray rounded-lg max-h-48 overflow-y-auto">
               {loadingMembers ? (
                 <div className="flex justify-center py-6">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#C7975D]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-accent" />
                 </div>
               ) : filteredAvailableMembers.length === 0 ? (
-                <p className="text-sm text-slate-400 text-center py-6">
+                <p className="text-sm text-secondary text-center py-6">
                   {availableMembers.length === 0
                     ? 'Alle organisationens medlemmer er allerede i gruppen.'
                     : 'Ingen kontakter matcher din søgning.'}
                 </p>
               ) : (
-                <ul className="divide-y divide-slate-800">
+                <ul className="divide-y divide-border-gray">
                   {filteredAvailableMembers.map((member) => {
                     const isChecked = selectedIds.has(member.id);
                     return (
                       <li key={member.id}>
-                        <label className="w-full flex items-center gap-3 p-2.5 cursor-pointer hover:bg-slate-800/50 transition-colors">
+                        <label className="w-full flex items-center gap-3 p-2.5 cursor-pointer hover:bg-bg-gray/50 transition-colors">
                           <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSelected(member.id)}
-                            className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+                            className="w-4 h-4 rounded border-border-gray text-accent focus:ring-accent shrink-0"
                           />
-                          <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
+                          <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
                             {member.urlPicture ? (
                               <img src={member.urlPicture} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -221,10 +221,10 @@ export function ManageGroupMembersComponent({
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm text-slate-100 truncate">
+                            <p className="text-sm text-primary truncate">
                               {member.firstName} {member.lastName}
                             </p>
-                            <p className="text-xs text-slate-400 truncate">{member.roleName ?? 'Ingen rolle'}</p>
+                            <p className="text-xs text-secondary truncate">{member.roleName ?? 'Ingen rolle'}</p>
                           </div>
                         </label>
                       </li>
@@ -236,11 +236,11 @@ export function ManageGroupMembersComponent({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800"
+            className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray"
           >
             Luk
           </button>
@@ -248,7 +248,7 @@ export function ManageGroupMembersComponent({
             type="button"
             onClick={handleAdd}
             disabled={adding || selectedIds.size === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
             Tilføj valgte
