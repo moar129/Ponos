@@ -11,6 +11,7 @@ interface CreateTaskInput {
     end_date: string | null
     priority: ETaskPriority | null
     max_assignees: number | null
+    requires_approval: boolean
     room_id?: string | null
 }
 
@@ -48,6 +49,17 @@ interface RemoveAssigneeInput {
     taskId: string
     userId: string
 }
+
+interface TaskRequest {
+    id: string
+    task_id: string
+    requested_by: string
+    requested_at: string
+    status: 'Pending' | 'Accepted' | 'Rejected'
+    handled_by: string | null
+    done_at: string | null
+}
+
 
 // 42501 = RLS afviste - bruger uden det relevante privilegie
 // (create_tasks/update_tasks/delete_tasks, Fase 3) forsøgte at
@@ -309,7 +321,7 @@ export const taskApi = supabaseApi.injectEndpoints({
         }),
 
         createTask: builder.mutation<Task, CreateTaskInput>({
-            queryFn: async ({ title, description, start_date, end_date, priority, max_assignees, room_id }) => {
+            queryFn: async ({ title, description, start_date, end_date, priority, max_assignees, requires_approval, room_id }) => {
                 try {
                     const organisationId = await getAuthenticatedOrganisationId()
                     const { data, error } = await supabase
@@ -323,6 +335,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             priority,
                             status: 'Started',
                             max_assignees,
+                            requires_approval,
                             room_id,
                         })
                         .select()
@@ -515,6 +528,142 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
+
+        createTaskRequest: builder.mutation<TaskRequest, string>({
+            queryFn: async (taskId) => {
+                try {
+                    const { data: authData, error: authError } =
+                        await supabase.auth.getUser()
+
+                    if (authError || !authData.user) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: 'Du skal være logget ind.',
+                            } as QueryError,
+                        }
+                    }
+                    const { data: existingRequest, error: existingRequestError } =
+                        await supabase
+                            .from('task_requests')
+                            .select('*')
+                            .eq('task_id', taskId)
+                            .eq('requested_by', authData.user.id)
+                            .eq('status', 'Pending')
+                            .maybeSingle()
+
+                    if (existingRequestError) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: existingRequestError.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    if (existingRequest) {
+                        return {
+                            data: existingRequest as TaskRequest,
+                        }
+                    }
+
+                    // Opret ny completion request
+                    const { data, error } = await supabase
+                        .from('task_requests')
+                        .insert({
+                            task_id: taskId,
+                            requested_by: authData.user.id,
+                            status: 'Pending',
+                        })
+                        .select()
+                        .single()
+
+                    if (error) {
+                        return {
+                            error: mapTaskError(
+                                error,
+                                'melde denne opgave færdig'
+                            ),
+                        }
+                    }
+
+                    return {
+                        data: data as TaskRequest,
+                    }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved oprettelse af anmodning om færdiggørelse'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+
+            invalidatesTags: (_result, _error, taskId) => [
+                {
+                    type: 'Task',
+                    id: `${taskId}-REQUESTS`,
+                },
+                {
+                    type: 'Task',
+                    id: taskId,
+                },
+                {
+                    type: 'Task',
+                    id: 'LIST',
+                },
+            ],
+        }),
+
+        getTaskRequests: builder.query<TaskRequest[], string>({
+            queryFn: async (taskId) => {
+                try {
+                    const { data, error } = await supabase
+                        .from('task_requests')
+                        .select('*')
+                        .eq('task_id', taskId)
+                        .order('requested_at', { ascending: false })
+
+                    if (error) {
+                        return {
+                            error: {
+                                status: 'CUSTOM_ERROR',
+                                error: error.message,
+                            } as QueryError,
+                        }
+                    }
+
+                    return {
+                        data: (data ?? []) as TaskRequest[],
+                    }
+                } catch (err: unknown) {
+                    const message =
+                        err instanceof Error
+                            ? err.message
+                            : 'Fejl ved hentning af task requests'
+
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: message,
+                        } as QueryError,
+                    }
+                }
+            },
+            providesTags: (_result, _error, taskId) => [
+                {
+                    type: 'Task',
+                    id: `${taskId}-REQUESTS`,
+                },
+            ],
+        }),
+
         assignToTask: builder.mutation<void, AssignToTaskInput>({
             queryFn: async ({ taskId, userId }) => {
                 try {
@@ -834,6 +983,8 @@ export const {
     useGetRoomsQuery,
     useGetOrganisationEmployeesQuery,
     useGetTaskAssigneesQuery,
+    useGetTaskRequestsQuery,
+    useCreateTaskRequestMutation,
     useCreateTaskMutation,
     useCreateRoomMutation,
     useUpdateTaskMutation,
