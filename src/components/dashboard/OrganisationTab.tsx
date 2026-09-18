@@ -52,11 +52,8 @@ type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 // fanen). Rediger/slet organisation ligger i Administration-fanen (se
 // OrganisationAdminPanel.tsx).
 //
-// "Organisation"-underfanen (navn, admin-badge, medlemsantal) vises kun
-// for administratorer af den aktive organisation - for et menigt medlem
-// er de tal ikke handlingsrelevante, og fjernes for at rydde op i antal
-// faner. Menige medlemmer lander i stedet direkte på "Mine
-// organisationer".
+// "Organisation"-underfanen (navn, admin-badge, medlemsantal) vises for
+// alle medlemmer af den aktive organisation, ikke kun administratorer.
 //
 // Bruger uden organisation: samme fane tilbyder både "Opret organisation"
 // (US-58) og "Anmod om medlemskab" (US-05) som to underfaner, da det er
@@ -279,14 +276,11 @@ export function OrganisationTab() {
     // Bruges til at vise antal medlemmer + rolle-badge på "Organisation"-
     // underfanen nedenfor - allerede hentet ovenfor til no-org-grenen.
     const activeMembership = memberships?.find((m) => m.isActive) ?? null
-    const isOrgAdmin = activeMembership?.isAdmin ?? false
 
-    // Rolle-baseret fane-sæt: "Organisation" (navn/badge/medlemsantal) er
-    // kun relevant for administratoren af den aktive organisation. Et
-    // menigt medlem ser derfor kun de handlingsorienterede faner, og
-    // lander på "Mine organisationer" i stedet.
+    // "Organisation" (navn/badge/medlemsantal) er synlig for alle
+    // medlemmer af den aktive organisation, ligesom de øvrige faner.
     const orgTabDefs: { key: OrgTab; label: string; icon: LucideIcon }[] = [
-        ...(isOrgAdmin ? [{ key: 'details' as OrgTab, label: 'Organisation', icon: Building2 }] : []),
+        { key: 'details', label: 'Organisation', icon: Building2 },
         { key: 'memberships', label: 'Mine organisationer', icon: Users },
         { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
         { key: 'create', label: 'Opret organisation', icon: Plus },
