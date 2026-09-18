@@ -50,6 +50,12 @@ export const READ_TASKS_PRIVILEGE = 'read_tasks'
 export const UPDATE_TASKS_PRIVILEGE = 'update_tasks'
 export const DELETE_TASKS_PRIVILEGE = 'delete_tasks'
 
+// Medlems seedede privilegier (create_organisation, 15.8) er låst fast -
+// kan hverken fjernes fra rollen eller omdøbes (se
+// prevent_default_role_privilege_change, docs/dbSchema.sql 15.6d).
+// UI-guard kun - selve håndhævelsen sker i databasen.
+export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE]
+
 type PrivilegeOp = 'create' | 'read' | 'update' | 'delete'
 
 interface PrivilegeDomain {

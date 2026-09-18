@@ -1,10 +1,12 @@
 // src/components/dashboard/MembersPanel.tsx
 import { useState } from 'react'
+import { Lock } from 'lucide-react'
 import {
     useAssignRoleMutation,
     useGetOrganisationMembersQuery,
     useGetOrganisationRolesQuery,
     useRemoveMemberMutation,
+    useTransferAdminRoleMutation,
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
@@ -45,13 +47,34 @@ export function MembersPanel() {
     const { hasPrivilege: isFullAdmin } = useHasPrivilege(ADMIN_PRIVILEGE)
     const [assignRole, { error: assignError }] = useAssignRoleMutation()
     const [removeMember, { error: removeError }] = useRemoveMemberMutation()
+    const [transferAdminRole, { error: transferError }] = useTransferAdminRoleMutation()
     const [savingUserId, setSavingUserId] = useState<string | null>(null)
     const [removingUserId, setRemovingUserId] = useState<string | null>(null)
     const [confirmingRemoveId, setConfirmingRemoveId] = useState<string | null>(null)
+    const [pendingTransferId, setPendingTransferId] = useState<string | null>(null)
 
     const currentUserId = myProfile?.id ?? null
 
-    async function handleAssign(member: OrganisationMember, roleId: string) {
+    // Medlemmer, hvis rolle bærer admin-privilegiet - bruges til at skjule
+    // "Fjern" for en manage_members-holder, der ikke selv er fuld admin
+    // (matcher escalation-guarden i remove_member-RPC'en server-side), og
+    // til at afgøre om et rolleskift reelt er et admin-hand-off.
+    const roleIdsWithAdmin = new Set((privileges ?? []).filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
+
+    // Kun én admin ad gangen (databasens
+    // prevent_non_admin_role_change_on_admin_membership håndhæver det).
+    // At vælge en admin-bærende rolle i dropdownen er derfor et hand-off,
+    // ikke en almindelig tildeling - kræver bekræftelse, fordi man selv
+    // straks mister admin-adgangen (transfer_admin_role, dbSchema.sql).
+    function handleAssign(member: OrganisationMember, roleId: string) {
+        if (roleIdsWithAdmin.has(roleId)) {
+            setPendingTransferId(member.id)
+            return
+        }
+        void doAssign(member, roleId)
+    }
+
+    async function doAssign(member: OrganisationMember, roleId: string) {
         setSavingUserId(member.id)
         try {
             await assignRole({ userId: member.id, roleId }).unwrap()
@@ -59,6 +82,18 @@ export function MembersPanel() {
             // Fejlen vises via assignError.
         } finally {
             setSavingUserId(null)
+        }
+    }
+
+    async function handleConfirmTransfer(member: OrganisationMember) {
+        setSavingUserId(member.id)
+        try {
+            await transferAdminRole({ userId: member.id }).unwrap()
+        } catch {
+            // Fejlen vises via transferError.
+        } finally {
+            setSavingUserId(null)
+            setPendingTransferId(null)
         }
     }
 
@@ -74,13 +109,8 @@ export function MembersPanel() {
         }
     }
 
-    // Medlemmer, hvis rolle bærer admin-privilegiet - bruges til at skjule
-    // "Fjern" for en manage_members-holder, der ikke selv er fuld admin
-    // (matcher escalation-guarden i remove_member-RPC'en server-side).
-    const roleIdsWithAdmin = new Set((privileges ?? []).filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
-
     const listError = readableError(membersError)
-    const actionError = readableError(assignError) ?? readableError(removeError)
+    const actionError = readableError(assignError) ?? readableError(removeError) ?? readableError(transferError)
 
     if (loadingMembers) {
         return <p className="text-secondary dark:text-slate-400">Indlæser medlemmer...</p>
@@ -126,16 +156,26 @@ export function MembersPanel() {
                                     ) : (
                                         <>
                                             {canManageRoles && (
-                                                <select
-                                                    value={member.roleId ?? ''}
-                                                    onChange={(e) => handleAssign(member, e.target.value)}
-                                                    disabled={savingUserId === member.id}
-                                                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                                                >
-                                                    {(roles ?? []).map((role) => (
-                                                        <option key={role.id} value={role.id}>{role.name}</option>
-                                                    ))}
-                                                </select>
+                                                memberIsAdmin && !isFullAdmin ? (
+                                                    <span
+                                                        className="flex items-center gap-1 text-xs text-secondary italic dark:text-slate-400"
+                                                        title="Kun en administrator kan ændre en anden administrators rolle"
+                                                    >
+                                                        <Lock className="w-3.5 h-3.5" />
+                                                        Låst
+                                                    </span>
+                                                ) : (
+                                                    <select
+                                                        value={member.roleId ?? ''}
+                                                        onChange={(e) => handleAssign(member, e.target.value)}
+                                                        disabled={savingUserId === member.id}
+                                                        className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                                    >
+                                                        {(roles ?? []).map((role) => (
+                                                            <option key={role.id} value={role.id}>{role.name}</option>
+                                                        ))}
+                                                    </select>
+                                                )
                                             )}
 
                                             {canRemoveThisMember && confirmingRemoveId !== member.id && (
@@ -169,6 +209,30 @@ export function MembersPanel() {
                                         type="button"
                                         onClick={() => setConfirmingRemoveId(null)}
                                         disabled={removingUserId === member.id}
+                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
+                                    >
+                                        Annuller
+                                    </button>
+                                </div>
+                            )}
+
+                            {pendingTransferId === member.id && (
+                                <div className="mt-2 flex flex-wrap items-center gap-3">
+                                    <span className="text-sm text-secondary dark:text-slate-400">
+                                        Giv admin-rollen videre til {member.firstName} {member.lastName}? Du mister selv admin-adgangen med det samme og bliver Medlem.
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleConfirmTransfer(member)}
+                                        disabled={savingUserId === member.id}
+                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
+                                    >
+                                        {savingUserId === member.id ? 'Overfører...' : 'Ja, giv admin videre'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPendingTransferId(null)}
+                                        disabled={savingUserId === member.id}
                                         className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                                     >
                                         Annuller

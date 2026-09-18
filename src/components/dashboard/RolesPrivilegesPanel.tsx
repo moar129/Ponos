@@ -13,6 +13,7 @@ import {
 import {
     ADMIN_PRIVILEGE,
     PRIVILEGE_DOMAINS,
+    PROTECTED_MEMBER_PRIVILEGE_NAMES,
     privilegeLabel,
     privilegeOpLabel,
     useCreatePrivilegeMutation,
@@ -56,9 +57,18 @@ function RolesSection() {
     const { data: roles, isLoading: loadingRoles, error: rolesError } = useGetOrganisationRolesQuery()
     const { data: privileges, isLoading: loadingPrivileges, error: privilegesError } = useGetOrganisationPrivilegesQuery()
     const [createRole, { isLoading: creatingRole, error: createRoleError }] = useCreateRoleMutation()
+    const [createPrivilege] = useCreatePrivilegeMutation()
 
     const [newRoleName, setNewRoleName] = useState('')
     const [validationError, setValidationError] = useState<string | null>(null)
+
+    // Nye roller starter med Medlems privilegier som praktisk
+    // udgangspunkt (kan frit fjernes bagefter) - i stedet for at admin
+    // skal huske at genskabe "gulvet" manuelt hver gang.
+    const memberRole = roles?.find((r) => r.name === MEMBER_ROLE_NAME)
+    const memberPrivilegeNames = (privileges ?? [])
+        .filter((p) => p.roleId === memberRole?.id)
+        .map((p) => p.name)
 
     async function handleCreateRole(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -70,8 +80,14 @@ function RolesSection() {
         setValidationError(null)
 
         try {
-            await createRole({ name: newRoleName }).unwrap()
+            const newRole = await createRole({ name: newRoleName }).unwrap()
             setNewRoleName('')
+
+            if (memberPrivilegeNames.length > 0) {
+                await Promise.allSettled(
+                    memberPrivilegeNames.map((name) => createPrivilege({ roleId: newRole.id, name }).unwrap()),
+                )
+            }
         } catch {
             // Fejlen vises via createRoleError.
         }
@@ -405,72 +421,80 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                 </ul>
             )}
 
-            <form onSubmit={handleCreatePrivileges} className="flex flex-col gap-2">
-                <div className="relative inline-block" ref={pickerRef}>
-                    <button
-                        type="button"
-                        onClick={() => setPickerOpen((open) => !open)}
-                        aria-haspopup="listbox"
-                        aria-expanded={pickerOpen}
-                        className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-left text-secondary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
-                    >
-                        <span>{pickerButtonLabel}</span>
-                        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} />
-                    </button>
+            {isDefaultRole ? (
+                <p className="text-xs text-secondary italic dark:text-slate-400">
+                    Standardrollen Medlems privilegier er faste og kan ikke udvides.
+                </p>
+            ) : (
+                <>
+                    <form onSubmit={handleCreatePrivileges} className="flex flex-col gap-2">
+                        <div className="relative inline-block" ref={pickerRef}>
+                            <button
+                                type="button"
+                                onClick={() => setPickerOpen((open) => !open)}
+                                aria-haspopup="listbox"
+                                aria-expanded={pickerOpen}
+                                className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-left text-secondary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                            >
+                                <span>{pickerButtonLabel}</span>
+                                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                    {pickerOpen && (
-                        <div
-                            role="listbox"
-                            className="absolute left-0 top-full mt-1 w-64 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg border border-border-gray py-1 z-10 dark:bg-slate-800 dark:border-slate-700"
-                        >
-                            {pickerGroups.map((group, groupIndex) => (
-                                <div key={group.heading ?? `ungrouped-${groupIndex}`}>
-                                    {group.heading && (
-                                        <p className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wide text-secondary dark:text-slate-400">
-                                            {group.heading}
-                                        </p>
-                                    )}
-                                    {group.options.map((p) => (
-                                        <label
-                                            key={p.name}
-                                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer dark:text-slate-400 dark:hover:bg-slate-700"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedPrivileges.includes(p.name)}
-                                                onChange={() => togglePrivilege(p.name)}
-                                                className="rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
-                                            />
-                                            {p.label}
-                                        </label>
+                            {pickerOpen && (
+                                <div
+                                    role="listbox"
+                                    className="absolute left-0 top-full mt-1 w-64 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg border border-border-gray py-1 z-10 dark:bg-slate-800 dark:border-slate-700"
+                                >
+                                    {pickerGroups.map((group, groupIndex) => (
+                                        <div key={group.heading ?? `ungrouped-${groupIndex}`}>
+                                            {group.heading && (
+                                                <p className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wide text-secondary dark:text-slate-400">
+                                                    {group.heading}
+                                                </p>
+                                            )}
+                                            {group.options.map((p) => (
+                                                <label
+                                                    key={p.name}
+                                                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer dark:text-slate-400 dark:hover:bg-slate-700"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedPrivileges.includes(p.name)}
+                                                        onChange={() => togglePrivilege(p.name)}
+                                                        className="rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
+                                                    />
+                                                    {p.label}
+                                                </label>
+                                            ))}
+                                        </div>
                                     ))}
                                 </div>
-                            ))}
+                            )}
                         </div>
-                    )}
-                </div>
-                <div className="flex flex-wrap items-end gap-2">
-                    {selectedPrivileges.includes(CUSTOM_PRIVILEGE_OPTION) && (
-                        <input
-                            type="text"
-                            value={customPrivilegeName}
-                            onChange={(e) => setCustomPrivilegeName(e.target.value)}
-                            placeholder="Fx custom_privilegie"
-                            autoFocus
-                            className="flex-1 min-w-[160px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                        />
-                    )}
-                    <button
-                        type="submit"
-                        disabled={creating}
-                        className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                    >
-                        {creating ? 'Tilføjer...' : 'Tilføj privilegie(r)'}
-                    </button>
-                </div>
-            </form>
+                        <div className="flex flex-wrap items-end gap-2">
+                            {selectedPrivileges.includes(CUSTOM_PRIVILEGE_OPTION) && (
+                                <input
+                                    type="text"
+                                    value={customPrivilegeName}
+                                    onChange={(e) => setCustomPrivilegeName(e.target.value)}
+                                    placeholder="Fx custom_privilegie"
+                                    autoFocus
+                                    className="flex-1 min-w-[160px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                />
+                            )}
+                            <button
+                                type="submit"
+                                disabled={creating}
+                                className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                            >
+                                {creating ? 'Tilføjer...' : 'Tilføj privilegie(r)'}
+                            </button>
+                        </div>
+                    </form>
 
-            {privilegeFormError && <p className="text-red-600 text-xs mt-2 dark:text-red-400">{privilegeFormError}</p>}
+                    {privilegeFormError && <p className="text-red-600 text-xs mt-2 dark:text-red-400">{privilegeFormError}</p>}
+                </>
+            )}
         </li>
     )
 }
@@ -577,11 +601,24 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
     // en anden rolle (fx en testrolle) må frit omdøbes/fjernes.
     const isAdminPrivilege = privilege.name === ADMIN_PRIVILEGE && roleName === ADMIN_ROLE_NAME
 
+    // Medlems seedede privilegier er ligeledes låst - kan ikke fjernes
+    // eller omdøbes. Matcher databasens
+    // prevent_default_role_privilege_change-trigger (dbSchema.sql 15.6d).
+    const isProtectedMemberPrivilege =
+        roleName === MEMBER_ROLE_NAME && PROTECTED_MEMBER_PRIVILEGE_NAMES.includes(privilege.name)
+
     return (
         <li className="flex items-center justify-between gap-2 text-sm bg-bg-gray text-secondary rounded-md px-3 py-1 dark:bg-slate-700 dark:text-slate-400">
             <span>{privilegeLabel(privilege.name)}</span>
-            {isAdminPrivilege ? (
-                <span className="flex items-center gap-1 text-xs italic" title="Admin-privilegiet kan ikke omdøbes eller fjernes">
+            {isAdminPrivilege || isProtectedMemberPrivilege ? (
+                <span
+                    className="flex items-center gap-1 text-xs italic"
+                    title={
+                        isAdminPrivilege
+                            ? 'Admin-privilegiet kan ikke omdøbes eller fjernes'
+                            : 'Dette privilegie er en fast del af standardrollen Medlem og kan ikke fjernes eller omdøbes'
+                    }
+                >
                     <Lock className="w-3.5 h-3.5" />
                 </span>
             ) : (
