@@ -53,14 +53,28 @@ export interface AssignRoleInput {
     roleId: string
 }
 
-// Props til komponenter flyttet fra RolesPage.tsx ind i
-// RolesPrivilegesPanel.tsx (US-65).
-export interface RoleCardProps {
+// Props til roller/privilegier-matrixen (src/components/dashboard/roles/,
+// tidligere kort-pr-rolle-layout i RolesPrivilegesPanel.tsx, US-65).
+export interface MatrixCellProps {
     role: Role
-    privileges: Privilege[]
+    privilegeName: string
+    privilege: Privilege | undefined
+    isCustom: boolean
+    isFullAdmin: boolean
+    isProtectedAdminRole: boolean
 }
 
-export interface PrivilegeRowProps {
-    privilege: Privilege
-    roleName: string
+export interface MatrixRowProps {
+    rowName: string
+    isCustom: boolean
+    roles: Role[]
+    byRoleAndName: Map<string, Map<string, Privilege>>
+    isFullAdmin: boolean
+    protectedAdminRoleIds: Set<string>
+}
+
+export interface RoleColumnHeaderProps {
+    role: Role
+    isLocked: boolean
+    lockedReason: string | null
 }

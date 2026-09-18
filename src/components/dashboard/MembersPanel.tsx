@@ -52,6 +52,7 @@ export function MembersPanel() {
     const [removingUserId, setRemovingUserId] = useState<string | null>(null)
     const [confirmingRemoveId, setConfirmingRemoveId] = useState<string | null>(null)
     const [pendingTransferId, setPendingTransferId] = useState<string | null>(null)
+    const [searchTerm, setSearchTerm] = useState('')
 
     const currentUserId = myProfile?.id ?? null
 
@@ -128,6 +129,24 @@ export function MembersPanel() {
         return <p className="text-secondary dark:text-slate-400">Organisationen har ingen medlemmer endnu.</p>
     }
 
+    const filteredMembers = members
+        .filter((member) => {
+            const term = searchTerm.trim().toLowerCase()
+            if (!term) return true
+            return (
+                `${member.firstName} ${member.lastName}`.toLowerCase().includes(term) ||
+                member.email.toLowerCase().includes(term)
+            )
+        })
+        // Den indloggede bruger ligger altid øverst, uanset søgning - .sort()
+        // er stabil, så resten beholder deres eksisterende rækkefølge
+        // (server-sorteret på fornavn).
+        .sort((a, b) => {
+            if (a.id === currentUserId) return -1
+            if (b.id === currentUserId) return 1
+            return 0
+        })
+
     return (
         <div>
             {actionError && (
@@ -136,8 +155,19 @@ export function MembersPanel() {
                 </div>
             )}
 
+            <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Søg efter navn eller e-mail..."
+                className="w-full max-w-sm mb-4 rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            />
+
+            {filteredMembers.length === 0 ? (
+                <p className="text-secondary dark:text-slate-400">Ingen medlemmer matcher søgningen.</p>
+            ) : (
             <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
-                {members.map((member) => {
+                {filteredMembers.map((member) => {
                     const isSelf = member.id === currentUserId
                     const memberIsAdmin = member.roleId !== null && roleIdsWithAdmin.has(member.roleId)
                     const canRemoveThisMember = canManageMembers && (!memberIsAdmin || isFullAdmin)
@@ -243,6 +273,7 @@ export function MembersPanel() {
                     )
                 })}
             </ul>
+            )}
         </div>
     )
 }
