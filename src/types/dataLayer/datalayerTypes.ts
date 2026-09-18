@@ -25,6 +25,7 @@ export interface ItemLocation {
   name: string;
   description?: string | null;
   address?: string | null;
+  parentLocationId?: string | null;
 }
 
 export interface RawCategory {

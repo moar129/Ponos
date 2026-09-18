@@ -55,7 +55,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             aria-label="Administrer lokationer"
           >
             <Settings2 className="w-3.5 h-3.5" />
-            Administrer lokationer
+            Administrer lager
           </button>
         )}
       </div>
@@ -112,11 +112,11 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             disabled={isLoading}
             className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           >
-            <option value="">Ingen lokation</option>
+            <option value="">Intet lager</option>
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>{loc.name}</option>
             ))}
-            {canCreate && <option value="__new__">+ Opret ny lokation…</option>}
+            {canCreate && <option value="__new__">+ Opret nyt lager…</option>}
           </select>
           <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
         </div>

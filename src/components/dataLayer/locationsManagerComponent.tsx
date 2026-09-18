@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Pencil, Trash2, Loader2, Save, MapPin, Plus } from 'lucide-react';
+import { X, Pencil, Trash2, Loader2, Save, MapPin, Plus, Boxes } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
@@ -10,7 +10,10 @@ import { ConfirmDialogComponent } from './confirmDialogComponent';
 import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
-
+// US-S1: en lokation kan enten være et LAGER (parentLocationId = null) eller
+// en SEKTION på et lager (parentLocationId peger på lagerets id). Kun ét
+// niveau understøttes - en sektion kan ikke selv have underlokationer
+// (håndhævet server-side af trg_validate_location_parent).
 export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCreate, canUpdate, canDelete }: LocationManagerComponentProps & {
   onViewItems?: (location: ItemLocation) => void;
 }) {
@@ -19,6 +22,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
   const [editName, setEditName] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editParentId, setEditParentId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ItemLocation | null>(null);
 
@@ -26,6 +30,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  // null = opretter et lager, ellers id på det lager sektionen hører til
+  const [newParentId, setNewParentId] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
   const [updateLocation, { isLoading: isSaving }] = useUpdateLocationMutation();
@@ -34,17 +40,34 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
 
   if (!isOpen) return null;
 
+  // Kun rigtige lagre kan vælges som "forælder" til en sektion - en sektion
+  // kan ikke selv have en sektion under sig.
+  const warehouses = locations.filter((l) => !l.parentLocationId);
+
+  // Grupperer sektioner ind under deres lager, så listen kan vises
+  // hierarkisk i stedet for fladt.
+  const grouped = warehouses.map((warehouse) => ({
+    warehouse,
+    sections: locations.filter((l) => l.parentLocationId === warehouse.id),
+  }));
+
   const handleCreate = async () => {
     if (!newName.trim()) {
       setCreateError('Navn er påkrævet.');
       return;
     }
     try {
-      await addLocation({ name: newName.trim(), address: newAddress.trim() || null, description: newDescription.trim() || null }).unwrap();
+      await addLocation({
+        name: newName.trim(),
+        address: newAddress.trim() || null,
+        description: newDescription.trim() || null,
+        parentLocationId: newParentId,
+      }).unwrap();
       setIsCreating(false);
       setNewName('');
       setNewAddress('');
       setNewDescription('');
+      setNewParentId(null);
       setCreateError(null);
     } catch (err) {
       setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
@@ -56,6 +79,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
     setEditName(loc.name);
     setEditAddress(loc.address ?? '');
     setEditDescription(loc.description ?? '');
+    setEditParentId(loc.parentLocationId ?? null);
     setFormError(null);
   };
 
@@ -71,7 +95,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
         name: editName.trim(),
         address: editAddress.trim() || null,
         description: editDescription.trim() || null,
-      }).unwrap();
+        ...(editParentId !== null ? { parentLocationId: editParentId } : {}),
+      } as any).unwrap();
       setEditTarget(null);
     } catch (err) {
       setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer.'));
@@ -89,6 +114,12 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
     }
   };
 
+  // Sletter man et lager, slettes dets sektioner automatisk med (ON DELETE
+  // CASCADE) - beskeden gøres derfor tydeligere for lagre med sektioner.
+  const deleteTargetSectionCount = deleteTarget && !deleteTarget.parentLocationId
+    ? locations.filter((l) => l.parentLocationId === deleteTarget.id).length
+    : 0;
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
@@ -96,7 +127,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
-          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Administrer lokationer</h2>
+          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Administrer lagere</h2>
           <div className="flex items-center gap-1">
             {canCreate && !isCreating && (
               <button
@@ -124,9 +155,50 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
           {isCreating && (
             <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
               {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
+
+              {/* US-S1: vælg om der oprettes et lager eller en sektion på et eksisterende lager */}
+              <div>
+                <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">Type</label>
+                <div className="flex gap-4 text-sm text-primary dark:text-slate-100">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="location-kind"
+                      checked={newParentId === null}
+                      onChange={() => setNewParentId(null)}
+                      className="text-accent focus:ring-accent"
+                    />
+                    Lager
+                  </label>
+                  <label className={`flex items-center gap-1.5 ${warehouses.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                    <input
+                      type="radio"
+                      name="location-kind"
+                      checked={newParentId !== null}
+                      onChange={() => setNewParentId(warehouses[0]?.id ?? null)}
+                      disabled={warehouses.length === 0}
+                      className="text-accent focus:ring-accent"
+                    />
+                    Sektion på et lager
+                  </label>
+                </div>
+              </div>
+
+              {newParentId !== null && (
+                <select
+                  value={newParentId}
+                  onChange={(e) => setNewParentId(e.target.value)}
+                  className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+                >
+                  {warehouses.map((w) => (
+                    <option key={w.id} value={w.id}>{w.name}</option>
+                  ))}
+                </select>
+              )}
+
               <input
                 type="text"
-                placeholder="Navn på ny lokation *"
+                placeholder={newParentId === null ? 'Navn på nyt lager *' : 'Navn på ny sektion *'}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -148,7 +220,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => { setIsCreating(false); setCreateError(null); }}
+                  onClick={() => { setIsCreating(false); setCreateError(null); setNewParentId(null); }}
                   className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                 >
                   Annullér
@@ -173,84 +245,57 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
           ) : locations.length === 0 ? (
             <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">Ingen lokationer oprettet endnu.</p>
           ) : (
-           locations.map((loc) => (
-              <div key={loc.id} className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden dark:bg-slate-800/40 dark:border-slate-700">
-                {editTarget?.id === loc.id ? (
-                  <div className="p-3 space-y-2">
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      placeholder="Navn"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                    />
-                    <input
-                      type="text"
-                      value={editAddress}
-                      onChange={(e) => setEditAddress(e.target.value)}
-                      placeholder="Adresse"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                    />
-                    <input
-                      type="text"
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      placeholder="Beskrivelse"
-                      className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                    />
-                    <div className="flex items-center justify-end gap-2">
-                      <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-                        Annullér
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
-                      >
-                        {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                        Gem
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    onClick={onViewItems ? () => onViewItems(loc) : undefined}
-                    className={`w-full flex items-center justify-between gap-3 text-left p-3 transition-colors ${
-                      onViewItems ? 'hover:bg-bg-gray/60 dark:hover:bg-slate-700/60 cursor-pointer' : ''
-                    }`}
-                  >
-                    <div className="min-w-0 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" />
-                      <div className="min-w-0">
-                        <p className="text-sm text-primary truncate dark:text-slate-100">{loc.name}</p>
-                        {loc.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{loc.address}</p>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {canUpdate && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
-                          className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                          title="Rediger"
-                          aria-label="Rediger lokation"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                      {canDelete && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
-                          className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-                          title="Slet"
-                          aria-label="Slet lokation"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
+            grouped.map(({ warehouse, sections }) => (
+              <div key={warehouse.id} className="space-y-1.5">
+                <LocationRow
+                  loc={warehouse}
+                  onViewItems={onViewItems}
+                  onEdit={() => startEdit(warehouse)}
+                  onDelete={() => setDeleteTarget(warehouse)}
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
+                  isEditing={editTarget?.id === warehouse.id}
+                  editName={editName}
+                  editAddress={editAddress}
+                  editDescription={editDescription}
+                  editParentId={editParentId}
+                  warehouses={warehouses}
+                  setEditName={setEditName}
+                  setEditAddress={setEditAddress}
+                  setEditDescription={setEditDescription}
+                  setEditParentId={setEditParentId}
+                  onCancelEdit={() => setEditTarget(null)}
+                  onSaveEdit={handleSave}
+                  isSaving={isSaving}
+                />
+
+                {sections.length > 0 && (
+                  <div className="pl-6 space-y-1.5 border-l-2 border-border-gray dark:border-slate-700 ml-3">
+                    {sections.map((section) => (
+                      <LocationRow
+                        key={section.id}
+                        loc={section}
+                        isSection
+                        onViewItems={onViewItems}
+                        onEdit={() => startEdit(section)}
+                        onDelete={() => setDeleteTarget(section)}
+                        canUpdate={canUpdate}
+                        canDelete={canDelete}
+                        isEditing={editTarget?.id === section.id}
+                        editName={editName}
+                        editAddress={editAddress}
+                        editDescription={editDescription}
+                        editParentId={editParentId}
+                        warehouses={warehouses}
+                        setEditName={setEditName}
+                        setEditAddress={setEditAddress}
+                        setEditDescription={setEditDescription}
+                        setEditParentId={setEditParentId}
+                        onCancelEdit={() => setEditTarget(null)}
+                        onSaveEdit={handleSave}
+                        isSaving={isSaving}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
@@ -261,12 +306,164 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
 
       <ConfirmDialogComponent
         isOpen={!!deleteTarget}
-        title="Slet lokation?"
-        message={`Er du sikker på, at du vil slette "${deleteTarget?.name}"? Items der bruger denne lokation mister deres lokationstilknytning (bliver ikke slettet).`}
+        title={deleteTarget?.parentLocationId ? 'Slet sektion?' : 'Slet lager?'}
+        message={
+          deleteTargetSectionCount > 0
+            ? `Er du sikker på, at du vil slette "${deleteTarget?.name}"? De ${deleteTargetSectionCount} sektion(er) på lageret slettes også. Items der bruger disse lokationer mister deres lokationstilknytning (bliver ikke slettet).`
+            : `Er du sikker på, at du vil slette "${deleteTarget?.name}"? Items der bruger denne lokation mister deres lokationstilknytning (bliver ikke slettet).`
+        }
         isLoading={isDeleting}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+    </div>
+  );
+}
+
+// Én lokations-række (lager eller sektion), enten i visnings- eller
+// redigerings-tilstand. Udtrukket som egen komponent, så lager- og
+// sektions-rækker deler præcis samme redigerings-logik.
+function LocationRow({
+  loc,
+  isSection = false,
+  onViewItems,
+  onEdit,
+  onDelete,
+  canUpdate,
+  canDelete,
+  isEditing,
+  editName,
+  editAddress,
+  editDescription,
+  editParentId,
+  warehouses,
+  setEditName,
+  setEditAddress,
+  setEditDescription,
+  setEditParentId,
+  onCancelEdit,
+  onSaveEdit,
+  isSaving,
+}: {
+  loc: ItemLocation;
+  isSection?: boolean;
+  onViewItems?: (location: ItemLocation) => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isEditing: boolean;
+  editName: string;
+  editAddress: string;
+  editDescription: string;
+  editParentId: string | null;
+  warehouses: ItemLocation[];
+  setEditName: (v: string) => void;
+  setEditAddress: (v: string) => void;
+  setEditDescription: (v: string) => void;
+  setEditParentId: (v: string | null) => void;
+  onCancelEdit: () => void;
+  onSaveEdit: () => void;
+  isSaving: boolean;
+}) {
+  return (
+    <div className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden dark:bg-slate-800/40 dark:border-slate-700">
+      {isEditing ? (
+        <div className="p-3 space-y-2">
+          {/* En sektion kan flyttes til et andet lager; et lager kan ikke
+              gøres til en sektion herfra - det ville kræve at flytte alle
+              dets egne sektioner med, så det er bevidst ikke muligt. */}
+          {isSection && (
+            <select
+              value={editParentId ?? ''}
+              onChange={(e) => setEditParentId(e.target.value)}
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+            >
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          )}
+          <input
+            type="text"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder="Navn"
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+          />
+          <input
+            type="text"
+            value={editAddress}
+            onChange={(e) => setEditAddress(e.target.value)}
+            placeholder="Adresse"
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+          />
+          <input
+            type="text"
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+            placeholder="Beskrivelse"
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+          />
+          <div className="flex items-center justify-end gap-2">
+            <button type="button" onClick={onCancelEdit} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
+              Annullér
+            </button>
+            <button
+              type="button"
+              onClick={onSaveEdit}
+              disabled={isSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
+            >
+              {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Gem
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={onViewItems ? () => onViewItems(loc) : undefined}
+          className={`w-full flex items-center justify-between gap-3 text-left p-3 transition-colors ${
+            onViewItems ? 'hover:bg-bg-gray/60 dark:hover:bg-slate-700/60 cursor-pointer' : ''
+          }`}
+        >
+          <div className="min-w-0 flex items-center gap-2">
+            {isSection ? (
+              <Boxes className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" />
+            ) : (
+              <MapPin className="w-4 h-4 text-secondary shrink-0 dark:text-slate-400" />
+            )}
+            <div className="min-w-0">
+              <p className="text-sm text-primary truncate dark:text-slate-100">{loc.name}</p>
+              {loc.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{loc.address}</p>}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {canUpdate && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
+                title="Rediger"
+                aria-label="Rediger lokation"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
+                title="Slet"
+                aria-label="Slet lokation"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

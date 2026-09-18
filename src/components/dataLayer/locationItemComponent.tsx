@@ -29,7 +29,7 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-secondary dark:text-slate-400">
               <Package className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-              <p className="text-sm">Ingen items er registreret på denne lokation.</p>
+              <p className="text-sm">Ingen items er registreret på dette lager.</p>
             </div>
           ) : (
             <div className="divide-y divide-border-gray border border-border-gray rounded-lg overflow-hidden dark:divide-slate-700 dark:border-slate-700">

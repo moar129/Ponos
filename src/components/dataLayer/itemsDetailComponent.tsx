@@ -241,7 +241,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
             <div className="col-span-2">
               {!isEditing && (
-                <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Lokation</span>
+                <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Lager</span>
               )}
               {isEditing ? (
                 <LocationPickerComponent
@@ -261,7 +261,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                   {currentLocation.name}
                 </button>
               ) : (
-                <span className="text-secondary dark:text-slate-400">Ingen lokation</span>
+                <span className="text-secondary dark:text-slate-400">Intet lager</span>
               )}
             </div>
           </div>
