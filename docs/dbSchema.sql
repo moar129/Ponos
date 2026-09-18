@@ -768,6 +768,130 @@ create trigger trg_reassign_members_before_role_delete
   for each row execute function public.reassign_members_before_role_delete();
 
 
+-- 15.6d 2026-09-18: Låser standardrollen "Medlems" privilegie-sæt
+-- fuldstændigt fast, parallelt til prevent_admin_privilege_change (15.5)
+-- for "Admin"-rollens admin-privilegie, men som separat funktion (samme
+-- princip som prevent_admin_role_change/prevent_default_role_change,
+-- 15.6/15.6b, er to adskilte funktioner for den analoge rolle-
+-- beskyttelse). read_news og read_tasks (Medlems seedede privilegier,
+-- se 15.8) kan hverken slettes eller omdøbes, og INGEN nye privilegier
+-- kan tilføjes til Medlem overhovedet - rollen er organisationens
+-- "gulv" og skal have et forudsigeligt, fast privilegie-sæt.
+-- Respekterer samme ponos.bypass_admin_protection-flag som 15.5/15.6/
+-- 15.6b, så delete_organisation (15.13) fortsat kan kaskade-slette
+-- Medlems privilegier sammen med resten af organisationen.
+-- (Kørt sammen med et engangs-backfill af read_tasks til eksisterende
+-- organisationers Medlem-rolle, som viste sig ikke at være ramt af det
+-- tidligere fase3-tasks-privileges.sql-backfill for alle organisationer
+-- - se docs/migrations/README.md.)
+create or replace function public.prevent_default_role_privilege_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  role_name text;
+begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' then
+    select name into role_name from public.roles where id = new.role_id;
+
+    if role_name = 'Medlem' then
+      raise exception 'Standardrollen Medlem kan ikke tildeles nye privilegier.';
+    end if;
+
+    return new;
+  end if;
+
+  select name into role_name from public.roles where id = old.role_id;
+
+  if role_name = 'Medlem' and old.name in ('read_news', 'read_tasks') then
+    if tg_op = 'DELETE' then
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke fjernes.';
+    end if;
+    if new.name is distinct from old.name then
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke omdøbes.';
+    end if;
+  end if;
+
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_default_role_privilege_change
+  before insert or update or delete on public.privileges
+  for each row execute function public.prevent_default_role_privilege_change();
+
+
+-- 15.6e 2026-09-18: Lukker et hul - en bruger med kun update_roles-
+-- privilegiet (IKKE selve admin-privilegiet) kunne ændre en anden
+-- brugers rolle VÆK fra Admin (nedgradere/fjerne admin-status fra en
+-- anden administrator), selvom de ikke kan TILDELE admin-privilegiet
+-- (det er allerede korrekt spærret af RLS-policyen "Tildel rolle til
+-- medlemskaber i egen organisation", 16.10 - dens with check ser kun
+-- den NYE role_id, ikke den gamle). Samme asymmetri findes ikke ved
+-- fjernelse af medlemmer (remove_member, 15.x, tjekker allerede
+-- eksplicit: "Du skal være administrator for at fjerne en anden
+-- administrator.") - kun rolle-SKIFT manglede den spejlvendte
+-- beskyttelse. auth.uid() i en security definer-funktion afspejler
+-- stadig den faktisk kaldende bruger (samme konvention som alle øvrige
+-- trigger-funktioner her), så has_privilege('admin') korrekt tjekker
+-- AKTØRENS egne privilegier. Selv-rolleskift er uafhængigt allerede
+-- blokeret af trg_prevent_self_membership_role_change (15.9).
+--
+-- 2026-09-18: udvidet med en ny retning - højst én admin ad gangen pr.
+-- organisation. Blokerer også at TILDELE en admin-bærende rolle til et
+-- medlem, hvis et ANDET medlem allerede har admin-adgang, medmindre
+-- ponos.bypass_admin_protection er sat (den nye transfer_admin_role,
+-- 15.14b, bruger dette til det atomiske "giv admin-rollen videre"-
+-- hand-off: den ene admin nedgraderes til Medlem, samtidig med at den
+-- anden forfremmes).
+create or replace function public.prevent_non_admin_role_change_on_admin_membership()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    return new;
+  end if;
+
+  if old.role_id is not null
+     and public.role_has_privilege(old.role_id, 'admin')
+     and not public.has_privilege('admin')
+  then
+    raise exception 'Du skal være administrator for at ændre en anden administrators rolle.';
+  end if;
+
+  if new.role_id is not null and public.role_has_privilege(new.role_id, 'admin') then
+    if exists (
+      select 1
+      from public.memberships m
+      where m.organisation_id = new.organisation_id
+        and m.user_id <> new.user_id
+        and m.role_id is not null
+        and public.role_has_privilege(m.role_id, 'admin')
+    ) then
+      raise exception 'Organisationen har allerede en administrator - brug "Giv admin-rollen videre" i stedet.';
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_non_admin_role_change_on_admin_membership
+  before update of role_id on public.memberships
+  for each row execute function public.prevent_non_admin_role_change_on_admin_membership();
+
+
 -- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
 -- kaldende brugers egen aktive organisation (bruger opretter og bliver
 -- selv admin) - trg_prevent_self_role_org_change (15.2) blokerer normalt
@@ -876,6 +1000,12 @@ grant execute on function public.create_organisation(text) to authenticated;
 -- må ikke kunne tildele SIG SELV en rolle via en memberships-opdatering
 -- (samme escalation-tanke som
 -- prevent_self_role_org_change havde for profiles.role_id før US-59).
+--
+-- 2026-09-18: hidtil ubetinget - fik nu et dedikeret bypass-flag
+-- (ponos.bypass_self_membership_role_change, eget flag adskilt fra
+-- bypass_admin_protection, samme princip som bypass_self_role_org_change
+-- er sit eget flag), så transfer_admin_role (15.14b) kan nedgradere den
+-- afgivende admin til Medlem som del af samme transaktion.
 create or replace function public.prevent_self_membership_role_change()
 returns trigger
 language plpgsql
@@ -883,6 +1013,10 @@ security definer
 set search_path = public
 as $$
 begin
+  if coalesce(current_setting('ponos.bypass_self_membership_role_change', true), 'false') = 'true' then
+    return new;
+  end if;
+
   if new.user_id = auth.uid() and new.role_id is distinct from old.role_id then
     raise exception 'Du kan ikke tildele dig selv en rolle.';
   end if;
@@ -1224,6 +1358,78 @@ end;
 $$;
 
 grant execute on function public.remove_member(uuid) to authenticated;
+
+
+-- 15.14b 2026-09-18: giver admin-rollen videre til et andet medlem -
+-- højst én admin ad gangen pr. organisation (se
+-- prevent_non_admin_role_change_on_admin_membership, 15.6e). Atomisk:
+-- modtageren forfremmes til Admin, OG den kaldende admin nedgraderes
+-- selv til Medlem, i samme transaktion. Sætter
+-- ponos.bypass_admin_protection (15.6e's invariant-tjek) og
+-- ponos.bypass_self_membership_role_change (15.9's selv-rolle-lås), så
+-- begge opdateringer kan gennemføres - ingen anden vej (rå
+-- klient-opdatering, uden om denne RPC) kan opnå det samme, da ingen af
+-- flagene er sat udenfor denne transaktion.
+create or replace function public.transfer_admin_role(p_new_admin_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid;
+  v_admin_role_id uuid;
+  v_member_role_id uuid;
+  v_target_membership_exists boolean;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind for at give admin-rollen videre.';
+  end if;
+
+  if p_new_admin_user_id = v_caller_id then
+    raise exception 'Du er allerede administrator.';
+  end if;
+
+  v_org_id := public.auth_profile_org();
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege('admin') then
+    raise exception 'Du skal være administrator for at give admin-rollen videre.';
+  end if;
+
+  select exists (
+    select 1 from public.memberships
+    where user_id = p_new_admin_user_id and organisation_id = v_org_id
+  ) into v_target_membership_exists;
+
+  if not v_target_membership_exists then
+    raise exception 'Brugeren er ikke medlem af organisationen.';
+  end if;
+
+  select id into v_admin_role_id from public.roles where organisation_id = v_org_id and name = 'Admin';
+  select id into v_member_role_id from public.roles where organisation_id = v_org_id and name = 'Medlem';
+
+  if v_admin_role_id is null or v_member_role_id is null then
+    raise exception 'Organisationens standardroller mangler.';
+  end if;
+
+  perform set_config('ponos.bypass_admin_protection', 'true', true);
+  perform set_config('ponos.bypass_self_membership_role_change', 'true', true);
+
+  update public.memberships
+    set role_id = v_admin_role_id
+    where user_id = p_new_admin_user_id and organisation_id = v_org_id;
+
+  update public.memberships
+    set role_id = v_member_role_id
+    where user_id = v_caller_id and organisation_id = v_org_id;
+end;
+$$;
+
+grant execute on function public.transfer_admin_role(uuid) to authenticated;
 
 
 -- 15.15 US-67: når en invitation accepteres/afvises, sættes reviewed_at

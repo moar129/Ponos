@@ -289,6 +289,26 @@ export const roleApi = supabaseApi.injectEndpoints({
             // åbne session mister adgang uden en manuel genindlæsning.
             invalidatesTags: ['Role', 'Profile', 'Membership'],
         }),
+
+        // Giver admin-rollen videre til et andet medlem (US-11-opfølgning:
+        // højst én admin ad gangen). Kører server-side som RPC'en
+        // transfer_admin_role, som atomisk sætter modtageren til Admin OG
+        // den kaldende admin selv til Medlem - erstatter assignRole for
+        // netop dette tilfælde, da en almindelig tildeling ikke kan udføre
+        // to medlemskabers rolleskift i én transaktion.
+        transferAdminRole: builder.mutation<void, { userId: string }>({
+            queryFn: async ({ userId }) => {
+                const { error } = await supabase.rpc('transfer_admin_role', { p_new_admin_user_id: userId })
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Role', 'Profile', 'Membership'],
+        }),
     }),
 })
 
@@ -300,4 +320,5 @@ export const {
     useGetOrganisationMembersQuery,
     useAssignRoleMutation,
     useRemoveMemberMutation,
+    useTransferAdminRoleMutation,
 } = roleApi
