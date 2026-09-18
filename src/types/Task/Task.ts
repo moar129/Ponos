@@ -17,6 +17,7 @@ export interface Task {
   status: ETaskStatus;
   priority: ETaskPriority | null;
   max_assignees: number | null;
+  requires_approval: boolean;
 }
 
 export  interface Room {

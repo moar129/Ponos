@@ -6,8 +6,12 @@ import {
   useAssignToTaskMutation,
   useUnassignFromTaskMutation,
   useRemoveAssigneeFromTaskMutation,
+  useUpdateTaskStatusMutation,
+  useGetTaskRequestsQuery,
+  useCreateTaskRequestMutation,
 } from '../../store/apis/taskApi';
 import { EditTaskModal } from './EditTaskModal';
+import { TaskTimeline } from './TaskTimeline';
 import { supabase } from '../../lib/supabase';
 
 export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
@@ -28,11 +32,18 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
 
   const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
   const { data: employees = [] } = useGetOrganisationEmployeesQuery();
+  const { data: taskRequests = [] } = useGetTaskRequestsQuery(task.id);
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
   const [removeAssigneeFromTask] =
     useRemoveAssigneeFromTaskMutation();
+
+  const [updateTaskStatus, { isLoading: isUpdatingStatus }] =
+    useUpdateTaskStatusMutation();
+
+  const [createTaskRequest, { isLoading: isCreatingRequest }] =
+    useCreateTaskRequestMutation();
 
   const currentAssignee = assignees.find(
     (assignee) => assignee.user_id === currentUserId
@@ -42,6 +53,15 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
 
   const canUnassignSelf =
     currentAssignee?.assigned_by === currentUserId;
+
+  const currentPendingRequest = taskRequests.find(
+    (request) =>
+      request.requested_by === currentUserId &&
+      request.status === 'Pending'
+  );
+
+  const hasPendingCompletionRequest =
+    currentPendingRequest !== undefined;
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -95,6 +115,10 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
   }, [assignees]);
 
   const handleAssignment = async () => {
+    if (hasPendingCompletionRequest) {
+      return;
+    }
+
     if (canUnassignSelf) {
       await unassignFromTask({
         taskId: task.id,
@@ -110,6 +134,37 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
         userId: currentUserId,
       });
     }
+  };
+
+  const handleStartTask = async () => {
+    if (!currentUserId || !isAssigned) {
+      return;
+    }
+
+    await updateTaskStatus({
+      id: task.id,
+      status: 'InProgress',
+    });
+  };
+
+  const handleCompleteTask = async () => {
+    if (!currentUserId || !isAssigned) {
+      return;
+    }
+
+    if (hasPendingCompletionRequest) {
+      return;
+    }
+
+    if (task.requires_approval) {
+      await createTaskRequest(task.id);
+      return;
+    }
+
+    await updateTaskStatus({
+      id: task.id,
+      status: 'Completed',
+    });
   };
 
   const getPriorityColor = (
@@ -179,7 +234,9 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
       >
         {/* HEADER */}
         <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-xl font-bold text-primary dark:text-slate-100">{task.title}</h3>
+          <h3 className="text-xl font-bold text-primary dark:text-slate-100">
+            {task.title}
+          </h3>
 
           {canUpdate && (
             <button
@@ -204,6 +261,16 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
           <p className="break-words text-sm text-secondary hyphens-auto dark:text-slate-400">
             {task.description || 'Ingen beskrivelse'}
           </p>
+        </div>
+
+        {/* TIDSLINJE */}
+        <div className="mb-6">
+          <TaskTimeline
+            status={task.status}
+            createdAt={task.created_at}
+            startedAt={null}
+            finishedAt={task.finished_at}
+          />
         </div>
 
         {/* BADGES */}
@@ -312,29 +379,79 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
           </div>
         </div>
 
-        {/* TILMELD / AFMELD */}
-        {task.status === 'Started' && (
-          <button
-            type="button"
-            disabled={isAssigned && !canUnassignSelf}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAssignment();
-            }}
-            className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
-                ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
-                : isAssigned
-                  ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                  : 'border-accent text-accent hover:bg-accent hover:text-white'
-              }`}
-          >
-            {canUnassignSelf
-              ? 'Afmeld'
-              : isAssigned
-                ? 'Tildelt dig'
-                : 'Tilmeld'}
-          </button>
-        )}
+        {/* HANDLINGER */}
+        <div className="flex flex-wrap gap-3">
+          {/* TILMELD / AFMELD */}
+          {(task.status === 'Started' || task.status === 'InProgress') && (
+            <>
+              {!hasPendingCompletionRequest && (
+                <button
+                  type="button"
+                  disabled={isAssigned && !canUnassignSelf}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAssignment();
+                  }}
+                  className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+                      ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
+                      : isAssigned
+                        ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
+                        : 'border-accent text-accent hover:bg-accent hover:text-white'
+                    }`}
+                >
+                  {canUnassignSelf
+                    ? 'Afmeld'
+                    : isAssigned
+                      ? 'Tildelt dig'
+                      : 'Tilmeld'}
+                </button>
+              )}
+
+              {/* PÅBEGYND ARBEJDE */}
+              {task.status === 'Started' && canUnassignSelf && (
+                <button
+                  type="button"
+                  disabled={isUpdatingStatus}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartTask();
+                  }}
+                  className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isUpdatingStatus
+                    ? 'Opdaterer...'
+                    : 'Påbegynd arbejde'}
+                </button>
+              )}
+
+              {/* MELD FÆRDIG */}
+              {task.status === 'InProgress' && canUnassignSelf && (
+                <button
+                  type="button"
+                  disabled={
+                    isUpdatingStatus ||
+                    isCreatingRequest ||
+                    hasPendingCompletionRequest
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCompleteTask();
+                  }}
+                  className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
+                      ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
+                      : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
+                    }`}
+                >
+                  {hasPendingCompletionRequest
+                    ? 'Afventer godkendelse'
+                    : isCreatingRequest || isUpdatingStatus
+                      ? 'Sender...'
+                      : 'Meld færdig'}
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* TASK DETAILS POPUP */}
@@ -346,7 +463,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
           }}
         >
           <div
-            className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
+            className="w-full max-w-lg rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
             {/* HEADER */}
@@ -384,23 +501,47 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
               </p>
             </div>
 
-            {/* PRIORITET + PERSONER */}
-            <div className="mb-5 flex flex-wrap gap-2">
-              {task.priority && (
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(
-                    task.priority
-                  )}`}
-                >
-                  Prioritet: {task.priority}
-                </span>
-              )}
+            {/* TIDSLINJE */}
+            <div className="mb-6">
+              <TaskTimeline
+                status={task.status}
+                createdAt={task.created_at}
+                startedAt={null}
+                finishedAt={task.finished_at}
+              />
+            </div>
 
-              <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
-                {task.max_assignees === null
-                  ? 'Ingen begrænsning'
-                  : `Maks. ${task.max_assignees} personer`}
-              </span>
+            {/* PRIORITET + PERSONER */}
+            <div className="mb-5">
+              <div className="flex flex-wrap gap-2">
+                {task.priority && (
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(
+                      task.priority
+                    )}`}
+                  >
+                    Prioritet: {task.priority}
+                  </span>
+                )}
+
+                <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
+                  {task.max_assignees === null
+                    ? 'Ingen begrænsning'
+                    : `Maks. ${task.max_assignees} personer`}
+                </span>
+
+                <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
+                  Status: {task.status}
+                </span>
+              </div>
+
+              {task.requires_approval && (
+                <div className="mt-3">
+                  <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                    Kræver godkendelse
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* ANSVARLIGE */}
@@ -540,7 +681,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
           onClick={() => setIsEmployeePickerOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
+            className="w-full max-w-md rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
             {/* HEADER */}
@@ -619,7 +760,11 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
                           {employee.url_picture ? (
                             <img
                               src={employee.url_picture}
-                              alt={name || employee.email || 'Medarbejder'}
+                              alt={
+                                name ||
+                                employee.email ||
+                                'Medarbejder'
+                              }
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
