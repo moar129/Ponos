@@ -11,10 +11,11 @@ import {
     READ_INVITATIONS_PRIVILEGE,
     READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
     READ_ROLES_PRIVILEGE,
-    READ_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
     UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     UPDATE_ORGANISATION_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
+    UPDATE_TASKS_PRIVILEGE,
     useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
@@ -58,17 +59,22 @@ export function AdministrationTab() {
         UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     ])
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
-    // US-70: AC nævner admin/manage_tasks, men manage_tasks er erstattet af
-    // granulære CRUD-privilegier i Fase 3 - read_tasks bruges i stedet
-    // (admin er stadig altid inkluderet via useHasPrivilege).
-    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE)
+    // Fane kræver rent faktisk manage-ret (update/delete_tasks), ikke bare
+    // read_tasks - en ren "Medlem" (kun read_tasks) skal se opgaver via det
+    // almindelige /tasks-link, ikke via Administration (rettet 2026-09-17
+    // efter bruger-feedback: "se"-privilegiet alene giver ikke adgang til
+    // Administration noget sted, kun rettigheder der reelt kan bruges der).
+    const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
 
     const tabs: SubTabDef[] = []
     if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
-    // "Medlemmer" viser rolle-tildeling (update_roles) og/eller "Fjern"
-    // (delete_members) - fanen er synlig hvis mindst én af de to er til
-    // stede, panelet selv gater hver kontrol uafhængigt (US-66).
-    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer', icon: Users })
+    // "Medlemmer & roller" viser rolle-tildeling (update_roles) og/eller
+    // "Fjern" (delete_members) - fanen er synlig hvis mindst én af de to
+    // er til stede, panelet selv gater hver kontrol uafhængigt (US-66).
+    // Navnet er bevidst udvidet (2026-09-17, bruger-feedback): "Medlemmer"
+    // alene afslørede ikke at rolletildeling foregår her, ikke under
+    // "Roller & privilegier".
+    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer og tildel rolle', icon: Users })
     if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
     if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
@@ -85,35 +91,41 @@ export function AdministrationTab() {
         : (tabs[0]?.key ?? null)
 
     if (tabs.length === 0) {
-        return <p className="text-secondary">Du har ikke rettigheder til nogen administrative funktioner.</p>
+        return <p className="text-secondary dark:text-slate-400">Du har ikke rettigheder til nogen administrative funktioner.</p>
     }
 
-    // Samme regler som dashboardets top-faner (se Dashboard.tsx): fanen
-    // beholder sin bredde, rækken scroller. Her er der op til fem faner, så
-    // det slår igennem allerede på en tablet.
-    const tabClass = (tab: AdminSubTab) =>
-        `flex shrink-0 whitespace-nowrap items-center gap-2 px-3 sm:px-4 py-2.5 -mb-px text-sm font-medium border-b-2 transition-colors ${activeSubTab === tab
-            ? 'border-primary text-primary'
-            : 'border-transparent text-secondary hover:text-primary'
+    // Samme layout-mønster som DataLayerPage.tsx (Kategorier/Items-splittet):
+    // en 12-kolonne grid der giver nav'et sin egen boksede panel-kolonne,
+    // og indholdet en anden - i stedet for at nav'et bare er en fast
+    // 208px-bred stribe. Kolonne-forholdet strammes til (4/12 → 3/12)
+    // fra xl, så indholdet får mere plads på brede skærme uden at nav'et
+    // bliver unødigt bredt. Mobil (under md) beholder den vandret
+    // scrollende fanerække.
+    const navItemClass = (tab: AdminSubTab) =>
+        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
+            ? 'bg-accent/15 text-primary dark:text-slate-100'
+            : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
         }`
 
     return (
-        <div>
-            <div className="flex gap-1 sm:gap-2 border-b border-border-gray mb-6 overflow-x-auto no-scrollbar">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
                 {tabs.map((tab) => (
-                    <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={tabClass(tab.key)}>
-                        <tab.icon className="w-4 h-4" />
+                    <button key={tab.key} type="button" onClick={() => setSelectedSubTab(tab.key)} className={navItemClass(tab.key)}>
+                        <tab.icon className="w-4 h-4 shrink-0" />
                         {tab.label}
                     </button>
                 ))}
-            </div>
+            </nav>
 
-            {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
-            {activeSubTab === 'members' && <MembersPanel />}
-            {activeSubTab === 'invitations' && <InvitationsPanel />}
-            {activeSubTab === 'requests' && <MembershipRequestsPanel />}
-            {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
-            {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
+                {activeSubTab === 'roles' && <RolesPrivilegesPanel />}
+                {activeSubTab === 'members' && <MembersPanel />}
+                {activeSubTab === 'invitations' && <InvitationsPanel />}
+                {activeSubTab === 'requests' && <MembershipRequestsPanel />}
+                {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+                {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
+            </div>
         </div>
     )
 }

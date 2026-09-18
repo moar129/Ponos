@@ -1,7 +1,10 @@
 // src/components/dashboard/MyTasksWidget.tsx
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ListChecks } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
+import { TaskDetailsModal } from './TaskDetailsModal'
 import type { ETaskStatus, Task } from '../../types/Task/Task'
 
 const MAX_TASKS = 5
@@ -39,11 +42,14 @@ function readableError(err: unknown): string | null {
 // US-74: brugerens egne, ikke-afsluttede opgaver på Oversigt-fanen.
 // getTasks er filtreret på aktiv organisation, og task_assignees er
 // RLS-scopet til samme, så snittet kan aldrig indeholde andre
-// organisationers opgaver. Rækkerne er bevidst ikke klikbare - der findes
-// ingen opgave-adresse at linke til før US-36.
+// organisationers opgaver. Rækkerne åbner en read-only preview-modal
+// (TaskDetailsModal) ejet af dashboardet - der findes stadig ingen rigtig
+// opgave-adresse (US-36 mangler), så modalen dupliderer bevidst felter
+// frem for at afhænge af Tasks-domænets routing.
 export function MyTasksWidget() {
     const { data: tasks = [], isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
     const { data: myTaskIds = [], isLoading: loadingMyTaskIds, error: myTaskIdsError } = useGetMyTaskIdsQuery()
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
     const myTasks = tasks
         .filter((task) => myTaskIds.includes(task.id) && task.status !== 'Completed')
@@ -53,39 +59,54 @@ export function MyTasksWidget() {
     const error = readableError(tasksError) ?? readableError(myTaskIdsError)
 
     return (
-        <div className="rounded-lg border border-border-gray p-5">
-            <div className="flex items-center gap-2 mb-3">
-                <ListChecks className="w-5 h-5 text-secondary" />
-                <h3 className="font-medium text-primary">Mine opgaver</h3>
+        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+            <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                    <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
+                    <h3 className="font-medium text-primary dark:text-slate-100">Mine opgaver</h3>
+                </div>
+                <Link to="/tasks" className="text-sm text-accent hover:underline">
+                    Gå til opgaver
+                </Link>
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (
-                <p className="text-sm text-secondary">Indlæser dine opgaver...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Indlæser dine opgaver...</p>
             ) : error ? (
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             ) : myTasks.length === 0 ? (
-                <p className="text-sm text-secondary">Du er ikke tilmeldt nogen opgaver endnu.</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Du er ikke tilmeldt nogen opgaver endnu.</p>
             ) : (
-                <ul className="divide-y divide-border-gray">
+                <ul className="divide-y divide-border-gray dark:divide-slate-700">
                     {myTasks.map((task) => (
-                        <li key={task.id} className="py-2.5 first:pt-0 last:pb-0">
-                            <p className="font-medium text-primary truncate">{task.title}</p>
-                            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                                <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary">
-                                    {STATUS_LABELS[task.status]}
-                                </span>
-                                {task.priority && (
-                                    <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                                        {PRIORITY_LABELS[task.priority]}
+                        <li key={task.id}>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTask(task)}
+                                className="w-full text-left py-2.5 -mx-2 px-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
+                            >
+                                <p className="font-medium text-primary truncate dark:text-slate-100">{task.title}</p>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                                    <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary dark:bg-slate-700 dark:text-slate-400">
+                                        {STATUS_LABELS[task.status]}
                                     </span>
-                                )}
-                                {task.end_date && (
-                                    <span className="text-secondary">Slut {formatDate(task.end_date)}</span>
-                                )}
-                            </div>
+                                    {task.priority && (
+                                        <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
+                                            {PRIORITY_LABELS[task.priority]}
+                                        </span>
+                                    )}
+                                    {task.end_date && (
+                                        <span className="text-secondary dark:text-slate-400">Slut {formatDate(task.end_date)}</span>
+                                    )}
+                                </div>
+                            </button>
                         </li>
                     ))}
                 </ul>
+            )}
+
+            {selectedTask && (
+                <TaskDetailsModal task={selectedTask} onClose={() => setSelectedTask(null)} />
             )}
         </div>
     )

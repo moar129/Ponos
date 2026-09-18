@@ -97,50 +97,50 @@ export default function ProfilePage() {
     }
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser profil...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser profil...</p>
     }
 
     if (queryError) {
         return (
-            <div className="max-w-2xl mx-auto rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
                 {readableError(queryError)}
             </div>
         )
     }
 
     if (!profile) {
-        return <p className="text-secondary">Din profil kunne ikke findes.</p>
+        return <p className="text-secondary dark:text-slate-400">Din profil kunne ikke findes.</p>
     }
 
     const saveError = readableError(mutationError)
 
     return (
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-slate-900">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100">
             {/* Overskrift med profilbillede/ikon og navn */}
             <div className="flex items-center gap-4 mb-6">
                 <Avatar
                     firstName={profile.firstName}
                     lastName={profile.lastName}
                     urlPicture={profile.urlPicture}
-                    className="w-16 h-16 bg-bg-gray text-secondary border border-border-gray"
+                    className="w-16 h-16 bg-bg-gray dark:bg-slate-800 text-secondary dark:text-slate-400 border border-border-gray dark:border-slate-700"
                     textClassName="text-xl"
                 />
                 <div>
-                    <h1 className="text-xl font-semibold text-primary">
+                    <h1 className="text-xl font-semibold text-primary dark:text-slate-100">
                         {profile.firstName} {profile.lastName}
                     </h1>
-                    <p className="text-sm text-secondary">{profile.email}</p>
+                    <p className="text-sm text-secondary dark:text-slate-400">{profile.email}</p>
                 </div>
             </div>
 
             {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 dark:bg-emerald-900/30 border border-green-200 dark:border-emerald-800 text-green-700 dark:text-emerald-400 text-sm px-3 py-2">
                     Dine oplysninger er gemt.
                 </div>
             )}
 
             {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
                     {validationError ?? saveError}
                 </div>
             )}
@@ -148,53 +148,53 @@ export default function ProfilePage() {
             {isEditing ? (
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="firstName">Fornavn</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
                         <input
                             id="firstName"
                             type="text"
                             value={form.firstName}
                             onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="lastName">Efternavn</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
                         <input
                             id="lastName"
                             type="text"
                             value={form.lastName}
                             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="description">Beskrivelse</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="description">Beskrivelse</label>
                         <textarea
                             id="description"
                             rows={3}
                             value={form.description ?? ''}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     <div className="mb-6">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="urlPicture">Profilbillede (URL)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="urlPicture">Profilbillede (URL)</label>
                         <input
                             id="urlPicture"
                             type="url"
                             value={form.urlPicture ?? ''}
                             onChange={(e) => setForm({ ...form, urlPicture: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     {/* E-mail, rolle og organisation kan ikke redigeres her:
                         e-mail hører til Supabase Auth, og rolle/organisation
                         blokeres server-side. */}
-                    <p className="mb-6 text-xs text-secondary">
+                    <p className="mb-6 text-xs text-secondary dark:text-slate-400">
                         E-mail, rolle og organisation kan ikke ændres her. Kontakt din administrator.
                     </p>
 
@@ -202,7 +202,7 @@ export default function ProfilePage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? 'Gemmer...' : 'Gem ændringer'}
                         </button>
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={cancelEdit}
                             disabled={saving}
-                            className="rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
                             Annuller
                         </button>
@@ -218,21 +218,21 @@ export default function ProfilePage() {
                 </form>
             ) : (
                 <>
-                    <dl className="divide-y divide-border-gray border-t border-border-gray">
+                    <dl className="divide-y divide-border-gray dark:divide-slate-700 border-t border-border-gray dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Fornavn</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">Fornavn</dt>
                             <dd className="text-sm text-right">{profile.firstName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Efternavn</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">Efternavn</dt>
                             <dd className="text-sm text-right">{profile.lastName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">E-mail</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">E-mail</dt>
                             <dd className="text-sm text-right">{profile.email}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Organisation</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">Organisation</dt>
                             <dd className="text-sm text-right">
                                 {profile.organisationName ?? 'Ingen organisation'}
                             </dd>
@@ -240,14 +240,14 @@ export default function ProfilePage() {
                         {/* Rolle vises kun, hvis brugeren har en aktiv organisation */}
                         {profile.activeOrganisationId && (
                             <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary">Rolle</dt>
+                                <dt className="text-sm text-secondary dark:text-slate-400">Rolle</dt>
                                 <dd className="text-sm text-right">
                                     {profile.roleName ?? 'Ingen rolle tildelt'}
                                 </dd>
                             </div>
                         )}
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Beskrivelse</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">Beskrivelse</dt>
                             <dd className="text-sm text-right">
                                 {profile.description ?? 'Ingen beskrivelse'}
                             </dd>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                         <button
                             type="button"
                             onClick={() => startEdit(profile)}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             Rediger profil
                         </button>
@@ -266,7 +266,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={handleSignOut}
                             disabled={signingOut}
-                            className="flex items-center gap-2 rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="flex items-center gap-2 rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
                             <LogOut className="w-4 h-4" />
                             {signingOut ? 'Logger ud...' : 'Log ud'}
@@ -278,8 +278,8 @@ export default function ProfilePage() {
             {/* US-69: eget afsnit nederst. Skjules under redigering, så
                 der ikke står to formularer oven på hinanden. */}
             {!isEditing && (
-                <section className="mt-8 pt-6 border-t border-border-gray">
-                    <h2 className="text-lg font-semibold text-primary mb-4">Adgangskode</h2>
+                <section className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
+                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">Adgangskode</h2>
                     <ChangePasswordForm />
                 </section>
             )}

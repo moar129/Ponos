@@ -30,36 +30,36 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col"
+        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col dark:bg-slate-800 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start gap-3 p-5 border-b border-slate-800">
-          <div className="shrink-0 p-2 rounded-full bg-red-500/10">
-            <AlertTriangle className="w-5 h-5 text-red-400" />
+        <div className="flex items-start gap-3 p-5 border-b border-border-gray dark:border-slate-700">
+          <div className="shrink-0 p-2 rounded-full bg-red-50 dark:bg-red-900/30">
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-slate-100">
+            <h2 className="text-base font-semibold text-primary dark:text-slate-100">
               Slet {items.length} item{items.length > 1 ? 's' : ''}?
             </h2>
-            <p className="text-sm text-slate-400 mt-1">Dette kan ikke fortrydes.</p>
+            <p className="text-sm text-secondary mt-1 dark:text-slate-400">Dette kan ikke fortrydes.</p>
           </div>
-          <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-white shrink-0">
+          <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="p-4 overflow-y-auto flex-1 space-y-1">
           {formError && (
-            <div className="p-3 mb-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 mb-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               {formError}
             </div>
           )}
 
           {items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-sm text-slate-200 truncate">{item.name}</span>
+            <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-bg-gray/40 border border-border-gray dark:bg-slate-800/40 dark:border-slate-700">
+              <span className="text-sm text-primary truncate dark:text-slate-100">{item.name}</span>
               {item.isFromSubCategory && (
-                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 ml-2">
+                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary ml-2 dark:bg-slate-700 dark:text-slate-400">
                   {item.sourceCategoryTitle}
                 </span>
               )}
@@ -67,8 +67,8 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
           ))}
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-800">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
             Annullér
           </button>
           <button

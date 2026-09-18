@@ -1,17 +1,19 @@
 // src/components/dashboard/OrganisationTab.tsx
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Building2 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
+import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import {
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
+    useGetOrganisationsQuery,
     useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
 import { useGetMyPendingInvitationsQuery, useRespondToInvitationMutation } from '../../store/apis/invitationApi'
+import { OrganisationPickerComponent } from './organisationPickerComponent'
 import type {
     CreateOrganisationSectionProps,
     MembershipRowProps,
@@ -21,6 +23,15 @@ import type {
 import type { InvitationRowProps, RespondInvitationInput } from '../../types/membership/membershipType'
 
 type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
+
+// Samme vertikale sidebar-nav-stil som AdministrationTab.tsx, genbrugt
+// her for et konsistent udtryk på tværs af dashboardets faner.
+function orgNavItemClass(active: boolean): string {
+    return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
+        ? 'bg-accent/15 text-primary dark:text-slate-100'
+        : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
+    }`
+}
 
 // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
 // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
@@ -40,6 +51,12 @@ type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 // brugere (ikke privilegie-gated, i modsætning til Administration-
 // fanen). Rediger/slet organisation ligger i Administration-fanen (se
 // OrganisationAdminPanel.tsx).
+//
+// "Organisation"-underfanen (navn, admin-badge, medlemsantal) vises kun
+// for administratorer af den aktive organisation - for et menigt medlem
+// er de tal ikke handlingsrelevante, og fjernes for at rydde op i antal
+// faner. Menige medlemmer lander i stedet direkte på "Mine
+// organisationer".
 //
 // Bruger uden organisation: samme fane tilbyder både "Opret organisation"
 // (US-58) og "Anmod om medlemskab" (US-05) som to underfaner, da det er
@@ -82,40 +99,15 @@ export function OrganisationTab() {
     const [createName, setCreateName] = useState('')
     const [createValidationError, setCreateValidationError] = useState<string | null>(null)
 
-    const [organisations, setOrganisations] = useState<Organisation[]>([])
-    const [loadingOrganisations, setLoadingOrganisations] = useState(true)
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
 
     // Henter listen af organisationer man kan anmode om medlemskab af, kun
     // relevant for brugere uden egen organisation - undgår et unødvendigt
     // kald for brugere der allerede er medlem et sted.
-    useEffect(() => {
-        if (isLoading || organisation) return
-
-        let cancelled = false
-
-        async function fetchOrganisations() {
-            const { data, error } = await supabase
-                .from('organisations')
-                .select('id, name')
-                .order('name')
-
-            if (cancelled) return
-
-            if (error) {
-                console.error('Kunne ikke hente organisationer:', error.message)
-            } else {
-                setOrganisations(data)
-            }
-            setLoadingOrganisations(false)
-        }
-
-        fetchOrganisations()
-        return () => {
-            cancelled = true
-        }
-    }, [isLoading, organisation])
+    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery(undefined, {
+        skip: isLoading || !!organisation,
+    })
 
     async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -154,12 +146,12 @@ export function OrganisationTab() {
     const readableError = readableApiError
 
     if (isLoading || loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser organisation...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser organisation...</p>
     }
 
     if (queryError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {readableError(queryError)}
             </div>
         )
@@ -172,143 +164,113 @@ export function OrganisationTab() {
 
         return (
             <div>
-                <h2 className="text-lg font-semibold text-primary mb-2">Ingen aktiv organisation</h2>
-                <p className="text-sm text-secondary mb-6">
+                <h2 className="text-lg font-semibold text-primary mb-2 dark:text-slate-100">Ingen aktiv organisation</h2>
+                <p className="text-sm text-secondary mb-6 dark:text-slate-400">
                     {hasOtherMemberships
                         ? 'Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under "Mine organisationer", eller opret/anmod om en ny.'
                         : 'Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.'}
                 </p>
 
                 {pendingRequest ? (
-                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+                    <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
                         Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
                     </div>
                 ) : (
-                    <>
-                        <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
-                            <button
-                                type="button"
-                                onClick={() => setNoOrgTab('create')}
-                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                    noOrgTab === 'create'
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-secondary hover:text-primary'
-                                }`}
-                            >
-                                Opret organisation
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setNoOrgTab('request')}
-                                className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                    noOrgTab === 'request'
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-secondary hover:text-primary'
-                                }`}
-                            >
-                                Anmod om medlemskab
-                            </button>
-                            {hasOtherMemberships && (
-                                <button
-                                    type="button"
-                                    onClick={() => setNoOrgTab('memberships')}
-                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                        noOrgTab === 'memberships'
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-secondary hover:text-primary'
-                                    }`}
-                                >
-                                    Mine organisationer
-                                </button>
-                            )}
-                            {(pendingInvitations?.length ?? 0) > 0 && (
-                                <button
-                                    type="button"
-                                    onClick={() => setNoOrgTab('invitations')}
-                                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                                        noOrgTab === 'invitations'
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-secondary hover:text-primary'
-                                    }`}
-                                >
-                                    Invitationer ({pendingInvitations?.length})
-                                </button>
-                            )}
-                        </div>
+                    (() => {
+                        const noOrgTabDefs: { key: NoOrgTab; label: string; icon: LucideIcon }[] = [
+                            { key: 'create', label: 'Opret organisation', icon: Plus },
+                            { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
+                            ...(hasOtherMemberships
+                                ? [{ key: 'memberships' as NoOrgTab, label: 'Mine organisationer', icon: Users }]
+                                : []),
+                            ...((pendingInvitations?.length ?? 0) > 0
+                                ? [{ key: 'invitations' as NoOrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
+                                : []),
+                        ]
 
-                        {noOrgTab === 'memberships' ? (
-                            <MyMembershipsSection />
-                        ) : noOrgTab === 'invitations' ? (
-                            <InvitationsSection />
-                        ) : noOrgTab === 'create' ? (
-                            <>
-                                {(createValidationError || createErrorMessage) && (
-                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                                        {createValidationError ?? createErrorMessage}
-                                    </div>
-                                )}
-                                <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm text-secondary mb-1" htmlFor="create-name">Organisationens navn</label>
-                                        <input
-                                            id="create-name"
-                                            type="text"
-                                            value={createName}
-                                            onChange={(e) => setCreateName(e.target.value)}
-                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        disabled={creating}
-                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
-                                    >
-                                        {creating ? 'Opretter...' : 'Opret organisation'}
-                                    </button>
-                                </form>
-                            </>
-                        ) : requestSuccess ? (
-                            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                                Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
-                            </div>
-                        ) : (
-                            <>
-                                {requestErrorMessage && (
-                                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
-                                        {requestErrorMessage}
-                                    </div>
-                                )}
-                                <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
-                                        <select
-                                            id="request-org"
-                                            value={selectedOrgId}
-                                            onChange={(e) => setSelectedOrgId(e.target.value)}
-                                            disabled={loadingOrganisations}
-                                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        return (
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+                                <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
+                                    {noOrgTabDefs.map((tab) => (
+                                        <button
+                                            key={tab.key}
+                                            type="button"
+                                            onClick={() => setNoOrgTab(tab.key)}
+                                            className={orgNavItemClass(noOrgTab === tab.key)}
                                         >
-                                            <option value="" disabled>
-                                                {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
-                                            </option>
-                                            {organisations.map((org) => (
-                                                <option key={org.id} value={org.id}>
-                                                    {org.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        disabled={requesting || !selectedOrgId}
-                                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
-                                    >
-                                        {requesting ? 'Sender anmodning...' : 'Send anmodning'}
-                                    </button>
-                                </form>
-                            </>
-                        )}
-                    </>
+                                            <tab.icon className="w-4 h-4 shrink-0" />
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </nav>
+
+                                <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
+                                    {noOrgTab === 'memberships' ? (
+                                        <MyMembershipsSection />
+                                    ) : noOrgTab === 'invitations' ? (
+                                        <InvitationsSection />
+                                    ) : noOrgTab === 'create' ? (
+                                        <>
+                                            {(createValidationError || createErrorMessage) && (
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                                                    {createValidationError ?? createErrorMessage}
+                                                </div>
+                                            )}
+                                            <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
+                                                <div>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name">Organisationens navn</label>
+                                                    <input
+                                                        id="create-name"
+                                                        type="text"
+                                                        value={createName}
+                                                        onChange={(e) => setCreateName(e.target.value)}
+                                                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={creating}
+                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                >
+                                                    {creating ? 'Opretter...' : 'Opret organisation'}
+                                                </button>
+                                            </form>
+                                        </>
+                                    ) : requestSuccess ? (
+                                        <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
+                                            Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {requestErrorMessage && (
+                                                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                                                    {requestErrorMessage}
+                                                </div>
+                                            )}
+                                            <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
+                                                <div>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
+                                                    <OrganisationPickerComponent
+                                                        organisations={organisations}
+                                                        isLoading={loadingOrganisations}
+                                                        value={selectedOrgId}
+                                                        onChange={setSelectedOrgId}
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={requesting || !selectedOrgId}
+                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                >
+                                                    {requesting ? 'Sender anmodning...' : 'Send anmodning'}
+                                                </button>
+                                            </form>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    })()
                 )}
             </div>
         )
@@ -317,113 +279,87 @@ export function OrganisationTab() {
     // Bruges til at vise antal medlemmer + rolle-badge på "Organisation"-
     // underfanen nedenfor - allerede hentet ovenfor til no-org-grenen.
     const activeMembership = memberships?.find((m) => m.isActive) ?? null
+    const isOrgAdmin = activeMembership?.isAdmin ?? false
+
+    // Rolle-baseret fane-sæt: "Organisation" (navn/badge/medlemsantal) er
+    // kun relevant for administratoren af den aktive organisation. Et
+    // menigt medlem ser derfor kun de handlingsorienterede faner, og
+    // lander på "Mine organisationer" i stedet.
+    const orgTabDefs: { key: OrgTab; label: string; icon: LucideIcon }[] = [
+        ...(isOrgAdmin ? [{ key: 'details' as OrgTab, label: 'Organisation', icon: Building2 }] : []),
+        { key: 'memberships', label: 'Mine organisationer', icon: Users },
+        { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
+        { key: 'create', label: 'Opret organisation', icon: Plus },
+        ...((pendingInvitations?.length ?? 0) > 0
+            ? [{ key: 'invitations' as OrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
+            : []),
+    ]
+    const effectiveOrgTab: OrgTab = orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
 
     return (
-        <div>
-            {/* US-59: en bruger kan være medlem af flere organisationer -
-                "Mine organisationer" viser dem alle og lader brugeren skifte
-                hvilken der er aktiv. */}
-            <div className="flex gap-1 sm:gap-2 mb-6 border-b border-border-gray overflow-x-auto no-scrollbar">
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('details')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'details'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Organisation
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('memberships')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'memberships'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Mine organisationer
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('request')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'request'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Anmod om medlemskab
-                </button>
-                <button
-                    type="button"
-                    onClick={() => switchOrgTab('create')}
-                    className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                        orgTab === 'create'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                >
-                    Opret organisation
-                </button>
-                {(pendingInvitations?.length ?? 0) > 0 && (
+        // US-59: en bruger kan være medlem af flere organisationer -
+        // "Mine organisationer" viser dem alle og lader brugeren skifte
+        // hvilken der er aktiv. Samme 12-kolonne grid-layout som
+        // AdministrationTab.tsx og DataLayerPage.tsx (Kategorier/Items-
+        // splittet), for et konsistent udtryk på tværs af appen.
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+            <nav className="md:col-span-4 lg:col-span-4 xl:col-span-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar rounded-lg border border-border-gray bg-white p-2 md:p-3 dark:border-slate-700 dark:bg-slate-800">
+                {orgTabDefs.map((tab) => (
                     <button
+                        key={tab.key}
                         type="button"
-                        onClick={() => switchOrgTab('invitations')}
-                        className={`shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                            orgTab === 'invitations'
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-secondary hover:text-primary'
-                        }`}
+                        onClick={() => switchOrgTab(tab.key)}
+                        className={orgNavItemClass(effectiveOrgTab === tab.key)}
                     >
-                        Invitationer ({pendingInvitations?.length})
+                        <tab.icon className="w-4 h-4 shrink-0" />
+                        {tab.label}
                     </button>
+                ))}
+            </nav>
+
+            <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
+                {effectiveOrgTab === 'memberships' ? (
+                    <MyMembershipsSection />
+                ) : effectiveOrgTab === 'request' ? (
+                    <RequestMembershipSection />
+                ) : effectiveOrgTab === 'create' ? (
+                    <CreateOrganisationSection onCreated={handleOrganisationCreated} />
+                ) : effectiveOrgTab === 'invitations' ? (
+                    <InvitationsSection />
+                ) : (
+                    <>
+                        {createdOrgName && (
+                            <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
+                                Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
+                                <Building2 className="w-7 h-7 text-secondary dark:text-slate-400" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
+                                    {activeMembership?.isAdmin && (
+                                        <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5 dark:text-slate-100">
+                                            Administrator
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-sm text-secondary dark:text-slate-400">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                            </div>
+                        </div>
+
+                        <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
+                            <div className="py-3 flex justify-between gap-4">
+                                <dt className="text-sm text-secondary dark:text-slate-400">Antal medlemmer</dt>
+                                <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                            </div>
+                        </dl>
+                    </>
                 )}
             </div>
-
-            {orgTab === 'memberships' ? (
-                <MyMembershipsSection />
-            ) : orgTab === 'request' ? (
-                <RequestMembershipSection />
-            ) : orgTab === 'create' ? (
-                <CreateOrganisationSection onCreated={handleOrganisationCreated} />
-            ) : orgTab === 'invitations' ? (
-                <InvitationsSection />
-            ) : (
-                <>
-                    {createdOrgName && (
-                        <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
-                            Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
-                        </div>
-                    )}
-
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                            <Building2 className="w-7 h-7 text-secondary" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
-                                {activeMembership?.isAdmin && (
-                                    <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5">
-                                        Administrator
-                                    </span>
-                                )}
-                            </div>
-                            <p className="text-sm text-secondary">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
-                        </div>
-                    </div>
-
-                    <dl className="divide-y divide-border-gray border-t border-border-gray">
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Antal medlemmer</dt>
-                            <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
-                        </div>
-                    </dl>
-                </>
-            )}
         </div>
     )
 }
@@ -460,15 +396,15 @@ function InvitationsSection() {
     return (
         <div>
             {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {listError ?? actionError}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-secondary">Indlæser invitationer...</p>
+                <p className="text-secondary dark:text-slate-400">Indlæser invitationer...</p>
             ) : !invitations || invitations.length === 0 ? (
-                <p className="text-secondary">Du har ingen ventende invitationer.</p>
+                <p className="text-secondary dark:text-slate-400">Du har ingen ventende invitationer.</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray">
                     {invitations.map((invitation) => (
@@ -498,12 +434,12 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p className="font-medium">{invitation.organisationName}</p>
-                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+                <p className="text-xs text-secondary mt-1 dark:text-slate-400">Inviteret {formatDate(invitation.invitedAt)}</p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-secondary max-w-xs">
+                    <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'Accepted'
                             ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
                             : `Er du sikker på, at invitationen skal afvises?`}
@@ -512,7 +448,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? 'Behandler...' : 'Ja'}
                     </button>
@@ -520,7 +456,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={onCancel}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Annuller
                     </button>
@@ -531,7 +467,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         Acceptér
                     </button>
@@ -539,7 +475,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Rejected' })}
                         disabled={submitting}
-                        className="rounded-md border border-border-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Afvis
                     </button>
@@ -560,35 +496,9 @@ function RequestMembershipSection() {
     const { data: memberships } = useGetMyMembershipsQuery()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
 
-    const [organisations, setOrganisations] = useState<Organisation[]>([])
-    const [loadingOrganisations, setLoadingOrganisations] = useState(true)
+    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery()
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function fetchOrganisations() {
-            const { data, error } = await supabase
-                .from('organisations')
-                .select('id, name')
-                .order('name')
-
-            if (cancelled) return
-
-            if (error) {
-                console.error('Kunne ikke hente organisationer:', error.message)
-            } else {
-                setOrganisations(data)
-            }
-            setLoadingOrganisations(false)
-        }
-
-        fetchOrganisations()
-        return () => {
-            cancelled = true
-        }
-    }, [])
 
     async function handleRequestSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -602,12 +512,12 @@ function RequestMembershipSection() {
     }
 
     if (loadingPendingRequest) {
-        return <p className="text-secondary">Indlæser...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser...</p>
     }
 
     if (pendingRequest) {
         return (
-            <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2">
+            <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
                 Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
             </div>
         )
@@ -615,7 +525,7 @@ function RequestMembershipSection() {
 
     if (requestSuccess) {
         return (
-            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                 Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
             </div>
         )
@@ -632,38 +542,28 @@ function RequestMembershipSection() {
     return (
         <>
             {requestErrorMessage && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {requestErrorMessage}
                 </div>
             )}
 
             {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary">Der er ingen andre organisationer at anmode om medlemskab af.</p>
+                <p className="text-secondary dark:text-slate-400">Der er ingen andre organisationer at anmode om medlemskab af.</p>
             ) : (
                 <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="request-org">Vælg organisation</label>
-                        <select
-                            id="request-org"
+                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
+                        <OrganisationPickerComponent
+                            organisations={availableOrganisations}
+                            isLoading={loadingOrganisations}
                             value={selectedOrgId}
-                            onChange={(e) => setSelectedOrgId(e.target.value)}
-                            disabled={loadingOrganisations}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-                        >
-                            <option value="" disabled>
-                                {loadingOrganisations ? 'Henter organisationer...' : 'Vælg en organisation'}
-                            </option>
-                            {availableOrganisations.map((org) => (
-                                <option key={org.id} value={org.id}>
-                                    {org.name}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={setSelectedOrgId}
+                        />
                     </div>
                     <button
                         type="submit"
                         disabled={requesting || !selectedOrgId}
-                        className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {requesting ? 'Sender anmodning...' : 'Send anmodning'}
                     </button>
@@ -707,26 +607,26 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
     return (
         <>
             {(createValidationError || createErrorMessage) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {createValidationError ?? createErrorMessage}
                 </div>
             )}
 
             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                 <div>
-                    <label className="block text-sm text-secondary mb-1" htmlFor="create-name-existing">Organisationens navn</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name-existing">Organisationens navn</label>
                     <input
                         id="create-name-existing"
                         type="text"
                         value={createName}
                         onChange={(e) => setCreateName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creating ? 'Opretter...' : 'Opret organisation'}
                 </button>
@@ -759,26 +659,26 @@ function MyMembershipsSection() {
     }
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser dine organisationer...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser dine organisationer...</p>
     }
 
     const listError = readableApiError(queryError)
     if (listError) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {listError}
             </div>
         )
     }
 
     if (!memberships || memberships.length === 0) {
-        return <p className="text-secondary">Du er ikke medlem af nogen organisationer.</p>
+        return <p className="text-secondary dark:text-slate-400">Du er ikke medlem af nogen organisationer.</p>
     }
 
     return (
         <div>
             {actionMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                     {actionMessage}
                 </div>
             )}
@@ -826,7 +726,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <p className="font-medium">{membership.organisationName}</p>
-                    <p className="text-sm text-secondary">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
+                    <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -837,7 +737,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                             type="button"
                             onClick={handleSwitch}
                             disabled={switching}
-                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
                             {switching ? 'Skifter...' : 'Gør aktiv'}
                         </button>
@@ -845,12 +745,12 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
 
                     {confirmingLeave ? (
                         <>
-                            <span className="text-sm text-secondary">Er du sikker?</span>
+                            <span className="text-sm text-secondary dark:text-slate-400">Er du sikker?</span>
                             <button
                                 type="button"
                                 onClick={handleLeave}
                                 disabled={leaving}
-                                className="text-red-700 text-sm font-medium hover:underline disabled:opacity-60"
+                                className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                             >
                                 {leaving ? 'Forlader...' : 'Ja, forlad'}
                             </button>
@@ -858,7 +758,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                                 type="button"
                                 onClick={() => setConfirmingLeave(false)}
                                 disabled={leaving}
-                                className="text-secondary text-sm hover:underline disabled:opacity-60"
+                                className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                             >
                                 Annuller
                             </button>
@@ -867,7 +767,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                         <button
                             type="button"
                             onClick={() => setConfirmingLeave(true)}
-                            className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                            className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                         >
                             Forlad
                         </button>
@@ -875,7 +775,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                 </div>
             </div>
 
-            {actionError && <p className="text-red-700 text-xs mt-2">{actionError}</p>}
+            {actionError && <p className="text-red-600 text-xs mt-2 dark:text-red-400">{actionError}</p>}
         </li>
     )
 }

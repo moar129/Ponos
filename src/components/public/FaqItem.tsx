@@ -8,19 +8,19 @@ import type { FaqItemProps } from '../../types/public/publicType'
 // Ingen useState, ingen aria-expanded at holde i sync.
 export function FaqItem({ question, children }: FaqItemProps) {
     return (
-        <details className="group rounded-lg border border-border-gray bg-white">
+        <details className="group rounded-lg border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800">
             {/* list-none fjerner standard-trekanten (og ::-webkit-details-marker
                 for ældre Safari), så chevron'en til højre er den eneste
                 indikator. */}
-            <summary className="flex items-center justify-between gap-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden px-5 py-4 font-medium text-primary">
+            <summary className="flex items-center justify-between gap-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden px-5 py-4 font-medium text-primary dark:text-slate-100">
                 <span>{question}</span>
                 <ChevronDown
                     aria-hidden="true"
-                    className="w-5 h-5 shrink-0 text-secondary transition-transform group-open:rotate-180"
+                    className="w-5 h-5 shrink-0 text-secondary dark:text-slate-400 transition-transform group-open:rotate-180"
                 />
             </summary>
 
-            <div className="px-5 pb-4 text-sm text-secondary space-y-2">{children}</div>
+            <div className="px-5 pb-4 text-sm text-secondary dark:text-slate-400 space-y-2">{children}</div>
         </details>
     )
 }

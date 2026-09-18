@@ -20,6 +20,7 @@ function buildCategoryTree(
       title: cat.title,
       rank: cat.rank,
       organisationId: cat.organisation_id,
+      parentCategoryId: parentId,
       items: items.filter((item) => item.categoryId === cat.id),
       subCategories: buildCategoryTree(rawCategories, items, cat.id),
     }));
@@ -146,9 +147,15 @@ export const categoryApi = supabaseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
     }),
 
-    updateCategory: builder.mutation<void, { id: string; title?: string; rank?: number }>({
-      queryFn: async ({ id, ...changes }) => {
-        const { error } = await supabase.from('data_layer_categories').update(changes).eq('id', id);
+    updateCategory: builder.mutation<void, { id: string; title?: string; rank?: number; parentId?: string | null }>({
+      queryFn: async ({ id, parentId, ...changes }) => {
+        const { error } = await supabase
+          .from('data_layer_categories')
+          .update({
+            ...changes,
+            ...(parentId !== undefined && { parent_category_id: parentId }),
+          })
+          .eq('id', id);
 
         if (error) {
           return { error: mapDatalayerError(error, 'redigere kategorien') };

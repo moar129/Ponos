@@ -61,6 +61,28 @@ export const organisationApi = supabaseApi.injectEndpoints({
             providesTags: ['Organisation'],
         }),
 
+        // Henter alle organisationer (US-05, "Anmod om medlemskab") - brugt
+        // af OrganisationPickerComponent til at søge/vælge en organisation
+        // at anmode om medlemskab af. Genbruger 'Organisation'-tagget, så
+        // en nyoprettet organisation (createOrganisation invaliderer det
+        // samme tag) automatisk dukker op i listen uden reload.
+        getOrganisations: builder.query<Organisation[], void>({
+            queryFn: async () => {
+                const { data, error } = await supabase
+                    .from('organisations')
+                    .select('id, name')
+                    .order('name')
+
+                if (error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                }
+
+                return { data }
+            },
+
+            providesTags: ['Organisation'],
+        }),
+
         // Opdaterer organisationens navn. RLS ('Admin kan redigere egen
         // organisation') afviser dette server-side for ikke-admins - profil-
         // opslaget herunder er ikke for adgangskontrol, men for at finde
@@ -283,6 +305,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
 export const {
     useGetMyOrganisationQuery,
+    useGetOrganisationsQuery,
     useUpdateMyOrganisationMutation,
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,

@@ -28,7 +28,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
             }}
             role="link"
             tabIndex={0}
-            className="rounded-lg border border-border-gray overflow-hidden bg-white cursor-pointer hover:border-primary transition-colors"
+            className="rounded-lg border border-border-gray dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 cursor-pointer hover:border-accent transition-colors"
         >
             {news.pictureUrl && (
                 <img src={news.pictureUrl} alt="" className="w-full h-40 object-cover" />
@@ -36,8 +36,8 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
             <div className="p-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                        <h3 className="font-semibold text-primary">{news.title}</h3>
-                        <p className="text-xs text-secondary mt-0.5">{formatDate(news.publishedAt)}</p>
+                        <h3 className="font-semibold text-primary dark:text-slate-100">{news.title}</h3>
+                        <p className="text-xs text-secondary dark:text-slate-400 mt-0.5">{formatDate(news.publishedAt)}</p>
                     </div>
 
                     {(canUpdate || canDelete) && (
@@ -50,7 +50,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                                         onEdit(news)
                                     }}
                                     aria-label="Rediger nyhed"
-                                    className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-bg-gray transition-colors"
+                                    className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                                 >
                                     <Pencil className="w-4 h-4" />
                                 </button>
@@ -63,7 +63,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                                         onDelete(news)
                                     }}
                                     aria-label="Slet nyhed"
-                                    className="p-1.5 rounded-md text-secondary hover:text-red-700 hover:bg-red-50 transition-colors"
+                                    className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -75,7 +75,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                 {/* Uddrag som ren tekst - en formateret beskrivelse ville ellers
                     vise rå tags gennem line-clamp. */}
                 {news.description && (
-                    <p className="text-sm text-secondary mt-3 line-clamp-3 whitespace-pre-wrap">
+                    <p className="text-sm text-secondary dark:text-slate-400 mt-3 line-clamp-3 whitespace-pre-wrap">
                         {richTextToPlainText(news.description)}
                     </p>
                 )}

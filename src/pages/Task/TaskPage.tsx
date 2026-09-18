@@ -11,6 +11,13 @@ import {
     useGetTasksQuery,
     useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
+import {
+    CREATE_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
+    READ_TASKS_PRIVILEGE,
+    UPDATE_TASKS_PRIVILEGE,
+    useHasPrivilege,
+} from '../../store/apis/privilegeApi';
 
 function readableError(err: unknown): string | null {
     if (!err) return null;
@@ -30,6 +37,10 @@ export function TasksPage() {
     const [selectedStatuses, setSelectedStatuses] = useState<ETaskStatus[]>(['Started', 'InProgress']);
     const [createRoom, { error: createRoomError }] = useCreateRoomMutation();
 
+    const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_TASKS_PRIVILEGE);
+    const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_TASKS_PRIVILEGE);
+    const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE);
+    const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE);
 
     const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useGetTasksQuery();
     const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = useGetRoomsQuery();
@@ -113,33 +124,33 @@ export function TasksPage() {
         readableError(roomsError) ??
         readableError(createRoomError);
 
-    if (tasksLoading || roomsLoading) {
+    if (tasksLoading || roomsLoading || loadingReadPrivilege) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="font-semibold">Henter opgaver...</p>
             </div>
         );
     }
 
-    return (
-        <div className="min-h-screen flex flex-col bg-[#f4f4f2] text-[#111827]">
-            <header className="border-b border-gray-200 bg-white text-gray-900 px-8 py-5">
-                <div className="relative max-w-[1600px] mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-8" />
-                    <div className="flex items-center gap-5">
-                        <div className="relative" />
-                    </div>
-                </div>
-            </header>
-
-            <div className="border-b border-gray-200 bg-white/90 shadow-sm">
-                <RoomBar
-                    rooms={rooms}
-                    selectedRoomId={selectedRoomId}
-                    onSelectRoom={setSelectedRoomId}
-                    onAddRoom={() => setIsAddRoomOpen(true)}
-                />
+    if (!canRead) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+                <p className="text-secondary dark:text-slate-400">Du har ikke adgang til at se opgaver i denne organisation.</p>
             </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen flex flex-col bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+            <RoomBar
+                rooms={rooms}
+                selectedRoomId={selectedRoomId}
+                onSelectRoom={setSelectedRoomId}
+                onAddRoom={() => setIsAddRoomOpen(true)}
+                canCreate={canCreate}
+                canUpdate={canUpdate}
+                canDelete={canDelete}
+            />
 
             <FilterBar
                 isFilterOpen={isFilterOpen}
@@ -158,15 +169,15 @@ export function TasksPage() {
 
             {isAddRoomOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Opret rum</h3>
+                    <div className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
+                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">Opret rum</h3>
 
                         <input
                             type="text"
                             value={newRoomName}
                             onChange={(e) => setNewRoomName(e.target.value)}
                             placeholder="Skriv navn på rum"
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary"
+                            className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleAddRoom();
@@ -182,7 +193,7 @@ export function TasksPage() {
                                     setIsAddRoomOpen(false);
                                     setNewRoomName('');
                                 }}
-                                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600"
+                                className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >
                                 Annullér
                             </button>
@@ -190,7 +201,7 @@ export function TasksPage() {
                             <button
                                 type="button"
                                 onClick={handleAddRoom}
-                                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+                                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                             >
                                 Gem rum
                             </button>
@@ -201,47 +212,51 @@ export function TasksPage() {
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
                 {pageError && (
-                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                         {pageError}
                     </div>
                 )}
 
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Opgaver</h1>
+                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">Opgaver</h1>
 
-                        <p className="text-gray-500 mt-1">
+                        <p className="text-secondary mt-1 dark:text-slate-400">
                             Få overblik over arbejdet, der skal udføres.
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={() => setIsCreateTaskOpen(true)}
-                        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-                    >
-                        Opret opgave
-                    </button>
+                    {canCreate && (
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateTaskOpen(true)}
+                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+                        >
+                            Opret opgave
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-8 items-start">
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">Opgaver tilgængelige</h2>
-                            <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">Opgaver tilgængelige</h2>
+                            <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {availableTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
+                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
                             {availableTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
+                                    canUpdate={canUpdate}
+                                    canDelete={canDelete}
                                 />
                             ))}
                             {availableTasks.length === 0 && (
-                                <p className="text-gray-500 text-sm py-8 text-center">
+                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
                                     Ingen tilgængelige opgaver
                                 </p>
                             )}
@@ -250,21 +265,23 @@ export function TasksPage() {
 
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg">I gang</h2>
-                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">I gang</h2>
+                            <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {myTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-gray-200/60 rounded-2xl p-4 min-h-[500px] space-y-4">
+                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
                             {myTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
+                                    canUpdate={canUpdate}
+                                    canDelete={canDelete}
                                 />
                             ))}
                             {myTasks.length === 0 && (
-                                <p className="text-gray-500 text-sm py-8 text-center">
+                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
                                     Ingen opgaver i gang
                                 </p>
                             )}

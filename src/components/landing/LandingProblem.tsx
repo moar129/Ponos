@@ -4,13 +4,13 @@
 // rammen om hovedområde-afsnittet, ikke omvendt.
 export function LandingProblem() {
     return (
-        <section className="bg-white">
+        <section className="bg-white dark:bg-slate-900">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary">
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                         Overblikket ligger spredt
                     </h2>
-                    <p className="mt-4 text-secondary">
+                    <p className="mt-4 text-secondary dark:text-slate-400">
                         Organisationer håndterer data og arbejdsopgaver på tværs af separate systemer.
                         Det gør det svært at svare på selv simple spørgsmål: Hvilke ressourcer har vi
                         allerede? Hvor befinder de sig? Hvem er ansvarlig for opgaven?

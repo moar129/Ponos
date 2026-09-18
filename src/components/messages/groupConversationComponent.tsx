@@ -175,13 +175,13 @@ export function GroupConversationComponent({
   return (
     <div className="h-full min-h-0 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 shrink-0">
-        <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border-gray shrink-0 dark:border-slate-700">
+        <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
           <Users className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-slate-100 truncate">{groupName}</p>
-          <p className="text-xs text-slate-400 truncate">
+          <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{groupName}</p>
+          <p className="text-xs text-secondary truncate dark:text-slate-400">
             {participants.length} deltager{participants.length !== 1 ? 'e' : ''}
           </p>
         </div>
@@ -209,19 +209,19 @@ export function GroupConversationComponent({
       <div className="flex-1 min-h-0 overflow-y-auto p-4">
         {isLoadingMessages ? (
           <div className="h-full flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+            <Loader2 className="w-6 h-6 animate-spin text-accent" />
           </div>
         ) : messagesError ? (
           <div className="flex justify-center">
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               Kunne ikke hente beskeder.
             </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
-            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+          <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
             <p className="text-sm">Ingen beskeder endnu</p>
-            <p className="text-xs mt-1 text-slate-500">Skriv den første besked til gruppen.</p>
+            <p className="text-xs mt-1 text-secondary dark:text-slate-400">Skriv den første besked til gruppen.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -229,7 +229,7 @@ export function GroupConversationComponent({
               if (msg.messageType === 'system') {
                 return (
                   <div key={msg.id} className="flex justify-center">
-                    <p className="text-[11px] text-slate-500 bg-slate-900/60 rounded-full px-3 py-1">
+                    <p className="text-[11px] text-secondary bg-bg-gray rounded-full px-3 py-1 dark:text-slate-400 dark:bg-slate-700">
                       {msg.content}
                     </p>
                   </div>
@@ -253,7 +253,7 @@ export function GroupConversationComponent({
               return (
                 <div key={msg.id} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                   {!isOwnMessage && (
-                    <div className="w-7 h-7 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-[10px] shrink-0 overflow-hidden self-end">
+                    <div className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-[10px] shrink-0 overflow-hidden self-end">
                       {sender?.urlPicture ? (
                         <img src={sender.urlPicture} alt="" className="w-full h-full object-cover" />
                       ) : sender ? (
@@ -266,7 +266,7 @@ export function GroupConversationComponent({
 
                   <div className="max-w-[75%]">
                     {showSenderName && (
-                      <p className="text-[11px] text-slate-400 mb-0.5 ml-1">
+                      <p className="text-[11px] text-secondary mb-0.5 ml-1 dark:text-slate-400">
                         {sender ? `${sender.firstName} ${sender.lastName}` : 'Ukendt bruger'}
                       </p>
                     )}
@@ -301,7 +301,7 @@ export function GroupConversationComponent({
 
                       <div
                         className={`rounded-xl px-3 py-2 ${
-                          isOwnMessage ? 'bg-[#C7975D] text-[#071B33]' : 'bg-slate-800 text-slate-100'
+                          isOwnMessage ? 'bg-accent text-primary' : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
                         }`}
                       >
                         {msg.deletedAt ? (
@@ -309,7 +309,7 @@ export function GroupConversationComponent({
                         ) : isEditing ? (
                           <div className="flex flex-col gap-2">
                             {editErrorMessage && (
-                              <p className="text-xs text-red-800">
+                              <p className="text-xs text-red-800 dark:text-red-400">
                                 {editErrorMessage}
                               </p>
                             )}
@@ -373,7 +373,7 @@ export function GroupConversationComponent({
                         )}
 
                         <div className={`mt-1 flex items-center gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          <p className={`text-[10px] ${isOwnMessage ? 'text-[#071B33]/60' : 'text-slate-500'}`}>
+                          <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
                             {new Date(msg.createdAt).toLocaleString('da-DK', {
                               day: '2-digit',
                               month: '2-digit',
@@ -383,7 +383,7 @@ export function GroupConversationComponent({
                             {msg.editedAt && !msg.deletedAt && ' · redigeret'}
                           </p>
                           {isOwnMessage && !msg.deletedAt && (
-                            <span className="text-[10px] font-medium text-[#071B33]/70">
+                            <span className="text-[10px] font-medium text-primary/70">
                               {readSummary(msg.createdAt)}
                             </span>
                           )}
@@ -400,7 +400,7 @@ export function GroupConversationComponent({
       </div>
 
       {/* Beskedfelt */}
-      <div className="border-t border-slate-800 p-3 shrink-0">
+      <div className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700">
         <div className="flex items-end gap-2">
           <textarea
             value={message}
@@ -409,19 +409,19 @@ export function GroupConversationComponent({
             placeholder={`Skriv en besked til ${groupName}...`}
             rows={1}
             disabled={isSending}
-            className="flex-1 resize-none bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] disabled:opacity-50"
+            className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
           <button
             type="button"
             onClick={() => void handleSendMessage()}
             disabled={!message.trim() || isSending}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#C7975D] text-[#071B33] hover:bg-[#B5854B] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Send besked"
           >
             {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
-        <p className="text-[10px] text-slate-500 mt-1">Tryk Enter for at sende · Shift + Enter for ny linje</p>
+        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">Tryk Enter for at sende · Shift + Enter for ny linje</p>
       </div>
 
       <ManageGroupMembersComponent

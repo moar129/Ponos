@@ -63,88 +63,88 @@ export default function ForgotPassword() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-slate-900">
-                <h1 className="text-xl font-semibold text-primary mb-2">Nulstil adgangskode</h1>
-                <p className="text-sm text-secondary mb-6">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-2">Nulstil adgangskode</h1>
+                <p className="text-sm text-secondary dark:text-slate-400 mb-6">
                     Bekræft din konto med e-mail og navn, og vælg en ny adgangskode.
                 </p>
 
                 {error && (
-                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
                         {error}
                     </div>
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
                     <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="firstName">Fornavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
                     <input
                         id="firstName"
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="lastName">Efternavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
                     <input
                         id="lastName"
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="password">Ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Ny adgangskode</label>
                     <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="confirmPassword">Gentag ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">Gentag ny adgangskode</label>
                     <input
                         id="confirmPassword"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-primary text-white rounded-md py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {isLoading ? 'Nulstiller...' : 'Nulstil adgangskode'}
                 </button>
 
                 {/* Ærlig note om prototypen - fjernes, når rigtig
                     mailbekræftelse kommer på. */}
-                <p className="mt-3 text-xs text-secondary text-center">
+                <p className="mt-3 text-xs text-secondary dark:text-slate-400 text-center">
                     Prototype: der sendes ingen bekræftelse på mail.
                 </p>
 
-                <p className="mt-4 text-sm text-secondary text-center">
+                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
                     Kom du i tanke om den? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
                 </p>
             </form>

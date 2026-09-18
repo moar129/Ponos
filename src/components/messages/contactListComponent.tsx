@@ -42,15 +42,15 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b border-slate-800">
+      <div className="p-3 border-b border-border-gray dark:border-slate-700">
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
           <input
             type="text"
             placeholder="Søg efter kontakt eller rolle..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+            className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
         </div>
       </div>
@@ -58,21 +58,21 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+            <Loader2 className="w-6 h-6 animate-spin text-accent" />
           </div>
         ) : errorMessage ? (
-          <div className="m-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="m-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
             {errorMessage}
           </div>
         ) : filteredContacts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400 px-4">
-            <Users className="w-8 h-8 mb-2 stroke-[1.5] text-slate-500" />
+          <div className="flex flex-col items-center justify-center py-12 text-center text-secondary px-4 dark:text-slate-400">
+            <Users className="w-8 h-8 mb-2 stroke-[1.5] text-secondary dark:text-slate-400" />
             <p className="text-sm">
               {searchQuery ? 'Ingen kontakter matcher din søgning.' : 'Ingen andre medlemmer i din organisation endnu.'}
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-slate-800">
+          <ul className="divide-y divide-border-gray dark:divide-slate-700">
             {filteredContacts.map((contact) => {
               const isSelected = selectedContactId === contact.id;
               return (
@@ -81,10 +81,10 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
                     type="button"
                     onClick={() => onSelectContact?.(contact)}
                     className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                      isSelected ? 'bg-slate-800' : 'hover:bg-slate-800/50'
+                      isSelected ? 'bg-bg-gray dark:bg-slate-700' : 'hover:bg-bg-gray/50 dark:hover:bg-slate-700/50'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
+                    <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
                       {contact.urlPicture ? (
                         <img src={contact.urlPicture} alt="" className="w-full h-full object-cover" />
                       ) : (
@@ -92,10 +92,10 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-100 truncate">
+                      <p className="text-sm font-medium text-primary truncate dark:text-slate-100">
                         {contact.firstName} {contact.lastName}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">
+                      <p className="text-xs text-secondary truncate dark:text-slate-400">
                         {contact.roleName ?? 'Ingen rolle'}
                       </p>
                     </div>

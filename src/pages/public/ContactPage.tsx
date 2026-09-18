@@ -24,22 +24,22 @@ export default function ContactPage() {
                 description="Har du et spørgsmål, er du stødt på noget, der driller, eller vil du bare høre mere? Så skriv endelig."
             />
 
-            <section className="bg-white">
+            <section className="bg-white dark:bg-slate-900">
                 <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-4xl">
                         <div>
-                            <h2 className="text-xl font-semibold text-primary">Sådan får du fat i os</h2>
+                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">Sådan får du fat i os</h2>
 
                             {/* Samme to ikoner som footerens kontaktkolonne, så det
                                 er tydeligt at det er de samme oplysninger. */}
                             <ul className="mt-5 space-y-4">
                                 <li className="flex items-start gap-3">
-                                    <Mail className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                                    <Mail className="w-5 h-5 text-secondary dark:text-slate-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm text-secondary">Email</p>
+                                        <p className="text-sm text-secondary dark:text-slate-400">Email</p>
                                         <a
                                             href={`mailto:${CONTACT_EMAIL}`}
-                                            className="font-medium text-primary hover:underline"
+                                            className="font-medium text-primary dark:text-slate-100 hover:underline"
                                         >
                                             {CONTACT_EMAIL}
                                         </a>
@@ -47,10 +47,10 @@ export default function ContactPage() {
                                 </li>
 
                                 <li className="flex items-start gap-3">
-                                    <MapPin className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                                    <MapPin className="w-5 h-5 text-secondary dark:text-slate-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm text-secondary">Vi holder til i</p>
-                                        <p className="font-medium text-primary">{CONTACT_LOCATION}</p>
+                                        <p className="text-sm text-secondary dark:text-slate-400">Vi holder til i</p>
+                                        <p className="font-medium text-primary dark:text-slate-100">{CONTACT_LOCATION}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -67,11 +67,11 @@ export default function ContactPage() {
                         </div>
 
                         <div>
-                            <h2 className="text-xl font-semibold text-primary">Du må gerne skrive om</h2>
+                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">Du må gerne skrive om</h2>
 
                             <ul className="mt-5 space-y-3">
                                 {TOPICS.map((topic) => (
-                                    <li key={topic} className="flex items-start gap-3 text-secondary">
+                                    <li key={topic} className="flex items-start gap-3 text-secondary dark:text-slate-400">
                                         <span
                                             aria-hidden="true"
                                             className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-2"
@@ -81,7 +81,7 @@ export default function ContactPage() {
                                 ))}
                             </ul>
 
-                            <p className="mt-5 text-secondary">
+                            <p className="mt-5 text-secondary dark:text-slate-400">
                                 Vi læser med på hverdage og svarer, så hurtigt vi kan. Skriv gerne,
                                 hvilken organisation det handler om, og hvad du var i gang med - så
                                 slipper vi for at spørge om det først.
@@ -93,7 +93,7 @@ export default function ContactPage() {
                         besvaret - send dem derhen først. Samme accent-boks som
                         forsidens LandingFlow bruger til sin pointe. */}
                     <div className="mt-12 border-l-4 border-accent bg-accent/10 rounded-r-md px-5 py-4 max-w-3xl">
-                        <p className="text-primary flex items-start gap-3">
+                        <p className="text-primary dark:text-slate-100 flex items-start gap-3">
                             <HelpCircle className="w-5 h-5 shrink-0 mt-0.5 text-accent" />
                             <span>
                                 Skal du bare bruge at vide, hvordan noget virker? Så står svaret måske

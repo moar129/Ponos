@@ -87,16 +87,16 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0B132A] border border-slate-800 rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+      <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700">
+        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#C7975D]" />
-            <h2 className="text-lg font-semibold text-slate-100">Opret gruppe</h2>
+            <Users className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Opret gruppe</h2>
           </div>
           <button
             type="button"
             onClick={resetAndClose}
-            className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
             title="Luk"
             aria-label="Luk modal"
           >
@@ -106,62 +106,62 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
 
         <div className="p-4 space-y-3 overflow-y-auto">
           {formError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               {formError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs text-slate-400 uppercase tracking-wide mb-1.5">Gruppenavn</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">Gruppenavn</label>
             <input
               type="text"
               placeholder="F.eks. Elektriker eller Frontend"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-slate-400 uppercase tracking-wide">Deltagere</label>
+              <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Deltagere</label>
               {selectedIds.size > 0 && (
-                <span className="text-xs text-[#C7975D]">{selectedIds.size} valgt</span>
+                <span className="text-xs text-accent">{selectedIds.size} valgt</span>
               )}
             </div>
 
             <div className="relative mb-2">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
               <input
                 type="text"
                 placeholder="Søg efter kontakt eller rolle..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D]"
+                className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
             </div>
 
-            <div className="border border-slate-800 rounded-lg max-h-64 overflow-y-auto">
+            <div className="border border-border-gray rounded-lg max-h-64 overflow-y-auto dark:border-slate-700">
               {isLoadingMembers ? (
                 <div className="flex justify-center py-6">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#C7975D]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-accent" />
                 </div>
               ) : filteredContacts.length === 0 ? (
-                <p className="text-sm text-slate-400 text-center py-6">Ingen kontakter matcher din søgning.</p>
+                <p className="text-sm text-secondary text-center py-6 dark:text-slate-400">Ingen kontakter matcher din søgning.</p>
               ) : (
-                <ul className="divide-y divide-slate-800">
+                <ul className="divide-y divide-border-gray dark:divide-slate-700">
                   {filteredContacts.map((contact) => {
                     const isChecked = selectedIds.has(contact.id);
                     return (
                       <li key={contact.id}>
-                        <label className="w-full flex items-center gap-3 p-2.5 cursor-pointer hover:bg-slate-800/50 transition-colors">
+                        <label className="w-full flex items-center gap-3 p-2.5 cursor-pointer hover:bg-bg-gray/50 transition-colors dark:hover:bg-slate-700/50">
                           <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSelected(contact.id)}
-                            className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+                            className="w-4 h-4 rounded border-border-gray text-accent focus:ring-accent shrink-0 dark:border-slate-700"
                           />
-                          <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
+                          <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-xs shrink-0 overflow-hidden">
                             {contact.urlPicture ? (
                               <img src={contact.urlPicture} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -169,10 +169,10 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm text-slate-100 truncate">
+                            <p className="text-sm text-primary truncate dark:text-slate-100">
                               {contact.firstName} {contact.lastName}
                             </p>
-                            <p className="text-xs text-slate-400 truncate">{contact.roleName ?? 'Ingen rolle'}</p>
+                            <p className="text-xs text-secondary truncate dark:text-slate-400">{contact.roleName ?? 'Ingen rolle'}</p>
                           </div>
                         </label>
                       </li>
@@ -184,15 +184,15 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-800">
-          <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
+          <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
             Annullér
           </button>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isCreating}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
             Opret gruppe

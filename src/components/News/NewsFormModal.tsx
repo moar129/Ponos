@@ -94,40 +94,40 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl p-6 relative">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-xl p-6 relative">
                 <button
                     type="button"
                     onClick={onClose}
                     aria-label="Luk"
-                    className="absolute right-4 top-4 text-secondary hover:text-primary p-1 rounded-md hover:bg-bg-gray transition-colors"
+                    className="absolute right-4 top-4 text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 p-1 rounded-md hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
-                <h2 className="text-lg font-semibold text-primary mb-4">
+                <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
                     {editingNews ? 'Rediger nyhed' : 'Opret nyhed'}
                 </h2>
 
                 {errorMessage && (
-                    <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                    <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
                         {errorMessage}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="news-title">Titel</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-title">Titel</label>
                         <input
                             id="news-title"
                             type="text"
                             value={form.title}
                             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="news-description">Beskrivelse</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-description">Beskrivelse</label>
                         <RichTextEditor
                             id="news-description"
                             value={form.description}
@@ -137,35 +137,35 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="news-picture">Billed-URL (valgfri)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-picture">Billed-URL (valgfri)</label>
                         <input
                             id="news-picture"
                             type="text"
                             value={form.pictureUrl}
                             onChange={(e) => setForm((f) => ({ ...f, pictureUrl: e.target.value }))}
                             placeholder="https://..."
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary mb-1" htmlFor="news-url">Link til oprindelig artikel (valgfri)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-url">Link til oprindelig artikel (valgfri)</label>
                         <input
                             id="news-url"
                             type="text"
                             value={form.url}
                             onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
                             placeholder="https://..."
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
-                        <p className="text-xs text-secondary mt-1">Vises som "Læs hele artiklen" nederst på nyheden.</p>
+                        <p className="text-xs text-secondary dark:text-slate-400 mt-1">Vises som "Læs hele artiklen" nederst på nyheden.</p>
                     </div>
 
                     <div className="flex gap-3 pt-2">
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {isSaving ? 'Gemmer...' : 'Gem'}
                         </button>
@@ -173,7 +173,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                             type="button"
                             onClick={onClose}
                             disabled={isSaving}
-                            className="rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="rounded-md border border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-800 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-border-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
                             Annuller
                         </button>

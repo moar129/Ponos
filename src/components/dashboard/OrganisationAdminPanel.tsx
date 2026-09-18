@@ -87,12 +87,12 @@ export function OrganisationAdminPanel() {
     }
 
     if (isLoading) {
-        return <p className="text-secondary">Indlæser organisation...</p>
+        return <p className="text-secondary dark:text-slate-400">Indlæser organisation...</p>
     }
 
     if (queryError || !organisation) {
         return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                 {readableError(queryError) ?? 'Kunne ikke hente organisationen.'}
             </div>
         )
@@ -106,19 +106,19 @@ export function OrganisationAdminPanel() {
     return (
         <div>
             {deletedMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                     {deletedMessage}
                 </div>
             )}
 
             {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                     Organisationens oplysninger er gemt.
                 </div>
             )}
 
             {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {validationError ?? saveError}
                 </div>
             )}
@@ -126,13 +126,13 @@ export function OrganisationAdminPanel() {
             {isEditing ? (
                 <form onSubmit={handleSubmit}>
                     <div className="mb-6">
-                        <label className="block text-sm text-secondary mb-1" htmlFor="org-name">Navn</label>
+                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">Navn</label>
                         <input
                             id="org-name"
                             type="text"
                             value={form.name}
                             onChange={(e) => setForm({ name: e.target.value })}
-                            className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     </div>
 
@@ -140,7 +140,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? 'Gemmer...' : 'Gem ændringer'}
                         </button>
@@ -148,7 +148,7 @@ export function OrganisationAdminPanel() {
                             type="button"
                             onClick={cancelEdit}
                             disabled={saving}
-                            className="rounded-md border border-border-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                            className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
                             Annuller
                         </button>
@@ -157,15 +157,15 @@ export function OrganisationAdminPanel() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0">
-                            <Building2 className="w-7 h-7 text-secondary" />
+                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
+                            <Building2 className="w-7 h-7 text-secondary dark:text-slate-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-primary">{organisation.name}</h3>
+                        <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                     </div>
 
-                    <dl className="divide-y divide-border-gray border-t border-border-gray">
+                    <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary">Antal medlemmer</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">Antal medlemmer</dt>
                             <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
                         </div>
                     </dl>
@@ -174,7 +174,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="button"
                             onClick={() => startEdit(organisation)}
-                            className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors"
+                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             Rediger organisation
                         </button>
@@ -183,7 +183,7 @@ export function OrganisationAdminPanel() {
             )}
 
             {activeMembership?.isAdmin && (
-                <div className="mt-6 pt-6 border-t border-border-gray">
+                <div className="mt-6 pt-6 border-t border-border-gray dark:border-slate-700">
                     <DeleteOrganisationControl membership={activeMembership} onDeleted={handleDeleted} />
                 </div>
             )}
@@ -238,7 +238,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                 <button
                     type="button"
                     onClick={startConfirm}
-                    className="text-xs font-medium text-red-700 hover:underline"
+                    className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
                 >
                     Slet organisation
                 </button>
@@ -247,13 +247,13 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
     }
 
     return (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-3">
-            <p className="text-sm text-red-700 font-medium">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-3 dark:border-red-800 dark:bg-red-900/30">
+            <p className="text-sm text-red-700 font-medium dark:text-red-400">
                 Dette sletter "{membership.organisationName}" permanent og kan ikke fortrydes.
             </p>
 
             <div>
-                <label className="block text-xs text-secondary mb-1" htmlFor={`confirm-delete-${membership.organisationId}`}>
+                <label className="block text-xs text-secondary mb-1 dark:text-slate-400" htmlFor={`confirm-delete-${membership.organisationId}`}>
                     Skriv organisationens navn ({membership.organisationName}) for at bekræfte
                 </label>
                 <input
@@ -261,40 +261,40 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     type="text"
                     value={typedName}
                     onChange={(e) => setTypedName(e.target.value)}
-                    className="w-full rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 />
             </div>
 
-            <label className="flex items-start gap-2 text-xs text-secondary">
+            <label className="flex items-start gap-2 text-xs text-secondary dark:text-slate-400">
                 <input
                     type="checkbox"
                     checked={dataLossAcked}
                     onChange={(e) => setDataLossAcked(e.target.checked)}
-                    className="mt-0.5 rounded border-border-gray"
+                    className="mt-0.5 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
                 />
                 Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.
             </label>
 
             {otherMemberCount > 0 && (
-                <label className="flex items-start gap-2 text-xs text-secondary">
+                <label className="flex items-start gap-2 text-xs text-secondary dark:text-slate-400">
                     <input
                         type="checkbox"
                         checked={memberImpactAcked}
                         onChange={(e) => setMemberImpactAcked(e.target.checked)}
-                        className="mt-0.5 rounded border-border-gray"
+                        className="mt-0.5 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
                     />
                     Jeg forstår at de {otherMemberCount} andre medlemmer mister deres adgang med det samme.
                 </label>
             )}
 
-            {deleteErrorMessage && <p className="text-red-700 text-xs">{deleteErrorMessage}</p>}
+            {deleteErrorMessage && <p className="text-red-600 text-xs dark:text-red-400">{deleteErrorMessage}</p>}
 
             <div className="flex gap-3">
                 <button
                     type="button"
                     onClick={handleDelete}
                     disabled={!canDelete || deleting}
-                    className="rounded-md bg-red-700 text-white px-3 py-1.5 text-sm font-medium hover:bg-red-800 transition-colors disabled:opacity-50"
+                    className="rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-600"
                 >
                     {deleting ? 'Sletter...' : 'Slet permanent'}
                 </button>
@@ -302,7 +302,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     type="button"
                     onClick={cancelConfirm}
                     disabled={deleting}
-                    className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                    className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                 >
                     Annuller
                 </button>

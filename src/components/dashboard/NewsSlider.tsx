@@ -44,27 +44,27 @@ export function NewsSlider() {
     const hasImage = !!current?.pictureUrl
 
     return (
-        <div className="rounded-lg border border-border-gray p-5">
+        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                    <Newspaper className="w-5 h-5 text-secondary" />
-                    <h3 className="font-medium text-primary">Nyheder</h3>
+                    <Newspaper className="w-5 h-5 text-secondary dark:text-slate-400" />
+                    <h3 className="font-medium text-primary dark:text-slate-100">Nyheder</h3>
                 </div>
-                <Link to="/nyheder" className="flex items-center gap-1 text-sm text-primary hover:underline shrink-0">
+                <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     Se alle nyheder
                     <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {isLoading ? (
-                <p className="text-sm text-secondary">Indlæser nyheder...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Indlæser nyheder...</p>
             ) : !current ? (
-                <p className="text-sm text-secondary">Der er ingen nyheder endnu.</p>
+                <p className="text-sm text-secondary dark:text-slate-400">Der er ingen nyheder endnu.</p>
             ) : (
                 <div
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
-                    className="relative rounded-md overflow-hidden border border-border-gray"
+                    className="relative rounded-md overflow-hidden border border-border-gray dark:border-slate-700"
                 >
                     {/* Billedet er selve baggrunden når sat - ellers ren hvid baggrund. */}
                     <Link
@@ -84,11 +84,11 @@ export function NewsSlider() {
                                 </div>
                             </>
                         ) : (
-                            <div className={`h-full flex flex-col justify-center bg-white p-4 sm:px-12 ${slides.length > 1 ? 'pb-8' : ''}`}>
-                                <p className="font-medium text-primary truncate">{current.title}</p>
-                                <p className="text-xs text-secondary mt-0.5">{formatDate(current.publishedAt)}</p>
+                            <div className={`h-full flex flex-col justify-center bg-bg-gray/40 dark:bg-slate-800/40 p-4 sm:px-12 ${slides.length > 1 ? 'pb-8' : ''}`}>
+                                <p className="font-medium text-primary truncate dark:text-slate-100">{current.title}</p>
+                                <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">{formatDate(current.publishedAt)}</p>
                                 {current.description && (
-                                    <p className="text-sm text-secondary mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
+                                    <p className="text-sm text-secondary mt-1 line-clamp-2 dark:text-slate-400">{richTextToPlainText(current.description)}</p>
                                 )}
                             </div>
                         )}
@@ -100,7 +100,7 @@ export function NewsSlider() {
                                 type="button"
                                 onClick={() => goTo(index - 1)}
                                 aria-label="Forrige nyhed"
-                                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors"
+                                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors dark:bg-slate-800/90 dark:text-slate-400 dark:hover:text-slate-100"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
@@ -108,7 +108,7 @@ export function NewsSlider() {
                                 type="button"
                                 onClick={() => goTo(index + 1)}
                                 aria-label="Næste nyhed"
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors dark:bg-slate-800/90 dark:text-slate-400 dark:hover:text-slate-100"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>
@@ -125,10 +125,10 @@ export function NewsSlider() {
                                             i === index
                                                 ? hasImage
                                                     ? 'bg-white'
-                                                    : 'bg-primary'
+                                                    : 'bg-accent'
                                                 : hasImage
                                                   ? 'bg-white/50 hover:bg-white/80'
-                                                  : 'bg-border-gray hover:bg-secondary'
+                                                  : 'bg-border-gray hover:bg-secondary dark:bg-slate-700 dark:hover:bg-slate-500'
                                         }`}
                                     />
                                 ))}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import type { RoomBarProps } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
@@ -9,13 +9,30 @@ export function RoomBar({
     selectedRoomId,
     onSelectRoom,
     onAddRoom,
+    canCreate,
+    canUpdate,
+    canDelete,
 }: RoomBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditRoomOpen, setIsEditRoomOpen] = useState(false);
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isMenuOpen) return;
+
+        function handlePointerDown(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        }
+
+        document.addEventListener('mousedown', handlePointerDown);
+        return () => document.removeEventListener('mousedown', handlePointerDown);
+    }, [isMenuOpen]);
 
     return (
-        <div className="w-full bg-white border-b border-gray-200">
+        <div className="w-full bg-white dark:bg-slate-900">
             <div className="max-w-[1600px] mx-auto px-8">
                 <div className="flex items-center gap-1">
 
@@ -26,8 +43,8 @@ export function RoomBar({
                             className={`
                                 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition
                                 ${selectedRoomId === null
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-gray-500 hover:text-gray-900'
+                                    ? 'border-accent text-accent'
+                                    : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                                 }
                             `}
                         >
@@ -44,8 +61,8 @@ export function RoomBar({
                                 className={`
                                     px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition
                                     ${selectedRoomId === room.id
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-gray-500 hover:text-gray-900'
+                                        ? 'border-accent text-accent'
+                                        : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                                     }
                                 `}
                             >
@@ -53,52 +70,60 @@ export function RoomBar({
                             </button>
                         ))}
 
-                        <button
-                            onClick={onAddRoom}
-                            className="px-4 py-3 text-lg text-gray-400 hover:text-gray-900 transition"
-                            title="Opret rum"
-                        >
-                            +
-                        </button>
+                        {canCreate && (
+                            <button
+                                onClick={onAddRoom}
+                                className="px-4 py-3 text-lg text-secondary hover:text-primary transition dark:text-slate-400 dark:hover:text-slate-100"
+                                title="Opret rum"
+                            >
+                                +
+                            </button>
+                        )}
                     </div>
 
                     {/* MORE MENU */}
-                    <div className="relative ml-auto flex-shrink-0">
-                        <button
-                            type="button"
-                            onClick={() => setIsMenuOpen((open) => !open)}
-                            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                            aria-label="Flere handlinger"
-                        >
-                            <MoreHorizontal size={22} />
-                        </button>
+                    {(canUpdate || canDelete) && (
+                        <div className="relative ml-auto flex-shrink-0" ref={menuRef}>
+                            <button
+                                type="button"
+                                onClick={() => setIsMenuOpen((open) => !open)}
+                                className="rounded-lg p-2 text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                                aria-label="Flere handlinger"
+                            >
+                                <MoreHorizontal size={22} />
+                            </button>
 
-                        {isMenuOpen && (
-                            <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        setIsEditRoomOpen(true);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
-                                >
-                                    Rediger rum
-                                </button>
+                            {isMenuOpen && (
+                                <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-border-gray bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                                    {canUpdate && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsMenuOpen(false);
+                                                setIsEditRoomOpen(true);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
+                                        >
+                                            Rediger rum
+                                        </button>
+                                    )}
 
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        setIsDeleteRoomOpen(true);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
-                                >
-                                    Slet et rum
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                                    {canDelete && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsMenuOpen(false);
+                                                setIsDeleteRoomOpen(true);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                                        >
+                                            Slet et rum
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

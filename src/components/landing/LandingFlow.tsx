@@ -8,13 +8,13 @@ const STEPS = ['Data', 'Mennesker', 'Opgaver', 'Indsigt']
 
 export function LandingFlow() {
     return (
-        <section className="bg-white">
+        <section className="bg-white dark:bg-slate-900">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary">
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                         Data der bliver brugt videre
                     </h2>
-                    <p className="mt-4 text-secondary">
+                    <p className="mt-4 text-secondary dark:text-slate-400">
                         Ponos er ikke et arkiv. Det I registrerer ét sted, bliver brugt videre i næste
                         led. Et item i Datalageret er det samme item, som en opgave trækker på, og som
                         tæller med i statistikken.
@@ -26,13 +26,13 @@ export function LandingFlow() {
                 <ol className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
                     {STEPS.map((step, index) => (
                         <li key={step} className="flex items-center gap-3">
-                            <span className="rounded-lg border border-border-gray bg-white px-5 py-3 font-medium text-primary">
+                            <span className="rounded-lg border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 font-medium text-primary dark:text-slate-100">
                                 {step}
                             </span>
                             {index < STEPS.length - 1 && (
                                 <ArrowRight
                                     aria-hidden="true"
-                                    className="w-5 h-5 text-secondary shrink-0 rotate-90 sm:rotate-0"
+                                    className="w-5 h-5 text-secondary dark:text-slate-400 shrink-0 rotate-90 sm:rotate-0"
                                 />
                             )}
                         </li>
@@ -40,7 +40,7 @@ export function LandingFlow() {
                 </ol>
 
                 <blockquote className="mt-10 border-l-4 border-accent bg-accent/10 rounded-r-md px-5 py-4 max-w-3xl">
-                    <p className="text-primary">
+                    <p className="text-primary dark:text-slate-100">
                         I stedet for <em>"vi mangler noget, så køb nyt"</em> lægger Ponos op til{' '}
                         <em>"vi mangler noget, så lad os se hvad vi allerede har"</em>.
                     </p>

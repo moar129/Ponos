@@ -76,65 +76,65 @@ export function InvitationsPanel() {
         <div>
             <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3 mb-6">
                 <div className="flex-1 min-w-[240px]">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="invite-email">Inviter via email</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="invite-email">Inviter via email</label>
                     <input
                         id="invite-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="navn@eksempel.dk"
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={inviting || !email.trim()}
-                    className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {inviting ? 'Sender...' : 'Send invitation'}
                 </button>
             </form>
 
             {sentMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
                     {sentMessage}
                 </div>
             )}
 
             {(inviteErrorMessage || cancelErrorMessage) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {inviteErrorMessage ?? cancelErrorMessage}
                 </div>
             )}
 
-            <h3 className="text-sm font-medium text-secondary mb-3">Ventende invitationer</h3>
+            <h3 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">Ventende invitationer</h3>
 
             {sentListError ? (
-                <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {sentListError}
                 </div>
             ) : loadingInvitations ? (
-                <p className="text-secondary">Indlæser invitationer...</p>
+                <p className="text-secondary dark:text-slate-400">Indlæser invitationer...</p>
             ) : !invitations || invitations.length === 0 ? (
-                <p className="text-secondary">Ingen ventende invitationer.</p>
+                <p className="text-secondary dark:text-slate-400">Ingen ventende invitationer.</p>
             ) : (
-                <ul className="divide-y divide-border-gray border-t border-border-gray">
+                <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {invitations.map((invitation) => (
                         <li key={invitation.id} className="py-3 flex flex-wrap items-center justify-between gap-4">
                             <div>
                                 <p className="font-medium">{invitation.firstName} {invitation.lastName}</p>
-                                <p className="text-sm text-secondary">{invitation.email}</p>
-                                <p className="text-xs text-secondary mt-1">Inviteret {formatDate(invitation.invitedAt)}</p>
+                                <p className="text-sm text-secondary dark:text-slate-400">{invitation.email}</p>
+                                <p className="text-xs text-secondary mt-1 dark:text-slate-400">Inviteret {formatDate(invitation.invitedAt)}</p>
                             </div>
 
                             {confirmingCancelId === invitation.id ? (
                                 <div className="flex items-center gap-3">
-                                    <span className="text-sm text-secondary">Er du sikker?</span>
+                                    <span className="text-sm text-secondary dark:text-slate-400">Er du sikker?</span>
                                     <button
                                         type="button"
                                         onClick={() => handleCancel(invitation.id)}
                                         disabled={cancellingId === invitation.id}
-                                        className="text-red-700 text-sm font-medium hover:underline disabled:opacity-60"
+                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                                     >
                                         {cancellingId === invitation.id ? 'Annullerer...' : 'Ja, annullér'}
                                     </button>
@@ -142,7 +142,7 @@ export function InvitationsPanel() {
                                         type="button"
                                         onClick={() => setConfirmingCancelId(null)}
                                         disabled={cancellingId === invitation.id}
-                                        className="text-secondary text-sm hover:underline disabled:opacity-60"
+                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                                     >
                                         Fortryd
                                     </button>
@@ -151,7 +151,7 @@ export function InvitationsPanel() {
                                 <button
                                     type="button"
                                     onClick={() => setConfirmingCancelId(invitation.id)}
-                                    className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                                    className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                                 >
                                     Annullér
                                 </button>

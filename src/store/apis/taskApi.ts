@@ -49,6 +49,16 @@ interface RemoveAssigneeInput {
     userId: string
 }
 
+// 42501 = RLS afviste - bruger uden det relevante privilegie
+// (create_tasks/update_tasks/delete_tasks, Fase 3) forsøgte at
+// oprette/redigere/slette. Samme mønster som newsApi.ts/categoryApi.ts.
+function mapTaskError(error: { code?: string; message: string }, action: string): QueryError {
+    if (error.code === '42501') {
+        return { status: 'CUSTOM_ERROR', error: `Du har ikke rettigheder til at ${action}.` }
+    }
+    return { status: 'CUSTOM_ERROR', error: error.message }
+}
+
 async function getAuthenticatedOrganisationId(): Promise<string> {
     const { data: authData, error: authError } = await supabase.auth.getUser()
     if (authError || !authData.user) {
@@ -318,7 +328,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select()
                         .single()
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapTaskError(error, 'oprette denne opgave') }
                     return { data: data as Task }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'Fejl ved oprettelse af opgave'
@@ -359,12 +369,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .single()
 
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(error, 'redigere denne opgave') }
                     }
 
                     return { data: data as Task }
@@ -401,7 +406,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select()
                         .single()
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapTaskError(error, 'oprette dette rum') }
                     return { data: data as Room }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'Fejl ved oprettelse af rum'
@@ -427,12 +432,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .single()
 
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(error, 'redigere dette rum') }
                     }
 
                     return { data: data as Room }
@@ -456,14 +456,21 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
+        // Fase 3: en rå UPDATE på tasks.status kræver nu update_tasks, hvilket
+        // ville blokere en almindelig tilmeldts selvbetjente "markér som
+        // færdig"/"genåbn". Kalder i stedet set_task_status-RPC'en
+        // (fase3-tasks-privileges.sql), som tillader ENTEN en tilmeldt bruger
+        // ELLER update_tasks/admin.
         updateTaskStatus: builder.mutation<Task, UpdateTaskStatusInput>({
             queryFn: async ({ id, status }) => {
-                const { data, error } = await supabase
-                    .from('tasks')
-                    .update({ status })
-                    .eq('id', id)
-                    .select()
-                    .single()
+                const { error: rpcError } = await supabase.rpc('set_task_status', {
+                    p_task_id: id,
+                    p_status: status,
+                })
+
+                if (rpcError) return { error: mapTaskError(rpcError, 'ændre denne opgaves status') }
+
+                const { data, error } = await supabase.from('tasks').select('*').eq('id', id).single()
 
                 if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
                 return { data: data as Task }
@@ -529,12 +536,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             assigned_by: authData.user.id,
                         })
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(error, 'tilmelde en medarbejder til opgaven') }
                     }
                     return {
                         data: undefined,
@@ -636,12 +638,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('user_id', userId)
 
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(error, 'fjerne en medarbejder fra opgaven') }
                     }
 
                     return {
@@ -738,12 +735,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                                 .eq('organisation_id', organisationId)
 
                         if (deleteTasksError) {
-                            return {
-                                error: {
-                                    status: 'CUSTOM_ERROR',
-                                    error: deleteTasksError.message,
-                                } as QueryError,
-                            }
+                            return { error: mapTaskError(deleteTasksError, 'slette opgaverne i rummet') }
                         }
                     }
 
@@ -758,12 +750,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             .eq('organisation_id', organisationId)
 
                     if (updateTasksError) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: updateTasksError.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(updateTasksError, 'flytte opgaverne ud af rummet') }
                     }
 
                     // Slet selve rummet
@@ -775,12 +762,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             .eq('organisation_id', organisationId)
 
                     if (deleteRoomError) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: deleteRoomError.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(deleteRoomError, 'slette dette rum') }
                     }
 
                     return { data: undefined }
@@ -818,12 +800,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
 
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
+                        return { error: mapTaskError(error, 'slette denne opgave') }
                     }
 
                     return { data: undefined }

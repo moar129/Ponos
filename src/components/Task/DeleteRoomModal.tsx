@@ -70,17 +70,17 @@ export function DeleteRoomModal({
             onClick={onClose}
         >
             <div
-                className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
+                className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* HEADER */}
                 <div className="mb-6 flex items-start justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
+                        <h2 className="text-2xl font-bold text-primary dark:text-slate-100">
                             Slet rum
                         </h2>
 
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-secondary dark:text-slate-400">
                             Vælg det rum, du vil slette.
                         </p>
                     </div>
@@ -89,7 +89,7 @@ export function DeleteRoomModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-900"
+                        className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
                     >
                         X
                     </button>
@@ -101,7 +101,7 @@ export function DeleteRoomModal({
                     <div>
                         <label
                             htmlFor="delete-room-select"
-                            className="mb-1 block text-sm font-medium text-gray-700"
+                            className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
                             Vælg rum
                         </label>
@@ -112,7 +112,7 @@ export function DeleteRoomModal({
                             onChange={(e) =>
                                 handleRoomChange(e.target.value)
                             }
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#C7975D] focus:outline-none"
+                            className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
                             <option value="">Vælg rum</option>
 
@@ -129,22 +129,22 @@ export function DeleteRoomModal({
                         <div>
                             <div className="mb-2 flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700">
+                                    <p className="text-sm font-medium text-secondary dark:text-slate-400">
                                         Opgaver i rummet
                                     </p>
 
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-secondary dark:text-slate-400">
                                         Vælg de opgaver, der også skal slettes.
                                     </p>
                                 </div>
 
-                                <span className="text-xs font-medium text-gray-500">
+                                <span className="text-xs font-medium text-secondary dark:text-slate-400">
                                     {selectedTaskIds.length} valgt
                                 </span>
                             </div>
 
                             {roomTasks.length > 0 ? (
-                                <div className="max-h-60 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2">
+                                <div className="max-h-60 space-y-2 overflow-y-auto rounded-lg border border-border-gray p-2 dark:border-slate-700">
                                     {roomTasks.map((task) => {
                                         const isSelected =
                                             selectedTaskIds.includes(task.id);
@@ -154,8 +154,8 @@ export function DeleteRoomModal({
                                                 key={task.id}
                                                 className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition ${
                                                     isSelected
-                                                        ? 'border-red-300 bg-red-50'
-                                                        : 'border-gray-200 hover:bg-gray-50'
+                                                        ? 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-900/30'
+                                                        : 'border-border-gray hover:bg-bg-gray dark:border-slate-700 dark:hover:bg-slate-700'
                                                 }`}
                                             >
                                                 <input
@@ -164,16 +164,16 @@ export function DeleteRoomModal({
                                                     onChange={() =>
                                                         toggleTask(task.id)
                                                     }
-                                                    className="mt-1 h-4 w-4"
+                                                    className="mt-1 h-4 w-4 rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                                                 />
 
                                                 <div className="min-w-0">
-                                                    <p className="break-words text-sm font-medium text-gray-800">
+                                                    <p className="break-words text-sm font-medium text-primary dark:text-slate-100">
                                                         {task.title}
                                                     </p>
 
                                                     {task.description && (
-                                                        <p className="mt-1 break-words text-xs text-gray-500">
+                                                        <p className="mt-1 break-words text-xs text-secondary dark:text-slate-400">
                                                             {task.description}
                                                         </p>
                                                     )}
@@ -183,8 +183,8 @@ export function DeleteRoomModal({
                                     })}
                                 </div>
                             ) : (
-                                <div className="rounded-lg bg-gray-50 p-4">
-                                    <p className="text-sm text-gray-500">
+                                <div className="rounded-lg bg-bg-gray/40 p-4 dark:bg-slate-900/40">
+                                    <p className="text-sm text-secondary dark:text-slate-400">
                                         Der er ingen opgaver i dette rum.
                                     </p>
                                 </div>
@@ -192,7 +192,7 @@ export function DeleteRoomModal({
 
                             {/* INFO */}
                             {roomTasks.length > 0 && (
-                                <p className="mt-3 text-xs text-gray-500">
+                                <p className="mt-3 text-xs text-secondary dark:text-slate-400">
                                     Opgaver, du ikke vælger, bliver ikke slettet.
                                     De bliver i stedet flyttet til{' '}
                                     <strong>Uden rum</strong>.
@@ -203,7 +203,7 @@ export function DeleteRoomModal({
 
                     {/* FEJL */}
                     {isError && (
-                        <p className="text-sm text-red-600">
+                        <p className="text-sm text-red-700 dark:text-red-400">
                             Kunne ikke slette rummet. Prøv igen.
                         </p>
                     )}
@@ -223,7 +223,7 @@ export function DeleteRoomModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+                        className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
                     >
                         Luk
                     </button>

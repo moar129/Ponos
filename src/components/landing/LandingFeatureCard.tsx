@@ -6,13 +6,13 @@ import type { LandingFeatureCardProps } from '../../types/landing/landingType'
 // liste) og uden Link-wrapper - se LandingFeatureCardProps.
 export function LandingFeatureCard({ label, question, description, icon: Icon }: LandingFeatureCardProps) {
     return (
-        <div className="rounded-lg border border-border-gray bg-white p-5">
-            <div className="w-12 h-12 rounded-full bg-bg-gray flex items-center justify-center shrink-0 mb-4">
-                <Icon className="w-6 h-6 text-secondary" />
+        <div className="rounded-lg border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 p-5">
+            <div className="w-12 h-12 rounded-full bg-bg-gray dark:bg-slate-700 flex items-center justify-center shrink-0 mb-4">
+                <Icon className="w-6 h-6 text-secondary dark:text-slate-400" />
             </div>
-            <p className="font-semibold text-primary">{label}</p>
+            <p className="font-semibold text-primary dark:text-slate-100">{label}</p>
             <p className="text-sm font-medium text-accent mt-0.5">{question}</p>
-            <p className="text-sm text-secondary mt-2">{description}</p>
+            <p className="text-sm text-secondary dark:text-slate-400 mt-2">{description}</p>
         </div>
     )
 }

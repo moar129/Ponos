@@ -30,7 +30,7 @@ export function Footer() {
               PONOS
             </span>
           </Link>
-          <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+          <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
             Vi skaber overblik, samarbejde og bæredygtige resultater – sammen.
           </p>
         </div>
@@ -47,13 +47,13 @@ export function Footer() {
             <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">Navigation</h3>
 
             {isLoadingSession ? (
-              <ul className="space-y-2 text-xs text-slate-600 animate-pulse">
+              <ul className="space-y-2 text-xs text-slate-500 animate-pulse">
                 <li className="h-3 w-16 bg-slate-800 rounded" />
                 <li className="h-3 w-20 bg-slate-800 rounded" />
                 <li className="h-3 w-14 bg-slate-800 rounded" />
               </ul>
             ) : isAuthenticated ? (
-              <ul className="space-y-2 text-xs text-slate-400">
+              <ul className="space-y-2 text-xs text-slate-300">
                 <li><Link to="/dashboard" className={linkClass}>Dashboard</Link></li>
                 {hasOrganisation && (
                   <>
@@ -66,7 +66,7 @@ export function Footer() {
                 )}
               </ul>
             ) : (
-              <ul className="space-y-2 text-xs text-slate-400">
+              <ul className="space-y-2 text-xs text-slate-300">
                 <li><Link to="/" className={linkClass}>Forside</Link></li>
                 <li><Link to="/login" className={linkClass}>Login</Link></li>
               </ul>
@@ -76,7 +76,7 @@ export function Footer() {
           {/* Ingen login-gate her: de tre sider er de samme uanset tilstand. */}
           <nav aria-label="Om Ponos">
             <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">Om Ponos</h3>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <ul className="space-y-2 text-xs text-slate-300">
               <li><Link to="/om-os" className={linkClass}>Om os</Link></li>
               <li><Link to="/kontakt" className={linkClass}>Kontakt</Link></li>
               <li><Link to="/hjaelp" className={linkClass}>Hjælp &amp; support</Link></li>
@@ -86,13 +86,13 @@ export function Footer() {
 
         <div>
           <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">Kontakt</h3>
-          <ul className="space-y-2.5 text-xs text-slate-400">
+          <ul className="space-y-2.5 text-xs text-slate-300">
             <li className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+              <MapPin className="w-4 h-4 text-slate-300 shrink-0" />
               <span>{CONTACT_LOCATION}</span>
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+              <Mail className="w-4 h-4 text-slate-300 shrink-0" />
               <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
                 {CONTACT_EMAIL}
               </a>
@@ -101,7 +101,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-slate-800/60 pt-4 text-center text-[11px] text-slate-500">
+      <div className="border-t border-slate-800/60 pt-4 text-center text-[11px] text-slate-400">
         © {new Date().getFullYear()} Ponos. Alle rettigheder forbeholdes.
       </div>
     </footer>

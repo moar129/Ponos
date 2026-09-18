@@ -16,6 +16,7 @@ export interface DataLayerCat {
   items: DataLayerItem[];
   subCategories: DataLayerCat[];
   organisationId: string;
+  parentCategoryId: string | null;
 }
 
 export interface ItemLocation {
@@ -45,13 +46,28 @@ export interface CategoryTreeNodeProps {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  expandedCategoryIds: Set<string>;
+  onToggleExpand: (id: string) => void;
+  isFirst: boolean;
+  isLast: boolean;
+  isMoving: boolean;
+  onMoveUp: (category: DataLayerCat) => void;
+  onMoveDown: (category: DataLayerCat) => void;
+}
+
+export interface EditCategoryComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  category: DataLayerCat | null;
+  categoryTree: DataLayerCat[];
 }
 
 export interface AddCategoryComponentProps {
   isOpen: boolean;
   onClose: () => void;
   parentId: string | null;
-  parentTitle?: string;
+  parentPath?: string[];
+  nextRank: number;
   onSuccess: (newCategoryId: string) => void;
 }
 
@@ -75,6 +91,7 @@ export interface AddItemsComponentProps {
 export interface ItemDetailComponentProps {
   item: AggregatedItem | null;
   onClose: () => void;
+  onViewLocation: (location: ItemLocation) => void;
   // Fase 3: create/read/update/delete_datalayer - ét fælles domæne for
   // items OG lokationer, så samme tre booleans sendes videre til
   // LocationPickerComponent (lokations-feltet i redigerings-visningen).
@@ -97,13 +114,23 @@ export const ALL_ITEM_STATUSES: ItemStatus[] = [
 ];
 
 export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
-  Available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  Reserved: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  OutOfStock: 'bg-red-500/10 text-red-400 border-red-500/20',
-  InUse: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  Missing: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Damaged: 'bg-red-500/10 text-red-400 border-red-500/20',
-  Maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  Available: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+  Reserved: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+  OutOfStock: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  InUse: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800',
+  Missing: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  Damaged: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  Maintenance: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+};
+
+export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
+  Available: 'Tilgængelig',
+  Reserved: 'Reserveret',
+  OutOfStock: 'Udsolgt',
+  InUse: 'I brug',
+  Missing: 'Mangler',
+  Damaged: 'Beskadiget',
+  Maintenance: 'Vedligehold',
 };
 
 export interface ItemRow {
@@ -138,7 +165,8 @@ export interface DeleteItemsComponentProps {
 export interface LocationManagerComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  // Fase 3: create/update/delete_datalayer - gater rediger/slet-knapperne.
+  // Fase 3: create/update/delete_datalayer - gater opret/rediger/slet-knapperne.
+  canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
 }

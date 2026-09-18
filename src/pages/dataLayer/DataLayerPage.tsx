@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery } from '../../store/apis/categoryApi';
+import { useGetCategoryTreeQuery, useUpdateCategoryMutation } from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -9,7 +9,7 @@ import {
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
@@ -21,6 +21,7 @@ import { FilterPanelComponent } from '../../components/dataLayer/filterPanelComp
 import { LocationManagerComponent } from '../../components/dataLayer/locationsManagerComponent';
 import { LocationItemsComponent } from '../../components/dataLayer/locationItemComponent';
 import { GlobalSearchResultsComponent } from '../../components/dataLayer/globalSearchComponent';
+import { getErrorMessage } from '../../ErrorMessage';
 import {
   getAggregatedItems,
   flattenAllItems,
@@ -47,7 +48,12 @@ export function DataLayerPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addParentId, setAddParentId] = useState<string | null>(null);
-  const [addParentTitle, setAddParentTitle] = useState<string | undefined>(undefined);
+  const [addParentPath, setAddParentPath] = useState<string[] | undefined>(undefined);
+  const [addNextRank, setAddNextRank] = useState(1);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(new Set());
+  const [moveCategoryError, setMoveCategoryError] = useState<string | null>(null);
+  const [isMovingCategory, setIsMovingCategory] = useState(false);
+  const [updateCategory] = useUpdateCategoryMutation();
 
   const [editCategoryTarget, setEditCategoryTarget] = useState<DataLayerCat | null>(null);
 
@@ -83,6 +89,73 @@ export function DataLayerPage() {
     return null;
   }
 
+  function getCategoryPath(
+    categories: DataLayerCat[],
+    id: string
+  ): DataLayerCat[] | null {
+    for (const cat of categories) {
+      if (cat.id === id) return [cat];
+      if (cat.subCategories.length > 0) {
+        const found = getCategoryPath(cat.subCategories, id);
+        if (found) return [cat, ...found];
+      }
+    }
+    return null;
+  }
+
+  const toggleExpandCategory = (id: string) => {
+    setExpandedCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  function findSiblingsArray(
+    categories: DataLayerCat[],
+    id: string
+  ): DataLayerCat[] | null {
+    if (categories.some((cat) => cat.id === id)) return categories;
+    for (const cat of categories) {
+      const found = findSiblingsArray(cat.subCategories, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  const handleMoveCategory = async (category: DataLayerCat, direction: 'up' | 'down') => {
+    if (isMovingCategory) return;
+
+    const siblings = findSiblingsArray(categoryTree, category.id);
+    if (!siblings) return;
+
+    const idx = siblings.findIndex((cat) => cat.id === category.id);
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= siblings.length) return;
+
+    const reordered = [...siblings];
+    [reordered[idx], reordered[targetIdx]] = [reordered[targetIdx], reordered[idx]];
+
+    const updates = reordered
+      .map((cat, i) => ({ id: cat.id, rank: i + 1, changed: cat.rank !== i + 1 }))
+      .filter((update) => update.changed)
+      .map(({ id, rank }) => ({ id, rank }));
+
+    setIsMovingCategory(true);
+    try {
+      setMoveCategoryError(null);
+      await Promise.all(updates.map((update) => updateCategory(update).unwrap()));
+    } catch (err) {
+      setMoveCategoryError(getErrorMessage(err, 'Kunne ikke flytte kategorien.'));
+    } finally {
+      setIsMovingCategory(false);
+    }
+  };
+
   useEffect(() => {
     if (categoryTree.length > 0) {
       if (categoryIdFromUrl) {
@@ -112,15 +185,24 @@ export function DataLayerPage() {
   const handleOpenAddModal = (parentId: string | null) => {
     setAddParentId(parentId);
     if (parentId) {
+      const path = getCategoryPath(categoryTree, parentId);
+      setAddParentPath(path?.map((cat) => cat.title));
       const parentCat = findCategoryInTree(categoryTree, parentId);
-      setAddParentTitle(parentCat?.title);
+      setAddNextRank((parentCat?.subCategories.length ?? 0) + 1);
     } else {
-      setAddParentTitle(undefined);
+      setAddParentPath(undefined);
+      setAddNextRank(categoryTree.length + 1);
     }
     setIsAddModalOpen(true);
   };
 
   const handleCategoryAdded = (newCategoryId: string) => {
+    if (addParentId) {
+      const path = getCategoryPath(categoryTree, addParentId);
+      if (path) {
+        setExpandedCategoryIds((prev) => new Set([...prev, ...path.map((cat) => cat.id)]));
+      }
+    }
     setSearchParams({ catId: newCategoryId });
   };
 
@@ -192,10 +274,13 @@ export function DataLayerPage() {
       ? (error as { error: string }).error
       : null;
 
-  const aggregatedItems = useMemo(
-    () => (selectedCategory ? getAggregatedItems(selectedCategory) : []),
-    [selectedCategory]
-  );
+  const aggregatedItems = useMemo(() => {
+    if (!selectedCategory) return [];
+    const path = getCategoryPath(categoryTree, selectedCategory.id);
+    const ancestorTitles = path ? path.slice(0, -1).map((c) => c.title) : [];
+    return getAggregatedItems(selectedCategory, ancestorTitles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, categoryTree]);
 
   const descendantCategories = useMemo(
     () => (selectedCategory ? getDescendantCategories(selectedCategory) : []),
@@ -249,14 +334,14 @@ export function DataLayerPage() {
   if (loadingReadPrivilege) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+        <Loader2 className="w-6 h-6 animate-spin text-accent" />
       </div>
     );
   }
 
   if (!canRead) {
     return (
-      <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
         Du har ikke adgang til at se datalageret i denne organisation.
       </div>
     );
@@ -268,7 +353,8 @@ export function DataLayerPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         parentId={addParentId}
-        parentTitle={addParentTitle}
+        parentPath={addParentPath}
+        nextRank={addNextRank}
         onSuccess={handleCategoryAdded}
       />
 
@@ -276,6 +362,7 @@ export function DataLayerPage() {
         isOpen={!!editCategoryTarget}
         onClose={() => setEditCategoryTarget(null)}
         category={editCategoryTarget}
+        categoryTree={categoryTree}
       />
 
       <DeleteCategoryComponent
@@ -298,6 +385,7 @@ export function DataLayerPage() {
       <ItemDetailComponent
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
+        onViewLocation={(loc) => { setSelectedItem(null); setLocationItemsTarget(loc); }}
         canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
@@ -314,6 +402,7 @@ export function DataLayerPage() {
         isOpen={isLocationManagerOpen}
         onClose={() => setIsLocationManagerOpen(false)}
         onViewItems={(loc) => setLocationItemsTarget(loc)}
+        canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
       />
@@ -327,15 +416,15 @@ export function DataLayerPage() {
       />
 
       {errorMessage && (
-        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
           {errorMessage}
         </div>
       )}
 
       {/* Toolbar: søgning + Lokationer/Filter. Stables lodret på mobil, wrapper på tablet, én linje fra lg. */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 bg-[#0B132A] p-3 sm:p-4 rounded-xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border border-border-gray shadow-sm dark:bg-slate-800 dark:border-slate-700">
         <div className="relative w-full lg:w-96">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
           <input
             type="text"
             placeholder="Søg efter item eller kategori..."
@@ -343,7 +432,7 @@ export function DataLayerPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+            className="w-full bg-white border border-border-gray rounded-lg pl-10 pr-4 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
           <GlobalSearchResultsComponent
             isOpen={isSearchFocused && searchQuery.trim().length > 0}
@@ -359,7 +448,7 @@ export function DataLayerPage() {
           <button
             type="button"
             onClick={() => setIsLocationManagerOpen(true)}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
           >
             <MapPin className="w-4 h-4 shrink-0" />
             <span>Lokationer</span>
@@ -371,14 +460,14 @@ export function DataLayerPage() {
               onClick={() => setIsFilterOpen((prev) => !prev)}
               className={`w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
                 selectedStatuses.size > 0 || selectedCategoryFilterIds.size > 0
-                  ? 'bg-[#C7975D]/10 border-[#C7975D] text-[#C7975D]'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                  ? 'bg-accent/10 border-accent text-primary dark:text-slate-100'
+                  : 'bg-bg-gray hover:bg-border-gray text-primary border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700'
               }`}
             >
               <Filter className="w-4 h-4 shrink-0" />
               <span>Filter</span>
               {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
-                <span className="ml-1 text-xs bg-[#C7975D] text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
+                <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
                   {selectedStatuses.size + selectedCategoryFilterIds.size}
                 </span>
               )}
@@ -401,21 +490,27 @@ export function DataLayerPage() {
 
       {/* Hovedlayout: stables på mobil/tablet-portræt, splittes fra md */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-[#0B132A] rounded-xl border border-slate-800 p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px]">
+        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           <div>
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border-gray dark:border-slate-700">
+              <h2 className="text-xs font-semibold text-secondary uppercase tracking-wider dark:text-slate-400">
                 Kategorier
               </h2>
             </div>
 
+            {moveCategoryError && (
+              <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                {moveCategoryError}
+              </div>
+            )}
+
             {isLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
               </div>
             ) : (
               <div className="space-y-1 max-h-[300px] md:max-h-none overflow-y-auto">
-                {categoryTree.map((cat) => (
+                {categoryTree.map((cat, idx) => (
                   <CategoryTreeNode
                     key={cat.id}
                     category={cat}
@@ -427,6 +522,13 @@ export function DataLayerPage() {
                     canCreate={canCreate}
                     canUpdate={canUpdate}
                     canDelete={canDelete}
+                    expandedCategoryIds={expandedCategoryIds}
+                    onToggleExpand={toggleExpandCategory}
+                    isFirst={idx === 0}
+                    isLast={idx === categoryTree.length - 1}
+                    isMoving={isMovingCategory}
+                    onMoveUp={(c) => handleMoveCategory(c, 'up')}
+                    onMoveDown={(c) => handleMoveCategory(c, 'down')}
                   />
                 ))}
               </div>
@@ -437,7 +539,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddModal(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Opret kategori</span>
@@ -445,15 +547,15 @@ export function DataLayerPage() {
           )}
         </div>
 
-        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-[#0B132A] rounded-xl border border-slate-800 p-4 sm:p-6 shadow-sm md:min-h-[500px]">
+        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           {selectedCategory ? (
             <div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border-gray dark:border-slate-700">
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-serif text-slate-100 font-semibold truncate">
+                  <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
                     {selectedCategory.title}
                   </h1>
-                  <p className="text-xs text-slate-400 mt-1 truncate">
+                  <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
                     Kategori ID: {selectedCategory.id}
                   </p>
                 </div>
@@ -463,7 +565,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={exitSelectMode}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
                     >
                       <XIcon className="w-4 h-4" />
                       <span>Annullér</span>
@@ -473,9 +575,9 @@ export function DataLayerPage() {
                       type="button"
                       onClick={() => setIsSelectMode(true)}
                       disabled={displayedItems.length === 0}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-700 disabled:opacity-50"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
                     >
-                      <span>Vælg</span>
+                      <span>Vælg til sletning</span>
                     </button>
                   ))}
 
@@ -483,7 +585,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddItemsModalOpen(true)}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#C7975D] hover:bg-[#b5854b] text-white text-sm font-medium transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Tilføj items</span>
@@ -493,26 +595,26 @@ export function DataLayerPage() {
               </div>
 
               <div className="relative mb-4">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
                 <input
                   type="text"
                   placeholder="Filtrer items i denne kategori..."
                   value={localItemSearch}
                   onChange={(e) => setLocalItemSearch(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] transition-colors"
+                  className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-4 py-1.5 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
               </div>
 
               {isSelectMode && (
-                <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-slate-900 border border-slate-800 gap-2">
-                  <span className="text-sm text-slate-300 shrink-0">{selectedItemIds.size} valgt</span>
+                <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-bg-gray/40 border border-border-gray gap-2 dark:bg-slate-800/40 dark:border-slate-700">
+                  <span className="text-sm text-secondary shrink-0 dark:text-slate-400">{selectedItemIds.size} valgt</span>
                   <button
                     type="button"
                     onClick={() => setIsDeleteItemsOpen(true)}
                     disabled={selectedItemIds.size === 0}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shrink-0 ${
                       selectedItemIds.size === 0
-                        ? 'bg-red-600/20 text-red-400/50 cursor-not-allowed'
+                        ? 'bg-red-100 text-red-300 cursor-not-allowed dark:bg-red-900/30 dark:text-red-800'
                         : 'bg-red-600 hover:bg-red-700 text-white'
                     }`}
                   >
@@ -524,25 +626,25 @@ export function DataLayerPage() {
               )}
 
               {aggregatedItems.length > 0 && displayedItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-slate-400 border border-dashed border-slate-800 rounded-lg bg-slate-900/50">
-                  <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
-                  <p className="text-base font-medium text-slate-200">Ingen items matcher filtrene</p>
+                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
+                  <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                  <p className="text-base font-medium text-primary dark:text-slate-100">Ingen items matcher filtrene</p>
                   <button
                     type="button"
                     onClick={() => { resetFilters(); setLocalItemSearch(''); }}
-                    className="text-xs text-[#C7975D] hover:text-[#e0ac6f] mt-2"
+                    className="text-xs text-accent hover:text-accent-hover mt-2"
                   >
                     Ryd filtre
                   </button>
                 </div>
               ) : displayedItems.length > 0 ? (
-                <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg overflow-hidden">
+                <div className="divide-y divide-border-gray border border-border-gray rounded-lg overflow-hidden dark:divide-slate-700 dark:border-slate-700">
                   {displayedItems.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => (isSelectMode ? toggleItemSelected(item.id) : setSelectedItem(item))}
-                      className="w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between p-3 sm:p-4 bg-slate-900 hover:bg-slate-800/70 text-left transition-colors"
+                      className="w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between p-3 sm:p-4 bg-white hover:bg-bg-gray/40 text-left transition-colors dark:bg-slate-800 dark:hover:bg-slate-700/40"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {isSelectMode && (
@@ -551,48 +653,48 @@ export function DataLayerPage() {
                             checked={selectedItemIds.has(item.id)}
                             onChange={() => toggleItemSelected(item.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-[#C7975D] focus:ring-[#C7975D] shrink-0"
+                            className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
                           />
                         )}
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-100 truncate">{item.name}</span>
+                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
                             {item.isFromSubCategory && (
-                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary dark:bg-slate-700 dark:text-slate-400">
                                 {item.sourceCategoryTitle}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-400 truncate mt-0.5">
+                          <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">
                             {item.description}
                           </p>
                         </div>
                       </div>
 
                       {/* Antal/status: på egen linje under navnet på mobil, ved siden af fra sm */}
-                      <div className="flex items-center gap-3 shrink-0 text-xs text-slate-400">
-                        <span className="sm:w-16 sm:text-right">Antal: {item.quantity}</span>
-                        <span className="sm:w-24 sm:text-center px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                          {item.itemStatus}
+                      <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
+                        <span className="sm:w-20 sm:text-right">Antal: {item.quantity}</span>
+                        <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
+                          {ITEM_STATUS_LABELS[item.itemStatus]}
                         </span>
                       </div>
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-slate-400 border border-dashed border-slate-800 rounded-lg bg-slate-900/50">
-                  <Box className="w-12 h-12 mb-3 stroke-[1.5] text-slate-500" />
-                  <p className="text-base font-medium text-slate-200">
+                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
+                  <Box className="w-12 h-12 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                  <p className="text-base font-medium text-primary dark:text-slate-100">
                     Ingen items i denne kategori endnu
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                  <p className="text-xs text-secondary mt-1 max-w-sm dark:text-slate-400">
                     Du kan stadig tilføje nye items
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-400 text-sm py-12">
+            <div className="flex items-center justify-center h-full text-secondary text-sm py-12 dark:text-slate-400">
               Vælg en kategori i menuen til venstre
             </div>
           )}

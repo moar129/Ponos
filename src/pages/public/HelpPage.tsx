@@ -24,13 +24,13 @@ export default function HelpPage() {
                 description="Er du lige kommet i gang, eller er du kørt fast? Så er det her, du skal kigge først."
             />
 
-            <section className="bg-white">
+            <section className="bg-white dark:bg-slate-900">
                 <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                     <div className="max-w-3xl">
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                             Kom godt i gang
                         </h2>
-                        <p className="mt-4 text-secondary">
+                        <p className="mt-4 text-secondary dark:text-slate-400">
                             Tre trin fra ny konto til noget, der rent faktisk står i systemet.
                         </p>
                     </div>
@@ -65,10 +65,10 @@ export default function HelpPage() {
                 </div>
             </section>
 
-            <section className="bg-bg-gray/40 border-y border-border-gray">
+            <section className="bg-bg-gray/40 dark:bg-slate-800/40 border-y border-border-gray dark:border-slate-700">
                 <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                     <div className="max-w-3xl">
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                             Det bliver vi oftest spurgt om
                         </h2>
                     </div>
@@ -85,7 +85,7 @@ export default function HelpPage() {
                                 Du kommer videre under{' '}
                                 <Link
                                     to="/dashboard?tab=organisation"
-                                    className="text-primary font-medium hover:underline"
+                                    className="text-primary dark:text-slate-100 font-medium hover:underline"
                                 >
                                     Dashboard → Organisation
                                 </Link>
@@ -162,7 +162,7 @@ export default function HelpPage() {
                         <FaqItem question="Hvordan retter jeg mit navn eller profilbillede?">
                             <p>
                                 På{' '}
-                                <Link to="/bruger" className="text-primary font-medium hover:underline">
+                                <Link to="/bruger" className="text-primary dark:text-slate-100 font-medium hover:underline">
                                     din profil
                                 </Link>
                                 . Navn, beskrivelse, billede og adgangskode kan du selv rette. Email og
@@ -176,7 +176,7 @@ export default function HelpPage() {
                                 Klik{' '}
                                 <Link
                                     to="/glemt-adgangskode"
-                                    className="text-primary font-medium hover:underline"
+                                    className="text-primary dark:text-slate-100 font-medium hover:underline"
                                 >
                                     "Glemt din adgangskode?"
                                 </Link>{' '}
@@ -187,7 +187,7 @@ export default function HelpPage() {
                                 Driller det, skriver du til{' '}
                                 <a
                                     href={`mailto:${CONTACT_EMAIL}`}
-                                    className="text-primary font-medium hover:underline"
+                                    className="text-primary dark:text-slate-100 font-medium hover:underline"
                                 >
                                     {CONTACT_EMAIL}
                                 </a>
@@ -197,9 +197,9 @@ export default function HelpPage() {
                     </div>
 
                     <div className="mt-10 max-w-3xl">
-                        <p className="text-secondary">
+                        <p className="text-secondary dark:text-slate-400">
                             Fandt du ikke svaret?{' '}
-                            <Link to="/kontakt" className="text-primary font-medium hover:underline">
+                            <Link to="/kontakt" className="text-primary dark:text-slate-100 font-medium hover:underline">
                                 Skriv til os
                             </Link>{' '}
                             - fortæl gerne, hvad du var i gang med, og hvad der skete i stedet.

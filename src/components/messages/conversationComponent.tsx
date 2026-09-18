@@ -197,8 +197,8 @@ export function ConversationComponent({
   return (
     <div className="h-full min-h-0 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 shrink-0">
-        <div className="w-10 h-10 rounded-full bg-slate-700 text-slate-100 flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border-gray shrink-0 dark:border-slate-700">
+        <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-semibold text-sm shrink-0 overflow-hidden">
           {contact.urlPicture ? (
             <img
               src={contact.urlPicture}
@@ -211,11 +211,11 @@ export function ConversationComponent({
         </div>
 
         <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-100 truncate">
+          <p className="text-sm font-medium text-primary truncate dark:text-slate-100">
             {contact.firstName} {contact.lastName}
           </p>
 
-          <p className="text-xs text-slate-400 truncate">
+          <p className="text-xs text-secondary truncate dark:text-slate-400">
             {contact.roleName ?? 'Ingen rolle'}
           </p>
         </div>
@@ -224,32 +224,32 @@ export function ConversationComponent({
       {/* Beskeder */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4">
         {!conversationId ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
-            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+          <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
 
             <p className="text-sm">Ingen beskeder endnu</p>
 
-            <p className="text-xs mt-1 text-slate-500">
+            <p className="text-xs mt-1 text-secondary dark:text-slate-400">
               Skriv den første besked til {contact.firstName}.
             </p>
           </div>
         ) : isLoadingMessages ? (
           <div className="h-full flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#C7975D]" />
+            <Loader2 className="w-6 h-6 animate-spin text-accent" />
           </div>
         ) : messagesError ? (
           <div className="flex justify-center">
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
               Kunne ikke hente beskeder.
             </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
-            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-slate-500" />
+          <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
+            <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
 
             <p className="text-sm">Ingen beskeder endnu</p>
 
-            <p className="text-xs mt-1 text-slate-500">
+            <p className="text-xs mt-1 text-secondary dark:text-slate-400">
               Skriv den første besked til {contact.firstName}.
             </p>
           </div>
@@ -299,8 +299,8 @@ export function ConversationComponent({
                   <div
                     className={`max-w-[75%] rounded-xl px-3 py-2 ${
                       isOwnMessage
-                        ? 'bg-[#C7975D] text-[#071B33]'
-                        : 'bg-slate-800 text-slate-100'
+                        ? 'bg-accent text-primary'
+                        : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
                     }`}
                   >
                     {msg.deletedAt ? (
@@ -308,7 +308,7 @@ export function ConversationComponent({
                     ) : isEditing ? (
                       <div className="flex flex-col gap-2">
                         {editErrorMessage && (
-                          <p className="text-xs text-red-800">
+                          <p className="text-xs text-red-800 dark:text-red-400">
                             {editErrorMessage}
                           </p>
                         )}
@@ -372,11 +372,10 @@ export function ConversationComponent({
                     )}
 
                     <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : ''}`}>
-                      <p className={`text-[10px] ${isOwnMessage ? 'text-[#071B33]/60' : 'text-slate-500'}`}>
+                      <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
                         {new Date(msg.createdAt).toLocaleString('da-DK', {
                           day: '2-digit',
                           month: '2-digit',
-                          year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
@@ -386,7 +385,7 @@ export function ConversationComponent({
                       {/* US-B12: tydelig læse-status vises kun på egne, ikke-slettede beskeder */}
                       {isOwnMessage && !msg.deletedAt && (
                         <span className={`flex items-center gap-1 text-[10px] font-medium ${
-                          isReadByOther(msg.createdAt) ? 'text-[#071B33]' : 'text-[#071B33]/50'
+                          isReadByOther(msg.createdAt) ? 'text-primary' : 'text-primary/50'
                         }`}>
                           {isReadByOther(msg.createdAt) ? (
                             <>
@@ -413,7 +412,7 @@ export function ConversationComponent({
       </div>
 
       {/* Beskedfelt */}
-      <div className="border-t border-slate-800 p-3 shrink-0">
+      <div className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700">
         <div className="flex items-end gap-2">
           <textarea
             value={message}
@@ -422,14 +421,14 @@ export function ConversationComponent({
             placeholder={`Skriv en besked til ${contact.firstName}...`}
             rows={1}
             disabled={isBusy}
-            className="flex-1 resize-none bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#C7975D] disabled:opacity-50"
+            className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
 
           <button
             type="button"
             onClick={() => void handleSendMessage()}
             disabled={!message.trim() || isBusy}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#C7975D] text-[#071B33] hover:bg-[#B5854B] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Send besked"
           >
             {isBusy ? (
@@ -440,7 +439,7 @@ export function ConversationComponent({
           </button>
         </div>
 
-        <p className="text-[10px] text-slate-500 mt-1">
+        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">
           Tryk Enter for at sende · Shift + Enter for ny linje
         </p>
       </div>

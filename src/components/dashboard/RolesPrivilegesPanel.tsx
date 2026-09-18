@@ -84,35 +84,35 @@ function RolesSection() {
         <div>
             <form onSubmit={handleCreateRole} className="flex flex-wrap items-end gap-3 mb-6">
                 <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm text-secondary mb-1" htmlFor="new-role-name">Ny rolle</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="new-role-name">Ny rolle</label>
                     <input
                         id="new-role-name"
                         type="text"
                         value={newRoleName}
                         onChange={(e) => setNewRoleName(e.target.value)}
                         placeholder="Fx Frivilligkoordinator"
-                        className="w-full rounded-md border border-border-gray px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                 </div>
                 <button
                     type="submit"
                     disabled={creatingRole}
-                    className="bg-primary text-white rounded-md px-4 py-2 font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creatingRole ? 'Opretter...' : 'Opret rolle'}
                 </button>
             </form>
 
             {(listError || submitError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">
+                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {listError ?? submitError}
                 </div>
             )}
 
             {loadingRoles || loadingPrivileges ? (
-                <p className="text-secondary">Indlæser roller...</p>
+                <p className="text-secondary dark:text-slate-400">Indlæser roller...</p>
             ) : !roles || roles.length === 0 ? (
-                <p className="text-secondary">Organisationen har endnu ingen roller.</p>
+                <p className="text-secondary dark:text-slate-400">Organisationen har endnu ingen roller.</p>
             ) : (
                 <ul className="space-y-4">
                     {roles.map((role) => (
@@ -301,7 +301,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
     }
 
     return (
-        <li className="border border-border-gray rounded-md p-4">
+        <li className="border border-border-gray rounded-md p-4 dark:border-slate-700">
             {isEditing ? (
                 <form onSubmit={handleRename} className="flex items-center gap-2 mb-2">
                     <input
@@ -309,13 +309,13 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         autoFocus
-                        className="flex-1 rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="flex-1 rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                     <button
                         type="submit"
                         disabled={renaming}
                         aria-label="Gem rollenavn"
-                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60 dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         <Check className="w-4 h-4" />
                     </button>
@@ -324,21 +324,21 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         onClick={() => setIsEditing(false)}
                         disabled={renaming}
                         aria-label="Annuller"
-                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60 dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         <X className="w-4 h-4" />
                     </button>
                 </form>
             ) : confirmingDelete ? (
                 <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <p className="text-sm text-secondary">
+                    <p className="text-sm text-secondary dark:text-slate-400">
                         Slet rollen "{role.name}"? Tilknyttede privilegier fjernes også, og medlemmer med rollen mister den.
                     </p>
                     <button
                         type="button"
                         onClick={handleDelete}
                         disabled={deleting}
-                        className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-60"
+                        className="bg-accent text-white rounded-md px-3 py-1.5 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {deleting ? 'Sletter...' : 'Ja, slet'}
                     </button>
@@ -346,7 +346,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         type="button"
                         onClick={() => setConfirmingDelete(false)}
                         disabled={deleting}
-                        className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         Annuller
                     </button>
@@ -356,7 +356,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                     <p className="font-medium">{role.name}</p>
                     {isLockedRole ? (
                         <span
-                            className="flex items-center gap-1 text-xs text-secondary italic"
+                            className="flex items-center gap-1 text-xs text-secondary italic dark:text-slate-400"
                             title={
                                 isAdminRole
                                     ? 'Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes'
@@ -372,7 +372,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                                 type="button"
                                 onClick={startEdit}
                                 aria-label="Omdøb rolle"
-                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors"
+                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                             >
                                 <Pencil className="w-4 h-4" />
                             </button>
@@ -380,7 +380,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                                 type="button"
                                 onClick={() => setConfirmingDelete(true)}
                                 aria-label="Slet rolle"
-                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors"
+                                className="p-1.5 rounded-md text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>
@@ -390,13 +390,13 @@ function RoleCard({ role, privileges }: RoleCardProps) {
             )}
 
             {(readableError(renameError) || readableError(deleteError)) && (
-                <p className="text-red-700 text-xs mb-2">
+                <p className="text-red-600 text-xs mb-2 dark:text-red-400">
                     {readableError(renameError) ?? readableError(deleteError)}
                 </p>
             )}
 
             {privileges.length === 0 ? (
-                <p className="text-sm text-secondary mb-3">Ingen privilegier endnu.</p>
+                <p className="text-sm text-secondary mb-3 dark:text-slate-400">Ingen privilegier endnu.</p>
             ) : (
                 <ul className="space-y-1 mb-3">
                     {privileges.map((privilege) => (
@@ -412,7 +412,7 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                         onClick={() => setPickerOpen((open) => !open)}
                         aria-haspopup="listbox"
                         aria-expanded={pickerOpen}
-                        className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-border-gray px-3 py-1.5 text-sm text-left text-secondary focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="flex items-center justify-between gap-2 min-w-[220px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-left text-secondary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                     >
                         <span>{pickerButtonLabel}</span>
                         <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} />
@@ -421,25 +421,25 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                     {pickerOpen && (
                         <div
                             role="listbox"
-                            className="absolute left-0 top-full mt-1 w-64 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg border border-border-gray py-1 z-10"
+                            className="absolute left-0 top-full mt-1 w-64 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg border border-border-gray py-1 z-10 dark:bg-slate-800 dark:border-slate-700"
                         >
                             {pickerGroups.map((group, groupIndex) => (
                                 <div key={group.heading ?? `ungrouped-${groupIndex}`}>
                                     {group.heading && (
-                                        <p className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wide text-secondary/70">
+                                        <p className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wide text-secondary dark:text-slate-400">
                                             {group.heading}
                                         </p>
                                     )}
                                     {group.options.map((p) => (
                                         <label
                                             key={p.name}
-                                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer"
+                                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:bg-bg-gray cursor-pointer dark:text-slate-400 dark:hover:bg-slate-700"
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={selectedPrivileges.includes(p.name)}
                                                 onChange={() => togglePrivilege(p.name)}
-                                                className="rounded border-border-gray"
+                                                className="rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
                                             />
                                             {p.label}
                                         </label>
@@ -457,20 +457,20 @@ function RoleCard({ role, privileges }: RoleCardProps) {
                             onChange={(e) => setCustomPrivilegeName(e.target.value)}
                             placeholder="Fx custom_privilegie"
                             autoFocus
-                            className="flex-1 min-w-[160px] rounded-md border border-border-gray px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="flex-1 min-w-[160px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     )}
                     <button
                         type="submit"
                         disabled={creating}
-                        className="rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         {creating ? 'Tilføjer...' : 'Tilføj privilegie(r)'}
                     </button>
                 </div>
             </form>
 
-            {privilegeFormError && <p className="text-red-700 text-xs mt-2">{privilegeFormError}</p>}
+            {privilegeFormError && <p className="text-red-600 text-xs mt-2 dark:text-red-400">{privilegeFormError}</p>}
         </li>
     )
 }
@@ -522,13 +522,13 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         autoFocus
-                        className="flex-1 rounded-md border border-border-gray px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="flex-1 rounded-md border border-border-gray bg-white px-2 py-1 text-xs text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                     <button
                         type="submit"
                         disabled={renaming}
                         aria-label="Gem privilegienavn"
-                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60 dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         <Check className="w-3.5 h-3.5" />
                     </button>
@@ -537,12 +537,12 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                         onClick={() => setIsEditing(false)}
                         disabled={renaming}
                         aria-label="Annuller"
-                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60"
+                        className="p-1 rounded-md text-secondary hover:bg-bg-gray transition-colors disabled:opacity-60 dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         <X className="w-3.5 h-3.5" />
                     </button>
                 </form>
-                {error && <p className="text-red-700 text-xs mt-1">{error}</p>}
+                {error && <p className="text-red-600 text-xs mt-1 dark:text-red-400">{error}</p>}
             </li>
         )
     }
@@ -550,12 +550,12 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
     if (confirmingDelete) {
         return (
             <li className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-secondary">Fjern privilegiet "{privilege.name}"?</span>
+                <span className="text-secondary dark:text-slate-400">Fjern privilegiet "{privilege.name}"?</span>
                 <button
                     type="button"
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="text-red-700 font-medium hover:underline disabled:opacity-60"
+                    className="text-red-600 font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                 >
                     {deleting ? 'Fjerner...' : 'Ja, fjern'}
                 </button>
@@ -563,11 +563,11 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                     type="button"
                     onClick={() => setConfirmingDelete(false)}
                     disabled={deleting}
-                    className="text-secondary hover:underline disabled:opacity-60"
+                    className="text-secondary hover:underline disabled:opacity-60 dark:text-slate-400"
                 >
                     Annuller
                 </button>
-                {error && <p className="text-red-700 text-xs w-full">{error}</p>}
+                {error && <p className="text-red-600 text-xs w-full dark:text-red-400">{error}</p>}
             </li>
         )
     }
@@ -578,7 +578,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
     const isAdminPrivilege = privilege.name === ADMIN_PRIVILEGE && roleName === ADMIN_ROLE_NAME
 
     return (
-        <li className="flex items-center justify-between gap-2 text-sm bg-bg-gray text-secondary rounded-md px-3 py-1">
+        <li className="flex items-center justify-between gap-2 text-sm bg-bg-gray text-secondary rounded-md px-3 py-1 dark:bg-slate-700 dark:text-slate-400">
             <span>{privilegeLabel(privilege.name)}</span>
             {isAdminPrivilege ? (
                 <span className="flex items-center gap-1 text-xs italic" title="Admin-privilegiet kan ikke omdøbes eller fjernes">
@@ -590,7 +590,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                         type="button"
                         onClick={startEdit}
                         aria-label="Omdøb privilegie"
-                        className="p-1 rounded-md hover:bg-white transition-colors"
+                        className="p-1 rounded-md hover:bg-bg-gray/70 transition-colors dark:hover:bg-slate-600"
                     >
                         <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -598,7 +598,7 @@ function PrivilegeRow({ privilege, roleName }: PrivilegeRowProps) {
                         type="button"
                         onClick={() => setConfirmingDelete(true)}
                         aria-label="Fjern privilegie"
-                        className="p-1 rounded-md hover:bg-white transition-colors"
+                        className="p-1 rounded-md hover:bg-bg-gray/70 transition-colors dark:hover:bg-slate-600"
                     >
                         <Trash2 className="w-3.5 h-3.5" />
                     </button>

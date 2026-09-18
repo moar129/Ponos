@@ -14,14 +14,17 @@ import {
   Home,
   LogIn,
   UserPlus,
-  MessageSquareText
+  MessageSquareText,
+  Sun,
+  Moon
 } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { Avatar } from './common/Avatar';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
-import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
+import { useTheme } from '../store/hooks/useTheme';
 
 export function Header() {
   const navigate = useNavigate();
@@ -45,11 +48,12 @@ export function Header() {
   // så en bruger uden organisation aldrig ser links, der ikke virker for dem.
   const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
 
-  // Fase 3: Datalager-/Nyheder-linkene kræver hhv. read_datalayer og
-  // read_news (eller admin) - Opgaver/Statistik under hasOrganisation er
-  // ikke ændret.
+  // Fase 3: Datalager-/Nyheder-/Opgave-linkene kræver hhv. read_datalayer,
+  // read_news og read_tasks (eller admin) - Statistik under hasOrganisation
+  // er ikke ændret.
   const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
+  const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -57,6 +61,9 @@ export function Header() {
 
   // Mobil hamburger-navigation
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // Lys/mørkt tema - toggle-knappen ligger i handlings-klyngen nedenfor
+  const { mode, toggleTheme } = useTheme();
 
   // Luk brugermenuen ved klik udenfor eller Escape, så den ikke bliver
   // hængende åben når brugeren navigerer videre i siden.
@@ -146,10 +153,12 @@ export function Header() {
 
             {hasOrganisation && (
               <>
-                <NavLink to="/tasks" className={getNavLinkClass}>
-                  <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Opgaver</span>
-                </NavLink>
+                {canReadTasks && (
+                  <NavLink to="/tasks" className={getNavLinkClass}>
+                    <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <span>Opgaver</span>
+                  </NavLink>
+                )}
 
                 <NavLink to="/statistik" className={getNavLinkClass}>
                   <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
@@ -228,7 +237,7 @@ export function Header() {
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-300">
                       {profile?.roleName ?? 'Ingen rolle'}
                     </span>
                   </div>
@@ -238,13 +247,13 @@ export function Header() {
                 {menuOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg border border-border-gray py-1 z-50"
+                    className="absolute right-0 mt-2 w-48 rounded-md bg-white dark:bg-slate-800 shadow-lg border border-border-gray dark:border-slate-700 py-1 z-50"
                   >
                     <Link
                       to="/bruger"
                       role="menuitem"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary dark:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                     >
                       <User className="w-4 h-4" />
                       Se profil
@@ -254,7 +263,7 @@ export function Header() {
                       role="menuitem"
                       onClick={handleSignOut}
                       disabled={signingOut}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-bg-gray transition-colors disabled:opacity-60 cursor-pointer"
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary dark:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
                       {signingOut ? 'Logger ud...' : 'Log ud'}
@@ -280,6 +289,18 @@ export function Header() {
               </Link>
             )
           )}
+
+          {/* Tema-toggle: uafhængig af login-status, må derfor aldrig gates
+              af isLoadingSession eller stå inde i isAuthenticated-grenen. */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={mode === 'dark' ? 'Skift til lyst tema' : 'Skift til mørkt tema'}
+            aria-pressed={mode === 'dark'}
+            className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+          >
+            {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
 
           {/* Hamburger-knap: kun synlig under lg, hvor nav'en er skjult.
               Fælles for begge tilstande. */}
@@ -312,10 +333,12 @@ export function Header() {
 
               {hasOrganisation && (
                 <>
-                  <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <ClipboardList className="w-5 h-5 shrink-0" />
-                    <span>Opgaver</span>
-                  </NavLink>
+                  {canReadTasks && (
+                    <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <ClipboardList className="w-5 h-5 shrink-0" />
+                      <span>Opgaver</span>
+                    </NavLink>
+                  )}
 
                   <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                     <BarChart3 className="w-5 h-5 shrink-0" />

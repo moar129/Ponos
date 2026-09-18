@@ -22,7 +22,7 @@ export default function PendingRequestBanner() {
 
     if (pendingRequest) {
         return (
-            <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
+            <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
                 Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
             </div>
         )
@@ -44,7 +44,7 @@ export default function PendingRequestBanner() {
     if ((pendingInvitations?.length ?? 0) > 0 && !onDashboardOrganisationTab) {
         const [firstInvitation] = pendingInvitations!
         return (
-            <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
+            <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
                 Du er blevet inviteret til at blive medlem af <strong>{firstInvitation.organisationName}</strong>.{' '}
                 <Link to="/dashboard?tab=organisation" className="font-semibold underline hover:no-underline">
                     Se invitation
@@ -58,7 +58,7 @@ export default function PendingRequestBanner() {
     }
 
     return (
-        <div className="w-full bg-accent/15 border-b border-accent text-primary text-sm text-center px-4 py-2">
+        <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
             Du er ikke medlem af en organisation endnu.{' '}
             <Link to="/dashboard?tab=organisation" className="font-semibold underline hover:no-underline">
                 Opret eller anmod om medlemskab
