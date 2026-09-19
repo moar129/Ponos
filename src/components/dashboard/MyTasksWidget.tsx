@@ -1,6 +1,6 @@
 // src/components/dashboard/MyTasksWidget.tsx
 import { Link, useNavigate } from 'react-router-dom'
-import { ListChecks } from 'lucide-react'
+import { ChevronRight, ListChecks } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
 import type { ETaskStatus, Task } from '../../types/Task/Task'
@@ -61,8 +61,9 @@ export function MyTasksWidget() {
                     <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
                     <h3 className="font-medium text-primary dark:text-slate-100">Mine opgaver</h3>
                 </div>
-                <Link to="/tasks" className="text-sm text-accent hover:underline">
+                <Link to="/tasks" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     Gå til opgaver
+                    <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
