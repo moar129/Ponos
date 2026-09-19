@@ -267,9 +267,13 @@ create index idx_tasks_status on public.tasks (status);
 create index idx_tasks_room on public.tasks (room_id);
 
 -- AssignedTo: mange-til-mange mellem Task og User
+-- assigned_by (not null, sættes af trigger trg_set_task_assignee_assigned_by,
+-- 16.7) og assigned_at findes i live men stod ikke her (drift, fundet 2026-09-17).
 create table public.task_assignees (
-  task_id  uuid not null references public.tasks(id) on delete cascade,
-  user_id  uuid not null references public.profiles(id) on delete cascade,
+  task_id      uuid not null references public.tasks(id) on delete cascade,
+  user_id      uuid not null references public.profiles(id) on delete cascade,
+  assigned_by  uuid not null references public.profiles(id),
+  assigned_at  timestamptz default now(),
   primary key (task_id, user_id)
 );
 
@@ -2228,7 +2232,8 @@ create policy "Slet datalayer-items i egen organisation"
 -- også. Godkendt af bruger 2026-09-17 i forbindelse med CRUD på
 -- Afsluttede opgaver (US-70, CompletedTasksPanel.tsx). task_assignees'
 -- selvbetjening (til-/afmeld sig selv) er bevaret uafhængigt af
--- privilegier; tilmelde/afmelde EN ANDEN kræver update_tasks (rettet
+-- privilegier; tilmelde/afmelde EN ANDEN kræver assign_tasks (US-76,
+-- 2026-09-19; før update_tasks, rettet
 -- 2026-09-17, oprindeligt split på create_tasks/delete_tasks - se
 -- kommentaren ved task_assignees' insert/delete-policies nedenfor).
 -- "Medlem"-standardrollen (15.6b) har read_tasks som udgangspunkt (se
@@ -2263,30 +2268,51 @@ create policy "Se task_assignees for opgaver i egen organisation"
     and public.has_privilege_or_admin('read_tasks')
   );
 
--- Enhver må til-/afmelde SIG SELV, uafhængigt af privilegier.
-create policy "Til- og afmeld sig selv fra opgaver i egen organisation"
-  on public.task_assignees for all
+-- US-76 (2026-09-19): regler for tilmelding/afmelding. Selv-tilmelding er
+-- frivillig og uafhængig af privilegier: man kan se sine egne rækker, tilmelde
+-- sig selv (assigned_by = egen id) og afmelde sig selv - men KUN hvis man selv
+-- tilmeldte sig (ikke hvis en anden tilføjede en) og KUN mens opgaven er
+-- Started. Ingen update. Tilføjet af en anden = tildeling: kan ikke afmelde
+-- sig, men kan stadig påbegynde/melde færdig (UI, TaskCard.tsx).
+create policy "Se egne task_assignees-rækker"
+  on public.task_assignees for select
   to authenticated
   using (
     user_id = auth.uid()
     and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-  )
+  );
+
+create policy "Tilmeld sig selv til opgaver i egen organisation"
+  on public.task_assignees for insert
+  to authenticated
   with check (
     user_id = auth.uid()
+    and assigned_by = auth.uid()
     and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
   );
 
--- Tilmelde/afmelde EN ANDEN (tilføj/fjern medarbejder i TaskCard.tsx) hører
--- begge under update_tasks ("Rediger opgaver") - rettet 2026-09-17 (docs/
--- migrations/2026-09-17-tasks-assignee-privilege-fix.sql), oprindeligt
--- split på create_tasks (insert)/delete_tasks (delete), ændret efter
--- bruger-forespørgsel under browser-test.
+create policy "Afmeld sig selv fra opgaver i egen organisation"
+  on public.task_assignees for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and assigned_by = auth.uid()
+    and task_id in (
+      select id from public.tasks
+      where organisation_id = public.auth_profile_org() and status = 'Started'
+    )
+  );
+
+-- Tilmelde/afmelde EN ANDEN (tilføj/fjern medarbejder i TaskCard.tsx) kræver
+-- assign_tasks ("Opgaver — Tildel", US-76, 2026-09-19). Før: update_tasks
+-- (2026-09-17). Migrationen backfillede assign_tasks til alle roller med
+-- update_tasks. Også muligt mens opgaven er InProgress (nødudgang).
 create policy "Tilmeld andre til opgaver i egen organisation"
   on public.task_assignees for insert
   to authenticated
   with check (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('update_tasks')
+    and public.has_privilege_or_admin('assign_tasks')
   );
 
 create policy "Afmeld andre fra opgaver i egen organisation"
@@ -2294,8 +2320,26 @@ create policy "Afmeld andre fra opgaver i egen organisation"
   to authenticated
   using (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('update_tasks')
+    and public.has_privilege_or_admin('assign_tasks')
   );
+
+-- assigned_by kan ikke forfalskes: sættes altid til auth.uid() ved insert.
+create or replace function public.set_task_assignee_assigned_by()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if auth.uid() is not null then
+    new.assigned_by := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_set_task_assignee_assigned_by
+  before insert on public.task_assignees
+  for each row execute function public.set_task_assignee_assigned_by();
 
 create policy "Se task_participants for opgaver i egen organisation"
   on public.task_participants for select

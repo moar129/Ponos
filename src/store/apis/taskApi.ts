@@ -805,12 +805,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('user_id', authData.user.id)
                         .eq('assigned_by', authData.user.id);
                     if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        };
+                        return { error: mapTaskError(error, 'afmelde dig fra opgaven') };
                     }
                     return {
                         data: undefined,

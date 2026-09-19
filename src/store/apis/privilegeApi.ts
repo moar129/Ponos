@@ -49,6 +49,9 @@ export const CREATE_TASKS_PRIVILEGE = 'create_tasks'
 export const READ_TASKS_PRIVILEGE = 'read_tasks'
 export const UPDATE_TASKS_PRIVILEGE = 'update_tasks'
 export const DELETE_TASKS_PRIVILEGE = 'delete_tasks'
+// Tilføje/fjerne ANDRE på en opgave (ledelsesrettighed, US-76) - adskilt
+// fra update_tasks (redigere opgavens indhold).
+export const ASSIGN_TASKS_PRIVILEGE = 'assign_tasks'
 
 // Medlems seedede privilegier (create_organisation, 15.8) er låst fast -
 // kan hverken fjernes fra rollen eller omdøbes (se
@@ -62,7 +65,7 @@ export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, 
 export const APPROVE_TASK_PRIVILEGE = 'approve_task'
 export const REJECT_TASK_PRIVILEGE = 'reject_task'
 
-type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'approve' | 'reject'
+type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
     domain: string
@@ -136,6 +139,7 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
             read: READ_TASKS_PRIVILEGE,
             update: UPDATE_TASKS_PRIVILEGE,
             delete: DELETE_TASKS_PRIVILEGE,
+            assign: ASSIGN_TASKS_PRIVILEGE,
         },
     },
     {
@@ -153,6 +157,7 @@ const OP_LABELS: Record<PrivilegeOp, string> = {
     read: 'Se',
     update: 'Redigér',
     delete: 'Slet',
+    assign: 'Tildel',
     approve: 'Godkend',
     reject: 'Afvis',
 }

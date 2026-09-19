@@ -57,6 +57,7 @@ export interface TaskCardProps {
   onJoin?: () => void;
   canUpdate: boolean;
   canDelete: boolean;
+  canAssign: boolean;
   defaultDetailsOpen?: boolean;
   onDetailsClose?: () => void;
 }

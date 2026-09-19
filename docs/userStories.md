@@ -1455,6 +1455,28 @@ Som administrator vil jeg kunne godkende eller afvise en færdigmelding af en op
 - Ved afvisning får alle nuværende tilmeldte (undtagen behandleren) en notifikation "Færdigmelding afvist" (`task_rejected`).
 - Notifikationens link åbner opgaven på `/tasks?task=<id>`.
 
+## US-76 – Regler for tilmelding og afmelding på opgaver
+
+**Priority:** High
+
+**Note:** Skelner mellem en frivillig tilmelding (brugeren tilmeldte sig selv) og en tildeling (en anden tilføjede brugeren). Ny privilegie `assign_tasks` ("Opgaver — Tildel") styrer at tilføje/fjerne andre; det var tidligere en del af `update_tasks`, og alle roller med `update_tasks` får `assign_tasks` ved migrationen. `assigned_by` sættes af en database-trigger og kan ikke forfalskes. Migration: `docs/migrations/2026-09-19-task-assignment-rules.sql`.
+
+### User Story
+
+Som bruger vil jeg have klare regler for, hvornår jeg kan tilmelde mig, afmelde mig og arbejde på en opgave, så ansvar for opgaver ikke forsvinder undervejs.
+
+### Acceptance Criteria
+
+- Enhver med adgang til opgaven kan tilmelde sig selv, mens opgaven er Started eller InProgress.
+- Kun den, der selv har tilmeldt sig, kan afmelde sig, og kun mens opgaven er Started. Håndhæves i databasen (RLS).
+- Er man tilføjet af en anden, kan man ikke afmelde sig, men kan påbegynde arbejde og melde færdig som alle andre tilmeldte.
+- "Påbegynd arbejde" og "Meld færdig" er tilgængelige for alle tilmeldte, uanset hvem der tilføjede dem.
+- Kun brugere med `assign_tasks` (eller admin) kan tilføje og fjerne andre; det kan også ske, når opgaven er InProgress.
+- "Rediger" på en opgave kræver fortsat `update_tasks`; tilføj/fjern medarbejder kræver kun `assign_tasks`. Knapperne gates uafhængigt af hinanden.
+- `assigned_by` er altid den bruger, der udførte tilføjelsen.
+- Den, der bliver tilføjet, får en notifikation (eksisterende `notify_task_assigned`); der kræves ikke accept.
+- Et klik på en opgave-notifikation (dashboard-widget, klokke, `/notifikationer`) åbner opgaven på `/tasks` med dens popup - også for afsluttede opgaver, og både for `?task=`- og `?taskId=`-links (`TaskPage.tsx`).
+
 ---
 
 # 11. Prioriteringsoversigt
