@@ -180,6 +180,16 @@ export function privilegeOpLabel(name: string): string {
     return privilegeLabel(name)
 }
 
+// Alle kendte privilegier UNDTAGEN admin - bruges af matrixens "Vælg
+// alle/Fjern alle"-knap (MatrixCell.tsx) for roller der ikke er den
+// indbyggede Admin-rolle. Det ægte admin-privilegie er en RLS-bypass
+// forbeholdt netop den rolle (se docs/migrations/2026-09-19-lock-admin-
+// privilege-to-admin-role.sql), så andre roller kan i stedet få tildelt
+// alle øvrige privilegier på én gang.
+export const NON_ADMIN_KNOWN_PRIVILEGE_NAMES: string[] = KNOWN_PRIVILEGES.filter(
+    (p) => p.name !== ADMIN_PRIVILEGE,
+).map((p) => p.name)
+
 export const privilegeApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Henter navnene på den indloggede brugers privilegier (via rollen).
