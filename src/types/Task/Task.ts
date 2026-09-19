@@ -57,6 +57,8 @@ export interface TaskCardProps {
   onJoin?: () => void;
   canUpdate: boolean;
   canDelete: boolean;
+  defaultDetailsOpen?: boolean;
+  onDetailsClose?: () => void;
 }
 
 export interface CompletedTaskAssignee {

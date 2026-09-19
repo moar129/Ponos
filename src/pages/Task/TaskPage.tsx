@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
@@ -28,6 +29,9 @@ function readableError(err: unknown): string | null {
 }
 
 export function TasksPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const openTaskId = searchParams.get('task');
+    const closeOpenTask = () => setSearchParams({}, { replace: true });
     const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
@@ -253,6 +257,8 @@ export function TasksPage() {
                                     task={task}
                                     canUpdate={canUpdate}
                                     canDelete={canDelete}
+                                    defaultDetailsOpen={task.id === openTaskId}
+                                    onDetailsClose={closeOpenTask}
                                 />
                             ))}
                             {availableTasks.length === 0 && (
@@ -278,6 +284,8 @@ export function TasksPage() {
                                     task={task}
                                     canUpdate={canUpdate}
                                     canDelete={canDelete}
+                                    defaultDetailsOpen={task.id === openTaskId}
+                                    onDetailsClose={closeOpenTask}
                                 />
                             ))}
                             {myTasks.length === 0 && (
