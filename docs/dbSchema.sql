@@ -591,10 +591,13 @@ create trigger trg_sync_item_organisation
 -- omdøb/slet (US-13, roleApi.ts/privilegeApi.ts har en UI-guard for
 -- dette, men RLS alene kan ikke skelne "netop denne række" - enhver
 -- admin må ellers redigere/slette privilegier i egen organisation).
--- Andre roller må frit have et privilege ved navn 'admin' (fx til test)
--- uden at blive låst - kun kombinationen "Admin"-rollen + admin-
--- privilegiet er beskyttet, da det er den, der reelt ville låse alle
--- administratorer ude, hvis den forsvandt.
+-- Andre roller er IKKE låst af denne trigger (kun kombinationen
+-- "Admin"-rollen + admin-privilegiet er beskyttet, da det er den, der
+-- reelt ville låse alle administratorer ude, hvis den forsvandt) - men
+-- siden 2026-09-19 kan andre roller heller ikke længere FÅ admin-
+-- privilegiet tildelt (se §16.4's escalation-guard). En eventuel
+-- eksisterende ikke-Admin-række fra før den dato er derfor kun urørt af
+-- DENNE trigger, ikke beskyttet af den - den kan fortsat frit slettes.
 -- US-64: respekterer ponos.bypass_admin_protection - uden denne ville
 -- delete_organisation (15.13) ikke kunne kaskade-slette Admin-privilegiet
 -- sammen med resten af organisationen, selvom hele organisationen (og
@@ -1847,13 +1850,27 @@ create policy "Se privilegier i egen organisation"
 -- Escalation-guard (sikkerhed): en bruger med kun update_roles må ikke
 -- kunne oprette/omdøbe et privilegie TIL "admin" - kun en reel admin må.
 -- WITH CHECK ser det NYE (post-update) navn.
+-- 2026-09-19: strammet yderligere - "admin" må nu kun ligge på rollen der
+-- reelt hedder "Admin" (tidligere kunne enhver admin give admin-
+-- privilegiet til en VILKÅRLIG rolle). Frontend-matrixen tilbyder derfor nu
+-- en "Vælg alle/Fjern alle"-knap for andre roller i stedet for at kunne
+-- tildele selve admin-privilegiet - se MatrixCell.tsx og
+-- NON_ADMIN_KNOWN_PRIVILEGE_NAMES (privilegeApi.ts). Ingen datamigrering af
+-- evt. eksisterende ikke-Admin-roller, der allerede havde privilegiet før
+-- denne stramning - kun fremadrettet lås.
 create policy "Opret privilegier i egen organisation"
   on public.privileges for insert
   to authenticated
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_roles')
-    and (name <> 'admin' or public.has_privilege('admin'))
+    and (
+      name <> 'admin'
+      or (
+        public.has_privilege('admin')
+        and exists (select 1 from public.roles r where r.id = role_id and r.name = 'Admin')
+      )
+    )
   );
 
 create policy "Rediger privilegier i egen organisation"
@@ -1866,7 +1883,13 @@ create policy "Rediger privilegier i egen organisation"
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_roles')
-    and (name <> 'admin' or public.has_privilege('admin'))
+    and (
+      name <> 'admin'
+      or (
+        public.has_privilege('admin')
+        and exists (select 1 from public.roles r where r.id = role_id and r.name = 'Admin')
+      )
+    )
   );
 
 create policy "Slet privilegier i egen organisation"

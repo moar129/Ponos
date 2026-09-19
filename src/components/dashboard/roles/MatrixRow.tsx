@@ -27,6 +27,7 @@ export function MatrixRow({ rowName, isCustom, roles, byRoleAndName, isFullAdmin
                         isCustom={isCustom}
                         isFullAdmin={isFullAdmin}
                         isProtectedAdminRole={protectedAdminRoleIds.has(role.id)}
+                        rolePrivileges={byRoleAndName.get(role.id)}
                     />
                 </td>
             ))}

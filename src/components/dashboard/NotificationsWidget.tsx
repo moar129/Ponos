@@ -1,7 +1,7 @@
 // src/components/dashboard/NotificationsWidget.tsx
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Bell } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Bell, ChevronRight } from 'lucide-react'
 import {
     useGetMyNotificationsQuery,
     useMarkNotificationReadMutation,
@@ -66,10 +66,16 @@ export function NotificationsWidget() {
 
     return (
         <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-            <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-secondary dark:text-slate-400" />
-                    <h3 className="font-medium text-primary dark:text-slate-100">Notifikationer</h3>
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <Bell className="w-5 h-5 text-secondary dark:text-slate-400" />
+                        <h3 className="font-medium text-primary dark:text-slate-100">Notifikationer</h3>
+                    </div>
+                    <Link to="/notifikationer" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
+                        Se alle
+                        <ChevronRight className="w-4 h-4" />
+                    </Link>
                 </div>
                 <div className="flex items-center gap-1">
                     <button type="button" onClick={() => setFilter('all')} className={tabClass('all')}>

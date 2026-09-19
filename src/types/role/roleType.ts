@@ -62,6 +62,10 @@ export interface MatrixCellProps {
     isCustom: boolean
     isFullAdmin: boolean
     isProtectedAdminRole: boolean
+    // Rollens fulde privilegie-sæt (navn -> Privilege) - kun brugt af
+    // admin-rækkens "Vælg alle/Fjern alle"-knap på andre roller end Admin,
+    // til at afgøre om rollen allerede har alle øvrige kendte privilegier.
+    rolePrivileges: Map<string, Privilege> | undefined
 }
 
 export interface MatrixRowProps {

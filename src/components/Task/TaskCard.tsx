@@ -14,10 +14,14 @@ import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
 import { supabase } from '../../lib/supabase';
 
-export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
+export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDetailsClose }: TaskCardProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(defaultDetailsOpen ?? false);
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
+    onDetailsClose?.();
+  };
   const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
 
   const [assigneeProfiles, setAssigneeProfiles] = useState<
@@ -459,7 +463,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           onClick={() => {
-            setIsDetailsOpen(false);
+            closeDetails();
           }}
         >
           <div
@@ -482,7 +486,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setIsDetailsOpen(false);
+                  closeDetails();
                 }}
                 className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
               >
@@ -663,7 +667,7 @@ export function TaskCard({ task, canUpdate, canDelete }: TaskCardProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setIsDetailsOpen(false);
+                  closeDetails();
                 }}
                 className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
               >
