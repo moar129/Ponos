@@ -252,7 +252,14 @@ create table public.tasks (
   status           e_task_status not null default 'Started',
   room_id          uuid references public.task_rooms(id) on delete set null,
   priority         e_task_priority,
-  max_assignees    int
+  max_assignees    int,
+  -- Studerende 3's tilføjelser (dokumenteret fra DB-eksport 2026-09-19):
+  -- created_at findes også i live (timestamptz not null default now()).
+  -- finished_at sættes af approve_task_request (15.19) og set_task_status
+  -- (15.18), nulstilles ved genåbn. requires_approval: kræver opgaven
+  -- godkendelse (task_requests) før den bliver Completed.
+  finished_at      timestamptz,
+  requires_approval boolean not null default true
 );
 
 create index idx_tasks_org on public.tasks (organisation_id);
@@ -271,6 +278,19 @@ create table public.task_participants (
   task_id  uuid not null references public.tasks(id) on delete cascade,
   user_id  uuid not null references public.profiles(id) on delete cascade,
   primary key (task_id, user_id)
+);
+
+-- Færdigmeldinger der afventer godkendelse (US-75). En tilmeldt melder en
+-- opgave med requires_approval færdig -> Pending. Behandles KUN via RPC'erne
+-- approve_task_request/reject_task_request (15.19), ikke ved direkte UPDATE.
+create table public.task_requests (
+  id            uuid primary key default gen_random_uuid(),
+  task_id       uuid not null references public.tasks(id) on delete cascade,
+  requested_by  uuid not null references public.profiles(id),
+  requested_at  timestamptz not null default now(),
+  status        e_request_status not null default 'Pending',
+  handled_by    uuid references public.profiles(id),
+  done_at       timestamptz
 );
 
 
@@ -1607,6 +1627,8 @@ grant execute on function public.reset_password_prototype(text, text, text, text
 -- er enum'en) - Postgres caster ikke automatisk text->enum i en UPDATE.
 -- Fejlede med "column status is of type e_task_status but expression is
 -- of type text" ved "Genåbn" i CompletedTasksPanel.tsx.
+-- Udvidet 2026-09-19 (US-75): sætter finished_at ved Completed og nulstiller
+-- den ved alle andre statusser (også "Genåbn").
 create or replace function public.set_task_status(p_task_id uuid, p_status text)
 returns void
 language plpgsql
@@ -1633,11 +1655,210 @@ begin
     raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.';
   end if;
 
-  update public.tasks set status = p_status::public.e_task_status where id = p_task_id;
+  update public.tasks
+     set status = p_status::public.e_task_status,
+         finished_at = case when p_status = 'Completed' then now() else null end
+   where id = p_task_id;
 end;
 $$;
 
 grant execute on function public.set_task_status(uuid, text) to authenticated;
+
+
+-- 15.19 US-75 (2026-09-19): godkend/afvis opgave-færdigmelding.
+-- task_requests behandles udelukkende via disse security definer-RPC'er
+-- (de gamle løse UPDATE-policies "Accepter/Afvis task requests" er droppet -
+-- de tillod enhver ændring). approve_task_request kræver approve_task/admin:
+-- alle ventende anmodninger på opgaven -> Accepted, opgaven -> Completed +
+-- finished_at, og alle nuværende tilmeldte (undtagen behandleren) får
+-- notifikationen task_approved. reject_task_request kræver reject_task/admin:
+-- kun den ene anmodning -> Rejected, opgaven forbliver InProgress, tilmeldte
+-- får task_rejected. Notifikationslink: /tasks?task=<id> (param TaskPage.tsx
+-- læser). get_pending_task_requests leverer panelets liste og virker uden
+-- read_tasks. 42501 ved manglende privilegie (mappes i taskApi.ts).
+create or replace function public.approve_task_request(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_status public.e_request_status;
+  v_title text;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('approve_task') then
+    raise exception 'Du har ikke rettigheder til at godkende opgaver.' using errcode = '42501';
+  end if;
+
+  select r.task_id, r.status, t.title into v_task_id, v_status, v_title
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.';
+  end if;
+
+  if v_status <> 'Pending' then
+    raise exception 'Anmodningen er allerede behandlet.';
+  end if;
+
+  update public.task_requests
+     set status = 'Accepted', handled_by = auth.uid(), done_at = now()
+   where task_id = v_task_id and status = 'Pending';
+
+  -- Undertryk den generiske "afsluttet"-notifikation (15.20), transaktionslokalt.
+  perform set_config('ponos.skip_task_completed_notify', 'on', true);
+
+  update public.tasks
+     set status = 'Completed', finished_at = coalesce(finished_at, now())
+   where id = v_task_id;
+
+  perform set_config('ponos.skip_task_completed_notify', 'off', true);
+
+  insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select ta.user_id, v_org_id, 'task_approved', 'Din opgave er godkendt', v_title, '/tasks?task=' || v_task_id, v_task_id
+  from public.task_assignees ta
+  where ta.task_id = v_task_id and ta.user_id <> auth.uid();
+end;
+$$;
+
+create or replace function public.reject_task_request(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_status public.e_request_status;
+  v_title text;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('reject_task') then
+    raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501';
+  end if;
+
+  select r.task_id, r.status, t.title into v_task_id, v_status, v_title
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.';
+  end if;
+
+  if v_status <> 'Pending' then
+    raise exception 'Anmodningen er allerede behandlet.';
+  end if;
+
+  -- Opgaven røres ikke - den forbliver InProgress.
+  update public.task_requests
+     set status = 'Rejected', handled_by = auth.uid(), done_at = now()
+   where id = p_request_id;
+
+  insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title, '/tasks?task=' || v_task_id, v_task_id
+  from public.task_assignees ta
+  where ta.task_id = v_task_id and ta.user_id <> auth.uid();
+end;
+$$;
+
+create or replace function public.get_pending_task_requests()
+returns table (
+  id uuid,
+  task_id uuid,
+  task_title text,
+  requested_by uuid,
+  requester_first_name text,
+  requester_last_name text,
+  requested_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501';
+  end if;
+
+  return query
+    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at
+    from public.task_requests r
+    join public.tasks t on t.id = r.task_id
+    left join public.profiles p on p.id = r.requested_by
+    where r.status = 'Pending' and t.organisation_id = v_org_id
+    order by r.requested_at;
+end;
+$$;
+
+revoke execute on function public.approve_task_request(uuid) from public, anon;
+revoke execute on function public.reject_task_request(uuid) from public, anon;
+revoke execute on function public.get_pending_task_requests() from public, anon;
+grant execute on function public.approve_task_request(uuid) to authenticated;
+grant execute on function public.reject_task_request(uuid) to authenticated;
+grant execute on function public.get_pending_task_requests() to authenticated;
+
+
+-- 15.20 US-75 (2026-09-19): notify_task_completed (notifikationsfeaturen,
+-- Rasmus' funktion - kun denne ene er dokumenteret her fordi vi ændrede den).
+-- Springer over, når approve_task_request (15.19) har sat det transaktions-
+-- lokale flag ponos.skip_task_completed_notify, ellers ville tilmeldte få både
+-- "godkendt" og "afsluttet". notifications-tabellen og de to øvrige
+-- notify_task_*-triggere mangler stadig i dette dokument. Tabellens
+-- type-constraint tillader nu:
+--   check (type = any (array['message','task_assigned','task_updated',
+--                            'task_completed','task_approved','task_rejected']))
+create or replace function public.notify_task_completed()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if coalesce(current_setting('ponos.skip_task_completed_notify', true), '') = 'on' then
+    return new;
+  end if;
+
+  if new.status = 'Completed' and old.status is distinct from 'Completed' then
+    insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+    select
+      ta.user_id,
+      new.organisation_id,
+      'task_completed',
+      'En opgave er afsluttet',
+      new.title,
+      '/tasks?taskId=' || new.id,
+      new.id
+    from task_assignees ta
+    where ta.task_id = new.id
+      and ta.user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid);
+  end if;
+
+  return new;
+end;
+$function$;
+
+-- create trigger trg_notify_task_completed after update of status on public.tasks
+--   for each row execute function notify_task_completed();   (findes allerede i live)
 
 
 -- =====================================================================
@@ -1658,6 +1879,7 @@ alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
+alter table public.task_requests           enable row level security;
 alter table public.task_materials          enable row level security;
 alter table public.statistics_snapshots    enable row level security;
 alter table public.statistics_values       enable row level security;
@@ -2113,6 +2335,37 @@ create policy "Administrer task_materials for opgaver i egen organisation"
   with check (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_tasks')
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.7a TASK_REQUESTS (US-75)
+-- Ingen UPDATE-policy: behandling sker udelukkende via 15.19's RPC'er.
+-- Godkendere (approve_task/reject_task) kan læse uden read_tasks.
+-- ---------------------------------------------------------------------
+create policy "Se task requests i egen organisation"
+  on public.task_requests for select
+  to authenticated
+  using (
+    task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+create policy "Se task requests som godkender"
+  on public.task_requests for select
+  to authenticated
+  using (
+    task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
+    and (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task'))
+  );
+
+create policy "Opret completion request for egne tasks"
+  on public.task_requests for insert
+  to authenticated
+  with check (
+    requested_by = auth.uid()
+    and task_id in (select ta.task_id from public.task_assignees ta where ta.user_id = auth.uid())
+    and task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
   );
 
 

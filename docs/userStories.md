@@ -1430,6 +1430,31 @@ Som bruger vil jeg kunne se mine egne opgaver på dashboardet, så jeg med det s
 - **Afgrænsning:** Opgaverne i feltet kan ikke åbnes ved klik; brugeren går fortsat via opgavesiden.
 - **Afgrænsning:** Feltet dækker kun opgaver, brugeren er tilmeldt (`task_assignees`), ikke opgaver hvor brugeren alene er deltager (`task_participants`) - den relation bruges ikke af nogen kode i dag.
 
+## US-75 – Godkend/afvis opgave-færdigmelding
+
+**Priority:** High
+
+**Note:** Opgaver med `requires_approval` bliver ikke `Completed` direkte, når en tilmeldt melder dem færdige - der oprettes en `task_requests`-række (Pending). Behandling sker udelukkende via security definer-RPC'er (`approve_task_request`, `reject_task_request`, `get_pending_task_requests`), ikke rå UPDATE. De to gamle løse UPDATE-policies på `task_requests` droppes, da de tillod enhver ændring. `tasks.finished_at` sættes nu af godkendelsen og af `set_task_status`. Migration: `docs/migrations/2026-09-19-task-approval.sql`.
+
+### User Story
+
+Som administrator vil jeg kunne godkende eller afvise en færdigmelding af en opgave, så kun kontrollerede opgaver bliver afsluttet.
+
+### Acceptance Criteria
+
+- Privilegierne `approve_task` og `reject_task` findes som separate, tildelbare privilegier i Roller & privilegier-matrixen (gruppe "Opgavegodkendelse").
+- Dashboardets Administration-fane har en underfane "Opgavegodkendelser", synlig med mindst ét af de to privilegier (admin altid).
+- Fanen lister ventende færdigmeldinger i brugerens organisation: opgavetitel, anmoder og dato. Loading-, fejl- og tom-tilstand håndteres.
+- "Godkend" vises kun med `approve_task`, "Afvis" kun med `reject_task` - hver knap gates uafhængigt. Begge kræver bekræftelse.
+- Ved godkendelse markeres anmodningen `Accepted` (samt øvrige ventende anmodninger på samme opgave), og opgaven sættes til `Completed` med `finished_at`.
+- Ved afvisning markeres anmodningen `Rejected`, og opgaven forbliver `InProgress`; den tilmeldte kan melde færdig igen.
+- Anmodningen registrerer, hvem der behandlede den (`handled_by`) og hvornår (`done_at`).
+- Adgangen håndhæves server-side; en bruger uden det relevante privilegie, eller fra en anden organisation, afvises af databasen.
+- En godkender/afviser behøver ikke `read_tasks` for at se listen.
+- Ved godkendelse får alle nuværende tilmeldte på opgaven (undtagen behandleren) en notifikation "Din opgave er godkendt" (`task_approved`); den generiske "En opgave er afsluttet" udløses ikke samtidig, så ingen får dubletter.
+- Ved afvisning får alle nuværende tilmeldte (undtagen behandleren) en notifikation "Færdigmelding afvist" (`task_rejected`).
+- Notifikationens link åbner opgaven på `/tasks?task=<id>`.
+
 ---
 
 # 11. Prioriteringsoversigt

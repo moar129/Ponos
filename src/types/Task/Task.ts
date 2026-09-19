@@ -77,3 +77,30 @@ export interface CompletedTaskDetails extends Task {
   assignees: CompletedTaskAssignee[];
   materials: CompletedTaskMaterial[];
 }
+
+export interface PendingTaskRequest {
+  id: string;
+  taskId: string;
+  taskTitle: string;
+  requestedBy: string;
+  requesterName: string;
+  requestedAt: string;
+}
+
+export type TaskRequestDecision = 'approve' | 'reject';
+
+export interface ReviewTaskRequestInput {
+  requestId: string;
+  taskId: string;
+}
+
+export interface TaskApprovalRowProps {
+  request: PendingTaskRequest;
+  canApprove: boolean;
+  canReject: boolean;
+  pendingDecision: { requestId: string; decision: TaskRequestDecision } | null;
+  submitting: boolean;
+  onSelect: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
+  onCancel: () => void;
+  onConfirm: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
+}

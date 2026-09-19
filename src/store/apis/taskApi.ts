@@ -1,6 +1,15 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { CompletedTaskDetails, ETaskPriority, ETaskStatus, Room, Task, TaskAssignee } from '../../types/Task/Task'
+import type {
+    CompletedTaskDetails,
+    ETaskPriority,
+    ETaskStatus,
+    PendingTaskRequest,
+    ReviewTaskRequestInput,
+    Room,
+    Task,
+    TaskAssignee,
+} from '../../types/Task/Task'
 
 type QueryError = { status: 'CUSTOM_ERROR'; error: string }
 
@@ -606,6 +615,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
 
             invalidatesTags: (_result, _error, taskId) => [
+                { type: 'Task', id: 'PENDING-REQUESTS' },
                 {
                     type: 'Task',
                     id: `${taskId}-REQUESTS`,
@@ -661,6 +671,69 @@ export const taskApi = supabaseApi.injectEndpoints({
                     type: 'Task',
                     id: `${taskId}-REQUESTS`,
                 },
+            ],
+        }),
+
+        // Godkend/afvis opgave-færdigmelding. Listen og begge handlinger går
+        // via security definer-RPC'er (approve_task_request/
+        // reject_task_request/get_pending_task_requests), som selv tjekker
+        // approve_task/reject_task - 42501 mappes til en dansk fejlbesked.
+        getPendingTaskRequests: builder.query<PendingTaskRequest[], void>({
+            queryFn: async () => {
+                const { data, error } = await supabase.rpc('get_pending_task_requests')
+
+                if (error) return { error: mapTaskError(error, 'se opgavegodkendelser') }
+
+                type Row = {
+                    id: string
+                    task_id: string
+                    task_title: string
+                    requested_by: string
+                    requester_first_name: string | null
+                    requester_last_name: string | null
+                    requested_at: string
+                }
+
+                return {
+                    data: ((data ?? []) as Row[]).map((row) => ({
+                        id: row.id,
+                        taskId: row.task_id,
+                        taskTitle: row.task_title,
+                        requestedBy: row.requested_by,
+                        requesterName:
+                            `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
+                        requestedAt: row.requested_at,
+                    })),
+                }
+            },
+            providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
+        }),
+
+        approveTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
+            queryFn: async ({ requestId }) => {
+                const { error } = await supabase.rpc('approve_task_request', { p_request_id: requestId })
+
+                if (error) return { error: mapTaskError(error, 'godkende opgaver') }
+                return { data: undefined }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                { type: 'Task', id: 'PENDING-REQUESTS' },
+                { type: 'Task', id: `${taskId}-REQUESTS` },
+                { type: 'Task', id: taskId },
+                { type: 'Task', id: 'LIST' },
+            ],
+        }),
+
+        rejectTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
+            queryFn: async ({ requestId }) => {
+                const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId })
+
+                if (error) return { error: mapTaskError(error, 'afvise opgaver') }
+                return { data: undefined }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                { type: 'Task', id: 'PENDING-REQUESTS' },
+                { type: 'Task', id: `${taskId}-REQUESTS` },
             ],
         }),
 
@@ -985,6 +1058,9 @@ export const {
     useGetTaskAssigneesQuery,
     useGetTaskRequestsQuery,
     useCreateTaskRequestMutation,
+    useGetPendingTaskRequestsQuery,
+    useApproveTaskRequestMutation,
+    useRejectTaskRequestMutation,
     useCreateTaskMutation,
     useCreateRoomMutation,
     useUpdateTaskMutation,
