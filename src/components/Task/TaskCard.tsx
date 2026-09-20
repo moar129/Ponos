@@ -14,7 +14,7 @@ import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
 import { supabase } from '../../lib/supabase';
 
-export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDetailsClose }: TaskCardProps) {
+export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetailsOpen, onDetailsClose }: TaskCardProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(defaultDetailsOpen ?? false);
@@ -55,8 +55,13 @@ export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDet
 
   const isAssigned = currentAssignee !== undefined;
 
-  const canUnassignSelf =
+  // Selv-tilmeldt = frivillig, kan afmelde sig (kun mens opgaven er Started,
+  // håndhævet i RLS). Tilføjet af en anden = tildeling: kan ikke afmelde
+  // sig, men kan stadig påbegynde og melde færdig.
+  const selfSigned =
     currentAssignee?.assigned_by === currentUserId;
+
+  const canUnassignSelf = selfSigned && task.status === 'Started';
 
   const currentPendingRequest = taskRequests.find(
     (request) =>
@@ -412,7 +417,7 @@ export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDet
               )}
 
               {/* PÅBEGYND ARBEJDE */}
-              {task.status === 'Started' && canUnassignSelf && (
+              {task.status === 'Started' && isAssigned && (
                 <button
                   type="button"
                   disabled={isUpdatingStatus}
@@ -429,7 +434,7 @@ export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDet
               )}
 
               {/* MELD FÆRDIG */}
-              {task.status === 'InProgress' && canUnassignSelf && (
+              {task.status === 'InProgress' && isAssigned && (
                 <button
                   type="button"
                   disabled={
@@ -607,7 +612,7 @@ export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDet
                             </span>
                           )}
 
-                          {canUpdate && (
+                          {canAssign && (
                             <button
                               type="button"
                               onClick={async () => {
@@ -628,7 +633,7 @@ export function TaskCard({ task, canUpdate, canDelete, defaultDetailsOpen, onDet
                 </div>
               )}
 
-              {canUpdate && (
+              {canAssign && (
                 <button
                   type="button"
                   onClick={() => setIsEmployeePickerOpen(true)}

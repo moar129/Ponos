@@ -5,6 +5,8 @@ import type { LucideIcon } from 'lucide-react'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import {
+    APPROVE_TASK_PRIVILEGE,
+    REJECT_TASK_PRIVILEGE,
     CREATE_INVITATIONS_PRIVILEGE,
     CREATE_ROLES_PRIVILEGE,
     DELETE_INVITATIONS_PRIVILEGE,
@@ -74,7 +76,9 @@ export default function Dashboard() {
     // /tasks-link, ikke via administrationsdelen. Kun update/delete_tasks
     // (reel redigerings-/sletteret) tæller her.
     const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
+    const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
     const canSeeAdministration =
+        canSeeTaskApprovals ||
         canSeeRolesDomain ||
         canManageMembers ||
         canManageInvitations ||

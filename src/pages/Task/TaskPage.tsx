@@ -16,6 +16,7 @@ import {
     CREATE_TASKS_PRIVILEGE,
     DELETE_TASKS_PRIVILEGE,
     READ_TASKS_PRIVILEGE,
+    ASSIGN_TASKS_PRIVILEGE,
     UPDATE_TASKS_PRIVILEGE,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi';
@@ -30,7 +31,9 @@ function readableError(err: unknown): string | null {
 
 export function TasksPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const openTaskId = searchParams.get('task');
+    // ?task= (Mine opgaver-widget, godkend/afvis-notifikationer) og ?taskId=
+    // (notify_task_*-triggerne) åbner begge opgavens popup.
+    const openTaskId = searchParams.get('task') ?? searchParams.get('taskId');
     const closeOpenTask = () => setSearchParams({}, { replace: true });
     const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -44,6 +47,7 @@ export function TasksPage() {
     const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_TASKS_PRIVILEGE);
     const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_TASKS_PRIVILEGE);
     const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE);
+    const { hasPrivilege: canAssign } = useHasPrivilege(ASSIGN_TASKS_PRIVILEGE);
     const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE);
 
     const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useGetTasksQuery();
@@ -81,7 +85,9 @@ export function TasksPage() {
 
         const matchesStatus = selectedStatuses.includes(task.status);
 
-        return matchesSearch && matchesRoom && matchesStatus;
+        // Den opgave et link peger på vises altid, også når status-/søge-/
+        // rumfilteret ellers ville skjule den (fx en afsluttet opgave).
+        return (matchesSearch && matchesRoom && matchesStatus) || task.id === openTaskId;
     });
 
     const priorityRank: Record<string, number> = {
@@ -257,6 +263,7 @@ export function TasksPage() {
                                     task={task}
                                     canUpdate={canUpdate}
                                     canDelete={canDelete}
+                                    canAssign={canAssign}
                                     defaultDetailsOpen={task.id === openTaskId}
                                     onDetailsClose={closeOpenTask}
                                 />
@@ -284,6 +291,7 @@ export function TasksPage() {
                                     task={task}
                                     canUpdate={canUpdate}
                                     canDelete={canDelete}
+                                    canAssign={canAssign}
                                     defaultDetailsOpen={task.id === openTaskId}
                                     onDetailsClose={closeOpenTask}
                                 />
