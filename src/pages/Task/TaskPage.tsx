@@ -10,7 +10,6 @@ import {
     useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
-    useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
 import {
     CREATE_TASKS_PRIVILEGE,
@@ -94,9 +93,6 @@ export function TasksPage() {
         isLoading: roomsLoading,
         error: roomsError,
     } = useGetRoomsQuery();
-
-    const { data: myTaskIds = [] } =
-        useGetMyTaskIdsQuery();
 
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
