@@ -8,6 +8,7 @@ import {
     useGetMyOrganisationQuery,
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
+import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { DeleteOrganisationControlProps, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
@@ -26,13 +27,17 @@ function readableError(err: unknown): string | null {
 
 // Rediger organisation (navn) + slet organisation, samlet i ét panel
 // under dashboardets Administration-fane (US-65) - flyttet fra
-// OrganisationPage.tsx. Panelet mountes kun når AdministrationTab
-// allerede har bekræftet manage_organisation-privilegiet - selve
-// rediger-adgangen håndhæves stadig server-side af RLS, og slet-knappen
-// nedenfor har sit eget uafhængige isAdmin-tjek.
+// OrganisationPage.tsx. Panelet kan mountes af AdministrationTab enten
+// via update_organisation-privilegiet eller admin-status alene, så begge
+// kontroller er selvstændigt gatet HERINDE, uafhængigt af hinanden:
+// "Rediger organisation" kræver update_organisation-privilegiet
+// (canEditOrganisation), "Slet organisation" kræver udelukkende
+// aktivt medlemskabs isAdmin-flag. Begge håndhæves også server-side
+// (RLS/RPC) - UI-gaten er kun for at vise de rigtige knapper.
 export function OrganisationAdminPanel() {
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     const { data: memberships } = useGetMyMembershipsQuery()
+    const { hasPrivilege: canEditOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
 
     const [isEditing, setIsEditing] = useState(false)
@@ -170,15 +175,17 @@ export function OrganisationAdminPanel() {
                         </div>
                     </dl>
 
-                    <div className="mt-6 flex flex-wrap gap-3">
-                        <button
-                            type="button"
-                            onClick={() => startEdit(organisation)}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
-                        >
-                            Rediger organisation
-                        </button>
-                    </div>
+                    {canEditOrganisation && (
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <button
+                                type="button"
+                                onClick={() => startEdit(organisation)}
+                                className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                            >
+                                Rediger organisation
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
 

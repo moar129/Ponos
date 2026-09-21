@@ -12,6 +12,7 @@ export function RoomBar({
     canCreate,
     canUpdate,
     canDelete,
+    
 }: RoomBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditRoomOpen, setIsEditRoomOpen] = useState(false);

@@ -1,10 +1,8 @@
 // src/components/dashboard/MyTasksWidget.tsx
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ListChecks } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ChevronRight, ListChecks } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
-import { TaskDetailsModal } from './TaskDetailsModal'
 import type { ETaskStatus, Task } from '../../types/Task/Task'
 
 const MAX_TASKS = 5
@@ -42,14 +40,12 @@ function readableError(err: unknown): string | null {
 // US-74: brugerens egne, ikke-afsluttede opgaver på Oversigt-fanen.
 // getTasks er filtreret på aktiv organisation, og task_assignees er
 // RLS-scopet til samme, så snittet kan aldrig indeholde andre
-// organisationers opgaver. Rækkerne åbner en read-only preview-modal
-// (TaskDetailsModal) ejet af dashboardet - der findes stadig ingen rigtig
-// opgave-adresse (US-36 mangler), så modalen dupliderer bevidst felter
-// frem for at afhænge af Tasks-domænets routing.
+// organisationers opgaver. Rækkerne navigerer til /tasks?task=<id>, hvor
+// TaskPage åbner opgavens egen popup (TaskCard).
 export function MyTasksWidget() {
+    const navigate = useNavigate()
     const { data: tasks = [], isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
     const { data: myTaskIds = [], isLoading: loadingMyTaskIds, error: myTaskIdsError } = useGetMyTaskIdsQuery()
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
     const myTasks = tasks
         .filter((task) => myTaskIds.includes(task.id) && task.status !== 'Completed')
@@ -65,8 +61,9 @@ export function MyTasksWidget() {
                     <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
                     <h3 className="font-medium text-primary dark:text-slate-100">Mine opgaver</h3>
                 </div>
-                <Link to="/tasks" className="text-sm text-accent hover:underline">
+                <Link to="/tasks" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     Gå til opgaver
+                    <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
@@ -82,7 +79,7 @@ export function MyTasksWidget() {
                         <li key={task.id}>
                             <button
                                 type="button"
-                                onClick={() => setSelectedTask(task)}
+                                onClick={() => navigate(`/tasks?task=${task.id}`)}
                                 className="w-full text-left py-2.5 -mx-2 px-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
                             >
                                 <p className="font-medium text-primary truncate dark:text-slate-100">{task.title}</p>
@@ -103,10 +100,6 @@ export function MyTasksWidget() {
                         </li>
                     ))}
                 </ul>
-            )}
-
-            {selectedTask && (
-                <TaskDetailsModal task={selectedTask} onClose={() => setSelectedTask(null)} />
             )}
         </div>
     )

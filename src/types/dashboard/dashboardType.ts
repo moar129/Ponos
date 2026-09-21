@@ -12,7 +12,7 @@ export interface PlaceholderBarProps {
 // INDE i 'roles' - undgår tre niveauer af faner oven i hinanden.
 // 'invitations' (US-67) er gated af sin egen manage_invitations-privilegie.
 // 'completedTasks' (US-70) er gated af read_tasks (eller admin).
-export type AdminSubTab = 'roles' | 'members' | 'invitations' | 'requests' | 'organisation' | 'completedTasks'
+export type AdminSubTab = 'roles' | 'members' | 'invitations' | 'requests' | 'organisation' | 'completedTasks' | 'taskApprovals'
 
 // Dashboardets tre topfaner (US-65): 'oversigt' og 'organisation' er
 // tilgængelige for alle, 'administration' kun med mindst ét

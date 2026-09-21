@@ -49,8 +49,23 @@ export const CREATE_TASKS_PRIVILEGE = 'create_tasks'
 export const READ_TASKS_PRIVILEGE = 'read_tasks'
 export const UPDATE_TASKS_PRIVILEGE = 'update_tasks'
 export const DELETE_TASKS_PRIVILEGE = 'delete_tasks'
+// Tilføje/fjerne ANDRE på en opgave (ledelsesrettighed, US-76) - adskilt
+// fra update_tasks (redigere opgavens indhold).
+export const ASSIGN_TASKS_PRIVILEGE = 'assign_tasks'
 
-type PrivilegeOp = 'create' | 'read' | 'update' | 'delete'
+// Medlems seedede privilegier (create_organisation, 15.8) er låst fast -
+// kan hverken fjernes fra rollen eller omdøbes (se
+// prevent_default_role_privilege_change, docs/dbSchema.sql 15.6d).
+// UI-guard kun - selve håndhævelsen sker i databasen.
+export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE]
+
+// Godkend/afvis opgave-færdigmelding (task_requests). Behandles via
+// RPC'erne approve_task_request/reject_task_request, som kræver hvert
+// sit privilegie.
+export const APPROVE_TASK_PRIVILEGE = 'approve_task'
+export const REJECT_TASK_PRIVILEGE = 'reject_task'
+
+type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
     domain: string
@@ -124,6 +139,15 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
             read: READ_TASKS_PRIVILEGE,
             update: UPDATE_TASKS_PRIVILEGE,
             delete: DELETE_TASKS_PRIVILEGE,
+            assign: ASSIGN_TASKS_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'task_approval',
+        domainLabel: 'Opgavegodkendelse',
+        ops: {
+            approve: APPROVE_TASK_PRIVILEGE,
+            reject: REJECT_TASK_PRIVILEGE,
         },
     },
 ]
@@ -133,6 +157,9 @@ const OP_LABELS: Record<PrivilegeOp, string> = {
     read: 'Se',
     update: 'Redigér',
     delete: 'Slet',
+    assign: 'Tildel',
+    approve: 'Godkend',
+    reject: 'Afvis',
 }
 
 // Kendte systemprivilegier med brugervenlige, danske labels - bruges til
@@ -173,6 +200,16 @@ export function privilegeOpLabel(name: string): string {
     }
     return privilegeLabel(name)
 }
+
+// Alle kendte privilegier UNDTAGEN admin - bruges af matrixens "Vælg
+// alle/Fjern alle"-knap (MatrixCell.tsx) for roller der ikke er den
+// indbyggede Admin-rolle. Det ægte admin-privilegie er en RLS-bypass
+// forbeholdt netop den rolle (se docs/migrations/2026-09-19-lock-admin-
+// privilege-to-admin-role.sql), så andre roller kan i stedet få tildelt
+// alle øvrige privilegier på én gang.
+export const NON_ADMIN_KNOWN_PRIVILEGE_NAMES: string[] = KNOWN_PRIVILEGES.filter(
+    (p) => p.name !== ADMIN_PRIVILEGE,
+).map((p) => p.name)
 
 export const privilegeApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({

@@ -1,8 +1,10 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
-import { Building2, CheckCircle2, KeyRound, Send, UserPlus, Users } from 'lucide-react'
+import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
+    APPROVE_TASK_PRIVILEGE,
+    REJECT_TASK_PRIVILEGE,
     CREATE_INVITATIONS_PRIVILEGE,
     CREATE_ROLES_PRIVILEGE,
     DELETE_INVITATIONS_PRIVILEGE,
@@ -19,6 +21,7 @@ import {
     useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
+import { useGetMyMembershipsQuery } from '../../store/apis/organisationApi'
 import type { AdminSubTab } from '../../types/dashboard/dashboardType'
 import { RolesPrivilegesPanel } from './RolesPrivilegesPanel'
 import { MembersPanel } from './MembersPanel'
@@ -26,6 +29,7 @@ import { InvitationsPanel } from './InvitationsPanel'
 import { MembershipRequestsPanel } from './MembershipRequestsPanel'
 import { OrganisationAdminPanel } from './OrganisationAdminPanel'
 import { CompletedTasksPanel } from './CompletedTasksPanel'
+import { TaskApprovalsPanel } from './TaskApprovalsPanel'
 
 interface SubTabDef {
     key: AdminSubTab
@@ -40,6 +44,12 @@ interface SubTabDef {
 // privilegier" og "Medlemmer" er bevidst to sideordnede faner (ikke én
 // fane med en fane indeni) - det gav tre niveauer af faner oven i
 // hinanden og virkede forvirrende.
+//
+// Undtagelse: "Organisation"-fanen vises også for organisationens admin
+// (medlemskabets isAdmin-flag), selv uden update_organisation-
+// privilegiet - "Slet organisation" er bevidst kun styret af admin-
+// status, uafhængigt af privilegier (se OrganisationAdminPanel.tsx),
+// så admin skal altid kunne nå frem til den, uanset privilegie-opsætning.
 export function AdministrationTab() {
     const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
         CREATE_ROLES_PRIVILEGE,
@@ -59,12 +69,15 @@ export function AdministrationTab() {
         UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     ])
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
+    const { data: memberships } = useGetMyMembershipsQuery()
+    const isOrgAdmin = memberships?.find((m) => m.isActive)?.isAdmin ?? false
     // Fane kræver rent faktisk manage-ret (update/delete_tasks), ikke bare
     // read_tasks - en ren "Medlem" (kun read_tasks) skal se opgaver via det
     // almindelige /tasks-link, ikke via Administration (rettet 2026-09-17
     // efter bruger-feedback: "se"-privilegiet alene giver ikke adgang til
     // Administration noget sted, kun rettigheder der reelt kan bruges der).
     const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
+    const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
 
     const tabs: SubTabDef[] = []
     if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
@@ -77,7 +90,8 @@ export function AdministrationTab() {
     if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer og tildel rolle', icon: Users })
     if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
-    if (canManageOrganisation) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
+    if (canManageOrganisation || isOrgAdmin) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
+    if (canSeeTaskApprovals) tabs.push({ key: 'taskApprovals', label: 'Opgavegodkendelser', icon: ClipboardCheck })
     if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: 'Afsluttede opgaver', icon: CheckCircle2 })
 
     const [selectedSubTab, setSelectedSubTab] = useState<AdminSubTab | null>(null)
@@ -124,6 +138,7 @@ export function AdministrationTab() {
                 {activeSubTab === 'invitations' && <InvitationsPanel />}
                 {activeSubTab === 'requests' && <MembershipRequestsPanel />}
                 {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+                {activeSubTab === 'taskApprovals' && <TaskApprovalsPanel />}
                 {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
             </div>
         </div>

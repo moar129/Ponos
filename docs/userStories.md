@@ -1430,6 +1430,53 @@ Som bruger vil jeg kunne se mine egne opgaver på dashboardet, så jeg med det s
 - **Afgrænsning:** Opgaverne i feltet kan ikke åbnes ved klik; brugeren går fortsat via opgavesiden.
 - **Afgrænsning:** Feltet dækker kun opgaver, brugeren er tilmeldt (`task_assignees`), ikke opgaver hvor brugeren alene er deltager (`task_participants`) - den relation bruges ikke af nogen kode i dag.
 
+## US-75 – Godkend/afvis opgave-færdigmelding
+
+**Priority:** High
+
+**Note:** Opgaver med `requires_approval` bliver ikke `Completed` direkte, når en tilmeldt melder dem færdige - der oprettes en `task_requests`-række (Pending). Behandling sker udelukkende via security definer-RPC'er (`approve_task_request`, `reject_task_request`, `get_pending_task_requests`), ikke rå UPDATE. De to gamle løse UPDATE-policies på `task_requests` droppes, da de tillod enhver ændring. `tasks.finished_at` sættes nu af godkendelsen og af `set_task_status`. Migration: `docs/migrations/2026-09-19-task-approval.sql`.
+
+### User Story
+
+Som administrator vil jeg kunne godkende eller afvise en færdigmelding af en opgave, så kun kontrollerede opgaver bliver afsluttet.
+
+### Acceptance Criteria
+
+- Privilegierne `approve_task` og `reject_task` findes som separate, tildelbare privilegier i Roller & privilegier-matrixen (gruppe "Opgavegodkendelse").
+- Dashboardets Administration-fane har en underfane "Opgavegodkendelser", synlig med mindst ét af de to privilegier (admin altid).
+- Fanen lister ventende færdigmeldinger i brugerens organisation: opgavetitel, anmoder og dato. Loading-, fejl- og tom-tilstand håndteres.
+- "Godkend" vises kun med `approve_task`, "Afvis" kun med `reject_task` - hver knap gates uafhængigt. Begge kræver bekræftelse.
+- Ved godkendelse markeres anmodningen `Accepted` (samt øvrige ventende anmodninger på samme opgave), og opgaven sættes til `Completed` med `finished_at`.
+- Ved afvisning markeres anmodningen `Rejected`, og opgaven forbliver `InProgress`; den tilmeldte kan melde færdig igen.
+- Anmodningen registrerer, hvem der behandlede den (`handled_by`) og hvornår (`done_at`).
+- Adgangen håndhæves server-side; en bruger uden det relevante privilegie, eller fra en anden organisation, afvises af databasen.
+- En godkender/afviser behøver ikke `read_tasks` for at se listen.
+- Ved godkendelse får alle nuværende tilmeldte på opgaven (undtagen behandleren) en notifikation "Din opgave er godkendt" (`task_approved`); den generiske "En opgave er afsluttet" udløses ikke samtidig, så ingen får dubletter.
+- Ved afvisning får alle nuværende tilmeldte (undtagen behandleren) en notifikation "Færdigmelding afvist" (`task_rejected`).
+- Notifikationens link åbner opgaven på `/tasks?task=<id>`.
+
+## US-76 – Regler for tilmelding og afmelding på opgaver
+
+**Priority:** High
+
+**Note:** Skelner mellem en frivillig tilmelding (brugeren tilmeldte sig selv) og en tildeling (en anden tilføjede brugeren). Ny privilegie `assign_tasks` ("Opgaver — Tildel") styrer at tilføje/fjerne andre; det var tidligere en del af `update_tasks`, og alle roller med `update_tasks` får `assign_tasks` ved migrationen. `assigned_by` sættes af en database-trigger og kan ikke forfalskes. Migration: `docs/migrations/2026-09-19-task-assignment-rules.sql`.
+
+### User Story
+
+Som bruger vil jeg have klare regler for, hvornår jeg kan tilmelde mig, afmelde mig og arbejde på en opgave, så ansvar for opgaver ikke forsvinder undervejs.
+
+### Acceptance Criteria
+
+- Enhver med adgang til opgaven kan tilmelde sig selv, mens opgaven er Started eller InProgress.
+- Kun den, der selv har tilmeldt sig, kan afmelde sig, og kun mens opgaven er Started. Håndhæves i databasen (RLS).
+- Er man tilføjet af en anden, kan man ikke afmelde sig, men kan påbegynde arbejde og melde færdig som alle andre tilmeldte.
+- "Påbegynd arbejde" og "Meld færdig" er tilgængelige for alle tilmeldte, uanset hvem der tilføjede dem.
+- Kun brugere med `assign_tasks` (eller admin) kan tilføje og fjerne andre; det kan også ske, når opgaven er InProgress.
+- "Rediger" på en opgave kræver fortsat `update_tasks`; tilføj/fjern medarbejder kræver kun `assign_tasks`. Knapperne gates uafhængigt af hinanden.
+- `assigned_by` er altid den bruger, der udførte tilføjelsen.
+- Den, der bliver tilføjet, får en notifikation (eksisterende `notify_task_assigned`); der kræves ikke accept.
+- Et klik på en opgave-notifikation (dashboard-widget, klokke, `/notifikationer`) åbner opgaven på `/tasks` med dens popup - også for afsluttede opgaver, og både for `?task=`- og `?taskId=`-links (`TaskPage.tsx`).
+
 ---
 
 # 11. Prioriteringsoversigt

@@ -1,4 +1,10 @@
-export type NotificationType = 'message' | 'task_assigned' | 'task_updated' | 'task_completed'
+export type NotificationType =
+  | 'message'
+  | 'task_assigned'
+  | 'task_updated'
+  | 'task_completed'
+  | 'task_approved'
+  | 'task_rejected'
 
 export interface AppNotification {
   id: string

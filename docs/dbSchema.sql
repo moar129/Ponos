@@ -252,7 +252,14 @@ create table public.tasks (
   status           e_task_status not null default 'Started',
   room_id          uuid references public.task_rooms(id) on delete set null,
   priority         e_task_priority,
-  max_assignees    int
+  max_assignees    int,
+  -- Studerende 3's tilføjelser (dokumenteret fra DB-eksport 2026-09-19):
+  -- created_at findes også i live (timestamptz not null default now()).
+  -- finished_at sættes af approve_task_request (15.19) og set_task_status
+  -- (15.18), nulstilles ved genåbn. requires_approval: kræver opgaven
+  -- godkendelse (task_requests) før den bliver Completed.
+  finished_at      timestamptz,
+  requires_approval boolean not null default true
 );
 
 create index idx_tasks_org on public.tasks (organisation_id);
@@ -260,9 +267,13 @@ create index idx_tasks_status on public.tasks (status);
 create index idx_tasks_room on public.tasks (room_id);
 
 -- AssignedTo: mange-til-mange mellem Task og User
+-- assigned_by (not null, sættes af trigger trg_set_task_assignee_assigned_by,
+-- 16.7) og assigned_at findes i live men stod ikke her (drift, fundet 2026-09-17).
 create table public.task_assignees (
-  task_id  uuid not null references public.tasks(id) on delete cascade,
-  user_id  uuid not null references public.profiles(id) on delete cascade,
+  task_id      uuid not null references public.tasks(id) on delete cascade,
+  user_id      uuid not null references public.profiles(id) on delete cascade,
+  assigned_by  uuid not null references public.profiles(id),
+  assigned_at  timestamptz default now(),
   primary key (task_id, user_id)
 );
 
@@ -271,6 +282,19 @@ create table public.task_participants (
   task_id  uuid not null references public.tasks(id) on delete cascade,
   user_id  uuid not null references public.profiles(id) on delete cascade,
   primary key (task_id, user_id)
+);
+
+-- Færdigmeldinger der afventer godkendelse (US-75). En tilmeldt melder en
+-- opgave med requires_approval færdig -> Pending. Behandles KUN via RPC'erne
+-- approve_task_request/reject_task_request (15.19), ikke ved direkte UPDATE.
+create table public.task_requests (
+  id            uuid primary key default gen_random_uuid(),
+  task_id       uuid not null references public.tasks(id) on delete cascade,
+  requested_by  uuid not null references public.profiles(id),
+  requested_at  timestamptz not null default now(),
+  status        e_request_status not null default 'Pending',
+  handled_by    uuid references public.profiles(id),
+  done_at       timestamptz
 );
 
 
@@ -591,10 +615,13 @@ create trigger trg_sync_item_organisation
 -- omdøb/slet (US-13, roleApi.ts/privilegeApi.ts har en UI-guard for
 -- dette, men RLS alene kan ikke skelne "netop denne række" - enhver
 -- admin må ellers redigere/slette privilegier i egen organisation).
--- Andre roller må frit have et privilege ved navn 'admin' (fx til test)
--- uden at blive låst - kun kombinationen "Admin"-rollen + admin-
--- privilegiet er beskyttet, da det er den, der reelt ville låse alle
--- administratorer ude, hvis den forsvandt.
+-- Andre roller er IKKE låst af denne trigger (kun kombinationen
+-- "Admin"-rollen + admin-privilegiet er beskyttet, da det er den, der
+-- reelt ville låse alle administratorer ude, hvis den forsvandt) - men
+-- siden 2026-09-19 kan andre roller heller ikke længere FÅ admin-
+-- privilegiet tildelt (se §16.4's escalation-guard). En eventuel
+-- eksisterende ikke-Admin-række fra før den dato er derfor kun urørt af
+-- DENNE trigger, ikke beskyttet af den - den kan fortsat frit slettes.
 -- US-64: respekterer ponos.bypass_admin_protection - uden denne ville
 -- delete_organisation (15.13) ikke kunne kaskade-slette Admin-privilegiet
 -- sammen med resten af organisationen, selvom hele organisationen (og
@@ -768,6 +795,130 @@ create trigger trg_reassign_members_before_role_delete
   for each row execute function public.reassign_members_before_role_delete();
 
 
+-- 15.6d 2026-09-18: Låser standardrollen "Medlems" privilegie-sæt
+-- fuldstændigt fast, parallelt til prevent_admin_privilege_change (15.5)
+-- for "Admin"-rollens admin-privilegie, men som separat funktion (samme
+-- princip som prevent_admin_role_change/prevent_default_role_change,
+-- 15.6/15.6b, er to adskilte funktioner for den analoge rolle-
+-- beskyttelse). read_news og read_tasks (Medlems seedede privilegier,
+-- se 15.8) kan hverken slettes eller omdøbes, og INGEN nye privilegier
+-- kan tilføjes til Medlem overhovedet - rollen er organisationens
+-- "gulv" og skal have et forudsigeligt, fast privilegie-sæt.
+-- Respekterer samme ponos.bypass_admin_protection-flag som 15.5/15.6/
+-- 15.6b, så delete_organisation (15.13) fortsat kan kaskade-slette
+-- Medlems privilegier sammen med resten af organisationen.
+-- (Kørt sammen med et engangs-backfill af read_tasks til eksisterende
+-- organisationers Medlem-rolle, som viste sig ikke at være ramt af det
+-- tidligere fase3-tasks-privileges.sql-backfill for alle organisationer
+-- - se docs/migrations/README.md.)
+create or replace function public.prevent_default_role_privilege_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  role_name text;
+begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' then
+    select name into role_name from public.roles where id = new.role_id;
+
+    if role_name = 'Medlem' then
+      raise exception 'Standardrollen Medlem kan ikke tildeles nye privilegier.';
+    end if;
+
+    return new;
+  end if;
+
+  select name into role_name from public.roles where id = old.role_id;
+
+  if role_name = 'Medlem' and old.name in ('read_news', 'read_tasks') then
+    if tg_op = 'DELETE' then
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke fjernes.';
+    end if;
+    if new.name is distinct from old.name then
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke omdøbes.';
+    end if;
+  end if;
+
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_default_role_privilege_change
+  before insert or update or delete on public.privileges
+  for each row execute function public.prevent_default_role_privilege_change();
+
+
+-- 15.6e 2026-09-18: Lukker et hul - en bruger med kun update_roles-
+-- privilegiet (IKKE selve admin-privilegiet) kunne ændre en anden
+-- brugers rolle VÆK fra Admin (nedgradere/fjerne admin-status fra en
+-- anden administrator), selvom de ikke kan TILDELE admin-privilegiet
+-- (det er allerede korrekt spærret af RLS-policyen "Tildel rolle til
+-- medlemskaber i egen organisation", 16.10 - dens with check ser kun
+-- den NYE role_id, ikke den gamle). Samme asymmetri findes ikke ved
+-- fjernelse af medlemmer (remove_member, 15.x, tjekker allerede
+-- eksplicit: "Du skal være administrator for at fjerne en anden
+-- administrator.") - kun rolle-SKIFT manglede den spejlvendte
+-- beskyttelse. auth.uid() i en security definer-funktion afspejler
+-- stadig den faktisk kaldende bruger (samme konvention som alle øvrige
+-- trigger-funktioner her), så has_privilege('admin') korrekt tjekker
+-- AKTØRENS egne privilegier. Selv-rolleskift er uafhængigt allerede
+-- blokeret af trg_prevent_self_membership_role_change (15.9).
+--
+-- 2026-09-18: udvidet med en ny retning - højst én admin ad gangen pr.
+-- organisation. Blokerer også at TILDELE en admin-bærende rolle til et
+-- medlem, hvis et ANDET medlem allerede har admin-adgang, medmindre
+-- ponos.bypass_admin_protection er sat (den nye transfer_admin_role,
+-- 15.14b, bruger dette til det atomiske "giv admin-rollen videre"-
+-- hand-off: den ene admin nedgraderes til Medlem, samtidig med at den
+-- anden forfremmes).
+create or replace function public.prevent_non_admin_role_change_on_admin_membership()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if coalesce(current_setting('ponos.bypass_admin_protection', true), 'false') = 'true' then
+    return new;
+  end if;
+
+  if old.role_id is not null
+     and public.role_has_privilege(old.role_id, 'admin')
+     and not public.has_privilege('admin')
+  then
+    raise exception 'Du skal være administrator for at ændre en anden administrators rolle.';
+  end if;
+
+  if new.role_id is not null and public.role_has_privilege(new.role_id, 'admin') then
+    if exists (
+      select 1
+      from public.memberships m
+      where m.organisation_id = new.organisation_id
+        and m.user_id <> new.user_id
+        and m.role_id is not null
+        and public.role_has_privilege(m.role_id, 'admin')
+    ) then
+      raise exception 'Organisationen har allerede en administrator - brug "Giv admin-rollen videre" i stedet.';
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_non_admin_role_change_on_admin_membership
+  before update of role_id on public.memberships
+  for each row execute function public.prevent_non_admin_role_change_on_admin_membership();
+
+
 -- 15.7 US-58: create_organisation (nedenfor) skal kunne sætte den
 -- kaldende brugers egen aktive organisation (bruger opretter og bliver
 -- selv admin) - trg_prevent_self_role_org_change (15.2) blokerer normalt
@@ -876,6 +1027,12 @@ grant execute on function public.create_organisation(text) to authenticated;
 -- må ikke kunne tildele SIG SELV en rolle via en memberships-opdatering
 -- (samme escalation-tanke som
 -- prevent_self_role_org_change havde for profiles.role_id før US-59).
+--
+-- 2026-09-18: hidtil ubetinget - fik nu et dedikeret bypass-flag
+-- (ponos.bypass_self_membership_role_change, eget flag adskilt fra
+-- bypass_admin_protection, samme princip som bypass_self_role_org_change
+-- er sit eget flag), så transfer_admin_role (15.14b) kan nedgradere den
+-- afgivende admin til Medlem som del af samme transaktion.
 create or replace function public.prevent_self_membership_role_change()
 returns trigger
 language plpgsql
@@ -883,6 +1040,10 @@ security definer
 set search_path = public
 as $$
 begin
+  if coalesce(current_setting('ponos.bypass_self_membership_role_change', true), 'false') = 'true' then
+    return new;
+  end if;
+
   if new.user_id = auth.uid() and new.role_id is distinct from old.role_id then
     raise exception 'Du kan ikke tildele dig selv en rolle.';
   end if;
@@ -1226,6 +1387,78 @@ $$;
 grant execute on function public.remove_member(uuid) to authenticated;
 
 
+-- 15.14b 2026-09-18: giver admin-rollen videre til et andet medlem -
+-- højst én admin ad gangen pr. organisation (se
+-- prevent_non_admin_role_change_on_admin_membership, 15.6e). Atomisk:
+-- modtageren forfremmes til Admin, OG den kaldende admin nedgraderes
+-- selv til Medlem, i samme transaktion. Sætter
+-- ponos.bypass_admin_protection (15.6e's invariant-tjek) og
+-- ponos.bypass_self_membership_role_change (15.9's selv-rolle-lås), så
+-- begge opdateringer kan gennemføres - ingen anden vej (rå
+-- klient-opdatering, uden om denne RPC) kan opnå det samme, da ingen af
+-- flagene er sat udenfor denne transaktion.
+create or replace function public.transfer_admin_role(p_new_admin_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid;
+  v_admin_role_id uuid;
+  v_member_role_id uuid;
+  v_target_membership_exists boolean;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind for at give admin-rollen videre.';
+  end if;
+
+  if p_new_admin_user_id = v_caller_id then
+    raise exception 'Du er allerede administrator.';
+  end if;
+
+  v_org_id := public.auth_profile_org();
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege('admin') then
+    raise exception 'Du skal være administrator for at give admin-rollen videre.';
+  end if;
+
+  select exists (
+    select 1 from public.memberships
+    where user_id = p_new_admin_user_id and organisation_id = v_org_id
+  ) into v_target_membership_exists;
+
+  if not v_target_membership_exists then
+    raise exception 'Brugeren er ikke medlem af organisationen.';
+  end if;
+
+  select id into v_admin_role_id from public.roles where organisation_id = v_org_id and name = 'Admin';
+  select id into v_member_role_id from public.roles where organisation_id = v_org_id and name = 'Medlem';
+
+  if v_admin_role_id is null or v_member_role_id is null then
+    raise exception 'Organisationens standardroller mangler.';
+  end if;
+
+  perform set_config('ponos.bypass_admin_protection', 'true', true);
+  perform set_config('ponos.bypass_self_membership_role_change', 'true', true);
+
+  update public.memberships
+    set role_id = v_admin_role_id
+    where user_id = p_new_admin_user_id and organisation_id = v_org_id;
+
+  update public.memberships
+    set role_id = v_member_role_id
+    where user_id = v_caller_id and organisation_id = v_org_id;
+end;
+$$;
+
+grant execute on function public.transfer_admin_role(uuid) to authenticated;
+
+
 -- 15.15 US-67: når en invitation accepteres/afvises, sættes reviewed_at
 -- automatisk, og ved accept tilknyttes den INVITEREDE bruger
 -- organisationen (uden automatisk rolle) - mirror af
@@ -1398,6 +1631,8 @@ grant execute on function public.reset_password_prototype(text, text, text, text
 -- er enum'en) - Postgres caster ikke automatisk text->enum i en UPDATE.
 -- Fejlede med "column status is of type e_task_status but expression is
 -- of type text" ved "Genåbn" i CompletedTasksPanel.tsx.
+-- Udvidet 2026-09-19 (US-75): sætter finished_at ved Completed og nulstiller
+-- den ved alle andre statusser (også "Genåbn").
 create or replace function public.set_task_status(p_task_id uuid, p_status text)
 returns void
 language plpgsql
@@ -1424,11 +1659,210 @@ begin
     raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.';
   end if;
 
-  update public.tasks set status = p_status::public.e_task_status where id = p_task_id;
+  update public.tasks
+     set status = p_status::public.e_task_status,
+         finished_at = case when p_status = 'Completed' then now() else null end
+   where id = p_task_id;
 end;
 $$;
 
 grant execute on function public.set_task_status(uuid, text) to authenticated;
+
+
+-- 15.19 US-75 (2026-09-19): godkend/afvis opgave-færdigmelding.
+-- task_requests behandles udelukkende via disse security definer-RPC'er
+-- (de gamle løse UPDATE-policies "Accepter/Afvis task requests" er droppet -
+-- de tillod enhver ændring). approve_task_request kræver approve_task/admin:
+-- alle ventende anmodninger på opgaven -> Accepted, opgaven -> Completed +
+-- finished_at, og alle nuværende tilmeldte (undtagen behandleren) får
+-- notifikationen task_approved. reject_task_request kræver reject_task/admin:
+-- kun den ene anmodning -> Rejected, opgaven forbliver InProgress, tilmeldte
+-- får task_rejected. Notifikationslink: /tasks?task=<id> (param TaskPage.tsx
+-- læser). get_pending_task_requests leverer panelets liste og virker uden
+-- read_tasks. 42501 ved manglende privilegie (mappes i taskApi.ts).
+create or replace function public.approve_task_request(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_status public.e_request_status;
+  v_title text;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('approve_task') then
+    raise exception 'Du har ikke rettigheder til at godkende opgaver.' using errcode = '42501';
+  end if;
+
+  select r.task_id, r.status, t.title into v_task_id, v_status, v_title
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.';
+  end if;
+
+  if v_status <> 'Pending' then
+    raise exception 'Anmodningen er allerede behandlet.';
+  end if;
+
+  update public.task_requests
+     set status = 'Accepted', handled_by = auth.uid(), done_at = now()
+   where task_id = v_task_id and status = 'Pending';
+
+  -- Undertryk den generiske "afsluttet"-notifikation (15.20), transaktionslokalt.
+  perform set_config('ponos.skip_task_completed_notify', 'on', true);
+
+  update public.tasks
+     set status = 'Completed', finished_at = coalesce(finished_at, now())
+   where id = v_task_id;
+
+  perform set_config('ponos.skip_task_completed_notify', 'off', true);
+
+  insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select ta.user_id, v_org_id, 'task_approved', 'Din opgave er godkendt', v_title, '/tasks?task=' || v_task_id, v_task_id
+  from public.task_assignees ta
+  where ta.task_id = v_task_id and ta.user_id <> auth.uid();
+end;
+$$;
+
+create or replace function public.reject_task_request(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_status public.e_request_status;
+  v_title text;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not public.has_privilege_or_admin('reject_task') then
+    raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501';
+  end if;
+
+  select r.task_id, r.status, t.title into v_task_id, v_status, v_title
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.';
+  end if;
+
+  if v_status <> 'Pending' then
+    raise exception 'Anmodningen er allerede behandlet.';
+  end if;
+
+  -- Opgaven røres ikke - den forbliver InProgress.
+  update public.task_requests
+     set status = 'Rejected', handled_by = auth.uid(), done_at = now()
+   where id = p_request_id;
+
+  insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title, '/tasks?task=' || v_task_id, v_task_id
+  from public.task_assignees ta
+  where ta.task_id = v_task_id and ta.user_id <> auth.uid();
+end;
+$$;
+
+create or replace function public.get_pending_task_requests()
+returns table (
+  id uuid,
+  task_id uuid,
+  task_title text,
+  requested_by uuid,
+  requester_first_name text,
+  requester_last_name text,
+  requested_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.';
+  end if;
+
+  if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501';
+  end if;
+
+  return query
+    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at
+    from public.task_requests r
+    join public.tasks t on t.id = r.task_id
+    left join public.profiles p on p.id = r.requested_by
+    where r.status = 'Pending' and t.organisation_id = v_org_id
+    order by r.requested_at;
+end;
+$$;
+
+revoke execute on function public.approve_task_request(uuid) from public, anon;
+revoke execute on function public.reject_task_request(uuid) from public, anon;
+revoke execute on function public.get_pending_task_requests() from public, anon;
+grant execute on function public.approve_task_request(uuid) to authenticated;
+grant execute on function public.reject_task_request(uuid) to authenticated;
+grant execute on function public.get_pending_task_requests() to authenticated;
+
+
+-- 15.20 US-75 (2026-09-19): notify_task_completed (notifikationsfeaturen,
+-- Rasmus' funktion - kun denne ene er dokumenteret her fordi vi ændrede den).
+-- Springer over, når approve_task_request (15.19) har sat det transaktions-
+-- lokale flag ponos.skip_task_completed_notify, ellers ville tilmeldte få både
+-- "godkendt" og "afsluttet". notifications-tabellen og de to øvrige
+-- notify_task_*-triggere mangler stadig i dette dokument. Tabellens
+-- type-constraint tillader nu:
+--   check (type = any (array['message','task_assigned','task_updated',
+--                            'task_completed','task_approved','task_rejected']))
+create or replace function public.notify_task_completed()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if coalesce(current_setting('ponos.skip_task_completed_notify', true), '') = 'on' then
+    return new;
+  end if;
+
+  if new.status = 'Completed' and old.status is distinct from 'Completed' then
+    insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+    select
+      ta.user_id,
+      new.organisation_id,
+      'task_completed',
+      'En opgave er afsluttet',
+      new.title,
+      '/tasks?taskId=' || new.id,
+      new.id
+    from task_assignees ta
+    where ta.task_id = new.id
+      and ta.user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid);
+  end if;
+
+  return new;
+end;
+$function$;
+
+-- create trigger trg_notify_task_completed after update of status on public.tasks
+--   for each row execute function notify_task_completed();   (findes allerede i live)
 
 
 -- =====================================================================
@@ -1449,6 +1883,7 @@ alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
+alter table public.task_requests           enable row level security;
 alter table public.task_materials          enable row level security;
 alter table public.statistics_snapshots    enable row level security;
 alter table public.statistics_values       enable row level security;
@@ -1641,13 +2076,27 @@ create policy "Se privilegier i egen organisation"
 -- Escalation-guard (sikkerhed): en bruger med kun update_roles må ikke
 -- kunne oprette/omdøbe et privilegie TIL "admin" - kun en reel admin må.
 -- WITH CHECK ser det NYE (post-update) navn.
+-- 2026-09-19: strammet yderligere - "admin" må nu kun ligge på rollen der
+-- reelt hedder "Admin" (tidligere kunne enhver admin give admin-
+-- privilegiet til en VILKÅRLIG rolle). Frontend-matrixen tilbyder derfor nu
+-- en "Vælg alle/Fjern alle"-knap for andre roller i stedet for at kunne
+-- tildele selve admin-privilegiet - se MatrixCell.tsx og
+-- NON_ADMIN_KNOWN_PRIVILEGE_NAMES (privilegeApi.ts). Ingen datamigrering af
+-- evt. eksisterende ikke-Admin-roller, der allerede havde privilegiet før
+-- denne stramning - kun fremadrettet lås.
 create policy "Opret privilegier i egen organisation"
   on public.privileges for insert
   to authenticated
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_roles')
-    and (name <> 'admin' or public.has_privilege('admin'))
+    and (
+      name <> 'admin'
+      or (
+        public.has_privilege('admin')
+        and exists (select 1 from public.roles r where r.id = role_id and r.name = 'Admin')
+      )
+    )
   );
 
 create policy "Rediger privilegier i egen organisation"
@@ -1660,7 +2109,13 @@ create policy "Rediger privilegier i egen organisation"
   with check (
     role_id in (select id from public.roles where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_roles')
-    and (name <> 'admin' or public.has_privilege('admin'))
+    and (
+      name <> 'admin'
+      or (
+        public.has_privilege('admin')
+        and exists (select 1 from public.roles r where r.id = role_id and r.name = 'Admin')
+      )
+    )
   );
 
 create policy "Slet privilegier i egen organisation"
@@ -1777,7 +2232,8 @@ create policy "Slet datalayer-items i egen organisation"
 -- også. Godkendt af bruger 2026-09-17 i forbindelse med CRUD på
 -- Afsluttede opgaver (US-70, CompletedTasksPanel.tsx). task_assignees'
 -- selvbetjening (til-/afmeld sig selv) er bevaret uafhængigt af
--- privilegier; tilmelde/afmelde EN ANDEN kræver update_tasks (rettet
+-- privilegier; tilmelde/afmelde EN ANDEN kræver assign_tasks (US-76,
+-- 2026-09-19; før update_tasks, rettet
 -- 2026-09-17, oprindeligt split på create_tasks/delete_tasks - se
 -- kommentaren ved task_assignees' insert/delete-policies nedenfor).
 -- "Medlem"-standardrollen (15.6b) har read_tasks som udgangspunkt (se
@@ -1812,30 +2268,51 @@ create policy "Se task_assignees for opgaver i egen organisation"
     and public.has_privilege_or_admin('read_tasks')
   );
 
--- Enhver må til-/afmelde SIG SELV, uafhængigt af privilegier.
-create policy "Til- og afmeld sig selv fra opgaver i egen organisation"
-  on public.task_assignees for all
+-- US-76 (2026-09-19): regler for tilmelding/afmelding. Selv-tilmelding er
+-- frivillig og uafhængig af privilegier: man kan se sine egne rækker, tilmelde
+-- sig selv (assigned_by = egen id) og afmelde sig selv - men KUN hvis man selv
+-- tilmeldte sig (ikke hvis en anden tilføjede en) og KUN mens opgaven er
+-- Started. Ingen update. Tilføjet af en anden = tildeling: kan ikke afmelde
+-- sig, men kan stadig påbegynde/melde færdig (UI, TaskCard.tsx).
+create policy "Se egne task_assignees-rækker"
+  on public.task_assignees for select
   to authenticated
   using (
     user_id = auth.uid()
     and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-  )
+  );
+
+create policy "Tilmeld sig selv til opgaver i egen organisation"
+  on public.task_assignees for insert
+  to authenticated
   with check (
     user_id = auth.uid()
+    and assigned_by = auth.uid()
     and task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
   );
 
--- Tilmelde/afmelde EN ANDEN (tilføj/fjern medarbejder i TaskCard.tsx) hører
--- begge under update_tasks ("Rediger opgaver") - rettet 2026-09-17 (docs/
--- migrations/2026-09-17-tasks-assignee-privilege-fix.sql), oprindeligt
--- split på create_tasks (insert)/delete_tasks (delete), ændret efter
--- bruger-forespørgsel under browser-test.
+create policy "Afmeld sig selv fra opgaver i egen organisation"
+  on public.task_assignees for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and assigned_by = auth.uid()
+    and task_id in (
+      select id from public.tasks
+      where organisation_id = public.auth_profile_org() and status = 'Started'
+    )
+  );
+
+-- Tilmelde/afmelde EN ANDEN (tilføj/fjern medarbejder i TaskCard.tsx) kræver
+-- assign_tasks ("Opgaver — Tildel", US-76, 2026-09-19). Før: update_tasks
+-- (2026-09-17). Migrationen backfillede assign_tasks til alle roller med
+-- update_tasks. Også muligt mens opgaven er InProgress (nødudgang).
 create policy "Tilmeld andre til opgaver i egen organisation"
   on public.task_assignees for insert
   to authenticated
   with check (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('update_tasks')
+    and public.has_privilege_or_admin('assign_tasks')
   );
 
 create policy "Afmeld andre fra opgaver i egen organisation"
@@ -1843,8 +2320,26 @@ create policy "Afmeld andre fra opgaver i egen organisation"
   to authenticated
   using (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('update_tasks')
+    and public.has_privilege_or_admin('assign_tasks')
   );
+
+-- assigned_by kan ikke forfalskes: sættes altid til auth.uid() ved insert.
+create or replace function public.set_task_assignee_assigned_by()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if auth.uid() is not null then
+    new.assigned_by := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_set_task_assignee_assigned_by
+  before insert on public.task_assignees
+  for each row execute function public.set_task_assignee_assigned_by();
 
 create policy "Se task_participants for opgaver i egen organisation"
   on public.task_participants for select
@@ -1884,6 +2379,37 @@ create policy "Administrer task_materials for opgaver i egen organisation"
   with check (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_tasks')
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.7a TASK_REQUESTS (US-75)
+-- Ingen UPDATE-policy: behandling sker udelukkende via 15.19's RPC'er.
+-- Godkendere (approve_task/reject_task) kan læse uden read_tasks.
+-- ---------------------------------------------------------------------
+create policy "Se task requests i egen organisation"
+  on public.task_requests for select
+  to authenticated
+  using (
+    task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+create policy "Se task requests som godkender"
+  on public.task_requests for select
+  to authenticated
+  using (
+    task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
+    and (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task'))
+  );
+
+create policy "Opret completion request for egne tasks"
+  on public.task_requests for insert
+  to authenticated
+  with check (
+    requested_by = auth.uid()
+    and task_id in (select ta.task_id from public.task_assignees ta where ta.user_id = auth.uid())
+    and task_id in (select t.id from public.tasks t where t.organisation_id = public.auth_profile_org())
   );
 
 
