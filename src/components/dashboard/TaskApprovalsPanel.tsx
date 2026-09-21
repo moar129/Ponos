@@ -24,12 +24,11 @@ function readableError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.'
 }
 
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    })
+function formatDateTime(value: string): string {
+    const d = new Date(value)
+    const date = d.toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })
+    const time = d.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
+    return `${date} kl. ${time.replace('.', ':')}`
 }
 
 // Godkend/afvis opgaver som brugere har meldt færdige (Administration-
@@ -119,7 +118,7 @@ function TaskApprovalRow({
             <div>
                 <p className="font-medium">{request.taskTitle}</p>
                 <p className="text-sm text-secondary dark:text-slate-400">Meldt færdig af {request.requesterName}</p>
-                <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDate(request.requestedAt)}</p>
+                <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDateTime(request.requestedAt)}</p>
             </div>
 
             {decision ? (
