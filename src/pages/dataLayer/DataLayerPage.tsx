@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery, useUpdateCategoryMutation } from '../../store/apis/categoryApi';
+import { useGetCategoryTreeQuery, useUpdateCategoryMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -38,6 +38,7 @@ export function DataLayerPage() {
   const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
+  const { data: itemLocations = [] } = useGetItemLocationsQuery();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -375,6 +376,7 @@ export function DataLayerPage() {
       <AddItemsComponent
         isOpen={isAddItemsModalOpen}
         onClose={() => setIsAddItemsModalOpen(false)}
+        categoryTree={categoryTree}
         categoryId={selectedCategory?.id ?? null}
         categoryTitle={selectedCategory?.title}
         canCreate={canCreate}
@@ -398,13 +400,17 @@ export function DataLayerPage() {
         onDeleted={handleItemsDeleted}
       />
 
-      <LocationManagerComponent
+     <LocationManagerComponent
         isOpen={isLocationManagerOpen}
         onClose={() => setIsLocationManagerOpen(false)}
-        onViewItems={(loc) => setLocationItemsTarget(loc)}
         canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
+        items={allItemsFlat}
+        onSelectItem={(item) => {
+          setIsLocationManagerOpen(false);
+          setSelectedItem(item);
+        }}
       />
 
       <LocationItemsComponent
@@ -413,6 +419,7 @@ export function DataLayerPage() {
         items={locationItems}
         onClose={() => setLocationItemsTarget(null)}
         onSelectItem={handleOpenItemFromLocation}
+        allLocations={itemLocations}
       />
 
       {errorMessage && (
@@ -555,9 +562,6 @@ export function DataLayerPage() {
                   <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
                     {selectedCategory.title}
                   </h1>
-                  <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
-                    Kategori ID: {selectedCategory.id}
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">

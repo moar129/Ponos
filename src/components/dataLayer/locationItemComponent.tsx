@@ -1,9 +1,17 @@
 import { X, MapPin, Package } from 'lucide-react';
-import type { LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
+import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 
+// Samme sti-opbygning som itemsDetailComponent.tsx bruger - viser
+// "Lager > Sektion" i stedet for kun sektionens eget navn, så det er
+// tydeligt hvilket lager man er inde under.
+function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[]): string {
+  if (!location.parentLocationId) return location.name;
+  const parent = allLocations.find((l) => l.id === location.parentLocationId);
+  return parent ? `${parent.name} > ${location.name}` : location.name;
+}
 
-export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem }: LocationItemsComponentProps) {
+export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem, allLocations }: LocationItemsComponentProps & { allLocations: ItemLocation[] }) {
   if (!isOpen || !location) return null;
 
   return (
@@ -16,7 +24,9 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
           <div className="flex items-center gap-2 min-w-0">
             <MapPin className="w-5 h-5 text-accent shrink-0" />
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{location.name}</h2>
+              <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">
+                {locationPathLabel(location, allLocations)}
+              </h2>
               {location.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{location.address}</p>}
             </div>
           </div>
