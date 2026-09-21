@@ -1,0 +1,40 @@
+{
+  "create": "Opret nyhed",
+  "edit": "Rediger nyhed",
+  "delete": "Slet nyhed",
+  "notFound": "Nyheden blev ikke fundet.",
+  "backToNews": "Tilbage til nyheder",
+  "readFullArticle": "Læs hele artiklen",
+  "form": {
+    "descriptionPlaceholder": "Skriv nyheden her...",
+    "tooLong": "Beskrivelsen er for lang (maks. {{max}} tegn).",
+    "urlHint": "Vises som \"Læs hele artiklen\" nederst på nyheden.",
+    "pictureUrlLabel": "Billed-URL (valgfri)",
+    "urlLabel": "Link til oprindelig artikel (valgfri)"
+  },
+  "editor": {
+    "typography": "Typografi",
+    "normal": "Normal",
+    "heading": "Overskrift",
+    "subheading": "Underoverskrift",
+    "bold": "Fed",
+    "italic": "Kursiv",
+    "underline": "Understreget",
+    "bulletList": "Punktopstilling",
+    "numberedList": "Nummereret liste",
+    "outdent": "Ryk ud",
+    "indent": "Ryk ind",
+    "insertLink": "Indsæt link",
+    "linkTextPlaceholder": "Tekst der vises",
+    "linkTextLabel": "Linkets tekst",
+    "linkUrlLabel": "Linkets adresse",
+    "insert": "Indsæt",
+    "cancelLink": "Annuller link"
+  },
+  "heading": "Nyheder",
+  "loading": "Indlæser nyheder...",
+  "loadingOne": "Indlæser nyhed...",
+  "noAccess": "Du har ikke adgang til at se nyheder i denne organisation.",
+  "empty": "Der er ingen nyheder endnu.",
+  "deleteTitle": "Slet \"{{name}}\"?"
+}

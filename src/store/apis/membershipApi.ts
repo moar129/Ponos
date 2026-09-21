@@ -62,7 +62,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     return {
                         error: { 
                             status: 'CUSTOM_ERROR', 
-                            error: 'Du skal være logget ind for at anmode om medlemskab.' 
+                            error: 'errors:loginRequiredForMembership' 
                         },
                     }
                 }
@@ -84,7 +84,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du har allerede en ventende anmodning til denne organisation.',
+                                error: 'errors:duplicateMembershipRequest',
                             },
                         }
                     }
@@ -185,7 +185,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Anmodningen kunne ikke behandles. Den er måske allerede behandlet, eller du mangler rettigheder.',
+                            error: 'errors:requestAlreadyHandled',
                         },
                     }
                 }

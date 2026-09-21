@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useUpdateRoomMutation } from '../../store/apis/taskApi';
 import type { Room } from '../../types/Task/Task';
 
@@ -13,6 +14,7 @@ export function EditRoomModal({
     onClose,
     rooms,
 }: EditRoomModalProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [roomName, setRoomName] = useState('');
 
@@ -53,11 +55,11 @@ export function EditRoomModal({
             <div className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-2xl dark:bg-slate-800 dark:border-slate-700">
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
-                        Rediger rum
+                        {t('editRoom.heading')}
                     </h2>
 
                     <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                        Vælg et rum og rediger navnet.
+                        {t('editRoom.intro')}
                     </p>
                 </div>
 
@@ -68,7 +70,7 @@ export function EditRoomModal({
                             htmlFor="edit-room-select"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Vælg rum
+                            {t('rooms.choose')}
                         </label>
 
                         <select
@@ -77,7 +79,7 @@ export function EditRoomModal({
                             onChange={(e) => handleRoomChange(e.target.value)}
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Vælg rum</option>
+                            <option value="">{t('rooms.choose')}</option>
 
                             {rooms.map((room) => (
                                 <option key={room.id} value={room.id}>
@@ -92,7 +94,7 @@ export function EditRoomModal({
                             htmlFor="edit-room-name"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Navn
+                            {t('common:name')}
                         </label>
 
                         <input
@@ -101,14 +103,14 @@ export function EditRoomModal({
                             value={roomName}
                             onChange={(e) => setRoomName(e.target.value)}
                             disabled={!selectedRoomId}
-                            placeholder="Indtast rumnavn"
+                            placeholder={t('editRoom.namePlaceholder')}
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none disabled:bg-bg-gray disabled:text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
                         />
                     </div>
 
                     {isError && (
                         <p className="text-sm text-red-700 dark:text-red-400">
-                            Kunne ikke redigere rummet. Prøv igen.
+                            {t('editRoom.failed')}
                         </p>
                     )}
                 </div>
@@ -119,7 +121,7 @@ export function EditRoomModal({
                         onClick={onClose}
                         className="rounded-lg px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
 
                     <button
@@ -132,7 +134,7 @@ export function EditRoomModal({
                         }
                         className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isLoading ? 'Gemmer...' : 'Gem ændringer'}
+                        {isLoading ? t('common:saving') : t('common:save')}
                     </button>
                 </div>
             </div>

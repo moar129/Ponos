@@ -1,9 +1,13 @@
 import { X, MapPin, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
 import type { LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 
 
 export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem }: LocationItemsComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
+  const td = asDynamic(t)
   if (!isOpen || !location) return null;
 
   return (
@@ -20,7 +24,7 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
               {location.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{location.address}</p>}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk modal">
+          <button type="button" onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title={t('close')} aria-label={t('closeModal')}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -29,7 +33,7 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-secondary dark:text-slate-400">
               <Package className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-              <p className="text-sm">Ingen items er registreret på denne lokation.</p>
+              <p className="text-sm">{t('locations.noItemsHere')}</p>
             </div>
           ) : (
             <div className="divide-y divide-border-gray border border-border-gray rounded-lg overflow-hidden dark:divide-slate-700 dark:border-slate-700">
@@ -45,8 +49,8 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
                     <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                    <span>Antal: {item.quantity}</span>
-                    <span className={`px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{ITEM_STATUS_LABELS[item.itemStatus]}</span>
+                    <span>{t('quantityValue', { count: item.quantity })}</span>
+                    <span className={`px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{td(`datalayer:status.${item.itemStatus}`)}</span>
                   </div>
                 </button>
               ))}

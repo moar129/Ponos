@@ -1,10 +1,12 @@
 // src/routes/ProtectedRoute/ProtectedRoute.tsx
 import { Navigate, Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useGetSessionQuery } from '../../store/apis/authApi'
 
 // Beskytter ruter mod uautentificerede brugere.
 // Bruges som en "wrapper-route" i App.tsx omkring de sider, der kræver login.
 export default function ProtectedRoute() {
+    const { t } = useTranslation('auth')
     // RTK Query erstatter useAppSelector(state => state.auth...):
     // - data = den aktuelle session (eller null hvis ikke logget ind)
     // - isLoading = true KUN under selve det første fetch (ikke ved efterfølgende
@@ -15,7 +17,7 @@ export default function ProtectedRoute() {
     // app-opstart), viser vi en simpel loading-tilstand i stedet for
     // at antage brugeren ikke er logget ind.
     if (isLoading) {
-        return <div>Indlæser...</div>
+        return <div>{t('loading')}</div>
     }
 
     // Ingen session fundet -> send brugeren til login.

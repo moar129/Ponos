@@ -68,8 +68,8 @@ export const REJECT_TASK_PRIVILEGE = 'reject_task'
 type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
+    /** Stabil nøgle. Etiketten hentes med t('roles:domain.<domain>'). */
     domain: string
-    domainLabel: string
     // Kun de operationer domænet reelt understøtter er til stede.
     ops: Partial<Record<PrivilegeOp, string>>
 }
@@ -79,7 +79,6 @@ interface PrivilegeDomain {
 export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     {
         domain: 'roles',
-        domainLabel: 'Roller og privilegier',
         ops: {
             create: CREATE_ROLES_PRIVILEGE,
             read: READ_ROLES_PRIVILEGE,
@@ -89,22 +88,18 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
     {
         domain: 'organisation',
-        domainLabel: 'Organisation',
         ops: { update: UPDATE_ORGANISATION_PRIVILEGE },
     },
     {
         domain: 'membership_requests',
-        domainLabel: 'Medlemsanmodninger',
         ops: { read: READ_MEMBERSHIP_REQUESTS_PRIVILEGE, update: UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE },
     },
     {
         domain: 'members',
-        domainLabel: 'Medlemmer',
         ops: { delete: DELETE_MEMBERS_PRIVILEGE },
     },
     {
         domain: 'invitations',
-        domainLabel: 'Invitationer',
         ops: {
             create: CREATE_INVITATIONS_PRIVILEGE,
             read: READ_INVITATIONS_PRIVILEGE,
@@ -113,7 +108,6 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
     {
         domain: 'news',
-        domainLabel: 'Nyheder',
         ops: {
             create: CREATE_NEWS_PRIVILEGE,
             read: READ_NEWS_PRIVILEGE,
@@ -123,7 +117,6 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
     {
         domain: 'datalayer',
-        domainLabel: 'Datalager',
         ops: {
             create: CREATE_DATALAYER_PRIVILEGE,
             read: READ_DATALAYER_PRIVILEGE,
@@ -133,7 +126,6 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
     {
         domain: 'tasks',
-        domainLabel: 'Opgaver',
         ops: {
             create: CREATE_TASKS_PRIVILEGE,
             read: READ_TASKS_PRIVILEGE,
@@ -144,7 +136,6 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
     {
         domain: 'task_approval',
-        domainLabel: 'Opgavegodkendelse',
         ops: {
             approve: APPROVE_TASK_PRIVILEGE,
             reject: REJECT_TASK_PRIVILEGE,
@@ -152,53 +143,42 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
     },
 ]
 
-const OP_LABELS: Record<PrivilegeOp, string> = {
-    create: 'Opret',
-    read: 'Se',
-    update: 'Redigér',
-    delete: 'Slet',
-    assign: 'Tildel',
-    approve: 'Godkend',
-    reject: 'Afvis',
-}
+// Etiketterne til domæner og operationer ligger i roles-ordbogen
+// (roles:domain.<domain> / roles:op.<op>). Funktionerne herunder tager
+// derfor t() som parameter - et modul kan ikke kalde useTranslation, og
+// en etiket hentet uden for React ville ikke skifte sprog igen.
+type TranslateFn = (key: string) => string
 
-// Kendte systemprivilegier med brugervenlige, danske labels - bruges til
-// at vise en dropdown i stedet for et fritekstfelt, når man tilføjer et
-// privilegie til en rolle. Afledt af PRIVILEGE_DOMAINS ("Domæne —
-// Operation", fx "Nyheder — Opret"). En organisation kan ikke forventes
-// at kende eller stave de bogstavelige privilegienavne, RLS-policies
-// tjekker. Privileges-tabellen tillader stadig vilkårlige navne (US-13
-// er skrevet generisk), så UI'en har også en "Andet"-mulighed med
-// fritekst.
-export const KNOWN_PRIVILEGES: { name: string; label: string }[] = [
-    { name: ADMIN_PRIVILEGE, label: 'Fuld administrator (kan alt)' },
+// Kendte systemprivilegier - bruges til at vise en dropdown i stedet for
+// et fritekstfelt, når man tilføjer et privilegie til en rolle. En
+// organisation kan ikke forventes at kende eller stave de bogstavelige
+// privilegienavne, RLS-policies tjekker. Privileges-tabellen tillader
+// stadig vilkårlige navne (US-13 er skrevet generisk).
+export const KNOWN_PRIVILEGES: { name: string; domain: string; op: PrivilegeOp }[] = [
     ...PRIVILEGE_DOMAINS.flatMap((domain) =>
         (Object.entries(domain.ops) as [PrivilegeOp, string][]).map(([op, name]) => ({
             name,
-            label: `${domain.domainLabel} — ${OP_LABELS[op]}`,
+            domain: domain.domain,
+            op,
         })),
     ),
 ]
 
-// Slår et privilegienavn op i KNOWN_PRIVILEGES og returnerer dets
-// brugervenlige label - falder tilbage til det rå navn for
-// custom-privilegier, der ikke er i listen.
-export function privilegeLabel(name: string): string {
-    return KNOWN_PRIVILEGES.find((p) => p.name === name)?.label ?? name
+// Fuld etiket, fx "Nyheder — Opret". Falder tilbage til det rå navn for
+// custom-privilegier, der ikke er i katalogen.
+export function privilegeLabel(name: string, t: TranslateFn): string {
+    if (name === ADMIN_PRIVILEGE) return t('roles:privilege.admin')
+    const known = KNOWN_PRIVILEGES.find((p) => p.name === name)
+    if (!known) return name
+    return `${t(`roles:domain.${known.domain}`)} — ${t(`roles:op.${known.op}`)}`
 }
 
-// Samme som privilegeLabel, men returnerer kun operations-delen ("Opret",
-// "Se", ...) uden domænenavnet foran - bruges når domænet allerede vises
-// som en overskrift (fx den grupperede "Tilføj privilegie"-dropdown).
-// Falder tilbage til den fulde label for admin/custom-privilegier, der
-// ikke hører til noget domæne.
-export function privilegeOpLabel(name: string): string {
-    for (const domain of PRIVILEGE_DOMAINS) {
-        for (const [op, opName] of Object.entries(domain.ops) as [PrivilegeOp, string][]) {
-            if (opName === name) return OP_LABELS[op]
-        }
-    }
-    return privilegeLabel(name)
+// Kun operations-delen ("Opret", "Se", ...) uden domænenavnet foran -
+// bruges når domænet allerede vises som en overskrift (fx den grupperede
+// "Tilføj privilegie"-dropdown).
+export function privilegeOpLabel(name: string, t: TranslateFn): string {
+    const known = KNOWN_PRIVILEGES.find((p) => p.name === name)
+    return known ? t(`roles:op.${known.op}`) : privilegeLabel(name, t)
 }
 
 // Alle kendte privilegier UNDTAGEN admin - bruges af matrixens "Vælg
@@ -317,7 +297,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Privilegiets navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.privilegeName' } }
                 }
 
                 const { data, error } = await supabase
@@ -331,14 +311,14 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     // (role_id, name) - rollen har allerede dette privilege.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:rolePrivilegeExists' },
                         }
                     }
                     // 42501 = RLS afviste - fx forsøg på at oprette et
                     // privilegie ved navn "admin" uden selv at være admin.
                     if (error.code === '42501') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at oprette dette privilegie.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.createPrivilege' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -358,7 +338,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Privilegiets navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.privilegeName' } }
                 }
 
                 const { error } = await supabase
@@ -369,14 +349,14 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                 if (error) {
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Rollen har allerede dette privilegie.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:rolePrivilegeExists' },
                         }
                     }
                     // 42501 = RLS afviste - fx forsøg på at omdøbe et
                     // privilegie til "admin" uden selv at være admin.
                     if (error.code === '42501') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at redigere dette privilegie.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.updatePrivilege' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }

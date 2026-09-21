@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roles and privileges",
+    "organisation": "Organisation",
+    "membership_requests": "Membership requests",
+    "members": "Members",
+    "invitations": "Invitations",
+    "news": "News",
+    "datalayer": "Data layer",
+    "tasks": "Tasks",
+    "task_approval": "Task approval"
+  },
+  "op": {
+    "create": "Create",
+    "read": "View",
+    "update": "Edit",
+    "delete": "Delete",
+    "assign": "Assign",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "privilege": {
+    "admin": "Full administrator (can do everything)"
+  },
+  "other": "Other",
+  "matrix": {
+    "newRoleLabel": "New role",
+    "createRole": "Create role",
+    "creatingRole": "Creating...",
+    "loading": "Loading roles...",
+    "noRoles": "The organisation has no roles yet.",
+    "selectAll": "Select all",
+    "removeAll": "Remove all",
+    "savePrivilegeName": "Save privilege name",
+    "renamePrivilege": "Rename privilege",
+    "saveRoleName": "Save role name",
+    "renameRole": "Rename role",
+    "deleteRole": "Delete role",
+    "newRolePlaceholder": "E.g. Volunteer coordinator",
+    "privilegeColumn": "Privilege",
+    "removeAllTitle": "Removes all current privileges from {{role}} (not real system administrator access)",
+    "selectAllTitle": "Gives {{role}} all current privileges (not real system administrator access)",
+    "renamePrivilegeFor": "Rename this privilege for {{role}}",
+    "confirmDeleteRole": "Delete \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin already has full access and cannot be customised",
+    "memberFixed": "Fixed part of the default Member role",
+    "adminOnly": "Only an administrator can grant the admin privilege",
+    "adminRoleProtected": "This role has the admin privilege and cannot be renamed or deleted",
+    "memberRoleProtected": "The default Member role cannot be renamed or deleted",
+    "memberNotExtendable": "The default Member role cannot be extended"
+  },
+  "approvals": {
+    "loading": "Loading task approvals...",
+    "empty": "There are no tasks awaiting approval.",
+    "confirmApprove": "Approve and mark the task as completed?",
+    "confirmReject": "Reject the request? The task stays in progress.",
+    "reportedBy": "Reported done by",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reportedDoneBy": "Reported done by {{name}}"
+  }
+}

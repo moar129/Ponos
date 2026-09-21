@@ -1,4 +1,7 @@
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { formatDayMonthTime } from '../../utils/formatDate';
 import { Check, CheckCheck, Send, Loader2, MessageSquareText, Pencil, Trash2 } from 'lucide-react';
 import {
   useGetMessagesQuery,
@@ -16,24 +19,6 @@ function getInitials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-function readableError(err: unknown): string | null {
-  if (err == null) return null;
-
-  if (typeof err === 'string' && err.trim()) {
-    return err;
-  }
-
-  if (typeof err === 'object' && err !== null) {
-    if ('error' in err && typeof err.error === 'string' && err.error.trim()) {
-      return err.error;
-    }
-    if ('message' in err && typeof err.message === 'string' && err.message.trim()) {
-      return err.message;
-    }
-  }
-
-  return 'Noget gik galt. Prøv igen.';
-}
 
 export function ConversationComponent({
   conversationId,
@@ -41,6 +26,7 @@ export function ConversationComponent({
   currentUserId,
   onConversationCreated,
 }: ConversationComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [markConversationRead] = useMarkConversationReadMutation();
@@ -216,7 +202,7 @@ export function ConversationComponent({
           </p>
 
           <p className="text-xs text-secondary truncate dark:text-slate-400">
-            {contact.roleName ?? 'Ingen rolle'}
+            {contact.roleName ?? t('noRole')}
           </p>
         </div>
       </div>
@@ -227,10 +213,10 @@ export function ConversationComponent({
           <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
             <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
 
-            <p className="text-sm">Ingen beskeder endnu</p>
+            <p className="text-sm">{t('noMessagesYet')}</p>
 
             <p className="text-xs mt-1 text-secondary dark:text-slate-400">
-              Skriv den første besked til {contact.firstName}.
+              {t('writeFirstTo', { name: contact.firstName })}
             </p>
           </div>
         ) : isLoadingMessages ? (
@@ -240,17 +226,17 @@ export function ConversationComponent({
         ) : messagesError ? (
           <div className="flex justify-center">
             <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-              Kunne ikke hente beskeder.
+              {t('loadFailed')}
             </div>
           </div>
         ) : messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
             <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
 
-            <p className="text-sm">Ingen beskeder endnu</p>
+            <p className="text-sm">{t('noMessagesYet')}</p>
 
             <p className="text-xs mt-1 text-secondary dark:text-slate-400">
-              Skriv den første besked til {contact.firstName}.
+              {t('writeFirstTo', { name: contact.firstName })}
             </p>
           </div>
         ) : (
@@ -277,7 +263,7 @@ export function ConversationComponent({
                         <button
                           type="button"
                           onClick={() => startEdit(msg)}
-                          aria-label="Rediger besked"
+                          aria-label={t('editMessage')}
                           className="p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -287,7 +273,7 @@ export function ConversationComponent({
                         <button
                           type="button"
                           onClick={() => setConfirmingDeleteId(msg.id)}
-                          aria-label="Slet besked"
+                          aria-label={t('deleteMessage')}
                           className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -304,7 +290,7 @@ export function ConversationComponent({
                     }`}
                   >
                     {msg.deletedAt ? (
-                      <p className="text-sm italic opacity-70">Denne besked er slettet</p>
+                      <p className="text-sm italic opacity-70">{t('messageDeleted')}</p>
                     ) : isEditing ? (
                       <div className="flex flex-col gap-2">
                         {editErrorMessage && (
@@ -333,7 +319,7 @@ export function ConversationComponent({
                             disabled={isSavingEdit}
                             className="text-xs font-medium hover:underline disabled:opacity-50"
                           >
-                            Annuller
+                            {t('common:cancel')}
                           </button>
                           <button
                             type="button"
@@ -341,13 +327,13 @@ export function ConversationComponent({
                             disabled={!editDraft.trim() || isSavingEdit}
                             className="text-xs font-semibold hover:underline disabled:opacity-50"
                           >
-                            {isSavingEdit ? 'Gemmer...' : 'Gem'}
+                            {isSavingEdit ? t('common:saving') : t('common:save')}
                           </button>
                         </div>
                       </div>
                     ) : isConfirmingDelete ? (
                       <div className="flex flex-col gap-2">
-                        <p className="text-sm">Slet denne besked?</p>
+                        <p className="text-sm">{t('confirmDeleteMessage')}</p>
                         <div className="flex items-center gap-3 justify-end">
                           <button
                             type="button"
@@ -355,7 +341,7 @@ export function ConversationComponent({
                             disabled={isDeleting}
                             className="text-xs font-medium hover:underline disabled:opacity-50"
                           >
-                            Annuller
+                            {t('common:cancel')}
                           </button>
                           <button
                             type="button"
@@ -363,7 +349,7 @@ export function ConversationComponent({
                             disabled={isDeleting}
                             className="text-xs font-semibold hover:underline disabled:opacity-50"
                           >
-                            {isDeleting ? 'Sletter...' : 'Ja, slet'}
+                            {isDeleting ? t('common:deleting') : t('common:confirmDeleteYes')}
                           </button>
                         </div>
                       </div>
@@ -373,13 +359,8 @@ export function ConversationComponent({
 
                     <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : ''}`}>
                       <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
-                        {new Date(msg.createdAt).toLocaleString('da-DK', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                        {msg.editedAt && !msg.deletedAt && ' · redigeret'}
+                        {formatDayMonthTime(msg.createdAt)}
+                        {msg.editedAt && !msg.deletedAt && ` · ${t('edited')}`}
                       </p>
 
                       {/* US-B12: tydelig læse-status vises kun på egne, ikke-slettede beskeder */}
@@ -390,12 +371,12 @@ export function ConversationComponent({
                           {isReadByOther(msg.createdAt) ? (
                             <>
                               <CheckCheck className="w-3.5 h-3.5" />
-                              Set
+                              {t('seen')}
                             </>
                           ) : (
                             <>
                               <Check className="w-3.5 h-3.5" />
-                              Sendt
+                              {t('sent')}
                             </>
                           )}
                         </span>
@@ -429,7 +410,7 @@ export function ConversationComponent({
             onClick={() => void handleSendMessage()}
             disabled={!message.trim() || isBusy}
             className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            aria-label="Send besked"
+            aria-label={t('sendMessage')}
           >
             {isBusy ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -440,7 +421,7 @@ export function ConversationComponent({
         </div>
 
         <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">
-          Tryk Enter for at sende · Shift + Enter for ny linje
+          {t('enterHint')}
         </p>
       </div>
     </div>

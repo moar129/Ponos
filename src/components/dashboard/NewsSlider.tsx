@@ -4,18 +4,17 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Newspaper } from 'lucide-react'
 import { useGetNewsQuery } from '../../store/apis/newsApi'
 import { richTextToPlainText } from '../../lib/richText'
+import { formatDayMonth } from '../../utils/formatDate'
+import { useTranslation } from 'react-i18next'
 
 const MAX_SLIDES = 10
 const AUTO_ADVANCE_MS = 6000
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', { day: 'numeric', month: 'long' })
-}
 
 // US-56: Dashboard-Oversigtens nyheds-widget - kører automatisk
 // igennem de seneste MAX_SLIDES nyheder, med manuel prev/next + dots.
 // Pause på hover, så man kan nå at læse/klikke uden at den skifter under en.
 export function NewsSlider() {
+    const { t } = useTranslation('dashboard')
     const { data: news, isLoading } = useGetNewsQuery()
     const slides = (news ?? []).slice(0, MAX_SLIDES)
 
@@ -48,18 +47,18 @@ export function NewsSlider() {
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <Newspaper className="w-5 h-5 text-secondary dark:text-slate-400" />
-                    <h3 className="font-medium text-primary dark:text-slate-100">Nyheder</h3>
+                    <h3 className="font-medium text-primary dark:text-slate-100">{t('news.title')}</h3>
                 </div>
                 <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
-                    Se alle nyheder
+                    {t('news.seeAll')}
                     <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {isLoading ? (
-                <p className="text-sm text-secondary dark:text-slate-400">Indlæser nyheder...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('news.loading')}</p>
             ) : !current ? (
-                <p className="text-sm text-secondary dark:text-slate-400">Der er ingen nyheder endnu.</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('news.empty')}</p>
             ) : (
                 <div
                     onMouseEnter={() => setIsPaused(true)}
@@ -77,7 +76,7 @@ export function NewsSlider() {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:px-12">
                                     <p className="font-medium text-white truncate">{current.title}</p>
-                                    <p className="text-xs text-white/80 mt-0.5">{formatDate(current.publishedAt)}</p>
+                                    <p className="text-xs text-white/80 mt-0.5">{formatDayMonth(current.publishedAt)}</p>
                                     {current.description && (
                                         <p className="text-sm text-white/90 mt-1 line-clamp-2">{richTextToPlainText(current.description)}</p>
                                     )}
@@ -86,7 +85,7 @@ export function NewsSlider() {
                         ) : (
                             <div className={`h-full flex flex-col justify-center bg-bg-gray/40 dark:bg-slate-800/40 p-4 sm:px-12 ${slides.length > 1 ? 'pb-8' : ''}`}>
                                 <p className="font-medium text-primary truncate dark:text-slate-100">{current.title}</p>
-                                <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">{formatDate(current.publishedAt)}</p>
+                                <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">{formatDayMonth(current.publishedAt)}</p>
                                 {current.description && (
                                     <p className="text-sm text-secondary mt-1 line-clamp-2 dark:text-slate-400">{richTextToPlainText(current.description)}</p>
                                 )}
@@ -99,7 +98,7 @@ export function NewsSlider() {
                             <button
                                 type="button"
                                 onClick={() => goTo(index - 1)}
-                                aria-label="Forrige nyhed"
+                                aria-label={t('news.previous')}
                                 className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors dark:bg-slate-800/90 dark:text-slate-400 dark:hover:text-slate-100"
                             >
                                 <ChevronLeft className="w-5 h-5" />
@@ -107,7 +106,7 @@ export function NewsSlider() {
                             <button
                                 type="button"
                                 onClick={() => goTo(index + 1)}
-                                aria-label="Næste nyhed"
+                                aria-label={t('news.next')}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-sm text-secondary hover:text-primary transition-colors dark:bg-slate-800/90 dark:text-slate-400 dark:hover:text-slate-100"
                             >
                                 <ChevronRight className="w-5 h-5" />
@@ -119,7 +118,7 @@ export function NewsSlider() {
                                         key={slide.id}
                                         type="button"
                                         onClick={() => goTo(i)}
-                                        aria-label={`Vis nyhed ${i + 1}`}
+                                        aria-label={t('news.showNews', { number: i + 1 })}
                                         aria-current={i === index}
                                         className={`w-1.5 h-1.5 rounded-full transition-colors ${
                                             i === index

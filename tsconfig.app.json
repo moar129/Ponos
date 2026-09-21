@@ -7,6 +7,9 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    /* Ordbøgerne i src/i18n/locales importeres som JSON-moduler, og deres
+       form er samtidig typen bag t()-nøglerne (se src/i18n/i18next.d.ts). */
+    "resolveJsonModule": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",

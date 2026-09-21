@@ -97,7 +97,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Du skal være logget ind for at redigere organisationen.',
+                            error: 'errors:loginRequiredForOrganisation',
                         },
                     }
                 }
@@ -114,7 +114,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 if (!profile?.active_organisation_id) {
                     return {
-                        error: { status: 'CUSTOM_ERROR', error: 'Du er ikke medlem af en organisation.' },
+                        error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' },
                     }
                 }
 
@@ -129,7 +129,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     // organisation med dette navn.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -157,7 +157,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 if (!trimmed) {
                     return {
-                        error: { status: 'CUSTOM_ERROR', error: 'Organisationens navn skal udfyldes.' },
+                        error: { status: 'CUSTOM_ERROR', error: 'errors:required.organisationName' },
                     }
                 }
 
@@ -169,7 +169,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     // organisation med dette navn.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }

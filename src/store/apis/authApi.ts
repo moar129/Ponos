@@ -106,7 +106,7 @@ export const authApi = supabaseApi.injectEndpoints({
                 const email = sessionData.session?.user.email
 
                 if (!email) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Du er ikke logget ind.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:notLoggedIn' } }
                 }
 
                 // Trin 1 ER verifikationen: Supabase kræver ikke selv den
@@ -120,14 +120,14 @@ export const authApi = supabaseApi.injectEndpoints({
 
                 if (signInError) {
                     // Intet er ændret på dette tidspunkt.
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Din nuværende adgangskode er forkert.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:wrongCurrentPassword' } }
                 }
 
                 // Trin 2: selve skiftet. Brugeren forbliver logget ind.
                 const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
 
                 if (updateError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Adgangskoden kunne ikke ændres. Prøv igen.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:passwordChangeFailed' } }
                 }
 
                 return { data: undefined }

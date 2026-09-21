@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { X, Pencil, Trash2, Loader2, Save, MapPin, Plus } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
@@ -14,6 +15,7 @@ import { getErrorMessage } from '../../ErrorMessage';
 export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCreate, canUpdate, canDelete }: LocationManagerComponentProps & {
   onViewItems?: (location: ItemLocation) => void;
 }) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
   const [editTarget, setEditTarget] = useState<ItemLocation | null>(null);
   const [editName, setEditName] = useState('');
@@ -36,7 +38,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
 
   const handleCreate = async () => {
     if (!newName.trim()) {
-      setCreateError('Navn er påkrævet.');
+      setCreateError(t('locations.nameRequired'));
       return;
     }
     try {
@@ -47,7 +49,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
       setNewDescription('');
       setCreateError(null);
     } catch (err) {
-      setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
+      setCreateError(getErrorMessage(err, t('locations.createFailed')));
     }
   };
 
@@ -62,7 +64,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
   const handleSave = async () => {
     if (!editTarget) return;
     if (!editName.trim()) {
-      setFormError('Navn er påkrævet.');
+      setFormError(t('locations.nameRequired'));
       return;
     }
     try {
@@ -74,7 +76,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
       }).unwrap();
       setEditTarget(null);
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer.'));
+      setFormError(getErrorMessage(err, t('locations.saveFailed')));
     }
   };
 
@@ -84,7 +86,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
       await deleteLocation({ id: deleteTarget.id }).unwrap();
       setDeleteTarget(null);
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke slette lokationen.'));
+      setFormError(getErrorMessage(err, t('locations.deleteFailed')));
       setDeleteTarget(null);
     }
   };
@@ -96,7 +98,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
-          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Administrer lokationer</h2>
+          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('locations.heading')}</h2>
           <div className="flex items-center gap-1">
             {canCreate && !isCreating && (
               <button
@@ -105,7 +107,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Ny lokation
+                {t('locations.new')}
               </button>
             )}
             <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
@@ -126,21 +128,21 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
               {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
               <input
                 type="text"
-                placeholder="Navn på ny lokation *"
+                placeholder={t('locations.namePlaceholder')}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
               <input
                 type="text"
-                placeholder="Adresse (valgfrit)"
+                placeholder={t('locations.addressOptional')}
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
               <input
                 type="text"
-                placeholder="Beskrivelse (valgfrit)"
+                placeholder={t('locations.descriptionOptional')}
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -151,7 +153,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                   onClick={() => { setIsCreating(false); setCreateError(null); }}
                   className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                 >
-                  Annullér
+                  {t('common:cancel')}
                 </button>
                 <button
                   type="button"
@@ -160,7 +162,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
                 >
                   {isAdding && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Opret
+                  {t('common:create')}
                 </button>
               </div>
             </div>
@@ -171,7 +173,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
               <Loader2 className="w-6 h-6 animate-spin text-accent" />
             </div>
           ) : locations.length === 0 ? (
-            <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">Ingen lokationer oprettet endnu.</p>
+            <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">{t('locations.empty')}</p>
           ) : (
            locations.map((loc) => (
               <div key={loc.id} className="bg-bg-gray/40 border border-border-gray rounded-lg overflow-hidden dark:bg-slate-800/40 dark:border-slate-700">
@@ -181,26 +183,26 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      placeholder="Navn"
+                      placeholder={t('locations.namePlaceholderShort')}
                       className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
-                      placeholder="Adresse"
+                      placeholder={t('locations.addressPlaceholder')}
                       className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <input
                       type="text"
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
-                      placeholder="Beskrivelse"
+                      placeholder={t('locations.descriptionPlaceholder')}
                       className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
                     <div className="flex items-center justify-end gap-2">
                       <button type="button" onClick={() => setEditTarget(null)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-                        Annullér
+                        {t('common:cancel')}
                       </button>
                       <button
                         type="button"
@@ -209,7 +211,7 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
                       >
                         {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                        Gem
+                        {t('common:save')}
                       </button>
                     </div>
                   </div>
@@ -233,8 +235,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                           type="button"
                           onClick={(e) => { e.stopPropagation(); startEdit(loc); }}
                           className="p-1.5 rounded hover:bg-border-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                          title="Rediger"
-                          aria-label="Rediger lokation"
+                          title={t('common:edit')}
+                          aria-label={t('locations.edit')}
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
@@ -244,8 +246,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteTarget(loc); }}
                           className="p-1.5 rounded hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-                          title="Slet"
-                          aria-label="Slet lokation"
+                          title={t('common:delete')}
+                          aria-label={t('locations.delete')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -261,8 +263,8 @@ export function LocationManagerComponent({ isOpen, onClose, onViewItems, canCrea
 
       <ConfirmDialogComponent
         isOpen={!!deleteTarget}
-        title="Slet lokation?"
-        message={`Er du sikker på, at du vil slette "${deleteTarget?.name}"? Items der bruger denne lokation mister deres lokationstilknytning (bliver ikke slettet).`}
+        title={t('locations.deleteTitle')}
+        message={t('locations.deleteMessage', { name: deleteTarget?.name ?? '' })}
         isLoading={isDeleting}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

@@ -1,5 +1,7 @@
 // src/components/dashboard/roles/MatrixRow.tsx
 import { MatrixCell } from './MatrixCell'
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../../i18n/config'
 import { privilegeLabel } from '../../../store/apis/privilegeApi'
 import type { MatrixRowProps } from '../../../types/role/roleType'
 
@@ -8,7 +10,8 @@ import type { MatrixRowProps } from '../../../types/role/roleType'
 // custom-navne (isCustom afgør om omdøb-ikonet vises i cellerne, se
 // MatrixCell.tsx).
 export function MatrixRow({ rowName, isCustom, roles, byRoleAndName, isFullAdmin, protectedAdminRoleIds }: MatrixRowProps) {
-    const label = privilegeLabel(rowName)
+    const { t } = useTranslation(['roles', 'common', 'errors'])
+    const label = privilegeLabel(rowName, asDynamic(t))
 
     return (
         <tr>

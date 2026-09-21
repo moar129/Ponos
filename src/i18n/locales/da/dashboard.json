@@ -1,0 +1,86 @@
+{
+  "title": "Dashboard",
+  "welcome": "Velkommen.",
+  "welcomeNamed": "Velkommen, {{name}}.",
+  "tabs": {
+    "overview": "Oversigt",
+    "organisation": "Organisation",
+    "administration": "Administration"
+  },
+  "overview": {
+    "noOrganisation": "Du har ingen aktiv organisation endnu, så der er intet at vise her.",
+    "goToOrganisation": "Gå til Organisation",
+    "shortcuts": "Genveje",
+    "datalayerDescription": "Se og administrer items, kategorier og lokationer.",
+    "tasksDescription": "Se og administrer organisationens opgaver.",
+    "statisticsDescription": "Se indsigt og statistik for organisationen."
+  },
+  "myTasks": {
+    "title": "Mine opgaver",
+    "goToTasks": "Gå til opgaver",
+    "loading": "Indlæser dine opgaver...",
+    "empty": "Du er ikke tilmeldt nogen opgaver endnu.",
+    "endsOn": "Slut {{date}}"
+  },
+  "notifications": {
+    "title": "Notifikationer",
+    "seeAll": "Se alle",
+    "all": "Alle",
+    "unread": "Ulæst",
+    "loading": "Indlæser notifikationer...",
+    "emptyUnread": "Ingen ulæste notifikationer.",
+    "empty": "Ingen notifikationer endnu.",
+    "justNow": "Lige nu",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} t",
+    "daysAgo": "{{count}} d"
+  },
+  "news": {
+    "title": "Nyheder",
+    "seeAll": "Se alle nyheder",
+    "loading": "Indlæser nyheder...",
+    "empty": "Der er ingen nyheder endnu.",
+    "previous": "Forrige nyhed",
+    "next": "Næste nyhed",
+    "showNews": "Vis nyhed {{number}}"
+  },
+  "comingSoon": "Kommer snart",
+  "administration": {
+    "noPrivileges": "Du har ikke rettigheder til nogen administrative funktioner.",
+    "panels": {
+      "roles": "Roller & privilegier",
+      "members": "Medlemmer og tildel rolle",
+      "invitations": "Invitationer",
+      "membershipRequests": "Medlemsanmodninger",
+      "organisation": "Organisation",
+      "taskApprovals": "Opgavegodkendelser",
+      "completedTasks": "Afsluttede opgaver"
+    }
+  },
+  "completedTasks": {
+    "loading": "Indlæser afsluttede opgaver...",
+    "empty": "Ingen opgaver er markeret som afsluttede endnu.",
+    "searchPlaceholder": "Søg efter titel eller beskrivelse...",
+    "allPriorities": "Alle prioriteter",
+    "noMatch": "Ingen opgaver matcher søgningen/filteret.",
+    "noDescription": "Ingen beskrivelse.",
+    "room": "Rum:",
+    "noRoom": "Intet rum",
+    "period": "Periode:",
+    "unknown": "Ukendt",
+    "assignees": "Tilmeldte:",
+    "noAssignees": "Ingen tilmeldte",
+    "materials": "Materialer:",
+    "noMaterials": "Ingen materialer",
+    "edit": "Rediger",
+    "reopen": "Genåbn",
+    "reopening": "Genåbner..."
+  },
+  "statistics": {
+    "noOrganisation": "Du har ingen aktiv organisation endnu, så der er ingen statistik at vise.",
+    "goToOrganisation": "Gå til Organisation",
+    "title": "Statistik",
+    "description": "Nøgletal og indsigt beregnet ud fra organisationens items og opgaver.",
+    "loading": "Indlæser..."
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "status": {
+    "Started": "Tilgængelig",
+    "InProgress": "I gang",
+    "Completed": "Færdig"
+  },
+  "priority": {
+    "Low": "Lav",
+    "Medium": "Mellem",
+    "High": "Høj",
+    "Critical": "Kritisk"
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beskrivelse",
+    "room": "Rum",
+    "priority": "Prioritet",
+    "maxAssignees": "Antal personer",
+    "startDate": "Startdato",
+    "endDate": "Slutdato"
+  },
+  "page": {
+    "subtitle": "Få overblik over arbejdet, der skal udføres.",
+    "createTask": "Opret opgave",
+    "noAvailableTasks": "Ingen tilgængelige opgaver",
+    "noTasksInProgress": "Ingen opgaver i gang",
+    "roomNamePlaceholder": "Skriv navn på rum",
+    "saveRoom": "Gem rum",
+    "loading": "Henter opgaver...",
+    "noAccess": "Du har ikke adgang til at se opgaver i denne organisation.",
+    "heading": "Opgaver",
+    "createRoom": "Opret rum",
+    "availableHeading": "Opgaver tilgængelige",
+    "inProgressHeading": "I gang"
+  },
+  "rooms": {
+    "create": "Opret rum",
+    "moreActions": "Flere handlinger",
+    "edit": "Rediger rum",
+    "deleteOne": "Slet et rum",
+    "choose": "Vælg rum",
+    "noRoom": "Uden rum"
+  },
+  "create": {
+    "heading": "Opret Opgave",
+    "titlePlaceholder": "Opgavens titel",
+    "descriptionPlaceholder": "Opgavens beskrivelse",
+    "requiresApproval": "Opgaven kræver godkendelse",
+    "noApproval": "Opgaven kræver ikke godkendelse"
+  },
+  "edit": {
+    "heading": "Rediger Opgave",
+    "endBeforeStart": "Slutdatoen må ikke være før startdatoen.",
+    "deleteTask": "Slet opgave",
+    "confirmDelete": "Er du sikker på at du vil slette \"{{name}}\"? Dette kan ikke fortrydes."
+  },
+  "priorityNone": "Ingen prioritet",
+  "assignees": {
+    "noLimit": "Ingen begrænsning",
+    "count_one": "{{count}} person",
+    "count_other": "{{count}} personer",
+    "nobodyAssigned": "Ingen er tildelt endnu.",
+    "unknownUser": "Ukendt bruger",
+    "selfSigned": "Tilmeldt af dig",
+    "assignedByOther": "Tildelt af en anden",
+    "assignedToYou": "Tildelt dig",
+    "addEmployee": "Tilføj medarbejder",
+    "chooseWho": "Vælg hvem der skal tildeles opgaven",
+    "maxReached": "Maksimalt antal medarbejdere er nået.",
+    "noFreeSlots": "Der er ikke flere ledige pladser på opgaven.",
+    "nobodyToAssign": "Der er ingen medarbejdere at tildele.",
+    "signUp": "Tilmeld",
+    "signOff": "Afmeld",
+    "employee": "Medarbejder"
+  },
+  "card": {
+    "noDescription": "Ingen beskrivelse",
+    "requiresApproval": "Kræver godkendelse",
+    "startWork": "Påbegynd arbejde",
+    "awaitingApproval": "Afventer godkendelse",
+    "markDone": "Meld færdig",
+    "priorityBadge": "Prioritet: {{priority}}",
+    "edit": "Rediger",
+    "details": "Opgavedetaljer",
+    "responsible": "Ansvarlige",
+    "start": "Start",
+    "end": "Slut",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Tilføj medarbejder",
+    "created": "Oprettet",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Vis filter",
+    "hide": "Skjul filter",
+    "searchPlaceholder": "Søg opgaver...",
+    "all": "Alle",
+    "sortNewest": "Nyeste",
+    "sortOldest": "Ældste",
+    "sortPriority": "Prioritet",
+    "sortDeadline": "Deadline",
+    "counts": "{{available}} tilgængelige · {{inProgress}} i gang",
+    "sortBy": "Sortér efter"
+  },
+  "deleteRoom": {
+    "heading": "Slet rum",
+    "intro": "Vælg det rum, du vil slette.",
+    "tasksInRoom": "Opgaver i rummet",
+    "chooseTasks": "Vælg de opgaver, der også skal slettes.",
+    "noTasks": "Der er ingen opgaver i dette rum.",
+    "keptNote": "Opgaver, du ikke vælger, bliver ikke slettet. De bliver i stedet flyttet til <b>{{room}}</b>.",
+    "failed": "Kunne ikke slette rummet. Prøv igen.",
+    "deleting": "Sletter...",
+    "submit": "Slet rum"
+  },
+  "editRoom": {
+    "heading": "Rediger rum",
+    "intro": "Vælg et rum og rediger navnet.",
+    "namePlaceholder": "Indtast rumnavn",
+    "failed": "Kunne ikke redigere rummet. Prøv igen."
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "status": {
+    "Started": "Available",
+    "InProgress": "In progress",
+    "Completed": "Done"
+  },
+  "priority": {
+    "Low": "Low",
+    "Medium": "Medium",
+    "High": "High",
+    "Critical": "Critical"
+  },
+  "fields": {
+    "title": "Title",
+    "description": "Description",
+    "room": "Room",
+    "priority": "Priority",
+    "maxAssignees": "Number of people",
+    "startDate": "Start date",
+    "endDate": "End date"
+  },
+  "page": {
+    "subtitle": "Get an overview of the work that needs doing.",
+    "createTask": "Create task",
+    "noAvailableTasks": "No available tasks",
+    "noTasksInProgress": "No tasks in progress",
+    "roomNamePlaceholder": "Enter a room name",
+    "saveRoom": "Save room",
+    "loading": "Loading tasks...",
+    "noAccess": "You do not have access to view tasks in this organisation.",
+    "heading": "Tasks",
+    "createRoom": "Create room",
+    "availableHeading": "Available tasks",
+    "inProgressHeading": "In progress"
+  },
+  "rooms": {
+    "create": "Create room",
+    "moreActions": "More actions",
+    "edit": "Edit room",
+    "deleteOne": "Delete a room",
+    "choose": "Choose room",
+    "noRoom": "No room"
+  },
+  "create": {
+    "heading": "Create task",
+    "titlePlaceholder": "Task title",
+    "descriptionPlaceholder": "Task description",
+    "requiresApproval": "The task requires approval",
+    "noApproval": "The task does not require approval"
+  },
+  "edit": {
+    "heading": "Edit task",
+    "endBeforeStart": "The end date cannot be before the start date.",
+    "deleteTask": "Delete task",
+    "confirmDelete": "Are you sure you want to delete \"{{name}}\"? This cannot be undone."
+  },
+  "priorityNone": "No priority",
+  "assignees": {
+    "noLimit": "No limit",
+    "count_one": "{{count}} person",
+    "count_other": "{{count}} people",
+    "nobodyAssigned": "Nobody has been assigned yet.",
+    "unknownUser": "Unknown user",
+    "selfSigned": "Signed up by you",
+    "assignedByOther": "Assigned by someone else",
+    "assignedToYou": "Assigned to you",
+    "addEmployee": "Add employee",
+    "chooseWho": "Choose who should be assigned the task",
+    "maxReached": "The maximum number of employees has been reached.",
+    "noFreeSlots": "There are no free slots left on the task.",
+    "nobodyToAssign": "There are no employees to assign.",
+    "signUp": "Sign up",
+    "signOff": "Sign off",
+    "employee": "Employee"
+  },
+  "card": {
+    "noDescription": "No description",
+    "requiresApproval": "Requires approval",
+    "startWork": "Start work",
+    "awaitingApproval": "Awaiting approval",
+    "markDone": "Mark as done",
+    "priorityBadge": "Priority: {{priority}}",
+    "edit": "Edit",
+    "details": "Task details",
+    "responsible": "Assigned",
+    "start": "Start",
+    "end": "End",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Add employee",
+    "created": "Created",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Show filter",
+    "hide": "Hide filter",
+    "searchPlaceholder": "Search tasks...",
+    "all": "All",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "sortPriority": "Priority",
+    "sortDeadline": "Deadline",
+    "counts": "{{available}} available · {{inProgress}} in progress",
+    "sortBy": "Sort by"
+  },
+  "deleteRoom": {
+    "heading": "Delete room",
+    "intro": "Choose the room you want to delete.",
+    "tasksInRoom": "Tasks in the room",
+    "chooseTasks": "Choose the tasks that should be deleted as well.",
+    "noTasks": "There are no tasks in this room.",
+    "keptNote": "Tasks you do not select are not deleted. They are moved to <b>{{room}}</b> instead.",
+    "failed": "Could not delete the room. Please try again.",
+    "deleting": "Deleting...",
+    "submit": "Delete room"
+  },
+  "editRoom": {
+    "heading": "Edit room",
+    "intro": "Choose a room and edit its name.",
+    "namePlaceholder": "Enter a room name",
+    "failed": "Could not edit the room. Please try again."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "create": "Create news item",
+  "edit": "Edit news item",
+  "delete": "Delete news item",
+  "notFound": "The news item was not found.",
+  "backToNews": "Back to news",
+  "readFullArticle": "Read the full article",
+  "form": {
+    "descriptionPlaceholder": "Write the news item here...",
+    "tooLong": "The description is too long (max. {{max}} characters).",
+    "urlHint": "Shown as \"Read the full article\" at the bottom of the news item.",
+    "pictureUrlLabel": "Image URL (optional)",
+    "urlLabel": "Link to the original article (optional)"
+  },
+  "editor": {
+    "typography": "Typography",
+    "normal": "Normal",
+    "heading": "Heading",
+    "subheading": "Subheading",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "bulletList": "Bulleted list",
+    "numberedList": "Numbered list",
+    "outdent": "Decrease indent",
+    "indent": "Increase indent",
+    "insertLink": "Insert link",
+    "linkTextPlaceholder": "Text to display",
+    "linkTextLabel": "Link text",
+    "linkUrlLabel": "Link address",
+    "insert": "Insert",
+    "cancelLink": "Cancel link"
+  },
+  "heading": "News",
+  "loading": "Loading news...",
+  "loadingOne": "Loading news item...",
+  "noAccess": "You do not have access to view news in this organisation.",
+  "empty": "There is no news yet.",
+  "deleteTitle": "Delete \"{{name}}\"?"
+}

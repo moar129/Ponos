@@ -1,3 +1,5 @@
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
 import {
     useCreateTaskMutation,
@@ -12,26 +14,13 @@ interface CreateTaskModalProps {
     selectedRoomId: string | null;
 }
 
-function readableError(err: unknown): string | null {
-    if (!err) return null;
-
-    if (
-        typeof err === 'object' &&
-        err !== null &&
-        'error' in err &&
-        typeof err.error === 'string'
-    ) {
-        return err.error;
-    }
-
-    return 'Noget gik galt. Prøv igen.';
-}
 
 export function CreateTaskModal({
     isOpen,
     onClose,
     selectedRoomId,
 }: CreateTaskModalProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const today = new Date().toISOString().split('T')[0];
 
     const [title, setTitle] = useState('');
@@ -89,7 +78,7 @@ export function CreateTaskModal({
             <div className="w-full max-w-lg rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800">
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
-                        Opret Opgave
+                        {t('create.heading')}
                     </h2>
 
                     <button
@@ -114,7 +103,7 @@ export function CreateTaskModal({
                             htmlFor="task-title"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Titel
+                            {t('common:title')}
                         </label>
 
                         <input
@@ -122,7 +111,7 @@ export function CreateTaskModal({
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Opgavens titel"
+                            placeholder={t('create.titlePlaceholder')}
                             className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-primary outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     </div>
@@ -133,14 +122,14 @@ export function CreateTaskModal({
                             htmlFor="task-description"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Beskrivelse
+                            {t('common:description')}
                         </label>
 
                         <textarea
                             id="task-description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Opgavens beskrivelse"
+                            placeholder={t('create.descriptionPlaceholder')}
                             rows={5}
                             className="w-full resize-y break-words rounded-lg border border-border-gray bg-white px-3 py-2 text-primary outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
@@ -152,7 +141,7 @@ export function CreateTaskModal({
                             htmlFor="task-room"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Rum
+                            {t('fields.room')}
                         </label>
 
                         <select
@@ -163,7 +152,7 @@ export function CreateTaskModal({
                             }
                             className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-primary outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Vælg rum</option>
+                            <option value="">{t('rooms.choose')}</option>
 
                             {rooms.map((room) => (
                                 <option key={room.id} value={room.id}>
@@ -181,7 +170,7 @@ export function CreateTaskModal({
                                 htmlFor="task-start-date"
                                 className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                             >
-                                Startdato
+                                {t('fields.startDate')}
                             </label>
 
                             <input
@@ -199,7 +188,7 @@ export function CreateTaskModal({
                                 htmlFor="task-end-date"
                                 className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                             >
-                                Slutdato
+                                {t('fields.endDate')}
                             </label>
 
                             <input
@@ -219,7 +208,7 @@ export function CreateTaskModal({
                             htmlFor="task-priority"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Prioritet
+                            {t('fields.priority')}
                         </label>
 
                         <select
@@ -234,11 +223,11 @@ export function CreateTaskModal({
                             }
                             className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-primary outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Ingen prioritet</option>
-                            <option value="Low">Lav</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">Høj</option>
-                            <option value="Critical">Kritisk</option>
+                            <option value="">{t('priorityNone')}</option>
+                            <option value="Low">{t('priority.Low')}</option>
+                            <option value="Medium">{t('priority.Medium')}</option>
+                            <option value="High">{t('priority.High')}</option>
+                            <option value="Critical">{t('priority.Critical')}</option>
                         </select>
                     </div>
 
@@ -248,7 +237,7 @@ export function CreateTaskModal({
                             htmlFor="task-max-assignees"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Antal personer
+                            {t('fields.maxAssignees')}
                         </label>
 
                         <select
@@ -263,13 +252,13 @@ export function CreateTaskModal({
                             }
                             className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-primary outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Ingen begrænsning</option>
-                            <option value="1">1 person</option>
-                            <option value="2">2 personer</option>
-                            <option value="3">3 personer</option>
-                            <option value="4">4 personer</option>
-                            <option value="5">5 personer</option>
-                            <option value="10">10 personer</option>
+                            <option value="">{t('assignees.noLimit')}</option>
+                            <option value="1">{t('assignees.count', { count: 1 })}</option>
+                            <option value="2">{t('assignees.count', { count: 2 })}</option>
+                            <option value="3">{t('assignees.count', { count: 3 })}</option>
+                            <option value="4">{t('assignees.count', { count: 4 })}</option>
+                            <option value="5">{t('assignees.count', { count: 5 })}</option>
+                            <option value="10">{t('assignees.count', { count: 10 })}</option>
                         </select>
                     </div>
 
@@ -278,8 +267,8 @@ export function CreateTaskModal({
                         <div className="flex items-center justify-between rounded-lg border border-border-gray bg-bg-gray px-4 py-3 dark:border-slate-700 dark:bg-slate-700">
                             <p className="text-sm font-medium text-primary dark:text-slate-100">
                                 {requiresApproval
-                                    ? 'Opgaven kræver godkendelse'
-                                    : 'Opgaven kræver ikke godkendelse'}
+                                    ? t('create.requiresApproval')
+                                    : t('create.noApproval')}
                             </p>
 
                             <button
@@ -312,7 +301,7 @@ export function CreateTaskModal({
                         onClick={onClose}
                         className="rounded-lg px-4 py-2 text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
 
                     <button
@@ -321,7 +310,7 @@ export function CreateTaskModal({
                         disabled={isLoading}
                         className="rounded-lg bg-accent px-4 py-2 text-white transition-colors hover:bg-accent-hover disabled:opacity-60"
                     >
-                        Opret Opgave
+                        {t('create.heading')}
                     </button>
                 </div>
             </div>

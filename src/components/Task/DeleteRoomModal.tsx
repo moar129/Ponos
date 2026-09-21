@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next'
 import {
     useDeleteRoomMutation,
     useGetTasksQuery,
@@ -16,6 +17,7 @@ export function DeleteRoomModal({
     onClose,
     rooms,
 }: DeleteRoomModalProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
 
@@ -77,11 +79,11 @@ export function DeleteRoomModal({
                 <div className="mb-6 flex items-start justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-primary dark:text-slate-100">
-                            Slet rum
+                            {t('deleteRoom.heading')}
                         </h2>
 
                         <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                            Vælg det rum, du vil slette.
+                            {t('deleteRoom.intro')}
                         </p>
                     </div>
 
@@ -103,7 +105,7 @@ export function DeleteRoomModal({
                             htmlFor="delete-room-select"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Vælg rum
+                            {t('rooms.choose')}
                         </label>
 
                         <select
@@ -114,7 +116,7 @@ export function DeleteRoomModal({
                             }
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Vælg rum</option>
+                            <option value="">{t('rooms.choose')}</option>
 
                             {rooms.map((room) => (
                                 <option key={room.id} value={room.id}>
@@ -130,16 +132,16 @@ export function DeleteRoomModal({
                             <div className="mb-2 flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-secondary dark:text-slate-400">
-                                        Opgaver i rummet
+                                        {t('deleteRoom.tasksInRoom')}
                                     </p>
 
                                     <p className="text-xs text-secondary dark:text-slate-400">
-                                        Vælg de opgaver, der også skal slettes.
+                                        {t('deleteRoom.chooseTasks')}
                                     </p>
                                 </div>
 
                                 <span className="text-xs font-medium text-secondary dark:text-slate-400">
-                                    {selectedTaskIds.length} valgt
+                                    {t('common:selectedCount', { count: selectedTaskIds.length })}
                                 </span>
                             </div>
 
@@ -185,7 +187,7 @@ export function DeleteRoomModal({
                             ) : (
                                 <div className="rounded-lg bg-bg-gray/40 p-4 dark:bg-slate-900/40">
                                     <p className="text-sm text-secondary dark:text-slate-400">
-                                        Der er ingen opgaver i dette rum.
+                                        {t('deleteRoom.noTasks')}
                                     </p>
                                 </div>
                             )}
@@ -193,9 +195,7 @@ export function DeleteRoomModal({
                             {/* INFO */}
                             {roomTasks.length > 0 && (
                                 <p className="mt-3 text-xs text-secondary dark:text-slate-400">
-                                    Opgaver, du ikke vælger, bliver ikke slettet.
-                                    De bliver i stedet flyttet til{' '}
-                                    <strong>Uden rum</strong>.
+                                    <Trans ns="tasks" i18nKey="deleteRoom.keptNote" values={{ room: t('rooms.noRoom') }} components={{ b: <strong /> }} />
                                 </p>
                             )}
                         </div>
@@ -204,7 +204,7 @@ export function DeleteRoomModal({
                     {/* FEJL */}
                     {isError && (
                         <p className="text-sm text-red-700 dark:text-red-400">
-                            Kunne ikke slette rummet. Prøv igen.
+                            {t('deleteRoom.failed')}
                         </p>
                     )}
                 </div>
@@ -217,7 +217,7 @@ export function DeleteRoomModal({
                         disabled={isLoading || !selectedRoomId}
                         className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isLoading ? 'Sletter...' : 'Slet rum'}
+                        {isLoading ? t('deleteRoom.deleting') : t('deleteRoom.submit')}
                     </button>
 
                     <button
@@ -225,7 +225,7 @@ export function DeleteRoomModal({
                         onClick={onClose}
                         className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
                     >
-                        Luk
+                        {t('common:close')}
                     </button>
                 </div>
             </div>

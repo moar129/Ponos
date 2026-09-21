@@ -1,0 +1,30 @@
+{
+  "loading": "Indlæser profil...",
+  "notFound": "Din profil kunne ikke findes.",
+  "saved": "Dine oplysninger er gemt.",
+  "nameRequired": "Fornavn og efternavn skal udfyldes.",
+  "fields": {
+    "firstName": "Fornavn",
+    "lastName": "Efternavn",
+    "email": "E-mail",
+    "organisation": "Organisation",
+    "role": "Rolle",
+    "description": "Beskrivelse",
+    "pictureUrl": "Profilbillede (URL)"
+  },
+  "empty": {
+    "organisation": "Ingen organisation",
+    "role": "Ingen rolle tildelt",
+    "description": "Ingen beskrivelse"
+  },
+  "readOnlyNote": "E-mail, rolle og organisation kan ikke ændres her. Kontakt din administrator.",
+  "saveChanges": "Gem ændringer",
+  "editProfile": "Rediger profil",
+  "logout": "Log ud",
+  "loggingOut": "Logger ud...",
+  "passwordHeading": "Adgangskode",
+  "preferences": {
+    "title": "Visning",
+    "hint": "Sprog og tema gemmes i denne browser og gælder kun på denne enhed."
+  }
+}

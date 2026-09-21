@@ -1,5 +1,6 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -51,6 +52,7 @@ interface SubTabDef {
 // status, uafhængigt af privilegier (se OrganisationAdminPanel.tsx),
 // så admin skal altid kunne nå frem til den, uanset privilegie-opsætning.
 export function AdministrationTab() {
+    const { t } = useTranslation('dashboard')
     const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
         CREATE_ROLES_PRIVILEGE,
         READ_ROLES_PRIVILEGE,
@@ -80,19 +82,19 @@ export function AdministrationTab() {
     const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
 
     const tabs: SubTabDef[] = []
-    if (canSeeRolesDomain) tabs.push({ key: 'roles', label: 'Roller & privilegier', icon: KeyRound })
+    if (canSeeRolesDomain) tabs.push({ key: 'roles', label: t('administration.panels.roles'), icon: KeyRound })
     // "Medlemmer & roller" viser rolle-tildeling (update_roles) og/eller
     // "Fjern" (delete_members) - fanen er synlig hvis mindst én af de to
     // er til stede, panelet selv gater hver kontrol uafhængigt (US-66).
     // Navnet er bevidst udvidet (2026-09-17, bruger-feedback): "Medlemmer"
     // alene afslørede ikke at rolletildeling foregår her, ikke under
     // "Roller & privilegier".
-    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: 'Medlemmer og tildel rolle', icon: Users })
-    if (canManageInvitations) tabs.push({ key: 'invitations', label: 'Invitationer', icon: Send })
-    if (canManageMembershipRequests) tabs.push({ key: 'requests', label: 'Medlemsanmodninger', icon: UserPlus })
-    if (canManageOrganisation || isOrgAdmin) tabs.push({ key: 'organisation', label: 'Organisation', icon: Building2 })
-    if (canSeeTaskApprovals) tabs.push({ key: 'taskApprovals', label: 'Opgavegodkendelser', icon: ClipboardCheck })
-    if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: 'Afsluttede opgaver', icon: CheckCircle2 })
+    if (canAssignRoles || canManageMembers) tabs.push({ key: 'members', label: t('administration.panels.members'), icon: Users })
+    if (canManageInvitations) tabs.push({ key: 'invitations', label: t('administration.panels.invitations'), icon: Send })
+    if (canManageMembershipRequests) tabs.push({ key: 'requests', label: t('administration.panels.membershipRequests'), icon: UserPlus })
+    if (canManageOrganisation || isOrgAdmin) tabs.push({ key: 'organisation', label: t('administration.panels.organisation'), icon: Building2 })
+    if (canSeeTaskApprovals) tabs.push({ key: 'taskApprovals', label: t('administration.panels.taskApprovals'), icon: ClipboardCheck })
+    if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: t('administration.panels.completedTasks'), icon: CheckCircle2 })
 
     const [selectedSubTab, setSelectedSubTab] = useState<AdminSubTab | null>(null)
 
@@ -105,7 +107,7 @@ export function AdministrationTab() {
         : (tabs[0]?.key ?? null)
 
     if (tabs.length === 0) {
-        return <p className="text-secondary dark:text-slate-400">Du har ikke rettigheder til nogen administrative funktioner.</p>
+        return <p className="text-secondary dark:text-slate-400">{t('administration.noPrivileges')}</p>
     }
 
     // Samme layout-mønster som DataLayerPage.tsx (Kategorier/Items-splittet):

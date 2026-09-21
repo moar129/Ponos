@@ -1,10 +1,12 @@
 // src/components/News/NewsFormModal.tsx
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import { useCreateNewsMutation, useUpdateNewsMutation } from '../../store/apis/newsApi'
 import { RichTextEditor } from '../TextEditor/RichTextEditor'
 import { isEmptyRichText, plainTextToRichText, richTextToPlainText, sanitizeRichText } from '../../lib/richText'
+import { formatNumber } from '../../utils/formatDate'
 import type { NewsFormModalProps } from '../../types/news/newsType'
 
 // Blødt loft, kun for at fange et utilsigtet indsat kæmpedokument -
@@ -25,6 +27,7 @@ const emptyForm: FormState = { title: '', description: '', pictureUrl: '', url: 
 // modaler i appen, fx EditTaskModal/CreateTaskModal er adskilt, men her
 // er felterne identiske nok til at dele én komponent).
 export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalProps) {
+  const { t } = useTranslation(['news', 'common', 'errors'])
     const [createNews, { isLoading: creating, error: createError }] = useCreateNewsMutation()
     const [updateNews, { isLoading: updating, error: updateError }] = useUpdateNewsMutation()
 
@@ -62,13 +65,13 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
         e.preventDefault()
 
         if (!form.title.trim()) {
-            setValidationError('Nyhedens titel skal udfyldes.')
+            setValidationError(t('errors:required.newsTitle'))
             return
         }
 
         const isDescriptionEmpty = isEmptyRichText(form.description)
         if (!isDescriptionEmpty && richTextToPlainText(form.description).length > MAX_DESCRIPTION_LENGTH) {
-            setValidationError(`Beskrivelsen er for lang (maks. ${MAX_DESCRIPTION_LENGTH.toLocaleString('da-DK')} tegn).`)
+            setValidationError(t('form.tooLong', { max: formatNumber(MAX_DESCRIPTION_LENGTH) }))
             return
         }
         setValidationError(null)
@@ -98,14 +101,14 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                 <button
                     type="button"
                     onClick={onClose}
-                    aria-label="Luk"
+                    aria-label={t('common:close')}
                     className="absolute right-4 top-4 text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 p-1 rounded-md hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
                 <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
-                    {editingNews ? 'Rediger nyhed' : 'Opret nyhed'}
+                    {editingNews ? t('edit') : t('create')}
                 </h2>
 
                 {errorMessage && (
@@ -116,7 +119,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-title">Titel</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-title">{t('common:title')}</label>
                         <input
                             id="news-title"
                             type="text"
@@ -127,17 +130,17 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-description">Beskrivelse</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-description">{t('common:description')}</label>
                         <RichTextEditor
                             id="news-description"
                             value={form.description}
                             onChange={(html) => setForm((f) => ({ ...f, description: html }))}
-                            placeholder="Skriv nyheden her..."
+                            placeholder={t('form.descriptionPlaceholder')}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-picture">Billed-URL (valgfri)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-picture">{t('form.pictureUrlLabel')}</label>
                         <input
                             id="news-picture"
                             type="text"
@@ -149,7 +152,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                     </div>
 
                     <div>
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-url">Link til oprindelig artikel (valgfri)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="news-url">{t('form.urlLabel')}</label>
                         <input
                             id="news-url"
                             type="text"
@@ -158,7 +161,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                             placeholder="https://..."
                             className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                         />
-                        <p className="text-xs text-secondary dark:text-slate-400 mt-1">Vises som "Læs hele artiklen" nederst på nyheden.</p>
+                        <p className="text-xs text-secondary dark:text-slate-400 mt-1">{t('form.urlHint')}</p>
                     </div>
 
                     <div className="flex gap-3 pt-2">
@@ -167,7 +170,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                             disabled={isSaving}
                             className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
-                            {isSaving ? 'Gemmer...' : 'Gem'}
+                            {isSaving ? t('common:saving') : t('common:save')}
                         </button>
                         <button
                             type="button"
@@ -175,7 +178,7 @@ export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalPro
                             disabled={isSaving}
                             className="rounded-md border border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-800 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-border-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
-                            Annuller
+                            {t('common:cancel')}
                         </button>
                     </div>
                 </form>

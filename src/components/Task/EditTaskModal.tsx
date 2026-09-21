@@ -1,3 +1,5 @@
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
 import {
     useDeleteTaskMutation,
@@ -14,20 +16,6 @@ interface EditTaskModalProps {
     canDelete: boolean;
 }
 
-function readableError(err: unknown): string | null {
-    if (!err) return null;
-
-    if (
-        typeof err === 'object' &&
-        err !== null &&
-        'error' in err &&
-        typeof err.error === 'string'
-    ) {
-        return err.error;
-    }
-
-    return 'Noget gik galt. Prøv igen.';
-}
 
 export function EditTaskModal({
     isOpen,
@@ -36,6 +24,7 @@ export function EditTaskModal({
     canUpdate,
     canDelete,
 }: EditTaskModalProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const today = new Date().toISOString().split('T')[0];
 
     const [dateError, setDateError] = useState<string | null>(null);
@@ -109,7 +98,7 @@ export function EditTaskModal({
         // Slutdato må ikke være før startdato
         if (startDate && endDate && endDate < startDate) {
             setDateError(
-                'Slutdatoen må ikke være før startdatoen.'
+                t('edit.endBeforeStart')
             );
             return;
         }
@@ -142,7 +131,7 @@ export function EditTaskModal({
                 {/* HEADER */}
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
-                        Rediger Opgave
+                        {t('edit.heading')}
                     </h2>
 
                     <button
@@ -169,7 +158,7 @@ export function EditTaskModal({
                             htmlFor="edit-task-title"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Titel
+                            {t('common:title')}
                         </label>
 
                         <input
@@ -187,7 +176,7 @@ export function EditTaskModal({
                             htmlFor="edit-task-description"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Beskrivelse
+                            {t('common:description')}
                         </label>
 
                         <textarea
@@ -215,7 +204,7 @@ export function EditTaskModal({
                                 htmlFor="edit-task-start-date"
                                 className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                             >
-                                Startdato
+                                {t('fields.startDate')}
                             </label>
 
                             <input
@@ -233,7 +222,7 @@ export function EditTaskModal({
                                 htmlFor="edit-task-end-date"
                                 className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                             >
-                                Slutdato
+                                {t('fields.endDate')}
                             </label>
 
                             <input
@@ -256,7 +245,7 @@ export function EditTaskModal({
                             htmlFor="edit-task-priority"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Prioritet
+                            {t('fields.priority')}
                         </label>
 
                         <select
@@ -271,11 +260,11 @@ export function EditTaskModal({
                             }
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
-                            <option value="">Ingen prioritet</option>
-                            <option value="Low">Lav</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">Høj</option>
-                            <option value="Critical">Kritisk</option>
+                            <option value="">{t('priorityNone')}</option>
+                            <option value="Low">{t('priority.Low')}</option>
+                            <option value="Medium">{t('priority.Medium')}</option>
+                            <option value="High">{t('priority.High')}</option>
+                            <option value="Critical">{t('priority.Critical')}</option>
                         </select>
                     </div>
 
@@ -285,7 +274,7 @@ export function EditTaskModal({
                             htmlFor="edit-task-max-assignees"
                             className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
                         >
-                            Antal personer
+                            {t('fields.maxAssignees')}
                         </label>
 
                         <select
@@ -301,14 +290,14 @@ export function EditTaskModal({
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
                             <option value="">
-                                Ingen begrænsning
+                                {t('assignees.noLimit')}
                             </option>
-                            <option value="1">1 person</option>
-                            <option value="2">2 personer</option>
-                            <option value="3">3 personer</option>
-                            <option value="4">4 personer</option>
-                            <option value="5">5 personer</option>
-                            <option value="10">10 personer</option>
+                            <option value="1">{t('assignees.count', { count: 1 })}</option>
+                            <option value="2">{t('assignees.count', { count: 2 })}</option>
+                            <option value="3">{t('assignees.count', { count: 3 })}</option>
+                            <option value="4">{t('assignees.count', { count: 4 })}</option>
+                            <option value="5">{t('assignees.count', { count: 5 })}</option>
+                            <option value="10">{t('assignees.count', { count: 10 })}</option>
                         </select>
                     </div>
 
@@ -323,7 +312,7 @@ export function EditTaskModal({
                             disabled={isLoading || !title.trim() || !canUpdate}
                             className="rounded-lg bg-accent px-4 py-2 text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
-                            {isLoading ? 'Gemmer...' : 'Gem ændringer'}
+                            {isLoading ? t('common:saving') : t('common:save')}
                         </button>
                     </div>
 
@@ -333,7 +322,7 @@ export function EditTaskModal({
                             onClick={() => setIsConfirmingDelete(true)}
                             className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                         >
-                            Slet opgave
+                            {t('edit.deleteTask')}
                         </button>
                     )}
                 </div>
@@ -342,7 +331,7 @@ export function EditTaskModal({
                 {isConfirmingDelete && (
                     <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 dark:bg-red-900/30 dark:border-red-800">
                         <p className="mb-3 text-sm text-red-700 dark:text-red-400">
-                            Er du sikker på at du vil slette "{task.title}"? Dette kan ikke fortrydes.
+                            {t('edit.confirmDelete', { name: task.title })}
                         </p>
 
                         {deleteErrorMessage && (
@@ -356,7 +345,7 @@ export function EditTaskModal({
                                 disabled={isDeleting}
                                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-60"
                             >
-                                {isDeleting ? 'Sletter...' : 'Ja, slet'}
+                                {isDeleting ? t('common:deleting') : t('common:confirmDeleteYes')}
                             </button>
 
                             <button
@@ -365,7 +354,7 @@ export function EditTaskModal({
                                 disabled={isDeleting}
                                 className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-border-gray transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >
-                                Annuller
+                                {t('common:cancel')}
                             </button>
                         </div>
                     </div>

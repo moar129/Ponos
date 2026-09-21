@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { MoreHorizontal } from 'lucide-react';
 import type { RoomBarProps } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
@@ -14,6 +15,7 @@ export function RoomBar({
     canDelete,
     
 }: RoomBarProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditRoomOpen, setIsEditRoomOpen] = useState(false);
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
@@ -49,7 +51,7 @@ export function RoomBar({
                                 }
                             `}
                         >
-                            Alle
+                            {t('common:all')}
                         </button>
 
                         {rooms.map((room) => (
@@ -75,7 +77,7 @@ export function RoomBar({
                             <button
                                 onClick={onAddRoom}
                                 className="px-4 py-3 text-lg text-secondary hover:text-primary transition dark:text-slate-400 dark:hover:text-slate-100"
-                                title="Opret rum"
+                                title={t('rooms.create')}
                             >
                                 +
                             </button>
@@ -89,7 +91,7 @@ export function RoomBar({
                                 type="button"
                                 onClick={() => setIsMenuOpen((open) => !open)}
                                 className="rounded-lg p-2 text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-                                aria-label="Flere handlinger"
+                                aria-label={t('rooms.moreActions')}
                             >
                                 <MoreHorizontal size={22} />
                             </button>
@@ -105,7 +107,7 @@ export function RoomBar({
                                             }}
                                             className="w-full px-4 py-2 text-left text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                                         >
-                                            Rediger rum
+                                            {t('rooms.edit')}
                                         </button>
                                     )}
 
@@ -118,7 +120,7 @@ export function RoomBar({
                                             }}
                                             className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
                                         >
-                                            Slet et rum
+                                            {t('rooms.deleteOne')}
                                         </button>
                                     )}
                                 </div>

@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { Send } from 'lucide-react';
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function MessageInputComponent({ onSend, disabled = false }: Props) {
+  const { t } = useTranslation(['messages', 'common'])
   const [content, setContent] = useState('');
   const [isSending, setIsSending] = useState(false);
 
@@ -36,7 +38,7 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
         rows={1}
         value={content}
         onChange={(event) => setContent(event.target.value)}
-        placeholder="Skriv en besked..."
+        placeholder={t('inputPlaceholder')}
         disabled={disabled || isSending}
         onKeyDown={(event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
@@ -53,7 +55,7 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
         className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-primary transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Send className="h-4 w-4" />
-        {isSending ? 'Sender...' : 'Send'}
+        {isSending ? t('common:sending') : t('common:send')}
       </button>
     </form>
   );

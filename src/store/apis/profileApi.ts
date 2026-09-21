@@ -102,7 +102,7 @@ export const profileApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Du skal være logget ind for at redigere din profil.',
+                            error: 'errors:loginRequiredForProfile',
                         },
                     }
                 }

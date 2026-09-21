@@ -1,5 +1,7 @@
 // pages/notifications/NotificationsPage.tsx
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
 import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
@@ -9,18 +11,12 @@ import {
   useUndismissNotificationMutation,
 } from '../../store/apis/notificationApi';
 import type { AppNotification } from '../../types/notification/notificationTypes';
+import { formatNumericDateTime } from '../../utils/formatDate';
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString('da-DK', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 export default function NotificationsPage() {
+  const { t } = useTranslation(['notifications', 'common'])
+  const td = asDynamic(t)
   const navigate = useNavigate();
   // onlyVisible: false - denne side viser ALT, inklusiv skjulte, så
   // brugeren kan finde og evt. rigtigt slette dem eller gøre dem synlige
@@ -65,7 +61,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border-gray dark:border-slate-700">
         <div className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-accent" />
-          <h1 className="text-lg font-semibold text-primary dark:text-slate-100">Notifikationer</h1>
+          <h1 className="text-lg font-semibold text-primary dark:text-slate-100">{t('title')}</h1>
         </div>
         {unreadCount > 0 && (
           <button
@@ -75,7 +71,7 @@ export default function NotificationsPage() {
             className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
           >
             <CheckCheck className="w-4 h-4" />
-            Markér alle som læst
+            {t('markAllRead')}
           </button>
         )}
       </div>
@@ -91,7 +87,7 @@ export default function NotificationsPage() {
       ) : notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center text-secondary px-4 dark:text-slate-400">
           <Bell className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-          <p className="text-sm">Ingen notifikationer endnu.</p>
+          <p className="text-sm">{t('empty')}</p>
         </div>
       ) : (
         <ul className="divide-y divide-border-gray dark:divide-slate-700">
@@ -117,17 +113,17 @@ export default function NotificationsPage() {
                       {!notification.isRead && !isDismissed && (
                         <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                       )}
-                      <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{notification.title}</p>
+                      <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{td(`notifications:type.${notification.type}`)}</p>
                       {isDismissed && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary shrink-0 dark:bg-slate-700 dark:text-slate-400">
-                          Skjult
+                          {t('hidden')}
                         </span>
                       )}
                     </div>
                     {notification.body && (
                       <p className="text-sm text-secondary mt-1 line-clamp-2 dark:text-slate-400">{notification.body}</p>
                     )}
-                    <p className="text-xs text-secondary mt-1.5 dark:text-slate-400">{formatDate(notification.createdAt)}</p>
+                    <p className="text-xs text-secondary mt-1.5 dark:text-slate-400">{formatNumericDateTime(notification.createdAt)}</p>
                   </button>
 
                   <div className="flex items-center gap-1 shrink-0">
@@ -136,8 +132,8 @@ export default function NotificationsPage() {
                         type="button"
                         onClick={(e) => handleUndismiss(e, notification.id)}
                         className="p-2 rounded-lg hover:bg-bg-gray text-secondary hover:text-primary transition-colors dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                        title="Vis i klokken igen"
-                        aria-label="Vis i klokken igen"
+                        title={t('unhide')}
+                        aria-label={t('unhide')}
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -157,8 +153,8 @@ export default function NotificationsPage() {
                       type="button"
                       onClick={(e) => handleDelete(e, notification.id)}
                       className="p-2 rounded-lg hover:bg-red-500/10 text-secondary hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:text-red-400"
-                      title="Slet permanent"
-                      aria-label="Slet notifikation permanent"
+                      title={t('deletePermanently')}
+                      aria-label={t('deleteAriaLabel')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

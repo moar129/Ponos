@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 
 export default function SignUp() {
+    const { t } = useTranslation('auth')
     const navigate = useNavigate()
 
     // Formfelter: brugerens input
@@ -25,17 +27,17 @@ export default function SignUp() {
     // password-længde, og at password/confirmPassword matcher.
     function validate(): string | null {
         if (!firstName.trim() || !lastName.trim()) {
-            return 'Fornavn og efternavn skal udfyldes.'
+            return t('signup.nameRequired')
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(email.trim())) {
-            return 'Indtast en gyldig e-mailadresse.'
+            return t('signup.invalidEmail')
         }
         if (password.length < 6) {
-            return 'Adgangskoden skal være mindst 6 tegn.'
+            return t('validation.passwordTooShort')
         }
         if (password !== confirmPassword) {
-            return 'Adgangskoderne matcher ikke.'
+            return t('validation.passwordsDoNotMatch')
         }
         return null
     }
@@ -73,9 +75,9 @@ export default function SignUp() {
             // Specifik besked hvis emailen allerede er i brug (Supabase's
             // fejltekst tjekkes case-insensitivt), ellers en generisk fejl.
             if (signUpError.message.toLowerCase().includes('already registered')) {
-                setError('Der findes allerede en konto med denne e-mail.')
+                setError(t('signup.emailTaken'))
             } else {
-                setError('Noget gik galt: ' + signUpError.message)
+                setError(t('signup.genericError', { message: signUpError.message }))
             }
             return
         }
@@ -84,7 +86,7 @@ export default function SignUp() {
         // session med det samme - brugeren skal først bekræfte sin email.
         // Vi sender dem til login-siden med en besked om at tjekke deres mail.
         if (!data.session) {
-            alert('Tjek din e-mail for at bekræfte din konto, før du kan logge ind.')
+            alert(t('signup.confirmEmail'))
             navigate('/login')
             return
         }
@@ -97,7 +99,7 @@ export default function SignUp() {
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">Opret konto</h1>
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">{t('signup.title')}</h1>
 
                 {/* Fejlbesked vises kun hvis error er sat */}
                 {error && (
@@ -107,7 +109,7 @@ export default function SignUp() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
                     <input
                         id="firstName"
                         type="text"
@@ -118,7 +120,7 @@ export default function SignUp() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
                     <input
                         id="lastName"
                         type="text"
@@ -129,7 +131,7 @@ export default function SignUp() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
                     <input
                         id="email"
                         type="email"
@@ -140,7 +142,7 @@ export default function SignUp() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
                     <input
                         id="password"
                         type="password"
@@ -151,7 +153,7 @@ export default function SignUp() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">Gentag adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatPassword')}</label>
                     <input
                         id="confirmPassword"
                         type="password"
@@ -166,12 +168,12 @@ export default function SignUp() {
                     disabled={loading}
                     className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {loading ? 'Opretter konto...' : 'Opret konto'}
+                    {loading ? t('signup.submitting') : t('signup.submit')}
                 </button>
 
                 {/* Link til login-siden - ruten "/login" matcher Login.tsx */}
                 <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    Har du allerede en konto? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
+                    {t('signup.haveAccount')} <Link to="/login" className="text-accent hover:underline">{t('signup.loginLink')}</Link>
                 </p>
             </form>
         </div>

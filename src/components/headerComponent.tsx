@@ -25,6 +25,8 @@ import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
 import { useTheme } from '../store/hooks/useTheme';
+import { LanguageSelector } from './common/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const navigate = useNavigate();
@@ -54,6 +56,8 @@ export function Header() {
   const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
   const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE);
+
+  const { t } = useTranslation(['nav', 'common']);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -148,7 +152,7 @@ export function Header() {
           <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
             <NavLink to="/dashboard" className={getNavLinkClass}>
               <LayoutDashboard className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-              <span>Dashboard</span>
+              <span>{t('links.dashboard')}</span>
             </NavLink>
 
             {hasOrganisation && (
@@ -156,31 +160,31 @@ export function Header() {
                 {canReadTasks && (
                   <NavLink to="/tasks" className={getNavLinkClass}>
                     <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>Opgaver</span>
+                    <span>{t('links.tasks')}</span>
                   </NavLink>
                 )}
 
                 <NavLink to="/statistik" className={getNavLinkClass}>
                   <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Statistik</span>
+                  <span>{t('links.statistics')}</span>
                 </NavLink>
 
                 {canReadDatalayer && (
                   <NavLink to="/datalager" className={getNavLinkClass}>
                     <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>Datalager</span>
+                    <span>{t('links.datalayer')}</span>
                   </NavLink>
                 )}
 
                 {canReadNews && (
                   <NavLink to="/nyheder" className={getNavLinkClass}>
                     <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>Nyheder</span>
+                    <span>{t('links.news')}</span>
                   </NavLink>
                 )}
                 <NavLink to="/beskeder" className={getNavLinkClass}>
                   <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>Beskeder</span>
+                  <span>{t('links.messages')}</span>
                 </NavLink>
               </>
             )}
@@ -193,12 +197,12 @@ export function Header() {
             <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
               <NavLink to="/" className={getNavLinkClass}>
                 <Home className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                <span>Forside</span>
+                <span>{t('links.home')}</span>
               </NavLink>
 
               <NavLink to="/login" className={getNavLinkClass}>
                 <LogIn className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                <span>Log ind</span>
+                <span>{t('links.login')}</span>
               </NavLink>
             </nav>
           )
@@ -235,10 +239,10 @@ export function Header() {
                   />
                   <div className="hidden 2xl:flex flex-col text-left">
                     <span className="text-sm font-semibold leading-tight">
-                      {profile ? `${profile.firstName} ${profile.lastName}` : 'Bruger'}
+                      {profile ? `${profile.firstName} ${profile.lastName}` : t('user.fallbackName')}
                     </span>
                     <span className="text-xs text-slate-300">
-                      {profile?.roleName ?? 'Ingen rolle'}
+                      {profile?.roleName ?? t('user.noRole')}
                     </span>
                   </div>
                   <ChevronDown className={`hidden lg:block w-4 h-4 text-slate-300 transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
@@ -256,7 +260,7 @@ export function Header() {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-primary dark:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                     >
                       <User className="w-4 h-4" />
-                      Se profil
+                      {t('user.viewProfile')}
                     </Link>
                     <button
                       type="button"
@@ -266,7 +270,7 @@ export function Header() {
                       className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary dark:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                      {signingOut ? 'Logger ud...' : 'Log ud'}
+                      {signingOut ? t('user.loggingOut') : t('user.logout')}
                     </button>
                   </div>
                 )}
@@ -285,17 +289,22 @@ export function Header() {
                 className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-accent text-primary hover:bg-accent-hover transition-colors"
               >
                 <UserPlus className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                <span>Opret konto</span>
+                <span>{t('links.signup')}</span>
               </Link>
             )
           )}
+
+          {/* Sprogvælger: samme regel som tema-toggle nedenfor - uafhængig
+              af login-status, så den også virker på /login og forsiden.
+              Bevidst ikke i hamburgeren, ligesom tema-knappen. */}
+          <LanguageSelector />
 
           {/* Tema-toggle: uafhængig af login-status, må derfor aldrig gates
               af isLoadingSession eller stå inde i isAuthenticated-grenen. */}
           <button
             type="button"
             onClick={toggleTheme}
-            aria-label={mode === 'dark' ? 'Skift til lyst tema' : 'Skift til mørkt tema'}
+            aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
             aria-pressed={mode === 'dark'}
             className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
           >
@@ -310,7 +319,7 @@ export function Header() {
               onClick={() => setMobileNavOpen((open) => !open)}
               aria-haspopup="menu"
               aria-expanded={mobileNavOpen}
-              aria-label={mobileNavOpen ? 'Luk menu' : 'Åbn menu'}
+              aria-label={mobileNavOpen ? t('menu.close') : t('menu.open')}
               className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
             >
               {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -328,7 +337,7 @@ export function Header() {
             <>
               <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                 <LayoutDashboard className="w-5 h-5 shrink-0" />
-                <span>Dashboard</span>
+                <span>{t('links.dashboard')}</span>
               </NavLink>
 
               {hasOrganisation && (
@@ -336,31 +345,31 @@ export function Header() {
                   {canReadTasks && (
                     <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                       <ClipboardList className="w-5 h-5 shrink-0" />
-                      <span>Opgaver</span>
+                      <span>{t('links.tasks')}</span>
                     </NavLink>
                   )}
 
                   <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                     <BarChart3 className="w-5 h-5 shrink-0" />
-                    <span>Statistik</span>
+                    <span>{t('links.statistics')}</span>
                   </NavLink>
 
                   {canReadDatalayer && (
                     <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                       <Database className="w-5 h-5 shrink-0" />
-                      <span>Datalager</span>
+                      <span>{t('links.datalayer')}</span>
                     </NavLink>
                   )}
 
                   {canReadNews && (
                     <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                       <Newspaper className="w-5 h-5 shrink-0" />
-                      <span>Nyheder</span>
+                      <span>{t('links.news')}</span>
                     </NavLink>
                   )}
                   <NavLink to="/beskeder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                     <MessageSquareText className="w-5 h-5 shrink-0" />
-                    <span>Beskeder</span>
+                    <span>{t('links.messages')}</span>
                   </NavLink>
                 </>
               )}
@@ -369,12 +378,12 @@ export function Header() {
             <>
               <NavLink to="/" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                 <Home className="w-5 h-5 shrink-0" />
-                <span>Forside</span>
+                <span>{t('links.home')}</span>
               </NavLink>
 
               <NavLink to="/login" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
                 <LogIn className="w-5 h-5 shrink-0" />
-                <span>Log ind</span>
+                <span>{t('links.login')}</span>
               </NavLink>
 
               {/* Beholder guldet i menuen, så hierarkiet er det samme som på
@@ -385,7 +394,7 @@ export function Header() {
                 className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-accent text-primary hover:bg-accent-hover transition-colors"
               >
                 <UserPlus className="w-5 h-5 shrink-0" />
-                <span>Opret konto</span>
+                <span>{t('links.signup')}</span>
               </Link>
             </>
           )}

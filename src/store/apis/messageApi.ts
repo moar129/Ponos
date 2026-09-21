@@ -161,12 +161,12 @@ export const messageApi = supabaseApi.injectEndpoints({
             queryFn: async ({ conversationId, content }) => {
                 const { data: userData, error: userError } = await supabase.auth.getUser()
                 if (userError || !userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Du skal være logget ind.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequired' } }
                 }
 
                 const trimmed = content.trim()
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Beskeden kan ikke være tom.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.message' } }
                 }
 
                 const { error } = await supabase.from('messages').insert({
@@ -329,7 +329,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
         addGroupParticipants: builder.mutation<void, { conversationId: string; userIds: string[] }>({
             queryFn: async ({ conversationId, userIds }) => {
                 if (userIds.length === 0) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Vælg mindst ét medlem.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.atLeastOneMember' } }
                 }
 
                 const { error } = await supabase.rpc('add_group_participants', {

@@ -116,7 +116,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                 const trimmed = email.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Email skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.email' } }
                 }
 
                 const { error } = await supabase.rpc('invite_member', { p_email: trimmed })
@@ -173,7 +173,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Invitationen kunne ikke behandles. Den er måske allerede behandlet.',
+                            error: 'errors:invitationAlreadyHandled',
                         },
                     }
                 }

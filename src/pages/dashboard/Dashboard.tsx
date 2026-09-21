@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Building2, LayoutDashboard, ShieldCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
+import { useTranslation } from 'react-i18next'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import {
     APPROVE_TASK_PRIVILEGE,
@@ -28,17 +29,14 @@ import { OverviewTab } from '../../components/dashboard/OverviewTab'
 import { OrganisationTab } from '../../components/dashboard/OrganisationTab'
 import { AdministrationTab } from '../../components/dashboard/AdministrationTab'
 
-interface TopTabDef {
-    key: DashboardTab
-    label: string
-    icon: LucideIcon
-}
-
-const TOP_TABS: TopTabDef[] = [
-    { key: 'oversigt', label: 'Oversigt', icon: LayoutDashboard },
-    { key: 'organisation', label: 'Organisation', icon: Building2 },
-    { key: 'administration', label: 'Administration', icon: ShieldCheck },
-]
+// labelKey peger på dashboard-ordbogen; etiketten hentes med t() ved
+// rendering. `as const` er nødvendig: uden den bliver labelKey til `string`,
+// og t() er typet til de kendte nøgler.
+const TOP_TABS = [
+    { key: 'oversigt', labelKey: 'tabs.overview', icon: LayoutDashboard },
+    { key: 'organisation', labelKey: 'tabs.organisation', icon: Building2 },
+    { key: 'administration', labelKey: 'tabs.administration', icon: ShieldCheck },
+] as const satisfies readonly { key: DashboardTab; labelKey: string; icon: LucideIcon }[]
 
 // US-45/46/47 + US-65: dashboardet har tre faner - "Oversigt" (alle
 // brugere, item-/opgave-antal + genveje), "Organisation" (alle brugere,
@@ -50,6 +48,7 @@ const TOP_TABS: TopTabDef[] = [
 // PendingRequestBanner) kan pege direkte på en bestemt fane, og valget
 // overlever et refresh.
 export default function Dashboard() {
+    const { t } = useTranslation('dashboard')
     const { data: profile } = useGetMyProfileQuery()
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
@@ -121,9 +120,9 @@ export default function Dashboard() {
     return (
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:bg-slate-800 dark:text-slate-100">
             <div className="mb-6">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100">Dashboard</h1>
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100">{t('title')}</h1>
                 <p className="text-sm text-secondary dark:text-slate-400">
-                    Velkommen{profile ? `, ${profile.firstName}` : ''}.
+                    {profile ? t('welcomeNamed', { name: profile.firstName }) : t('welcome')}
                 </p>
             </div>
 
@@ -140,7 +139,7 @@ export default function Dashboard() {
                         className={tabClass(tab.key)}
                     >
                         <tab.icon className="w-4 h-4" />
-                        {tab.label}
+                        {t(tab.labelKey)}
                     </button>
                 ))}
             </div>

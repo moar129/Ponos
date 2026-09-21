@@ -1,6 +1,7 @@
 // src/components/landing/LandingPartner.tsx
 import { ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 
 // Hvem platformen laves for. Alt indhold her er faktuelt gengivet fra
 // corolab.dk - ingen tal eller påstande der ikke står på deres egen side.
@@ -10,35 +11,32 @@ import { Link } from 'react-router-dom'
 // Corolabs egne nøgletal, som de står på corolab.dk. Alle er "mindst"-tal,
 // så de ikke bliver forkerte af at siden her ikke opdaterer sig selv.
 const KEY_FIGURES = [
-    { value: '220+', label: 'Arrangementer' },
-    { value: '21.500+', label: 'Deltagere' },
-    { value: '200+', label: 'Projekter' },
-    { value: '125+ mio. kr.', label: 'Rejst i finansiering' },
-]
+    { value: '220+', key: 'events' },
+    { value: '21.500+', key: 'participants' },
+    { value: '200+', key: 'projects' },
+    { value: '125+ mio. kr.', key: 'funding' },
+] as const
 
 const FOCUS_AREAS = [
-    { name: 'CO-meet', description: 'Faglige arrangementer og netværk.' },
-    { name: 'CO-pilots', description: 'Fælles initiativer sat i gang sammen med medlemmerne.' },
-    { name: 'CO-fund', description: 'Finansiering gennem medlemmer, fonde og offentlige puljer.' },
-    { name: 'CO-creation', description: 'Projekter udviklet på tværs af sektorer.' },
-    { name: 'CO-lab', description: 'Adgang til testmiljøer, faciliteter og delte ressourcer.' },
-    { name: 'CO-branding', description: 'Synlighed om medlemmernes samfundsansvar.' },
-]
+    { name: 'CO-meet', key: 'meet' },
+    { name: 'CO-pilots', key: 'pilots' },
+    { name: 'CO-fund', key: 'fund' },
+    { name: 'CO-creation', key: 'creation' },
+    { name: 'CO-lab', key: 'lab' },
+    { name: 'CO-branding', key: 'branding' },
+] as const
 
 export function LandingPartner() {
+    const { t } = useTranslation('public')
+
     return (
         <section className="bg-white dark:bg-slate-900 border-t border-border-gray dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">Om projektet</h2>
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">{t('partner.title')}</h2>
 
                     <p className="mt-4 text-secondary dark:text-slate-400">
-                        Ponos udvikles for{' '}
-                        <strong className="font-semibold text-primary dark:text-slate-100">Corolab</strong>, en
-                        medlemsdrevet non-profit i Roskilde. Siden 2016 har de samlet virksomheder,
-                        uddannelser og offentlige organisationer om projekter, som ingen af dem kunne
-                        løfte alene. Som de selv formulerer det: "I partnerskaber gør vi en forskel for
-                        samfundet og din organisation."
+                        <Trans ns="public" i18nKey="partner.intro" components={{ strong: <strong className="font-semibold text-primary dark:text-slate-100" /> }} />
                     </p>
                 </div>
 
@@ -47,23 +45,22 @@ export function LandingPartner() {
                     resten af UI'en - serif er forbeholdt PONOS-ordmærket. */}
                 <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-6 rounded-lg bg-bg-gray/40 dark:bg-slate-800/40 border border-border-gray dark:border-slate-700 p-6">
                     {KEY_FIGURES.map((figure) => (
-                        <div key={figure.label}>
+                        <div key={figure.key}>
                             <span className="block text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
                                 {figure.value}
                             </span>
-                            <span className="block text-sm text-secondary dark:text-slate-400 mt-1">{figure.label}</span>
+                            <span className="block text-sm text-secondary dark:text-slate-400 mt-1">{t(`partner.figures.${figure.key}`)}</span>
                         </div>
                     ))}
                 </div>
 
                 <p className="mt-3 text-xs text-secondary dark:text-slate-400">
-                    Corolabs egne tal, hentet fra corolab.dk i september 2026.
+                    {t('partner.figuresSource')}
                 </p>
 
                 <div className="max-w-3xl">
                     <p className="mt-8 text-secondary dark:text-slate-400">
-                        Arbejdet er delt op i seks områder, der spænder fra at skabe kontakterne til at
-                        skaffe finansieringen og stille faciliteterne til rådighed.
+                        {t('partner.areasIntro')}
                     </p>
                 </div>
 
@@ -71,16 +68,14 @@ export function LandingPartner() {
                     {FOCUS_AREAS.map((area) => (
                         <div key={area.name}>
                             <dt className="font-semibold text-primary dark:text-slate-100">{area.name}</dt>
-                            <dd className="text-sm text-secondary dark:text-slate-400 mt-0.5">{area.description}</dd>
+                            <dd className="text-sm text-secondary dark:text-slate-400 mt-0.5">{t(`partner.areas.${area.key}`)}</dd>
                         </div>
                     ))}
                 </dl>
 
                 <div className="max-w-3xl">
                     <p className="mt-8 text-secondary dark:text-slate-400">
-                        Det er testmiljøerne under CO-lab, Ponos bliver afprøvet i. Her skal platformen
-                        håndtere en rigtig organisations ressourcer og opgaver frem for konstruerede
-                        eksempler.
+                        {t('partner.testEnvironment')}
                     </p>
 
                     {/* Denne sektion er den korte udgave; /om-os er den lange.
@@ -88,7 +83,7 @@ export function LandingPartner() {
                         gentages bevidst ikke derovre. */}
                     <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-3">
                         <Link to="/om-os" className="text-sm text-accent hover:underline">
-                            Mere om projektet
+                            {t('partner.moreAboutProject')}
                         </Link>
 
                         <a
@@ -97,7 +92,7 @@ export function LandingPartner() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
                         >
-                            Læs mere på corolab.dk
+                            {t('partner.readMoreCorolab')}
                             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                         </a>
                     </div>

@@ -1,23 +1,19 @@
 // src/components/dashboard/roles/RoleColumnHeader.tsx
+import { readableError } from '../../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Check, Lock, Pencil, Trash2, X } from 'lucide-react'
 import { useDeleteRoleMutation, useUpdateRoleMutation } from '../../../store/apis/roleApi'
 import type { RoleColumnHeaderProps } from '../../../types/role/roleType'
 
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 // Kolonne-header for én rolle: navn + omdøb/slet-inline (samme mønster
 // som tidligere RoleCard-header). Uafhængig af celle-lås i
 // MatrixCell.tsx - Medlems kolonne er fx låst her (kan ikke omdøbes/
 // slettes), mens enkelte celler i kolonnen stadig kan være togglebare.
 export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHeaderProps) {
+    const { t } = useTranslation(['roles', 'common', 'errors'])
     const [updateRole, { isLoading: renaming, error: renameError }] = useUpdateRoleMutation()
     const [deleteRole, { isLoading: deleting, error: deleteError }] = useDeleteRoleMutation()
 
@@ -61,7 +57,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                 <button
                     type="submit"
                     disabled={renaming}
-                    aria-label="Gem rollenavn"
+                    aria-label={t('matrix.saveRoleName')}
                     className="p-1 rounded text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                 >
                     <Check className="w-3.5 h-3.5" />
@@ -70,7 +66,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                     type="button"
                     onClick={() => setIsEditing(false)}
                     disabled={renaming}
-                    aria-label="Annuller"
+                    aria-label={t('common:cancel')}
                     className="p-1 rounded text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                 >
                     <X className="w-3.5 h-3.5" />
@@ -82,7 +78,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
     if (confirmingDelete) {
         return (
             <div className="flex flex-col items-start gap-1 text-xs">
-                <span className="text-secondary dark:text-slate-400">Slet "{role.name}"?</span>
+                <span className="text-secondary dark:text-slate-400">{t('matrix.confirmDeleteRole', { name: role.name })}</span>
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
@@ -90,7 +86,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                         disabled={deleting}
                         className="text-red-600 font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                     >
-                        {deleting ? 'Sletter...' : 'Ja, slet'}
+                        {deleting ? t('common:deleting') : t('common:confirmDeleteYes')}
                     </button>
                     <button
                         type="button"
@@ -98,7 +94,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                         disabled={deleting}
                         className="text-secondary hover:underline disabled:opacity-60 dark:text-slate-400"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
                 </div>
             </div>
@@ -123,7 +119,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                                 setEditName(role.name)
                                 setIsEditing(true)
                             }}
-                            aria-label="Omdøb rolle"
+                            aria-label={t('matrix.renameRole')}
                             className="p-1 rounded text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                         >
                             <Pencil className="w-3.5 h-3.5" />
@@ -131,7 +127,7 @@ export function RoleColumnHeader({ role, isLocked, lockedReason }: RoleColumnHea
                         <button
                             type="button"
                             onClick={() => setConfirmingDelete(true)}
-                            aria-label="Slet rolle"
+                            aria-label={t('matrix.deleteRole')}
                             className="p-1 rounded text-secondary hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:bg-slate-700"
                         >
                             <Trash2 className="w-3.5 h-3.5" />

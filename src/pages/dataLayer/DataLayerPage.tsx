@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery, useUpdateCategoryMutation } from '../../store/apis/categoryApi';
 import {
@@ -9,7 +11,7 @@ import {
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
@@ -33,6 +35,8 @@ import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin } from '
 
 
 export function DataLayerPage() {
+  const { t } = useTranslation(['datalayer', 'common'])
+  const td = asDynamic(t)
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
   const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
@@ -150,7 +154,7 @@ export function DataLayerPage() {
       setMoveCategoryError(null);
       await Promise.all(updates.map((update) => updateCategory(update).unwrap()));
     } catch (err) {
-      setMoveCategoryError(getErrorMessage(err, 'Kunne ikke flytte kategorien.'));
+      setMoveCategoryError(getErrorMessage(err, t('page.moveCategoryFailed')));
     } finally {
       setIsMovingCategory(false);
     }
@@ -342,7 +346,7 @@ export function DataLayerPage() {
   if (!canRead) {
     return (
       <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-        Du har ikke adgang til at se datalageret i denne organisation.
+        {t('noAccess')}
       </div>
     );
   }
@@ -427,7 +431,7 @@ export function DataLayerPage() {
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
           <input
             type="text"
-            placeholder="Søg efter item eller kategori..."
+            placeholder={t('page.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
@@ -451,7 +455,7 @@ export function DataLayerPage() {
             className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
           >
             <MapPin className="w-4 h-4 shrink-0" />
-            <span>Lokationer</span>
+            <span>{t('page.locations')}</span>
           </button>
 
           <div className="relative flex-1 lg:flex-none">
@@ -465,7 +469,7 @@ export function DataLayerPage() {
               }`}
             >
               <Filter className="w-4 h-4 shrink-0" />
-              <span>Filter</span>
+              <span>{t('page.filter')}</span>
               {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
                 <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
                   {selectedStatuses.size + selectedCategoryFilterIds.size}
@@ -494,7 +498,7 @@ export function DataLayerPage() {
           <div>
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-border-gray dark:border-slate-700">
               <h2 className="text-xs font-semibold text-secondary uppercase tracking-wider dark:text-slate-400">
-                Kategorier
+                {t('categories')}
               </h2>
             </div>
 
@@ -542,7 +546,7 @@ export function DataLayerPage() {
               className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
-              <span>Opret kategori</span>
+              <span>{t('page.createCategory')}</span>
             </button>
           )}
         </div>
@@ -556,7 +560,7 @@ export function DataLayerPage() {
                     {selectedCategory.title}
                   </h1>
                   <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
-                    Kategori ID: {selectedCategory.id}
+                    {t('categoryIdValue', { id: selectedCategory.id })}
                   </p>
                 </div>
 
@@ -568,7 +572,7 @@ export function DataLayerPage() {
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
                     >
                       <XIcon className="w-4 h-4" />
-                      <span>Annullér</span>
+                      <span>{t('common:cancel')}</span>
                     </button>
                   ) : (
                     <button
@@ -577,7 +581,7 @@ export function DataLayerPage() {
                       disabled={displayedItems.length === 0}
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
                     >
-                      <span>Vælg til sletning</span>
+                      <span>{t('page.selectForDeletion')}</span>
                     </button>
                   ))}
 
@@ -588,7 +592,7 @@ export function DataLayerPage() {
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Tilføj items</span>
+                      <span>{t('page.addItems')}</span>
                     </button>
                   )}
                 </div>
@@ -598,7 +602,7 @@ export function DataLayerPage() {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Filtrer items i denne kategori..."
+                  placeholder={t('page.filterItemsPlaceholder')}
                   value={localItemSearch}
                   onChange={(e) => setLocalItemSearch(e.target.value)}
                   className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-4 py-1.5 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -607,7 +611,7 @@ export function DataLayerPage() {
 
               {isSelectMode && (
                 <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-bg-gray/40 border border-border-gray gap-2 dark:bg-slate-800/40 dark:border-slate-700">
-                  <span className="text-sm text-secondary shrink-0 dark:text-slate-400">{selectedItemIds.size} valgt</span>
+                  <span className="text-sm text-secondary shrink-0 dark:text-slate-400">{t('common:selectedCount', { count: selectedItemIds.size })}</span>
                   <button
                     type="button"
                     onClick={() => setIsDeleteItemsOpen(true)}
@@ -619,8 +623,8 @@ export function DataLayerPage() {
                     }`}
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span className="hidden xs:inline">Slet valgte</span>
-                    <span className="xs:hidden">Slet</span>
+                    <span className="hidden xs:inline">{t('page.deleteSelected')}</span>
+                    <span className="xs:hidden">{t('page.deleteShort')}</span>
                   </button>
                 </div>
               )}
@@ -628,13 +632,13 @@ export function DataLayerPage() {
               {aggregatedItems.length > 0 && displayedItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
                   <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-                  <p className="text-base font-medium text-primary dark:text-slate-100">Ingen items matcher filtrene</p>
+                  <p className="text-base font-medium text-primary dark:text-slate-100">{t('page.noItemsMatch')}</p>
                   <button
                     type="button"
                     onClick={() => { resetFilters(); setLocalItemSearch(''); }}
                     className="text-xs text-accent hover:text-accent-hover mt-2"
                   >
-                    Ryd filtre
+                    {t('page.clearFilters')}
                   </button>
                 </div>
               ) : displayedItems.length > 0 ? (
@@ -673,9 +677,9 @@ export function DataLayerPage() {
 
                       {/* Antal/status: på egen linje under navnet på mobil, ved siden af fra sm */}
                       <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                        <span className="sm:w-20 sm:text-right">Antal: {item.quantity}</span>
+                        <span className="sm:w-20 sm:text-right">{t('quantityValue', { count: item.quantity })}</span>
                         <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
-                          {ITEM_STATUS_LABELS[item.itemStatus]}
+                          {td(`datalayer:status.${item.itemStatus}`)}
                         </span>
                       </div>
                     </button>
@@ -685,17 +689,17 @@ export function DataLayerPage() {
                 <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
                   <Box className="w-12 h-12 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
                   <p className="text-base font-medium text-primary dark:text-slate-100">
-                    Ingen items i denne kategori endnu
+                    {t('page.noItemsInCategory')}
                   </p>
                   <p className="text-xs text-secondary mt-1 max-w-sm dark:text-slate-400">
-                    Du kan stadig tilføje nye items
+                    {t('page.canStillAdd')}
                   </p>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex items-center justify-center h-full text-secondary text-sm py-12 dark:text-slate-400">
-              Vælg en kategori i menuen til venstre
+              {t('page.chooseCategory')}
             </div>
           )}
         </div>

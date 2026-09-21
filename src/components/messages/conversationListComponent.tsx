@@ -1,5 +1,6 @@
 // components/messaging/ConversationListComponent.tsx
 import { Loader2, MessageSquareText, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next'
 import { useGetMyConversationsQuery } from '../../store/apis/messageApi';
 import type { ConversationListComponentProps } from '../../types/messages/messagesTypes';
 
@@ -12,6 +13,7 @@ function getInitials(name: string | null): string {
 }
 
 export function ConversationListComponent({ selectedConversationId, onSelectConversation }: ConversationListComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const { data: conversations = [], isLoading, error } = useGetMyConversationsQuery();
 
   const errorMessage =
@@ -39,7 +41,7 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center text-secondary px-4 dark:text-slate-400">
         <MessageSquareText className="w-8 h-8 mb-2 stroke-[1.5] text-secondary dark:text-slate-400" />
-        <p className="text-sm">Ingen samtaler endnu. Find en kollega under "Alle kontakter" for at starte en.</p>
+        <p className="text-sm">{t('noConversations')}</p>
       </div>
     );
   }
@@ -73,18 +75,18 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
                       conv.unread ? 'font-semibold text-primary dark:text-slate-100' : 'font-medium text-primary dark:text-slate-100'
                     }`}
                   >
-                    {conv.displayName ?? 'Unavngivet samtale'}
+                    {conv.displayName ?? t('unnamedConversation')}
                   </p>
                   {/* Ulæst-prik - vises kun når der er nyt siden jeg sidst læste samtalen. */}
                   {conv.unread && (
                     <span
                       className="w-2 h-2 rounded-full bg-accent shrink-0"
-                      aria-label="Ulæste beskeder"
+                      aria-label={t('unreadMessages')}
                     />
                   )}
                 </div>
                 <p className="text-xs text-secondary truncate dark:text-slate-400">
-                  {conv.lastMessage ?? 'Ingen beskeder endnu'}
+                  {conv.lastMessage ?? t('noMessagesYet')}
                 </p>
               </div>
             </button>

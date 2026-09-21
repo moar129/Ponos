@@ -1,4 +1,6 @@
 import type { ETaskStatus } from '../../types/Task/Task';
+import { useTranslation } from 'react-i18next'
+import { formatNumericDate } from '../../utils/formatDate';
 
 interface TaskTimelineProps {
     status: ETaskStatus;
@@ -14,14 +16,10 @@ export function TaskTimeline({
     finishedAt,
     
 }: TaskTimelineProps) {
+  const { t } = useTranslation(['tasks', 'common'])
     const formatDate = (date: string | null | undefined) => {
         if (!date) return '';
-
-        return new Date(date).toLocaleDateString('da-DK', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        });
+        return formatNumericDate(date);
     };
 
     const isStarted =
@@ -74,7 +72,7 @@ export function TaskTimeline({
             <div className="mt-2 grid grid-cols-3 text-xs">
                 <div className="text-left">
                     <p className="font-semibold text-primary dark:text-slate-100">
-                        Oprettet
+                        {t('card.created')}
                     </p>
 
                     <p className="text-secondary dark:text-slate-400">
@@ -89,7 +87,7 @@ export function TaskTimeline({
                                 : 'text-secondary dark:text-slate-400'
                             }`}
                     >
-                        I gang
+                        {t('status.InProgress')}
                     </p>
 
                     {startedAt && (
@@ -106,7 +104,7 @@ export function TaskTimeline({
                                 : 'text-secondary dark:text-slate-400'
                             }`}
                     >
-                        Færdig
+                        {t('status.Completed')}
                     </p>
 
                     {finishedAt && (

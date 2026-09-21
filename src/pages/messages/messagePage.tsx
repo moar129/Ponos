@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
 import { MessageSquareText, Plus } from 'lucide-react';
 import { ConversationListComponent } from '../../components/messages/conversationListComponent';
@@ -15,6 +16,7 @@ import type { ConversationSummary } from '../../types/messages/messagesTypes';
 type Tab = 'conversations' | 'contacts';
 
 export function MessagesPage() {
+  const { t } = useTranslation(['messages', 'common'])
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('conversations');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -104,7 +106,7 @@ export function MessagesPage() {
                 : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
             }`}
           >
-            Samtaler
+            {t('conversations')}
           </button>
 
           <button
@@ -116,7 +118,7 @@ export function MessagesPage() {
                 : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
             }`}
           >
-            Alle kontakter
+            {t('allContacts')}
           </button>
         </div>
 
@@ -129,7 +131,7 @@ export function MessagesPage() {
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 dark:border-slate-700"
             >
               <Plus className="w-4 h-4" />
-              Ny gruppe
+              {t('newGroup')}
             </button>
           </div>
         )}
@@ -162,7 +164,7 @@ export function MessagesPage() {
        ) : selectedGroup ? (
           <GroupConversationComponent
             conversationId={selectedGroup.conversationId}
-            groupName={selectedGroup.displayName ?? 'Unavngivet gruppe'}
+            groupName={selectedGroup.displayName ?? t('unnamedGroup')}
             currentUserId={myProfile?.id ?? ''}
             onLeft={() => {
               setSelectedGroup(null);
@@ -174,7 +176,7 @@ export function MessagesPage() {
             <div className="flex flex-col items-center text-center text-secondary px-4 dark:text-slate-400">
               <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
               <p className="text-sm">
-                Vælg en samtale, eller find en kollega under "Alle kontakter"
+                {t('chooseConversation')}
               </p>
             </div>
           </div>

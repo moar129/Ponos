@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roller og privilegier",
+    "organisation": "Organisation",
+    "membership_requests": "Medlemsanmodninger",
+    "members": "Medlemmer",
+    "invitations": "Invitationer",
+    "news": "Nyheder",
+    "datalayer": "Datalager",
+    "tasks": "Opgaver",
+    "task_approval": "Opgavegodkendelse"
+  },
+  "op": {
+    "create": "Opret",
+    "read": "Se",
+    "update": "Redigér",
+    "delete": "Slet",
+    "assign": "Tildel",
+    "approve": "Godkend",
+    "reject": "Afvis"
+  },
+  "privilege": {
+    "admin": "Fuld administrator (kan alt)"
+  },
+  "other": "Andet",
+  "matrix": {
+    "newRoleLabel": "Ny rolle",
+    "createRole": "Opret rolle",
+    "creatingRole": "Opretter...",
+    "loading": "Indlæser roller...",
+    "noRoles": "Organisationen har endnu ingen roller.",
+    "selectAll": "Vælg alle",
+    "removeAll": "Fjern alle",
+    "savePrivilegeName": "Gem privilegienavn",
+    "renamePrivilege": "Omdøb privilegie",
+    "saveRoleName": "Gem rollenavn",
+    "renameRole": "Omdøb rolle",
+    "deleteRole": "Slet rolle",
+    "newRolePlaceholder": "Fx Frivilligkoordinator",
+    "privilegeColumn": "Privilegie",
+    "removeAllTitle": "Fjerner alle nuværende privilegier fra {{role}} (ikke ægte systemadministrator-adgang)",
+    "selectAllTitle": "Giver {{role}} alle nuværende privilegier (ikke ægte systemadministrator-adgang)",
+    "renamePrivilegeFor": "Omdøb dette privilegie for {{role}}",
+    "confirmDeleteRole": "Slet \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin har allerede fuld adgang og kan ikke tilpasses",
+    "memberFixed": "Fast del af standardrollen Medlem",
+    "adminOnly": "Kun en administrator kan tildele admin-privilegiet",
+    "adminRoleProtected": "Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes",
+    "memberRoleProtected": "Standardrollen Medlem kan ikke omdøbes eller slettes",
+    "memberNotExtendable": "Standardrollen Medlem kan ikke udvides"
+  },
+  "approvals": {
+    "loading": "Indlæser opgavegodkendelser...",
+    "empty": "Der er ingen opgaver, der afventer godkendelse.",
+    "confirmApprove": "Godkend og markér opgaven som afsluttet?",
+    "confirmReject": "Afvis anmodningen? Opgaven forbliver i gang.",
+    "reportedBy": "Meldt færdig af",
+    "approve": "Godkend",
+    "reject": "Afvis",
+    "reportedDoneBy": "Meldt færdig af {{name}}"
+  }
+}

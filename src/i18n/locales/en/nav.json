@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "statistics": "Statistics",
+    "datalayer": "Data layer",
+    "news": "News",
+    "messages": "Messages",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "user": {
+    "fallbackName": "User",
+    "noRole": "No role",
+    "viewProfile": "View profile",
+    "logout": "Log out",
+    "loggingOut": "Logging out..."
+  },
+  "menu": {
+    "open": "Open menu",
+    "close": "Close menu"
+  },
+  "footer": {
+    "tagline": "We create clarity, collaboration and sustainable results – together.",
+    "navigationLabel": "Footer navigation",
+    "navigation": "Navigation",
+    "aboutLabel": "About Ponos",
+    "aboutHeading": "About Ponos",
+    "about": "About us",
+    "contact": "Contact",
+    "help": "Help & support",
+    "copyright": "© {{year}} Ponos. All rights reserved."
+  },
+  "banner": {
+    "pendingRequest": "Your request to join <strong>{{organisation}}</strong> is awaiting approval.",
+    "invited": "You have been invited to join <strong>{{organisation}}</strong>.",
+    "seeInvitation": "View invitation",
+    "noOrganisation": "You are not a member of an organisation yet.",
+    "createOrRequest": "Create one or request membership"
+  }
+}

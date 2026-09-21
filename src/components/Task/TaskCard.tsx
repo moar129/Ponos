@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import type { TaskCardProps } from '../../types/Task/Task';
 import {
   useGetTaskAssigneesQuery,
@@ -12,9 +13,11 @@ import {
 } from '../../store/apis/taskApi';
 import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
+import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
 import { supabase } from '../../lib/supabase';
 
 export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetailsOpen, onDetailsClose }: TaskCardProps) {
+  const { t } = useTranslation(['tasks', 'common'])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(defaultDetailsOpen ?? false);
@@ -199,22 +202,12 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
   const formatDate = (date: string | null) => {
     if (!date) return '—';
-
-    return new Date(date).toLocaleDateString('da-DK', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    return formatNumericDate(date);
   };
 
   const formatFullDate = (date: string | null) => {
     if (!date) return '—';
-
-    return new Date(date).toLocaleDateString('da-DK', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
+    return formatLongDate(date);
   };
 
   const getInitials = (name: string) => {
@@ -256,7 +249,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
               }}
               className="text-accent hover:text-accent-hover"
             >
-              Rediger
+              {t('card.edit')}
             </button>
           )}
         </div>
@@ -264,11 +257,11 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         {/* BESKRIVELSE */}
         <div className="relative mb-5 min-h-[100px] rounded-lg border border-border-gray bg-bg-gray/40 p-4 dark:border-slate-700 dark:bg-slate-900/40">
           <span className="absolute -top-3 left-3 bg-white px-2 text-xs font-bold uppercase text-secondary dark:bg-slate-800 dark:text-slate-400">
-            Info
+            {t('common:info')}
           </span>
 
           <p className="break-words text-sm text-secondary hyphens-auto dark:text-slate-400">
-            {task.description || 'Ingen beskrivelse'}
+            {task.description || t('card.noDescription')}
           </p>
         </div>
 
@@ -290,13 +283,13 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 task.priority
               )}`}
             >
-              Prioritet: {task.priority}
+              {t('card.priorityBadge', { priority: t(`priority.${task.priority}`) })}
             </span>
           )}
 
           <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
             {task.max_assignees === null
-              ? 'Ingen begrænsning'
+              ? t('assignees.noLimit')
               : `Maks. ${task.max_assignees} personer`}
           </span>
         </div>
@@ -304,12 +297,12 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         {/* ANSVARLIGE */}
         <div className="mb-6">
           <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-            Ansvarlige
+            {t('card.responsible')}
           </span>
 
           {assignees.length === 0 ? (
             <p className="text-sm text-secondary dark:text-slate-400">
-              Ingen er tildelt endnu.
+              {t('assignees.nobodyAssigned')}
             </p>
           ) : (
             <div className="space-y-2">
@@ -317,7 +310,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 const profile =
                   assigneeProfiles[assignee.user_id];
 
-                const name = profile?.name || 'Ukendt bruger';
+                const name = profile?.name || t('assignees.unknownUser');
 
                 const assignedByMe =
                   assignee.assigned_by === currentUserId;
@@ -347,15 +340,15 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
                         <p className="text-xs text-secondary dark:text-slate-400">
                           {assignedByMe
-                            ? 'Tilmeldt af dig'
-                            : 'Tildelt af en anden'}
+                            ? t('assignees.selfSigned')
+                            : t('assignees.assignedByOther')}
                         </p>
                       </div>
                     </div>
 
                     {assignee.user_id === currentUserId && (
                       <span className="text-xs font-semibold text-secondary dark:text-slate-400">
-                        Dig
+                        {t('common:you')}
                       </span>
                     )}
                   </div>
@@ -369,7 +362,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         <div className="mb-5 flex gap-8 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
           <div>
             <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-              Start
+              {t('card.start')}
             </span>
 
             <span className="font-medium text-primary dark:text-slate-100">
@@ -379,7 +372,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
           <div>
             <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-              Slut
+              {t('card.end')}
             </span>
 
             <span className="font-medium text-primary dark:text-slate-100">
@@ -409,10 +402,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     }`}
                 >
                   {canUnassignSelf
-                    ? 'Afmeld'
+                    ? t('assignees.signOff')
                     : isAssigned
-                      ? 'Tildelt dig'
-                      : 'Tilmeld'}
+                      ? t('assignees.assignedToYou')
+                      : t('assignees.signUp')}
                 </button>
               )}
 
@@ -428,8 +421,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                   className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isUpdatingStatus
-                    ? 'Opdaterer...'
-                    : 'Påbegynd arbejde'}
+                    ? t('common:updating')
+                    : t('card.startWork')}
                 </button>
               )}
 
@@ -452,10 +445,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     }`}
                 >
                   {hasPendingCompletionRequest
-                    ? 'Afventer godkendelse'
+                    ? t('card.awaitingApproval')
                     : isCreatingRequest || isUpdatingStatus
-                      ? 'Sender...'
-                      : 'Meld færdig'}
+                      ? t('common:sending')
+                      : t('card.markDone')}
                 </button>
               )}
             </>
@@ -483,7 +476,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 </h2>
 
                 <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                  Opgavedetaljer
+                  {t('card.details')}
                 </p>
               </div>
 
@@ -502,11 +495,11 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             {/* BESKRIVELSE */}
             <div className="mb-5 rounded-lg border border-border-gray bg-bg-gray/40 p-4 dark:border-slate-700 dark:bg-slate-900/40">
               <span className="mb-2 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-                Beskrivelse
+                {t('common:description')}
               </span>
 
               <p className="break-words text-sm text-secondary dark:text-slate-400">
-                {task.description || 'Ingen beskrivelse'}
+                {task.description || t('card.noDescription')}
               </p>
             </div>
 
@@ -529,25 +522,25 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       task.priority
                     )}`}
                   >
-                    Prioritet: {task.priority}
+                    {t('card.priorityBadge', { priority: t(`priority.${task.priority}`) })}
                   </span>
                 )}
 
                 <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
                   {task.max_assignees === null
-                    ? 'Ingen begrænsning'
+                    ? t('assignees.noLimit')
                     : `Maks. ${task.max_assignees} personer`}
                 </span>
 
                 <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
-                  Status: {task.status}
+                  {t('card.statusValue', { status: t(`status.${task.status}`) })}
                 </span>
               </div>
 
               {task.requires_approval && (
                 <div className="mt-3">
                   <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                    Kræver godkendelse
+                    {t('card.requiresApproval')}
                   </span>
                 </div>
               )}
@@ -556,12 +549,12 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             {/* ANSVARLIGE */}
             <div className="mb-6">
               <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-                Ansvarlige
+                {t('card.responsible')}
               </span>
 
               {assignees.length === 0 ? (
                 <p className="text-sm text-secondary dark:text-slate-400">
-                  Ingen er tildelt endnu.
+                  {t('assignees.nobodyAssigned')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -569,7 +562,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     const profile =
                       assigneeProfiles[assignee.user_id];
 
-                    const name = profile?.name || 'Ukendt bruger';
+                    const name = profile?.name || t('assignees.unknownUser');
 
                     const assignedByMe =
                       assignee.assigned_by === currentUserId;
@@ -599,8 +592,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
                             <p className="text-xs text-secondary dark:text-slate-400">
                               {assignedByMe
-                                ? 'Tilmeldt af dig'
-                                : 'Tildelt af en anden'}
+                                ? t('assignees.selfSigned')
+                                : t('assignees.assignedByOther')}
                             </p>
                           </div>
                         </div>
@@ -608,7 +601,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                         <div className="flex items-center gap-3">
                           {assignee.user_id === currentUserId && (
                             <span className="text-xs font-semibold text-secondary dark:text-slate-400">
-                              Dig
+                              {t('common:you')}
                             </span>
                           )}
 
@@ -623,7 +616,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                               }}
                               className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                             >
-                              Fjern
+                              {t('common:remove')}
                             </button>
                           )}
                         </div>
@@ -639,7 +632,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                   onClick={() => setIsEmployeePickerOpen(true)}
                   className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
                 >
-                  + Tilføj medarbejder
+                  {t('card.addEmployeeShort')}
                 </button>
               )}
             </div>
@@ -648,7 +641,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-                  Startdato
+                  {t('fields.startDate')}
                 </span>
 
                 <span className="mt-1 block font-medium text-primary dark:text-slate-100">
@@ -658,7 +651,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
               <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-                  Slutdato
+                  {t('fields.endDate')}
                 </span>
 
                 <span className="mt-1 block font-medium text-primary dark:text-slate-100">
@@ -676,7 +669,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 }}
                 className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
               >
-                Luk
+                {t('common:close')}
               </button>
             </div>
           </div>
@@ -697,11 +690,11 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-primary dark:text-slate-100">
-                  Tilføj medarbejder
+                  {t('assignees.addEmployee')}
                 </h3>
 
                 <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                  Vælg hvem der skal tildeles opgaven
+                  {t('assignees.chooseWho')}
                 </p>
               </div>
 
@@ -726,7 +719,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
               {task.max_assignees !== null &&
                 assignees.length >= task.max_assignees && (
                   <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                    Maksimalt antal medarbejdere er nået.
+                    {t('assignees.maxReached')}
                   </p>
                 )}
             </div>
@@ -735,7 +728,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             {task.max_assignees !== null &&
               assignees.length >= task.max_assignees ? (
               <p className="py-6 text-center text-sm text-secondary dark:text-slate-400">
-                Der er ikke flere ledige pladser på opgaven.
+                {t('assignees.noFreeSlots')}
               </p>
             ) : (
               <div className="max-h-80 space-y-2 overflow-y-auto">
@@ -772,7 +765,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                               alt={
                                 name ||
                                 employee.email ||
-                                'Medarbejder'
+                                t('assignees.employee')
                               }
                               className="h-10 w-10 rounded-full object-cover"
                             />
@@ -810,7 +803,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     )
                 ).length === 0 && (
                     <p className="py-4 text-center text-sm text-secondary dark:text-slate-400">
-                      Der er ingen medarbejdere at tildele.
+                      {t('assignees.nobodyToAssign')}
                     </p>
                   )}
               </div>
@@ -823,7 +816,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 onClick={() => setIsEmployeePickerOpen(false)}
                 className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
               >
-                Luk
+                {t('common:close')}
               </button>
             </div>
           </div>

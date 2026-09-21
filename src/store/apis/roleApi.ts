@@ -25,7 +25,7 @@ async function getActiveOrganisationId(): Promise<{ organisationId: string } | {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-        return { error: 'Du skal være logget ind for at udføre denne handling.' }
+        return { error: 'errors:loginRequiredForAction' }
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -39,7 +39,7 @@ async function getActiveOrganisationId(): Promise<{ organisationId: string } | {
     }
 
     if (!profile?.active_organisation_id) {
-        return { error: 'Du er ikke medlem af en organisation.' }
+        return { error: 'errors:noOrganisation' }
     }
 
     return { organisationId: profile.active_organisation_id }
@@ -74,7 +74,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
                 }
 
                 const org = await getActiveOrganisationId()
@@ -94,7 +94,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                     // med dette navn i organisationen.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Der findes allerede en rolle med dette navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -114,7 +114,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
                 }
 
                 const { error } = await supabase
@@ -125,7 +125,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 if (error) {
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Der findes allerede en rolle med dette navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }
@@ -255,7 +255,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                     // admin-privilegiet uden selv at være admin (escalation-guard).
                     if (error.code === '42501') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at tildele denne rolle.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.assignRole' },
                         }
                     }
                     return { error: { status: 'CUSTOM_ERROR', error: error.message } }

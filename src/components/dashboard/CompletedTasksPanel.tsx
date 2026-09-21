@@ -1,19 +1,14 @@
 // src/components/dashboard/CompletedTasksPanel.tsx
+import { readableError } from '../../ErrorMessage';
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown, ChevronUp, Pencil, RotateCcw } from 'lucide-react'
 import { useGetCompletedTasksQuery, useUpdateTaskStatusMutation } from '../../store/apis/taskApi'
 import { EditTaskModal } from '../Task/EditTaskModal'
 import { DELETE_TASKS_PRIVILEGE, UPDATE_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import { PRIORITY_COLORS, PRIORITY_LABELS, formatDate } from '../../utils/taskDisplay'
+import { ALL_PRIORITIES, PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
 import type { CompletedTaskDetails, ETaskPriority } from '../../types/Task/Task'
 
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 // US-70: organisationens afsluttede opgaver med fulde detaljer, til
 // opfølgning på udført arbejde. Ekspanderbar række til detaljer (i stedet
@@ -22,6 +17,7 @@ function readableError(err: unknown): string | null {
 // Opgave-domænets EditTaskModal (indeholder nu selv slet) og
 // updateTaskStatus (kalder set_task_status-RPC'en).
 export function CompletedTasksPanel() {
+    const { t } = useTranslation(['dashboard', 'tasks'])
     const { data: tasks, isLoading, error: tasksError } = useGetCompletedTasksQuery()
     const [searchTerm, setSearchTerm] = useState('')
     const [priorityFilter, setPriorityFilter] = useState<ETaskPriority | 'all'>('all')
@@ -39,7 +35,7 @@ export function CompletedTasksPanel() {
     const reopenErrorMessage = readableError(reopenError)
 
     if (isLoading) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser afsluttede opgaver...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('completedTasks.loading')}</p>
     }
 
     if (error) {
@@ -51,7 +47,7 @@ export function CompletedTasksPanel() {
     }
 
     if (!tasks || tasks.length === 0) {
-        return <p className="text-secondary dark:text-slate-400">Ingen opgaver er markeret som afsluttede endnu.</p>
+        return <p className="text-secondary dark:text-slate-400">{t('completedTasks.empty')}</p>
     }
 
     const filteredTasks = tasks.filter((task) => {
@@ -70,7 +66,7 @@ export function CompletedTasksPanel() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Søg efter titel eller beskrivelse..."
+                    placeholder={t('completedTasks.searchPlaceholder')}
                     className="flex-1 min-w-[200px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 />
                 <select
@@ -78,15 +74,15 @@ export function CompletedTasksPanel() {
                     onChange={(e) => setPriorityFilter(e.target.value as ETaskPriority | 'all')}
                     className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
-                    <option value="all">Alle prioriteter</option>
-                    {(Object.keys(PRIORITY_LABELS) as ETaskPriority[]).map((priority) => (
-                        <option key={priority} value={priority}>{PRIORITY_LABELS[priority]}</option>
+                    <option value="all">{t('completedTasks.allPriorities')}</option>
+                    {ALL_PRIORITIES.map((priority) => (
+                        <option key={priority} value={priority}>{t(`tasks:priority.${priority}`)}</option>
                     ))}
                 </select>
             </div>
 
             {filteredTasks.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Ingen opgaver matcher søgningen/filteret.</p>
+                <p className="text-secondary dark:text-slate-400">{t('completedTasks.noMatch')}</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {filteredTasks.map((task) => (
@@ -140,6 +136,8 @@ function CompletedTaskRow({
     isReopening: boolean
     reopenErrorMessage: string | null
 }) {
+    const { t } = useTranslation(['dashboard', 'tasks'])
+
     return (
         <li className="py-3">
             <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 text-left">
@@ -148,11 +146,11 @@ function CompletedTaskRow({
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                         {task.priority && (
                             <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                                {PRIORITY_LABELS[task.priority]}
+                                {t(`tasks:priority.${task.priority}`)}
                             </span>
                         )}
                         {task.end_date && (
-                            <span className="text-secondary dark:text-slate-400">Slut {formatDate(task.end_date)}</span>
+                            <span className="text-secondary dark:text-slate-400">{t('myTasks.endsOn', { date: formatDate(task.end_date) })}</span>
                         )}
                     </div>
                 </div>
@@ -161,21 +159,21 @@ function CompletedTaskRow({
 
             {isExpanded && (
                 <div className="mt-3 space-y-2 text-sm text-secondary dark:text-slate-400">
-                    <p>{task.description || 'Ingen beskrivelse.'}</p>
-                    <p><span className="font-medium text-primary dark:text-slate-100">Rum:</span> {task.roomName ?? 'Intet rum'}</p>
+                    <p>{task.description || t('completedTasks.noDescription')}</p>
+                    <p><span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.room')}</span> {task.roomName ?? t('completedTasks.noRoom')}</p>
                     <p>
-                        <span className="font-medium text-primary dark:text-slate-100">Periode:</span>{' '}
-                        {task.start_date ? formatDate(task.start_date) : 'Ukendt'} – {task.end_date ? formatDate(task.end_date) : 'Ukendt'}
+                        <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.period')}</span>{' '}
+                        {task.start_date ? formatDate(task.start_date) : t('completedTasks.unknown')} – {task.end_date ? formatDate(task.end_date) : t('completedTasks.unknown')}
                     </p>
                     <div>
-                        <span className="font-medium text-primary dark:text-slate-100">Tilmeldte:</span>{' '}
-                        {task.assignees.length > 0 ? task.assignees.map((a) => a.name).join(', ') : 'Ingen tilmeldte'}
+                        <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.assignees')}</span>{' '}
+                        {task.assignees.length > 0 ? task.assignees.map((a) => a.name || t('tasks:assignees.unknownUser')).join(', ') : t('completedTasks.noAssignees')}
                     </div>
                     <div>
-                        <span className="font-medium text-primary dark:text-slate-100">Materialer:</span>{' '}
+                        <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.materials')}</span>{' '}
                         {task.materials.length > 0
                             ? task.materials.map((m) => `${m.name} (${m.quantity})`).join(', ')
-                            : 'Ingen materialer'}
+                            : t('completedTasks.noMaterials')}
                     </div>
 
                     {(canUpdate || canDelete) && (
@@ -186,7 +184,7 @@ function CompletedTaskRow({
                                 className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
                             >
                                 <Pencil className="w-3.5 h-3.5" />
-                                Rediger
+                                {t('completedTasks.edit')}
                             </button>
                             {canUpdate && (
                                 <button
@@ -196,7 +194,7 @@ function CompletedTaskRow({
                                     className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-60 dark:text-emerald-400 dark:hover:text-emerald-300"
                                 >
                                     <RotateCcw className="w-3.5 h-3.5" />
-                                    {isReopening ? 'Genåbner...' : 'Genåbn'}
+                                    {isReopening ? t('completedTasks.reopening') : t('completedTasks.reopen')}
                                 </button>
                             )}
                         </div>

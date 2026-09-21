@@ -151,7 +151,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
             queryFn: async () => {
                 const { data: userData, error: userError } = await supabase.auth.getUser()
                 if (userError || !userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Du skal være logget ind.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequired' } }
                 }
 
                 const { error } = await supabase

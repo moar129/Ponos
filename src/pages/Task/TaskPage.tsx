@@ -1,3 +1,5 @@
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
@@ -21,15 +23,9 @@ import {
     useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 
-function readableError(err: unknown): string | null {
-    if (!err) return null;
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error;
-    }
-    return 'Noget gik galt. Prøv igen.';
-}
 
 export function TasksPage() {
+  const { t } = useTranslation(['tasks', 'common'])
     const [searchParams, setSearchParams] = useSearchParams();
     // ?task= (Mine opgaver-widget, godkend/afvis-notifikationer) og ?taskId=
     // (notify_task_*-triggerne) åbner begge opgavens popup.
@@ -137,7 +133,7 @@ export function TasksPage() {
     if (tasksLoading || roomsLoading || loadingReadPrivilege) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
-                <p className="font-semibold">Henter opgaver...</p>
+                <p className="font-semibold">{t('page.loading')}</p>
             </div>
         );
     }
@@ -145,7 +141,7 @@ export function TasksPage() {
     if (!canRead) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
-                <p className="text-secondary dark:text-slate-400">Du har ikke adgang til at se opgaver i denne organisation.</p>
+                <p className="text-secondary dark:text-slate-400">{t('page.noAccess')}</p>
             </div>
         );
     }
@@ -180,13 +176,13 @@ export function TasksPage() {
             {isAddRoomOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
                     <div className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
-                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">Opret rum</h3>
+                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">{t('page.createRoom')}</h3>
 
                         <input
                             type="text"
                             value={newRoomName}
                             onChange={(e) => setNewRoomName(e.target.value)}
-                            placeholder="Skriv navn på rum"
+                            placeholder={t('page.roomNamePlaceholder')}
                             className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -205,7 +201,7 @@ export function TasksPage() {
                                 }}
                                 className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >
-                                Annullér
+                                {t('common:cancel')}
                             </button>
 
                             <button
@@ -213,7 +209,7 @@ export function TasksPage() {
                                 onClick={handleAddRoom}
                                 className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                             >
-                                Gem rum
+                                {t('page.saveRoom')}
                             </button>
                         </div>
                     </div>
@@ -229,10 +225,10 @@ export function TasksPage() {
 
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">Opgaver</h1>
+                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('page.heading')}</h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
-                            Få overblik over arbejdet, der skal udføres.
+                            {t('page.subtitle')}
                         </p>
                     </div>
 
@@ -242,7 +238,7 @@ export function TasksPage() {
                             onClick={() => setIsCreateTaskOpen(true)}
                             className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                         >
-                            Opret opgave
+                            {t('page.createTask')}
                         </button>
                     )}
                 </div>
@@ -250,7 +246,7 @@ export function TasksPage() {
                 <div className="grid grid-cols-2 gap-8 items-start">
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">Opgaver tilgængelige</h2>
+                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.availableHeading')}</h2>
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {availableTasks.length}
                             </span>
@@ -270,7 +266,7 @@ export function TasksPage() {
                             ))}
                             {availableTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Ingen tilgængelige opgaver
+                                    {t('page.noAvailableTasks')}
                                 </p>
                             )}
                         </div>
@@ -278,7 +274,7 @@ export function TasksPage() {
 
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">I gang</h2>
+                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.inProgressHeading')}</h2>
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {myTasks.length}
                             </span>
@@ -298,7 +294,7 @@ export function TasksPage() {
                             ))}
                             {myTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Ingen opgaver i gang
+                                    {t('page.noTasksInProgress')}
                                 </p>
                             )}
                         </div>

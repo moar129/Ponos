@@ -1,0 +1,30 @@
+{
+  "loading": "Loading profile...",
+  "notFound": "Your profile could not be found.",
+  "saved": "Your details have been saved.",
+  "nameRequired": "First name and last name are required.",
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "organisation": "Organisation",
+    "role": "Role",
+    "description": "Description",
+    "pictureUrl": "Profile picture (URL)"
+  },
+  "empty": {
+    "organisation": "No organisation",
+    "role": "No role assigned",
+    "description": "No description"
+  },
+  "readOnlyNote": "Email, role and organisation cannot be changed here. Contact your administrator.",
+  "saveChanges": "Save changes",
+  "editProfile": "Edit profile",
+  "logout": "Log out",
+  "loggingOut": "Logging out...",
+  "passwordHeading": "Password",
+  "preferences": {
+    "title": "Display",
+    "hint": "Language and theme are saved in this browser and apply to this device only."
+  }
+}

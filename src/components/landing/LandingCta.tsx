@@ -1,5 +1,6 @@
 // src/components/landing/LandingCta.tsx
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useGetSessionQuery } from '../../store/apis/authApi'
 
 // Afsluttende opfordring, så man ikke skal scrolle op igen. Samme navy som
@@ -11,6 +12,7 @@ import { useGetSessionQuery } from '../../store/apis/authApi'
 // sted, i stedet for som en gentaget betingelse på hver side. Queryen er
 // samme cache som App.tsx holder aktiv; ingen ekstra netværkskald.
 export function LandingCta() {
+    const { t } = useTranslation('public')
     const { data: session } = useGetSessionQuery()
 
     if (session) {
@@ -21,11 +23,10 @@ export function LandingCta() {
         <section className="bg-primary">
             <div className="max-w-7xl mx-auto px-6 py-16 text-center">
                 <h2 className="text-2xl sm:text-3xl font-semibold text-slate-100">
-                    Kom i gang med Ponos
+                    {t('cta.title')}
                 </h2>
                 <p className="mt-3 text-slate-300 max-w-xl mx-auto">
-                    Opret en konto, og start din egen organisation eller bliv medlem af en, der
-                    allerede findes.
+                    {t('cta.body')}
                 </p>
 
                 <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -33,13 +34,13 @@ export function LandingCta() {
                         to="/signup"
                         className="inline-flex items-center justify-center bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                     >
-                        Opret konto
+                        {t('cta.signup')}
                     </Link>
                     <Link
                         to="/login"
                         className="inline-flex items-center justify-center rounded-md border border-slate-600 px-6 py-3 font-medium text-slate-200 hover:bg-slate-800/50 hover:text-white transition-colors"
                     >
-                        Log ind
+                        {t('cta.login')}
                     </Link>
                 </div>
             </div>

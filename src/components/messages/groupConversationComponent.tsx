@@ -1,4 +1,7 @@
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { formatDayMonthTime } from '../../utils/formatDate';
 import { Send, Loader2, MessageSquareText, Users, UserCog, LogOut, Pencil, Trash2 } from 'lucide-react';
 import {
   useGetMessagesQuery,
@@ -18,13 +21,6 @@ function getInitials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-function readableError(err: unknown): string | null {
-  if (!err) return null;
-  if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-    return err.error;
-  }
-  return 'Noget gik galt. Prøv igen.';
-}
 
 export function GroupConversationComponent({
   conversationId,
@@ -32,6 +28,7 @@ export function GroupConversationComponent({
   currentUserId,
   onLeft,
 }: GroupConversationComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const [message, setMessage] = useState('');
   const [isManageMembersOpen, setIsManageMembersOpen] = useState(false);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
@@ -157,15 +154,15 @@ export function GroupConversationComponent({
   // blot et antal - fx "Set af Anna, Bo" i stedet for "Set af 2/3".
   function readSummary(createdAt: string): string {
     const others = participants.filter((p) => p.userId !== currentUserId);
-    if (others.length === 0) return 'Sendt';
+    if (others.length === 0) return t('sent');
 
     const readers = others.filter(
       (p) => p.lastReadAt && new Date(p.lastReadAt) >= new Date(createdAt)
     );
 
-    if (readers.length === 0) return 'Sendt';
-    if (readers.length === others.length) return 'Set af alle';
-    return `Set af ${readers.map((p) => p.firstName).join(', ')}`;
+    if (readers.length === 0) return t('sent');
+    if (readers.length === others.length) return t('readByAll');
+    return t('readBy', { names: readers.map((p) => p.firstName).join(', ') });
   }
 
   function readableLeaveError(): string | null {
@@ -182,15 +179,15 @@ export function GroupConversationComponent({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{groupName}</p>
           <p className="text-xs text-secondary truncate dark:text-slate-400">
-            {participants.length} deltager{participants.length !== 1 ? 'e' : ''}
+            {t('participantCount', { count: participants.length })}
           </p>
         </div>
         <button
           type="button"
           onClick={() => setIsManageMembersOpen(true)}
           className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
-          title="Administrer medlemmer"
-          aria-label="Administrer medlemmer"
+          title={t('group.manageMembers')}
+          aria-label={t('group.manageMembers')}
         >
           <UserCog className="w-5 h-5" />
         </button>
@@ -198,8 +195,8 @@ export function GroupConversationComponent({
           type="button"
           onClick={() => setConfirmingLeave(true)}
           className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
-          title="Forlad gruppen"
-          aria-label="Forlad gruppen"
+          title={t('group.leave')}
+          aria-label={t('group.leave')}
         >
           <LogOut className="w-5 h-5" />
         </button>
@@ -214,14 +211,14 @@ export function GroupConversationComponent({
         ) : messagesError ? (
           <div className="flex justify-center">
             <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-              Kunne ikke hente beskeder.
+              {t('loadFailed')}
             </div>
           </div>
         ) : messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-secondary dark:text-slate-400">
             <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-            <p className="text-sm">Ingen beskeder endnu</p>
-            <p className="text-xs mt-1 text-secondary dark:text-slate-400">Skriv den første besked til gruppen.</p>
+            <p className="text-sm">{t('noMessagesYet')}</p>
+            <p className="text-xs mt-1 text-secondary dark:text-slate-400">{t('writeFirstToGroup')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -267,7 +264,7 @@ export function GroupConversationComponent({
                   <div className="max-w-[75%]">
                     {showSenderName && (
                       <p className="text-[11px] text-secondary mb-0.5 ml-1 dark:text-slate-400">
-                        {sender ? `${sender.firstName} ${sender.lastName}` : 'Ukendt bruger'}
+                        {sender ? `${sender.firstName} ${sender.lastName}` : t('unknownUser')}
                       </p>
                     )}
 
@@ -280,7 +277,7 @@ export function GroupConversationComponent({
                             <button
                               type="button"
                               onClick={() => startEdit(msg)}
-                              aria-label="Rediger besked"
+                              aria-label={t('editMessage')}
                               className="p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -290,7 +287,7 @@ export function GroupConversationComponent({
                             <button
                               type="button"
                               onClick={() => setConfirmingDeleteId(msg.id)}
-                              aria-label="Slet besked"
+                              aria-label={t('deleteMessage')}
                               className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -305,7 +302,7 @@ export function GroupConversationComponent({
                         }`}
                       >
                         {msg.deletedAt ? (
-                          <p className="text-sm italic opacity-70">Denne besked er slettet</p>
+                          <p className="text-sm italic opacity-70">{t('messageDeleted')}</p>
                         ) : isEditing ? (
                           <div className="flex flex-col gap-2">
                             {editErrorMessage && (
@@ -334,7 +331,7 @@ export function GroupConversationComponent({
                                 disabled={isSavingEdit}
                                 className="text-xs font-medium hover:underline disabled:opacity-50"
                               >
-                                Annuller
+                                {t('common:cancel')}
                               </button>
                               <button
                                 type="button"
@@ -342,13 +339,13 @@ export function GroupConversationComponent({
                                 disabled={!editDraft.trim() || isSavingEdit}
                                 className="text-xs font-semibold hover:underline disabled:opacity-50"
                               >
-                                {isSavingEdit ? 'Gemmer...' : 'Gem'}
+                                {isSavingEdit ? t('common:saving') : t('common:save')}
                               </button>
                             </div>
                           </div>
                         ) : isConfirmingDelete ? (
                           <div className="flex flex-col gap-2">
-                            <p className="text-sm">Slet denne besked?</p>
+                            <p className="text-sm">{t('confirmDeleteMessage')}</p>
                             <div className="flex items-center gap-3 justify-end">
                               <button
                                 type="button"
@@ -356,7 +353,7 @@ export function GroupConversationComponent({
                                 disabled={isDeleting}
                                 className="text-xs font-medium hover:underline disabled:opacity-50"
                               >
-                                Annuller
+                                {t('common:cancel')}
                               </button>
                               <button
                                 type="button"
@@ -364,7 +361,7 @@ export function GroupConversationComponent({
                                 disabled={isDeleting}
                                 className="text-xs font-semibold hover:underline disabled:opacity-50"
                               >
-                                {isDeleting ? 'Sletter...' : 'Ja, slet'}
+                                {isDeleting ? t('common:deleting') : t('common:confirmDeleteYes')}
                               </button>
                             </div>
                           </div>
@@ -374,13 +371,8 @@ export function GroupConversationComponent({
 
                         <div className={`mt-1 flex items-center gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                           <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
-                            {new Date(msg.createdAt).toLocaleString('da-DK', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                            {msg.editedAt && !msg.deletedAt && ' · redigeret'}
+                            {formatDayMonthTime(msg.createdAt)}
+                            {msg.editedAt && !msg.deletedAt && ` · ${t('edited')}`}
                           </p>
                           {isOwnMessage && !msg.deletedAt && (
                             <span className="text-[10px] font-medium text-primary/70">
@@ -416,12 +408,12 @@ export function GroupConversationComponent({
             onClick={() => void handleSendMessage()}
             disabled={!message.trim() || isSending}
             className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            aria-label="Send besked"
+            aria-label={t('sendMessage')}
           >
             {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
-        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">Tryk Enter for at sende · Shift + Enter for ny linje</p>
+        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">{t('enterHint')}</p>
       </div>
 
       <ManageGroupMembersComponent
@@ -433,13 +425,13 @@ export function GroupConversationComponent({
 
       <ConfirmDialogComponent
         isOpen={confirmingLeave}
-        title="Forlad gruppen?"
+        title={t('group.confirmLeave')}
         message={
           readableLeaveError()
-            ? `Er du sikker på, at du vil forlade "${groupName}"? ${readableLeaveError()}`
-            : `Er du sikker på, at du vil forlade "${groupName}"? Du kan blive tilføjet igen af et andet medlem senere.`
+            ? `${t('group.confirmLeaveBody', { name: groupName })} ${readableLeaveError()}`
+            : t('group.confirmLeaveBody', { name: groupName })
         }
-        confirmLabel="Forlad"
+        confirmLabel={t('group.leaveConfirm')}
         isLoading={isLeaving}
         onConfirm={handleLeave}
         onCancel={() => setConfirmingLeave(false)}

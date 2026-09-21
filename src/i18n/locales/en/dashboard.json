@@ -1,0 +1,86 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome.",
+  "welcomeNamed": "Welcome, {{name}}.",
+  "tabs": {
+    "overview": "Overview",
+    "organisation": "Organisation",
+    "administration": "Administration"
+  },
+  "overview": {
+    "noOrganisation": "You do not have an active organisation yet, so there is nothing to show here.",
+    "goToOrganisation": "Go to Organisation",
+    "shortcuts": "Shortcuts",
+    "datalayerDescription": "View and manage items, categories and locations.",
+    "tasksDescription": "View and manage the organisation's tasks.",
+    "statisticsDescription": "View insight and statistics for the organisation."
+  },
+  "myTasks": {
+    "title": "My tasks",
+    "goToTasks": "Go to tasks",
+    "loading": "Loading your tasks...",
+    "empty": "You are not signed up for any tasks yet.",
+    "endsOn": "Ends {{date}}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "seeAll": "See all",
+    "all": "All",
+    "unread": "Unread",
+    "loading": "Loading notifications...",
+    "emptyUnread": "No unread notifications.",
+    "empty": "No notifications yet.",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} d"
+  },
+  "news": {
+    "title": "News",
+    "seeAll": "See all news",
+    "loading": "Loading news...",
+    "empty": "There is no news yet.",
+    "previous": "Previous news item",
+    "next": "Next news item",
+    "showNews": "Show news item {{number}}"
+  },
+  "comingSoon": "Coming soon",
+  "administration": {
+    "noPrivileges": "You do not have permission for any administrative functions.",
+    "panels": {
+      "roles": "Roles & privileges",
+      "members": "Members and role assignment",
+      "invitations": "Invitations",
+      "membershipRequests": "Membership requests",
+      "organisation": "Organisation",
+      "taskApprovals": "Task approvals",
+      "completedTasks": "Completed tasks"
+    }
+  },
+  "completedTasks": {
+    "loading": "Loading completed tasks...",
+    "empty": "No tasks have been marked as completed yet.",
+    "searchPlaceholder": "Search by title or description...",
+    "allPriorities": "All priorities",
+    "noMatch": "No tasks match the search or filter.",
+    "noDescription": "No description.",
+    "room": "Room:",
+    "noRoom": "No room",
+    "period": "Period:",
+    "unknown": "Unknown",
+    "assignees": "Assigned:",
+    "noAssignees": "Nobody assigned",
+    "materials": "Materials:",
+    "noMaterials": "No materials",
+    "edit": "Edit",
+    "reopen": "Reopen",
+    "reopening": "Reopening..."
+  },
+  "statistics": {
+    "noOrganisation": "You do not have an active organisation yet, so there are no statistics to show.",
+    "goToOrganisation": "Go to Organisation",
+    "title": "Statistics",
+    "description": "Key figures and insight calculated from the organisation's items and tasks.",
+    "loading": "Loading..."
+  }
+}
