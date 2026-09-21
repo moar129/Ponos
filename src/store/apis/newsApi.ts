@@ -1,7 +1,7 @@
 // src/store/apis/newsApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import { mapPermissionError } from './apiError'
+import { mapDbError, mapPermissionError } from './apiError'
 import type { CreateNewsInput, News, UpdateNewsInput } from '../../types/news/newsType'
 
 async function getAuthenticatedOrganisationId(): Promise<string> {
@@ -57,7 +57,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                         .order('published_at', { ascending: false })
 
                     if (error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                        return { error: mapDbError(error) }
                     }
 
                     return { data: (data ?? []).map(mapNewsRow) }
@@ -83,7 +83,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                     .single()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: mapNewsRow(data) }

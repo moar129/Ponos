@@ -1,0 +1,30 @@
+{
+  "loading": "Se încarcă profilul...",
+  "notFound": "Profilul dumneavoastră nu a fost găsit.",
+  "saved": "Datele dumneavoastră au fost salvate.",
+  "nameRequired": "Prenumele și numele sunt obligatorii.",
+  "fields": {
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "email": "E-mail",
+    "organisation": "Organizație",
+    "role": "Rol",
+    "description": "Descriere",
+    "pictureUrl": "Imagine de profil (URL)"
+  },
+  "empty": {
+    "organisation": "Nicio organizație",
+    "role": "Niciun rol atribuit",
+    "description": "Nicio descriere"
+  },
+  "readOnlyNote": "E-mailul, rolul și organizația nu pot fi schimbate aici. Contactați administratorul dumneavoastră.",
+  "saveChanges": "Salvează modificările",
+  "editProfile": "Editează profilul",
+  "logout": "Deconectare",
+  "loggingOut": "Se deconectează...",
+  "passwordHeading": "Parolă",
+  "preferences": {
+    "title": "Afișare",
+    "hint": "Limba și tema se salvează în acest browser și se aplică doar acestui dispozitiv."
+  }
+}

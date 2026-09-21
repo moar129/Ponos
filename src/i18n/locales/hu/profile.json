@@ -1,0 +1,30 @@
+{
+  "loading": "Profil betöltése...",
+  "notFound": "A profilja nem található.",
+  "saved": "Az adatai mentve lettek.",
+  "nameRequired": "A keresztnév és a vezetéknév kötelező.",
+  "fields": {
+    "firstName": "Keresztnév",
+    "lastName": "Vezetéknév",
+    "email": "E-mail",
+    "organisation": "Szervezet",
+    "role": "Szerepkör",
+    "description": "Leírás",
+    "pictureUrl": "Profilkép (URL)"
+  },
+  "empty": {
+    "organisation": "Nincs szervezet",
+    "role": "Nincs hozzárendelt szerepkör",
+    "description": "Nincs leírás"
+  },
+  "readOnlyNote": "Az e-mail-cím, a szerepkör és a szervezet itt nem módosítható. Forduljon a rendszergazdájához.",
+  "saveChanges": "Módosítások mentése",
+  "editProfile": "Profil szerkesztése",
+  "logout": "Kijelentkezés",
+  "loggingOut": "Kijelentkezés...",
+  "passwordHeading": "Jelszó",
+  "preferences": {
+    "title": "Megjelenítés",
+    "hint": "A nyelv és a téma ebben a böngészőben tárolódik, és csak erre az eszközre vonatkozik."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Přehled",
+  "welcome": "Vítejte.",
+  "welcomeNamed": "Vítejte, {{name}}.",
+  "tabs": {
+    "overview": "Přehled",
+    "organisation": "Organizace",
+    "administration": "Správa"
+  },
+  "overview": {
+    "noOrganisation": "Zatím nemáte aktivní organizaci, takže tu není co zobrazit.",
+    "goToOrganisation": "Přejít na Organizaci",
+    "shortcuts": "Zkratky",
+    "datalayerDescription": "Zobrazte a spravujte položky, kategorie a místa.",
+    "tasksDescription": "Zobrazte a spravujte úkoly organizace.",
+    "statisticsDescription": "Zobrazte analýzy a statistiky organizace."
+  },
+  "myTasks": {
+    "title": "Moje úkoly",
+    "goToTasks": "Přejít na úkoly",
+    "loading": "Načítání vašich úkolů...",
+    "empty": "Zatím jste se nepřihlásili k žádnému úkolu.",
+    "endsOn": "Končí {{date}}"
+  },
+  "notifications": {
+    "title": "Oznámení",
+    "seeAll": "Zobrazit vše",
+    "all": "Vše",
+    "unread": "Nepřečtené",
+    "loading": "Načítání oznámení...",
+    "emptyUnread": "Žádná nepřečtená oznámení.",
+    "empty": "Zatím žádná oznámení.",
+    "justNow": "Právě teď",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} d"
+  },
+  "news": {
+    "title": "Novinky",
+    "seeAll": "Zobrazit všechny novinky",
+    "loading": "Načítání novinek...",
+    "empty": "Zatím žádné novinky.",
+    "previous": "Předchozí novinka",
+    "next": "Další novinka",
+    "showNews": "Zobrazit novinku číslo {{number}}"
+  },
+  "comingSoon": "Již brzy",
+  "administration": {
+    "noPrivileges": "Nemáte oprávnění k žádné funkci správy.",
+    "panels": {
+      "roles": "Role a oprávnění",
+      "members": "Členové a přiřazení rolí",
+      "invitations": "Pozvánky",
+      "membershipRequests": "Žádosti o členství",
+      "organisation": "Organizace",
+      "taskApprovals": "Schvalování úkolů",
+      "completedTasks": "Dokončené úkoly"
+    }
+  },
+  "completedTasks": {
+    "loading": "Načítání dokončených úkolů...",
+    "empty": "Zatím nebyl žádný úkol označen jako dokončený.",
+    "searchPlaceholder": "Hledat podle názvu nebo popisu...",
+    "allPriorities": "Všechny priority",
+    "noMatch": "Žádný úkol neodpovídá hledání nebo filtru.",
+    "noDescription": "Žádný popis.",
+    "room": "Místnost:",
+    "noRoom": "Bez místnosti",
+    "period": "Období:",
+    "unknown": "Neznámé",
+    "assignees": "Přiřazeno:",
+    "noAssignees": "Nikdo není přiřazen",
+    "materials": "Materiály:",
+    "noMaterials": "Žádné materiály",
+    "edit": "Upravit",
+    "reopen": "Znovu otevřít",
+    "reopening": "Otevírání..."
+  },
+  "statistics": {
+    "noOrganisation": "Zatím nemáte aktivní organizaci, takže není co zobrazit.",
+    "goToOrganisation": "Přejít na Organizaci",
+    "title": "Statistiky",
+    "description": "Ukazatele a analýzy vypočítané z položek a úkolů organizace.",
+    "loading": "Načítání..."
+  }
+}

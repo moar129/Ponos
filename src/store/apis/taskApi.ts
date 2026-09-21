@@ -11,7 +11,7 @@ import type {
     TaskAssignee,
 } from '../../types/Task/Task'
 
-import { mapPermissionError, type QueryError } from './apiError'
+import { mapDbError, mapPermissionError, type QueryError } from './apiError'
 
 interface CreateTaskInput {
     title: string
@@ -100,7 +100,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select('*')
                         .eq('organisation_id', organisationId)
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapDbError(error) as QueryError }
                     return { data: (data ?? []) as Task[] }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
@@ -130,7 +130,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
                         .eq('status', 'Completed')
 
-                    if (tasksError) return { error: { status: 'CUSTOM_ERROR', error: tasksError.message } as QueryError }
+                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
                     if (!tasks || tasks.length === 0) return { data: [] }
 
                     const taskIds = tasks.map((task) => task.id)
@@ -218,7 +218,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
                         .order('created_at', { ascending: true })
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapDbError(error) as QueryError }
                     return { data: (data ?? []) as Room[] }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
@@ -484,7 +484,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 const { data, error } = await supabase.from('tasks').select('*').eq('id', id).single()
 
-                if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                if (error) return { error: mapDbError(error) as QueryError }
                 return { data: data as Task }
             },
             invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],

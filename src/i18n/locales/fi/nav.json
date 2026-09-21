@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Etusivu",
+    "dashboard": "Koontinäyttö",
+    "tasks": "Tehtävät",
+    "statistics": "Tilastot",
+    "datalayer": "Datakerros",
+    "news": "Uutiset",
+    "messages": "Viestit",
+    "login": "Kirjaudu sisään",
+    "signup": "Luo tili"
+  },
+  "user": {
+    "fallbackName": "Käyttäjä",
+    "noRole": "Ei roolia",
+    "viewProfile": "Näytä profiili",
+    "logout": "Kirjaudu ulos",
+    "loggingOut": "Kirjaudutaan ulos..."
+  },
+  "menu": {
+    "open": "Avaa valikko",
+    "close": "Sulje valikko"
+  },
+  "footer": {
+    "tagline": "Luomme selkeyttä, yhteistyötä ja kestäviä tuloksia – yhdessä.",
+    "navigationLabel": "Alatunnisteen navigointi",
+    "navigation": "Navigointi",
+    "aboutLabel": "Tietoa Ponosista",
+    "aboutHeading": "Tietoa Ponosista",
+    "about": "Tietoa meistä",
+    "contact": "Yhteystiedot",
+    "help": "Ohje ja tuki",
+    "copyright": "© {{year}} Ponos. Kaikki oikeudet pidätetään."
+  },
+  "banner": {
+    "pendingRequest": "Hakemuksesi liittyä organisaatioon <strong>{{organisation}}</strong> odottaa hyväksyntää.",
+    "invited": "Sinut on kutsuttu liittymään organisaatioon <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Näytä kutsu",
+    "noOrganisation": "Et ole vielä minkään organisaation jäsen.",
+    "createOrRequest": "Luo organisaatio tai hae jäsenyyttä"
+  }
+}

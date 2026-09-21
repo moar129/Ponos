@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Tagok betöltése...",
+    "empty": "A szervezetnek még nincsenek tagjai.",
+    "searchPlaceholder": "Keresés név vagy e-mail alapján...",
+    "noMatch": "Egyetlen tag sem felel meg a keresésnek.",
+    "ownRow": "A saját sorát nem módosíthatja",
+    "adminLockedTitle": "Egy másik rendszergazda szerepkörét csak rendszergazda módosíthatja",
+    "locked": "Zárolva",
+    "remove": "Eltávolítás",
+    "confirmRemove": "Biztosan eltávolítja {{name}} tagot a szervezetből?",
+    "removing": "Eltávolítás...",
+    "confirmRemoveYes": "Igen, eltávolítom",
+    "confirmTransfer": "Átadja a rendszergazdai szerepkört neki: {{name}}? Azonnal elveszíti a saját rendszergazdai hozzáférését, és hétköznapi taggá válik.",
+    "transferring": "Átadás...",
+    "confirmTransferYes": "Igen, átadom a rendszergazdai jogot"
+  },
+  "invitations": {
+    "emailLabel": "Meghívás e-mailben",
+    "send": "Meghívó küldése",
+    "sending": "Küldés...",
+    "pendingHeading": "Függőben lévő meghívók",
+    "loading": "Meghívók betöltése...",
+    "empty": "Nincsenek függőben lévő meghívók.",
+    "areYouSure": "Biztos benne?",
+    "cancelInvitation": "Visszavonás",
+    "cancelling": "Visszavonás...",
+    "confirmCancelYes": "Igen, visszavonom",
+    "undo": "Mégsem",
+    "emailPlaceholder": "nev@pelda.hu",
+    "invitedOn": "Meghívva",
+    "invitedOnDate": "Meghívva: {{date}}"
+  },
+  "requests": {
+    "loading": "Kérelmek betöltése...",
+    "empty": "Nincsenek függőben lévő kérelmek.",
+    "confirmAccept": "Biztosan felvegyük {{name}} tagot a szervezetbe?",
+    "confirmReject": "Biztosan elutasítja a kérelmet? {{name}} később újra jelentkezhet.",
+    "processing": "Feldolgozás...",
+    "yes": "Igen",
+    "accept": "Elfogadás",
+    "reject": "Elutasítás",
+    "requestedOn": "Kérelmezve: {{date}}"
+  },
+  "admin": {
+    "loading": "Szervezet betöltése...",
+    "loadFailed": "A szervezetet nem sikerült betölteni.",
+    "saved": "A szervezet adatai mentve lettek.",
+    "nameLabel": "Név",
+    "memberCount": "Tagok száma",
+    "edit": "Szervezet szerkesztése",
+    "delete": "Szervezet törlése",
+    "deleteWarning": "Ez véglegesen törli a(z) \"{{name}}\" szervezetet, és nem vonható vissza.",
+    "typeNameToConfirm": "A megerősítéshez írja be a szervezet nevét ({{name}})",
+    "ackDataLoss": "Megértettem, hogy a szervezet összes adata (feladatok, tételek, kategóriák, helyszínek és statisztikák) véglegesen törlődik, és nem állítható helyre.",
+    "ackMemberImpact": "Megértettem, hogy a másik {{count}} tag azonnal elveszíti a hozzáférését.",
+    "deleting": "Törlés...",
+    "deletePermanently": "Végleges törlés",
+    "deleted": "\"{{name}}\" törölve lett.",
+    "deletedNewActive": "\"{{name}}\" törölve lett. Az aktív szervezete most \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" törölve lett. Már nincs aktív szervezete."
+  },
+  "picker": {
+    "searchPlaceholder": "Szervezet keresése...",
+    "empty": "Nincs választható szervezet.",
+    "noMatch": "Egyetlen szervezet sem felel meg a keresésének."
+  },
+  "loading": "Szervezet betöltése...",
+  "noActiveTitle": "Nincs aktív szervezet",
+  "noActiveWithMemberships": "Egy vagy több szervezetnek tagja, de most egyik sem aktív - válasszon egyet a \"Saját szervezetek\" alatt, vagy hozzon létre/igényeljen újat.",
+  "noActiveWithout": "Még nem tagja egyetlen szervezetnek sem. Hozzon létre új szervezetet, vagy igényeljen tagságot egy meglévőben.",
+  "tabs": {
+    "create": "Szervezet létrehozása",
+    "request": "Tagság igénylése",
+    "memberships": "Saját szervezetek",
+    "invitations": "Meghívók",
+    "details": "Szervezet"
+  },
+  "create": {
+    "nameLabel": "A szervezet neve",
+    "submit": "Szervezet létrehozása",
+    "submitting": "Létrehozás...",
+    "created": "A(z) \"{{name}}\" szervezet létrejött, és most ez az aktív szervezete."
+  },
+  "request": {
+    "pending": "A tagsági kérelmét elküldtük, és a szervezet adminisztrációjának jóváhagyására vár.",
+    "chooseLabel": "Szervezet kiválasztása",
+    "submit": "Kérelem küldése",
+    "submitting": "Kérelem küldése...",
+    "noneAvailable": "Nincs más szervezet, amelybe tagságot igényelhetne."
+  },
+  "details": {
+    "administrator": "Rendszergazda",
+    "noRole": "Nincs hozzárendelt szerepkör",
+    "memberCount": "Tagok száma"
+  },
+  "myInvitations": {
+    "loading": "Meghívók betöltése...",
+    "empty": "Nincsenek függőben lévő meghívói.",
+    "accept": "Elfogadás",
+    "reject": "Elutasítás",
+    "confirmAccept": "Biztosan tagja szeretne lenni ennek: {{name}}?",
+    "confirmReject": "Biztosan elutasítja a meghívót?",
+    "processing": "Feldolgozás...",
+    "yes": "Igen",
+    "invitedOn": "Meghívva",
+    "invitedOnDate": "Meghívva: {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Szervezetei betöltése...",
+    "empty": "Nem tagja egyetlen szervezetnek sem.",
+    "active": "Aktív",
+    "makeActive": "Beállítás aktívként",
+    "switching": "Váltás...",
+    "areYouSure": "Biztos benne?",
+    "leave": "Kilépés",
+    "leaving": "Kilépés...",
+    "confirmLeaveYes": "Igen, kilépek",
+    "left": "Kilépett innen: \"{{name}}\".",
+    "leftNewActive": "Kilépett innen: \"{{name}}\". Az aktív szervezete most \"{{newActive}}\".",
+    "leftNoActive": "Kilépett innen: \"{{name}}\". Már nincs aktív szervezete."
+  },
+  "genericLoading": "Betöltés..."
+}

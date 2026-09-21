@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
+import { notificationTitle } from '../../utils/notificationDisplay'
 import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
@@ -113,7 +114,7 @@ export default function NotificationsPage() {
                       {!notification.isRead && !isDismissed && (
                         <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                       )}
-                      <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{td(`notifications:type.${notification.type}`)}</p>
+                      <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{notificationTitle(notification, td)}</p>
                       {isDismissed && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary shrink-0 dark:bg-slate-700 dark:text-slate-400">
                           {t('hidden')}

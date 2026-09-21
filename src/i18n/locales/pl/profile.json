@@ -1,0 +1,30 @@
+{
+  "loading": "Ładowanie profilu...",
+  "notFound": "Nie znaleziono Twojego profilu.",
+  "saved": "Twoje dane zostały zapisane.",
+  "nameRequired": "Imię i nazwisko są wymagane.",
+  "fields": {
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "email": "E-mail",
+    "organisation": "Organizacja",
+    "role": "Rola",
+    "description": "Opis",
+    "pictureUrl": "Zdjęcie profilowe (URL)"
+  },
+  "empty": {
+    "organisation": "Brak organizacji",
+    "role": "Nie przydzielono roli",
+    "description": "Brak opisu"
+  },
+  "readOnlyNote": "E-maila, roli i organizacji nie można tu zmienić. Skontaktuj się ze swoim administratorem.",
+  "saveChanges": "Zapisz zmiany",
+  "editProfile": "Edytuj profil",
+  "logout": "Wyloguj się",
+  "loggingOut": "Wylogowywanie...",
+  "passwordHeading": "Hasło",
+  "preferences": {
+    "title": "Wyświetlanie",
+    "hint": "Język i motyw są zapisywane w tej przeglądarce i dotyczą tylko tego urządzenia."
+  }
+}

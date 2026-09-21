@@ -1,0 +1,20 @@
+{
+  "title": "Notificări",
+  "empty": "Încă nicio notificare.",
+  "markAllRead": "Marchează tot ca citit",
+  "seeAll": "Vezi toate notificările",
+  "hide": "Ascunde notificarea",
+  "unhide": "Afișează din nou în clopoțel",
+  "deletePermanently": "Șterge definitiv",
+  "deleteAriaLabel": "Șterge definitiv notificarea",
+  "hidden": "Ascunsă",
+  "justNow": "Chiar acum",
+  "type": {
+    "message": "Mesaj nou",
+    "task_assigned": "Vi s-a atribuit o sarcină",
+    "task_updated": "O sarcină a fost actualizată",
+    "task_completed": "O sarcină a fost finalizată",
+    "task_approved": "Sarcina dumneavoastră a fost aprobată",
+    "task_rejected": "Raportarea finalizării a fost respinsă"
+  }
+}

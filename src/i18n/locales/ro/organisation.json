@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Se încarcă membrii...",
+    "empty": "Organizația nu are încă membri.",
+    "searchPlaceholder": "Căutați după nume sau e-mail...",
+    "noMatch": "Niciun membru nu corespunde căutării.",
+    "ownRow": "Nu vă puteți modifica propriul rând",
+    "adminLockedTitle": "Doar un administrator poate schimba rolul altui administrator",
+    "locked": "Blocat",
+    "remove": "Elimină",
+    "confirmRemove": "Sigur doriți să eliminați {{name}} din organizație?",
+    "removing": "Se elimină...",
+    "confirmRemoveYes": "Da, elimină",
+    "confirmTransfer": "Transferați rolul de administrator către {{name}}? Vă veți pierde imediat propriul acces de administrator și veți deveni membru obișnuit.",
+    "transferring": "Se transferă...",
+    "confirmTransferYes": "Da, transferă administrarea"
+  },
+  "invitations": {
+    "emailLabel": "Invită prin e-mail",
+    "send": "Trimite invitația",
+    "sending": "Se trimite...",
+    "pendingHeading": "Invitații în așteptare",
+    "loading": "Se încarcă invitațiile...",
+    "empty": "Nicio invitație în așteptare.",
+    "areYouSure": "Sunteți sigur?",
+    "cancelInvitation": "Anulează",
+    "cancelling": "Se anulează...",
+    "confirmCancelYes": "Da, anulează",
+    "undo": "Înapoi",
+    "emailPlaceholder": "nume@exemplu.ro",
+    "invitedOn": "Invitat",
+    "invitedOnDate": "Invitat {{date}}"
+  },
+  "requests": {
+    "loading": "Se încarcă cererile...",
+    "empty": "Nicio cerere în așteptare.",
+    "confirmAccept": "Sigur doriți să îl acceptați pe {{name}} în organizație?",
+    "confirmReject": "Sigur doriți să respingeți cererea? {{name}} poate solicita din nou mai târziu.",
+    "processing": "Se procesează...",
+    "yes": "Da",
+    "accept": "Acceptă",
+    "reject": "Respinge",
+    "requestedOn": "Solicitat {{date}}"
+  },
+  "admin": {
+    "loading": "Se încarcă organizația...",
+    "loadFailed": "Organizația nu a putut fi încărcată.",
+    "saved": "Datele organizației au fost salvate.",
+    "nameLabel": "Nume",
+    "memberCount": "Număr de membri",
+    "edit": "Editează organizația",
+    "delete": "Șterge organizația",
+    "deleteWarning": "Aceasta șterge definitiv organizația „{{name}}” și nu poate fi anulată.",
+    "typeNameToConfirm": "Scrieți numele organizației pentru confirmare ({{name}})",
+    "ackDataLoss": "Înțeleg că toate datele organizației (sarcini, articole, categorii, locații și statistici) vor fi șterse definitiv și nu pot fi recuperate.",
+    "ackMemberImpact": "Înțeleg că ceilalți {{count}} membri își pierd imediat accesul.",
+    "deleting": "Se șterge...",
+    "deletePermanently": "Șterge definitiv",
+    "deleted": "„{{name}}” a fost ștearsă.",
+    "deletedNewActive": "„{{name}}” a fost ștearsă. Organizația dumneavoastră activă este acum „{{newActive}}”.",
+    "deletedNoActive": "„{{name}}” a fost ștearsă. Nu mai aveți nicio organizație activă."
+  },
+  "picker": {
+    "searchPlaceholder": "Căutați o organizație...",
+    "empty": "Nicio organizație de ales.",
+    "noMatch": "Nicio organizație nu corespunde căutării dumneavoastră."
+  },
+  "loading": "Se încarcă organizația...",
+  "noActiveTitle": "Nicio organizație activă",
+  "noActiveWithMemberships": "Sunteți membru al uneia sau mai multor organizații, dar niciuna nu este activă acum – alegeți una la „Organizațiile mele” sau creați ori solicitați una nouă.",
+  "noActiveWithout": "Nu sunteți încă membru al niciunei organizații. Creați o organizație nouă sau solicitați aderarea la una existentă.",
+  "tabs": {
+    "create": "Creează organizație",
+    "request": "Solicită aderarea",
+    "memberships": "Organizațiile mele",
+    "invitations": "Invitații",
+    "details": "Organizație"
+  },
+  "create": {
+    "nameLabel": "Numele organizației",
+    "submit": "Creează organizația",
+    "submitting": "Se creează...",
+    "created": "Organizația „{{name}}” a fost creată și este acum organizația dumneavoastră activă."
+  },
+  "request": {
+    "pending": "Cererea dumneavoastră de aderare a fost trimisă și așteaptă aprobarea administrației organizației.",
+    "chooseLabel": "Alegeți organizația",
+    "submit": "Trimite cererea",
+    "submitting": "Se trimite cererea...",
+    "noneAvailable": "Nu există alte organizații la care să solicitați aderarea."
+  },
+  "details": {
+    "administrator": "Administrator",
+    "noRole": "Niciun rol atribuit",
+    "memberCount": "Număr de membri"
+  },
+  "myInvitations": {
+    "loading": "Se încarcă invitațiile...",
+    "empty": "Nu aveți invitații în așteptare.",
+    "accept": "Acceptă",
+    "reject": "Respinge",
+    "confirmAccept": "Sigur doriți să deveniți membru al organizației {{name}}?",
+    "confirmReject": "Sigur doriți să respingeți invitația?",
+    "processing": "Se procesează...",
+    "yes": "Da",
+    "invitedOn": "Invitat",
+    "invitedOnDate": "Invitat {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Se încarcă organizațiile dumneavoastră...",
+    "empty": "Nu sunteți membru al niciunei organizații.",
+    "active": "Activă",
+    "makeActive": "Setează ca activă",
+    "switching": "Se comută...",
+    "areYouSure": "Sunteți sigur?",
+    "leave": "Părăsește",
+    "leaving": "Se părăsește...",
+    "confirmLeaveYes": "Da, părăsesc",
+    "left": "Ați părăsit „{{name}}”.",
+    "leftNewActive": "Ați părăsit „{{name}}”. Organizația dumneavoastră activă este acum „{{newActive}}”.",
+    "leftNoActive": "Ați părăsit „{{name}}”. Nu mai aveți nicio organizație activă."
+  },
+  "genericLoading": "Se încarcă..."
+}

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
+import { notificationTitle } from '../../utils/notificationDisplay'
 import { useNavigate } from 'react-router-dom';
 import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
 import {
@@ -125,7 +126,7 @@ export function NotificationBellComponent() {
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm text-primary dark:text-slate-100 truncate">{td(`notifications:type.${notification.type}`)}</p>
+                        <p className="text-sm text-primary dark:text-slate-100 truncate">{notificationTitle(notification, td)}</p>
                         {!notification.isRead && (
                           <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                         )}

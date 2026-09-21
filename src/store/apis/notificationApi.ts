@@ -2,6 +2,7 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { AppNotification } from '../../types/notification/notificationTypes'
+import { mapDbError } from './apiError'
 
 function mapNotificationRow(row: {
     id: string
@@ -47,7 +48,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                 const { data, error } = await query
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: (data ?? []).map(mapNotificationRow) }
@@ -135,7 +136,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                     .eq('id', id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -161,7 +162,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                     .eq('is_read', false)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -182,7 +183,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                     .eq('id', id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -200,7 +201,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                     .eq('id', id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -216,7 +217,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.from('notifications').delete().eq('id', id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }

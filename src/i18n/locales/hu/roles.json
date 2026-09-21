@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Szerepkörök és jogosultságok",
+    "organisation": "Szervezet",
+    "membership_requests": "Tagsági kérelmek",
+    "members": "Tagok",
+    "invitations": "Meghívók",
+    "news": "Hírek",
+    "datalayer": "Adatréteg",
+    "tasks": "Feladatok",
+    "task_approval": "Feladatjóváhagyás"
+  },
+  "op": {
+    "create": "Létrehozás",
+    "read": "Megtekintés",
+    "update": "Szerkesztés",
+    "delete": "Törlés",
+    "assign": "Hozzárendelés",
+    "approve": "Jóváhagyás",
+    "reject": "Elutasítás"
+  },
+  "privilege": {
+    "admin": "Teljes adminisztráció (mindent megtehet)"
+  },
+  "other": "Egyéb",
+  "matrix": {
+    "newRoleLabel": "Új szerepkör",
+    "createRole": "Szerepkör létrehozása",
+    "creatingRole": "Létrehozás...",
+    "loading": "Szerepkörök betöltése...",
+    "noRoles": "A szervezetnek még nincsenek szerepkörei.",
+    "selectAll": "Összes kijelölése",
+    "removeAll": "Összes eltávolítása",
+    "savePrivilegeName": "Jogosultság nevének mentése",
+    "renamePrivilege": "Jogosultság átnevezése",
+    "saveRoleName": "Szerepkör nevének mentése",
+    "renameRole": "Szerepkör átnevezése",
+    "deleteRole": "Szerepkör törlése",
+    "newRolePlaceholder": "Pl. Önkéntes-koordinátor",
+    "privilegeColumn": "Jogosultság",
+    "removeAllTitle": "Eltávolítja a(z) {{role}} szerepkör összes jelenlegi jogosultságát (ez nem valódi rendszergazdai hozzáférés)",
+    "selectAllTitle": "Megadja a(z) {{role}} szerepkörnek az összes jelenlegi jogosultságot (ez nem valódi rendszergazdai hozzáférés)",
+    "renamePrivilegeFor": "Ennek a jogosultságnak az átnevezése a(z) {{role}} szerepkörhöz",
+    "confirmDeleteRole": "Töröljük a(z) \"{{name}}\" szerepkört?"
+  },
+  "locked": {
+    "adminHasAll": "Az Adminnak már teljes hozzáférése van, és nem szabható testre",
+    "memberFixed": "A Medlem alapértelmezett szerepkör rögzített része",
+    "adminOnly": "Az admin jogosultságot csak rendszergazda adhatja meg",
+    "adminRoleProtected": "Ennek a szerepkörnek admin jogosultsága van, ezért nem nevezhető át és nem törölhető",
+    "memberRoleProtected": "A Medlem alapértelmezett szerepkör nem nevezhető át és nem törölhető",
+    "memberNotExtendable": "A Medlem alapértelmezett szerepkör nem bővíthető"
+  },
+  "approvals": {
+    "loading": "Feladatjóváhagyások betöltése...",
+    "empty": "Nincs jóváhagyásra váró feladat.",
+    "confirmApprove": "Jóváhagyjuk és befejezettként jelöljük a feladatot?",
+    "confirmReject": "Elutasítjuk a kérelmet? A feladat folyamatban marad.",
+    "reportedBy": "Befejezettként jelentette:",
+    "approve": "Jóváhagyás",
+    "reject": "Elutasítás",
+    "reportedDoneBy": "Befejezettként jelentette: {{name}}"
+  }
+}

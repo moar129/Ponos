@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Strona główna",
+    "dashboard": "Panel",
+    "tasks": "Zadania",
+    "statistics": "Statystyki",
+    "datalayer": "Warstwa danych",
+    "news": "Aktualności",
+    "messages": "Wiadomości",
+    "login": "Zaloguj się",
+    "signup": "Załóż konto"
+  },
+  "user": {
+    "fallbackName": "Użytkownik",
+    "noRole": "Brak roli",
+    "viewProfile": "Zobacz profil",
+    "logout": "Wyloguj się",
+    "loggingOut": "Wylogowywanie..."
+  },
+  "menu": {
+    "open": "Otwórz menu",
+    "close": "Zamknij menu"
+  },
+  "footer": {
+    "tagline": "Tworzymy przejrzystość, współpracę i trwałe rezultaty – razem.",
+    "navigationLabel": "Nawigacja w stopce",
+    "navigation": "Nawigacja",
+    "aboutLabel": "O Ponos",
+    "aboutHeading": "O Ponos",
+    "about": "O nas",
+    "contact": "Kontakt",
+    "help": "Pomoc i wsparcie",
+    "copyright": "© {{year}} Ponos. Wszelkie prawa zastrzeżone."
+  },
+  "banner": {
+    "pendingRequest": "Twój wniosek o członkostwo w <strong>{{organisation}}</strong> czeka na zatwierdzenie.",
+    "invited": "Zostałeś zaproszony do dołączenia do <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Zobacz zaproszenie",
+    "noOrganisation": "Nie jesteś jeszcze członkiem żadnej organizacji.",
+    "createOrRequest": "Utwórz organizację lub złóż wniosek o członkostwo"
+  }
+}

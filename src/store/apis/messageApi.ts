@@ -2,6 +2,7 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { ConversationParticipant, ConversationSummary, Message } from '../../types/messages/messagesTypes'
+import { mapDbError } from './apiError'
 
 export const messageApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -12,7 +13,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                 const { data, error } = await supabase.rpc('get_my_conversations')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 type Row = {
@@ -52,7 +53,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data as string }
@@ -70,7 +71,7 @@ export const messageApi = supabaseApi.injectEndpoints({
             .order('created_at', { ascending: true })
 
         if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+            return { error: mapDbError(error) }
         }
 
         return {
@@ -176,7 +177,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -199,7 +200,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data as string }
@@ -220,7 +221,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
             .eq('conversation_id', conversationId)
 
         if (participantsError) {
-            return { error: { status: 'CUSTOM_ERROR', error: participantsError.message } }
+            return { error: mapDbError(participantsError) }
         }
 
         if (!participants || participants.length === 0) {
@@ -233,7 +234,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
             .in('id', participants.map((p) => p.user_id))
 
         if (profilesError) {
-            return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+            return { error: mapDbError(profilesError) }
         }
 
         const lastReadById = new Map(participants.map((p) => [p.user_id, p.last_read_at]))
@@ -294,7 +295,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -338,7 +339,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -361,7 +362,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -384,7 +385,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -410,7 +411,7 @@ editMessage: builder.mutation<void, { messageId: string; conversationId: string;
         })
 
         if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+            return { error: mapDbError(error) }
         }
 
         return { data: undefined }
@@ -425,7 +426,7 @@ deleteMessage: builder.mutation<void, { messageId: string; conversationId: strin
         const { error } = await supabase.rpc('delete_message', { p_message_id: messageId })
 
         if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+            return { error: mapDbError(error) }
         }
 
         return { data: undefined }

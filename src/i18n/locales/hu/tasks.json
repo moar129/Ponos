@@ -1,0 +1,122 @@
+{
+  "status": {
+    "Started": "Elérhető",
+    "InProgress": "Folyamatban",
+    "Completed": "Kész"
+  },
+  "priority": {
+    "Low": "Alacsony",
+    "Medium": "Közepes",
+    "High": "Magas",
+    "Critical": "Kritikus"
+  },
+  "fields": {
+    "title": "Cím",
+    "description": "Leírás",
+    "room": "Helyiség",
+    "priority": "Prioritás",
+    "maxAssignees": "Személyek száma",
+    "startDate": "Kezdő dátum",
+    "endDate": "Befejező dátum"
+  },
+  "page": {
+    "subtitle": "Szerezzen áttekintést az elvégzendő munkáról.",
+    "createTask": "Feladat létrehozása",
+    "noAvailableTasks": "Nincsenek elérhető feladatok",
+    "noTasksInProgress": "Nincsenek folyamatban lévő feladatok",
+    "roomNamePlaceholder": "Írja be a helyiség nevét",
+    "saveRoom": "Helyiség mentése",
+    "loading": "Feladatok betöltése...",
+    "noAccess": "Nincs hozzáférése ennek a szervezetnek a feladataihoz.",
+    "heading": "Feladatok",
+    "createRoom": "Helyiség létrehozása",
+    "availableHeading": "Elérhető feladatok",
+    "inProgressHeading": "Folyamatban"
+  },
+  "rooms": {
+    "create": "Helyiség létrehozása",
+    "moreActions": "További műveletek",
+    "edit": "Helyiség szerkesztése",
+    "deleteOne": "Helyiség törlése",
+    "choose": "Válasszon helyiséget",
+    "noRoom": "Helyiség nélkül"
+  },
+  "create": {
+    "heading": "Feladat létrehozása",
+    "titlePlaceholder": "A feladat címe",
+    "descriptionPlaceholder": "A feladat leírása",
+    "requiresApproval": "A feladat jóváhagyást igényel",
+    "noApproval": "A feladat nem igényel jóváhagyást"
+  },
+  "edit": {
+    "heading": "Feladat szerkesztése",
+    "endBeforeStart": "A befejező dátum nem lehet korábbi a kezdő dátumnál.",
+    "deleteTask": "Feladat törlése",
+    "confirmDelete": "Biztosan törli a(z) \"{{name}}\" feladatot? Ez a művelet nem vonható vissza."
+  },
+  "priorityNone": "Nincs prioritás",
+  "assignees": {
+    "noLimit": "Nincs korlát",
+    "count_one": "{{count}} személy",
+    "count_other": "{{count}} személy",
+    "nobodyAssigned": "Még senkit sem rendeltek hozzá.",
+    "unknownUser": "Ismeretlen felhasználó",
+    "selfSigned": "Ön jelentkezett rá",
+    "assignedByOther": "Valaki más rendelte hozzá",
+    "assignedToYou": "Önhöz rendelve",
+    "addEmployee": "Munkatárs hozzáadása",
+    "chooseWho": "Válassza ki, kihez rendeljük a feladatot",
+    "maxReached": "Elérte a munkatársak maximális számát.",
+    "noFreeSlots": "Nincs több szabad hely a feladatnál.",
+    "nobodyToAssign": "Nincs hozzárendelhető munkatárs.",
+    "signUp": "Jelentkezés",
+    "signOff": "Lejelentkezés",
+    "employee": "Munkatárs"
+  },
+  "card": {
+    "noDescription": "Nincs leírás",
+    "requiresApproval": "Jóváhagyást igényel",
+    "startWork": "Munka megkezdése",
+    "awaitingApproval": "Jóváhagyásra vár",
+    "markDone": "Befejezés jelentése",
+    "priorityBadge": "Prioritás: {{priority}}",
+    "edit": "Szerkesztés",
+    "details": "A feladat részletei",
+    "responsible": "Hozzárendelve",
+    "start": "Kezdés",
+    "end": "Vége",
+    "statusLabel": "Állapot:",
+    "addEmployeeShort": "+ Munkatárs hozzáadása",
+    "created": "Létrehozva",
+    "statusValue": "Állapot: {{status}}"
+  },
+  "filter": {
+    "show": "Szűrő megjelenítése",
+    "hide": "Szűrő elrejtése",
+    "searchPlaceholder": "Feladatok keresése...",
+    "all": "Összes",
+    "sortNewest": "Legújabbak",
+    "sortOldest": "Legrégebbiek",
+    "sortPriority": "Prioritás",
+    "sortDeadline": "Határidő",
+    "counts": "{{available}} elérhető · {{inProgress}} folyamatban",
+    "sortBy": "Rendezés"
+  },
+  "deleteRoom": {
+    "heading": "Helyiség törlése",
+    "intro": "Válassza ki a törölni kívánt helyiséget.",
+    "tasksInRoom": "A helyiség feladatai",
+    "chooseTasks": "Válassza ki azokat a feladatokat, amelyeket szintén törölni kell.",
+    "noTasks": "Ebben a helyiségben nincsenek feladatok.",
+    "keptNote": "A ki nem választott feladatok nem törlődnek. Ehelyett ide kerülnek át: <b>{{room}}</b>.",
+    "failed": "A helyiséget nem sikerült törölni. Próbálja újra.",
+    "deleting": "Törlés...",
+    "submit": "Helyiség törlése"
+  },
+  "editRoom": {
+    "heading": "Helyiség szerkesztése",
+    "intro": "Válasszon helyiséget, és szerkessze a nevét.",
+    "namePlaceholder": "Írja be a helyiség nevét",
+    "failed": "A helyiséget nem sikerült szerkeszteni. Próbálja újra."
+  }
+}

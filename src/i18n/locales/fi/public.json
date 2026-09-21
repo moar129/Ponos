@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Näe, mitä teillä on.",
+    "line2": "Näe, kuka tekee mitä.",
+    "line3": "Näe, mitä tietonne kertovat.",
+    "intro": "Ponos kokoaa organisaationne resurssit, tehtävät ja analyysit yhteen paikkaan. Näin tiedätte aina, mitä teillä on, kuka on vastuussa ja mitä luvut kertovat."
+  },
+  "cta": {
+    "signup": "Luo tili",
+    "login": "Kirjaudu sisään",
+    "title": "Aloita Ponosin käyttö",
+    "body": "Luo tili ja käynnistä sitten oma organisaatiosi tai liity jo olemassa olevaan."
+  },
+  "problem": {
+    "title": "Kokonaiskuva on hajallaan",
+    "body": "Organisaatiot hallitsevat tietoja ja työtä erillisissä järjestelmissä. Siksi jopa yksinkertaisiin kysymyksiin on vaikea vastata: mitä resursseja meillä jo on? Missä ne ovat? Kuka on vastuussa tehtävästä?"
+  },
+  "features": {
+    "title": "Kolme kysymystä, yksi paikka",
+    "intro": "Ponos on rakennettu kolmen kysymyksen ympärille, joihin jokaisen organisaation pitäisi osata vastata itsestään.",
+    "datalayer": {
+      "label": "Datakerros",
+      "question": "Mitä meillä on?",
+      "description": "Kirjatkaa resurssinne määrän, luokan, tilan ja sijainnin kanssa. Näin näette aina, mitä teillä on ja missä se on."
+    },
+    "tasks": {
+      "label": "Tehtävät",
+      "question": "Kuka tekee mitä?",
+      "description": "Jokaisella tehtävällä on vastuuhenkilö, osallistujat, tila ja ne asiat, joita se käyttää. Työ liittyy niihin resursseihin, joita se todella käyttää."
+    },
+    "statistics": {
+      "label": "Tilastot",
+      "question": "Mitä tietomme kertovat?",
+      "description": "Luvut lasketaan siitä, minkä olette jo kirjanneet. Ei manuaalista syöttöä eikä lukuja, jotka vanhenevat sillä hetkellä kun ne kirjoitetaan."
+    }
+  },
+  "flow": {
+    "title": "Tietoa, jota käytetään edelleen",
+    "body": "Ponos ei ole arkisto. Se, minkä kirjaatte yhteen paikkaan, käytetään seuraavassa vaiheessa. Datakerroksen nimike on sama nimike, jota tehtävä käyttää ja joka lasketaan tilastoihin.",
+    "steps": {
+      "data": "Data",
+      "people": "Ihmiset",
+      "tasks": "Tehtävät",
+      "insight": "Näkemys"
+    },
+    "quote": "Sen sijaan että <em>\"meiltä puuttuu jotain, ostetaan uutta\"</em> Ponos kannustaa: <em>\"meiltä puuttuu jotain, katsotaan mitä meillä jo on\"</em>."
+  },
+  "partner": {
+    "title": "Tietoa projektista",
+    "intro": "Ponosia kehitetään <strong>Corolabille</strong>, jäsenvetoiselle voittoa tavoittelemattomalle organisaatiolle Roskildessa Tanskassa. Vuodesta 2016 se on koonnut yrityksiä, oppilaitoksia ja julkisia organisaatioita hankkeiden ympärille, joita yksikään niistä ei olisi pystynyt kantamaan yksin. Heidän omin sanoin: \"Kumppanuuksissa teemme eron yhteiskunnalle ja organisaatiollesi.\"",
+    "figures": {
+      "events": "Tapahtumaa",
+      "participants": "Osallistujaa",
+      "projects": "Hanketta",
+      "funding": "Kerättyä rahoitusta"
+    },
+    "figuresSource": "Corolabin omat luvut, haettu osoitteesta corolab.dk syyskuussa 2026.",
+    "areasIntro": "Työ jakautuu kuuteen alueeseen, kontaktien luomisesta rahoituksen hankkimiseen ja tilojen tarjoamiseen.",
+    "areas": {
+      "meet": "Ammatilliset tapahtumat ja verkostot.",
+      "pilots": "Yhteiset aloitteet, jotka käynnistetään yhdessä jäsenten kanssa.",
+      "fund": "Rahoitus jäseniltä, säätiöiltä ja julkisista varoista.",
+      "creation": "Hankkeet, joita kehitetään toimialojen välillä.",
+      "lab": "Pääsy testiympäristöihin, tiloihin ja jaettuihin resursseihin.",
+      "branding": "Näkyvyyttä jäsenten yhteiskuntavastuulle."
+    },
+    "testEnvironment": "Ponosia koetellaan CO-labin testiympäristöissä. Siellä alustan on käsiteltävä todellisen organisaation resursseja ja tehtäviä keksittyjen esimerkkien sijaan.",
+    "moreAboutProject": "Lisää projektista",
+    "readMoreCorolab": "Lue lisää osoitteessa corolab.dk"
+  },
+  "helpStep": "Vaihe {{step}}",
+  "about": {
+    "heroTitle": "Tietoa meistä",
+    "heroDescription": "Rakennamme Ponosia, jotta organisaatio voi vastata kolmeen melko yksinkertaiseen kysymykseen ilman että pitää ensin kysellä ympäriinsä.",
+    "whyTitle": "Miksi tämä on meille tärkeää",
+    "why1": "Useimmat organisaatiot kyllä tietävät, mitä niillä on. Se vain on yhden taulukossa, toisen sähköpostiketjussa ja kolmannen päässä. Niin kauan kuin kaikki ovat paikalla, kaikki sujuu. Se alkaa sattua, kun joku on lomalla, vaihtaa työpaikkaa tai kun kaikki pitää kasata pystyyn kiireessä.",
+    "why2": "Ja se sattuu hyvin konkreettisilla tavoilla. Ostetaan tavaraa, jota teillä jo on, koska kukaan ei ehtinyt selvittää, missä se oli. Tehtävät jäävät tekemättä, koska koskaan ei sanottu ääneen, kenellä ne olivat. Ja kun joku kysyy, miten menee, vastaus on arvaus.",
+    "why3": "Ponos kokoaa nämä kolme asiaa yhteen paikkaan: mitä teillä on, kuka tekee mitä ja mitä luvut kertovat. Ei kolmea järjestelmää rinnakkain - sama tieto kolmesta suunnasta katsottuna.",
+    "principlesTitle": "Näin ajattelemme",
+    "principlesIntro": "Neljä asiaa on ratkaissut suurimman osan valinnoista matkan varrella.",
+    "principles": {
+      "multiTenant": {
+        "name": "Rakennettu useammalle kuin yhdelle",
+        "description": "Ponos on tehty organisaatioille monikossa. Ensimmäinen, joka sitä käyttää, on esimerkki - ei mallivastaus. Mitään ei ole rakennettu yhden tietyn toimintatavan ympärille."
+      },
+      "writeOnce": {
+        "name": "Kirjoita se kerran",
+        "description": "Se, minkä kirjaatte yhteen paikkaan, käytetään edelleen. Datakerroksen asia on sama asia, jota tehtävä käyttää - ei kopio, jota pitää muistaa korjata kahdessa paikassa."
+      },
+      "autoNumbers": {
+        "name": "Luvut huolehtivat itsestään",
+        "description": "Tilastot lasketaan siitä, minkä olette jo kirjanneet. Tunnuslukujen syöttämiseen ei ole kenttiä, joten ei myöskään lukuja, jotka vanhenevat ennen kuin ne on kirjoitettu loppuun."
+      },
+      "yourData": {
+        "name": "Tietonne ovat teidän",
+        "description": "Jokainen organisaatio näkee vain omansa, ja siitä päätetään tietokannassa - ei piilottamalla painiketta. Kuka saa muuttaa mitäkin, päätätte itse rooleilla."
+      }
+    },
+    "behindTitle": "Keitä tämän takana on",
+    "behind1": "Ponos syntyy opiskelijaprojektina yhdessä <strong>Corolabin</strong> kanssa. Se on jäsenvetoinen voittoa tavoittelematon organisaatio Roskildessa Tanskassa, joka on vuodesta 2016 koonnut yrityksiä, oppilaitoksia ja julkisia organisaatioita hankkeiden ympärille, joita yksikään niistä ei olisi pystynyt kantamaan yksin.",
+    "behind2": "Se tarkoittaa, että alustaa koetellaan todellisen organisaation tavaroilla ja tehtävillä eikä esimerkeillä, jotka olemme itse keksineet. Juuri sellainen käyttö paljastaa, kestääkö jokin: tapaukset, joita kukaan ei ollut ennakoinut, ja kohdat, joissa todellisuus ei aivan mahdu kenttiin.",
+    "behind3": "Jos sinulla on kysyttävää projektista tai haluaisit kokeilla Ponosia omassa organisaatiossasi, kuulemme mielellämme sinusta.",
+    "writeToUs": "Kirjoita meille"
+  },
+  "contact": {
+    "heroTitle": "Yhteystiedot",
+    "heroDescription": "Onko sinulla kysymys, törmäsitkö johonkin, joka ei toimi, vai haluatko vain kuulla lisää? Kirjoita meille.",
+    "howToReach": "Näin tavoitat meidät",
+    "emailLabel": "Sähköposti",
+    "locationLabel": "Toimipaikkamme on",
+    "sendMail": "Lähetä sähköpostia",
+    "topicsTitle": "Voit kirjoittaa meille aiheista",
+    "topics": {
+      "fit": "Mitä Ponos osaa ja sopiiko se teille",
+      "bug": "Jokin, joka ei toimi niin kuin pitäisi",
+      "collaboration": "Yhteistyö tai halu kokeilla sitä teillä"
+    },
+    "responseNote": "Luemme arkisin ja vastaamme niin nopeasti kuin pystymme. Kerro mielellään, mistä organisaatiosta on kyse ja mitä olit tekemässä - niin meidän ei tarvitse kysyä sitä ensin.",
+    "helpHintBefore": "Haluatko vain tietää, miten jokin toimii? Vastaus saattaa jo löytyä kohdasta",
+    "helpHintLink": "Ohje ja tuki"
+  },
+  "help": {
+    "heroTitle": "Ohje ja tuki",
+    "heroDescription": "Oletko juuri aloittanut vai jäitkö jumiin? Katso ensin täältä.",
+    "startTitle": "Pääse alkuun",
+    "startIntro": "Kolme vaihetta uudesta tilistä johonkin, joka on oikeasti järjestelmässä.",
+    "steps": {
+      "account": {
+        "title": "Luo tili",
+        "description": "Tarvitset sähköpostiosoitteen ja salasanan. Tili on sinun ja seuraa sinua riippumatta siitä, kuinka moneen organisaatioon lopulta kuulut."
+      },
+      "organisation": {
+        "title": "Liity organisaatioon",
+        "description": "Luo oma tai pyydä päästä jo olemassa olevaan. Lähes kaikki Ponosissa kuuluu johonkin organisaatioon, joten tätä vaihetta ei voi ohittaa."
+      },
+      "data": {
+        "title": "Kirjatkaa tavaranne",
+        "description": "Kirjatkaa resurssinne datakerrokseen ja luokaa ensimmäiset tehtävät. Tilastot alkavat laskea itsestään heti kun on jotain laskettavaa."
+      }
+    },
+    "faqTitle": "Mitä meiltä kysytään useimmin",
+    "faq": {
+      "nothingToSee": {
+        "q": "Olen kirjautunut sisään, mutta mitään ei näy",
+        "a1": "Tätä useimmat ihmettelevät ensimmäisenä - eikä mikään ole rikki. Tehtävät, tilastot, datakerros ja uutiset kuuluvat organisaatioon, joten ennen kuin sinulla on aktiivinen organisaatio, mitään ei ole näytettävänä. Siksi linkitkään eivät ole vielä valikossa.",
+        "a2": "Pääset eteenpäin kohdassa <orgLink>Koontinäyttö → Organisaatio</orgLink>, jossa joko luot oman tai pyydät päästä olemassa olevaan."
+      },
+      "becomeMember": {
+        "q": "Miten liityn organisaation jäseneksi?",
+        "a1": "Mene kohtaan Koontinäyttö → Organisaatio, valitse \"Hae jäsenyyttä\" ja etsi organisaatio listalta. Ylläpitäjän on hyväksyttävä sinut, ennen kuin olet sisällä.",
+        "a2": "Odottaessasi sivun yläreunassa näkyy ilmoituspalkki. Jos ylläpitäjä sen sijaan kutsuu sinut, kutsu ilmestyy samaan paikkaan - silloin painat vain hyväksy."
+      },
+      "multipleOrgs": {
+        "q": "Voinko kuulua useaan organisaatioon?",
+        "a1": "Kyllä. Vain yksi on <b>aktiivinen</b> kerrallaan, ja kaikki mitä näet - tehtävät, tavarat, tilastot, roolit - kuuluu juuri siihen.",
+        "a2": "Vaihdat kohdassa \"Omat organisaatiot\". Muista, että oikeutesi voivat olla eri paikoissa erilaiset: voit hyvin olla ylläpitäjä yhdessä ja tavallinen jäsen toisessa."
+      },
+      "cannotEdit": {
+        "q": "Miksi en voi luoda tai muuttaa mitään?",
+        "a1": "Koska roolillasi ei ole vielä siihen oikeutta. Oikeudet asetetaan organisaatiokohtaisesti, ja jos sinulla ei ole oikeutta johonkin, emme näytä painiketta lainkaan - sen sijaan että antaisimme sinun huomata sen vasta painaessasi.",
+        "a2": "Jos sinun pitää pystyä enempään, ylläpitäjäsi voi antaa sinulle roolin, jossa on oikeat oikeudet."
+      },
+      "invite": {
+        "q": "Miten kutsun uuden käyttäjän?",
+        "a1": "Koontinäyttö → Hallinta → Kutsut, ja sitten henkilön sähköpostiosoite. Tämä edellyttää, että sinulla itselläsi on oikeus kutsua.",
+        "a2": "Henkilöllä on jo oltava Ponos-tili juuri sillä sähköpostiosoitteella - emme lähetä kutsuja osoitteeseen, jota ei ole järjestelmässä. Jos hänellä ei ole vielä tiliä, hänen on ensin luotava sellainen, ja sen jälkeen voit kutsua hänet."
+      },
+      "leaveOrDelete": {
+        "q": "Miten poistun organisaatiosta tai poistan sen?",
+        "a1": "Molemmat löytyvät kohdasta \"Omat organisaatiot\". Jos poistut yhdestä kuuluessasi useaan, jostakin toisesta tulee automaattisesti uusi aktiivinen organisaatiosi.",
+        "a2": "Jos olet ainoa ylläpitäjä, et voi vain lähteä - ketään ei jäisi hoitamaan sitä. Anna ensin ylläpitäjän rooli jollekulle toiselle. Ja organisaation <b>poistaminen</b> pyyhkii kaiken, mitä se sisältää, myös muilta jäseniltä. Sen voi tehdä vain ylläpitäjä."
+      },
+      "editProfile": {
+        "q": "Miten muutan nimeni tai profiilikuvani?",
+        "a1": "Kohdassa <profileLink>profiilisi</profileLink>. Nimen, kuvauksen, kuvan ja salasanan voit muuttaa itse. Sähköpostia ja roolia et - rooli kuuluu organisaatiolle, ja ylläpitäjä antaa sen sinulle."
+      },
+      "forgotPassword": {
+        "q": "Olen unohtanut salasanani",
+        "a1": "Napsauta kirjautumissivulla <resetLink>\"Unohditko salasanasi?\"</resetLink>. Vahvistat tilin sähköpostillasi ja nimelläsi ja valitset heti uuden salasanan.",
+        "a2": "Jos se takkuaa, kirjoita osoitteeseen <mailLink>{{email}}</mailLink>, niin autamme sinut takaisin sisään."
+      }
+    },
+    "noAnswer": "Etkö löytänyt vastausta? <contactLink>Kirjoita meille</contactLink> - kerro mielellään, mitä olit tekemässä ja mitä sen sijaan tapahtui."
+  },
+  "notFound": {
+    "title": "Tätä sivua ei ole",
+    "body": "Tuossa osoitteessa ei ole mitään. Joko matkalla on kadonnut kirjain tai sivu on siirretty linkin luomisen jälkeen.",
+    "toDashboard": "Siirry koontinäyttöön",
+    "toHome": "Siirry etusivulle",
+    "toHelp": "Ohje ja tuki"
+  }
+}

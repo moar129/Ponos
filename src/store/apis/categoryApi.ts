@@ -1,6 +1,6 @@
 import { supabaseApi } from './supabaseApi';
 import { supabase } from '../../lib/supabase';
-import { mapPermissionError } from './apiError';
+import { mapDbError, mapPermissionError } from './apiError';
 import type {
   DataLayerCat,
   DataLayerItem,
@@ -67,7 +67,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (catError) {
-            return { error: { status: 'CUSTOM_ERROR', error: catError.message } };
+            return { error: mapDbError(catError) };
           }
 
           const { data: rawItems, error: itemError } = await supabase
@@ -76,7 +76,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (itemError) {
-            return { error: { status: 'CUSTOM_ERROR', error: itemError.message } };
+            return { error: mapDbError(itemError) };
           }
 
           const items: DataLayerItem[] = (rawItems ?? []).map((i) => ({
@@ -278,7 +278,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDbError(error) };
           }
 
           const locations: ItemLocation[] = (data ?? []).map((loc) => ({

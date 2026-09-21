@@ -2,6 +2,7 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
+import { mapDbError } from './apiError'
 
 // Slår et navn op i en tabel ud fra id. Bruges til rolle/organisation,
 // som hentes hver for sig i stedet for som PostgREST-joins: joins fejler
@@ -32,7 +33,7 @@ export const profileApi = supabaseApi.injectEndpoints({
                     if (userError.name === 'AuthSessionMissingError') {
                         return { data: null }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: userError.message } }
+                    return { error: mapDbError(userError) }
                 }
 
                 if (!userData.user) {
@@ -46,7 +47,7 @@ export const profileApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 if (!data) {
@@ -118,7 +119,7 @@ export const profileApi = supabaseApi.injectEndpoints({
                     .eq('id', userData.user.id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }

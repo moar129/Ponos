@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Kezdőlap",
+    "dashboard": "Irányítópult",
+    "tasks": "Feladatok",
+    "statistics": "Statisztika",
+    "datalayer": "Adatréteg",
+    "news": "Hírek",
+    "messages": "Üzenetek",
+    "login": "Bejelentkezés",
+    "signup": "Fiók létrehozása"
+  },
+  "user": {
+    "fallbackName": "Felhasználó",
+    "noRole": "Nincs szerepkör",
+    "viewProfile": "Profil megtekintése",
+    "logout": "Kijelentkezés",
+    "loggingOut": "Kijelentkezés..."
+  },
+  "menu": {
+    "open": "Menü megnyitása",
+    "close": "Menü bezárása"
+  },
+  "footer": {
+    "tagline": "Áttekintést, együttműködést és fenntartható eredményeket teremtünk – együtt.",
+    "navigationLabel": "Lábléc-navigáció",
+    "navigation": "Navigáció",
+    "aboutLabel": "A Ponosról",
+    "aboutHeading": "A Ponosról",
+    "about": "Rólunk",
+    "contact": "Kapcsolat",
+    "help": "Súgó és támogatás",
+    "copyright": "© {{year}} Ponos. Minden jog fenntartva."
+  },
+  "banner": {
+    "pendingRequest": "A(z) <strong>{{organisation}}</strong> szervezethez benyújtott kérelme jóváhagyásra vár.",
+    "invited": "Meghívták a(z) <strong>{{organisation}}</strong> szervezetbe.",
+    "seeInvitation": "Meghívó megtekintése",
+    "noOrganisation": "Még nem tagja egyetlen szervezetnek sem.",
+    "createOrRequest": "Hozzon létre egyet vagy igényeljen tagságot"
+  }
+}

@@ -2,6 +2,7 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
+import { notificationTitle } from '../../utils/notificationDisplay'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Bell, ChevronRight } from 'lucide-react'
@@ -106,7 +107,7 @@ export function NotificationsWidget() {
                                 className="w-full text-left px-2 py-2.5 -mx-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
                             >
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="font-medium text-primary truncate dark:text-slate-100">{td(`notifications:type.${notification.type}`)}</p>
+                                    <p className="font-medium text-primary truncate dark:text-slate-100">{notificationTitle(notification, td)}</p>
                                     {!notification.isRead && (
                                         <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                                     )}

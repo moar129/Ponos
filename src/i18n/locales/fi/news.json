@@ -1,0 +1,40 @@
+{
+  "create": "Luo uutinen",
+  "edit": "Muokkaa uutista",
+  "delete": "Poista uutinen",
+  "notFound": "Uutista ei löytynyt.",
+  "backToNews": "Takaisin uutisiin",
+  "readFullArticle": "Lue koko artikkeli",
+  "form": {
+    "descriptionPlaceholder": "Kirjoita uutinen tähän...",
+    "tooLong": "Kuvaus on liian pitkä (enintään {{max}} merkkiä).",
+    "urlHint": "Näytetään uutisen alalaidassa muodossa \"Lue koko artikkeli\".",
+    "pictureUrlLabel": "Kuvan URL-osoite (valinnainen)",
+    "urlLabel": "Linkki alkuperäiseen artikkeliin (valinnainen)"
+  },
+  "editor": {
+    "typography": "Typografia",
+    "normal": "Normaali",
+    "heading": "Otsikko",
+    "subheading": "Alaotsikko",
+    "bold": "Lihavoitu",
+    "italic": "Kursivoitu",
+    "underline": "Alleviivattu",
+    "bulletList": "Luettelomerkit",
+    "numberedList": "Numeroitu luettelo",
+    "outdent": "Pienennä sisennystä",
+    "indent": "Suurenna sisennystä",
+    "insertLink": "Lisää linkki",
+    "linkTextPlaceholder": "Näytettävä teksti",
+    "linkTextLabel": "Linkin teksti",
+    "linkUrlLabel": "Linkin osoite",
+    "insert": "Lisää",
+    "cancelLink": "Peruuta linkki"
+  },
+  "heading": "Uutiset",
+  "loading": "Ladataan uutisia...",
+  "loadingOne": "Ladataan uutista...",
+  "noAccess": "Sinulla ei ole pääsyä tämän organisaation uutisiin.",
+  "empty": "Uutisia ei ole vielä.",
+  "deleteTitle": "Poistetaanko \"{{name}}\"?"
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Panel",
+  "welcome": "Witamy.",
+  "welcomeNamed": "Witaj, {{name}}.",
+  "tabs": {
+    "overview": "Przegląd",
+    "organisation": "Organizacja",
+    "administration": "Administracja"
+  },
+  "overview": {
+    "noOrganisation": "Nie masz jeszcze aktywnej organizacji, więc nie ma tu nic do pokazania.",
+    "goToOrganisation": "Przejdź do Organizacji",
+    "shortcuts": "Skróty",
+    "datalayerDescription": "Przeglądaj i zarządzaj elementami, kategoriami i lokalizacjami.",
+    "tasksDescription": "Przeglądaj i zarządzaj zadaniami organizacji.",
+    "statisticsDescription": "Przeglądaj analizy i statystyki organizacji."
+  },
+  "myTasks": {
+    "title": "Moje zadania",
+    "goToTasks": "Przejdź do zadań",
+    "loading": "Ładowanie Twoich zadań...",
+    "empty": "Nie jesteś jeszcze zapisany do żadnego zadania.",
+    "endsOn": "Koniec {{date}}"
+  },
+  "notifications": {
+    "title": "Powiadomienia",
+    "seeAll": "Zobacz wszystkie",
+    "all": "Wszystkie",
+    "unread": "Nieprzeczytane",
+    "loading": "Ładowanie powiadomień...",
+    "emptyUnread": "Brak nieprzeczytanych powiadomień.",
+    "empty": "Brak powiadomień.",
+    "justNow": "Przed chwilą",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} godz.",
+    "daysAgo": "{{count}} dn."
+  },
+  "news": {
+    "title": "Aktualności",
+    "seeAll": "Zobacz wszystkie aktualności",
+    "loading": "Ładowanie aktualności...",
+    "empty": "Nie ma jeszcze żadnych aktualności.",
+    "previous": "Poprzednia wiadomość",
+    "next": "Następna wiadomość",
+    "showNews": "Pokaż wiadomość {{number}}"
+  },
+  "comingSoon": "Wkrótce",
+  "administration": {
+    "noPrivileges": "Nie masz uprawnień do żadnych funkcji administracyjnych.",
+    "panels": {
+      "roles": "Role i uprawnienia",
+      "members": "Członkowie i przydzielanie ról",
+      "invitations": "Zaproszenia",
+      "membershipRequests": "Wnioski o członkostwo",
+      "organisation": "Organizacja",
+      "taskApprovals": "Zatwierdzanie zadań",
+      "completedTasks": "Zakończone zadania"
+    }
+  },
+  "completedTasks": {
+    "loading": "Ładowanie zakończonych zadań...",
+    "empty": "Żadne zadanie nie zostało jeszcze oznaczone jako zakończone.",
+    "searchPlaceholder": "Szukaj według tytułu lub opisu...",
+    "allPriorities": "Wszystkie priorytety",
+    "noMatch": "Żadne zadanie nie pasuje do wyszukiwania ani filtra.",
+    "noDescription": "Brak opisu.",
+    "room": "Pomieszczenie:",
+    "noRoom": "Brak pomieszczenia",
+    "period": "Okres:",
+    "unknown": "Nieznany",
+    "assignees": "Przypisane do:",
+    "noAssignees": "Nikt nie przypisany",
+    "materials": "Materiały:",
+    "noMaterials": "Brak materiałów",
+    "edit": "Edytuj",
+    "reopen": "Otwórz ponownie",
+    "reopening": "Ponowne otwieranie..."
+  },
+  "statistics": {
+    "noOrganisation": "Nie masz jeszcze aktywnej organizacji, więc nie ma statystyk do pokazania.",
+    "goToOrganisation": "Przejdź do Organizacji",
+    "title": "Statystyki",
+    "description": "Wskaźniki i analizy obliczone na podstawie elementów i zadań organizacji.",
+    "loading": "Ładowanie..."
+  }
+}

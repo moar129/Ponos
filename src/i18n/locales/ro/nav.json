@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Acasă",
+    "dashboard": "Panou",
+    "tasks": "Sarcini",
+    "statistics": "Statistici",
+    "datalayer": "Strat de date",
+    "news": "Noutăți",
+    "messages": "Mesaje",
+    "login": "Autentificare",
+    "signup": "Creați cont"
+  },
+  "user": {
+    "fallbackName": "Utilizator",
+    "noRole": "Niciun rol",
+    "viewProfile": "Vezi profilul",
+    "logout": "Deconectare",
+    "loggingOut": "Se deconectează..."
+  },
+  "menu": {
+    "open": "Deschide meniul",
+    "close": "Închide meniul"
+  },
+  "footer": {
+    "tagline": "Creăm claritate, colaborare și rezultate durabile – împreună.",
+    "navigationLabel": "Navigare în subsol",
+    "navigation": "Navigare",
+    "aboutLabel": "Despre Ponos",
+    "aboutHeading": "Despre Ponos",
+    "about": "Despre noi",
+    "contact": "Contact",
+    "help": "Ajutor și asistență",
+    "copyright": "© {{year}} Ponos. Toate drepturile rezervate."
+  },
+  "banner": {
+    "pendingRequest": "Cererea dumneavoastră pentru organizația <strong>{{organisation}}</strong> așteaptă aprobare.",
+    "invited": "Ați fost invitat în organizația <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Vezi invitația",
+    "noOrganisation": "Nu sunteți încă membru al niciunei organizații.",
+    "createOrRequest": "Creați una sau solicitați aderarea"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Koontinäyttö",
+  "welcome": "Tervetuloa.",
+  "welcomeNamed": "Tervetuloa, {{name}}.",
+  "tabs": {
+    "overview": "Yleiskatsaus",
+    "organisation": "Organisaatio",
+    "administration": "Hallinta"
+  },
+  "overview": {
+    "noOrganisation": "Sinulla ei ole vielä aktiivista organisaatiota, joten täällä ei ole mitään näytettävää.",
+    "goToOrganisation": "Siirry Organisaatioon",
+    "shortcuts": "Pikakuvakkeet",
+    "datalayerDescription": "Katso ja hallitse nimikkeitä, luokkia ja sijainteja.",
+    "tasksDescription": "Katso ja hallitse organisaation tehtäviä.",
+    "statisticsDescription": "Katso organisaation analyysejä ja tilastoja."
+  },
+  "myTasks": {
+    "title": "Omat tehtävät",
+    "goToTasks": "Siirry tehtäviin",
+    "loading": "Ladataan tehtäviäsi...",
+    "empty": "Et ole vielä ilmoittautunut yhteenkään tehtävään.",
+    "endsOn": "Päättyy {{date}}"
+  },
+  "notifications": {
+    "title": "Ilmoitukset",
+    "seeAll": "Näytä kaikki",
+    "all": "Kaikki",
+    "unread": "Lukematta",
+    "loading": "Ladataan ilmoituksia...",
+    "emptyUnread": "Ei lukemattomia ilmoituksia.",
+    "empty": "Ei vielä ilmoituksia.",
+    "justNow": "Juuri nyt",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} t",
+    "daysAgo": "{{count}} pv"
+  },
+  "news": {
+    "title": "Uutiset",
+    "seeAll": "Näytä kaikki uutiset",
+    "loading": "Ladataan uutisia...",
+    "empty": "Uutisia ei ole vielä.",
+    "previous": "Edellinen uutinen",
+    "next": "Seuraava uutinen",
+    "showNews": "Näytä uutinen {{number}}"
+  },
+  "comingSoon": "Tulossa pian",
+  "administration": {
+    "noPrivileges": "Sinulla ei ole oikeuksia yhteenkään hallintatoimintoon.",
+    "panels": {
+      "roles": "Roolit ja oikeudet",
+      "members": "Jäsenet ja roolien määritys",
+      "invitations": "Kutsut",
+      "membershipRequests": "Jäsenyyshakemukset",
+      "organisation": "Organisaatio",
+      "taskApprovals": "Tehtävien hyväksynnät",
+      "completedTasks": "Valmiit tehtävät"
+    }
+  },
+  "completedTasks": {
+    "loading": "Ladataan valmiita tehtäviä...",
+    "empty": "Yhtäkään tehtävää ei ole vielä merkitty valmiiksi.",
+    "searchPlaceholder": "Hae otsikolla tai kuvauksella...",
+    "allPriorities": "Kaikki prioriteetit",
+    "noMatch": "Mikään tehtävä ei vastaa hakua tai suodatinta.",
+    "noDescription": "Ei kuvausta.",
+    "room": "Tila:",
+    "noRoom": "Ei tilaa",
+    "period": "Ajanjakso:",
+    "unknown": "Tuntematon",
+    "assignees": "Määrätty:",
+    "noAssignees": "Ei ketään määrättynä",
+    "materials": "Materiaalit:",
+    "noMaterials": "Ei materiaaleja",
+    "edit": "Muokkaa",
+    "reopen": "Avaa uudelleen",
+    "reopening": "Avataan uudelleen..."
+  },
+  "statistics": {
+    "noOrganisation": "Sinulla ei ole vielä aktiivista organisaatiota, joten tilastoja ei ole näytettävänä.",
+    "goToOrganisation": "Siirry Organisaatioon",
+    "title": "Tilastot",
+    "description": "Tunnusluvut ja analyysit, jotka on laskettu organisaation nimikkeistä ja tehtävistä.",
+    "loading": "Ladataan..."
+  }
+}

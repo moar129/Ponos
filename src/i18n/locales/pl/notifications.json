@@ -1,0 +1,20 @@
+{
+  "title": "Powiadomienia",
+  "empty": "Brak powiadomień.",
+  "markAllRead": "Oznacz wszystkie jako przeczytane",
+  "seeAll": "Zobacz wszystkie powiadomienia",
+  "hide": "Ukryj powiadomienie",
+  "unhide": "Pokaż ponownie w dzwonku",
+  "deletePermanently": "Usuń trwale",
+  "deleteAriaLabel": "Usuń powiadomienie trwale",
+  "hidden": "Ukryte",
+  "justNow": "Przed chwilą",
+  "type": {
+    "message": "Nowa wiadomość",
+    "task_assigned": "Przypisano Ci zadanie",
+    "task_updated": "Zadanie zostało zaktualizowane",
+    "task_completed": "Zadanie zostało zakończone",
+    "task_approved": "Twoje zadanie zostało zatwierdzone",
+    "task_rejected": "Zgłoszenie zakończenia odrzucone"
+  }
+}

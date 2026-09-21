@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roolit ja oikeudet",
+    "organisation": "Organisaatio",
+    "membership_requests": "Jäsenyyshakemukset",
+    "members": "Jäsenet",
+    "invitations": "Kutsut",
+    "news": "Uutiset",
+    "datalayer": "Datakerros",
+    "tasks": "Tehtävät",
+    "task_approval": "Tehtävien hyväksyntä"
+  },
+  "op": {
+    "create": "Luo",
+    "read": "Katso",
+    "update": "Muokkaa",
+    "delete": "Poista",
+    "assign": "Määritä",
+    "approve": "Hyväksy",
+    "reject": "Hylkää"
+  },
+  "privilege": {
+    "admin": "Täysi ylläpito (voi tehdä kaiken)"
+  },
+  "other": "Muu",
+  "matrix": {
+    "newRoleLabel": "Uusi rooli",
+    "createRole": "Luo rooli",
+    "creatingRole": "Luodaan...",
+    "loading": "Ladataan rooleja...",
+    "noRoles": "Organisaatiolla ei ole vielä rooleja.",
+    "selectAll": "Valitse kaikki",
+    "removeAll": "Poista kaikki",
+    "savePrivilegeName": "Tallenna oikeuden nimi",
+    "renamePrivilege": "Nimeä oikeus uudelleen",
+    "saveRoleName": "Tallenna roolin nimi",
+    "renameRole": "Nimeä rooli uudelleen",
+    "deleteRole": "Poista rooli",
+    "newRolePlaceholder": "Esim. Vapaaehtoiskoordinaattori",
+    "privilegeColumn": "Oikeus",
+    "removeAllTitle": "Poistaa roolilta {{role}} kaikki nykyiset oikeudet (ei todellista järjestelmänvalvojan pääsyä)",
+    "selectAllTitle": "Antaa roolille {{role}} kaikki nykyiset oikeudet (ei todellista järjestelmänvalvojan pääsyä)",
+    "renamePrivilegeFor": "Nimeä tämä oikeus uudelleen roolille {{role}}",
+    "confirmDeleteRole": "Poistetaanko \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Adminilla on jo täysi pääsy, eikä sitä voi mukauttaa",
+    "memberFixed": "Oletusroolin Medlem kiinteä osa",
+    "adminOnly": "Vain ylläpitäjä voi myöntää admin-oikeuden",
+    "adminRoleProtected": "Tällä roolilla on admin-oikeus, eikä sitä voi nimetä uudelleen tai poistaa",
+    "memberRoleProtected": "Oletusroolia Medlem ei voi nimetä uudelleen eikä poistaa",
+    "memberNotExtendable": "Oletusroolia Medlem ei voi laajentaa"
+  },
+  "approvals": {
+    "loading": "Ladataan tehtävien hyväksyntöjä...",
+    "empty": "Yksikään tehtävä ei odota hyväksyntää.",
+    "confirmApprove": "Hyväksytäänkö ja merkitäänkö tehtävä valmiiksi?",
+    "confirmReject": "Hylätäänkö pyyntö? Tehtävä jää käynnissä olevaksi.",
+    "reportedBy": "Valmiiksi ilmoitti",
+    "approve": "Hyväksy",
+    "reject": "Hylkää",
+    "reportedDoneBy": "Valmiiksi ilmoitti {{name}}"
+  }
+}

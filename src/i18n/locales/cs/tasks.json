@@ -1,0 +1,124 @@
+{
+  "status": {
+    "Started": "Dostupné",
+    "InProgress": "Probíhá",
+    "Completed": "Hotovo"
+  },
+  "priority": {
+    "Low": "Nízká",
+    "Medium": "Střední",
+    "High": "Vysoká",
+    "Critical": "Kritická"
+  },
+  "fields": {
+    "title": "Název",
+    "description": "Popis",
+    "room": "Místnost",
+    "priority": "Priorita",
+    "maxAssignees": "Počet osob",
+    "startDate": "Datum začátku",
+    "endDate": "Datum konce"
+  },
+  "page": {
+    "subtitle": "Získejte přehled o práci, kterou je třeba udělat.",
+    "createTask": "Vytvořit úkol",
+    "noAvailableTasks": "Žádné dostupné úkoly",
+    "noTasksInProgress": "Žádné probíhající úkoly",
+    "roomNamePlaceholder": "Zadejte název místnosti",
+    "saveRoom": "Uložit místnost",
+    "loading": "Načítání úkolů...",
+    "noAccess": "Nemáte přístup k úkolům této organizace.",
+    "heading": "Úkoly",
+    "createRoom": "Vytvořit místnost",
+    "availableHeading": "Dostupné úkoly",
+    "inProgressHeading": "Probíhá"
+  },
+  "rooms": {
+    "create": "Vytvořit místnost",
+    "moreActions": "Další akce",
+    "edit": "Upravit místnost",
+    "deleteOne": "Smazat místnost",
+    "choose": "Vyberte místnost",
+    "noRoom": "Bez místnosti"
+  },
+  "create": {
+    "heading": "Vytvořit úkol",
+    "titlePlaceholder": "Název úkolu",
+    "descriptionPlaceholder": "Popis úkolu",
+    "requiresApproval": "Úkol vyžaduje schválení",
+    "noApproval": "Úkol nevyžaduje schválení"
+  },
+  "edit": {
+    "heading": "Upravit úkol",
+    "endBeforeStart": "Datum konce nesmí být dřívější než datum začátku.",
+    "deleteTask": "Smazat úkol",
+    "confirmDelete": "Opravdu chcete smazat úkol „{{name}}“? Tuto akci nelze vrátit zpět."
+  },
+  "priorityNone": "Bez priority",
+  "assignees": {
+    "noLimit": "Bez omezení",
+    "count_one": "{{count}} osoba",
+    "count_few": "{{count}} osoby",
+    "count_many": "{{count}} osob",
+    "count_other": "{{count}} osob",
+    "nobodyAssigned": "Zatím nebyl nikdo přiřazen.",
+    "unknownUser": "Neznámý uživatel",
+    "selfSigned": "Přihlásili jste se sami",
+    "assignedByOther": "Přiřadil někdo jiný",
+    "assignedToYou": "Přiřazeno vám",
+    "addEmployee": "Přidat pracovníka",
+    "chooseWho": "Vyberte, komu se má úkol přiřadit",
+    "maxReached": "Byl dosažen maximální počet pracovníků.",
+    "noFreeSlots": "V úkolu už nejsou volná místa.",
+    "nobodyToAssign": "Nejsou k dispozici žádní pracovníci k přiřazení.",
+    "signUp": "Přihlásit se",
+    "signOff": "Odhlásit se",
+    "employee": "Pracovník"
+  },
+  "card": {
+    "noDescription": "Žádný popis",
+    "requiresApproval": "Vyžaduje schválení",
+    "startWork": "Začít práci",
+    "awaitingApproval": "Čeká na schválení",
+    "markDone": "Nahlásit jako dokončené",
+    "priorityBadge": "Priorita: {{priority}}",
+    "edit": "Upravit",
+    "details": "Podrobnosti úkolu",
+    "responsible": "Přiřazeno",
+    "start": "Začátek",
+    "end": "Konec",
+    "statusLabel": "Stav:",
+    "addEmployeeShort": "+ Přidat pracovníka",
+    "created": "Vytvořeno",
+    "statusValue": "Stav: {{status}}"
+  },
+  "filter": {
+    "show": "Zobrazit filtr",
+    "hide": "Skrýt filtr",
+    "searchPlaceholder": "Hledat úkoly...",
+    "all": "Vše",
+    "sortNewest": "Nejnovější",
+    "sortOldest": "Nejstarší",
+    "sortPriority": "Priorita",
+    "sortDeadline": "Termín",
+    "counts": "{{available}} dostupných · {{inProgress}} probíhá",
+    "sortBy": "Řadit podle"
+  },
+  "deleteRoom": {
+    "heading": "Smazat místnost",
+    "intro": "Vyberte místnost, kterou chcete smazat.",
+    "tasksInRoom": "Úkoly v místnosti",
+    "chooseTasks": "Vyberte úkoly, které se mají smazat také.",
+    "noTasks": "V této místnosti nejsou žádné úkoly.",
+    "keptNote": "Nevybrané úkoly nebudou smazány. Místo toho se přesunou do <b>{{room}}</b>.",
+    "failed": "Místnost se nepodařilo smazat. Zkuste to znovu.",
+    "deleting": "Mazání...",
+    "submit": "Smazat místnost"
+  },
+  "editRoom": {
+    "heading": "Upravit místnost",
+    "intro": "Vyberte místnost a upravte její název.",
+    "namePlaceholder": "Zadejte název místnosti",
+    "failed": "Místnost se nepodařilo upravit. Zkuste to znovu."
+  }
+}

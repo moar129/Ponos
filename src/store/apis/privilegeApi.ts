@@ -2,6 +2,7 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { CreatePrivilegeInput, Privilege, UpdatePrivilegeInput } from '../../types/role/roleType'
+import { mapDbError } from './apiError'
 
 // Navnet på det privilegie, der giver adgang til ALT (superset af alle
 // andre privilegier). Konventionen er sat i databasen, hvor RLS-policies
@@ -206,7 +207,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     if (userError.name === 'AuthSessionMissingError') {
                         return { data: [] }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: userError.message } }
+                    return { error: mapDbError(userError) }
                 }
 
                 if (!userData.user) {
@@ -220,7 +221,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (profileError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
+                    return { error: mapDbError(profileError) }
                 }
 
                 // Uden aktiv organisation (fx nyoprettet bruger) er der
@@ -240,7 +241,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (membershipError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: membershipError.message } }
+                    return { error: mapDbError(membershipError) }
                 }
 
                 if (!membership?.role_id) {
@@ -253,7 +254,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .eq('role_id', membership.role_id)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: (data ?? []).map((privilege) => privilege.name) }
@@ -273,7 +274,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .order('name')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return {
@@ -321,7 +322,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                             error: { status: 'CUSTOM_ERROR', error: 'errors:permission.createPrivilege' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: { id: data.id, roleId: data.role_id, name: data.name } }
@@ -359,7 +360,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                             error: { status: 'CUSTOM_ERROR', error: 'errors:permission.updatePrivilege' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -376,7 +377,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.from('privileges').delete().eq('id', privilegeId)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }

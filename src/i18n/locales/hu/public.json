@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Lássák, mijük van.",
+    "line2": "Lássák, ki mit csinál.",
+    "line3": "Lássák, mit mondanak az adataik.",
+    "intro": "A Ponos egy helyen gyűjti össze a szervezetük erőforrásait, feladatait és elemzéseit. Így mindig tudják, mijük van, ki a felelős, és mit mondanak a számok."
+  },
+  "cta": {
+    "signup": "Fiók létrehozása",
+    "login": "Bejelentkezés",
+    "title": "Kezdje el a Ponos használatát",
+    "body": "Hozzon létre fiókot, majd indítsa el a saját szervezetét, vagy csatlakozzon egy már létezőhöz."
+  },
+  "problem": {
+    "title": "Az áttekintés szétszórtan hever",
+    "body": "A szervezetek külön rendszerekben kezelik az adatokat és a munkát. Emiatt még egyszerű kérdésekre is nehéz válaszolni: milyen erőforrásaink vannak már? Hol találhatók? Ki felel a feladatért?"
+  },
+  "features": {
+    "title": "Három kérdés, egy hely",
+    "intro": "A Ponos arra a három kérdésre épül, amelyre minden szervezetnek tudnia kellene válaszolnia önmagáról.",
+    "datalayer": {
+      "label": "Adatréteg",
+      "question": "Mink van?",
+      "description": "Rögzítsék erőforrásaikat mennyiséggel, kategóriával, állapottal és helyszínnel. Így mindig látják, mijük van és hol."
+    },
+    "tasks": {
+      "label": "Feladatok",
+      "question": "Ki mit csinál?",
+      "description": "Minden feladatnak van felelőse, résztvevői, állapota és tételei, amelyeket használ. A munka össze van kötve azokkal az erőforrásokkal, amelyeket valóban igénybe vesz."
+    },
+    "statistics": {
+      "label": "Statisztika",
+      "question": "Mit mondanak az adataink?",
+      "description": "A számok abból számítódnak, amit már rögzítettek. Nincs kézi bevitel, és nincsenek számok, amelyek már a leírás pillanatában elavultak."
+    }
+  },
+  "flow": {
+    "title": "Adatok, amelyek tovább élnek",
+    "body": "A Ponos nem archívum. Amit egy helyen rögzítenek, azt a következő lépés újra felhasználja. Az adatréteg egy tétele ugyanaz a tétel, amelyet egy feladat használ, és amely beleszámít a statisztikába.",
+    "steps": {
+      "data": "Adat",
+      "people": "Emberek",
+      "tasks": "Feladatok",
+      "insight": "Belátás"
+    },
+    "quote": "Ahelyett, hogy <em>\"hiányzik valami, vegyünk újat\"</em>, a Ponos arra biztat: <em>\"hiányzik valami, nézzük meg, mink van már\"</em>."
+  },
+  "partner": {
+    "title": "A projektről",
+    "intro": "A Ponos a <strong>Corolab</strong> számára készül, amely egy tagok által működtetett nonprofit szervezet a dániai Roskildéban. 2016 óta hoz össze vállalatokat, oktatási intézményeket és közintézményeket olyan projektek köré, amelyeket egyikük sem tudott volna egyedül véghezvinni. Saját szavaikkal: \"A partnerségekben különbséget teszünk a társadalom és az Ön szervezete számára.\"",
+    "figures": {
+      "events": "Rendezvény",
+      "participants": "Résztvevő",
+      "projects": "Projekt",
+      "funding": "Összegyűjtött támogatás"
+    },
+    "figuresSource": "A Corolab saját adatai, forrás: corolab.dk, 2026. szeptember.",
+    "areasIntro": "A munka hat területre oszlik, a kapcsolatok megteremtésétől a finanszírozás előteremtéséig és a létesítmények rendelkezésre bocsátásáig.",
+    "areas": {
+      "meet": "Szakmai rendezvények és kapcsolati hálók.",
+      "pilots": "Közös kezdeményezések, amelyeket a tagokkal együtt indítanak.",
+      "fund": "Finanszírozás tagoktól, alapítványoktól és közpénzekből.",
+      "creation": "Ágazatokon átívelő projektek.",
+      "lab": "Hozzáférés tesztkörnyezetekhez, létesítményekhez és közös erőforrásokhoz.",
+      "branding": "Láthatóság a tagok társadalmi felelősségvállalásának."
+    },
+    "testEnvironment": "A Ponost a CO-lab tesztkörnyezeteiben próbálják ki. Itt a platformnak egy valódi szervezet erőforrásait és feladatait kell kezelnie kitalált példák helyett.",
+    "moreAboutProject": "Több a projektről",
+    "readMoreCorolab": "Tudjon meg többet a corolab.dk oldalon"
+  },
+  "helpStep": "{{step}}. lépés",
+  "about": {
+    "heroTitle": "Rólunk",
+    "heroDescription": "Azért építjük a Ponost, hogy egy szervezet három meglehetősen egyszerű kérdésre válaszolni tudjon anélkül, hogy előbb körbe kellene kérdeznie.",
+    "whyTitle": "Miért fontos ez nekünk",
+    "why1": "A legtöbb szervezet pontosan tudja, mije van. Csak épp az egyik ember táblázatában, a másik levelezésében és a harmadik fejében. Amíg mindenki elérhető, minden rendben. Akkor kezd fájni, amikor valaki szabadságon van, munkahelyet vált, vagy amikor mindent sietve kell összerakni.",
+    "why2": "És nagyon kézzelfogható módon fáj. Olyasmit vesznek meg, ami már megvan, mert senki nem tudta kideríteni, hol van. A feladatok elmaradnak, mert soha nem hangzott el, kié. És amikor valaki megkérdezi, hogy áll a dolog, a válasz találgatás.",
+    "why3": "A Ponos egy helyre hozza a három dolgot: mijük van, ki mit csinál, és mit mondanak a számok. Nem három rendszer egymás mellett - ugyanaz az adat három nézőpontból.",
+    "principlesTitle": "Így gondolkodunk",
+    "principlesIntro": "Négy dolog döntötte el a legtöbb választást útközben.",
+    "principles": {
+      "multiTenant": {
+        "name": "Többre építve, nem egyre",
+        "description": "A Ponos szervezeteknek készül, többes számban. Az első, amelyik használja, példa - nem mintamegoldás. Semmi nem egyetlen konkrét munkamód köré épül."
+      },
+      "writeOnce": {
+        "name": "Írd le egyszer",
+        "description": "Amit egy helyen visznek be, azt a rendszer tovább használja. Az adatréteg egy eleme ugyanaz az elem, amelyet egy feladat használ - nem másolat, amelyet két helyen kell javítani."
+      },
+      "autoNumbers": {
+        "name": "A számok gondoskodnak magukról",
+        "description": "A statisztika abból számítódik, amit már bevittek. Nincsenek mezők mutatószámok begépeléséhez, így olyan számok sem, amelyek elavulnak, mielőtt végig leírnák őket."
+      },
+      "yourData": {
+        "name": "Az adataik az Önöké",
+        "description": "Minden szervezet csak a sajátját látja, és ezt az adatbázis dönti el - nem egy gomb elrejtése. Hogy ki mit módosíthat, azt Önök határozzák meg a szerepkörökkel."
+      }
+    },
+    "behindTitle": "Kik állnak mögötte",
+    "behind1": "A Ponos hallgatói projektként születik a <strong>Corolab</strong> közreműködésével, amely egy tagok által működtetett nonprofit szervezet a dániai Roskildéban, és 2016 óta hoz össze vállalatokat, oktatási intézményeket és közintézményeket olyan projektek köré, amelyeket egyikük sem tudott volna egyedül véghezvinni.",
+    "behind2": "Ez azt jelenti, hogy a platformot egy valódi szervezet dolgain és feladatain próbáljuk ki, nem általunk kitalált példákon. Épp az ilyen használat mutatja meg, hogy valami megállja-e a helyét: az esetek, amelyekre senki nem számított, és a pontok, ahol a valóság nem fér bele egészen a mezőkbe.",
+    "behind3": "Ha kérdése van a projektről, vagy szeretné kipróbálni a Ponost Önöknél, szívesen hallunk Ön felől.",
+    "writeToUs": "Írjon nekünk"
+  },
+  "contact": {
+    "heroTitle": "Kapcsolat",
+    "heroDescription": "Kérdése van, olyasmibe ütközött, ami nem működik, vagy egyszerűen csak többet szeretne tudni? Akkor írjon nekünk.",
+    "howToReach": "Így ér el minket",
+    "emailLabel": "E-mail",
+    "locationLabel": "Székhelyünk",
+    "sendMail": "E-mail küldése",
+    "topicsTitle": "Nyugodtan írjon ezekről",
+    "topics": {
+      "fit": "Mit tud a Ponos, és megfelel-e Önöknek",
+      "bug": "Valami, ami nem úgy működik, ahogy kellene",
+      "collaboration": "Együttműködés, vagy kedv kipróbálni Önöknél"
+    },
+    "responseNote": "Hétköznapokon olvassuk a leveleket, és amilyen gyorsan tudunk, válaszolunk. Írja meg, melyik szervezetről van szó és mit csinált éppen - így nem kell előbb rákérdeznünk.",
+    "helpHintBefore": "Csak azt szeretné tudni, hogyan működik valami? Akkor a válasz talán már megtalálható itt:",
+    "helpHintLink": "Súgó és támogatás"
+  },
+  "help": {
+    "heroTitle": "Súgó és támogatás",
+    "heroDescription": "Most kezdte, vagy elakadt? Akkor először itt nézzen körül.",
+    "startTitle": "Első lépések",
+    "startIntro": "Három lépés az új fióktól valamiig, ami tényleg benne van a rendszerben.",
+    "steps": {
+      "account": {
+        "title": "Fiók létrehozása",
+        "description": "Szüksége van egy e-mail-címre és egy jelszóra. A fiók az Öné, és Önnel marad, bárhány szervezetnek legyen is végül a tagja."
+      },
+      "organisation": {
+        "title": "Csatlakozás szervezethez",
+        "description": "Hozzon létre sajátot, vagy kérje a felvételét egy már létezőbe. A Ponosban szinte minden egy szervezethez tartozik, így ez a lépés nem hagyható ki."
+      },
+      "data": {
+        "title": "Vigyék be a dolgaikat",
+        "description": "Vigyék be erőforrásaikat az adatrétegbe, és hozzák létre az első feladatokat. A statisztika magától elkezd számolni, amint van mit számolni."
+      }
+    },
+    "faqTitle": "Amit a leggyakrabban kérdeznek tőlünk",
+    "faq": {
+      "nothingToSee": {
+        "q": "Be vagyok jelentkezve, de nem látok semmit",
+        "a1": "Ezen csodálkozik a legtöbb ember először - és semmi nem hibás. A feladatok, a statisztika, az adatréteg és a hírek egy szervezethez tartoznak, így amíg nincs aktív szervezete, nincs mit megjeleníteni. Ezért nincsenek még a hivatkozások sem a menüben.",
+        "a2": "Innen tud továbblépni: <orgLink>Irányítópult → Szervezet</orgLink>, ahol létrehozza a sajátját, vagy kéri a felvételét egy már létezőbe."
+      },
+      "becomeMember": {
+        "q": "Hogyan leszek egy szervezet tagja?",
+        "a1": "Lépjen az Irányítópult → Szervezet menüpontra, válassza a \"Tagság igénylése\" lehetőséget, és keresse meg a szervezetet a listában. Egy rendszergazdának jóvá kell hagynia, mielőtt bekerülne.",
+        "a2": "Amíg vár, az oldal tetején megjelenik egy tájékoztató sáv. Ha ehelyett egy rendszergazda hívja meg, a meghívó ugyanott jelenik meg - ekkor csak az elfogadásra kell kattintania."
+      },
+      "multipleOrgs": {
+        "q": "Lehetek több szervezet tagja?",
+        "a1": "Igen. Egyszerre csak egy <b>aktív</b> van, és minden, amit lát - feladatok, dolgok, statisztika, szerepkörök - ahhoz az egyhez tartozik.",
+        "a2": "A \"Saját szervezetek\" alatt válthat. Ne feledje, hogy a jogosultságai helyenként eltérhetnek: nyugodtan lehet rendszergazda az egyikben és hétköznapi tag a másikban."
+      },
+      "cannotEdit": {
+        "q": "Miért nem tudok semmit létrehozni vagy módosítani?",
+        "a1": "Mert a szerepköre ezt még nem engedi. A jogosultságokat szervezetenként állítják be, és ha valamit nem tehet meg, a gombot egyáltalán nem jelenítjük meg - ahelyett, hogy csak a kattintáskor derülne ki.",
+        "a2": "Ha többre van szüksége, a rendszergazdája adhat Önnek megfelelő jogosultságokkal rendelkező szerepkört."
+      },
+      "invite": {
+        "q": "Hogyan hívok meg új felhasználót?",
+        "a1": "Irányítópult → Adminisztráció → Meghívók, majd az illető e-mail-címe. Ehhez Önnek is jogosultnak kell lennie a meghívásra.",
+        "a2": "Az illetőnek már rendelkeznie kell Ponos-fiókkal pontosan azzal az e-mail-címmel - nem küldünk meghívót olyan címre, amely nem létezik a rendszerben. Ha még nincs fiókja, előbb létre kell hoznia egyet, és utána tudja meghívni."
+      },
+      "leaveOrDelete": {
+        "q": "Hogyan lépek ki egy szervezetből, vagy hogyan törlöm azt?",
+        "a1": "Mindkettő a \"Saját szervezetek\" alatt található. Ha kilép az egyikből, miközben többnek is tagja, automatikusan egy másik lesz az új aktív szervezete.",
+        "a2": "Ha Ön az egyetlen rendszergazda, nem léphet ki csak úgy - nem maradna senki, aki irányítja. Adja át előbb valaki másnak a rendszergazdai szerepkört. És egy szervezet <b>törlése</b> mindent kitöröl, amit tartalmaz, a többi tag számára is. Ezt csak rendszergazda teheti meg."
+      },
+      "editProfile": {
+        "q": "Hogyan módosítom a nevemet vagy a profilképemet?",
+        "a1": "A <profileLink>profiljában</profileLink>. A nevet, a leírást, a képet és a jelszót maga módosíthatja. Az e-mail-címet és a szerepkört nem - a szerepkör a szervezethez tartozik, és rendszergazda adja Önnek."
+      },
+      "forgotPassword": {
+        "q": "Elfelejtettem a jelszavamat",
+        "a1": "Kattintson a bejelentkezési oldalon az <resetLink>\"Elfelejtette a jelszavát?\"</resetLink> hivatkozásra. A fiókot az e-mail-címével és a nevével erősíti meg, majd azonnal új jelszót választ.",
+        "a2": "Ha ez gondot okoz, írjon ide: <mailLink>{{email}}</mailLink>, és segítünk visszajutni."
+      }
+    },
+    "noAnswer": "Nem találta meg a választ? <contactLink>Írjon nekünk</contactLink> - mondja el nyugodtan, mit csinált éppen, és mi történt helyette."
+  },
+  "notFound": {
+    "title": "Ez az oldal nem létezik",
+    "body": "Ezen a címen nincs semmi. Vagy elcsúszott egy betű útközben, vagy az oldal átkerült máshová a hivatkozás elkészülte óta.",
+    "toDashboard": "Ugrás az irányítópultra",
+    "toHome": "Ugrás a kezdőlapra",
+    "toHelp": "Súgó és támogatás"
+  }
+}

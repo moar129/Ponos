@@ -1,0 +1,40 @@
+{
+  "create": "Hír létrehozása",
+  "edit": "Hír szerkesztése",
+  "delete": "Hír törlése",
+  "notFound": "A hír nem található.",
+  "backToNews": "Vissza a hírekhez",
+  "readFullArticle": "A teljes cikk elolvasása",
+  "form": {
+    "descriptionPlaceholder": "Írja ide a hírt...",
+    "tooLong": "A leírás túl hosszú (legfeljebb {{max}} karakter).",
+    "urlHint": "A hír alján \"A teljes cikk elolvasása\" formában jelenik meg.",
+    "pictureUrlLabel": "Kép URL-címe (nem kötelező)",
+    "urlLabel": "Hivatkozás az eredeti cikkre (nem kötelező)"
+  },
+  "editor": {
+    "typography": "Tipográfia",
+    "normal": "Normál",
+    "heading": "Címsor",
+    "subheading": "Alcím",
+    "bold": "Félkövér",
+    "italic": "Dőlt",
+    "underline": "Aláhúzott",
+    "bulletList": "Felsorolás",
+    "numberedList": "Számozott lista",
+    "outdent": "Behúzás csökkentése",
+    "indent": "Behúzás növelése",
+    "insertLink": "Hivatkozás beszúrása",
+    "linkTextPlaceholder": "Megjelenítendő szöveg",
+    "linkTextLabel": "A hivatkozás szövege",
+    "linkUrlLabel": "A hivatkozás címe",
+    "insert": "Beszúrás",
+    "cancelLink": "Hivatkozás elvetése"
+  },
+  "heading": "Hírek",
+  "loading": "Hírek betöltése...",
+  "loadingOne": "Hír betöltése...",
+  "noAccess": "Nincs hozzáférése ennek a szervezetnek a híreihez.",
+  "empty": "Még nincsenek hírek.",
+  "deleteTitle": "Töröljük a(z) \"{{name}}\" hírt?"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Oznámení",
+  "empty": "Zatím žádná oznámení.",
+  "markAllRead": "Označit vše jako přečtené",
+  "seeAll": "Zobrazit všechna oznámení",
+  "hide": "Skrýt oznámení",
+  "unhide": "Znovu zobrazit ve zvonku",
+  "deletePermanently": "Trvale smazat",
+  "deleteAriaLabel": "Trvale smazat oznámení",
+  "hidden": "Skryto",
+  "justNow": "Právě teď",
+  "type": {
+    "message": "Nová zpráva",
+    "task_assigned": "Byl vám přiřazen úkol",
+    "task_updated": "Úkol byl aktualizován",
+    "task_completed": "Úkol byl dokončen",
+    "task_approved": "Váš úkol byl schválen",
+    "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto"
+  }
+}

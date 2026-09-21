@@ -1,0 +1,30 @@
+{
+  "loading": "Ladataan profiilia...",
+  "notFound": "Profiiliasi ei löytynyt.",
+  "saved": "Tietosi on tallennettu.",
+  "nameRequired": "Etunimi ja sukunimi ovat pakollisia.",
+  "fields": {
+    "firstName": "Etunimi",
+    "lastName": "Sukunimi",
+    "email": "Sähköposti",
+    "organisation": "Organisaatio",
+    "role": "Rooli",
+    "description": "Kuvaus",
+    "pictureUrl": "Profiilikuva (URL)"
+  },
+  "empty": {
+    "organisation": "Ei organisaatiota",
+    "role": "Roolia ei ole määritetty",
+    "description": "Ei kuvausta"
+  },
+  "readOnlyNote": "Sähköpostia, roolia ja organisaatiota ei voi muuttaa täällä. Ota yhteyttä ylläpitäjääsi.",
+  "saveChanges": "Tallenna muutokset",
+  "editProfile": "Muokkaa profiilia",
+  "logout": "Kirjaudu ulos",
+  "loggingOut": "Kirjaudutaan ulos...",
+  "passwordHeading": "Salasana",
+  "preferences": {
+    "title": "Näyttö",
+    "hint": "Kieli ja teema tallennetaan tähän selaimeen ja koskevat vain tätä laitetta."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "create": "Vytvořit novinku",
+  "edit": "Upravit novinku",
+  "delete": "Smazat novinku",
+  "notFound": "Novinka nebyla nalezena.",
+  "backToNews": "Zpět na novinky",
+  "readFullArticle": "Přečíst celý článek",
+  "form": {
+    "descriptionPlaceholder": "Napište novinku sem...",
+    "tooLong": "Popis je příliš dlouhý (max. {{max}} znaků).",
+    "urlHint": "Zobrazí se jako „Přečíst celý článek“ ve spodní části novinky.",
+    "pictureUrlLabel": "URL obrázku (nepovinné)",
+    "urlLabel": "Odkaz na původní článek (nepovinné)"
+  },
+  "editor": {
+    "typography": "Typografie",
+    "normal": "Normální",
+    "heading": "Nadpis",
+    "subheading": "Podnadpis",
+    "bold": "Tučné",
+    "italic": "Kurzíva",
+    "underline": "Podtržené",
+    "bulletList": "Odrážkový seznam",
+    "numberedList": "Číslovaný seznam",
+    "outdent": "Zmenšit odsazení",
+    "indent": "Zvětšit odsazení",
+    "insertLink": "Vložit odkaz",
+    "linkTextPlaceholder": "Zobrazený text",
+    "linkTextLabel": "Text odkazu",
+    "linkUrlLabel": "Adresa odkazu",
+    "insert": "Vložit",
+    "cancelLink": "Zrušit odkaz"
+  },
+  "heading": "Novinky",
+  "loading": "Načítání novinek...",
+  "loadingOne": "Načítání novinky...",
+  "noAccess": "Nemáte přístup k novinkám této organizace.",
+  "empty": "Zatím žádné novinky.",
+  "deleteTitle": "Smazat „{{name}}“?"
+}
