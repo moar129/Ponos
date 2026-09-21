@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Zie wat jullie hebben.",
+    "line2": "Zie wie wat doet.",
+    "line3": "Zie wat jullie data zeggen.",
+    "intro": "Ponos brengt de middelen, taken en inzichten van jullie organisatie op één plek samen. Zo weten jullie altijd wat jullie hebben, wie verantwoordelijk is en wat de cijfers zeggen."
+  },
+  "cta": {
+    "signup": "Account aanmaken",
+    "login": "Inloggen",
+    "title": "Aan de slag met Ponos",
+    "body": "Maak een account aan en begin daarna je eigen organisatie of word lid van een bestaande."
+  },
+  "problem": {
+    "title": "Het overzicht ligt verspreid",
+    "body": "Organisaties beheren data en werk in losse systemen. Daardoor zijn zelfs eenvoudige vragen lastig te beantwoorden: welke middelen hebben we al? Waar zijn ze? Wie is verantwoordelijk voor de taak?"
+  },
+  "features": {
+    "title": "Drie vragen, één plek",
+    "intro": "Ponos is opgebouwd rond de drie vragen die elke organisatie over zichzelf zou moeten kunnen beantwoorden.",
+    "datalayer": {
+      "label": "Datalaag",
+      "question": "Wat hebben we?",
+      "description": "Registreer jullie middelen met aantal, categorie, status en locatie. Zo zien jullie altijd wat jullie hebben en waar het staat."
+    },
+    "tasks": {
+      "label": "Taken",
+      "question": "Wie doet wat?",
+      "description": "Elke taak heeft een verantwoordelijke, deelnemers, een status en de zaken die ze gebruikt. Het werk hangt samen met de middelen die het daadwerkelijk gebruikt."
+    },
+    "statistics": {
+      "label": "Statistieken",
+      "question": "Wat zeggen onze data?",
+      "description": "De cijfers worden berekend uit wat jullie al hebben geregistreerd. Geen handmatige invoer en geen cijfers die al verouderd zijn op het moment dat ze worden opgeschreven."
+    }
+  },
+  "flow": {
+    "title": "Data die opnieuw wordt gebruikt",
+    "body": "Ponos is geen archief. Wat jullie op één plek registreren, wordt in de volgende stap opnieuw gebruikt. Een artikel in de datalaag is hetzelfde artikel dat een taak gebruikt en dat meetelt in de statistieken.",
+    "steps": {
+      "data": "Data",
+      "people": "Mensen",
+      "tasks": "Taken",
+      "insight": "Inzicht"
+    },
+    "quote": "In plaats van <em>\"we missen iets, dus kopen we nieuw\"</em> nodigt Ponos uit tot <em>\"we missen iets, laten we kijken wat we al hebben\"</em>."
+  },
+  "partner": {
+    "title": "Over het project",
+    "intro": "Ponos wordt ontwikkeld voor <strong>Corolab</strong>, een ledengedreven non-profit in Roskilde, Denemarken. Sinds 2016 brengt de organisatie bedrijven, onderwijsinstellingen en publieke organisaties samen rond projecten die geen van hen alleen zou kunnen dragen. In hun eigen woorden: \"In partnerschappen maken we het verschil voor de samenleving en voor jouw organisatie.\"",
+    "figures": {
+      "events": "Evenementen",
+      "participants": "Deelnemers",
+      "projects": "Projecten",
+      "funding": "Opgehaald aan financiering"
+    },
+    "figuresSource": "Eigen cijfers van Corolab, overgenomen van corolab.dk in september 2026.",
+    "areasIntro": "Het werk is verdeeld over zes gebieden, van het leggen van contacten tot het ophalen van financiering en het beschikbaar stellen van faciliteiten.",
+    "areas": {
+      "meet": "Vakinhoudelijke evenementen en netwerken.",
+      "pilots": "Gezamenlijke initiatieven die samen met de leden worden gestart.",
+      "fund": "Financiering via leden, fondsen en publieke middelen.",
+      "creation": "Projecten die sectoroverstijgend worden ontwikkeld.",
+      "lab": "Toegang tot testomgevingen, faciliteiten en gedeelde middelen.",
+      "branding": "Zichtbaarheid voor de maatschappelijke verantwoordelijkheid van de leden."
+    },
+    "testEnvironment": "Ponos wordt beproefd in de testomgevingen van CO-lab. Daar moet het platform de middelen en taken van een echte organisatie aankunnen in plaats van verzonnen voorbeelden.",
+    "moreAboutProject": "Meer over het project",
+    "readMoreCorolab": "Lees meer op corolab.dk"
+  },
+  "helpStep": "Stap {{step}}",
+  "about": {
+    "heroTitle": "Over ons",
+    "heroDescription": "We bouwen Ponos zodat een organisatie drie vrij eenvoudige vragen kan beantwoorden zonder eerst rond te moeten vragen.",
+    "whyTitle": "Waarom dit ons bezighoudt",
+    "why1": "De meeste organisaties weten best wat ze hebben. Het staat alleen in het spreadsheet van de een, in de mailwisseling van de ander en in het hoofd van een derde. Zolang iedereen er is, gaat het goed. Het gaat pijn doen als iemand op vakantie is, van baan wisselt, of als alles in allerijl op poten moet worden gezet.",
+    "why2": "En het doet op heel concrete manieren pijn. Er worden dingen gekocht die jullie al hebben, omdat niemand kon achterhalen waar ze stonden. Taken blijven liggen, omdat nooit hardop is gezegd wie ze had. En als iemand vraagt hoe het gaat, is het antwoord een gok.",
+    "why3": "Ponos brengt de drie dingen op één plek samen: wat jullie hebben, wie wat doet en wat de cijfers zeggen. Geen drie systemen naast elkaar, maar dezelfde data vanuit drie invalshoeken.",
+    "principlesTitle": "Hoe wij denken",
+    "principlesIntro": "Vier dingen hebben de meeste keuzes onderweg bepaald.",
+    "principles": {
+      "multiTenant": {
+        "name": "Gebouwd voor meer dan één",
+        "description": "Ponos is gemaakt voor organisaties in het meervoud. De eerste die het gebruikt is een voorbeeld, geen blauwdruk. Niets is gebouwd rond één bepaalde manier van werken."
+      },
+      "writeOnce": {
+        "name": "Eén keer invoeren",
+        "description": "Wat jullie op één plek invoeren, wordt opnieuw gebruikt. Een ding in de datalaag is hetzelfde ding dat een taak gebruikt, geen kopie die jullie op twee plekken moeten bijwerken."
+      },
+      "autoNumbers": {
+        "name": "De cijfers houden zichzelf bij",
+        "description": "De statistieken worden berekend uit wat jullie al hebben ingevoerd. Er zijn geen velden om kerncijfers in te typen, en dus ook geen cijfers die verouderd zijn voordat ze zijn uitgeschreven."
+      },
+      "yourData": {
+        "name": "Jullie data is van jullie",
+        "description": "Elke organisatie ziet alleen de eigen data, en dat wordt in de database bepaald - niet door een knop te verbergen. Wie wat mag wijzigen bepalen jullie zelf met rollen."
+      }
+    },
+    "behindTitle": "Wie erachter zit",
+    "behind1": "Ponos ontstaat als studieproject samen met <strong>Corolab</strong>, een ledengedreven non-profit in Roskilde, Denemarken, die sinds 2016 bedrijven, onderwijsinstellingen en publieke organisaties samenbrengt rond projecten die geen van hen alleen zou kunnen dragen.",
+    "behind2": "Dat betekent dat het platform wordt beproefd op de spullen en taken van een echte organisatie in plaats van op voorbeelden die we zelf hebben bedacht. Juist dat soort gebruik laat zien of iets standhoudt: de gevallen waar niemand rekening mee hield en de plekken waar de werkelijkheid niet helemaal in de velden past.",
+    "behind3": "Heb je vragen over het project, of wil je Ponos bij jullie uitproberen? Dan horen we het graag.",
+    "writeToUs": "Schrijf ons"
+  },
+  "contact": {
+    "heroTitle": "Contact",
+    "heroDescription": "Heb je een vraag, ben je iets tegengekomen dat niet werkt, of wil je gewoon meer weten? Schrijf ons dan.",
+    "howToReach": "Zo bereik je ons",
+    "emailLabel": "E-mail",
+    "locationLabel": "Wij zitten in",
+    "sendMail": "Stuur een e-mail",
+    "topicsTitle": "Je mag ons schrijven over",
+    "topics": {
+      "fit": "Wat Ponos kan en of het bij jullie past",
+      "bug": "Iets dat niet werkt zoals het hoort",
+      "collaboration": "Samenwerking, of zin om het bij jullie uit te proberen"
+    },
+    "responseNote": "We lezen mee op werkdagen en antwoorden zo snel als we kunnen. Noem gerust om welke organisatie het gaat en wat je aan het doen was - dan hoeven we daar niet eerst naar te vragen.",
+    "helpHintBefore": "Wil je alleen weten hoe iets werkt? Dan staat het antwoord misschien al bij",
+    "helpHintLink": "Hulp en ondersteuning"
+  },
+  "help": {
+    "heroTitle": "Hulp en ondersteuning",
+    "heroDescription": "Ben je net begonnen, of loop je vast? Kijk dan hier eerst.",
+    "startTitle": "Aan de slag",
+    "startIntro": "Drie stappen van een nieuw account tot iets dat echt in het systeem staat.",
+    "steps": {
+      "account": {
+        "title": "Een account aanmaken",
+        "description": "Je hebt een e-mailadres en een wachtwoord nodig. Het account is van jou en gaat met je mee, hoeveel organisaties je uiteindelijk ook hebt."
+      },
+      "organisation": {
+        "title": "Lid worden van een organisatie",
+        "description": "Maak je eigen organisatie aan, of vraag of je lid mag worden van een bestaande. Bijna alles in Ponos hoort bij een organisatie, dus deze stap kun je niet overslaan."
+      },
+      "data": {
+        "title": "Jullie spullen invoeren",
+        "description": "Voer jullie middelen in de datalaag in en maak de eerste taken aan. De statistieken beginnen vanzelf te rekenen zodra er iets te rekenen valt."
+      }
+    },
+    "faqTitle": "Wat ons het vaakst wordt gevraagd",
+    "faq": {
+      "nothingToSee": {
+        "q": "Ik ben ingelogd, maar er is niets te zien",
+        "a1": "Daar verbazen de meesten zich als eerste over - en er is niets stuk. Taken, statistieken, datalaag en nieuws horen bij een organisatie, dus zolang je geen actieve organisatie hebt, is er niets te tonen. Daarom staan de links ook nog niet in het menu.",
+        "a2": "Je gaat verder onder <orgLink>Dashboard → Organisatie</orgLink>, waar je je eigen organisatie aanmaakt of vraagt of je lid mag worden van een bestaande."
+      },
+      "becomeMember": {
+        "q": "Hoe word ik lid van een organisatie?",
+        "a1": "Ga naar Dashboard → Organisatie, kies \"Lidmaatschap aanvragen\" en zoek de organisatie in de lijst. Een beheerder moet ja zeggen voordat je erin zit.",
+        "a2": "Terwijl je wacht, staat er bovenaan de pagina een melding. Word je in plaats daarvan uitgenodigd door een beheerder, dan verschijnt de uitnodiging op dezelfde plek en hoef je alleen op accepteren te drukken."
+      },
+      "multipleOrgs": {
+        "q": "Kan ik bij meerdere organisaties horen?",
+        "a1": "Ja. Je hebt er maar één <b>actief</b> tegelijk, en alles wat je ziet - taken, spullen, statistieken, rollen - hoort bij die ene.",
+        "a2": "Je wisselt onder \"Mijn organisaties\". Vergeet niet dat je rechten per plek kunnen verschillen: je kunt bij de ene prima beheerder zijn en bij de andere gewoon lid."
+      },
+      "cannotEdit": {
+        "q": "Waarom kan ik niets aanmaken of wijzigen?",
+        "a1": "Omdat je rol dat nog niet mag. Rechten worden per organisatie ingesteld, en als je iets niet mag, tonen we de knop helemaal niet - in plaats van je het te laten ontdekken bij het klikken.",
+        "a2": "Moet je meer kunnen, dan kan je beheerder je een rol met de juiste rechten geven."
+      },
+      "invite": {
+        "q": "Hoe nodig ik een nieuwe gebruiker uit?",
+        "a1": "Dashboard → Beheer → Uitnodigingen, en dan het e-mailadres van de persoon. Dat vereist dat je zelf mag uitnodigen.",
+        "a2": "De persoon moet al een Ponos-account hebben met precies dat e-mailadres - we sturen geen uitnodigingen naar een adres dat niet in het systeem bestaat. Heeft die persoon nog geen account, dan moet die er eerst een aanmaken en kun je hem of haar daarna uitnodigen."
+      },
+      "leaveOrDelete": {
+        "q": "Hoe verlaat of verwijder ik een organisatie?",
+        "a1": "Beide staan onder \"Mijn organisaties\". Verlaat je er een terwijl je bij meerdere hoort, dan wordt automatisch een van de andere je nieuwe actieve organisatie.",
+        "a2": "Ben je de enige beheerder, dan kun je niet zomaar weggaan - er zou niemand overblijven om de organisatie te beheren. Geef eerst iemand anders de beheerdersrol. En een organisatie <b>verwijderen</b> wist alles wat erin zit, ook voor de andere leden. Dat kan alleen een beheerder."
+      },
+      "editProfile": {
+        "q": "Hoe wijzig ik mijn naam of profielfoto?",
+        "a1": "Op <profileLink>je profiel</profileLink>. Naam, beschrijving, foto en wachtwoord kun je zelf wijzigen. E-mail en rol niet - de rol hoort bij de organisatie en wordt door een beheerder toegekend."
+      },
+      "forgotPassword": {
+        "q": "Ik ben mijn wachtwoord vergeten",
+        "a1": "Klik op <resetLink>\"Wachtwoord vergeten?\"</resetLink> op de inlogpagina. Je bevestigt het account met je e-mailadres en je naam en kiest meteen een nieuw wachtwoord.",
+        "a2": "Lukt dat niet, schrijf dan naar <mailLink>{{email}}</mailLink>, dan helpen we je weer binnen."
+      }
+    },
+    "noAnswer": "Het antwoord niet gevonden? <contactLink>Schrijf ons</contactLink> - vertel gerust wat je aan het doen was en wat er in plaats daarvan gebeurde."
+  },
+  "notFound": {
+    "title": "Deze pagina bestaat niet",
+    "body": "Op dat adres staat niets. Óf er is onderweg een letter misgegaan, óf de pagina is verplaatst sinds de link is gemaakt.",
+    "toDashboard": "Ga naar het dashboard",
+    "toHome": "Ga naar de startpagina",
+    "toHelp": "Hulp en ondersteuning"
+  }
+}

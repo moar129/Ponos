@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Startsida",
+    "dashboard": "Instrumentpanel",
+    "tasks": "Uppgifter",
+    "statistics": "Statistik",
+    "datalayer": "Datalager",
+    "news": "Nyheter",
+    "messages": "Meddelanden",
+    "login": "Logga in",
+    "signup": "Skapa konto"
+  },
+  "user": {
+    "fallbackName": "Användare",
+    "noRole": "Ingen roll",
+    "viewProfile": "Visa profil",
+    "logout": "Logga ut",
+    "loggingOut": "Loggar ut..."
+  },
+  "menu": {
+    "open": "Öppna menyn",
+    "close": "Stäng menyn"
+  },
+  "footer": {
+    "tagline": "Vi skapar överblick, samarbete och hållbara resultat – tillsammans.",
+    "navigationLabel": "Sidfotsnavigering",
+    "navigation": "Navigering",
+    "aboutLabel": "Om Ponos",
+    "aboutHeading": "Om Ponos",
+    "about": "Om oss",
+    "contact": "Kontakt",
+    "help": "Hjälp och support",
+    "copyright": "© {{year}} Ponos. Med ensamrätt."
+  },
+  "banner": {
+    "pendingRequest": "Din ansökan om medlemskap i <strong>{{organisation}}</strong> väntar på godkännande.",
+    "invited": "Du har blivit inbjuden att bli medlem i <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Visa inbjudan",
+    "noOrganisation": "Du är ännu inte medlem i någon organisation.",
+    "createOrRequest": "Skapa en eller ansök om medlemskap"
+  }
+}

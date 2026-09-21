@@ -1,0 +1,30 @@
+{
+  "loading": "Profiel wordt geladen...",
+  "notFound": "Je profiel kon niet worden gevonden.",
+  "saved": "Je gegevens zijn opgeslagen.",
+  "nameRequired": "Voornaam en achternaam zijn verplicht.",
+  "fields": {
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "email": "E-mail",
+    "organisation": "Organisatie",
+    "role": "Rol",
+    "description": "Beschrijving",
+    "pictureUrl": "Profielfoto (URL)"
+  },
+  "empty": {
+    "organisation": "Geen organisatie",
+    "role": "Geen rol toegewezen",
+    "description": "Geen beschrijving"
+  },
+  "readOnlyNote": "E-mail, rol en organisatie kunnen hier niet worden gewijzigd. Neem contact op met je beheerder.",
+  "saveChanges": "Wijzigingen opslaan",
+  "editProfile": "Profiel bewerken",
+  "logout": "Uitloggen",
+  "loggingOut": "Bezig met uitloggen...",
+  "passwordHeading": "Wachtwoord",
+  "preferences": {
+    "title": "Weergave",
+    "hint": "Taal en thema worden in deze browser opgeslagen en gelden alleen voor dit apparaat."
+  }
+}

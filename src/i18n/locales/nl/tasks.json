@@ -1,0 +1,122 @@
+{
+  "status": {
+    "Started": "Beschikbaar",
+    "InProgress": "Bezig",
+    "Completed": "Afgerond"
+  },
+  "priority": {
+    "Low": "Laag",
+    "Medium": "Gemiddeld",
+    "High": "Hoog",
+    "Critical": "Kritiek"
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beschrijving",
+    "room": "Ruimte",
+    "priority": "Prioriteit",
+    "maxAssignees": "Aantal personen",
+    "startDate": "Startdatum",
+    "endDate": "Einddatum"
+  },
+  "page": {
+    "subtitle": "Krijg overzicht over het werk dat gedaan moet worden.",
+    "createTask": "Taak aanmaken",
+    "noAvailableTasks": "Geen beschikbare taken",
+    "noTasksInProgress": "Geen taken bezig",
+    "roomNamePlaceholder": "Schrijf een naam voor de ruimte",
+    "saveRoom": "Ruimte opslaan",
+    "loading": "Taken worden geladen...",
+    "noAccess": "Je hebt geen toegang tot de taken van deze organisatie.",
+    "heading": "Taken",
+    "createRoom": "Ruimte aanmaken",
+    "availableHeading": "Beschikbare taken",
+    "inProgressHeading": "Bezig"
+  },
+  "rooms": {
+    "create": "Ruimte aanmaken",
+    "moreActions": "Meer acties",
+    "edit": "Ruimte bewerken",
+    "deleteOne": "Een ruimte verwijderen",
+    "choose": "Kies een ruimte",
+    "noRoom": "Zonder ruimte"
+  },
+  "create": {
+    "heading": "Taak aanmaken",
+    "titlePlaceholder": "Titel van de taak",
+    "descriptionPlaceholder": "Beschrijving van de taak",
+    "requiresApproval": "De taak vereist goedkeuring",
+    "noApproval": "De taak vereist geen goedkeuring"
+  },
+  "edit": {
+    "heading": "Taak bewerken",
+    "endBeforeStart": "De einddatum mag niet vóór de startdatum liggen.",
+    "deleteTask": "Taak verwijderen",
+    "confirmDelete": "Weet je zeker dat je \"{{name}}\" wilt verwijderen? Dit kan niet ongedaan worden gemaakt."
+  },
+  "priorityNone": "Geen prioriteit",
+  "assignees": {
+    "noLimit": "Geen limiet",
+    "count_one": "{{count}} persoon",
+    "count_other": "{{count}} personen",
+    "nobodyAssigned": "Er is nog niemand toegewezen.",
+    "unknownUser": "Onbekende gebruiker",
+    "selfSigned": "Door jezelf ingeschreven",
+    "assignedByOther": "Door iemand anders toegewezen",
+    "assignedToYou": "Aan jou toegewezen",
+    "addEmployee": "Medewerker toevoegen",
+    "chooseWho": "Kies aan wie de taak moet worden toegewezen",
+    "maxReached": "Het maximale aantal medewerkers is bereikt.",
+    "noFreeSlots": "Er zijn geen vrije plekken meer voor de taak.",
+    "nobodyToAssign": "Er zijn geen medewerkers om toe te wijzen.",
+    "signUp": "Inschrijven",
+    "signOff": "Uitschrijven",
+    "employee": "Medewerker"
+  },
+  "card": {
+    "noDescription": "Geen beschrijving",
+    "requiresApproval": "Vereist goedkeuring",
+    "startWork": "Werk starten",
+    "awaitingApproval": "Wacht op goedkeuring",
+    "markDone": "Gereedmelden",
+    "priorityBadge": "Prioriteit: {{priority}}",
+    "edit": "Bewerken",
+    "details": "Taakdetails",
+    "responsible": "Toegewezen aan",
+    "start": "Start",
+    "end": "Einde",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Medewerker toevoegen",
+    "created": "Aangemaakt",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Filter tonen",
+    "hide": "Filter verbergen",
+    "searchPlaceholder": "Taken zoeken...",
+    "all": "Alle",
+    "sortNewest": "Nieuwste",
+    "sortOldest": "Oudste",
+    "sortPriority": "Prioriteit",
+    "sortDeadline": "Deadline",
+    "counts": "{{available}} beschikbaar · {{inProgress}} bezig",
+    "sortBy": "Sorteren op"
+  },
+  "deleteRoom": {
+    "heading": "Ruimte verwijderen",
+    "intro": "Kies de ruimte die je wilt verwijderen.",
+    "tasksInRoom": "Taken in de ruimte",
+    "chooseTasks": "Kies de taken die ook verwijderd moeten worden.",
+    "noTasks": "Er zijn geen taken in deze ruimte.",
+    "keptNote": "Taken die je niet selecteert worden niet verwijderd. Ze worden in plaats daarvan verplaatst naar <b>{{room}}</b>.",
+    "failed": "De ruimte kon niet worden verwijderd. Probeer het opnieuw.",
+    "deleting": "Bezig met verwijderen...",
+    "submit": "Ruimte verwijderen"
+  },
+  "editRoom": {
+    "heading": "Ruimte bewerken",
+    "intro": "Kies een ruimte en bewerk de naam.",
+    "namePlaceholder": "Schrijf een naam voor de ruimte",
+    "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
+  }
+}

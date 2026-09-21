@@ -1,0 +1,20 @@
+{
+  "title": "Aviseringar",
+  "empty": "Inga aviseringar ännu.",
+  "markAllRead": "Markera alla som lästa",
+  "seeAll": "Se alla aviseringar",
+  "hide": "Dölj aviseringen",
+  "unhide": "Visa i klockan igen",
+  "deletePermanently": "Radera permanent",
+  "deleteAriaLabel": "Radera aviseringen permanent",
+  "hidden": "Dold",
+  "justNow": "Just nu",
+  "type": {
+    "message": "Nytt meddelande",
+    "task_assigned": "Du har tilldelats en uppgift",
+    "task_updated": "En uppgift har uppdaterats",
+    "task_completed": "En uppgift har avslutats",
+    "task_approved": "Din uppgift har godkänts",
+    "task_rejected": "Slutrapportering avslagen"
+  }
+}

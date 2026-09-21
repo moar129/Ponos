@@ -1,0 +1,86 @@
+{
+  "title": "Dashboard",
+  "welcome": "Benvenuto.",
+  "welcomeNamed": "Benvenuto, {{name}}.",
+  "tabs": {
+    "overview": "Panoramica",
+    "organisation": "Organizzazione",
+    "administration": "Amministrazione"
+  },
+  "overview": {
+    "noOrganisation": "Non hai ancora un'organizzazione attiva, quindi non c'è nulla da mostrare qui.",
+    "goToOrganisation": "Vai a Organizzazione",
+    "shortcuts": "Scorciatoie",
+    "datalayerDescription": "Consulta e gestisci articoli, categorie e posizioni.",
+    "tasksDescription": "Consulta e gestisci le attività dell'organizzazione.",
+    "statisticsDescription": "Consulta analisi e statistiche dell'organizzazione."
+  },
+  "myTasks": {
+    "title": "Le mie attività",
+    "goToTasks": "Vai alle attività",
+    "loading": "Caricamento delle tue attività...",
+    "empty": "Non sei ancora iscritto a nessuna attività.",
+    "endsOn": "Termina il {{date}}"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "seeAll": "Vedi tutte",
+    "all": "Tutte",
+    "unread": "Non lette",
+    "loading": "Caricamento delle notifiche...",
+    "emptyUnread": "Nessuna notifica non letta.",
+    "empty": "Ancora nessuna notifica.",
+    "justNow": "Proprio ora",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} g"
+  },
+  "news": {
+    "title": "Notizie",
+    "seeAll": "Vedi tutte le notizie",
+    "loading": "Caricamento delle notizie...",
+    "empty": "Non ci sono ancora notizie.",
+    "previous": "Notizia precedente",
+    "next": "Notizia successiva",
+    "showNews": "Mostra la notizia {{number}}"
+  },
+  "comingSoon": "Prossimamente",
+  "administration": {
+    "noPrivileges": "Non hai i permessi per nessuna funzione di amministrazione.",
+    "panels": {
+      "roles": "Ruoli e permessi",
+      "members": "Membri e assegnazione dei ruoli",
+      "invitations": "Inviti",
+      "membershipRequests": "Richieste di adesione",
+      "organisation": "Organizzazione",
+      "taskApprovals": "Approvazioni delle attività",
+      "completedTasks": "Attività completate"
+    }
+  },
+  "completedTasks": {
+    "loading": "Caricamento delle attività completate...",
+    "empty": "Nessuna attività è ancora stata contrassegnata come completata.",
+    "searchPlaceholder": "Cerca per titolo o descrizione...",
+    "allPriorities": "Tutte le priorità",
+    "noMatch": "Nessuna attività corrisponde alla ricerca o al filtro.",
+    "noDescription": "Nessuna descrizione.",
+    "room": "Sala:",
+    "noRoom": "Nessuna sala",
+    "period": "Periodo:",
+    "unknown": "Sconosciuto",
+    "assignees": "Assegnata a:",
+    "noAssignees": "Nessuno assegnato",
+    "materials": "Materiali:",
+    "noMaterials": "Nessun materiale",
+    "edit": "Modifica",
+    "reopen": "Riapri",
+    "reopening": "Riapertura..."
+  },
+  "statistics": {
+    "noOrganisation": "Non hai ancora un'organizzazione attiva, quindi non ci sono statistiche da mostrare.",
+    "goToOrganisation": "Vai a Organizzazione",
+    "title": "Statistiche",
+    "description": "Indicatori e analisi calcolati dagli articoli e dalle attività dell'organizzazione.",
+    "loading": "Caricamento..."
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roller och behörigheter",
+    "organisation": "Organisation",
+    "membership_requests": "Medlemsansökningar",
+    "members": "Medlemmar",
+    "invitations": "Inbjudningar",
+    "news": "Nyheter",
+    "datalayer": "Datalager",
+    "tasks": "Uppgifter",
+    "task_approval": "Godkännande av uppgifter"
+  },
+  "op": {
+    "create": "Skapa",
+    "read": "Visa",
+    "update": "Redigera",
+    "delete": "Radera",
+    "assign": "Tilldela",
+    "approve": "Godkänn",
+    "reject": "Avslå"
+  },
+  "privilege": {
+    "admin": "Fullständig administratör (kan allt)"
+  },
+  "other": "Övrigt",
+  "matrix": {
+    "newRoleLabel": "Ny roll",
+    "createRole": "Skapa roll",
+    "creatingRole": "Skapar...",
+    "loading": "Laddar roller...",
+    "noRoles": "Organisationen har inga roller ännu.",
+    "selectAll": "Välj alla",
+    "removeAll": "Ta bort alla",
+    "savePrivilegeName": "Spara behörighetens namn",
+    "renamePrivilege": "Byt namn på behörigheten",
+    "saveRoleName": "Spara rollens namn",
+    "renameRole": "Byt namn på rollen",
+    "deleteRole": "Radera rollen",
+    "newRolePlaceholder": "T.ex. Volontärsamordnare",
+    "privilegeColumn": "Behörighet",
+    "removeAllTitle": "Tar bort alla nuvarande behörigheter från {{role}} (inte äkta systemadministratörsåtkomst)",
+    "selectAllTitle": "Ger {{role}} alla nuvarande behörigheter (inte äkta systemadministratörsåtkomst)",
+    "renamePrivilegeFor": "Byt namn på den här behörigheten för {{role}}",
+    "confirmDeleteRole": "Radera \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin har redan full åtkomst och kan inte anpassas",
+    "memberFixed": "Fast del av standardrollen Medlem",
+    "adminOnly": "Bara en administratör kan tilldela admin-behörigheten",
+    "adminRoleProtected": "Den här rollen har admin-behörigheten och kan inte byta namn eller raderas",
+    "memberRoleProtected": "Standardrollen Medlem kan inte byta namn eller raderas",
+    "memberNotExtendable": "Standardrollen Medlem kan inte utökas"
+  },
+  "approvals": {
+    "loading": "Laddar godkännanden...",
+    "empty": "Det finns inga uppgifter som väntar på godkännande.",
+    "confirmApprove": "Godkänn och markera uppgiften som avslutad?",
+    "confirmReject": "Avslå ansökan? Uppgiften fortsätter pågå.",
+    "reportedBy": "Slutrapporterad av",
+    "approve": "Godkänn",
+    "reject": "Avslå",
+    "reportedDoneBy": "Slutrapporterad av {{name}}"
+  }
+}

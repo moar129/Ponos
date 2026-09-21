@@ -1,0 +1,20 @@
+{
+  "title": "Notifiche",
+  "empty": "Ancora nessuna notifica.",
+  "markAllRead": "Segna tutte come lette",
+  "seeAll": "Vedi tutte le notifiche",
+  "hide": "Nascondi la notifica",
+  "unhide": "Mostra di nuovo nella campanella",
+  "deletePermanently": "Elimina definitivamente",
+  "deleteAriaLabel": "Elimina definitivamente la notifica",
+  "hidden": "Nascosta",
+  "justNow": "Proprio ora",
+  "type": {
+    "message": "Nuovo messaggio",
+    "task_assigned": "Ti è stata assegnata un'attività",
+    "task_updated": "Un'attività è stata aggiornata",
+    "task_completed": "Un'attività è stata completata",
+    "task_approved": "La tua attività è stata approvata",
+    "task_rejected": "Segnalazione di completamento rifiutata"
+  }
+}

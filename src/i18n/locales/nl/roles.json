@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Rollen en rechten",
+    "organisation": "Organisatie",
+    "membership_requests": "Lidmaatschapsverzoeken",
+    "members": "Leden",
+    "invitations": "Uitnodigingen",
+    "news": "Nieuws",
+    "datalayer": "Datalaag",
+    "tasks": "Taken",
+    "task_approval": "Taakgoedkeuring"
+  },
+  "op": {
+    "create": "Aanmaken",
+    "read": "Bekijken",
+    "update": "Bewerken",
+    "delete": "Verwijderen",
+    "assign": "Toewijzen",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen"
+  },
+  "privilege": {
+    "admin": "Volledig beheer (kan alles)"
+  },
+  "other": "Overig",
+  "matrix": {
+    "newRoleLabel": "Nieuwe rol",
+    "createRole": "Rol aanmaken",
+    "creatingRole": "Bezig met aanmaken...",
+    "loading": "Rollen worden geladen...",
+    "noRoles": "De organisatie heeft nog geen rollen.",
+    "selectAll": "Alles selecteren",
+    "removeAll": "Alles verwijderen",
+    "savePrivilegeName": "Naam van het recht opslaan",
+    "renamePrivilege": "Recht hernoemen",
+    "saveRoleName": "Naam van de rol opslaan",
+    "renameRole": "Rol hernoemen",
+    "deleteRole": "Rol verwijderen",
+    "newRolePlaceholder": "Bijv. Vrijwilligerscoördinator",
+    "privilegeColumn": "Recht",
+    "removeAllTitle": "Verwijdert alle huidige rechten van {{role}} (geen echte systeembeheerderstoegang)",
+    "selectAllTitle": "Geeft {{role}} alle huidige rechten (geen echte systeembeheerderstoegang)",
+    "renamePrivilegeFor": "Dit recht hernoemen voor {{role}}",
+    "confirmDeleteRole": "\"{{name}}\" verwijderen?"
+  },
+  "locked": {
+    "adminHasAll": "Admin heeft al volledige toegang en kan niet worden aangepast",
+    "memberFixed": "Vast onderdeel van de standaardrol Medlem",
+    "adminOnly": "Alleen een beheerder kan het admin-recht toekennen",
+    "adminRoleProtected": "Deze rol heeft het admin-recht en kan niet worden hernoemd of verwijderd",
+    "memberRoleProtected": "De standaardrol Medlem kan niet worden hernoemd of verwijderd",
+    "memberNotExtendable": "De standaardrol Medlem kan niet worden uitgebreid"
+  },
+  "approvals": {
+    "loading": "Taakgoedkeuringen worden geladen...",
+    "empty": "Er wachten geen taken op goedkeuring.",
+    "confirmApprove": "Goedkeuren en de taak als afgerond markeren?",
+    "confirmReject": "Het verzoek afwijzen? De taak blijft lopen.",
+    "reportedBy": "Gereedgemeld door",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen",
+    "reportedDoneBy": "Gereedgemeld door {{name}}"
+  }
+}

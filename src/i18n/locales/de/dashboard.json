@@ -1,0 +1,86 @@
+{
+  "title": "Dashboard",
+  "welcome": "Willkommen.",
+  "welcomeNamed": "Willkommen, {{name}}.",
+  "tabs": {
+    "overview": "Übersicht",
+    "organisation": "Organisation",
+    "administration": "Verwaltung"
+  },
+  "overview": {
+    "noOrganisation": "Sie haben noch keine aktive Organisation, daher gibt es hier nichts anzuzeigen.",
+    "goToOrganisation": "Zur Organisation",
+    "shortcuts": "Verknüpfungen",
+    "datalayerDescription": "Artikel, Kategorien und Standorte ansehen und verwalten.",
+    "tasksDescription": "Aufgaben der Organisation ansehen und verwalten.",
+    "statisticsDescription": "Auswertungen und Statistiken der Organisation ansehen."
+  },
+  "myTasks": {
+    "title": "Meine Aufgaben",
+    "goToTasks": "Zu den Aufgaben",
+    "loading": "Ihre Aufgaben werden geladen...",
+    "empty": "Sie sind noch für keine Aufgaben angemeldet.",
+    "endsOn": "Endet am {{date}}"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "seeAll": "Alle anzeigen",
+    "all": "Alle",
+    "unread": "Ungelesen",
+    "loading": "Benachrichtigungen werden geladen...",
+    "emptyUnread": "Keine ungelesenen Benachrichtigungen.",
+    "empty": "Noch keine Benachrichtigungen.",
+    "justNow": "Gerade eben",
+    "minutesAgo": "{{count}} Min.",
+    "hoursAgo": "{{count}} Std.",
+    "daysAgo": "{{count}} T."
+  },
+  "news": {
+    "title": "Neuigkeiten",
+    "seeAll": "Alle Neuigkeiten anzeigen",
+    "loading": "Neuigkeiten werden geladen...",
+    "empty": "Es gibt noch keine Neuigkeiten.",
+    "previous": "Vorherige Meldung",
+    "next": "Nächste Meldung",
+    "showNews": "Meldung {{number}} anzeigen"
+  },
+  "comingSoon": "Demnächst",
+  "administration": {
+    "noPrivileges": "Sie haben keine Berechtigung für Verwaltungsfunktionen.",
+    "panels": {
+      "roles": "Rollen & Berechtigungen",
+      "members": "Mitglieder und Rollenvergabe",
+      "invitations": "Einladungen",
+      "membershipRequests": "Mitgliedsanfragen",
+      "organisation": "Organisation",
+      "taskApprovals": "Aufgabenfreigaben",
+      "completedTasks": "Abgeschlossene Aufgaben"
+    }
+  },
+  "completedTasks": {
+    "loading": "Abgeschlossene Aufgaben werden geladen...",
+    "empty": "Es wurden noch keine Aufgaben als abgeschlossen markiert.",
+    "searchPlaceholder": "Nach Titel oder Beschreibung suchen...",
+    "allPriorities": "Alle Prioritäten",
+    "noMatch": "Keine Aufgaben entsprechen der Suche oder dem Filter.",
+    "noDescription": "Keine Beschreibung.",
+    "room": "Raum:",
+    "noRoom": "Kein Raum",
+    "period": "Zeitraum:",
+    "unknown": "Unbekannt",
+    "assignees": "Zugewiesen:",
+    "noAssignees": "Niemand zugewiesen",
+    "materials": "Materialien:",
+    "noMaterials": "Keine Materialien",
+    "edit": "Bearbeiten",
+    "reopen": "Wieder öffnen",
+    "reopening": "Wird wieder geöffnet..."
+  },
+  "statistics": {
+    "noOrganisation": "Sie haben noch keine aktive Organisation, daher gibt es keine Statistiken anzuzeigen.",
+    "goToOrganisation": "Zur Organisation",
+    "title": "Statistik",
+    "description": "Kennzahlen und Auswertungen, berechnet aus den Artikeln und Aufgaben der Organisation.",
+    "loading": "Wird geladen..."
+  }
+}

@@ -5,10 +5,13 @@
 // locales/<code>/ med de 14 namespace-filer, så er sproget med i både
 // header-vælgeren og profilsidens "Visning"-afsnit.
 //
-// 19 af EU's 24 officielle sprog. Maltesisk (mt), irsk (ga), estisk (et),
-// lettisk (lv) og litauisk (lt) er bevidst udeladt - de kunne ikke leveres
-// i en kvalitet vi kan stå inde for. De kan tilføjes senere uden
-// kodeændringer andre steder end her.
+// 14 af EU's 24 officielle sprog. Ti er bevidst udeladt, fordi vi ikke
+// kunne levere dem i en kvalitet vi kan stå inde for - og ingen på holdet
+// kan læse korrektur på dem:
+//   mt maltesisk, ga irsk, et estisk, lv lettisk, lt litauisk
+//   bg bulgarsk, el græsk, hr kroatisk, sl slovensk, sk slovakisk
+// Et udeladt sprog koster én linje her + en mappe under locales/ at
+// tilføje igen - ingen kodeændringer andre steder.
 //
 // VIGTIGT: sproglisten er dubleret i index.html's pre-hydration-script
 // (det kan ikke importere fra src/). Tilføjes et sprog her, skal koden
@@ -24,24 +27,19 @@ export interface Language {
 }
 
 export const LANGUAGES: Language[] = [
-  { code: 'bg', nativeName: 'Български', englishName: 'Bulgarian' },
   { code: 'cs', nativeName: 'Čeština', englishName: 'Czech' },
   { code: 'da', nativeName: 'Dansk', englishName: 'Danish' },
   { code: 'de', nativeName: 'Deutsch', englishName: 'German' },
-  { code: 'el', nativeName: 'Ελληνικά', englishName: 'Greek' },
   { code: 'en', nativeName: 'English', englishName: 'English' },
   { code: 'es', nativeName: 'Español', englishName: 'Spanish' },
   { code: 'fi', nativeName: 'Suomi', englishName: 'Finnish' },
   { code: 'fr', nativeName: 'Français', englishName: 'French' },
-  { code: 'hr', nativeName: 'Hrvatski', englishName: 'Croatian' },
   { code: 'hu', nativeName: 'Magyar', englishName: 'Hungarian' },
   { code: 'it', nativeName: 'Italiano', englishName: 'Italian' },
   { code: 'nl', nativeName: 'Nederlands', englishName: 'Dutch' },
   { code: 'pl', nativeName: 'Polski', englishName: 'Polish' },
   { code: 'pt', nativeName: 'Português', englishName: 'Portuguese' },
   { code: 'ro', nativeName: 'Română', englishName: 'Romanian' },
-  { code: 'sk', nativeName: 'Slovenčina', englishName: 'Slovak' },
-  { code: 'sl', nativeName: 'Slovenščina', englishName: 'Slovenian' },
   { code: 'sv', nativeName: 'Svenska', englishName: 'Swedish' },
 ]
 

@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "tasks": "Aufgaben",
+    "statistics": "Statistik",
+    "datalayer": "Datenebene",
+    "news": "Neuigkeiten",
+    "messages": "Nachrichten",
+    "login": "Anmelden",
+    "signup": "Konto erstellen"
+  },
+  "user": {
+    "fallbackName": "Benutzer",
+    "noRole": "Keine Rolle",
+    "viewProfile": "Profil ansehen",
+    "logout": "Abmelden",
+    "loggingOut": "Wird abgemeldet..."
+  },
+  "menu": {
+    "open": "Menü öffnen",
+    "close": "Menü schließen"
+  },
+  "footer": {
+    "tagline": "Wir schaffen Überblick, Zusammenarbeit und nachhaltige Ergebnisse – gemeinsam.",
+    "navigationLabel": "Footer-Navigation",
+    "navigation": "Navigation",
+    "aboutLabel": "Über Ponos",
+    "aboutHeading": "Über Ponos",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "help": "Hilfe & Support",
+    "copyright": "© {{year}} Ponos. Alle Rechte vorbehalten."
+  },
+  "banner": {
+    "pendingRequest": "Ihre Anfrage zum Beitritt zu <strong>{{organisation}}</strong> wartet auf Freigabe.",
+    "invited": "Sie wurden eingeladen, <strong>{{organisation}}</strong> beizutreten.",
+    "seeInvitation": "Einladung ansehen",
+    "noOrganisation": "Sie sind noch kein Mitglied einer Organisation.",
+    "createOrRequest": "Eine erstellen oder Mitgliedschaft beantragen"
+  }
+}

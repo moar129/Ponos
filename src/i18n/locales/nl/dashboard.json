@@ -1,0 +1,86 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welkom.",
+  "welcomeNamed": "Welkom, {{name}}.",
+  "tabs": {
+    "overview": "Overzicht",
+    "organisation": "Organisatie",
+    "administration": "Beheer"
+  },
+  "overview": {
+    "noOrganisation": "Je hebt nog geen actieve organisatie, dus er is hier niets te tonen.",
+    "goToOrganisation": "Ga naar Organisatie",
+    "shortcuts": "Snelkoppelingen",
+    "datalayerDescription": "Artikelen, categorieën en locaties bekijken en beheren.",
+    "tasksDescription": "Taken van de organisatie bekijken en beheren.",
+    "statisticsDescription": "Inzichten en statistieken van de organisatie bekijken."
+  },
+  "myTasks": {
+    "title": "Mijn taken",
+    "goToTasks": "Ga naar taken",
+    "loading": "Je taken worden geladen...",
+    "empty": "Je bent nog voor geen enkele taak ingeschreven.",
+    "endsOn": "Eindigt op {{date}}"
+  },
+  "notifications": {
+    "title": "Meldingen",
+    "seeAll": "Alles bekijken",
+    "all": "Alle",
+    "unread": "Ongelezen",
+    "loading": "Meldingen worden geladen...",
+    "emptyUnread": "Geen ongelezen meldingen.",
+    "empty": "Nog geen meldingen.",
+    "justNow": "Zojuist",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} u",
+    "daysAgo": "{{count}} d"
+  },
+  "news": {
+    "title": "Nieuws",
+    "seeAll": "Al het nieuws bekijken",
+    "loading": "Nieuws wordt geladen...",
+    "empty": "Er is nog geen nieuws.",
+    "previous": "Vorig nieuwsbericht",
+    "next": "Volgend nieuwsbericht",
+    "showNews": "Nieuwsbericht {{number}} tonen"
+  },
+  "comingSoon": "Binnenkort",
+  "administration": {
+    "noPrivileges": "Je hebt geen rechten voor beheerfuncties.",
+    "panels": {
+      "roles": "Rollen en rechten",
+      "members": "Leden en roltoewijzing",
+      "invitations": "Uitnodigingen",
+      "membershipRequests": "Lidmaatschapsverzoeken",
+      "organisation": "Organisatie",
+      "taskApprovals": "Taakgoedkeuringen",
+      "completedTasks": "Afgeronde taken"
+    }
+  },
+  "completedTasks": {
+    "loading": "Afgeronde taken worden geladen...",
+    "empty": "Er zijn nog geen taken als afgerond gemarkeerd.",
+    "searchPlaceholder": "Zoeken op titel of beschrijving...",
+    "allPriorities": "Alle prioriteiten",
+    "noMatch": "Geen taken komen overeen met de zoekopdracht of het filter.",
+    "noDescription": "Geen beschrijving.",
+    "room": "Ruimte:",
+    "noRoom": "Geen ruimte",
+    "period": "Periode:",
+    "unknown": "Onbekend",
+    "assignees": "Toegewezen aan:",
+    "noAssignees": "Niemand toegewezen",
+    "materials": "Materialen:",
+    "noMaterials": "Geen materialen",
+    "edit": "Bewerken",
+    "reopen": "Heropenen",
+    "reopening": "Bezig met heropenen..."
+  },
+  "statistics": {
+    "noOrganisation": "Je hebt nog geen actieve organisatie, dus er zijn geen statistieken te tonen.",
+    "goToOrganisation": "Ga naar Organisatie",
+    "title": "Statistieken",
+    "description": "Kerncijfers en inzichten berekend op basis van de artikelen en taken van de organisatie.",
+    "loading": "Laden..."
+  }
+}

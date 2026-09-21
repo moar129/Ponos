@@ -1,0 +1,40 @@
+{
+  "create": "Meldung erstellen",
+  "edit": "Meldung bearbeiten",
+  "delete": "Meldung löschen",
+  "notFound": "Die Meldung wurde nicht gefunden.",
+  "backToNews": "Zurück zu den Neuigkeiten",
+  "readFullArticle": "Den ganzen Artikel lesen",
+  "form": {
+    "descriptionPlaceholder": "Schreiben Sie die Meldung hier...",
+    "tooLong": "Die Beschreibung ist zu lang (max. {{max}} Zeichen).",
+    "urlHint": "Wird als \"Den ganzen Artikel lesen\" unten in der Meldung angezeigt.",
+    "pictureUrlLabel": "Bild-URL (optional)",
+    "urlLabel": "Link zum Originalartikel (optional)"
+  },
+  "editor": {
+    "typography": "Typografie",
+    "normal": "Normal",
+    "heading": "Überschrift",
+    "subheading": "Unterüberschrift",
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "underline": "Unterstrichen",
+    "bulletList": "Aufzählung",
+    "numberedList": "Nummerierte Liste",
+    "outdent": "Einzug verkleinern",
+    "indent": "Einzug vergrößern",
+    "insertLink": "Link einfügen",
+    "linkTextPlaceholder": "Anzuzeigender Text",
+    "linkTextLabel": "Linktext",
+    "linkUrlLabel": "Linkadresse",
+    "insert": "Einfügen",
+    "cancelLink": "Link abbrechen"
+  },
+  "heading": "Neuigkeiten",
+  "loading": "Neuigkeiten werden geladen...",
+  "loadingOne": "Meldung wird geladen...",
+  "noAccess": "Sie haben keinen Zugriff auf die Neuigkeiten dieser Organisation.",
+  "empty": "Es gibt noch keine Neuigkeiten.",
+  "deleteTitle": "\"{{name}}\" löschen?"
+}

@@ -1,0 +1,30 @@
+{
+  "loading": "Laddar profil...",
+  "notFound": "Din profil kunde inte hittas.",
+  "saved": "Dina uppgifter har sparats.",
+  "nameRequired": "Förnamn och efternamn måste fyllas i.",
+  "fields": {
+    "firstName": "Förnamn",
+    "lastName": "Efternamn",
+    "email": "E-post",
+    "organisation": "Organisation",
+    "role": "Roll",
+    "description": "Beskrivning",
+    "pictureUrl": "Profilbild (URL)"
+  },
+  "empty": {
+    "organisation": "Ingen organisation",
+    "role": "Ingen roll tilldelad",
+    "description": "Ingen beskrivning"
+  },
+  "readOnlyNote": "E-post, roll och organisation kan inte ändras här. Kontakta din administratör.",
+  "saveChanges": "Spara ändringar",
+  "editProfile": "Redigera profil",
+  "logout": "Logga ut",
+  "loggingOut": "Loggar ut...",
+  "passwordHeading": "Lösenord",
+  "preferences": {
+    "title": "Visning",
+    "hint": "Språk och tema sparas i den här webbläsaren och gäller bara den här enheten."
+  }
+}

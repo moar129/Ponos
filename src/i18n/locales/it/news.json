@@ -1,0 +1,40 @@
+{
+  "create": "Crea notizia",
+  "edit": "Modifica notizia",
+  "delete": "Elimina notizia",
+  "notFound": "Notizia non trovata.",
+  "backToNews": "Torna alle notizie",
+  "readFullArticle": "Leggi l'articolo completo",
+  "form": {
+    "descriptionPlaceholder": "Scrivi qui la notizia...",
+    "tooLong": "La descrizione è troppo lunga (max. {{max}} caratteri).",
+    "urlHint": "Mostrato come \"Leggi l'articolo completo\" in fondo alla notizia.",
+    "pictureUrlLabel": "URL dell'immagine (facoltativo)",
+    "urlLabel": "Link all'articolo originale (facoltativo)"
+  },
+  "editor": {
+    "typography": "Tipografia",
+    "normal": "Normale",
+    "heading": "Titolo",
+    "subheading": "Sottotitolo",
+    "bold": "Grassetto",
+    "italic": "Corsivo",
+    "underline": "Sottolineato",
+    "bulletList": "Elenco puntato",
+    "numberedList": "Elenco numerato",
+    "outdent": "Riduci rientro",
+    "indent": "Aumenta rientro",
+    "insertLink": "Inserisci link",
+    "linkTextPlaceholder": "Testo da mostrare",
+    "linkTextLabel": "Testo del link",
+    "linkUrlLabel": "Indirizzo del link",
+    "insert": "Inserisci",
+    "cancelLink": "Annulla il link"
+  },
+  "heading": "Notizie",
+  "loading": "Caricamento delle notizie...",
+  "loadingOne": "Caricamento della notizia...",
+  "noAccess": "Non hai accesso alle notizie di questa organizzazione.",
+  "empty": "Non ci sono ancora notizie.",
+  "deleteTitle": "Eliminare \"{{name}}\"?"
+}

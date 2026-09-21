@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Rôles et droits",
+    "organisation": "Organisation",
+    "membership_requests": "Demandes d'adhésion",
+    "members": "Membres",
+    "invitations": "Invitations",
+    "news": "Actualités",
+    "datalayer": "Couche de données",
+    "tasks": "Tâches",
+    "task_approval": "Validation de tâches"
+  },
+  "op": {
+    "create": "Créer",
+    "read": "Consulter",
+    "update": "Modifier",
+    "delete": "Supprimer",
+    "assign": "Assigner",
+    "approve": "Valider",
+    "reject": "Refuser"
+  },
+  "privilege": {
+    "admin": "Administration complète (peut tout faire)"
+  },
+  "other": "Autre",
+  "matrix": {
+    "newRoleLabel": "Nouveau rôle",
+    "createRole": "Créer le rôle",
+    "creatingRole": "Création...",
+    "loading": "Chargement des rôles...",
+    "noRoles": "L'organisation n'a pas encore de rôles.",
+    "selectAll": "Tout sélectionner",
+    "removeAll": "Tout retirer",
+    "savePrivilegeName": "Enregistrer le nom du droit",
+    "renamePrivilege": "Renommer le droit",
+    "saveRoleName": "Enregistrer le nom du rôle",
+    "renameRole": "Renommer le rôle",
+    "deleteRole": "Supprimer le rôle",
+    "newRolePlaceholder": "Par ex. Coordination des bénévoles",
+    "privilegeColumn": "Droit",
+    "removeAllTitle": "Retire tous les droits actuels de {{role}} (pas un véritable accès administrateur système)",
+    "selectAllTitle": "Donne à {{role}} tous les droits actuels (pas un véritable accès administrateur système)",
+    "renamePrivilegeFor": "Renommer ce droit pour {{role}}",
+    "confirmDeleteRole": "Supprimer \"{{name}}\" ?"
+  },
+  "locked": {
+    "adminHasAll": "Admin a déjà un accès complet et ne peut pas être personnalisé",
+    "memberFixed": "Partie fixe du rôle par défaut Medlem",
+    "adminOnly": "Seul un administrateur peut accorder le droit admin",
+    "adminRoleProtected": "Ce rôle possède le droit admin et ne peut pas être renommé ni supprimé",
+    "memberRoleProtected": "Le rôle par défaut Medlem ne peut pas être renommé ni supprimé",
+    "memberNotExtendable": "Le rôle par défaut Medlem ne peut pas être étendu"
+  },
+  "approvals": {
+    "loading": "Chargement des validations de tâches...",
+    "empty": "Aucune tâche n'attend de validation.",
+    "confirmApprove": "Valider et marquer la tâche comme terminée ?",
+    "confirmReject": "Refuser la demande ? La tâche reste en cours.",
+    "reportedBy": "Déclarée terminée par",
+    "approve": "Valider",
+    "reject": "Refuser",
+    "reportedDoneBy": "Déclarée terminée par {{name}}"
+  }
+}

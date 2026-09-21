@@ -1,0 +1,20 @@
+{
+  "title": "Benachrichtigungen",
+  "empty": "Noch keine Benachrichtigungen.",
+  "markAllRead": "Alle als gelesen markieren",
+  "seeAll": "Alle Benachrichtigungen anzeigen",
+  "hide": "Benachrichtigung ausblenden",
+  "unhide": "Wieder in der Glocke anzeigen",
+  "deletePermanently": "Endgültig löschen",
+  "deleteAriaLabel": "Benachrichtigung endgültig löschen",
+  "hidden": "Ausgeblendet",
+  "justNow": "Gerade eben",
+  "type": {
+    "message": "Neue Nachricht",
+    "task_assigned": "Ihnen wurde eine Aufgabe zugewiesen",
+    "task_updated": "Eine Aufgabe wurde aktualisiert",
+    "task_completed": "Eine Aufgabe wurde abgeschlossen",
+    "task_approved": "Ihre Aufgabe wurde freigegeben",
+    "task_rejected": "Fertigmeldung abgelehnt"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "status": {
+    "Started": "Disponibile",
+    "InProgress": "In corso",
+    "Completed": "Completata"
+  },
+  "priority": {
+    "Low": "Bassa",
+    "Medium": "Media",
+    "High": "Alta",
+    "Critical": "Critica"
+  },
+  "fields": {
+    "title": "Titolo",
+    "description": "Descrizione",
+    "room": "Sala",
+    "priority": "Priorità",
+    "maxAssignees": "Numero di persone",
+    "startDate": "Data di inizio",
+    "endDate": "Data di fine"
+  },
+  "page": {
+    "subtitle": "Ottieni una visione d'insieme del lavoro da fare.",
+    "createTask": "Crea attività",
+    "noAvailableTasks": "Nessuna attività disponibile",
+    "noTasksInProgress": "Nessuna attività in corso",
+    "roomNamePlaceholder": "Scrivi il nome della sala",
+    "saveRoom": "Salva la sala",
+    "loading": "Caricamento delle attività...",
+    "noAccess": "Non hai accesso alle attività di questa organizzazione.",
+    "heading": "Attività",
+    "createRoom": "Crea sala",
+    "availableHeading": "Attività disponibili",
+    "inProgressHeading": "In corso"
+  },
+  "rooms": {
+    "create": "Crea sala",
+    "moreActions": "Altre azioni",
+    "edit": "Modifica sala",
+    "deleteOne": "Elimina una sala",
+    "choose": "Scegli la sala",
+    "noRoom": "Senza sala"
+  },
+  "create": {
+    "heading": "Crea attività",
+    "titlePlaceholder": "Titolo dell'attività",
+    "descriptionPlaceholder": "Descrizione dell'attività",
+    "requiresApproval": "L'attività richiede un'approvazione",
+    "noApproval": "L'attività non richiede un'approvazione"
+  },
+  "edit": {
+    "heading": "Modifica attività",
+    "endBeforeStart": "La data di fine non può precedere quella di inizio.",
+    "deleteTask": "Elimina attività",
+    "confirmDelete": "Vuoi davvero eliminare \"{{name}}\"? Questa azione non può essere annullata."
+  },
+  "priorityNone": "Nessuna priorità",
+  "assignees": {
+    "noLimit": "Nessun limite",
+    "count_one": "{{count}} persona",
+    "count_other": "{{count}} persone",
+    "nobodyAssigned": "Non è ancora stato assegnato nessuno.",
+    "unknownUser": "Utente sconosciuto",
+    "selfSigned": "Iscritto da te",
+    "assignedByOther": "Assegnata da qualcun altro",
+    "assignedToYou": "Assegnata a te",
+    "addEmployee": "Aggiungi collaboratore",
+    "chooseWho": "Scegli a chi assegnare l'attività",
+    "maxReached": "È stato raggiunto il numero massimo di collaboratori.",
+    "noFreeSlots": "Non ci sono più posti liberi per l'attività.",
+    "nobodyToAssign": "Non ci sono collaboratori da assegnare.",
+    "signUp": "Iscriviti",
+    "signOff": "Annulla l'iscrizione",
+    "employee": "Collaboratore"
+  },
+  "card": {
+    "noDescription": "Nessuna descrizione",
+    "requiresApproval": "Richiede approvazione",
+    "startWork": "Inizia il lavoro",
+    "awaitingApproval": "In attesa di approvazione",
+    "markDone": "Segnala completata",
+    "priorityBadge": "Priorità: {{priority}}",
+    "edit": "Modifica",
+    "details": "Dettagli dell'attività",
+    "responsible": "Assegnata a",
+    "start": "Inizio",
+    "end": "Fine",
+    "statusLabel": "Stato:",
+    "addEmployeeShort": "+ Aggiungi collaboratore",
+    "created": "Creata",
+    "statusValue": "Stato: {{status}}"
+  },
+  "filter": {
+    "show": "Mostra il filtro",
+    "hide": "Nascondi il filtro",
+    "searchPlaceholder": "Cerca attività...",
+    "all": "Tutte",
+    "sortNewest": "Più recenti",
+    "sortOldest": "Meno recenti",
+    "sortPriority": "Priorità",
+    "sortDeadline": "Scadenza",
+    "counts": "{{available}} disponibili · {{inProgress}} in corso",
+    "sortBy": "Ordina per"
+  },
+  "deleteRoom": {
+    "heading": "Elimina sala",
+    "intro": "Scegli la sala che vuoi eliminare.",
+    "tasksInRoom": "Attività nella sala",
+    "chooseTasks": "Scegli le attività da eliminare insieme alla sala.",
+    "noTasks": "In questa sala non ci sono attività.",
+    "keptNote": "Le attività che non selezioni non vengono eliminate. Vengono invece spostate in <b>{{room}}</b>.",
+    "failed": "Impossibile eliminare la sala. Riprova.",
+    "deleting": "Eliminazione...",
+    "submit": "Elimina sala"
+  },
+  "editRoom": {
+    "heading": "Modifica sala",
+    "intro": "Scegli una sala e modificane il nome.",
+    "namePlaceholder": "Scrivi il nome della sala",
+    "failed": "Impossibile modificare la sala. Riprova."
+  }
+}

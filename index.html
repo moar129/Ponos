@@ -23,7 +23,7 @@
         // 'ponos-language' skal matche LANGUAGE_STORAGE_KEY i
         // src/store/slices/languageSlice.ts, og listen nedenfor skal matche
         // LANGUAGES i src/i18n/languages.ts (kan ikke importeres herfra).
-        var SUPPORTED = ['bg','cs','da','de','el','en','es','fi','fr','hr','hu','it','nl','pl','pt','ro','sk','sl','sv'];
+        var SUPPORTED = ['cs','da','de','en','es','fi','fr','hu','it','nl','pl','pt','ro','sv'];
         var storedLang = localStorage.getItem('ponos-language');
         var lang;
         if (storedLang && SUPPORTED.indexOf(storedLang) !== -1) {

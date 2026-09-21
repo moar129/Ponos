@@ -1,0 +1,20 @@
+{
+  "title": "Notificaciones",
+  "empty": "Todavía no hay notificaciones.",
+  "markAllRead": "Marcar todas como leídas",
+  "seeAll": "Ver todas las notificaciones",
+  "hide": "Ocultar la notificación",
+  "unhide": "Volver a mostrar en la campana",
+  "deletePermanently": "Eliminar definitivamente",
+  "deleteAriaLabel": "Eliminar la notificación definitivamente",
+  "hidden": "Oculta",
+  "justNow": "Ahora mismo",
+  "type": {
+    "message": "Nuevo mensaje",
+    "task_assigned": "Se te ha asignado una tarea",
+    "task_updated": "Se ha actualizado una tarea",
+    "task_completed": "Se ha finalizado una tarea",
+    "task_approved": "Tu tarea ha sido aprobada",
+    "task_rejected": "Finalización rechazada"
+  }
+}
