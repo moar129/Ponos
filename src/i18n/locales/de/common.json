@@ -34,7 +34,6 @@
   "info": "Info",
   "you": "Sie",
   "remove": "Entfernen",
-  "selectedCount": "{{count}} ausgewählt",
   "deleting": "Wird gelöscht...",
   "confirmDeleteYes": "Ja, löschen",
   "sending": "Wird gesendet...",
@@ -42,5 +41,7 @@
   "updating": "Wird aktualisiert...",
   "creating": "Wird erstellt...",
   "yes": "Ja",
-  "send": "Senden"
+  "send": "Senden",
+  "selectedCount_one": "{{count}} ausgewählt",
+  "selectedCount_other": "{{count}} ausgewählt"
 }

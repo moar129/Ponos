@@ -72,14 +72,17 @@
     "deleteFailed": "No se han podido eliminar todas las categorías seleccionadas. Inténtalo de nuevo.",
     "submit_one": "Eliminar {{count}} categoría",
     "submit_other": "Eliminar {{count}} categorías",
-    "willBeDeleted": "Se eliminará"
+    "willBeDeleted": "Se eliminará",
+    "itemsDeleted_many": "Se eliminarán {{count}} artículos junto con las categorías.",
+    "submit_many": "Eliminar {{count}} categorías"
   },
   "deleteItems": {
     "heading_one": "¿Eliminar {{count}} artículo?",
     "heading_other": "¿Eliminar {{count}} artículos?",
     "cannotUndo": "Esta acción no se puede deshacer.",
     "deleteFailed": "No se han podido eliminar todos los artículos seleccionados. Inténtalo de nuevo.",
-    "submit": "Eliminar {{count}}"
+    "submit": "Eliminar {{count}}",
+    "heading_many": "¿Eliminar {{count}} artículos?"
   },
   "addItems": {
     "heading": "Añadir artículos",

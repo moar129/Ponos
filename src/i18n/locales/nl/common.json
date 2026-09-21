@@ -34,7 +34,6 @@
   "info": "Info",
   "you": "Jij",
   "remove": "Verwijderen",
-  "selectedCount": "{{count}} geselecteerd",
   "deleting": "Bezig met verwijderen...",
   "confirmDeleteYes": "Ja, verwijderen",
   "sending": "Bezig met verzenden...",
@@ -42,5 +41,7 @@
   "updating": "Bezig met bijwerken...",
   "creating": "Bezig met aanmaken...",
   "yes": "Ja",
-  "send": "Verzenden"
+  "send": "Verzenden",
+  "selectedCount_one": "{{count}} geselecteerd",
+  "selectedCount_other": "{{count}} geselecteerd"
 }

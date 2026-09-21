@@ -50,5 +50,6 @@
   "conversations": "Conversazioni",
   "seen": "Visto",
   "noConversations": "Ancora nessuna conversazione. Trova un collega in \"Tutti i contatti\" per iniziarne una.",
-  "writeFirstTo": "Scrivi il primo messaggio a {{name}}."
+  "writeFirstTo": "Scrivi il primo messaggio a {{name}}.",
+  "participantCount_many": "{{count}} partecipanti"
 }

@@ -37,6 +37,27 @@ function baseKey(key) {
   return key.replace(PLURAL_SUFFIX, '')
 }
 
+// Hvilke flertalsformer et sprog FAKTISK kræver. Uden dette tjek ville en
+// manglende polsk _few bare falde tilbage på _other - grammatisk forkert
+// polsk, som ingen automatisk kontrol ville opdage. Intl kender reglerne,
+// så vi behøver ikke vedligeholde en liste selv.
+function requiredPluralCategories(locale) {
+  try {
+    return new Intl.PluralRules(locale).resolvedOptions().pluralCategories
+  } catch {
+    return ['one', 'other']
+  }
+}
+
+/** Nøgler i master der har mindst én flertalsform, som basisnavn. */
+function pluralBaseKeys(keys) {
+  const bases = new Set()
+  for (const key of keys) {
+    if (PLURAL_SUFFIX.test(key)) bases.add(baseKey(key))
+  }
+  return bases
+}
+
 function readNamespace(locale, ns) {
   const file = join(LOCALES_DIR, locale, `${ns}.json`)
   if (!existsSync(file)) return null
@@ -63,6 +84,8 @@ let failed = false
 for (const locale of locales) {
   const missing = []
   const extra = []
+  const badPlurals = []
+  const categories = requiredPluralCategories(locale)
   let translated = 0
 
   for (const ns of namespaces) {
@@ -86,11 +109,31 @@ for (const locale of locales) {
     for (const key of keys) {
       if (!expected.has(key) && !expectedBases.has(baseKey(key))) extra.push(`${ns}:${key}`)
     }
+
+    // Hver flertalsnøgle skal have præcis de former sproget kræver.
+    for (const base of pluralBaseKeys(expected)) {
+      for (const category of categories) {
+        if (!keys.has(`${base}_${category}`)) {
+          badPlurals.push(`${ns}:${base}_${category}`)
+        }
+      }
+    }
   }
 
   const pct = masterTotal === 0 ? 100 : Math.round((translated / masterTotal) * 100)
-  const status = missing.length === 0 && extra.length === 0 ? 'OK' : 'FEJL'
-  console.log(`${locale}: ${translated}/${masterTotal} nøgler (${pct}%) - ${status}`)
+  const clean = missing.length === 0 && extra.length === 0 && badPlurals.length === 0
+  const status = clean ? 'OK' : 'FEJL'
+  console.log(
+    `${locale}: ${translated}/${masterTotal} nøgler (${pct}%) - ${status}` +
+      `  [flertal: ${categories.join('/')}]`,
+  )
+
+  if (badPlurals.length > 0) {
+    failed = true
+    console.log(`  Manglende flertalsform (${badPlurals.length}):`)
+    for (const key of badPlurals.slice(0, 20)) console.log(`    ~ ${key}`)
+    if (badPlurals.length > 20) console.log(`    ... og ${badPlurals.length - 20} mere`)
+  }
 
   if (missing.length > 0) {
     failed = true

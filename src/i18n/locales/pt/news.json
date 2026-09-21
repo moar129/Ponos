@@ -1,0 +1,40 @@
+{
+  "create": "Criar notícia",
+  "edit": "Editar notícia",
+  "delete": "Eliminar notícia",
+  "notFound": "A notícia não foi encontrada.",
+  "backToNews": "Voltar às notícias",
+  "readFullArticle": "Ler o artigo completo",
+  "form": {
+    "descriptionPlaceholder": "Escreva aqui a notícia...",
+    "tooLong": "A descrição é demasiado longa (máx. {{max}} caracteres).",
+    "urlHint": "Mostrado como \"Ler o artigo completo\" no fim da notícia.",
+    "pictureUrlLabel": "URL da imagem (opcional)",
+    "urlLabel": "Ligação para o artigo original (opcional)"
+  },
+  "editor": {
+    "typography": "Tipografia",
+    "normal": "Normal",
+    "heading": "Título",
+    "subheading": "Subtítulo",
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "underline": "Sublinhado",
+    "bulletList": "Lista com marcas",
+    "numberedList": "Lista numerada",
+    "outdent": "Diminuir avanço",
+    "indent": "Aumentar avanço",
+    "insertLink": "Inserir ligação",
+    "linkTextPlaceholder": "Texto a mostrar",
+    "linkTextLabel": "Texto da ligação",
+    "linkUrlLabel": "Endereço da ligação",
+    "insert": "Inserir",
+    "cancelLink": "Cancelar a ligação"
+  },
+  "heading": "Notícias",
+  "loading": "A carregar notícias...",
+  "loadingOne": "A carregar a notícia...",
+  "noAccess": "Não tem acesso às notícias desta organização.",
+  "empty": "Ainda não há notícias.",
+  "deleteTitle": "Eliminar \"{{name}}\"?"
+}

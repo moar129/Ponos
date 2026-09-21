@@ -34,7 +34,6 @@
   "info": "Info",
   "you": "Dig",
   "remove": "Fjern",
-  "selectedCount": "{{count}} valgt",
   "deleting": "Sletter...",
   "confirmDeleteYes": "Ja, slet",
   "sending": "Sender...",
@@ -42,5 +41,7 @@
   "updating": "Opdaterer...",
   "creating": "Opretter...",
   "yes": "Ja",
-  "send": "Send"
+  "send": "Send",
+  "selectedCount_one": "{{count}} valgt",
+  "selectedCount_other": "{{count}} valgt"
 }

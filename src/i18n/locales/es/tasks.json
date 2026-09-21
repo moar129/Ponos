@@ -71,7 +71,8 @@
     "nobodyToAssign": "No hay empleados a los que asignar.",
     "signUp": "Apuntarse",
     "signOff": "Darse de baja",
-    "employee": "Empleado"
+    "employee": "Empleado",
+    "count_many": "{{count}} personas"
   },
   "card": {
     "noDescription": "Sin descripción",

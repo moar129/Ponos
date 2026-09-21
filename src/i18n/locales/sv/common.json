@@ -34,7 +34,6 @@
   "info": "Info",
   "you": "Du",
   "remove": "Ta bort",
-  "selectedCount": "{{count}} valda",
   "deleting": "Raderar...",
   "confirmDeleteYes": "Ja, radera",
   "sending": "Skickar...",
@@ -42,5 +41,7 @@
   "updating": "Uppdaterar...",
   "creating": "Skapar...",
   "yes": "Ja",
-  "send": "Skicka"
+  "send": "Skicka",
+  "selectedCount_one": "{{count}} vald",
+  "selectedCount_other": "{{count}} valda"
 }

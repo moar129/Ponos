@@ -71,7 +71,8 @@
     "nobodyToAssign": "Il n'y a aucun collaborateur à assigner.",
     "signUp": "S'inscrire",
     "signOff": "Se désinscrire",
-    "employee": "Collaborateur"
+    "employee": "Collaborateur",
+    "count_many": "{{count}} personnes"
   },
   "card": {
     "noDescription": "Aucune description",

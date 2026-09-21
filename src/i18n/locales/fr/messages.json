@@ -50,5 +50,6 @@
   "conversations": "Conversations",
   "seen": "Vu",
   "noConversations": "Aucune conversation pour le moment. Trouvez un collègue sous \"Tous les contacts\" pour en démarrer une.",
-  "writeFirstTo": "Écrivez le premier message à {{name}}."
+  "writeFirstTo": "Écrivez le premier message à {{name}}.",
+  "participantCount_many": "{{count}} participants"
 }

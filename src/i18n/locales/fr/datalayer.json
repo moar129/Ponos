@@ -72,14 +72,17 @@
     "deleteFailed": "Impossible de supprimer toutes les catégories sélectionnées. Veuillez réessayer.",
     "submit_one": "Supprimer {{count}} catégorie",
     "submit_other": "Supprimer {{count}} catégories",
-    "willBeDeleted": "Sera supprimé"
+    "willBeDeleted": "Sera supprimé",
+    "itemsDeleted_many": "{{count}} articles seront supprimés avec les catégories.",
+    "submit_many": "Supprimer {{count}} catégories"
   },
   "deleteItems": {
     "heading_one": "Supprimer {{count}} article ?",
     "heading_other": "Supprimer {{count}} articles ?",
     "cannotUndo": "Cette action est irréversible.",
     "deleteFailed": "Impossible de supprimer tous les articles sélectionnés. Veuillez réessayer.",
-    "submit": "Supprimer {{count}}"
+    "submit": "Supprimer {{count}}",
+    "heading_many": "Supprimer {{count}} articles ?"
   },
   "addItems": {
     "heading": "Ajouter des articles",
