@@ -1,0 +1,136 @@
+{
+  "status": {
+    "Started": "Dostępne",
+    "InProgress": "W toku",
+    "Completed": "Zakończone"
+  },
+  "priority": {
+    "Low": "Niski",
+    "Medium": "Średni",
+    "High": "Wysoki",
+    "Critical": "Krytyczny"
+  },
+  "fields": {
+    "title": "Tytuł",
+    "description": "Opis",
+    "room": "Pomieszczenie",
+    "priority": "Priorytet",
+    "maxAssignees": "Liczba osób",
+    "startDate": "Data rozpoczęcia",
+    "endDate": "Data zakończenia"
+  },
+  "page": {
+    "subtitle": "Zyskaj obraz pracy, którą trzeba wykonać.",
+    "createTask": "Utwórz zadanie",
+    "noAvailableTasks": "Brak dostępnych zadań",
+    "noTasksInProgress": "Brak zadań w toku",
+    "roomNamePlaceholder": "Wpisz nazwę pomieszczenia",
+    "saveRoom": "Zapisz pomieszczenie",
+    "loading": "Ładowanie zadań...",
+    "noAccess": "Nie masz dostępu do zadań tej organizacji.",
+    "heading": "Zadania",
+    "createRoom": "Utwórz pomieszczenie",
+    "availableHeading": "Dostępne zadania",
+    "inProgressHeading": "W toku"
+  },
+  "mine": {
+    "loading": "Wczytywanie Twoich zadań...",
+    "noAccess": "Nie masz dostępu do przeglądania swoich zadań w tej organizacji.",
+    "heading": "Moje zadania",
+    "subtitle": "Zdobądź przegląd zadań, do których jesteś przypisany.",
+    "availableHeading": "Moje dostępne zadania",
+    "availableSubtitle": "Zadania, do których jesteś przypisany i nad którymi możesz pracować.",
+    "noAvailableTasks": "Nie masz dostępnych zadań",
+    "inProgressHeading": "Moje zadania w toku",
+    "inProgressSubtitle": "Zadania, nad którymi już pracujesz.",
+    "noTasksInProgress": "Nie masz zadań w toku"
+  },
+  "rooms": {
+    "create": "Utwórz pomieszczenie",
+    "moreActions": "Więcej działań",
+    "edit": "Edytuj pomieszczenie",
+    "deleteOne": "Usuń pomieszczenie",
+    "choose": "Wybierz pomieszczenie",
+    "noRoom": "Bez pomieszczenia"
+  },
+  "create": {
+    "heading": "Utwórz zadanie",
+    "titlePlaceholder": "Tytuł zadania",
+    "descriptionPlaceholder": "Opis zadania",
+    "requiresApproval": "Zadanie wymaga zatwierdzenia",
+    "noApproval": "Zadanie nie wymaga zatwierdzenia"
+  },
+  "edit": {
+    "heading": "Edytuj zadanie",
+    "endBeforeStart": "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.",
+    "deleteTask": "Usuń zadanie",
+    "confirmDelete": "Czy na pewno chcesz usunąć \"{{name}}\"? Tej operacji nie można cofnąć."
+  },
+  "priorityNone": "Brak priorytetu",
+  "assignees": {
+    "noLimit": "Bez ograniczenia",
+    "count_one": "{{count}} osoba",
+    "count_few": "{{count}} osoby",
+    "count_many": "{{count}} osób",
+    "count_other": "{{count}} osoby",
+    "nobodyAssigned": "Nikt nie został jeszcze przypisany.",
+    "unknownUser": "Nieznany użytkownik",
+    "selfSigned": "Zapisany przez Ciebie",
+    "assignedByOther": "Przypisane przez kogoś innego",
+    "assignedToYou": "Przypisane Tobie",
+    "addEmployee": "Dodaj pracownika",
+    "chooseWho": "Wybierz, komu przypisać zadanie",
+    "maxReached": "Osiągnięto maksymalną liczbę pracowników.",
+    "noFreeSlots": "Nie ma już wolnych miejsc w zadaniu.",
+    "nobodyToAssign": "Nie ma pracowników do przypisania.",
+    "signUp": "Zapisz się",
+    "signOff": "Wypisz się",
+    "employee": "Pracownik"
+  },
+  "card": {
+    "noDescription": "Brak opisu",
+    "requiresApproval": "Wymaga zatwierdzenia",
+    "startWork": "Rozpocznij pracę",
+    "awaitingApproval": "Czeka na zatwierdzenie",
+    "markDone": "Zgłoś zakończenie",
+    "priorityBadge": "Priorytet: {{priority}}",
+    "edit": "Edytuj",
+    "details": "Szczegóły zadania",
+    "responsible": "Przypisane do",
+    "start": "Początek",
+    "end": "Koniec",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Dodaj pracownika",
+    "created": "Utworzone",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Pokaż filtr",
+    "hide": "Ukryj filtr",
+    "searchPlaceholder": "Szukaj zadań...",
+    "all": "Wszystkie",
+    "sortNewest": "Najnowsze",
+    "sortOldest": "Najstarsze",
+    "sortPriority": "Priorytet",
+    "sortDeadline": "Termin",
+    "counts": "{{available}} dostępnych · {{inProgress}} w toku",
+    "sortBy": "Sortuj według"
+  },
+  "deleteRoom": {
+    "heading": "Usuń pomieszczenie",
+    "intro": "Wybierz pomieszczenie, które chcesz usunąć.",
+    "tasksInRoom": "Zadania w pomieszczeniu",
+    "chooseTasks": "Wybierz zadania, które również mają zostać usunięte.",
+    "noTasks": "W tym pomieszczeniu nie ma zadań.",
+    "keptNote": "Zadania, których nie zaznaczysz, nie zostaną usunięte. Zamiast tego zostaną przeniesione do <b>{{room}}</b>.",
+    "failed": "Nie udało się usunąć pomieszczenia. Spróbuj ponownie.",
+    "deleting": "Usuwanie...",
+    "submit": "Usuń pomieszczenie"
+  },
+  "editRoom": {
+    "heading": "Edytuj pomieszczenie",
+    "intro": "Wybierz pomieszczenie i zmień jego nazwę.",
+    "namePlaceholder": "Wpisz nazwę pomieszczenia",
+    "failed": "Nie udało się edytować pomieszczenia. Spróbuj ponownie."
+  }
+}

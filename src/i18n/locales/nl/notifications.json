@@ -1,0 +1,26 @@
+{
+  "title": "Meldingen",
+  "empty": "Nog geen meldingen.",
+  "markAllRead": "Alles als gelezen markeren",
+  "seeAll": "Alle meldingen bekijken",
+  "hide": "Melding verbergen",
+  "unhide": "Weer in de bel tonen",
+  "deletePermanently": "Definitief verwijderen",
+  "deleteAriaLabel": "Melding definitief verwijderen",
+  "hidden": "Verborgen",
+  "justNow": "Zojuist",
+  "emptyCategory": "Geen {{category}}.",
+  "category": {
+    "messages": "Berichten",
+    "tasks": "Taken",
+    "news": "Nieuws"
+  },
+  "type": {
+    "message": "Nieuw bericht",
+    "task_assigned": "Er is een taak aan je toegewezen",
+    "task_updated": "Een taak is bijgewerkt",
+    "task_completed": "Een taak is afgerond",
+    "task_approved": "Je taak is goedgekeurd",
+    "task_rejected": "Gereedmelding afgewezen"
+  }
+}

@@ -124,16 +124,6 @@ export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
   Maintenance: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
 };
 
-export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
-  Available: 'Tilgængelig',
-  Reserved: 'Reserveret',
-  OutOfStock: 'Udsolgt',
-  InUse: 'I brug',
-  Missing: 'Mangler',
-  Damaged: 'Beskadiget',
-  Maintenance: 'Vedligehold',
-};
-
 export interface ItemRow {
   key: string;
   name: string;

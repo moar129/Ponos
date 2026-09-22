@@ -5,7 +5,11 @@ import type { Role } from '../../../types/role/roleType'
 
 export interface LockState {
     locked: boolean
-    reason: string | null
+    /**
+     * Nøgle i roles-ordbogen, ikke færdig tekst - dette er et rent modul
+     * uden adgang til useTranslation. Kalderen oversætter med t().
+     */
+    reasonKey: string | null
 }
 
 // Afgør om én matrix-celle (rolle × privilegie) er låst mod toggle.
@@ -28,28 +32,28 @@ export function cellLockState(
     // til at kunne tilføje/fjerne enkeltprivilegier på den, hele kolonnen
     // er derfor låst (ikke kun admin-privilegiet selv).
     if (isProtectedAdminRole) {
-        return { locked: true, reason: 'Admin har allerede fuld adgang og kan ikke tilpasses' }
+        return { locked: true, reasonKey: 'roles:locked.adminHasAll' }
     }
 
     // Kun de 2 navngivne privilegier er faste på Medlem - andre
     // eventuelle tildelte privilegier på rollen må frit fjernes.
     if (isMemberRole && hasPrivilege && PROTECTED_MEMBER_PRIVILEGE_NAMES.includes(privilegeName)) {
-        return { locked: true, reason: 'Fast del af standardrollen Medlem' }
+        return { locked: true, reasonKey: 'roles:locked.memberFixed' }
     }
 
     // Medlem kan aldrig få nye privilegier tilføjet.
     if (isMemberRole && !hasPrivilege) {
-        return { locked: true, reason: 'Standardrollen Medlem kan ikke udvides' }
+        return { locked: true, reasonKey: 'roles:locked.memberNotExtendable' }
     }
 
     // Kun en reel administrator må tildele admin-privilegiet - RLS'ens
     // escalation-guard ville alligevel afvise andre, så vi undgår at
     // tilbyde en dømt handling.
     if (privilegeName === ADMIN_PRIVILEGE && !isFullAdmin) {
-        return { locked: true, reason: 'Kun en administrator kan tildele admin-privilegiet' }
+        return { locked: true, reasonKey: 'roles:locked.adminOnly' }
     }
 
-    return { locked: false, reason: null }
+    return { locked: false, reasonKey: null }
 }
 
 // Afgør om en hel rolle-kolonne er låst mod omdøb/slet - uafhængigt af
@@ -57,10 +61,10 @@ export function cellLockState(
 // mens enkelte celler i den stadig kan være togglebare.
 export function roleColumnLockState(role: Role, hasAdminPrivilege: boolean): LockState {
     if (role.name === ADMIN_ROLE_NAME && hasAdminPrivilege) {
-        return { locked: true, reason: 'Denne rolle har admin-privilegiet og kan ikke omdøbes eller slettes' }
+        return { locked: true, reasonKey: 'roles:locked.adminRoleProtected' }
     }
     if (role.name === MEMBER_ROLE_NAME) {
-        return { locked: true, reason: 'Standardrollen Medlem kan ikke omdøbes eller slettes' }
+        return { locked: true, reasonKey: 'roles:locked.memberRoleProtected' }
     }
-    return { locked: false, reason: null }
+    return { locked: false, reasonKey: null }
 }

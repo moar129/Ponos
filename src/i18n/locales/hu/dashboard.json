@@ -1,0 +1,86 @@
+{
+  "title": "Irányítópult",
+  "welcome": "Üdvözöljük.",
+  "welcomeNamed": "Üdvözöljük, {{name}}.",
+  "tabs": {
+    "overview": "Áttekintés",
+    "organisation": "Szervezet",
+    "administration": "Adminisztráció"
+  },
+  "overview": {
+    "noOrganisation": "Még nincs aktív szervezete, így itt nincs mit megjeleníteni.",
+    "goToOrganisation": "Ugrás a Szervezethez",
+    "shortcuts": "Gyorshivatkozások",
+    "datalayerDescription": "Tételek, kategóriák és helyszínek megtekintése és kezelése.",
+    "tasksDescription": "A szervezet feladatainak megtekintése és kezelése.",
+    "statisticsDescription": "A szervezet elemzéseinek és statisztikáinak megtekintése."
+  },
+  "myTasks": {
+    "title": "Saját feladatok",
+    "goToTasks": "Ugrás a feladatokhoz",
+    "loading": "Feladatai betöltése...",
+    "empty": "Még egyetlen feladatra sem jelentkezett.",
+    "endsOn": "Vége: {{date}}"
+  },
+  "notifications": {
+    "title": "Értesítések",
+    "seeAll": "Összes megtekintése",
+    "all": "Összes",
+    "unread": "Olvasatlan",
+    "loading": "Értesítések betöltése...",
+    "emptyUnread": "Nincs olvasatlan értesítés.",
+    "empty": "Még nincsenek értesítések.",
+    "justNow": "Épp most",
+    "minutesAgo": "{{count}} perc",
+    "hoursAgo": "{{count}} óra",
+    "daysAgo": "{{count}} nap"
+  },
+  "news": {
+    "title": "Hírek",
+    "seeAll": "Összes hír megtekintése",
+    "loading": "Hírek betöltése...",
+    "empty": "Még nincsenek hírek.",
+    "previous": "Előző hír",
+    "next": "Következő hír",
+    "showNews": "{{number}}. hír megjelenítése"
+  },
+  "comingSoon": "Hamarosan",
+  "administration": {
+    "noPrivileges": "Nincs jogosultsága egyetlen adminisztrációs funkcióhoz sem.",
+    "panels": {
+      "roles": "Szerepkörök és jogosultságok",
+      "members": "Tagok és szerepkör-hozzárendelés",
+      "invitations": "Meghívók",
+      "membershipRequests": "Tagsági kérelmek",
+      "organisation": "Szervezet",
+      "taskApprovals": "Feladatjóváhagyások",
+      "completedTasks": "Befejezett feladatok"
+    }
+  },
+  "completedTasks": {
+    "loading": "Befejezett feladatok betöltése...",
+    "empty": "Még egyetlen feladatot sem jelöltek befejezettként.",
+    "searchPlaceholder": "Keresés cím vagy leírás alapján...",
+    "allPriorities": "Összes prioritás",
+    "noMatch": "Egyetlen feladat sem felel meg a keresésnek vagy a szűrőnek.",
+    "noDescription": "Nincs leírás.",
+    "room": "Helyiség:",
+    "noRoom": "Nincs helyiség",
+    "period": "Időszak:",
+    "unknown": "Ismeretlen",
+    "assignees": "Hozzárendelve:",
+    "noAssignees": "Senki sincs hozzárendelve",
+    "materials": "Anyagok:",
+    "noMaterials": "Nincsenek anyagok",
+    "edit": "Szerkesztés",
+    "reopen": "Újranyitás",
+    "reopening": "Újranyitás..."
+  },
+  "statistics": {
+    "noOrganisation": "Még nincs aktív szervezete, így nincs megjeleníthető statisztika.",
+    "goToOrganisation": "Ugrás a Szervezethez",
+    "title": "Statisztika",
+    "description": "A szervezet tételeiből és feladataiból számított mutatók és elemzések.",
+    "loading": "Betöltés..."
+  }
+}

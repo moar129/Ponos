@@ -1,4 +1,5 @@
 import type { CategoryTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
 export function CategoryTreeNode({
@@ -19,6 +20,7 @@ export function CategoryTreeNode({
   onMoveUp,
   onMoveDown,
 }: CategoryTreeNodeProps) {
+  const { t } = useTranslation('datalayer')
   const isOpen = expandedCategoryIds.has(category.id);
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
   const isSelected = selectedCategoryId === category.id;
@@ -71,8 +73,8 @@ export function CategoryTreeNode({
               }}
               disabled={isFirst || isMoving}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors disabled:opacity-30 disabled:pointer-events-none dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Flyt op"
-              aria-label="Flyt op"
+              title={t('tree.moveUp')}
+              aria-label={t('tree.moveUp')}
             >
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
@@ -87,8 +89,8 @@ export function CategoryTreeNode({
               }}
               disabled={isLast || isMoving}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 disabled:opacity-30 disabled:pointer-events-none dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Flyt ned"
-              aria-label="Flyt ned"
+              title={t('tree.moveDown')}
+              aria-label={t('tree.moveDown')}
             >
               <ArrowDown className="w-3.5 h-3.5" />
             </button>
@@ -102,8 +104,8 @@ export function CategoryTreeNode({
                 onEditCategory(category);
               }}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Rediger kategori"
-              aria-label="Rediger kategori"
+              title={t('tree.editCategory')}
+              aria-label={t('tree.editCategory')}
             >
               <Pencil className="w-3.5 h-3.5" />
             </button>
@@ -117,8 +119,8 @@ export function CategoryTreeNode({
                 onAddSubCategory(category.id);
               }}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 sm:ml-1 dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Tilføj underkategori"
-              aria-label="Tilføj underkategori"
+              title={t('tree.addSubcategory')}
+              aria-label={t('tree.addSubcategory')}
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -132,8 +134,8 @@ export function CategoryTreeNode({
                 onDeleteCategory(category);
               }}
               className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 sm:ml-1 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-              title="Slet kategori"
-              aria-label="Slet kategori"
+              title={t('tree.deleteCategory')}
+              aria-label={t('tree.deleteCategory')}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

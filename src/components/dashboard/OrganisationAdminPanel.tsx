@@ -1,4 +1,6 @@
 // src/components/dashboard/OrganisationAdminPanel.tsx
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
@@ -15,15 +17,6 @@ import type { DeleteOrganisationControlProps, Organisation, UpdateOrganisationIn
 // feltet fyldes med organisationens nuværende værdi.
 const emptyForm: UpdateOrganisationInput = { name: '' }
 
-// Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
-// komme i lidt forskellige former afhængigt af hvor fejlen opstod.
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 // Rediger organisation (navn) + slet organisation, samlet i ét panel
 // under dashboardets Administration-fane (US-65) - flyttet fra
@@ -35,6 +28,7 @@ function readableError(err: unknown): string | null {
 // aktivt medlemskabs isAdmin-flag. Begge håndhæves også server-side
 // (RLS/RPC) - UI-gaten er kun for at vise de rigtige knapper.
 export function OrganisationAdminPanel() {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     const { data: memberships } = useGetMyMembershipsQuery()
     const { hasPrivilege: canEditOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
@@ -63,7 +57,7 @@ export function OrganisationAdminPanel() {
         setSavedMessage(false)
 
         if (!form.name.trim()) {
-            setValidationError('Organisationens navn skal udfyldes.')
+            setValidationError(t('errors:required.organisationName'))
             return
         }
         setValidationError(null)
@@ -83,22 +77,22 @@ export function OrganisationAdminPanel() {
 
     function handleDeleted(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
         if (!wasActive) {
-            setDeletedMessage(`"${organisationName}" er slettet.`)
+            setDeletedMessage(t('admin.deleted', { name: organisationName }))
         } else if (newActiveOrganisation) {
-            setDeletedMessage(`"${organisationName}" er slettet. Din aktive organisation er nu "${newActiveOrganisation.name}".`)
+            setDeletedMessage(t('admin.deletedNewActive', { name: organisationName, newActive: newActiveOrganisation.name }))
         } else {
-            setDeletedMessage(`"${organisationName}" er slettet. Du har ingen aktiv organisation længere.`)
+            setDeletedMessage(t('admin.deletedNoActive', { name: organisationName }))
         }
     }
 
     if (isLoading) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser organisation...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('admin.loading')}</p>
     }
 
     if (queryError || !organisation) {
         return (
             <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {readableError(queryError) ?? 'Kunne ikke hente organisationen.'}
+                {readableError(queryError) ?? t('admin.loadFailed')}
             </div>
         )
     }
@@ -118,7 +112,7 @@ export function OrganisationAdminPanel() {
 
             {savedMessage && !isEditing && (
                 <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                    Organisationens oplysninger er gemt.
+                    {t('admin.saved')}
                 </div>
             )}
 
@@ -131,7 +125,7 @@ export function OrganisationAdminPanel() {
             {isEditing ? (
                 <form onSubmit={handleSubmit}>
                     <div className="mb-6">
-                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">Navn</label>
+                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">{t('admin.nameLabel')}</label>
                         <input
                             id="org-name"
                             type="text"
@@ -147,7 +141,7 @@ export function OrganisationAdminPanel() {
                             disabled={saving}
                             className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
-                            {saving ? 'Gemmer...' : 'Gem ændringer'}
+                            {saving ? t('common:saving') : t('common:save')}
                         </button>
                         <button
                             type="button"
@@ -155,7 +149,7 @@ export function OrganisationAdminPanel() {
                             disabled={saving}
                             className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
-                            Annuller
+                            {t('common:cancel')}
                         </button>
                     </div>
                 </form>
@@ -170,7 +164,7 @@ export function OrganisationAdminPanel() {
 
                     <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">Antal medlemmer</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.memberCount')}</dt>
                             <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
                         </div>
                     </dl>
@@ -182,7 +176,7 @@ export function OrganisationAdminPanel() {
                                 onClick={() => startEdit(organisation)}
                                 className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                             >
-                                Rediger organisation
+                                {t('admin.edit')}
                             </button>
                         </div>
                     )}
@@ -205,6 +199,7 @@ export function OrganisationAdminPanel() {
 // navn præcist OG afkrydse at have forstået konsekvenserne, før knappen
 // låses op.
 function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisationControlProps) {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const [deleteOrganisation, { isLoading: deleting, error: deleteError }] = useDeleteOrganisationMutation()
 
     const [confirmingDelete, setConfirmingDelete] = useState(false)
@@ -247,7 +242,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     onClick={startConfirm}
                     className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
                 >
-                    Slet organisation
+                    {t('admin.delete')}
                 </button>
             </div>
         )
@@ -256,12 +251,12 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
     return (
         <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-3 dark:border-red-800 dark:bg-red-900/30">
             <p className="text-sm text-red-700 font-medium dark:text-red-400">
-                Dette sletter "{membership.organisationName}" permanent og kan ikke fortrydes.
+                {t('admin.deleteWarning', { name: membership.organisationName })}
             </p>
 
             <div>
                 <label className="block text-xs text-secondary mb-1 dark:text-slate-400" htmlFor={`confirm-delete-${membership.organisationId}`}>
-                    Skriv organisationens navn ({membership.organisationName}) for at bekræfte
+                    {t('admin.typeNameToConfirm', { name: membership.organisationName })}
                 </label>
                 <input
                     id={`confirm-delete-${membership.organisationId}`}
@@ -279,7 +274,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     onChange={(e) => setDataLossAcked(e.target.checked)}
                     className="mt-0.5 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
                 />
-                Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.
+                {t('admin.ackDataLoss')}
             </label>
 
             {otherMemberCount > 0 && (
@@ -290,7 +285,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                         onChange={(e) => setMemberImpactAcked(e.target.checked)}
                         className="mt-0.5 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
                     />
-                    Jeg forstår at de {otherMemberCount} andre medlemmer mister deres adgang med det samme.
+                    {t('admin.ackMemberImpact', { count: otherMemberCount })}
                 </label>
             )}
 
@@ -303,7 +298,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     disabled={!canDelete || deleting}
                     className="rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-600"
                 >
-                    {deleting ? 'Sletter...' : 'Slet permanent'}
+                    {deleting ? t('admin.deleting') : t('admin.deletePermanently')}
                 </button>
                 <button
                     type="button"
@@ -311,7 +306,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     disabled={deleting}
                     className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                 >
-                    Annuller
+                    {t('common:cancel')}
                 </button>
             </div>
         </div>

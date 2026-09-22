@@ -1,5 +1,6 @@
 // src/components/pendingRequestBanner/PendingRequestBanner.tsx
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import { useGetMyPendingRequestQuery } from '../../store/apis/membershipApi'
 import { useGetMyPendingInvitationsQuery } from '../../store/apis/invitationApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
@@ -10,6 +11,7 @@ import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 // til at anmode. Henter data via RTK Query i stedet for Redux-slice, så
 // komponenten virker uanset hvilken side brugeren er på.
 export default function PendingRequestBanner() {
+    const { t } = useTranslation('nav')
     const { pathname } = useLocation()
     const [searchParams] = useSearchParams()
     const { data: pendingRequest, isLoading: loadingRequest } = useGetMyPendingRequestQuery()
@@ -23,7 +25,12 @@ export default function PendingRequestBanner() {
     if (pendingRequest) {
         return (
             <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
-                Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
+                <Trans
+                    ns="nav"
+                    i18nKey="banner.pendingRequest"
+                    values={{ organisation: pendingRequest.organisationName }}
+                    components={{ strong: <strong /> }}
+                />
             </div>
         )
     }
@@ -45,9 +52,14 @@ export default function PendingRequestBanner() {
         const [firstInvitation] = pendingInvitations!
         return (
             <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
-                Du er blevet inviteret til at blive medlem af <strong>{firstInvitation.organisationName}</strong>.{' '}
+                <Trans
+                    ns="nav"
+                    i18nKey="banner.invited"
+                    values={{ organisation: firstInvitation.organisationName }}
+                    components={{ strong: <strong /> }}
+                />{' '}
                 <Link to="/dashboard?tab=organisation" className="font-semibold underline hover:no-underline">
-                    Se invitation
+                    {t('banner.seeInvitation')}
                 </Link>
             </div>
         )
@@ -59,9 +71,9 @@ export default function PendingRequestBanner() {
 
     return (
         <div className="w-full bg-accent/15 border-b border-accent text-primary dark:text-slate-100 text-sm text-center px-4 py-2">
-            Du er ikke medlem af en organisation endnu.{' '}
+            {t('banner.noOrganisation')}{' '}
             <Link to="/dashboard?tab=organisation" className="font-semibold underline hover:no-underline">
-                Opret eller anmod om medlemskab
+                {t('banner.createOrRequest')}
             </Link>
         </div>
     )

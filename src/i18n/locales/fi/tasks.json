@@ -1,0 +1,134 @@
+{
+  "status": {
+    "Started": "Saatavilla",
+    "InProgress": "Käynnissä",
+    "Completed": "Valmis"
+  },
+  "priority": {
+    "Low": "Matala",
+    "Medium": "Keskitaso",
+    "High": "Korkea",
+    "Critical": "Kriittinen"
+  },
+  "fields": {
+    "title": "Otsikko",
+    "description": "Kuvaus",
+    "room": "Tila",
+    "priority": "Prioriteetti",
+    "maxAssignees": "Henkilömäärä",
+    "startDate": "Alkupäivä",
+    "endDate": "Loppupäivä"
+  },
+  "page": {
+    "subtitle": "Saa yleiskuva tehtävästä työstä.",
+    "createTask": "Luo tehtävä",
+    "noAvailableTasks": "Ei saatavilla olevia tehtäviä",
+    "noTasksInProgress": "Ei käynnissä olevia tehtäviä",
+    "roomNamePlaceholder": "Kirjoita tilan nimi",
+    "saveRoom": "Tallenna tila",
+    "loading": "Haetaan tehtäviä...",
+    "noAccess": "Sinulla ei ole pääsyä tämän organisaation tehtäviin.",
+    "heading": "Tehtävät",
+    "createRoom": "Luo tila",
+    "availableHeading": "Saatavilla olevat tehtävät",
+    "inProgressHeading": "Käynnissä"
+  },
+  "mine": {
+    "loading": "Ladataan tehtäviäsi...",
+    "noAccess": "Sinulla ei ole oikeutta nähdä tehtäviäsi tässä organisaatiossa.",
+    "heading": "Omat tehtävät",
+    "subtitle": "Saat yleiskuvan tehtävistä, joihin sinut on liitetty.",
+    "availableHeading": "Omat saatavilla olevat tehtävät",
+    "availableSubtitle": "Tehtävät, joihin sinut on liitetty ja joita voit tehdä.",
+    "noAvailableTasks": "Sinulla ei ole saatavilla olevia tehtäviä",
+    "inProgressHeading": "Omat käynnissä olevat tehtävät",
+    "inProgressSubtitle": "Tehtävät, joita jo teet.",
+    "noTasksInProgress": "Sinulla ei ole käynnissä olevia tehtäviä"
+  },
+  "rooms": {
+    "create": "Luo tila",
+    "moreActions": "Lisää toimintoja",
+    "edit": "Muokkaa tilaa",
+    "deleteOne": "Poista tila",
+    "choose": "Valitse tila",
+    "noRoom": "Ilman tilaa"
+  },
+  "create": {
+    "heading": "Luo tehtävä",
+    "titlePlaceholder": "Tehtävän otsikko",
+    "descriptionPlaceholder": "Tehtävän kuvaus",
+    "requiresApproval": "Tehtävä vaatii hyväksynnän",
+    "noApproval": "Tehtävä ei vaadi hyväksyntää"
+  },
+  "edit": {
+    "heading": "Muokkaa tehtävää",
+    "endBeforeStart": "Loppupäivä ei voi olla ennen alkupäivää.",
+    "deleteTask": "Poista tehtävä",
+    "confirmDelete": "Haluatko varmasti poistaa kohteen \"{{name}}\"? Tätä ei voi perua."
+  },
+  "priorityNone": "Ei prioriteettia",
+  "assignees": {
+    "noLimit": "Ei rajoitusta",
+    "count_one": "{{count}} henkilö",
+    "count_other": "{{count}} henkilöä",
+    "nobodyAssigned": "Ketään ei ole vielä määrätty.",
+    "unknownUser": "Tuntematon käyttäjä",
+    "selfSigned": "Itse ilmoittautunut",
+    "assignedByOther": "Jonkun muun määräämä",
+    "assignedToYou": "Määrätty sinulle",
+    "addEmployee": "Lisää työntekijä",
+    "chooseWho": "Valitse, kenelle tehtävä määrätään",
+    "maxReached": "Työntekijöiden enimmäismäärä on saavutettu.",
+    "noFreeSlots": "Tehtävässä ei ole enää vapaita paikkoja.",
+    "nobodyToAssign": "Määrättäviä työntekijöitä ei ole.",
+    "signUp": "Ilmoittaudu",
+    "signOff": "Peru ilmoittautuminen",
+    "employee": "Työntekijä"
+  },
+  "card": {
+    "noDescription": "Ei kuvausta",
+    "requiresApproval": "Vaatii hyväksynnän",
+    "startWork": "Aloita työ",
+    "awaitingApproval": "Odottaa hyväksyntää",
+    "markDone": "Ilmoita valmiiksi",
+    "priorityBadge": "Prioriteetti: {{priority}}",
+    "edit": "Muokkaa",
+    "details": "Tehtävän tiedot",
+    "responsible": "Määrätty",
+    "start": "Alku",
+    "end": "Loppu",
+    "statusLabel": "Tila:",
+    "addEmployeeShort": "+ Lisää työntekijä",
+    "created": "Luotu",
+    "statusValue": "Tila: {{status}}"
+  },
+  "filter": {
+    "show": "Näytä suodatin",
+    "hide": "Piilota suodatin",
+    "searchPlaceholder": "Hae tehtäviä...",
+    "all": "Kaikki",
+    "sortNewest": "Uusimmat",
+    "sortOldest": "Vanhimmat",
+    "sortPriority": "Prioriteetti",
+    "sortDeadline": "Määräaika",
+    "counts": "{{available}} saatavilla · {{inProgress}} käynnissä",
+    "sortBy": "Lajitteluperuste"
+  },
+  "deleteRoom": {
+    "heading": "Poista tila",
+    "intro": "Valitse tila, jonka haluat poistaa.",
+    "tasksInRoom": "Tilan tehtävät",
+    "chooseTasks": "Valitse tehtävät, jotka poistetaan myös.",
+    "noTasks": "Tässä tilassa ei ole tehtäviä.",
+    "keptNote": "Tehtäviä, joita et valitse, ei poisteta. Ne siirretään sen sijaan kohteeseen <b>{{room}}</b>.",
+    "failed": "Tilaa ei voitu poistaa. Yritä uudelleen.",
+    "deleting": "Poistetaan...",
+    "submit": "Poista tila"
+  },
+  "editRoom": {
+    "heading": "Muokkaa tilaa",
+    "intro": "Valitse tila ja muokkaa sen nimeä.",
+    "namePlaceholder": "Kirjoita tilan nimi",
+    "failed": "Tilaa ei voitu muokata. Yritä uudelleen."
+  }
+}

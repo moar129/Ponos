@@ -1,0 +1,30 @@
+{
+  "loading": "Profil wird geladen...",
+  "notFound": "Ihr Profil konnte nicht gefunden werden.",
+  "saved": "Ihre Angaben wurden gespeichert.",
+  "nameRequired": "Vorname und Nachname sind erforderlich.",
+  "fields": {
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "organisation": "Organisation",
+    "role": "Rolle",
+    "description": "Beschreibung",
+    "pictureUrl": "Profilbild (URL)"
+  },
+  "empty": {
+    "organisation": "Keine Organisation",
+    "role": "Keine Rolle zugewiesen",
+    "description": "Keine Beschreibung"
+  },
+  "readOnlyNote": "E-Mail, Rolle und Organisation können hier nicht geändert werden. Wenden Sie sich an Ihre Administration.",
+  "saveChanges": "Änderungen speichern",
+  "editProfile": "Profil bearbeiten",
+  "logout": "Abmelden",
+  "loggingOut": "Wird abgemeldet...",
+  "passwordHeading": "Passwort",
+  "preferences": {
+    "title": "Darstellung",
+    "hint": "Sprache und Design werden in diesem Browser gespeichert und gelten nur für dieses Gerät."
+  }
+}

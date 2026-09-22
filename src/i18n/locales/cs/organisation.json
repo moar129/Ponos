@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Načítání členů...",
+    "empty": "Organizace zatím nemá členy.",
+    "searchPlaceholder": "Hledat podle jména nebo e-mailu...",
+    "noMatch": "Žádný člen neodpovídá hledání.",
+    "ownRow": "Svůj vlastní řádek nemůžete měnit",
+    "adminLockedTitle": "Roli jiného administrátora může změnit pouze administrátor",
+    "locked": "Uzamčeno",
+    "remove": "Odebrat",
+    "confirmRemove": "Opravdu chcete odebrat {{name}} z organizace?",
+    "removing": "Odebírání...",
+    "confirmRemoveYes": "Ano, odebrat",
+    "confirmTransfer": "Předat roli administrátora uživateli {{name}}? Okamžitě ztratíte vlastní přístup administrátora a stanete se běžným členem.",
+    "transferring": "Předávání...",
+    "confirmTransferYes": "Ano, předat správu"
+  },
+  "invitations": {
+    "emailLabel": "Pozvat e-mailem",
+    "send": "Odeslat pozvánku",
+    "sending": "Odesílání...",
+    "pendingHeading": "Čekající pozvánky",
+    "loading": "Načítání pozvánek...",
+    "empty": "Žádné čekající pozvánky.",
+    "areYouSure": "Jste si jisti?",
+    "cancelInvitation": "Zrušit",
+    "cancelling": "Rušení...",
+    "confirmCancelYes": "Ano, zrušit",
+    "undo": "Zpět",
+    "emailPlaceholder": "jmeno@priklad.cz",
+    "invitedOn": "Pozváni",
+    "invitedOnDate": "Pozváni {{date}}"
+  },
+  "requests": {
+    "loading": "Načítání žádostí...",
+    "empty": "Žádné čekající žádosti.",
+    "confirmAccept": "Opravdu chcete přijmout {{name}} do organizace?",
+    "confirmReject": "Opravdu chcete žádost zamítnout? {{name}} může požádat znovu později.",
+    "processing": "Zpracovávání...",
+    "yes": "Ano",
+    "accept": "Přijmout",
+    "reject": "Zamítnout",
+    "requestedOn": "Požádáno {{date}}"
+  },
+  "admin": {
+    "loading": "Načítání organizace...",
+    "loadFailed": "Organizaci se nepodařilo načíst.",
+    "saved": "Údaje organizace byly uloženy.",
+    "nameLabel": "Název",
+    "memberCount": "Počet členů",
+    "edit": "Upravit organizaci",
+    "delete": "Smazat organizaci",
+    "deleteWarning": "Tím se organizace „{{name}}“ trvale smaže a nelze to vrátit zpět.",
+    "typeNameToConfirm": "Pro potvrzení napište název organizace ({{name}})",
+    "ackDataLoss": "Rozumím, že všechna data organizace (úkoly, položky, kategorie, místa a statistiky) budou trvale smazána a nelze je obnovit.",
+    "ackMemberImpact": "Rozumím, že dalších {{count}} členů okamžitě ztratí přístup.",
+    "deleting": "Mazání...",
+    "deletePermanently": "Trvale smazat",
+    "deleted": "„{{name}}“ byla smazána.",
+    "deletedNewActive": "„{{name}}“ byla smazána. Vaše aktivní organizace je nyní „{{newActive}}“.",
+    "deletedNoActive": "„{{name}}“ byla smazána. Nemáte již žádnou aktivní organizaci."
+  },
+  "picker": {
+    "searchPlaceholder": "Hledat organizaci...",
+    "empty": "Žádné organizace k výběru.",
+    "noMatch": "Žádná organizace neodpovídá vašemu hledání."
+  },
+  "loading": "Načítání organizace...",
+  "noActiveTitle": "Žádná aktivní organizace",
+  "noActiveWithMemberships": "Jste členem jedné nebo více organizací, ale žádná z nich není aktivní – vyberte jednu v části „Moje organizace“ nebo vytvořte či požádejte o novou.",
+  "noActiveWithout": "Zatím nejste členem žádné organizace. Vytvořte novou organizaci nebo požádejte o členství v existující.",
+  "tabs": {
+    "create": "Vytvořit organizaci",
+    "request": "Požádat o členství",
+    "memberships": "Moje organizace",
+    "invitations": "Pozvánky",
+    "details": "Organizace"
+  },
+  "create": {
+    "nameLabel": "Název organizace",
+    "submit": "Vytvořit organizaci",
+    "submitting": "Vytváření...",
+    "created": "Organizace „{{name}}“ byla vytvořena a je nyní vaší aktivní organizací."
+  },
+  "request": {
+    "pending": "Vaše žádost o členství byla odeslána a čeká na schválení správou organizace.",
+    "chooseLabel": "Vyberte organizaci",
+    "submit": "Odeslat žádost",
+    "submitting": "Odesílání žádosti...",
+    "noneAvailable": "Nejsou k dispozici žádné další organizace, do kterých byste mohli požádat o členství."
+  },
+  "details": {
+    "administrator": "Administrátor",
+    "noRole": "Žádná přiřazená role",
+    "memberCount": "Počet členů"
+  },
+  "myInvitations": {
+    "loading": "Načítání pozvánek...",
+    "empty": "Nemáte žádné čekající pozvánky.",
+    "accept": "Přijmout",
+    "reject": "Zamítnout",
+    "confirmAccept": "Opravdu se chcete stát členem organizace {{name}}?",
+    "confirmReject": "Opravdu chcete pozvánku zamítnout?",
+    "processing": "Zpracovávání...",
+    "yes": "Ano",
+    "invitedOn": "Pozváni",
+    "invitedOnDate": "Pozváni {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Načítání vašich organizací...",
+    "empty": "Nejste členem žádné organizace.",
+    "active": "Aktivní",
+    "makeActive": "Nastavit jako aktivní",
+    "switching": "Přepínání...",
+    "areYouSure": "Jste si jisti?",
+    "leave": "Opustit",
+    "leaving": "Opouštění...",
+    "confirmLeaveYes": "Ano, opustit",
+    "left": "Opustili jste „{{name}}“.",
+    "leftNewActive": "Opustili jste „{{name}}“. Vaše aktivní organizace je nyní „{{newActive}}“.",
+    "leftNoActive": "Opustili jste „{{name}}“. Nemáte již žádnou aktivní organizaci."
+  },
+  "genericLoading": "Načítání..."
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { useDeleteCategoryMutation } from '../../store/apis/categoryApi';
 import type { DataLayerCat, SubCategoryCheckboxProps, DeleteCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
@@ -6,6 +7,7 @@ import { getErrorMessage } from '../../ErrorMessage';
 
 
 function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCategoryCheckboxProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const [isOpen, setIsOpen] = useState(true);
   const hasSubCategories = category.subCategories.length > 0;
   const isChecked = selectedIds.has(category.id);
@@ -33,11 +35,11 @@ function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCate
 
         <span className="text-sm text-primary truncate dark:text-slate-100">{category.title}</span>
         {category.items.length > 0 && (
-          <span className="text-xs text-secondary shrink-0 dark:text-slate-400">({category.items.length} items)</span>
+          <span className="text-xs text-secondary shrink-0 dark:text-slate-400">{t('itemCountParen', { count: category.items.length })}</span>
         )}
         {isChecked && (
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 shrink-0 ml-auto dark:bg-red-900/30 dark:text-red-400">
-            Slettes
+            {t('deleteCategory.willBeDeleted')}
           </span>
         )}
       </div>
@@ -54,6 +56,7 @@ function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCate
 }
 
 export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }: DeleteCategoryComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -101,7 +104,7 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
       onDeleted(idsToDelete);
       onClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke slette alle valgte kategorier. Prøv igen.'));
+      setFormError(getErrorMessage(err, t('deleteCategory.deleteFailed')));
       setIsDeleting(false);
     }
   };
@@ -117,10 +120,9 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-primary dark:text-slate-100">Slet "{category.title}"</h2>
+            <h2 className="text-base font-semibold text-primary dark:text-slate-100">{t('deleteCategory.heading', { name: category.title })}</h2>
             <p className="text-sm text-secondary mt-1 dark:text-slate-400">
-              Vælg om underkategorier også skal slettes. Underkategorier du ikke vælger, bevares
-              og rykkes op som selvstændige kategorier.
+              {t('deleteCategory.intro')}
             </p>
           </div>
           <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
@@ -140,10 +142,10 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
             <input type="checkbox" checked disabled className="w-4 h-4 rounded border-border-gray bg-white text-accent shrink-0 dark:border-slate-700 dark:bg-slate-800" />
             <span className="text-sm font-medium text-primary truncate dark:text-slate-100">{category.title}</span>
             {category.items.length > 0 && (
-              <span className="text-xs text-secondary shrink-0 dark:text-slate-400">({category.items.length} items)</span>
+              <span className="text-xs text-secondary shrink-0 dark:text-slate-400">{t('itemCountParen', { count: category.items.length })}</span>
             )}
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 shrink-0 ml-auto dark:bg-red-900/30 dark:text-red-400">
-              Slettes
+              {t('deleteCategory.willBeDeleted')}
             </span>
           </div>
 
@@ -154,17 +156,17 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
               ))}
             </div>
           ) : (
-            <p className="text-xs text-secondary mt-2 dark:text-slate-400">Ingen underkategorier.</p>
+            <p className="text-xs text-secondary mt-2 dark:text-slate-400">{t('deleteCategory.noSubcategories')}</p>
           )}
         </div>
 
         <div className="flex items-center justify-between gap-3 p-4 border-t border-border-gray dark:border-slate-700">
           <p className="text-xs text-secondary dark:text-slate-400">
-            {itemsToDelete > 0 ? `${itemsToDelete} item(s) slettes sammen med kategorierne.` : 'Ingen items slettes.'}
+            {itemsToDelete > 0 ? t('deleteCategory.itemsDeleted', { count: itemsToDelete }) : t('deleteCategory.noItemsDeleted')}
           </p>
           <div className="flex items-center gap-3 shrink-0">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-              Annullér
+              {t('common:cancel')}
             </button>
             <button
               type="button"
@@ -173,7 +175,7 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-60"
             >
               {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Slet {selectedIds.size + 1} kategori{selectedIds.size > 0 ? 'er' : ''}
+              {t('deleteCategory.submit', { count: selectedIds.size + 1 })}
             </button>
           </div>
         </div>

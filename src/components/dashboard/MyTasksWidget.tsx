@@ -1,18 +1,13 @@
 // src/components/dashboard/MyTasksWidget.tsx
+import { readableError } from '../../ErrorMessage';
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, ListChecks } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
-import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
-import type { ETaskStatus, Task } from '../../types/Task/Task'
+import { PRIORITY_COLORS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
+import type { Task } from '../../types/Task/Task'
 
 const MAX_TASKS = 5
-
-// Samme danske betegnelser som opgavesidens filter/formularer.
-const STATUS_LABELS: Record<ETaskStatus, string> = {
-    Started: 'Tilgængelig',
-    InProgress: 'I gang',
-    Completed: 'Færdig',
-}
 
 // Genskaber bevidst sortTasks fra TaskPage.tsx (Studerende 3's fil) i
 // stedet for at trække den ud i en delt util - undgår at røre andres
@@ -29,13 +24,6 @@ function sortByPriorityThenEndDate(a: Task, b: Task): number {
     return 0
 }
 
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 // US-74: brugerens egne, ikke-afsluttede opgaver på Oversigt-fanen.
 // getTasks er filtreret på aktiv organisation, og task_assignees er
@@ -43,6 +31,7 @@ function readableError(err: unknown): string | null {
 // organisationers opgaver. Rækkerne navigerer til /tasks?task=<id>, hvor
 // TaskPage åbner opgavens egen popup (TaskCard).
 export function MyTasksWidget() {
+    const { t } = useTranslation(['dashboard', 'tasks'])
     const navigate = useNavigate()
     const { data: tasks = [], isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
     const { data: myTaskIds = [], isLoading: loadingMyTaskIds, error: myTaskIdsError } = useGetMyTaskIdsQuery()
@@ -59,20 +48,20 @@ export function MyTasksWidget() {
             <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
                     <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
-                    <h3 className="font-medium text-primary dark:text-slate-100">Mine opgaver</h3>
+                    <h3 className="font-medium text-primary dark:text-slate-100">{t('myTasks.title')}</h3>
                 </div>
                 <Link to="/tasks" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
-                    Gå til opgaver
+                    {t('myTasks.goToTasks')}
                     <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {loadingTasks || loadingMyTaskIds ? (
-                <p className="text-sm text-secondary dark:text-slate-400">Indlæser dine opgaver...</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('myTasks.loading')}</p>
             ) : error ? (
                 <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             ) : myTasks.length === 0 ? (
-                <p className="text-sm text-secondary dark:text-slate-400">Du er ikke tilmeldt nogen opgaver endnu.</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('myTasks.empty')}</p>
             ) : (
                 <ul className="divide-y divide-border-gray dark:divide-slate-700">
                     {myTasks.map((task) => (
@@ -85,15 +74,15 @@ export function MyTasksWidget() {
                                 <p className="font-medium text-primary truncate dark:text-slate-100">{task.title}</p>
                                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                                     <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary dark:bg-slate-700 dark:text-slate-400">
-                                        {STATUS_LABELS[task.status]}
+                                        {t(`tasks:status.${task.status}`)}
                                     </span>
                                     {task.priority && (
                                         <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                                            {PRIORITY_LABELS[task.priority]}
+                                            {t(`tasks:priority.${task.priority}`)}
                                         </span>
                                     )}
                                     {task.end_date && (
-                                        <span className="text-secondary dark:text-slate-400">Slut {formatDate(task.end_date)}</span>
+                                        <span className="text-secondary dark:text-slate-400">{t('myTasks.endsOn', { date: formatDate(task.end_date) })}</span>
                                     )}
                                 </div>
                             </button>

@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "tasks": "Taken",
+    "statistics": "Statistieken",
+    "datalayer": "Datalaag",
+    "news": "Nieuws",
+    "messages": "Berichten",
+    "login": "Inloggen",
+    "signup": "Account aanmaken"
+  },
+  "user": {
+    "fallbackName": "Gebruiker",
+    "noRole": "Geen rol",
+    "viewProfile": "Profiel bekijken",
+    "logout": "Uitloggen",
+    "loggingOut": "Bezig met uitloggen..."
+  },
+  "menu": {
+    "open": "Menu openen",
+    "close": "Menu sluiten"
+  },
+  "footer": {
+    "tagline": "Wij creëren overzicht, samenwerking en duurzame resultaten – samen.",
+    "navigationLabel": "Footer-navigatie",
+    "navigation": "Navigatie",
+    "aboutLabel": "Over Ponos",
+    "aboutHeading": "Over Ponos",
+    "about": "Over ons",
+    "contact": "Contact",
+    "help": "Hulp en ondersteuning",
+    "copyright": "© {{year}} Ponos. Alle rechten voorbehouden."
+  },
+  "banner": {
+    "pendingRequest": "Je verzoek om lid te worden van <strong>{{organisation}}</strong> wacht op goedkeuring.",
+    "invited": "Je bent uitgenodigd om lid te worden van <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Uitnodiging bekijken",
+    "noOrganisation": "Je bent nog geen lid van een organisatie.",
+    "createOrRequest": "Er een aanmaken of lidmaatschap aanvragen"
+  }
+}

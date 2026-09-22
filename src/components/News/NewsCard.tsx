@@ -1,16 +1,10 @@
 // src/components/News/NewsCard.tsx
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Pencil, Trash2 } from 'lucide-react'
 import { richTextToPlainText } from '../../lib/richText'
+import { formatDate } from '../../utils/formatDate'
 import type { NewsCardProps } from '../../types/news/newsType'
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    })
-}
 
 // Ét nyhedskort - US-56's acceptkriterier (titel, beskrivelse, evt.
 // billede, dato). Rediger/slet vises uafhængigt af hinanden (Fase 3:
@@ -18,6 +12,7 @@ function formatDate(value: string): string {
 // /nyheder/:id - rediger/slet-knapperne stopper propagation, så de ikke
 // også trigger navigation.
 export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsCardProps) {
+  const { t } = useTranslation(['news', 'common'])
     const navigate = useNavigate()
 
     return (
@@ -49,7 +44,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                                         e.stopPropagation()
                                         onEdit(news)
                                     }}
-                                    aria-label="Rediger nyhed"
+                                    aria-label={t('edit')}
                                     className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                                 >
                                     <Pencil className="w-4 h-4" />
@@ -62,7 +57,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                                         e.stopPropagation()
                                         onDelete(news)
                                     }}
-                                    aria-label="Slet nyhed"
+                                    aria-label={t('delete')}
                                     className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4" />

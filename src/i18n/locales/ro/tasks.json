@@ -1,0 +1,135 @@
+{
+  "status": {
+    "Started": "Disponibilă",
+    "InProgress": "În lucru",
+    "Completed": "Gata"
+  },
+  "priority": {
+    "Low": "Scăzută",
+    "Medium": "Medie",
+    "High": "Ridicată",
+    "Critical": "Critică"
+  },
+  "fields": {
+    "title": "Titlu",
+    "description": "Descriere",
+    "room": "Încăpere",
+    "priority": "Prioritate",
+    "maxAssignees": "Număr de persoane",
+    "startDate": "Data de început",
+    "endDate": "Data de sfârșit"
+  },
+  "page": {
+    "subtitle": "Obțineți o imagine de ansamblu asupra muncii de făcut.",
+    "createTask": "Creează sarcină",
+    "noAvailableTasks": "Nicio sarcină disponibilă",
+    "noTasksInProgress": "Nicio sarcină în lucru",
+    "roomNamePlaceholder": "Introduceți numele încăperii",
+    "saveRoom": "Salvează încăperea",
+    "loading": "Se încarcă sarcinile...",
+    "noAccess": "Nu aveți acces la sarcinile acestei organizații.",
+    "heading": "Sarcini",
+    "createRoom": "Creează încăpere",
+    "availableHeading": "Sarcini disponibile",
+    "inProgressHeading": "În lucru"
+  },
+  "mine": {
+    "loading": "Se încarcă sarcinile tale...",
+    "noAccess": "Nu aveți acces pentru a vedea sarcinile dvs. în această organizație.",
+    "heading": "Sarcinile mele",
+    "subtitle": "Obțineți o imagine de ansamblu asupra sarcinilor la care sunteți alocat.",
+    "availableHeading": "Sarcinile mele disponibile",
+    "availableSubtitle": "Sarcini la care sunteți alocat și la care puteți lucra.",
+    "noAvailableTasks": "Nu aveți sarcini disponibile",
+    "inProgressHeading": "Sarcinile mele în desfășurare",
+    "inProgressSubtitle": "Sarcini la care lucrați deja.",
+    "noTasksInProgress": "Nu aveți sarcini în desfășurare"
+  },
+  "rooms": {
+    "create": "Creează încăpere",
+    "moreActions": "Mai multe acțiuni",
+    "edit": "Editează încăperea",
+    "deleteOne": "Șterge încăperea",
+    "choose": "Alegeți o încăpere",
+    "noRoom": "Fără încăpere"
+  },
+  "create": {
+    "heading": "Creează sarcină",
+    "titlePlaceholder": "Titlul sarcinii",
+    "descriptionPlaceholder": "Descrierea sarcinii",
+    "requiresApproval": "Sarcina necesită aprobare",
+    "noApproval": "Sarcina nu necesită aprobare"
+  },
+  "edit": {
+    "heading": "Editează sarcina",
+    "endBeforeStart": "Data de sfârșit nu poate fi anterioară datei de început.",
+    "deleteTask": "Șterge sarcina",
+    "confirmDelete": "Sigur doriți să ștergeți sarcina „{{name}}”? Această acțiune nu poate fi anulată."
+  },
+  "priorityNone": "Fără prioritate",
+  "assignees": {
+    "noLimit": "Fără limită",
+    "count_one": "{{count}} persoană",
+    "count_few": "{{count}} persoane",
+    "count_other": "{{count}} de persoane",
+    "nobodyAssigned": "Nimeni nu a fost atribuit încă.",
+    "unknownUser": "Utilizator necunoscut",
+    "selfSigned": "V-ați înscris singur",
+    "assignedByOther": "Atribuit de altcineva",
+    "assignedToYou": "Atribuită dumneavoastră",
+    "addEmployee": "Adaugă un angajat",
+    "chooseWho": "Alegeți cui să îi fie atribuită sarcina",
+    "maxReached": "S-a atins numărul maxim de angajați.",
+    "noFreeSlots": "Nu mai sunt locuri libere la această sarcină.",
+    "nobodyToAssign": "Nu există angajați de atribuit.",
+    "signUp": "Înscrie-te",
+    "signOff": "Retrage-te",
+    "employee": "Angajat"
+  },
+  "card": {
+    "noDescription": "Nicio descriere",
+    "requiresApproval": "Necesită aprobare",
+    "startWork": "Începe lucrul",
+    "awaitingApproval": "Așteaptă aprobare",
+    "markDone": "Raportează ca finalizată",
+    "priorityBadge": "Prioritate: {{priority}}",
+    "edit": "Editează",
+    "details": "Detaliile sarcinii",
+    "responsible": "Atribuită",
+    "start": "Început",
+    "end": "Sfârșit",
+    "statusLabel": "Stare:",
+    "addEmployeeShort": "+ Adaugă un angajat",
+    "created": "Creată",
+    "statusValue": "Stare: {{status}}"
+  },
+  "filter": {
+    "show": "Arată filtrul",
+    "hide": "Ascunde filtrul",
+    "searchPlaceholder": "Căutați sarcini...",
+    "all": "Toate",
+    "sortNewest": "Cele mai noi",
+    "sortOldest": "Cele mai vechi",
+    "sortPriority": "Prioritate",
+    "sortDeadline": "Termen",
+    "counts": "{{available}} disponibile · {{inProgress}} în lucru",
+    "sortBy": "Sortează după"
+  },
+  "deleteRoom": {
+    "heading": "Șterge încăperea",
+    "intro": "Alegeți încăperea pe care doriți să o ștergeți.",
+    "tasksInRoom": "Sarcinile din încăpere",
+    "chooseTasks": "Alegeți sarcinile care trebuie șterse și ele.",
+    "noTasks": "Nu există sarcini în această încăpere.",
+    "keptNote": "Sarcinile neselectate nu vor fi șterse. În schimb, ele se mută în <b>{{room}}</b>.",
+    "failed": "Încăperea nu a putut fi ștearsă. Încercați din nou.",
+    "deleting": "Se șterge...",
+    "submit": "Șterge încăperea"
+  },
+  "editRoom": {
+    "heading": "Editează încăperea",
+    "intro": "Alegeți o încăpere și editați-i numele.",
+    "namePlaceholder": "Introduceți numele încăperii",
+    "failed": "Încăperea nu a putut fi editată. Încercați din nou."
+  }
+}

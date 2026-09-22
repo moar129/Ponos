@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Leden worden geladen...",
+    "empty": "De organisatie heeft nog geen leden.",
+    "searchPlaceholder": "Zoeken op naam of e-mail...",
+    "noMatch": "Geen leden komen overeen met de zoekopdracht.",
+    "ownRow": "Je kunt je eigen rij niet wijzigen",
+    "adminLockedTitle": "Alleen een beheerder kan de rol van een andere beheerder wijzigen",
+    "locked": "Vergrendeld",
+    "remove": "Verwijderen",
+    "confirmRemove": "Weet je zeker dat je {{name}} uit de organisatie wilt verwijderen?",
+    "removing": "Bezig met verwijderen...",
+    "confirmRemoveYes": "Ja, verwijderen",
+    "confirmTransfer": "De beheerdersrol overdragen aan {{name}}? Je verliest direct je eigen beheerderstoegang en wordt een gewoon lid.",
+    "transferring": "Bezig met overdragen...",
+    "confirmTransferYes": "Ja, beheer overdragen"
+  },
+  "invitations": {
+    "emailLabel": "Uitnodigen per e-mail",
+    "send": "Uitnodiging verzenden",
+    "sending": "Bezig met verzenden...",
+    "pendingHeading": "Openstaande uitnodigingen",
+    "loading": "Uitnodigingen worden geladen...",
+    "empty": "Geen openstaande uitnodigingen.",
+    "areYouSure": "Weet je het zeker?",
+    "cancelInvitation": "Intrekken",
+    "cancelling": "Bezig met intrekken...",
+    "confirmCancelYes": "Ja, intrekken",
+    "undo": "Toch niet",
+    "emailPlaceholder": "naam@voorbeeld.nl",
+    "invitedOn": "Uitgenodigd",
+    "invitedOnDate": "Uitgenodigd op {{date}}"
+  },
+  "requests": {
+    "loading": "Verzoeken worden geladen...",
+    "empty": "Er zijn geen openstaande verzoeken.",
+    "confirmAccept": "Weet je zeker dat {{name}} tot de organisatie moet worden toegelaten?",
+    "confirmReject": "Weet je zeker dat het verzoek moet worden afgewezen? {{name}} kan later opnieuw een verzoek indienen.",
+    "processing": "Bezig met verwerken...",
+    "yes": "Ja",
+    "accept": "Accepteren",
+    "reject": "Afwijzen",
+    "requestedOn": "Aangevraagd op {{date}}"
+  },
+  "admin": {
+    "loading": "Organisatie wordt geladen...",
+    "loadFailed": "De organisatie kon niet worden geladen.",
+    "saved": "De gegevens van de organisatie zijn opgeslagen.",
+    "nameLabel": "Naam",
+    "memberCount": "Aantal leden",
+    "edit": "Organisatie bewerken",
+    "delete": "Organisatie verwijderen",
+    "deleteWarning": "Hiermee wordt \"{{name}}\" definitief verwijderd; dit kan niet ongedaan worden gemaakt.",
+    "typeNameToConfirm": "Typ de naam van de organisatie ({{name}}) om te bevestigen",
+    "ackDataLoss": "Ik begrijp dat alle gegevens van de organisatie (taken, artikelen, categorieën, locaties en statistieken) definitief worden verwijderd en niet kunnen worden hersteld.",
+    "ackMemberImpact": "Ik begrijp dat de {{count}} andere leden onmiddellijk hun toegang verliezen.",
+    "deleting": "Bezig met verwijderen...",
+    "deletePermanently": "Definitief verwijderen",
+    "deleted": "\"{{name}}\" is verwijderd.",
+    "deletedNewActive": "\"{{name}}\" is verwijderd. Je actieve organisatie is nu \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" is verwijderd. Je hebt geen actieve organisatie meer."
+  },
+  "picker": {
+    "searchPlaceholder": "Zoek een organisatie...",
+    "empty": "Er zijn geen organisaties om uit te kiezen.",
+    "noMatch": "Geen organisaties komen overeen met je zoekopdracht."
+  },
+  "loading": "Organisatie wordt geladen...",
+  "noActiveTitle": "Geen actieve organisatie",
+  "noActiveWithMemberships": "Je bent lid van een of meer organisaties, maar er is er nu geen actief - kies er een onder \"Mijn organisaties\", of maak of vraag een nieuwe aan.",
+  "noActiveWithout": "Je bent nog geen lid van een organisatie. Maak een nieuwe organisatie aan of vraag lidmaatschap aan van een bestaande.",
+  "tabs": {
+    "create": "Organisatie aanmaken",
+    "request": "Lidmaatschap aanvragen",
+    "memberships": "Mijn organisaties",
+    "invitations": "Uitnodigingen",
+    "details": "Organisatie"
+  },
+  "create": {
+    "nameLabel": "Naam van de organisatie",
+    "submit": "Organisatie aanmaken",
+    "submitting": "Bezig met aanmaken...",
+    "created": "De organisatie \"{{name}}\" is aangemaakt en is nu je actieve organisatie."
+  },
+  "request": {
+    "pending": "Je lidmaatschapsverzoek is verzonden en wacht op goedkeuring door de beheerder van de organisatie.",
+    "chooseLabel": "Kies een organisatie",
+    "submit": "Verzoek verzenden",
+    "submitting": "Verzoek wordt verzonden...",
+    "noneAvailable": "Er zijn geen andere organisaties om lidmaatschap van aan te vragen."
+  },
+  "details": {
+    "administrator": "Beheerder",
+    "noRole": "Geen rol toegewezen",
+    "memberCount": "Aantal leden"
+  },
+  "myInvitations": {
+    "loading": "Uitnodigingen worden geladen...",
+    "empty": "Je hebt geen openstaande uitnodigingen.",
+    "accept": "Accepteren",
+    "reject": "Afwijzen",
+    "confirmAccept": "Weet je zeker dat je lid wilt worden van {{name}}?",
+    "confirmReject": "Weet je zeker dat de uitnodiging moet worden afgewezen?",
+    "processing": "Bezig met verwerken...",
+    "yes": "Ja",
+    "invitedOn": "Uitgenodigd",
+    "invitedOnDate": "Uitgenodigd op {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Je organisaties worden geladen...",
+    "empty": "Je bent geen lid van een organisatie.",
+    "active": "Actief",
+    "makeActive": "Actief maken",
+    "switching": "Bezig met wisselen...",
+    "areYouSure": "Weet je het zeker?",
+    "leave": "Verlaten",
+    "leaving": "Bezig met verlaten...",
+    "confirmLeaveYes": "Ja, verlaten",
+    "left": "Je hebt \"{{name}}\" verlaten.",
+    "leftNewActive": "Je hebt \"{{name}}\" verlaten. Je actieve organisatie is nu \"{{newActive}}\".",
+    "leftNoActive": "Je hebt \"{{name}}\" verlaten. Je hebt geen actieve organisatie meer."
+  },
+  "genericLoading": "Laden..."
+}

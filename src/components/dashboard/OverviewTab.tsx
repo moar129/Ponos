@@ -1,5 +1,6 @@
 // src/components/dashboard/OverviewTab.tsx
 import { Database, ClipboardList, Building2, BarChart3 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
@@ -12,6 +13,7 @@ import { NotificationsWidget } from './NotificationsWidget'
 // Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), genveje til
 // Datalager/Opgaver/Statistik derunder, Nyheder (US-56) nederst.
 export function OverviewTab() {
+    const { t } = useTranslation(['dashboard', 'nav'])
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE)
     const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE)
@@ -23,14 +25,14 @@ export function OverviewTab() {
         return (
             <div className="rounded-md border border-border-gray p-5 text-center dark:border-slate-700">
                 <p className="text-secondary mb-3 dark:text-slate-400">
-                    Du har ingen aktiv organisation endnu, så der er intet at vise her.
+                    {t('overview.noOrganisation')}
                 </p>
                 <Link
                     to="/dashboard?tab=organisation"
                     className="inline-flex items-center gap-2 text-accent font-medium hover:underline"
                 >
                     <Building2 className="w-4 h-4" />
-                    Gå til Organisation
+                    {t('overview.goToOrganisation')}
                 </Link>
             </div>
         )
@@ -44,26 +46,26 @@ export function OverviewTab() {
             </div>
 
             <div>
-                <h2 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">Genveje</h2>
+                <h2 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">{t('overview.shortcuts')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {canReadDatalayer && (
                         <QuickLinkCard
                             to="/datalager"
-                            label="Datalager"
-                            description="Se og administrer items, kategorier og lokationer."
+                            label={t('nav:links.datalayer')}
+                            description={t('overview.datalayerDescription')}
                             icon={Database}
                         />
                     )}
                     <QuickLinkCard
                         to="/tasks"
-                        label="Opgaver"
-                        description="Se og administrer organisationens opgaver."
+                        label={t('nav:links.tasks')}
+                        description={t('overview.tasksDescription')}
                         icon={ClipboardList}
                     />
                     <QuickLinkCard
                         to="/statistik"
-                        label="Statistik"
-                        description="Se indsigt og statistik for organisationen."
+                        label={t('nav:links.statistics')}
+                        description={t('overview.statisticsDescription')}
                         icon={BarChart3}
                     />
                 </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { X, Plus, Trash2, Loader2, Folder, ChevronDown } from 'lucide-react';
 import { useAddItemsMutation } from '../../store/apis/categoryApi';
 import type { AddItemsComponentProps, DataLayerCat, ItemRow } from '../../types/dataLayer/datalayerTypes';
@@ -28,6 +29,7 @@ function flattenWithPath(categories: DataLayerCat[], path: string[] = []): { id:
 export function AddItemsComponent({
   isOpen, onClose, categoryTree, categoryId, categoryTitle, onSuccess, canCreate, canUpdate, canDelete,
 }: AddItemsComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const [rows, setRows] = useState<ItemRow[]>([emptyRow()]);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(categoryId);
@@ -61,10 +63,10 @@ export function AddItemsComponent({
   };
 
   const handleSubmit = async () => {
-    if (!selectedCategoryId) return setFormError('Vælg en kategori.');
+    if (!selectedCategoryId) return setFormError(t('addItems.noCategory'));
 
     const validRows = rows.filter((r) => r.name.trim().length > 0);
-    if (validRows.length === 0) return setFormError('Tilføj mindst ét item med et navn.');
+    if (validRows.length === 0) return setFormError(t('addItems.atLeastOne'));
 
     try {
       await addItems(
@@ -81,7 +83,7 @@ export function AddItemsComponent({
       onSuccess?.();
       resetAndClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke oprette items. Prøv igen.'));
+      setFormError(getErrorMessage(err, t('addItems.createFailed')));
     }
   };
 
@@ -90,10 +92,10 @@ export function AddItemsComponent({
       <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700">
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div>
-            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Tilføj items</h2>
-            {categoryTitle && <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">Foreslået kategori: {categoryTitle}</p>}
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('addItems.heading')}</h2>
+            {categoryTitle && <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">{t('addItems.suggestedCategory', { name: categoryTitle })}</p>}
           </div>
-          <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk modal">
+          <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title={t('close')} aria-label={t('closeModal')}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -106,7 +108,7 @@ export function AddItemsComponent({
           )}
 
           <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg dark:bg-slate-800/40 dark:border-slate-700">
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">Kategori</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">{t('fields.category')}</label>
             <div className="relative">
               <Folder className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
               <select
@@ -114,7 +116,7 @@ export function AddItemsComponent({
                 onChange={(e) => setSelectedCategoryId(e.target.value || null)}
                 className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               >
-                <option value="" disabled>Vælg en kategori</option>
+                <option value="" disabled>{t('addItems.chooseCategoryOption')}</option>
                 {categoryOptions.map((opt) => (
                   <option key={opt.id} value={opt.id}>{opt.label}</option>
                 ))}
@@ -122,7 +124,7 @@ export function AddItemsComponent({
               <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
             </div>
             <p className="text-[11px] text-secondary mt-1.5 dark:text-slate-400">
-              Items i denne oprettelse lægges i den valgte kategori.
+              {t('addItems.categoryNote')}
             </p>
           </div>
 
@@ -135,21 +137,21 @@ export function AddItemsComponent({
               canDelete={canDelete}
             />
             <p className="text-[11px] text-secondary mt-1.5 dark:text-slate-400">
-              Denne lokation bruges til alle items i denne oprettelse.
+              {t('addItems.locationNote')}
             </p>
           </div>
 
           {rows.map((row, idx) => (
             <div key={row.key} className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Item {idx + 1}</span>
+                <span className="text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('addItems.itemNumber', { number: idx + 1 })}</span>
                 <button
                   type="button"
                   onClick={() => removeRow(row.key)}
                   disabled={rows.length === 1}
                   className="p-1 rounded text-secondary hover:text-red-600 hover:bg-red-50 disabled:opacity-30 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-900/30"
-                  title="Fjern item"
-                  aria-label="Fjern item"
+                  title={t('addItems.removeItem')}
+                  aria-label={t('addItems.removeItem')}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -158,7 +160,7 @@ export function AddItemsComponent({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   type="text"
-                  placeholder="Navn *"
+                  placeholder={t('addItems.namePlaceholder')}
                   value={row.name}
                   onChange={(e) => updateRow(row.key, { name: e.target.value })}
                   className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -166,14 +168,14 @@ export function AddItemsComponent({
                 <input
                   type="number"
                   min={0}
-                  placeholder="Antal"
+                  placeholder={t('addItems.quantityPlaceholder')}
                   value={row.quantity}
                   onChange={(e) => updateRow(row.key, { quantity: Number(e.target.value) })}
                   className="bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
-                  placeholder="Beskrivelse"
+                  placeholder={t('addItems.descriptionPlaceholder')}
                   value={row.description}
                   onChange={(e) => updateRow(row.key, { description: e.target.value })}
                   className="sm:col-span-2 bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -191,13 +193,13 @@ export function AddItemsComponent({
 
           <button type="button" onClick={addRow} className="flex items-center gap-2 text-sm text-accent hover:text-accent-hover font-medium">
             <Plus className="w-4 h-4" />
-            Tilføj endnu et item
+            {t('addItems.addAnother')}
           </button>
         </div>
 
         <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
           <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-            Annullér
+            {t('common:cancel')}
           </button>
           <button
             type="button"
@@ -206,7 +208,7 @@ export function AddItemsComponent({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            Opret items
+            {t('addItems.submit')}
           </button>
         </div>
       </div>

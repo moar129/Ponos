@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Ladataan jäseniä...",
+    "empty": "Organisaatiolla ei ole vielä jäseniä.",
+    "searchPlaceholder": "Hae nimellä tai sähköpostilla...",
+    "noMatch": "Mikään jäsen ei vastaa hakua.",
+    "ownRow": "Et voi muuttaa omaa riviäsi",
+    "adminLockedTitle": "Vain ylläpitäjä voi muuttaa toisen ylläpitäjän roolia",
+    "locked": "Lukittu",
+    "remove": "Poista",
+    "confirmRemove": "Haluatko varmasti poistaa jäsenen {{name}} organisaatiosta?",
+    "removing": "Poistetaan...",
+    "confirmRemoveYes": "Kyllä, poista",
+    "confirmTransfer": "Siirretäänkö ylläpitäjän rooli käyttäjälle {{name}}? Menetät oman ylläpito-oikeutesi heti ja sinusta tulee tavallinen jäsen.",
+    "transferring": "Siirretään...",
+    "confirmTransferYes": "Kyllä, siirrä ylläpito"
+  },
+  "invitations": {
+    "emailLabel": "Kutsu sähköpostilla",
+    "send": "Lähetä kutsu",
+    "sending": "Lähetetään...",
+    "pendingHeading": "Odottavat kutsut",
+    "loading": "Ladataan kutsuja...",
+    "empty": "Ei odottavia kutsuja.",
+    "areYouSure": "Oletko varma?",
+    "cancelInvitation": "Peru",
+    "cancelling": "Perutaan...",
+    "confirmCancelYes": "Kyllä, peru",
+    "undo": "Ei sittenkään",
+    "emailPlaceholder": "nimi@esimerkki.fi",
+    "invitedOn": "Kutsuttu",
+    "invitedOnDate": "Kutsuttu {{date}}"
+  },
+  "requests": {
+    "loading": "Ladataan hakemuksia...",
+    "empty": "Odottavia hakemuksia ei ole.",
+    "confirmAccept": "Haluatko varmasti hyväksyä käyttäjän {{name}} organisaatioon?",
+    "confirmReject": "Haluatko varmasti hylätä hakemuksen? {{name}} voi hakea uudelleen myöhemmin.",
+    "processing": "Käsitellään...",
+    "yes": "Kyllä",
+    "accept": "Hyväksy",
+    "reject": "Hylkää",
+    "requestedOn": "Haettu {{date}}"
+  },
+  "admin": {
+    "loading": "Ladataan organisaatiota...",
+    "loadFailed": "Organisaatiota ei voitu ladata.",
+    "saved": "Organisaation tiedot on tallennettu.",
+    "nameLabel": "Nimi",
+    "memberCount": "Jäsenten määrä",
+    "edit": "Muokkaa organisaatiota",
+    "delete": "Poista organisaatio",
+    "deleteWarning": "Tämä poistaa organisaation \"{{name}}\" pysyvästi, eikä sitä voi perua.",
+    "typeNameToConfirm": "Kirjoita organisaation nimi ({{name}}) vahvistukseksi",
+    "ackDataLoss": "Ymmärrän, että kaikki organisaation tiedot (tehtävät, nimikkeet, luokat, sijainnit ja tilastot) poistetaan pysyvästi eikä niitä voi palauttaa.",
+    "ackMemberImpact": "Ymmärrän, että muut {{count}} jäsentä menettävät pääsynsä välittömästi.",
+    "deleting": "Poistetaan...",
+    "deletePermanently": "Poista pysyvästi",
+    "deleted": "\"{{name}}\" on poistettu.",
+    "deletedNewActive": "\"{{name}}\" on poistettu. Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" on poistettu. Sinulla ei ole enää aktiivista organisaatiota."
+  },
+  "picker": {
+    "searchPlaceholder": "Hae organisaatiota...",
+    "empty": "Valittavia organisaatioita ei ole.",
+    "noMatch": "Mikään organisaatio ei vastaa hakuasi."
+  },
+  "loading": "Ladataan organisaatiota...",
+  "noActiveTitle": "Ei aktiivista organisaatiota",
+  "noActiveWithMemberships": "Olet jäsenenä yhdessä tai useammassa organisaatiossa, mutta mikään ei ole juuri nyt aktiivinen - valitse yksi kohdasta \"Omat organisaatiot\" tai luo/hae uutta.",
+  "noActiveWithout": "Et ole vielä minkään organisaation jäsen. Luo uusi organisaatio tai hae jäsenyyttä olemassa olevaan.",
+  "tabs": {
+    "create": "Luo organisaatio",
+    "request": "Hae jäsenyyttä",
+    "memberships": "Omat organisaatiot",
+    "invitations": "Kutsut",
+    "details": "Organisaatio"
+  },
+  "create": {
+    "nameLabel": "Organisaation nimi",
+    "submit": "Luo organisaatio",
+    "submitting": "Luodaan...",
+    "created": "Organisaatio \"{{name}}\" on luotu ja se on nyt aktiivinen organisaatiosi."
+  },
+  "request": {
+    "pending": "Jäsenyyshakemuksesi on lähetetty ja odottaa organisaation ylläpitäjän hyväksyntää.",
+    "chooseLabel": "Valitse organisaatio",
+    "submit": "Lähetä hakemus",
+    "submitting": "Lähetetään hakemusta...",
+    "noneAvailable": "Muita organisaatioita, joihin voisit hakea jäsenyyttä, ei ole."
+  },
+  "details": {
+    "administrator": "Ylläpitäjä",
+    "noRole": "Roolia ei ole määritetty",
+    "memberCount": "Jäsenten määrä"
+  },
+  "myInvitations": {
+    "loading": "Ladataan kutsuja...",
+    "empty": "Sinulla ei ole odottavia kutsuja.",
+    "accept": "Hyväksy",
+    "reject": "Hylkää",
+    "confirmAccept": "Haluatko varmasti liittyä organisaatioon {{name}}?",
+    "confirmReject": "Haluatko varmasti hylätä kutsun?",
+    "processing": "Käsitellään...",
+    "yes": "Kyllä",
+    "invitedOn": "Kutsuttu",
+    "invitedOnDate": "Kutsuttu {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Ladataan organisaatioitasi...",
+    "empty": "Et ole minkään organisaation jäsen.",
+    "active": "Aktiivinen",
+    "makeActive": "Aseta aktiiviseksi",
+    "switching": "Vaihdetaan...",
+    "areYouSure": "Oletko varma?",
+    "leave": "Poistu",
+    "leaving": "Poistutaan...",
+    "confirmLeaveYes": "Kyllä, poistu",
+    "left": "Poistuit organisaatiosta \"{{name}}\".",
+    "leftNewActive": "Poistuit organisaatiosta \"{{name}}\". Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
+    "leftNoActive": "Poistuit organisaatiosta \"{{name}}\". Sinulla ei ole enää aktiivista organisaatiota."
+  },
+  "genericLoading": "Ladataan..."
+}

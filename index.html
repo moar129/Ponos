@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="da">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="src/assets/logo/ponos_compass.svg"/>
@@ -16,6 +16,25 @@
           ? stored
           : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', theme);
+
+        // Sproget afgøres her - før React monterer - så siden ikke når
+        // at blinke på et forkert sprog. languageSlice/config.ts læser
+        // resultatet af <html lang> i stedet for at gentage logikken.
+        // 'ponos-language' skal matche LANGUAGE_STORAGE_KEY i
+        // src/store/slices/languageSlice.ts, og listen nedenfor skal matche
+        // LANGUAGES i src/i18n/languages.ts (kan ikke importeres herfra).
+        var SUPPORTED = ['cs','da','de','en','es','fi','fr','hu','it','nl','pl','pt','ro','sv'];
+        var storedLang = localStorage.getItem('ponos-language');
+        var lang;
+        if (storedLang && SUPPORTED.indexOf(storedLang) !== -1) {
+          lang = storedLang;
+        } else {
+          // navigator.language er ofte regional ('de-AT') - vi bruger kun
+          // primær-subtagget. Ukendt sprog falder tilbage til dansk.
+          var browser = (navigator.language || 'da').toLowerCase().split('-')[0];
+          lang = SUPPORTED.indexOf(browser) !== -1 ? browser : 'da';
+        }
+        document.documentElement.lang = lang;
       })();
     </script>
   </head>

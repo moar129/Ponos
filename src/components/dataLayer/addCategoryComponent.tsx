@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next'
 import { X, FolderPlus, Loader2 } from 'lucide-react';
 import { useAddCategoryMutation } from '../../store/apis/categoryApi';
 import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
@@ -12,6 +13,7 @@ export function AddCategoryComponent({
   nextRank,
   onSuccess,
 }: AddCategoryComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const [addCategory, { isLoading }] = useAddCategoryMutation();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -21,7 +23,7 @@ export function AddCategoryComponent({
     const title = (formData.get('title') as string)?.trim();
 
     if (!title) {
-      setErrorMsg('Titel er påkrævet.');
+      setErrorMsg(t('addCategory.titleRequired'));
       return;
     }
 
@@ -37,7 +39,7 @@ export function AddCategoryComponent({
       onSuccess(newCategoryId);
       onClose();
     } catch (err) {
-      setErrorMsg(getErrorMessage(err, 'Der opstod en fejl ved oprettelse.'));
+      setErrorMsg(getErrorMessage(err, t('addCategory.createFailed')));
     }
   };
 
@@ -56,7 +58,7 @@ export function AddCategoryComponent({
           type="button"
           onClick={onClose}
           className="absolute right-4 top-4 text-secondary hover:text-primary p-1 rounded-lg hover:bg-bg-gray transition-colors dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
-          aria-label="Luk modal"
+          aria-label={t('closeModal')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -67,11 +69,11 @@ export function AddCategoryComponent({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-primary dark:text-slate-100">
-              {parentId ? 'Opret underkategori' : 'Opret hovedkategori'}
+              {parentId ? t('addCategory.titleSub') : t('addCategory.titleMain')}
             </h2>
             {parentId && parentPath && parentPath.length > 0 && (
               <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">
-                Forælder: <strong className="text-primary font-medium dark:text-slate-100">{parentPath.join(' > ')}</strong>
+                <Trans ns="datalayer" i18nKey="addCategory.parentPath" values={{ path: parentPath.join(' > ') }} components={{ b: <strong className="text-primary font-medium dark:text-slate-100" /> }} />
               </p>
             )}
           </div>
@@ -86,7 +88,7 @@ export function AddCategoryComponent({
         <form action={handleSubmitAction} className="space-y-4">
           <label className="block text-xs font-medium text-secondary dark:text-slate-400">
             <div className="mb-1.5 flex items-center gap-1">
-              Kategorinavn
+              {t('addCategory.nameLabel')}
               <span aria-hidden="true" className="text-red-600 dark:text-red-400">*</span>
             </div>
             <input
@@ -94,7 +96,7 @@ export function AddCategoryComponent({
               type="text"
               required
               aria-required="true"
-              placeholder="F.eks. Elektronik, Kabler eller Værktøj..."
+              placeholder={t('addCategory.placeholder')}
               className="w-full bg-white border border-border-gray rounded-lg px-3.5 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors font-normal dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
           </label>
@@ -105,7 +107,7 @@ export function AddCategoryComponent({
               onClick={onClose}
               className="px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100"
             >
-              Annullér
+              {t('common:cancel')}
             </button>
             <button
               type="submit"
@@ -113,7 +115,7 @@ export function AddCategoryComponent({
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Opret kategori
+              {t('addCategory.submit')}
             </button>
           </div>
         </form>

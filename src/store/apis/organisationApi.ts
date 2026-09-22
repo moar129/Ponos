@@ -2,6 +2,7 @@
 import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { CreateOrganisationInput, MyMembership, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import { mapDbError } from './apiError'
 
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -20,7 +21,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     if (userError.name === 'AuthSessionMissingError') {
                         return { data: null }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: userError.message } }
+                    return { error: mapDbError(userError) }
                 }
 
                 if (!userData.user) {
@@ -34,7 +35,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (profileError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
+                    return { error: mapDbError(profileError) }
                 }
 
                 if (!profile?.active_organisation_id) {
@@ -48,7 +49,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 if (!data) {
@@ -74,7 +75,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     .order('name')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data }
@@ -97,7 +98,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Du skal være logget ind for at redigere organisationen.',
+                            error: 'errors:loginRequiredForOrganisation',
                         },
                     }
                 }
@@ -109,12 +110,12 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (profileError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profileError.message } }
+                    return { error: mapDbError(profileError) }
                 }
 
                 if (!profile?.active_organisation_id) {
                     return {
-                        error: { status: 'CUSTOM_ERROR', error: 'Du er ikke medlem af en organisation.' },
+                        error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' },
                     }
                 }
 
@@ -129,10 +130,10 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     // organisation med dette navn.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -157,7 +158,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 if (!trimmed) {
                     return {
-                        error: { status: 'CUSTOM_ERROR', error: 'Organisationens navn skal udfyldes.' },
+                        error: { status: 'CUSTOM_ERROR', error: 'errors:required.organisationName' },
                     }
                 }
 
@@ -169,10 +170,10 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     // organisation med dette navn.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Organisationsnavnet er allerede taget - vælg venligst et andet navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: { id: data.id, name: data.name } }
@@ -201,7 +202,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 const { data, error } = await supabase.rpc('get_my_memberships')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 type MyMembershipRow = {
@@ -240,7 +241,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -265,7 +266,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data ? { id: data.id, name: data.name } : null }
@@ -292,7 +293,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                 })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data ? { id: data.id, name: data.name } : null }

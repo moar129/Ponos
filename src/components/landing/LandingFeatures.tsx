@@ -1,5 +1,6 @@
 // src/components/landing/LandingFeatures.tsx
 import { Database, ClipboardList, BarChart3 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { LandingFeatureCard } from './LandingFeatureCard'
 
 // Platformens tre hovedområder (Project.md §4-6). Det bærende afsnit på
@@ -7,37 +8,38 @@ import { LandingFeatureCard } from './LandingFeatureCard'
 // områder og ikoner som dashboardets genvejskort, så siderne genkendes igen
 // når brugeren er logget ind.
 export function LandingFeatures() {
+    const { t } = useTranslation('public')
+
     return (
         <section className="bg-bg-gray/40 dark:bg-slate-800/40 border-y border-border-gray dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                 <div className="max-w-3xl">
                     <h2 className="text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
-                        Tre spørgsmål, ét sted
+                        {t('features.title')}
                     </h2>
                     <p className="mt-4 text-secondary dark:text-slate-400">
-                        Ponos er bygget op om de tre spørgsmål, enhver organisation skal kunne svare
-                        på om sig selv.
+                        {t('features.intro')}
                     </p>
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <LandingFeatureCard
                         icon={Database}
-                        label="Datalager"
-                        question="Hvad har vi?"
-                        description="Registrér jeres ressourcer med antal, kategori, status og lokation. Så kan I altid se hvad I har, og hvor det står."
+                        label={t('features.datalayer.label')}
+                        question={t('features.datalayer.question')}
+                        description={t('features.datalayer.description')}
                     />
                     <LandingFeatureCard
                         icon={ClipboardList}
-                        label="Opgaver"
-                        question="Hvem gør hvad?"
-                        description="Hver opgave har en ansvarlig, deltagere, status og de ting den bruger. Arbejdet hænger sammen med de ressourcer, det faktisk trækker på."
+                        label={t('features.tasks.label')}
+                        question={t('features.tasks.question')}
+                        description={t('features.tasks.description')}
                     />
                     <LandingFeatureCard
                         icon={BarChart3}
-                        label="Statistik"
-                        question="Hvad fortæller vores data?"
-                        description="Tallene regnes ud fra det, I allerede har registreret. Ingen manuel indtastning, og ingen tal der er forældede i samme øjeblik de er skrevet ned."
+                        label={t('features.statistics.label')}
+                        question={t('features.statistics.question')}
+                        description={t('features.statistics.description')}
                     />
                 </div>
             </div>

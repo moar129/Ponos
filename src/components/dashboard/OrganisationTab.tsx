@@ -1,4 +1,6 @@
 // src/components/dashboard/OrganisationTab.tsx
+import { readableError } from '../../ErrorMessage';
+import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
@@ -12,6 +14,7 @@ import {
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { useGetMyPendingRequestQuery, useRequestMembershipMutation } from '../../store/apis/membershipApi'
+import { formatDate } from '../../utils/formatDate'
 import { useGetMyPendingInvitationsQuery, useRespondToInvitationMutation } from '../../store/apis/invitationApi'
 import { OrganisationPickerComponent } from './organisationPickerComponent'
 import type {
@@ -33,16 +36,6 @@ function orgNavItemClass(active: boolean): string {
     }`
 }
 
-// Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
-// komme i lidt forskellige former afhængigt af hvor fejlen opstod.
-function readableApiError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
-
 type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 
 // Se organisation, skifte/forlade medlemskaber, samt anmode om/oprette
@@ -60,6 +53,7 @@ type OrgTab = 'details' | 'memberships' | 'request' | 'create' | 'invitations'
 // de to eneste veje ind i en organisation, og brugeren ellers selv
 // skulle vide/finde den anden vej.
 export function OrganisationTab() {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     // Bruges også når organisation er null: en bruger uden aktiv
     // organisation kan stadig have andre medlemskaber (fx pga. en bug som
@@ -110,7 +104,7 @@ export function OrganisationTab() {
         e.preventDefault()
 
         if (!createName.trim()) {
-            setCreateValidationError('Organisationens navn skal udfyldes.')
+            setCreateValidationError(t('errors:required.organisationName'))
             return
         }
         setCreateValidationError(null)
@@ -140,10 +134,8 @@ export function OrganisationTab() {
         }
     }
 
-    const readableError = readableApiError
-
     if (isLoading || loadingPendingRequest) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser organisation...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('loading')}</p>
     }
 
     if (queryError) {
@@ -161,24 +153,24 @@ export function OrganisationTab() {
 
         return (
             <div>
-                <h2 className="text-lg font-semibold text-primary mb-2 dark:text-slate-100">Ingen aktiv organisation</h2>
+                <h2 className="text-lg font-semibold text-primary mb-2 dark:text-slate-100">{t('noActiveTitle')}</h2>
                 <p className="text-sm text-secondary mb-6 dark:text-slate-400">
                     {hasOtherMemberships
-                        ? 'Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under "Mine organisationer", eller opret/anmod om en ny.'
-                        : 'Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.'}
+                        ? t('noActiveWithMemberships')
+                        : t('noActiveWithout')}
                 </p>
 
                 {pendingRequest ? (
                     <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
-                        Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
+                        <Trans ns="nav" i18nKey="banner.pendingRequest" values={{ organisation: pendingRequest.organisationName }} components={{ strong: <strong /> }} />
                     </div>
                 ) : (
                     (() => {
                         const noOrgTabDefs: { key: NoOrgTab; label: string; icon: LucideIcon }[] = [
-                            { key: 'create', label: 'Opret organisation', icon: Plus },
-                            { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
+                            { key: 'create', label: t('tabs.create'), icon: Plus },
+                            { key: 'request', label: t('tabs.request'), icon: Handshake },
                             ...(hasOtherMemberships
-                                ? [{ key: 'memberships' as NoOrgTab, label: 'Mine organisationer', icon: Users }]
+                                ? [{ key: 'memberships' as NoOrgTab, label: t('tabs.memberships'), icon: Users }]
                                 : []),
                             ...((pendingInvitations?.length ?? 0) > 0
                                 ? [{ key: 'invitations' as NoOrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
@@ -215,7 +207,7 @@ export function OrganisationTab() {
                                             )}
                                             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name">Organisationens navn</label>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name">{t('create.nameLabel')}</label>
                                                     <input
                                                         id="create-name"
                                                         type="text"
@@ -229,13 +221,13 @@ export function OrganisationTab() {
                                                     disabled={creating}
                                                     className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
-                                                    {creating ? 'Opretter...' : 'Opret organisation'}
+                                                    {creating ? t('create.submitting') : t('create.submit')}
                                                 </button>
                                             </form>
                                         </>
                                     ) : requestSuccess ? (
                                         <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                                            Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
+                                            {t('request.pending')}
                                         </div>
                                     ) : (
                                         <>
@@ -246,7 +238,7 @@ export function OrganisationTab() {
                                             )}
                                             <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                                                 <div>
-                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
+                                                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
                                                     <OrganisationPickerComponent
                                                         organisations={organisations}
                                                         isLoading={loadingOrganisations}
@@ -259,7 +251,7 @@ export function OrganisationTab() {
                                                     disabled={requesting || !selectedOrgId}
                                                     className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
-                                                    {requesting ? 'Sender anmodning...' : 'Send anmodning'}
+                                                    {requesting ? t('request.submitting') : t('request.submit')}
                                                 </button>
                                             </form>
                                         </>
@@ -281,9 +273,9 @@ export function OrganisationTab() {
     // medlemmer af den aktive organisation, ligesom de øvrige faner.
     const orgTabDefs: { key: OrgTab; label: string; icon: LucideIcon }[] = [
         { key: 'details', label: 'Organisation', icon: Building2 },
-        { key: 'memberships', label: 'Mine organisationer', icon: Users },
-        { key: 'request', label: 'Anmod om medlemskab', icon: Handshake },
-        { key: 'create', label: 'Opret organisation', icon: Plus },
+        { key: 'memberships', label: t('tabs.memberships'), icon: Users },
+        { key: 'request', label: t('tabs.request'), icon: Handshake },
+        { key: 'create', label: t('tabs.create'), icon: Plus },
         ...((pendingInvitations?.length ?? 0) > 0
             ? [{ key: 'invitations' as OrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
             : []),
@@ -324,7 +316,7 @@ export function OrganisationTab() {
                     <>
                         {createdOrgName && (
                             <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                                Organisationen "{createdOrgName}" er oprettet og er nu din aktive organisation.
+                                {t('create.created', { name: createdOrgName })}
                             </div>
                         )}
 
@@ -337,17 +329,17 @@ export function OrganisationTab() {
                                     <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                                     {activeMembership?.isAdmin && (
                                         <span className="text-xs font-medium bg-accent/15 text-primary rounded-full px-2 py-0.5 dark:text-slate-100">
-                                            Administrator
+                                            {t('details.administrator')}
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-sm text-secondary dark:text-slate-400">{activeMembership?.roleName ?? 'Ingen rolle tildelt'}</p>
+                                <p className="text-sm text-secondary dark:text-slate-400">{activeMembership?.roleName ?? t('details.noRole')}</p>
                             </div>
                         </div>
 
                         <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                             <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary dark:text-slate-400">Antal medlemmer</dt>
+                                <dt className="text-sm text-secondary dark:text-slate-400">{t('details.memberCount')}</dt>
                                 <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
                             </div>
                         </dl>
@@ -358,18 +350,12 @@ export function OrganisationTab() {
     )
 }
 
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    })
-}
 
 // US-67: invitationer andre organisationer har sendt til den indloggede
 // bruger. Samme accepter/afvis-bekræft-mønster som RequestRow i
 // MembershipRequestsPanel.tsx (admin-siden af den anden retning).
 function InvitationsSection() {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: invitations, isLoading, error: queryError } = useGetMyPendingInvitationsQuery()
     const [respondToInvitation, { isLoading: submitting, error: mutationError }] = useRespondToInvitationMutation()
 
@@ -384,8 +370,8 @@ function InvitationsSection() {
         }
     }
 
-    const listError = readableApiError(queryError)
-    const actionError = readableApiError(mutationError)
+    const listError = readableError(queryError)
+    const actionError = readableError(mutationError)
 
     return (
         <div>
@@ -396,9 +382,9 @@ function InvitationsSection() {
             )}
 
             {isLoading ? (
-                <p className="text-secondary dark:text-slate-400">Indlæser invitationer...</p>
+                <p className="text-secondary dark:text-slate-400">{t('myInvitations.loading')}</p>
             ) : !invitations || invitations.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Du har ingen ventende invitationer.</p>
+                <p className="text-secondary dark:text-slate-400">{t('myInvitations.empty')}</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray">
                     {invitations.map((invitation) => (
@@ -422,21 +408,22 @@ function InvitationsSection() {
 // Én invitation: enten organisationsnavn + de to knapper, eller - hvis
 // netop denne række afventer bekræftelse - en "er du sikker?"-boks.
 function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCancel, onConfirm }: InvitationRowProps) {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const decision = pendingDecision?.invitationId === invitation.id ? pendingDecision : null
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p className="font-medium">{invitation.organisationName}</p>
-                <p className="text-xs text-secondary mt-1 dark:text-slate-400">Inviteret {formatDate(invitation.invitedAt)}</p>
+                <p className="text-xs text-secondary mt-1 dark:text-slate-400">{t('myInvitations.invitedOnDate', { date: formatDate(invitation.invitedAt) })}</p>
             </div>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">
                     <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'Accepted'
-                            ? `Er du sikker på, at du vil blive medlem af ${invitation.organisationName}?`
-                            : `Er du sikker på, at invitationen skal afvises?`}
+                            ? t('myInvitations.confirmAccept', { name: invitation.organisationName })
+                            : t('myInvitations.confirmReject')}
                     </p>
                     <button
                         type="button"
@@ -444,7 +431,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         disabled={submitting}
                         className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
-                        {submitting ? 'Behandler...' : 'Ja'}
+                        {submitting ? t('myInvitations.processing') : t('myInvitations.yes')}
                     </button>
                     <button
                         type="button"
@@ -452,7 +439,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         disabled={submitting}
                         className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
                 </div>
             ) : (
@@ -463,7 +450,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         disabled={submitting}
                         className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
-                        Acceptér
+                        {t('myInvitations.accept')}
                     </button>
                     <button
                         type="button"
@@ -471,7 +458,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         disabled={submitting}
                         className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
-                        Afvis
+                        {t('myInvitations.reject')}
                     </button>
                 </div>
             )}
@@ -486,6 +473,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
 // indlejrede formular) for ikke at røre ved den allerede testede
 // no-org-flig ovenfor.
 function RequestMembershipSection() {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: pendingRequest, isLoading: loadingPendingRequest } = useGetMyPendingRequestQuery()
     const { data: memberships } = useGetMyMembershipsQuery()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
@@ -506,13 +494,13 @@ function RequestMembershipSection() {
     }
 
     if (loadingPendingRequest) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('genericLoading')}</p>
     }
 
     if (pendingRequest) {
         return (
             <div className="rounded-md bg-accent/15 border border-accent text-primary text-sm px-3 py-2 dark:text-slate-100">
-                Din anmodning om medlemskab af <strong>{pendingRequest.organisationName}</strong> afventer godkendelse.
+                <Trans ns="nav" i18nKey="banner.pendingRequest" values={{ organisation: pendingRequest.organisationName }} components={{ strong: <strong /> }} />
             </div>
         )
     }
@@ -520,7 +508,7 @@ function RequestMembershipSection() {
     if (requestSuccess) {
         return (
             <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.
+                        {t('request.pending')}
             </div>
         )
     }
@@ -531,7 +519,7 @@ function RequestMembershipSection() {
     const myOrgIds = new Set((memberships ?? []).map((membership) => membership.organisationId))
     const availableOrganisations = organisations.filter((org) => !myOrgIds.has(org.id))
 
-    const requestErrorMessage = readableApiError(requestError)
+    const requestErrorMessage = readableError(requestError)
 
     return (
         <>
@@ -542,11 +530,11 @@ function RequestMembershipSection() {
             )}
 
             {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Der er ingen andre organisationer at anmode om medlemskab af.</p>
+                <p className="text-secondary dark:text-slate-400">{t('request.noneAvailable')}</p>
             ) : (
                 <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">Vælg organisation</label>
+                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
                         <OrganisationPickerComponent
                             organisations={availableOrganisations}
                             isLoading={loadingOrganisations}
@@ -559,7 +547,7 @@ function RequestMembershipSection() {
                         disabled={requesting || !selectedOrgId}
                         className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
-                        {requesting ? 'Sender anmodning...' : 'Send anmodning'}
+                        {requesting ? t('request.submitting') : t('request.submit')}
                     </button>
                 </form>
             )}
@@ -572,6 +560,7 @@ function RequestMembershipSection() {
 // medlemskaber). Egen komponent af samme grund som
 // RequestMembershipSection ovenfor.
 function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps) {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const [createOrganisation, { isLoading: creating, error: createError }] = useCreateOrganisationMutation()
 
     const [createName, setCreateName] = useState('')
@@ -582,7 +571,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
 
         const trimmed = createName.trim()
         if (!trimmed) {
-            setCreateValidationError('Organisationens navn skal udfyldes.')
+            setCreateValidationError(t('errors:required.organisationName'))
             return
         }
         setCreateValidationError(null)
@@ -596,7 +585,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
         }
     }
 
-    const createErrorMessage = readableApiError(createError)
+    const createErrorMessage = readableError(createError)
 
     return (
         <>
@@ -608,7 +597,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
 
             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
                 <div>
-                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name-existing">Organisationens navn</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="create-name-existing">{t('create.nameLabel')}</label>
                     <input
                         id="create-name-existing"
                         type="text"
@@ -622,7 +611,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
                     disabled={creating}
                     className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {creating ? 'Opretter...' : 'Opret organisation'}
+                    {creating ? t('create.submitting') : t('create.submit')}
                 </button>
             </form>
         </>
@@ -635,6 +624,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
 // organisationsdetaljer, i stedet for en separat side - det er begge
 // dele "min tilknytning til organisationer".
 function MyMembershipsSection() {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: memberships, isLoading, error: queryError } = useGetMyMembershipsQuery()
     // Vises efter et vellykket "Forlad" - løftet op hertil (frem for at
     // ligge i selve rækken) fordi rækken forsvinder fra listen, så snart
@@ -644,19 +634,19 @@ function MyMembershipsSection() {
 
     function handleLeft(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
         if (!wasActive) {
-            setActionMessage(`Du har forladt "${organisationName}".`)
+            setActionMessage(t('myOrganisations.left', { name: organisationName }))
         } else if (newActiveOrganisation) {
-            setActionMessage(`Du har forladt "${organisationName}". Din aktive organisation er nu "${newActiveOrganisation.name}".`)
+            setActionMessage(t('myOrganisations.leftNewActive', { name: organisationName, newActive: newActiveOrganisation.name }))
         } else {
-            setActionMessage(`Du har forladt "${organisationName}". Du har ingen aktiv organisation længere.`)
+            setActionMessage(t('myOrganisations.leftNoActive', { name: organisationName }))
         }
     }
 
     if (isLoading) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser dine organisationer...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('myOrganisations.loading')}</p>
     }
 
-    const listError = readableApiError(queryError)
+    const listError = readableError(queryError)
     if (listError) {
         return (
             <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
@@ -666,7 +656,7 @@ function MyMembershipsSection() {
     }
 
     if (!memberships || memberships.length === 0) {
-        return <p className="text-secondary dark:text-slate-400">Du er ikke medlem af nogen organisationer.</p>
+        return <p className="text-secondary dark:text-slate-400">{t('myOrganisations.empty')}</p>
     }
 
     return (
@@ -691,6 +681,7 @@ function MyMembershipsSection() {
 }
 
 function MembershipRow({ membership, onLeft }: MembershipRowProps) {
+    const { t } = useTranslation(['organisation', 'common', 'errors'])
     const [setActiveOrganisation, { isLoading: switching, error: switchError }] = useSetActiveOrganisationMutation()
     const [leaveOrganisation, { isLoading: leaving, error: leaveError }] = useLeaveOrganisationMutation()
 
@@ -713,19 +704,19 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
         }
     }
 
-    const actionError = readableApiError(switchError) ?? readableApiError(leaveError)
+    const actionError = readableError(switchError) ?? readableError(leaveError)
 
     return (
         <li className="py-3">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <p className="font-medium">{membership.organisationName}</p>
-                    <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? 'Ingen rolle tildelt'}</p>
+                    <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? t('details.noRole')}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                     {membership.isActive ? (
-                        <span className="text-sm font-medium text-accent">Aktiv</span>
+                        <span className="text-sm font-medium text-accent">{t('myOrganisations.active')}</span>
                     ) : (
                         <button
                             type="button"
@@ -733,20 +724,20 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                             disabled={switching}
                             className="rounded-md border border-border-gray bg-bg-gray px-3 py-1.5 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
-                            {switching ? 'Skifter...' : 'Gør aktiv'}
+                            {switching ? t('myOrganisations.switching') : t('myOrganisations.makeActive')}
                         </button>
                     )}
 
                     {confirmingLeave ? (
                         <>
-                            <span className="text-sm text-secondary dark:text-slate-400">Er du sikker?</span>
+                            <span className="text-sm text-secondary dark:text-slate-400">{t('myOrganisations.areYouSure')}</span>
                             <button
                                 type="button"
                                 onClick={handleLeave}
                                 disabled={leaving}
                                 className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
                             >
-                                {leaving ? 'Forlader...' : 'Ja, forlad'}
+                                {leaving ? t('myOrganisations.leaving') : t('myOrganisations.confirmLeaveYes')}
                             </button>
                             <button
                                 type="button"
@@ -754,7 +745,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                                 disabled={leaving}
                                 className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
                             >
-                                Annuller
+                                {t('common:cancel')}
                             </button>
                         </>
                     ) : (
@@ -763,7 +754,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                             onClick={() => setConfirmingLeave(true)}
                             className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                         >
-                            Forlad
+                            {t('myOrganisations.leave')}
                         </button>
                     )}
                 </div>

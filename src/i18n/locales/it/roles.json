@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Ruoli e permessi",
+    "organisation": "Organizzazione",
+    "membership_requests": "Richieste di adesione",
+    "members": "Membri",
+    "invitations": "Inviti",
+    "news": "Notizie",
+    "datalayer": "Livello dati",
+    "tasks": "Attività",
+    "task_approval": "Approvazione delle attività"
+  },
+  "op": {
+    "create": "Crea",
+    "read": "Visualizza",
+    "update": "Modifica",
+    "delete": "Elimina",
+    "assign": "Assegna",
+    "approve": "Approva",
+    "reject": "Rifiuta"
+  },
+  "privilege": {
+    "admin": "Amministrazione completa (può fare tutto)"
+  },
+  "other": "Altro",
+  "matrix": {
+    "newRoleLabel": "Nuovo ruolo",
+    "createRole": "Crea ruolo",
+    "creatingRole": "Creazione...",
+    "loading": "Caricamento dei ruoli...",
+    "noRoles": "L'organizzazione non ha ancora ruoli.",
+    "selectAll": "Seleziona tutto",
+    "removeAll": "Rimuovi tutto",
+    "savePrivilegeName": "Salva il nome del permesso",
+    "renamePrivilege": "Rinomina il permesso",
+    "saveRoleName": "Salva il nome del ruolo",
+    "renameRole": "Rinomina il ruolo",
+    "deleteRole": "Elimina il ruolo",
+    "newRolePlaceholder": "Ad es. Coordinamento dei volontari",
+    "privilegeColumn": "Permesso",
+    "removeAllTitle": "Rimuove tutti i permessi attuali da {{role}} (non è un vero accesso da amministratore di sistema)",
+    "selectAllTitle": "Assegna a {{role}} tutti i permessi attuali (non è un vero accesso da amministratore di sistema)",
+    "renamePrivilegeFor": "Rinomina questo permesso per {{role}}",
+    "confirmDeleteRole": "Eliminare \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin ha già accesso completo e non può essere personalizzato",
+    "memberFixed": "Parte fissa del ruolo predefinito Medlem",
+    "adminOnly": "Solo un amministratore può concedere il permesso admin",
+    "adminRoleProtected": "Questo ruolo ha il permesso admin e non può essere rinominato né eliminato",
+    "memberRoleProtected": "Il ruolo predefinito Medlem non può essere rinominato né eliminato",
+    "memberNotExtendable": "Il ruolo predefinito Medlem non può essere ampliato"
+  },
+  "approvals": {
+    "loading": "Caricamento delle approvazioni...",
+    "empty": "Non ci sono attività in attesa di approvazione.",
+    "confirmApprove": "Approvare e contrassegnare l'attività come completata?",
+    "confirmReject": "Rifiutare la richiesta? L'attività resta in corso.",
+    "reportedBy": "Segnalata completata da",
+    "approve": "Approva",
+    "reject": "Rifiuta",
+    "reportedDoneBy": "Segnalata completata da {{name}}"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "loading": "Načítání profilu...",
+  "notFound": "Váš profil nebyl nalezen.",
+  "saved": "Vaše údaje byly uloženy.",
+  "nameRequired": "Jméno a příjmení jsou povinné.",
+  "fields": {
+    "firstName": "Jméno",
+    "lastName": "Příjmení",
+    "email": "E-mail",
+    "organisation": "Organizace",
+    "role": "Role",
+    "description": "Popis",
+    "pictureUrl": "Profilový obrázek (URL)"
+  },
+  "empty": {
+    "organisation": "Žádná organizace",
+    "role": "Žádná přiřazená role",
+    "description": "Žádný popis"
+  },
+  "readOnlyNote": "E-mail, roli a organizaci zde nelze změnit. Obraťte se na svého administrátora.",
+  "saveChanges": "Uložit změny",
+  "editProfile": "Upravit profil",
+  "logout": "Odhlásit se",
+  "loggingOut": "Odhlašování...",
+  "passwordHeading": "Heslo",
+  "preferences": {
+    "title": "Zobrazení",
+    "hint": "Jazyk a motiv se ukládají v tomto prohlížeči a platí jen pro toto zařízení."
+  }
+}

@@ -1,5 +1,8 @@
 // components/notifications/notificationBellComponent.tsx
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
+import { notificationTitle } from '../../utils/notificationDisplay'
 import { useNavigate } from 'react-router-dom';
 import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
 import {
@@ -10,18 +13,23 @@ import {
 } from '../../store/apis/notificationApi';
 import type { AppNotification } from '../../types/notification/notificationTypes';
 
-function timeAgo(dateString: string): string {
-  const diffMs = Date.now() - new Date(dateString).getTime();
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return 'Lige nu';
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} t`;
-  const days = Math.floor(hours / 24);
-  return `${days} d`;
+function useTimeAgo() {
+  const { t } = useTranslation('dashboard');
+  return (dateString: string): string => {
+    const diffMs = Date.now() - new Date(dateString).getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return t('notifications.justNow');
+    if (minutes < 60) return t('notifications.minutesAgo', { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t('notifications.hoursAgo', { count: hours });
+    return t('notifications.daysAgo', { count: Math.floor(hours / 24) });
+  };
 }
 
 export function NotificationBellComponent() {
+  const { t } = useTranslation(['notifications', 'common'])
+  const td = asDynamic(t)
+  const timeAgo = useTimeAgo()
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -69,7 +77,7 @@ export function NotificationBellComponent() {
         className="relative p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-full transition-colors"
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label="Notifikationer"
+        aria-label={t('title')}
       >
         <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
         {unreadCount > 0 && (
@@ -85,7 +93,7 @@ export function NotificationBellComponent() {
           className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray dark:border-slate-700 shrink-0">
-            <h3 className="text-sm font-semibold text-primary dark:text-slate-100">Notifikationer</h3>
+            <h3 className="text-sm font-semibold text-primary dark:text-slate-100">{t('title')}</h3>
             {unreadCount > 0 && (
               <button
                 type="button"
@@ -94,7 +102,7 @@ export function NotificationBellComponent() {
                 className="flex items-center gap-1 text-xs text-accent hover:text-accent-hover disabled:opacity-60"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
-                Markér alle som læst
+                {t('markAllRead')}
               </button>
             )}
           </div>
@@ -105,7 +113,7 @@ export function NotificationBellComponent() {
                 <Loader2 className="w-5 h-5 animate-spin text-accent" />
               </div>
             ) : notifications.length === 0 ? (
-              <p className="text-sm text-secondary dark:text-slate-400 text-center py-8 px-4">Ingen notifikationer endnu.</p>
+              <p className="text-sm text-secondary dark:text-slate-400 text-center py-8 px-4">{t('empty')}</p>
             ) : (
               <ul className="divide-y divide-border-gray dark:divide-slate-700">
                 {notifications.map((notification) => (
@@ -118,7 +126,7 @@ export function NotificationBellComponent() {
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm text-primary dark:text-slate-100 truncate">{notification.title}</p>
+                        <p className="text-sm text-primary dark:text-slate-100 truncate">{notificationTitle(notification, td)}</p>
                         {!notification.isRead && (
                           <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                         )}
@@ -133,8 +141,8 @@ export function NotificationBellComponent() {
                       type="button"
                       onClick={(e) => handleDismiss(e, notification.id)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Skjul notifikation"
-                      aria-label="Skjul notifikation"
+                      title={t('hide')}
+                      aria-label={t('hide')}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -153,7 +161,7 @@ export function NotificationBellComponent() {
               }}
               className="w-full text-center text-xs text-accent hover:text-accent-hover py-2.5 transition-colors"
             >
-              Se alle notifikationer
+              {t('seeAll')}
             </button>
           </div>
         </div>

@@ -1,14 +1,11 @@
 // src/utils/taskDisplay.ts
 import type { ETaskPriority } from '../types/Task/Task'
 
-// Samme danske betegnelser/farver som TaskCard.tsx, delt mellem
-// MyTasksWidget.tsx (US-74) og CompletedTasksPanel.tsx (US-70).
-export const PRIORITY_LABELS: Record<ETaskPriority, string> = {
-    Low: 'Lav',
-    Medium: 'Mellem',
-    High: 'Høj',
-    Critical: 'Kritisk',
-}
+// Prioriteterne i visningsrækkefølge. Selve etiketterne ligger i
+// tasks-ordbogen (tasks:priority.<værdi>) og hentes med t() i den
+// komponent der viser dem - et modul kan ikke kalde useTranslation, og
+// en etiket hentet uden for React ville ikke skifte sprog igen.
+export const ALL_PRIORITIES: ETaskPriority[] = ['Low', 'Medium', 'High', 'Critical']
 
 export const PRIORITY_COLORS: Record<ETaskPriority, string> = {
     Low: 'bg-green-100 text-green-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -24,6 +21,7 @@ export const PRIORITY_RANK: Record<ETaskPriority, number> = {
     Low: 4,
 }
 
-export function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })
-}
+// Genudstilles her, så de to widgets der allerede importerer fra denne
+// fil ikke skal kende til utils/formatDate. Selve formateringen ligger ét
+// sted nu og følger det valgte sprog.
+export { formatShortDate as formatDate } from './formatDate'

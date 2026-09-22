@@ -1,5 +1,6 @@
 // src/components/dashboard/organisationPickerComponent.tsx
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Loader2, Search } from 'lucide-react'
 import type { OrganisationPickerComponentProps } from '../../types/organisation/organisationType'
 
@@ -14,6 +15,7 @@ export function OrganisationPickerComponent({
     value,
     onChange,
 }: OrganisationPickerComponentProps) {
+    const { t } = useTranslation('organisation')
     const [searchQuery, setSearchQuery] = useState('')
 
     const filteredOrganisations = useMemo(() => {
@@ -28,7 +30,7 @@ export function OrganisationPickerComponent({
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
                 <input
                     type="text"
-                    placeholder="Søg efter organisation..."
+                    placeholder={t('picker.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -43,8 +45,8 @@ export function OrganisationPickerComponent({
                 ) : filteredOrganisations.length === 0 ? (
                     <p className="text-sm text-secondary text-center py-6 dark:text-slate-400">
                         {organisations.length === 0
-                            ? 'Der er ingen organisationer at vælge imellem.'
-                            : 'Ingen organisationer matcher din søgning.'}
+                            ? t('picker.empty')
+                            : t('picker.noMatch')}
                     </p>
                 ) : (
                     <ul className="divide-y divide-border-gray dark:divide-slate-700">

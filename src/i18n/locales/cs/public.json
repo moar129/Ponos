@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Mějte přehled, co máte.",
+    "line2": "Mějte přehled, kdo co dělá.",
+    "line3": "Mějte přehled, co říkají vaše data.",
+    "intro": "Ponos shromažďuje zdroje, úkoly a analýzy vaší organizace na jednom místě. Tak vždy víte, co máte, kdo je za co odpovědný a co říkají čísla."
+  },
+  "cta": {
+    "signup": "Vytvořit účet",
+    "login": "Přihlásit se",
+    "title": "Začněte s Ponosem",
+    "body": "Vytvořte si účet a poté založte vlastní organizaci nebo se připojte k existující."
+  },
+  "problem": {
+    "title": "Přehled je roztroušený",
+    "body": "Organizace spravují svá data a svou práci v oddělených systémech. Proto je těžké odpovědět i na jednoduché otázky: jaké zdroje už máme? Kde jsou? Kdo je za tento úkol odpovědný?"
+  },
+  "features": {
+    "title": "Tři otázky, jedno místo",
+    "intro": "Ponos stojí na třech otázkách, na které by každá organizace měla umět o sobě odpovědět.",
+    "datalayer": {
+      "label": "Datová vrstva",
+      "question": "Co máme?",
+      "description": "Zaznamenejte své zdroje s množstvím, kategorií, stavem a místem. Tak vždy vidíte, co máte a kde to je."
+    },
+    "tasks": {
+      "label": "Úkoly",
+      "question": "Kdo co dělá?",
+      "description": "Každý úkol má odpovědnou osobu, účastníky, stav a položky, které používá. Práce je spojená se zdroji, které skutečně spotřebovává."
+    },
+    "statistics": {
+      "label": "Statistiky",
+      "question": "Co říkají naše data?",
+      "description": "Čísla se počítají z toho, co už jste zaznamenali. Žádné ruční zadávání a žádná čísla, která jsou zastaralá už ve chvíli, kdy je napíšete."
+    }
+  },
+  "flow": {
+    "title": "Data, která žijí dál",
+    "body": "Ponos není archiv. To, co zaznamenáte na jednom místě, se znovu použije v dalším kroku. Položka v datové vrstvě je tatáž položka, kterou používá úkol a která se započítává do statistik.",
+    "steps": {
+      "data": "Data",
+      "people": "Lidé",
+      "tasks": "Úkoly",
+      "insight": "Poznatky"
+    },
+    "quote": "Místo <em>„něco chybí, kupme nové“</em> vás Ponos vede k <em>„něco chybí, podívejme se, co už máme“</em>."
+  },
+  "partner": {
+    "title": "O projektu",
+    "intro": "Ponos vzniká pro <strong>Corolab</strong>, neziskovou členskou organizaci v dánské Roskilde. Od roku 2016 spojuje firmy, vzdělávací instituce a veřejné subjekty kolem projektů, které by žádný z nich nedokázal uskutečnit sám. Vlastními slovy: „V partnerstvích děláme rozdíl pro společnost i pro vaši organizaci.“",
+    "figures": {
+      "events": "Akcí",
+      "participants": "Účastníků",
+      "projects": "Projektů",
+      "funding": "Získané finance"
+    },
+    "figuresSource": "Vlastní údaje Corolabu, zdroj: corolab.dk, září 2026.",
+    "areasIntro": "Práce se dělí do šesti oblastí, od navazování kontaktů po získávání financí a poskytování zázemí.",
+    "areas": {
+      "meet": "Odborné akce a sítě kontaktů.",
+      "pilots": "Společné iniciativy spouštěné spolu s členy.",
+      "fund": "Financování od členů, nadací a z veřejných prostředků.",
+      "creation": "Projekty napříč obory.",
+      "lab": "Přístup k testovacím prostředím, zázemí a sdíleným zdrojům.",
+      "branding": "Viditelnost společenské odpovědnosti členů."
+    },
+    "testEnvironment": "Ponos se zkouší v testovacích prostředích CO-labu. Tam musí platforma zvládat zdroje a úkoly skutečné organizace místo vymyšlených příkladů.",
+    "moreAboutProject": "Více o projektu",
+    "readMoreCorolab": "Více na corolab.dk"
+  },
+  "helpStep": "Krok {{step}}",
+  "about": {
+    "heroTitle": "O nás",
+    "heroDescription": "Stavíme Ponos, aby organizace dokázala odpovědět na tři poměrně jednoduché otázky, aniž by se musela nejdřív všech doptávat.",
+    "whyTitle": "Proč je to pro nás důležité",
+    "why1": "Většina organizací přesně ví, co má. Jen je to v tabulce jednoho člověka, v e-mailech druhého a v hlavě třetího. Dokud jsou všichni k zastižení, funguje to. Bolet to začne, když je někdo na dovolené, změní práci, nebo když se má vše rychle dát dohromady.",
+    "why2": "A bolí to velmi konkrétně. Koupí se něco, co už existuje, protože nikdo nedokázal zjistit, kde to je. Úkoly zůstanou nedokončené, protože nikdy nezaznělo, čí jsou. A když se někdo zeptá, jak to vypadá, odpovědí je odhad.",
+    "why3": "Ponos spojuje tři věci na jedno místo: co máte, kdo co dělá a co říkají čísla. Ne tři systémy vedle sebe – tatáž data ze tří pohledů.",
+    "principlesTitle": "Jak přemýšlíme",
+    "principlesIntro": "Čtyři věci rozhodly o většině voleb po cestě.",
+    "principles": {
+      "multiTenant": {
+        "name": "Stavěno pro více, ne pro jednu",
+        "description": "Ponos je pro organizace, v množném čísle. První, která jej používá, je příkladem – ne šablonou. Nic není postaveno kolem jednoho konkrétního způsobu práce."
+      },
+      "writeOnce": {
+        "name": "Zapište jednou",
+        "description": "To, co zadáte na jednom místě, systém používá dál. Položka v datové vrstvě je tatáž položka, kterou používá úkol – ne kopie, kterou je třeba opravovat na dvou místech."
+      },
+      "autoNumbers": {
+        "name": "Čísla se postarají sama",
+        "description": "Statistiky se počítají z toho, co už bylo zadáno. Nejsou zde pole pro ruční zadávání ukazatelů, takže ani čísla, která zastarají dřív, než je dopíšete."
+      },
+      "yourData": {
+        "name": "Vaše data jsou vaše",
+        "description": "Každá organizace vidí jen to své a rozhoduje o tom databáze – ne skryté tlačítko. Kdo co smí měnit, určujete vy pomocí rolí."
+      }
+    },
+    "behindTitle": "Kdo za tím stojí",
+    "behind1": "Ponos vzniká jako studentský projekt ve spolupráci s <strong>Corolabem</strong>, neziskovou členskou organizací v dánské Roskilde, která od roku 2016 spojuje firmy, vzdělávací instituce a veřejné subjekty kolem projektů, jež by žádný z nich nedokázal uskutečnit sám.",
+    "behind2": "To znamená, že platformu zkoušíme na věcech a úkolech skutečné organizace, ne na příkladech, které jsme si vymysleli. Právě takové použití ukáže, zda něco obstojí: případy, se kterými nikdo nepočítal, a místa, kde se realita úplně nevejde do polí.",
+    "behind3": "Máte-li dotaz k projektu nebo chcete Ponos vyzkoušet u vás, rádi se ozveme.",
+    "writeToUs": "Napište nám"
+  },
+  "contact": {
+    "heroTitle": "Kontakt",
+    "heroDescription": "Máte otázku, narazili jste na něco, co nefunguje, nebo se chcete jen dozvědět víc? Tak nám napište.",
+    "howToReach": "Jak nás zastihnete",
+    "emailLabel": "E-mail",
+    "locationLabel": "Kde sídlíme",
+    "sendMail": "Poslat e-mail",
+    "topicsTitle": "Klidně napište o těchto věcech",
+    "topics": {
+      "fit": "Co Ponos umí a zda se k vám hodí",
+      "bug": "Něco, co nefunguje, jak má",
+      "collaboration": "Spolupráce nebo chuť vyzkoušet to u vás"
+    },
+    "responseNote": "Poštu čteme ve všední dny a odpovídáme, jak nejrychleji můžeme. Napište, o kterou organizaci jde a co jste zrovna dělali – ušetří nám to doptávání.",
+    "helpHintBefore": "Chcete jen vědět, jak něco funguje? Pak už odpověď možná najdete zde:",
+    "helpHintLink": "Nápověda a podpora"
+  },
+  "help": {
+    "heroTitle": "Nápověda a podpora",
+    "heroDescription": "Právě jste začali, nebo jste uvízli? Tak se nejdřív podívejte sem.",
+    "startTitle": "První kroky",
+    "startIntro": "Tři kroky od nového účtu k něčemu, co je opravdu v systému.",
+    "steps": {
+      "account": {
+        "title": "Vytvořte si účet",
+        "description": "Potřebujete e-mail a heslo. Účet je váš a zůstane vám, ať nakonec budete členem jakéhokoli počtu organizací."
+      },
+      "organisation": {
+        "title": "Připojte se k organizaci",
+        "description": "Vytvořte si vlastní, nebo požádejte o přijetí do existující. V Ponosu patří téměř vše k organizaci, takže tento krok nelze přeskočit."
+      },
+      "data": {
+        "title": "Zadejte své věci",
+        "description": "Zadejte své zdroje do datové vrstvy a vytvořte první úkoly. Statistiky začnou počítat samy, jakmile bude co počítat."
+      }
+    },
+    "faqTitle": "Na co se nás ptají nejčastěji",
+    "faq": {
+      "nothingToSee": {
+        "q": "Jsem přihlášen, ale nic nevidím",
+        "a1": "Tomu se většina lidí nejdřív diví – a nic není rozbité. Úkoly, statistiky, datová vrstva a novinky patří k organizaci, takže dokud nemáte aktivní organizaci, není co zobrazit. Proto v nabídce nejsou ani odkazy.",
+        "a2": "Odsud se dostanete dál: <orgLink>Přehled → Organizace</orgLink>, kde si vytvoříte vlastní nebo požádáte o přijetí do existující."
+      },
+      "becomeMember": {
+        "q": "Jak se stanu členem organizace?",
+        "a1": "Přejděte na Přehled → Organizace, zvolte „Požádat o členství“ a najděte organizaci v seznamu. Než vás systém přijme, musí to schválit administrátor.",
+        "a2": "Během čekání se nahoře na stránce zobrazuje informační pruh. Pokud vás místo toho pozve administrátor, objeví se pozvánka na stejném místě – pak stačí kliknout na přijmout."
+      },
+      "multipleOrgs": {
+        "q": "Mohu být členem více organizací?",
+        "a1": "Ano. Naráz je <b>aktivní</b> jen jedna a vše, co vidíte – úkoly, věci, statistiky, role – patří k této jedné.",
+        "a2": "Přepnete v části „Moje organizace“. Pamatujte, že vaše oprávnění se mohou místo od místa lišit: klidně můžete být administrátorem v jedné a běžným členem ve druhé."
+      },
+      "cannotEdit": {
+        "q": "Proč nemohu nic vytvořit ani změnit?",
+        "a1": "Protože to vaše role zatím nedovoluje. Oprávnění se nastavují pro každou organizaci zvlášť, a pokud něco nesmíte, tlačítko vůbec nezobrazujeme – místo aby se to ukázalo až po kliknutí.",
+        "a2": "Pokud potřebujete víc, váš administrátor vám může dát roli s odpovídajícími oprávněními."
+      },
+      "invite": {
+        "q": "Jak pozvu nového uživatele?",
+        "a1": "Přehled → Správa → Pozvánky a pak e-mail dané osoby. Musíte k tomu mít oprávnění zvát.",
+        "a2": "Daná osoba už musí mít účet v Ponosu s přesně tímto e-mailem – na adresu, která v systému neexistuje, pozvánku neposíláme. Pokud účet ještě nemá, musí si ho nejdřív vytvořit a teprve pak ji můžete pozvat."
+      },
+      "leaveOrDelete": {
+        "q": "Jak opustím organizaci nebo ji smažu?",
+        "a1": "Obojí najdete v části „Moje organizace“. Pokud jednu opustíte, zatímco jste členem více, aktivní se automaticky stane jiná.",
+        "a2": "Jste-li jediný administrátor, nemůžete jen tak odejít – nezbyl by nikdo, kdo to spravuje. Předejte nejdřív roli administrátora někomu jinému. A <b>smazání</b> organizace vymaže vše, co obsahuje, i pro ostatní členy. To smí jen administrátor."
+      },
+      "editProfile": {
+        "q": "Jak změním své jméno nebo profilový obrázek?",
+        "a1": "Ve svém <profileLink>profilu</profileLink>. Jméno, popis, obrázek a heslo si můžete změnit sami. E-mail a roli ne – role patří k organizaci a dává vám ji administrátor."
+      },
+      "forgotPassword": {
+        "q": "Zapomněl jsem heslo",
+        "a1": "Na přihlašovací stránce klikněte na <resetLink>„Zapomněli jste heslo?“</resetLink>. Účet potvrdíte e-mailem a jménem a hned zvolíte nové heslo.",
+        "a2": "Pokud to dělá potíže, napište na <mailLink>{{email}}</mailLink> a pomůžeme vám zpět."
+      }
+    },
+    "noAnswer": "Nenašli jste odpověď? <contactLink>Napište nám</contactLink> – klidně popište, co jste dělali a co se stalo místo toho."
+  },
+  "notFound": {
+    "title": "Tato stránka neexistuje",
+    "body": "Na této adrese nic není. Buď se po cestě ztratilo písmeno, nebo se stránka od vzniku odkazu přesunula jinam.",
+    "toDashboard": "Přejít na přehled",
+    "toHome": "Přejít na úvodní stránku",
+    "toHelp": "Nápověda a podpora"
+  }
+}

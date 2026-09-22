@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { MapPin, Boxes, Settings2, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
 import { LocationManagerComponent } from './locationsManagerComponent';
@@ -7,6 +8,7 @@ import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function LocationPickerComponent({ value, onChange, canCreate, canUpdate, canDelete }: LocationPickerComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
   const [isCreating, setIsCreating] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
@@ -67,7 +69,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
 
   const handleCreate = async () => {
     if (!newName.trim()) {
-      setCreateError('Navn er påkrævet.');
+      setCreateError(t('locations.nameRequired'));
       return;
     }
     try {
@@ -95,24 +97,24 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
       setNewDescription('');
       setCreateError(null);
     } catch (err) {
-      setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
+      setCreateError(getErrorMessage(err, t('locations.createFailed')));
     }
   };
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Lokation</label>
+        <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('fields.location')}</label>
         {(canUpdate || canDelete) && (
           <button
             type="button"
             onClick={() => setIsManaging(true)}
             className="flex items-center gap-1 text-xs text-secondary hover:text-accent dark:text-slate-400"
-            title="Administrer lokationer"
-            aria-label="Administrer lokationer"
+            title={t('locations.manage')}
+            aria-label={t('locations.manage')}
           >
             <Settings2 className="w-3.5 h-3.5" />
-            Administrer lager
+            {t('locations.manage')}
           </button>
         )}
       </div>
@@ -121,25 +123,25 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
           {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
           <p className="text-xs text-secondary dark:text-slate-400">
-            {selectedWarehouseId ? 'Opretter en ny sektion på det valgte lager.' : 'Opretter et nyt lager.'}
+            {selectedWarehouseId ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
           </p>
           <input
             type="text"
-            placeholder={selectedWarehouseId ? 'Navn på ny sektion *' : 'Navn på nyt lager *'}
+            placeholder={selectedWarehouseId ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
           <input
             type="text"
-            placeholder="Adresse (valgfrit)"
+            placeholder={t('locations.addressOptional')}
             value={newAddress}
             onChange={(e) => setNewAddress(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
           <input
             type="text"
-            placeholder="Beskrivelse (valgfrit)"
+            placeholder={t('locations.descriptionOptional')}
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -150,7 +152,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               onClick={() => { setIsCreating(false); setCreateError(null); }}
               className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
             >
-              Annullér
+              {t('common:cancel')}
             </button>
             <button
               type="button"
@@ -159,7 +161,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
             >
               {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Opret &amp; vælg
+              {t('locations.createAndSelect')}
             </button>
           </div>
         </div>
@@ -174,11 +176,11 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               disabled={isLoading}
               className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             >
-              <option value="">Intet lager</option>
+              <option value="">{t('locations.none')}</option>
               {warehouses.map((w) => (
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
-              {canCreate && <option value="__new_warehouse__">+ Opret nyt lager…</option>}
+              {canCreate && <option value="__new_warehouse__">{t('locations.createNew')}</option>}
             </select>
             <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
           </div>
@@ -196,11 +198,11 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
                 disabled={isLoading}
                 className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               >
-                <option value="">Ingen bestemt sektion (hele lageret)</option>
+                <option value="">{t('locations.noSectionOption')}</option>
                 {sectionsInSelectedWarehouse.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
-                {canCreate && <option value="__new_section__">+ Opret ny sektion…</option>}
+                {canCreate && <option value="__new_section__">{t('locations.addNewSectionOption')}</option>}
               </select>
               <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
             </div>

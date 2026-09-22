@@ -1,7 +1,9 @@
 import type { MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
 import { Folder, Package, MapPin, Boxes } from 'lucide-react';
 import type { GlobalSearchResultsComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
-import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 
 // Udvider den eksisterende props-type lokalt, så vi ikke behøver at røre
 // den delte type-fil for at tilføje lager/sektion-søgning.
@@ -21,6 +23,8 @@ export function GlobalSearchResultsComponent({
   isOpen, query, matchedCategories, matchedItems, matchedLocations, allLocations,
   onSelectCategory, onSelectItem, onSelectLocation,
 }: Props) {
+  const { t } = useTranslation(['datalayer', 'common'])
+  const td = asDynamic(t)
   if (!isOpen || !query.trim()) return null;
 
   const hasResults = matchedCategories.length > 0 || matchedItems.length > 0 || matchedLocations.length > 0;
@@ -31,12 +35,12 @@ export function GlobalSearchResultsComponent({
   return (
     <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-border-gray rounded-xl shadow-xl max-h-96 overflow-y-auto dark:bg-slate-800 dark:border-slate-700">
       {!hasResults ? (
-        <p className="p-4 text-sm text-secondary text-center dark:text-slate-400">Ingen resultater for "{query}"</p>
+        <p className="p-4 text-sm text-secondary text-center dark:text-slate-400">{t('search.noResults', { query })}</p>
       ) : (
         <>
           {matchedCategories.length > 0 && (
             <div className="p-2">
-              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Kategorier</p>
+              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('search.categories')}</p>
               {matchedCategories.map((cat) => (
                 <button
                   key={cat.id}
@@ -54,7 +58,7 @@ export function GlobalSearchResultsComponent({
 
           {matchedLocations.length > 0 && (
             <div className="p-2 border-t border-border-gray dark:border-slate-700">
-              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Lagre &amp; sektioner</p>
+              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('search.locations')}</p>
               {matchedLocations.map((loc) => (
                 <button
                   key={loc.id}
@@ -76,7 +80,7 @@ export function GlobalSearchResultsComponent({
                       ? 'bg-accent/10 text-accent border-accent/30'
                       : 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600'
                   }`}>
-                    {loc.parentLocationId ? 'Sektion' : 'Lager'}
+                    {loc.parentLocationId ? t('locations.section') : t('locations.warehouse')}
                   </span>
                 </button>
               ))}
@@ -85,7 +89,7 @@ export function GlobalSearchResultsComponent({
 
           {matchedItems.length > 0 && (
             <div className="p-2 border-t border-border-gray dark:border-slate-700">
-              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Items</p>
+              <p className="px-2 py-1 text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('search.items')}</p>
               {matchedItems.map((item) => (
                 <button
                   key={item.id}
@@ -101,7 +105,7 @@ export function GlobalSearchResultsComponent({
                       <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                     </div>
                   </div>
-                  <span className={`text-sm px-2 py-0.5 rounded border shrink-0 ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{ITEM_STATUS_LABELS[item.itemStatus]}</span>
+                  <span className={`text-sm px-2 py-0.5 rounded border shrink-0 ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{td(`datalayer:status.${item.itemStatus}`)}</span>
                 </button>
               ))}
             </div>

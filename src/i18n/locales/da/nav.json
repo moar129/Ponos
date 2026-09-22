@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Forside",
+    "dashboard": "Dashboard",
+    "tasks": "Opgaver",
+    "statistics": "Statistik",
+    "datalayer": "Datalager",
+    "news": "Nyheder",
+    "messages": "Beskeder",
+    "login": "Log ind",
+    "signup": "Opret konto"
+  },
+  "user": {
+    "fallbackName": "Bruger",
+    "noRole": "Ingen rolle",
+    "viewProfile": "Se profil",
+    "logout": "Log ud",
+    "loggingOut": "Logger ud..."
+  },
+  "menu": {
+    "open": "Åbn menu",
+    "close": "Luk menu"
+  },
+  "footer": {
+    "tagline": "Vi skaber overblik, samarbejde og bæredygtige resultater – sammen.",
+    "navigationLabel": "Footer navigation",
+    "navigation": "Navigation",
+    "aboutLabel": "Om Ponos",
+    "aboutHeading": "Om Ponos",
+    "about": "Om os",
+    "contact": "Kontakt",
+    "help": "Hjælp & support",
+    "copyright": "© {{year}} Ponos. Alle rettigheder forbeholdes."
+  },
+  "banner": {
+    "pendingRequest": "Din anmodning om medlemskab af <strong>{{organisation}}</strong> afventer godkendelse.",
+    "invited": "Du er blevet inviteret til at blive medlem af <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Se invitation",
+    "noOrganisation": "Du er ikke medlem af en organisation endnu.",
+    "createOrRequest": "Opret eller anmod om medlemskab"
+  }
+}

@@ -1,5 +1,6 @@
 // components/messages/createGroupComponent.tsx
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { X, Search, Loader2, Users } from 'lucide-react';
 import { useGetOrganisationMembersQuery } from '../../store/apis/roleApi';
 import { useGetMyProfileQuery } from '../../store/apis/profileApi';
@@ -16,6 +17,7 @@ function getInitials(firstName: string, lastName: string): string {
 }
 
 export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroupComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const { data: members = [], isLoading: isLoadingMembers } = useGetOrganisationMembersQuery();
   const { data: myProfile } = useGetMyProfileQuery();
   const [createGroupConversation, { isLoading: isCreating }] = useCreateGroupConversationMutation();
@@ -60,11 +62,11 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setFormError('Gruppen skal have et navn.');
+      setFormError(t('group.nameRequired'));
       return;
     }
     if (selectedIds.size < 2) {
-      setFormError('Vælg mindst to kontakter til gruppen.');
+      setFormError(t('group.atLeastTwo'));
       return;
     }
 
@@ -80,7 +82,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
       const message =
         err && typeof err === 'object' && 'error' in err
           ? (err as { error: string }).error
-          : 'Kunne ikke oprette gruppen. Prøv igen.';
+          : t('group.createFailed');
       setFormError(message);
     }
   };
@@ -91,14 +93,14 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-accent" />
-            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Opret gruppe</h2>
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('group.create')}</h2>
           </div>
           <button
             type="button"
             onClick={resetAndClose}
             className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-            title="Luk"
-            aria-label="Luk modal"
+            title={t('common:close')}
+            aria-label={t('common:close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -112,10 +114,10 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
           )}
 
           <div>
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">Gruppenavn</label>
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">{t('group.nameLabel')}</label>
             <input
               type="text"
-              placeholder="F.eks. Elektriker eller Frontend"
+              placeholder={t('group.namePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -124,9 +126,9 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Deltagere</label>
+              <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('group.participants')}</label>
               {selectedIds.size > 0 && (
-                <span className="text-xs text-accent">{selectedIds.size} valgt</span>
+                <span className="text-xs text-accent">{t('common:selectedCount', { count: selectedIds.size })}</span>
               )}
             </div>
 
@@ -134,7 +136,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
               <input
                 type="text"
-                placeholder="Søg efter kontakt eller rolle..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -147,7 +149,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
                   <Loader2 className="w-5 h-5 animate-spin text-accent" />
                 </div>
               ) : filteredContacts.length === 0 ? (
-                <p className="text-sm text-secondary text-center py-6 dark:text-slate-400">Ingen kontakter matcher din søgning.</p>
+                <p className="text-sm text-secondary text-center py-6 dark:text-slate-400">{t('noContactsMatch')}</p>
               ) : (
                 <ul className="divide-y divide-border-gray dark:divide-slate-700">
                   {filteredContacts.map((contact) => {
@@ -172,7 +174,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
                             <p className="text-sm text-primary truncate dark:text-slate-100">
                               {contact.firstName} {contact.lastName}
                             </p>
-                            <p className="text-xs text-secondary truncate dark:text-slate-400">{contact.roleName ?? 'Ingen rolle'}</p>
+                            <p className="text-xs text-secondary truncate dark:text-slate-400">{contact.roleName ?? t('noRole')}</p>
                           </div>
                         </label>
                       </li>
@@ -186,7 +188,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
 
         <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
           <button type="button" onClick={resetAndClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-            Annullér
+            {t('common:cancel')}
           </button>
           <button
             type="button"
@@ -195,7 +197,7 @@ export function CreateGroupComponent({ isOpen, onClose, onCreated }: CreateGroup
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-            Opret gruppe
+            {t('group.create')}
           </button>
         </div>
       </div>

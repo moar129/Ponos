@@ -2,6 +2,7 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, UpdateRoleInput } from '../../types/role/roleType'
+import { mapDbError } from './apiError'
 
 // Navnet på organisationens indbyggede administrator-rolle. Sammen med
 // ADMIN_PRIVILEGE (privilegeApi.ts) bruges det til at låse netop denne
@@ -25,7 +26,7 @@ async function getActiveOrganisationId(): Promise<{ organisationId: string } | {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-        return { error: 'Du skal være logget ind for at udføre denne handling.' }
+        return { error: 'errors:loginRequiredForAction' }
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -39,7 +40,7 @@ async function getActiveOrganisationId(): Promise<{ organisationId: string } | {
     }
 
     if (!profile?.active_organisation_id) {
-        return { error: 'Du er ikke medlem af en organisation.' }
+        return { error: 'errors:noOrganisation' }
     }
 
     return { organisationId: profile.active_organisation_id }
@@ -57,7 +58,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                     .order('name')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data ?? [] }
@@ -74,7 +75,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
                 }
 
                 const org = await getActiveOrganisationId()
@@ -94,10 +95,10 @@ export const roleApi = supabaseApi.injectEndpoints({
                     // med dette navn i organisationen.
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Der findes allerede en rolle med dette navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data }
@@ -114,7 +115,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const trimmed = name.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Rollens navn skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
                 }
 
                 const { error } = await supabase
@@ -125,10 +126,10 @@ export const roleApi = supabaseApi.injectEndpoints({
                 if (error) {
                     if (error.code === '23505') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Der findes allerede en rolle med dette navn.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -149,7 +150,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.from('roles').delete().eq('id', roleId)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -181,7 +182,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                     .eq('organisation_id', org.organisationId)
 
                 if (membershipsError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: membershipsError.message } }
+                    return { error: mapDbError(membershipsError) }
                 }
 
                 if (!memberships || memberships.length === 0) {
@@ -201,10 +202,10 @@ export const roleApi = supabaseApi.injectEndpoints({
                 ])
 
                 if (profilesError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                    return { error: mapDbError(profilesError) }
                 }
                 if (rolesError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: rolesError.message } }
+                    return { error: mapDbError(rolesError) }
                 }
 
                 const roleIdByUserId = new Map(memberships.map((m) => [m.user_id, m.role_id]))
@@ -255,10 +256,10 @@ export const roleApi = supabaseApi.injectEndpoints({
                     // admin-privilegiet uden selv at være admin (escalation-guard).
                     if (error.code === '42501') {
                         return {
-                            error: { status: 'CUSTOM_ERROR', error: 'Du har ikke rettigheder til at tildele denne rolle.' },
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.assignRole' },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -279,7 +280,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.rpc('remove_member', { p_user_id: userId })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -301,7 +302,7 @@ export const roleApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.rpc('transfer_admin_role', { p_new_admin_user_id: userId })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }

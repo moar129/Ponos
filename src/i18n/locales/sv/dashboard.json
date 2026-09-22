@@ -1,0 +1,86 @@
+{
+  "title": "Instrumentpanel",
+  "welcome": "Välkommen.",
+  "welcomeNamed": "Välkommen, {{name}}.",
+  "tabs": {
+    "overview": "Översikt",
+    "organisation": "Organisation",
+    "administration": "Administration"
+  },
+  "overview": {
+    "noOrganisation": "Du har ännu ingen aktiv organisation, så det finns inget att visa här.",
+    "goToOrganisation": "Gå till Organisation",
+    "shortcuts": "Genvägar",
+    "datalayerDescription": "Se och hantera artiklar, kategorier och platser.",
+    "tasksDescription": "Se och hantera organisationens uppgifter.",
+    "statisticsDescription": "Se insikter och statistik för organisationen."
+  },
+  "myTasks": {
+    "title": "Mina uppgifter",
+    "goToTasks": "Gå till uppgifter",
+    "loading": "Laddar dina uppgifter...",
+    "empty": "Du är ännu inte anmäld till några uppgifter.",
+    "endsOn": "Slutar {{date}}"
+  },
+  "notifications": {
+    "title": "Aviseringar",
+    "seeAll": "Se alla",
+    "all": "Alla",
+    "unread": "Olästa",
+    "loading": "Laddar aviseringar...",
+    "emptyUnread": "Inga olästa aviseringar.",
+    "empty": "Inga aviseringar ännu.",
+    "justNow": "Just nu",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} tim",
+    "daysAgo": "{{count}} d"
+  },
+  "news": {
+    "title": "Nyheter",
+    "seeAll": "Se alla nyheter",
+    "loading": "Laddar nyheter...",
+    "empty": "Det finns inga nyheter ännu.",
+    "previous": "Föregående nyhet",
+    "next": "Nästa nyhet",
+    "showNews": "Visa nyhet {{number}}"
+  },
+  "comingSoon": "Kommer snart",
+  "administration": {
+    "noPrivileges": "Du har inte behörighet till några administrativa funktioner.",
+    "panels": {
+      "roles": "Roller och behörigheter",
+      "members": "Medlemmar och rolltilldelning",
+      "invitations": "Inbjudningar",
+      "membershipRequests": "Medlemsansökningar",
+      "organisation": "Organisation",
+      "taskApprovals": "Godkännanden av uppgifter",
+      "completedTasks": "Avslutade uppgifter"
+    }
+  },
+  "completedTasks": {
+    "loading": "Laddar avslutade uppgifter...",
+    "empty": "Inga uppgifter har ännu markerats som avslutade.",
+    "searchPlaceholder": "Sök på titel eller beskrivning...",
+    "allPriorities": "Alla prioriteringar",
+    "noMatch": "Inga uppgifter matchar sökningen eller filtret.",
+    "noDescription": "Ingen beskrivning.",
+    "room": "Rum:",
+    "noRoom": "Inget rum",
+    "period": "Period:",
+    "unknown": "Okänt",
+    "assignees": "Tilldelad:",
+    "noAssignees": "Ingen tilldelad",
+    "materials": "Material:",
+    "noMaterials": "Inget material",
+    "edit": "Redigera",
+    "reopen": "Återöppna",
+    "reopening": "Återöppnar..."
+  },
+  "statistics": {
+    "noOrganisation": "Du har ännu ingen aktiv organisation, så det finns ingen statistik att visa.",
+    "goToOrganisation": "Gå till Organisation",
+    "title": "Statistik",
+    "description": "Nyckeltal och insikter beräknade utifrån organisationens artiklar och uppgifter.",
+    "loading": "Laddar..."
+  }
+}

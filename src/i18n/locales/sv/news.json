@@ -1,0 +1,40 @@
+{
+  "create": "Skapa nyhet",
+  "edit": "Redigera nyhet",
+  "delete": "Radera nyhet",
+  "notFound": "Nyheten hittades inte.",
+  "backToNews": "Tillbaka till nyheter",
+  "readFullArticle": "Läs hela artikeln",
+  "form": {
+    "descriptionPlaceholder": "Skriv nyheten här...",
+    "tooLong": "Beskrivningen är för lång (max {{max}} tecken).",
+    "urlHint": "Visas som \"Läs hela artikeln\" längst ner i nyheten.",
+    "pictureUrlLabel": "Bild-URL (valfritt)",
+    "urlLabel": "Länk till originalartikeln (valfritt)"
+  },
+  "editor": {
+    "typography": "Typografi",
+    "normal": "Normal",
+    "heading": "Rubrik",
+    "subheading": "Underrubrik",
+    "bold": "Fet",
+    "italic": "Kursiv",
+    "underline": "Understruken",
+    "bulletList": "Punktlista",
+    "numberedList": "Numrerad lista",
+    "outdent": "Minska indrag",
+    "indent": "Öka indrag",
+    "insertLink": "Infoga länk",
+    "linkTextPlaceholder": "Text som visas",
+    "linkTextLabel": "Länkens text",
+    "linkUrlLabel": "Länkens adress",
+    "insert": "Infoga",
+    "cancelLink": "Avbryt länken"
+  },
+  "heading": "Nyheter",
+  "loading": "Laddar nyheter...",
+  "loadingOne": "Laddar nyheten...",
+  "noAccess": "Du har inte åtkomst till nyheterna i den här organisationen.",
+  "empty": "Det finns inga nyheter ännu.",
+  "deleteTitle": "Radera \"{{name}}\"?"
+}

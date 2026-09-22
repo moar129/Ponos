@@ -1,0 +1,26 @@
+{
+  "title": "Notifikationer",
+  "empty": "Ingen notifikationer endnu.",
+  "markAllRead": "Markér alle som læst",
+  "seeAll": "Se alle notifikationer",
+  "hide": "Skjul notifikation",
+  "unhide": "Vis i klokken igen",
+  "deletePermanently": "Slet permanent",
+  "deleteAriaLabel": "Slet notifikation permanent",
+  "hidden": "Skjult",
+  "justNow": "Lige nu",
+  "emptyCategory": "Ingen {{category}}.",
+  "category": {
+    "messages": "Beskeder",
+    "tasks": "Opgaver",
+    "news": "Nyheder"
+  },
+  "type": {
+    "message": "Ny besked",
+    "task_assigned": "Du er blevet tildelt en opgave",
+    "task_updated": "En opgave er opdateret",
+    "task_completed": "En opgave er afsluttet",
+    "task_approved": "Din opgave er godkendt",
+    "task_rejected": "Færdigmelding afvist"
+  }
+}

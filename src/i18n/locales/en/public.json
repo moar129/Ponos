@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "See what you have.",
+    "line2": "See who does what.",
+    "line3": "See what your data tells you.",
+    "intro": "Ponos brings your organisation's resources, tasks and insight together in one place. So you always know what you have, who is responsible, and what the numbers are telling you."
+  },
+  "cta": {
+    "signup": "Sign up",
+    "login": "Log in",
+    "title": "Get started with Ponos",
+    "body": "Create an account, then start your own organisation or join one that already exists."
+  },
+  "problem": {
+    "title": "The overview is scattered",
+    "body": "Organisations handle data and work across separate systems. That makes even simple questions hard to answer: which resources do we already have? Where are they? Who is responsible for the task?"
+  },
+  "features": {
+    "title": "Three questions, one place",
+    "intro": "Ponos is built around the three questions every organisation should be able to answer about itself.",
+    "datalayer": {
+      "label": "Data layer",
+      "question": "What do we have?",
+      "description": "Register your resources with quantity, category, status and location. That way you can always see what you have, and where it is."
+    },
+    "tasks": {
+      "label": "Tasks",
+      "question": "Who does what?",
+      "description": "Every task has an owner, participants, a status and the items it uses. The work is connected to the resources it actually draws on."
+    },
+    "statistics": {
+      "label": "Statistics",
+      "question": "What does our data tell us?",
+      "description": "The numbers are calculated from what you have already registered. No manual entry, and no figures that are out of date the moment they are written down."
+    }
+  },
+  "flow": {
+    "title": "Data that gets used again",
+    "body": "Ponos is not an archive. What you register in one place is used again in the next step. An item in the Data layer is the same item a task draws on, and the same one that counts in the statistics.",
+    "steps": {
+      "data": "Data",
+      "people": "People",
+      "tasks": "Tasks",
+      "insight": "Insight"
+    },
+    "quote": "Instead of <em>\"we're missing something, so buy new\"</em> Ponos invites <em>\"we're missing something, so let's see what we already have\"</em>."
+  },
+  "partner": {
+    "title": "About the project",
+    "intro": "Ponos is being developed for <strong>Corolab</strong>, a member-driven non-profit in Roskilde, Denmark. Since 2016 they have brought companies, educational institutions and public organisations together around projects none of them could carry alone. As they put it themselves: \"In partnerships we make a difference for society and for your organisation.\"",
+    "figures": {
+      "events": "Events",
+      "participants": "Participants",
+      "projects": "Projects",
+      "funding": "Raised in funding"
+    },
+    "figuresSource": "Corolab's own figures, taken from corolab.dk in September 2026.",
+    "areasIntro": "The work is divided into six areas, spanning from making the connections to raising the funding and providing the facilities.",
+    "areas": {
+      "meet": "Professional events and networking.",
+      "pilots": "Joint initiatives started together with the members.",
+      "fund": "Funding through members, foundations and public pools.",
+      "creation": "Projects developed across sectors.",
+      "lab": "Access to test environments, facilities and shared resources.",
+      "branding": "Visibility for the members' social responsibility."
+    },
+    "testEnvironment": "It is the test environments under CO-lab that Ponos is being tried out in. Here the platform has to handle a real organisation's resources and tasks rather than made-up examples.",
+    "moreAboutProject": "More about the project",
+    "readMoreCorolab": "Read more at corolab.dk"
+  },
+  "helpStep": "Step {{step}}",
+  "about": {
+    "heroTitle": "About us",
+    "heroDescription": "We build Ponos so an organisation can answer three fairly simple questions without having to ask around first.",
+    "whyTitle": "Why we care",
+    "why1": "Most organisations do know what they have. It is just in a spreadsheet belonging to one person, an email thread belonging to another, and in the head of a third. As long as everyone is at work, it goes fine. It starts to hurt when someone is on holiday, changes job, or everything has to be put together in a hurry.",
+    "why2": "And it hurts in very concrete ways. Things get bought that you already own, because nobody managed to find out where they were. Tasks are left undone, because it was never said out loud who had them. And when someone asks how it is going, the answer is a guess.",
+    "why3": "Ponos brings the three things together in one place: what you have, who does what, and what the numbers say. Not three systems side by side - the same data seen from three angles.",
+    "principlesTitle": "How we think",
+    "principlesIntro": "Four things have decided most of the choices along the way.",
+    "principles": {
+      "multiTenant": {
+        "name": "Built for more than one",
+        "description": "Ponos is made for organisations in the plural. The first one to use it is an example - not the answer key. Nothing is built around one particular way of doing things."
+      },
+      "writeOnce": {
+        "name": "Write it once",
+        "description": "What you enter in one place gets used again. A thing in the Data layer is the same thing a task draws on - not a copy you have to remember to correct in two places."
+      },
+      "autoNumbers": {
+        "name": "The numbers take care of themselves",
+        "description": "The statistics are calculated from what you have already entered. There are no fields for typing in key figures, and therefore no figures that are out of date before they are finished being written."
+      },
+      "yourData": {
+        "name": "Your data is yours",
+        "description": "Each organisation sees only its own, and that is decided in the database - not by hiding a button. Who may change what is something you decide yourselves with roles."
+      }
+    },
+    "behindTitle": "Who is behind it",
+    "behind1": "Ponos is being created as a student project together with <strong>Corolab</strong>, a member-driven non-profit in Roskilde, Denmark, which since 2016 has brought companies, educational institutions and public organisations together around projects none of them could carry alone.",
+    "behind2": "That means the platform is tried out on a real organisation's things and tasks instead of on examples we made up ourselves. That is the kind of use that reveals whether something holds up: the cases nobody anticipated, and the places where reality does not quite fit the fields.",
+    "behind3": "If you have questions about the project, or would like to try Ponos out where you are, we would love to hear from you.",
+    "writeToUs": "Write to us"
+  },
+  "contact": {
+    "heroTitle": "Contact",
+    "heroDescription": "Do you have a question, have you run into something that is not working, or would you just like to know more? Then do get in touch.",
+    "howToReach": "How to reach us",
+    "emailLabel": "Email",
+    "locationLabel": "We are based in",
+    "sendMail": "Send an email",
+    "topicsTitle": "You are welcome to write about",
+    "topics": {
+      "fit": "What Ponos can do, and whether it suits you",
+      "bug": "Something that is not working as it should",
+      "collaboration": "Collaboration, or wanting to try it out where you are"
+    },
+    "responseNote": "We read along on weekdays and reply as quickly as we can. Please mention which organisation it is about, and what you were doing - then we do not have to ask about that first.",
+    "helpHintBefore": "Just need to know how something works? Then the answer may already be on",
+    "helpHintLink": "Help & support"
+  },
+  "help": {
+    "heroTitle": "Help & support",
+    "heroDescription": "Have you just got started, or have you got stuck? Then this is the first place to look.",
+    "startTitle": "Getting started",
+    "startIntro": "Three steps from a new account to something that is actually in the system.",
+    "steps": {
+      "account": {
+        "title": "Create an account",
+        "description": "You need an email and a password. The account is your own and follows you, however many organisations you end up being part of."
+      },
+      "organisation": {
+        "title": "Join an organisation",
+        "description": "Create your own, or ask to join one that already exists. Almost everything in Ponos belongs to an organisation, so this step cannot be skipped."
+      },
+      "data": {
+        "title": "Add your things",
+        "description": "Enter your resources into the Data layer, and create the first tasks. The statistics start calculating by themselves as soon as there is something to calculate on."
+      }
+    },
+    "faqTitle": "What we get asked most often",
+    "faq": {
+      "nothingToSee": {
+        "q": "I am logged in, but there is nothing to see",
+        "a1": "That is what most people wonder about first - and there is nothing wrong. Tasks, Statistics, Data layer and News belong to an organisation, so until you have an active organisation there is nothing to show. That is also why the links are not in the menu yet.",
+        "a2": "You move on under <orgLink>Dashboard → Organisation</orgLink>, where you either create your own or ask to join one that exists."
+      },
+      "becomeMember": {
+        "q": "How do I become a member of an organisation?",
+        "a1": "Go to Dashboard → Organisation, choose \"Request membership\" and find the organisation in the list. An administrator there has to say yes before you are in.",
+        "a2": "While you wait, a banner appears at the top of the page. If an administrator invites you instead, the invitation shows up in the same place - then you just press accept."
+      },
+      "multipleOrgs": {
+        "q": "Can I be part of several organisations?",
+        "a1": "Yes. You just have one <b>active</b> at a time, and everything you see - tasks, things, statistics, roles - belongs to that one.",
+        "a2": "You switch under \"My organisations\". Remember that your permissions can differ from place to place: you can easily be an administrator in one and an ordinary member in another."
+      },
+      "cannotEdit": {
+        "q": "Why can't I create or change anything?",
+        "a1": "Because your role is not allowed to yet. Permissions are set per organisation, and if you are not allowed to do something we do not show the button at all - rather than letting you find out when you press it.",
+        "a2": "If you need to be able to do more, it is your administrator who can give you a role with the right permissions."
+      },
+      "invite": {
+        "q": "How do I invite a new user?",
+        "a1": "Dashboard → Administration → Invitations, and then the person's email. It requires that you are allowed to invite.",
+        "a2": "The person must already have a Ponos account with exactly that email - we do not send invitations to an email that does not exist in the system. If they have no account yet, they have to create one first, and then you can invite them afterwards."
+      },
+      "leaveOrDelete": {
+        "q": "How do I leave or delete an organisation?",
+        "a1": "Both are under \"My organisations\". If you leave one while you are part of several, one of the others automatically becomes your new active one.",
+        "a2": "If you are the only administrator, you cannot simply leave - there would be nobody left to run it. Give someone else the administrator role first. And <b>deleting</b> an organisation removes everything it contains, for the other members too. Only an administrator can do that."
+      },
+      "editProfile": {
+        "q": "How do I change my name or profile picture?",
+        "a1": "On <profileLink>your profile</profileLink>. Name, description, picture and password you can change yourself. Email and role you cannot - the role belongs to the organisation, and an administrator is the one who gives it to you."
+      },
+      "forgotPassword": {
+        "q": "I have forgotten my password",
+        "a1": "Click <resetLink>\"Forgot your password?\"</resetLink> on the login page. You confirm the account with your email and your name and choose a new password right away.",
+        "a2": "If that gives you trouble, write to <mailLink>{{email}}</mailLink> and we will help you back in."
+      }
+    },
+    "noAnswer": "Didn't find the answer? <contactLink>Write to us</contactLink> - please say what you were doing, and what happened instead."
+  },
+  "notFound": {
+    "title": "This page does not exist",
+    "body": "There is nothing at that address. Either a letter slipped in somewhere along the way, or the page has moved since the link was made.",
+    "toDashboard": "Go to the dashboard",
+    "toHome": "Go to the home page",
+    "toHelp": "Help & support"
+  }
+}

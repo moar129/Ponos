@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
+import { readableError } from '../../ErrorMessage';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
@@ -27,22 +29,8 @@ import {
     useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 
-function readableError(err: unknown): string | null {
-    if (!err) return null;
-
-    if (
-        typeof err === 'object' &&
-        err !== null &&
-        'error' in err &&
-        typeof err.error === 'string'
-    ) {
-        return err.error;
-    }
-
-    return 'Noget gik galt. Prøv igen.';
-}
-
 export function MyTasksPage() {
+    const { t } = useTranslation(['tasks', 'common'])
     const [searchParams, setSearchParams] = useSearchParams();
 
     const openTaskId =
@@ -238,7 +226,7 @@ export function MyTasksPage() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="font-semibold">
-                    Henter dine opgaver...
+                    {t('mine.loading')}
                 </p>
             </div>
         );
@@ -248,7 +236,7 @@ export function MyTasksPage() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="text-secondary dark:text-slate-400">
-                    Du har ikke adgang til at se dine opgaver i denne organisation.
+                    {t('mine.noAccess')}
                 </p>
             </div>
         );
@@ -315,7 +303,7 @@ export function MyTasksPage() {
                         }
                     >
                         <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">
-                            Opret rum
+                            {t('page.createRoom')}
                         </h3>
 
                         <input
@@ -324,7 +312,7 @@ export function MyTasksPage() {
                             onChange={(e) =>
                                 setNewRoomName(e.target.value)
                             }
-                            placeholder="Skriv navn på rum"
+                            placeholder={t('page.roomNamePlaceholder')}
                             className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -343,7 +331,7 @@ export function MyTasksPage() {
                                 }}
                                 className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >
-                                Annullér
+                                {t('common:cancel')}
                             </button>
 
                             <button
@@ -351,7 +339,7 @@ export function MyTasksPage() {
                                 onClick={handleAddRoom}
                                 className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                             >
-                                Gem rum
+                                {t('page.saveRoom')}
                             </button>
                         </div>
                     </div>
@@ -371,11 +359,11 @@ export function MyTasksPage() {
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-primary dark:text-slate-100">
-                            Mine opgaver
+                            {t('mine.heading')}
                         </h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
-                            Få overblik over de opgaver, du selv er tilknyttet.
+                            {t('mine.subtitle')}
                         </p>
                     </div>
 
@@ -387,7 +375,7 @@ export function MyTasksPage() {
                             }
                             className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
                         >
-                            Opret opgave
+                            {t('page.createTask')}
                         </button>
                     )}
                 </div>
@@ -400,11 +388,11 @@ export function MyTasksPage() {
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="font-bold text-lg text-primary dark:text-slate-100">
-                                    Mine tilgængelige opgaver
+                                    {t('mine.availableHeading')}
                                 </h2>
 
                                 <p className="text-sm text-secondary mt-1 dark:text-slate-400">
-                                    Opgaver, du er tilknyttet og kan arbejde på.
+                                    {t('mine.availableSubtitle')}
                                 </p>
                             </div>
 
@@ -433,7 +421,7 @@ export function MyTasksPage() {
 
                             {myAvailableTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Du har ingen tilgængelige opgaver
+                                    {t('mine.noAvailableTasks')}
                                 </p>
                             )}
 
@@ -445,11 +433,11 @@ export function MyTasksPage() {
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="font-bold text-lg text-primary dark:text-slate-100">
-                                    Mine opgaver i gang
+                                    {t('mine.inProgressHeading')}
                                 </h2>
 
                                 <p className="text-sm text-secondary mt-1 dark:text-slate-400">
-                                    Opgaver, du allerede er i gang med.
+                                    {t('mine.inProgressSubtitle')}
                                 </p>
                             </div>
 
@@ -478,7 +466,7 @@ export function MyTasksPage() {
 
                             {myInProgressTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Du har ingen opgaver i gang
+                                    {t('mine.noTasksInProgress')}
                                 </p>
                             )}
 

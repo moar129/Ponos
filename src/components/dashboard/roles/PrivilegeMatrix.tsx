@@ -1,4 +1,7 @@
 // src/components/dashboard/roles/PrivilegeMatrix.tsx
+import { readableError } from '../../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../../i18n/config'
 import { useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { ADMIN_ROLE_NAME, MEMBER_ROLE_NAME, useCreateRoleMutation, useGetOrganisationRolesQuery } from '../../../store/apis/roleApi'
@@ -15,13 +18,6 @@ import { MatrixRow } from './MatrixRow'
 import { roleColumnLockState } from './privilegeLocking'
 import type { Privilege } from '../../../types/role/roleType'
 
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 const KNOWN_NAMES = new Set(KNOWN_PRIVILEGES.map((p) => p.name))
 
@@ -40,6 +36,8 @@ interface RowGroupDef {
 // AdministrationTab allerede har bekræftet manage_roles-privilegiet -
 // selve adgangen håndhæves stadig server-side af RLS.
 export function PrivilegeMatrix() {
+    const { t } = useTranslation(['roles', 'common', 'errors'])
+    const td = asDynamic(t)
     const { data: roles, isLoading: loadingRoles, error: rolesError } = useGetOrganisationRolesQuery()
     const { data: privileges, isLoading: loadingPrivileges, error: privilegesError } = useGetOrganisationPrivilegesQuery()
     const [createRole, { isLoading: creatingRole, error: createRoleError }] = useCreateRoleMutation()
@@ -86,15 +84,15 @@ export function PrivilegeMatrix() {
         const groups: RowGroupDef[] = [
             { heading: null, rows: [ADMIN_PRIVILEGE] },
             ...PRIVILEGE_DOMAINS.map((domain) => ({
-                heading: domain.domainLabel,
+                heading: td(`roles:domain.${domain.domain}`),
                 rows: Object.values(domain.ops) as string[],
             })),
         ]
         if (customPrivilegeNames.length > 0) {
-            groups.push({ heading: 'Andet', rows: customPrivilegeNames })
+            groups.push({ heading: t('other'), rows: customPrivilegeNames })
         }
         return groups
-    }, [customPrivilegeNames])
+    }, [customPrivilegeNames, t, td])
 
     const memberRole = roles?.find((r) => r.name === MEMBER_ROLE_NAME)
     const memberPrivilegeNames = (privileges ?? [])
@@ -105,7 +103,7 @@ export function PrivilegeMatrix() {
         e.preventDefault()
 
         if (!newRoleName.trim()) {
-            setValidationError('Rollens navn skal udfyldes.')
+            setValidationError(t('errors:required.roleName'))
             return
         }
         setValidationError(null)
@@ -131,13 +129,13 @@ export function PrivilegeMatrix() {
         <div>
             <form onSubmit={handleCreateRole} className="flex flex-wrap items-end gap-3 mb-4">
                 <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="new-role-name">Ny rolle</label>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="new-role-name">{t('matrix.newRoleLabel')}</label>
                     <input
                         id="new-role-name"
                         type="text"
                         value={newRoleName}
                         onChange={(e) => setNewRoleName(e.target.value)}
-                        placeholder="Fx Frivilligkoordinator"
+                        placeholder={t('matrix.newRolePlaceholder')}
                         className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     />
                 </div>
@@ -146,7 +144,7 @@ export function PrivilegeMatrix() {
                     disabled={creatingRole}
                     className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {creatingRole ? 'Opretter...' : 'Opret rolle'}
+                    {creatingRole ? t('matrix.creatingRole') : t('matrix.createRole')}
                 </button>
             </form>
 
@@ -157,9 +155,9 @@ export function PrivilegeMatrix() {
             )}
 
             {loadingRoles || loadingPrivileges ? (
-                <p className="text-secondary dark:text-slate-400">Indlæser roller...</p>
+                <p className="text-secondary dark:text-slate-400">{t('matrix.loading')}</p>
             ) : !roles || roles.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Organisationen har endnu ingen roller.</p>
+                <p className="text-secondary dark:text-slate-400">{t('matrix.noRoles')}</p>
             ) : (
                 <div className="overflow-x-auto rounded-md border border-border-gray dark:border-slate-700">
                     {/* table-fixed + colgroup giver faste, deterministiske
@@ -179,17 +177,17 @@ export function PrivilegeMatrix() {
                         <thead>
                             <tr>
                                 <th className="sticky top-0 left-0 z-20 bg-white dark:bg-slate-800 border-b border-r border-border-gray dark:border-slate-700 px-3 py-2 text-left font-medium text-secondary dark:text-slate-400">
-                                    Privilegie
+                                    {t('matrix.privilegeColumn')}
                                 </th>
                                 {roles.map((role) => {
                                     const hasAdmin = byRoleAndName.get(role.id)?.has(ADMIN_PRIVILEGE) ?? false
-                                    const { locked, reason } = roleColumnLockState(role, hasAdmin)
+                                    const { locked, reasonKey } = roleColumnLockState(role, hasAdmin)
                                     return (
                                         <th
                                             key={role.id}
                                             className="sticky top-0 z-10 bg-white dark:bg-slate-800 border-b border-r border-border-gray dark:border-slate-700 px-2 py-2 text-left font-normal"
                                         >
-                                            <RoleColumnHeader role={role} isLocked={locked} lockedReason={reason} />
+                                            <RoleColumnHeader role={role} isLocked={locked} lockedReason={reasonKey ? td(reasonKey) : null} />
                                         </th>
                                     )
                                 })}

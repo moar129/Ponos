@@ -1,0 +1,26 @@
+{
+  "title": "Ilmoitukset",
+  "empty": "Ei vielä ilmoituksia.",
+  "markAllRead": "Merkitse kaikki luetuiksi",
+  "seeAll": "Näytä kaikki ilmoitukset",
+  "hide": "Piilota ilmoitus",
+  "unhide": "Näytä taas kellossa",
+  "deletePermanently": "Poista pysyvästi",
+  "deleteAriaLabel": "Poista ilmoitus pysyvästi",
+  "hidden": "Piilotettu",
+  "justNow": "Juuri nyt",
+  "emptyCategory": "Ei {{category}}.",
+  "category": {
+    "messages": "Viestit",
+    "tasks": "Tehtävät",
+    "news": "Uutiset"
+  },
+  "type": {
+    "message": "Uusi viesti",
+    "task_assigned": "Sinulle on määrätty tehtävä",
+    "task_updated": "Tehtävää on päivitetty",
+    "task_completed": "Tehtävä on saatu valmiiksi",
+    "task_approved": "Tehtäväsi on hyväksytty",
+    "task_rejected": "Valmiiksi ilmoittaminen hylätty"
+  }
+}

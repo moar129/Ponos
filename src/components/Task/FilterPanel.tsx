@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next'
 import type { ETaskPriority, ETaskStatus } from '../../types/Task/Task';
 
 export type TaskSortOption =
@@ -28,6 +29,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onSortChange,
   onReset,
 }) => {
+  const { t } = useTranslation(['tasks', 'common'])
+
   if (!isOpen) return null;
 
   const toggleStatus = (status: ETaskStatus) => {
@@ -45,10 +48,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
           {/* STATUS */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
-              Status
-            </h3>
-
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('common:status')}</h3>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
                 <input
@@ -57,7 +57,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   onChange={() => toggleStatus('Started')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
-                Tilgængelig
+                {t('status.Started')}
               </label>
 
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
@@ -67,7 +67,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   onChange={() => toggleStatus('InProgress')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
-                I gang
+                {t('status.InProgress')}
               </label>
 
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
@@ -77,17 +77,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   onChange={() => toggleStatus('Completed')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
-                Færdig
+                {t('status.Completed')}
               </label>
             </div>
           </div>
 
           {/* PRIORITET */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
-              Prioritet
-            </h3>
-
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('fields.priority')}</h3>
             <select
               value={selectedPriority}
               onChange={(event) =>
@@ -97,20 +94,17 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
-              <option value="All">Alle</option>
-              <option value="Low">Lav</option>
-              <option value="Medium">Mellem</option>
-              <option value="High">Høj</option>
-              <option value="Critical">Kritisk</option>
+              <option value="All">{t('filter.all')}</option>
+              <option value="Low">{t('priority.Low')}</option>
+              <option value="Medium">{t('priority.Medium')}</option>
+              <option value="High">{t('priority.High')}</option>
+              <option value="Critical">{t('priority.Critical')}</option>
             </select>
           </div>
 
           {/* SORTÉR */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
-              Sortér efter
-            </h3>
-
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('filter.sortBy')}</h3>
             <select
               value={sortBy}
               onChange={(event) =>
@@ -120,10 +114,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
-              <option value="newest">Nyeste</option>
-              <option value="oldest">Ældste</option>
-              <option value="priority">Prioritet</option>
-              <option value="deadline">Deadline</option>
+              <option value="newest">{t('filter.sortNewest')}</option>
+              <option value="oldest">{t('filter.sortOldest')}</option>
+              <option value="priority">{t('filter.sortPriority')}</option>
+              <option value="deadline">{t('filter.sortDeadline')}</option>
             </select>
           </div>
 
@@ -134,7 +128,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               onClick={onReset}
               className="text-sm text-secondary hover:text-primary border border-border-gray rounded-lg px-4 py-2 hover:border-secondary transition dark:text-slate-400 dark:hover:text-slate-100 dark:border-slate-700"
             >
-              Nulstil
+              {t('common:reset')}
             </button>
           </div>
 

@@ -1,6 +1,7 @@
 // src/pages/public/ContactPage.tsx
 import { Mail, MapPin, Send, HelpCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHero } from '../../components/public/PageHero'
 import { LandingCta } from '../../components/landing/LandingCta'
 import { CONTACT_EMAIL, CONTACT_LOCATION } from '../../lib/contact'
@@ -10,25 +11,23 @@ import { CONTACT_EMAIL, CONTACT_LOCATION } from '../../lib/contact'
 // den ikke kan levere, er værre end en adresse man kan skrive til.
 // Oplysningerne kommer fra lib/contact.ts, som footeren også bruger.
 
-const TOPICS = [
-    'Hvad Ponos kan, og om det passer til jer',
-    'Noget der ikke virker, som det skal',
-    'Samarbejde, eller lyst til at prøve det af hos jer',
-]
+const TOPIC_KEYS = ['fit', 'bug', 'collaboration'] as const
 
 export default function ContactPage() {
+    const { t } = useTranslation('public')
+
     return (
         <>
             <PageHero
-                title="Kontakt"
-                description="Har du et spørgsmål, er du stødt på noget, der driller, eller vil du bare høre mere? Så skriv endelig."
+                title={t('contact.heroTitle')}
+                description={t('contact.heroDescription')}
             />
 
             <section className="bg-white dark:bg-slate-900">
                 <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-4xl">
                         <div>
-                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">Sådan får du fat i os</h2>
+                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">{t('contact.howToReach')}</h2>
 
                             {/* Samme to ikoner som footerens kontaktkolonne, så det
                                 er tydeligt at det er de samme oplysninger. */}
@@ -36,7 +35,7 @@ export default function ContactPage() {
                                 <li className="flex items-start gap-3">
                                     <Mail className="w-5 h-5 text-secondary dark:text-slate-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm text-secondary dark:text-slate-400">Email</p>
+                                        <p className="text-sm text-secondary dark:text-slate-400">{t('contact.emailLabel')}</p>
                                         <a
                                             href={`mailto:${CONTACT_EMAIL}`}
                                             className="font-medium text-primary dark:text-slate-100 hover:underline"
@@ -49,7 +48,7 @@ export default function ContactPage() {
                                 <li className="flex items-start gap-3">
                                     <MapPin className="w-5 h-5 text-secondary dark:text-slate-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm text-secondary dark:text-slate-400">Vi holder til i</p>
+                                        <p className="text-sm text-secondary dark:text-slate-400">{t('contact.locationLabel')}</p>
                                         <p className="font-medium text-primary dark:text-slate-100">{CONTACT_LOCATION}</p>
                                     </div>
                                 </li>
@@ -62,29 +61,27 @@ export default function ContactPage() {
                                 className="mt-7 inline-flex items-center justify-center gap-2 bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                             >
                                 <Send className="w-4 h-4 shrink-0" />
-                                Send en mail
+                                {t('contact.sendMail')}
                             </a>
                         </div>
 
                         <div>
-                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">Du må gerne skrive om</h2>
+                            <h2 className="text-xl font-semibold text-primary dark:text-slate-100">{t('contact.topicsTitle')}</h2>
 
                             <ul className="mt-5 space-y-3">
-                                {TOPICS.map((topic) => (
+                                {TOPIC_KEYS.map((topic) => (
                                     <li key={topic} className="flex items-start gap-3 text-secondary dark:text-slate-400">
                                         <span
                                             aria-hidden="true"
                                             className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-2"
                                         />
-                                        <span>{topic}</span>
+                                        <span>{t(`contact.topics.${topic}`)}</span>
                                     </li>
                                 ))}
                             </ul>
 
                             <p className="mt-5 text-secondary dark:text-slate-400">
-                                Vi læser med på hverdage og svarer, så hurtigt vi kan. Skriv gerne,
-                                hvilken organisation det handler om, og hvad du var i gang med - så
-                                slipper vi for at spørge om det først.
+                                {t('contact.responseNote')}
                             </p>
                         </div>
                     </div>
@@ -96,10 +93,9 @@ export default function ContactPage() {
                         <p className="text-primary dark:text-slate-100 flex items-start gap-3">
                             <HelpCircle className="w-5 h-5 shrink-0 mt-0.5 text-accent" />
                             <span>
-                                Skal du bare bruge at vide, hvordan noget virker? Så står svaret måske
-                                allerede på{' '}
+                                {t('contact.helpHintBefore')}{' '}
                                 <Link to="/hjaelp" className="font-medium underline">
-                                    Hjælp &amp; support
+                                    {t('contact.helpHintLink')}
                                 </Link>
                                 .
                             </span>

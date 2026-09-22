@@ -1,5 +1,6 @@
 import { supabaseApi } from './supabaseApi';
 import { supabase } from '../../lib/supabase';
+import { mapDbError, mapPermissionError } from './apiError';
 import type {
   DataLayerCat,
   DataLayerItem,
@@ -34,20 +35,10 @@ function flattenCategoryIds(cat: DataLayerCat): { type: 'Category' | 'Item'; id:
   ];
 }
 
-// 42501 = RLS afviste - bruger uden det relevante privilegie
-// (create/update/delete_datalayer, Fase 3) forsøgte at oprette/redigere/
-// slette. Samme mønster som newsApi.ts.
-function mapDatalayerError(error: { code?: string; message: string }, action: string): { status: 'CUSTOM_ERROR'; error: string } {
-  if (error.code === '42501') {
-    return { status: 'CUSTOM_ERROR', error: `Du har ikke rettigheder til at ${action}.` };
-  }
-  return { status: 'CUSTOM_ERROR', error: error.message };
-}
-
 async function getAuthenticatedOrganisationId(): Promise<string> {
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) {
-    throw new Error('Du skal være logget ind for at udføre denne handling.');
+    throw new Error('errors:loginRequiredForAction');
   }
 
   const { data: profileData, error: profileError } = await supabase
@@ -57,7 +48,7 @@ async function getAuthenticatedOrganisationId(): Promise<string> {
     .single();
 
   if (profileError || !profileData?.active_organisation_id) {
-    throw new Error('Kunne ikke hente din organisationstilknytning.');
+    throw new Error('errors:organisationLookupFailed');
   }
 
   return profileData.active_organisation_id;
@@ -76,7 +67,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (catError) {
-            return { error: { status: 'CUSTOM_ERROR', error: catError.message } };
+            return { error: mapDbError(catError) };
           }
 
           const { data: rawItems, error: itemError } = await supabase
@@ -85,7 +76,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (itemError) {
-            return { error: { status: 'CUSTOM_ERROR', error: itemError.message } };
+            return { error: mapDbError(itemError) };
           }
 
           const items: DataLayerItem[] = (rawItems ?? []).map((i) => ({
@@ -103,7 +94,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             data: buildCategoryTree(rawCategories ?? [], items),
           };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved hentning af data' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
 
@@ -136,12 +127,12 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: mapDatalayerError(error, 'oprette kategorien') };
+            return { error: mapPermissionError(error, 'createCategory') };
           }
 
           return { data: data.id };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
@@ -158,7 +149,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
           .eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'redigere kategorien') };
+          return { error: mapPermissionError(error, 'updateCategory') };
         }
 
         return { data: undefined };
@@ -171,7 +162,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('data_layer_categories').delete().eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'slette kategorien') };
+          return { error: mapPermissionError(error, 'deleteCategory') };
         }
 
         return { data: undefined };
@@ -199,12 +190,12 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: mapDatalayerError(error, 'oprette itemet') };
+            return { error: mapPermissionError(error, 'createItem') };
           }
 
           return { data: data.id };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af item' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
@@ -231,12 +222,12 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .select('id');
 
           if (error) {
-            return { error: mapDatalayerError(error, 'oprette items') };
+            return { error: mapPermissionError(error, 'createItems') };
           }
 
           return { data: (data ?? []).map((row) => row.id) };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af items' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
@@ -255,7 +246,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
           .eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'redigere itemet') };
+          return { error: mapPermissionError(error, 'updateItem') };
         }
 
         return { data: undefined };
@@ -268,7 +259,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('data_layer_items').delete().eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'slette itemet') };
+          return { error: mapPermissionError(error, 'deleteItem') };
         }
 
         return { data: undefined };
@@ -287,7 +278,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .eq('organisation_id', organisationId);
 
           if (error) {
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } };
+            return { error: mapDbError(error) };
           }
 
           const locations: ItemLocation[] = (data ?? []).map((loc) => ({
@@ -301,7 +292,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
           return { data: locations };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved hentning af lokationer' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
       providesTags: (result) =>
@@ -331,12 +322,12 @@ export const categoryApi = supabaseApi.injectEndpoints({
             .single();
 
           if (error) {
-            return { error: mapDatalayerError(error, 'oprette lokationen') };
+            return { error: mapPermissionError(error, 'createLocation') };
           }
 
           return { data: data.id };
         } catch (err: any) {
-          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af lokation' } };
+          return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } };
         }
       },
       invalidatesTags: [{ type: 'ItemLocation', id: 'LIST' }],
@@ -347,7 +338,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('locations').update(changes).eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'redigere lokationen') };
+          return { error: mapPermissionError(error, 'updateLocation') };
         }
 
         return { data: undefined };
@@ -363,7 +354,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         const { error } = await supabase.from('locations').delete().eq('id', id);
 
         if (error) {
-          return { error: mapDatalayerError(error, 'slette lokationen') };
+          return { error: mapPermissionError(error, 'deleteLocation') };
         }
 
         return { data: undefined };

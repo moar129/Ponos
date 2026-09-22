@@ -1,38 +1,26 @@
 // src/components/dashboard/MembershipRequestsPanel.tsx
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Check, X } from 'lucide-react'
 import {
     useGetPendingMembershipRequestsQuery,
     useReviewMembershipRequestMutation,
 } from '../../store/apis/membershipApi'
+import { formatDate } from '../../utils/formatDate'
 import type { RequestRowProps, ReviewMembershipRequestInput } from '../../types/membership/membershipType'
 
 // Hvilken række der afventer bekræftelse, og hvad der blev trykket på.
 type PendingDecision = ReviewMembershipRequestInput
 
-// Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
-// komme i lidt forskellige former afhængigt af hvor fejlen opstod.
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('da-DK', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    })
-}
 
 // Se, accepter og afvis medlemsanmodninger, i ét panel under
 // dashboardets Administration-fane (US-65). Panelet mountes kun når
 // AdministrationTab allerede har bekræftet manage_membership_requests-
 // privilegiet - selve adgangen håndhæves stadig server-side af RLS.
 export function MembershipRequestsPanel() {
+    const { t } = useTranslation(['organisation', 'common'])
     const { data: requests, isLoading, error: queryError } = useGetPendingMembershipRequestsQuery()
     const [reviewRequest, { isLoading: submitting, error: mutationError }] = useReviewMembershipRequestMutation()
 
@@ -66,9 +54,9 @@ export function MembershipRequestsPanel() {
             )}
 
             {isLoading ? (
-                <p className="text-secondary dark:text-slate-400">Indlæser anmodninger...</p>
+                <p className="text-secondary dark:text-slate-400">{t('requests.loading')}</p>
             ) : !requests || requests.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Der er ingen ventende anmodninger.</p>
+                <p className="text-secondary dark:text-slate-400">{t('requests.empty')}</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {requests.map((request) => (
@@ -92,6 +80,7 @@ export function MembershipRequestsPanel() {
 // Én anmodning: enten navn/email + de to knapper, eller - hvis netop
 // denne række afventer bekræftelse - en "er du sikker?"-boks.
 function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, onConfirm }: RequestRowProps) {
+    const { t } = useTranslation(['organisation', 'common'])
     const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
 
     return (
@@ -102,7 +91,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                 </p>
                 <p className="text-sm text-secondary dark:text-slate-400">{request.email}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">
-                    Anmodet {formatDate(request.requestedAt)}
+                    {t('requests.requestedOn', { date: formatDate(request.requestedAt) })}
                 </p>
             </div>
 
@@ -110,8 +99,8 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                 <div className="flex flex-wrap items-center gap-3">
                     <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'Accepted'
-                            ? `Er du sikker på, at ${request.firstName} skal optages i organisationen?`
-                            : `Er du sikker på, at anmodningen skal afvises? ${request.firstName} kan anmode igen senere.`}
+                            ? t('requests.confirmAccept', { name: request.firstName })
+                            : t('requests.confirmReject', { name: request.firstName })}
                     </p>
                     <button
                         type="button"
@@ -119,7 +108,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         disabled={submitting}
                         className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
-                        {submitting ? 'Behandler...' : 'Ja'}
+                        {submitting ? t('requests.processing') : t('requests.yes')}
                     </button>
                     <button
                         type="button"
@@ -127,7 +116,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         disabled={submitting}
                         className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
                 </div>
             ) : (
@@ -139,7 +128,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         <Check className="w-4 h-4" />
-                        Accepter
+                        {t('requests.accept')}
                     </button>
                     <button
                         type="button"
@@ -148,7 +137,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
                         <X className="w-4 h-4" />
-                        Afvis
+                        {t('requests.reject')}
                     </button>
                 </div>
             )}

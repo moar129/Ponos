@@ -1,0 +1,40 @@
+{
+  "create": "Créer une actualité",
+  "edit": "Modifier l'actualité",
+  "delete": "Supprimer l'actualité",
+  "notFound": "L'actualité est introuvable.",
+  "backToNews": "Retour aux actualités",
+  "readFullArticle": "Lire l'article complet",
+  "form": {
+    "descriptionPlaceholder": "Rédigez l'actualité ici...",
+    "tooLong": "La description est trop longue (max. {{max}} caractères).",
+    "urlHint": "Affiché comme \"Lire l'article complet\" en bas de l'actualité.",
+    "pictureUrlLabel": "URL de l'image (facultatif)",
+    "urlLabel": "Lien vers l'article d'origine (facultatif)"
+  },
+  "editor": {
+    "typography": "Typographie",
+    "normal": "Normal",
+    "heading": "Titre",
+    "subheading": "Sous-titre",
+    "bold": "Gras",
+    "italic": "Italique",
+    "underline": "Souligné",
+    "bulletList": "Liste à puces",
+    "numberedList": "Liste numérotée",
+    "outdent": "Diminuer le retrait",
+    "indent": "Augmenter le retrait",
+    "insertLink": "Insérer un lien",
+    "linkTextPlaceholder": "Texte à afficher",
+    "linkTextLabel": "Texte du lien",
+    "linkUrlLabel": "Adresse du lien",
+    "insert": "Insérer",
+    "cancelLink": "Annuler le lien"
+  },
+  "heading": "Actualités",
+  "loading": "Chargement des actualités...",
+  "loadingOne": "Chargement de l'actualité...",
+  "noAccess": "Vous n'avez pas accès aux actualités de cette organisation.",
+  "empty": "Il n'y a pas encore d'actualités.",
+  "deleteTitle": "Supprimer \"{{name}}\" ?"
+}

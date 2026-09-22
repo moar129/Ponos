@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Ładowanie członków...",
+    "empty": "Organizacja nie ma jeszcze członków.",
+    "searchPlaceholder": "Szukaj według nazwiska lub e-maila...",
+    "noMatch": "Żaden członek nie pasuje do wyszukiwania.",
+    "ownRow": "Nie możesz zmienić własnego wiersza",
+    "adminLockedTitle": "Tylko administrator może zmienić rolę innego administratora",
+    "locked": "Zablokowane",
+    "remove": "Usuń",
+    "confirmRemove": "Czy na pewno chcesz usunąć {{name}} z organizacji?",
+    "removing": "Usuwanie...",
+    "confirmRemoveYes": "Tak, usuń",
+    "confirmTransfer": "Przekazać rolę administratora użytkownikowi {{name}}? Natychmiast stracisz własny dostęp administratora i staniesz się zwykłym członkiem.",
+    "transferring": "Przekazywanie...",
+    "confirmTransferYes": "Tak, przekaż administrację"
+  },
+  "invitations": {
+    "emailLabel": "Zaproś przez e-mail",
+    "send": "Wyślij zaproszenie",
+    "sending": "Wysyłanie...",
+    "pendingHeading": "Oczekujące zaproszenia",
+    "loading": "Ładowanie zaproszeń...",
+    "empty": "Brak oczekujących zaproszeń.",
+    "areYouSure": "Czy na pewno?",
+    "cancelInvitation": "Wycofaj",
+    "cancelling": "Wycofywanie...",
+    "confirmCancelYes": "Tak, wycofaj",
+    "undo": "Jednak nie",
+    "emailPlaceholder": "imie@przyklad.pl",
+    "invitedOn": "Zaproszony",
+    "invitedOnDate": "Zaproszony {{date}}"
+  },
+  "requests": {
+    "loading": "Ładowanie wniosków...",
+    "empty": "Nie ma oczekujących wniosków.",
+    "confirmAccept": "Czy na pewno {{name}} ma zostać przyjęty do organizacji?",
+    "confirmReject": "Czy na pewno wniosek ma zostać odrzucony? {{name}} może złożyć go ponownie później.",
+    "processing": "Przetwarzanie...",
+    "yes": "Tak",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "requestedOn": "Złożono {{date}}"
+  },
+  "admin": {
+    "loading": "Ładowanie organizacji...",
+    "loadFailed": "Nie udało się wczytać organizacji.",
+    "saved": "Dane organizacji zostały zapisane.",
+    "nameLabel": "Nazwa",
+    "memberCount": "Liczba członków",
+    "edit": "Edytuj organizację",
+    "delete": "Usuń organizację",
+    "deleteWarning": "To trwale usuwa \"{{name}}\" i nie można tego cofnąć.",
+    "typeNameToConfirm": "Wpisz nazwę organizacji ({{name}}), aby potwierdzić",
+    "ackDataLoss": "Rozumiem, że wszystkie dane organizacji (zadania, elementy, kategorie, lokalizacje i statystyki) zostaną trwale usunięte i nie będzie można ich odzyskać.",
+    "ackMemberImpact": "Rozumiem, że pozostałych {{count}} członków natychmiast straci dostęp.",
+    "deleting": "Usuwanie...",
+    "deletePermanently": "Usuń trwale",
+    "deleted": "\"{{name}}\" została usunięta.",
+    "deletedNewActive": "\"{{name}}\" została usunięta. Twoją aktywną organizacją jest teraz \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" została usunięta. Nie masz już aktywnej organizacji."
+  },
+  "picker": {
+    "searchPlaceholder": "Szukaj organizacji...",
+    "empty": "Nie ma organizacji do wyboru.",
+    "noMatch": "Żadna organizacja nie pasuje do Twojego wyszukiwania."
+  },
+  "loading": "Ładowanie organizacji...",
+  "noActiveTitle": "Brak aktywnej organizacji",
+  "noActiveWithMemberships": "Jesteś członkiem jednej lub kilku organizacji, ale żadna nie jest teraz aktywna - wybierz jedną w sekcji \"Moje organizacje\" albo utwórz lub zgłoś nową.",
+  "noActiveWithout": "Nie jesteś jeszcze członkiem żadnej organizacji. Utwórz nową organizację lub złóż wniosek o członkostwo w istniejącej.",
+  "tabs": {
+    "create": "Utwórz organizację",
+    "request": "Złóż wniosek o członkostwo",
+    "memberships": "Moje organizacje",
+    "invitations": "Zaproszenia",
+    "details": "Organizacja"
+  },
+  "create": {
+    "nameLabel": "Nazwa organizacji",
+    "submit": "Utwórz organizację",
+    "submitting": "Tworzenie...",
+    "created": "Organizacja \"{{name}}\" została utworzona i jest teraz Twoją aktywną organizacją."
+  },
+  "request": {
+    "pending": "Twój wniosek o członkostwo został wysłany i czeka na zatwierdzenie przez administrację organizacji.",
+    "chooseLabel": "Wybierz organizację",
+    "submit": "Wyślij wniosek",
+    "submitting": "Wysyłanie wniosku...",
+    "noneAvailable": "Nie ma innych organizacji, do których można złożyć wniosek o członkostwo."
+  },
+  "details": {
+    "administrator": "Administrator",
+    "noRole": "Nie przydzielono roli",
+    "memberCount": "Liczba członków"
+  },
+  "myInvitations": {
+    "loading": "Ładowanie zaproszeń...",
+    "empty": "Nie masz oczekujących zaproszeń.",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "confirmAccept": "Czy na pewno chcesz zostać członkiem {{name}}?",
+    "confirmReject": "Czy na pewno zaproszenie ma zostać odrzucone?",
+    "processing": "Przetwarzanie...",
+    "yes": "Tak",
+    "invitedOn": "Zaproszony",
+    "invitedOnDate": "Zaproszony {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Ładowanie Twoich organizacji...",
+    "empty": "Nie jesteś członkiem żadnej organizacji.",
+    "active": "Aktywna",
+    "makeActive": "Ustaw jako aktywną",
+    "switching": "Przełączanie...",
+    "areYouSure": "Czy na pewno?",
+    "leave": "Opuść",
+    "leaving": "Opuszczanie...",
+    "confirmLeaveYes": "Tak, opuść",
+    "left": "Opuściłeś \"{{name}}\".",
+    "leftNewActive": "Opuściłeś \"{{name}}\". Twoją aktywną organizacją jest teraz \"{{newActive}}\".",
+    "leftNoActive": "Opuściłeś \"{{name}}\". Nie masz już aktywnej organizacji."
+  },
+  "genericLoading": "Ładowanie..."
+}

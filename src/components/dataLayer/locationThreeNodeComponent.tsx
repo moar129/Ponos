@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { LocationTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
 import { ChevronRight, ChevronDown, MapPin, Boxes, Plus, Pencil, Trash2 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export function LocationTreeNode({
   isExpanded,
   onToggleExpand,
 }: LocationTreeNodeProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const hasChildren = isWarehouse && childSections.length > 0;
   const isSelected = selectedLocationId === location.id;
 
@@ -68,8 +70,8 @@ export function LocationTreeNode({
                 onEditLocation(location);
               }}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Rediger"
-              aria-label="Rediger lokation"
+              title={t('common:edit')}
+              aria-label={t('common:edit')}
             >
               <Pencil className="w-3.5 h-3.5" />
             </button>
@@ -83,8 +85,8 @@ export function LocationTreeNode({
                 onAddSection(location.id);
               }}
               className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 dark:hover:bg-slate-700 dark:text-slate-400"
-              title="Tilføj sektion"
-              aria-label="Tilføj sektion"
+              title={t('locations.addSection')}
+              aria-label={t('locations.addSection')}
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -98,8 +100,8 @@ export function LocationTreeNode({
                 onDeleteLocation(location);
               }}
               className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-              title="Slet"
-              aria-label="Slet lokation"
+              title={t('common:delete')}
+              aria-label={t('common:delete')}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

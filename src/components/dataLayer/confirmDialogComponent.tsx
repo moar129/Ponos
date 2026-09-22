@@ -1,4 +1,5 @@
 import { AlertTriangle, Loader2, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next'
 import type { ConfirmDialogComponentProps } from '../../types/dataLayer/datalayerTypes';
 
 
@@ -6,11 +7,12 @@ export function ConfirmDialogComponent({
   isOpen,
   title,
   message,
-  confirmLabel = 'Slet',
+  confirmLabel,
   isLoading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   if (!isOpen) return null;
 
   return (
@@ -27,14 +29,14 @@ export function ConfirmDialogComponent({
             <h2 className="text-base font-semibold text-primary dark:text-slate-100">{title}</h2>
             <p className="text-sm text-secondary mt-1 dark:text-slate-400">{message}</p>
           </div>
-          <button type="button" onClick={onCancel} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk dialog">
+          <button type="button" onClick={onCancel} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title={t('close')} aria-label={t('common:closeDialog')}>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
           <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-            Annullér
+            {t('common:cancel')}
           </button>
           <button
             type="button"
@@ -43,7 +45,7 @@ export function ConfirmDialogComponent({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-60"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {confirmLabel}
+            {confirmLabel ?? t('common:delete')}
           </button>
         </div>
       </div>

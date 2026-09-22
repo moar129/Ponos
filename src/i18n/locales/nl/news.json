@@ -1,0 +1,40 @@
+{
+  "create": "Nieuwsbericht aanmaken",
+  "edit": "Nieuwsbericht bewerken",
+  "delete": "Nieuwsbericht verwijderen",
+  "notFound": "Het nieuwsbericht is niet gevonden.",
+  "backToNews": "Terug naar nieuws",
+  "readFullArticle": "Lees het hele artikel",
+  "form": {
+    "descriptionPlaceholder": "Schrijf het nieuwsbericht hier...",
+    "tooLong": "De beschrijving is te lang (max. {{max}} tekens).",
+    "urlHint": "Wordt onderaan het nieuwsbericht getoond als \"Lees het hele artikel\".",
+    "pictureUrlLabel": "Afbeeldings-URL (optioneel)",
+    "urlLabel": "Link naar het originele artikel (optioneel)"
+  },
+  "editor": {
+    "typography": "Typografie",
+    "normal": "Normaal",
+    "heading": "Kop",
+    "subheading": "Subkop",
+    "bold": "Vet",
+    "italic": "Cursief",
+    "underline": "Onderstreept",
+    "bulletList": "Opsomming",
+    "numberedList": "Genummerde lijst",
+    "outdent": "Inspringing verkleinen",
+    "indent": "Inspringing vergroten",
+    "insertLink": "Link invoegen",
+    "linkTextPlaceholder": "Weer te geven tekst",
+    "linkTextLabel": "Tekst van de link",
+    "linkUrlLabel": "Adres van de link",
+    "insert": "Invoegen",
+    "cancelLink": "Link annuleren"
+  },
+  "heading": "Nieuws",
+  "loading": "Nieuws wordt geladen...",
+  "loadingOne": "Nieuwsbericht wordt geladen...",
+  "noAccess": "Je hebt geen toegang tot het nieuws van deze organisatie.",
+  "empty": "Er is nog geen nieuws.",
+  "deleteTitle": "\"{{name}}\" verwijderen?"
+}

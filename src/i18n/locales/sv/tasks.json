@@ -1,0 +1,134 @@
+{
+  "status": {
+    "Started": "Tillgänglig",
+    "InProgress": "Pågår",
+    "Completed": "Klar"
+  },
+  "priority": {
+    "Low": "Låg",
+    "Medium": "Medel",
+    "High": "Hög",
+    "Critical": "Kritisk"
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beskrivning",
+    "room": "Rum",
+    "priority": "Prioritet",
+    "maxAssignees": "Antal personer",
+    "startDate": "Startdatum",
+    "endDate": "Slutdatum"
+  },
+  "page": {
+    "subtitle": "Få överblick över arbetet som ska utföras.",
+    "createTask": "Skapa uppgift",
+    "noAvailableTasks": "Inga tillgängliga uppgifter",
+    "noTasksInProgress": "Inga pågående uppgifter",
+    "roomNamePlaceholder": "Skriv namn på rummet",
+    "saveRoom": "Spara rummet",
+    "loading": "Hämtar uppgifter...",
+    "noAccess": "Du har inte åtkomst till uppgifterna i den här organisationen.",
+    "heading": "Uppgifter",
+    "createRoom": "Skapa rum",
+    "availableHeading": "Tillgängliga uppgifter",
+    "inProgressHeading": "Pågår"
+  },
+  "mine": {
+    "loading": "Hämtar dina uppgifter...",
+    "noAccess": "Du har inte åtkomst till att se dina uppgifter i den här organisationen.",
+    "heading": "Mina uppgifter",
+    "subtitle": "Få en överblick över de uppgifter du själv är kopplad till.",
+    "availableHeading": "Mina tillgängliga uppgifter",
+    "availableSubtitle": "Uppgifter du är kopplad till och kan arbeta på.",
+    "noAvailableTasks": "Du har inga tillgängliga uppgifter",
+    "inProgressHeading": "Mina pågående uppgifter",
+    "inProgressSubtitle": "Uppgifter du redan arbetar med.",
+    "noTasksInProgress": "Du har inga pågående uppgifter"
+  },
+  "rooms": {
+    "create": "Skapa rum",
+    "moreActions": "Fler åtgärder",
+    "edit": "Redigera rum",
+    "deleteOne": "Radera ett rum",
+    "choose": "Välj rum",
+    "noRoom": "Utan rum"
+  },
+  "create": {
+    "heading": "Skapa uppgift",
+    "titlePlaceholder": "Uppgiftens titel",
+    "descriptionPlaceholder": "Uppgiftens beskrivning",
+    "requiresApproval": "Uppgiften kräver godkännande",
+    "noApproval": "Uppgiften kräver inte godkännande"
+  },
+  "edit": {
+    "heading": "Redigera uppgift",
+    "endBeforeStart": "Slutdatumet får inte vara före startdatumet.",
+    "deleteTask": "Radera uppgift",
+    "confirmDelete": "Är du säker på att du vill radera \"{{name}}\"? Detta går inte att ångra."
+  },
+  "priorityNone": "Ingen prioritet",
+  "assignees": {
+    "noLimit": "Ingen begränsning",
+    "count_one": "{{count}} person",
+    "count_other": "{{count}} personer",
+    "nobodyAssigned": "Ingen har tilldelats ännu.",
+    "unknownUser": "Okänd användare",
+    "selfSigned": "Anmäld av dig själv",
+    "assignedByOther": "Tilldelad av någon annan",
+    "assignedToYou": "Tilldelad dig",
+    "addEmployee": "Lägg till medarbetare",
+    "chooseWho": "Välj vem som ska tilldelas uppgiften",
+    "maxReached": "Maximalt antal medarbetare är nått.",
+    "noFreeSlots": "Det finns inga lediga platser kvar på uppgiften.",
+    "nobodyToAssign": "Det finns inga medarbetare att tilldela.",
+    "signUp": "Anmäl",
+    "signOff": "Avanmäl",
+    "employee": "Medarbetare"
+  },
+  "card": {
+    "noDescription": "Ingen beskrivning",
+    "requiresApproval": "Kräver godkännande",
+    "startWork": "Påbörja arbetet",
+    "awaitingApproval": "Väntar på godkännande",
+    "markDone": "Slutrapportera",
+    "priorityBadge": "Prioritet: {{priority}}",
+    "edit": "Redigera",
+    "details": "Uppgiftsdetaljer",
+    "responsible": "Tilldelad",
+    "start": "Start",
+    "end": "Slut",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Lägg till medarbetare",
+    "created": "Skapad",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Visa filter",
+    "hide": "Dölj filter",
+    "searchPlaceholder": "Sök uppgifter...",
+    "all": "Alla",
+    "sortNewest": "Nyaste",
+    "sortOldest": "Äldsta",
+    "sortPriority": "Prioritet",
+    "sortDeadline": "Deadline",
+    "counts": "{{available}} tillgängliga · {{inProgress}} pågår",
+    "sortBy": "Sortera efter"
+  },
+  "deleteRoom": {
+    "heading": "Radera rum",
+    "intro": "Välj det rum du vill radera.",
+    "tasksInRoom": "Uppgifter i rummet",
+    "chooseTasks": "Välj de uppgifter som också ska raderas.",
+    "noTasks": "Det finns inga uppgifter i det här rummet.",
+    "keptNote": "Uppgifter du inte väljer raderas inte. De flyttas i stället till <b>{{room}}</b>.",
+    "failed": "Rummet kunde inte raderas. Försök igen.",
+    "deleting": "Raderar...",
+    "submit": "Radera rummet"
+  },
+  "editRoom": {
+    "heading": "Redigera rum",
+    "intro": "Välj ett rum och redigera namnet.",
+    "namePlaceholder": "Skriv namn på rummet",
+    "failed": "Rummet kunde inte redigeras. Försök igen."
+  }
+}

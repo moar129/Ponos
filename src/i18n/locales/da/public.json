@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Se hvad I har.",
+    "line2": "Se hvem der gør hvad.",
+    "line3": "Se hvad jeres data fortæller.",
+    "intro": "Ponos samler organisationens ressourcer, opgaver og indsigt ét sted. Så ved I altid hvad I har, hvem der er ansvarlig, og hvad tallene fortæller jer."
+  },
+  "cta": {
+    "signup": "Opret konto",
+    "login": "Log ind",
+    "title": "Kom i gang med Ponos",
+    "body": "Opret en konto, og start din egen organisation eller bliv medlem af en, der allerede findes."
+  },
+  "problem": {
+    "title": "Overblikket ligger spredt",
+    "body": "Organisationer håndterer data og arbejdsopgaver på tværs af separate systemer. Det gør det svært at svare på selv simple spørgsmål: Hvilke ressourcer har vi allerede? Hvor befinder de sig? Hvem er ansvarlig for opgaven?"
+  },
+  "features": {
+    "title": "Tre spørgsmål, ét sted",
+    "intro": "Ponos er bygget op om de tre spørgsmål, enhver organisation skal kunne svare på om sig selv.",
+    "datalayer": {
+      "label": "Datalager",
+      "question": "Hvad har vi?",
+      "description": "Registrér jeres ressourcer med antal, kategori, status og lokation. Så kan I altid se hvad I har, og hvor det står."
+    },
+    "tasks": {
+      "label": "Opgaver",
+      "question": "Hvem gør hvad?",
+      "description": "Hver opgave har en ansvarlig, deltagere, status og de ting den bruger. Arbejdet hænger sammen med de ressourcer, det faktisk trækker på."
+    },
+    "statistics": {
+      "label": "Statistik",
+      "question": "Hvad fortæller vores data?",
+      "description": "Tallene regnes ud fra det, I allerede har registreret. Ingen manuel indtastning, og ingen tal der er forældede i samme øjeblik de er skrevet ned."
+    }
+  },
+  "flow": {
+    "title": "Data der bliver brugt videre",
+    "body": "Ponos er ikke et arkiv. Det I registrerer ét sted, bliver brugt videre i næste led. Et item i Datalageret er det samme item, som en opgave trækker på, og som tæller med i statistikken.",
+    "steps": {
+      "data": "Data",
+      "people": "Mennesker",
+      "tasks": "Opgaver",
+      "insight": "Indsigt"
+    },
+    "quote": "I stedet for <em>\"vi mangler noget, så køb nyt\"</em> lægger Ponos op til <em>\"vi mangler noget, så lad os se hvad vi allerede har\"</em>."
+  },
+  "partner": {
+    "title": "Om projektet",
+    "intro": "Ponos udvikles for <strong>Corolab</strong>, en medlemsdrevet non-profit i Roskilde. Siden 2016 har de samlet virksomheder, uddannelser og offentlige organisationer om projekter, som ingen af dem kunne løfte alene. Som de selv formulerer det: \"I partnerskaber gør vi en forskel for samfundet og din organisation.\"",
+    "figures": {
+      "events": "Arrangementer",
+      "participants": "Deltagere",
+      "projects": "Projekter",
+      "funding": "Rejst i finansiering"
+    },
+    "figuresSource": "Corolabs egne tal, hentet fra corolab.dk i september 2026.",
+    "areasIntro": "Arbejdet er delt op i seks områder, der spænder fra at skabe kontakterne til at skaffe finansieringen og stille faciliteterne til rådighed.",
+    "areas": {
+      "meet": "Faglige arrangementer og netværk.",
+      "pilots": "Fælles initiativer sat i gang sammen med medlemmerne.",
+      "fund": "Finansiering gennem medlemmer, fonde og offentlige puljer.",
+      "creation": "Projekter udviklet på tværs af sektorer.",
+      "lab": "Adgang til testmiljøer, faciliteter og delte ressourcer.",
+      "branding": "Synlighed om medlemmernes samfundsansvar."
+    },
+    "testEnvironment": "Det er testmiljøerne under CO-lab, Ponos bliver afprøvet i. Her skal platformen håndtere en rigtig organisations ressourcer og opgaver frem for konstruerede eksempler.",
+    "moreAboutProject": "Mere om projektet",
+    "readMoreCorolab": "Læs mere på corolab.dk"
+  },
+  "helpStep": "Trin {{step}}",
+  "about": {
+    "heroTitle": "Om os",
+    "heroDescription": "Vi bygger Ponos, så en organisation kan svare på tre ret enkle spørgsmål uden først at skulle spørge sig frem.",
+    "whyTitle": "Hvorfor vi går op i det",
+    "why1": "De fleste organisationer ved godt, hvad de har. Det står bare i et regneark hos én, i en mailtråd hos en anden og i hovedet på en tredje. Så længe alle er på arbejde, går det fint. Det er når nogen holder ferie, skifter job, eller alting skal stables på benene i en fart, at det begynder at gøre ondt.",
+    "why2": "Og det gør ondt på helt konkrete måder. Der bliver købt ting ind, som I allerede ejer, fordi ingen nåede at finde ud af, hvor de stod. Opgaver bliver liggende, fordi det aldrig blev sagt højt, hvem der havde dem. Og når nogen spørger, hvordan det går, bliver svaret et gæt.",
+    "why3": "Ponos samler de tre ting ét sted: hvad I har, hvem der gør hvad, og hvad tallene siger. Ikke tre systemer ved siden af hinanden - de samme data set fra tre sider.",
+    "principlesTitle": "Sådan tænker vi",
+    "principlesIntro": "Fire ting har afgjort de fleste valg undervejs.",
+    "principles": {
+      "multiTenant": {
+        "name": "Bygget til flere end én",
+        "description": "Ponos er lavet til organisationer i flertal. Den første, der bruger den, er et eksempel - ikke facitlisten. Intet er skruet sammen om én bestemt måde at gøre tingene på."
+      },
+      "writeOnce": {
+        "name": "Skriv det én gang",
+        "description": "Det I skriver ind ét sted, bliver brugt videre. En ting i Datalageret er den samme ting, en opgave trækker på - ikke en kopi, I skal huske at rette to steder."
+      },
+      "autoNumbers": {
+        "name": "Tallene passer sig selv",
+        "description": "Statistikken regnes ud fra det, I allerede har skrevet ind. Der er ingen felter til at taste nøgletal i, og derfor heller ingen tal, der er forældede, før de er skrevet færdig."
+      },
+      "yourData": {
+        "name": "Jeres data er jeres",
+        "description": "Hver organisation ser kun sit eget, og det bliver afgjort i databasen - ikke ved at gemme en knap væk. Hvem der må ændre hvad, bestemmer I selv med roller."
+      }
+    },
+    "behindTitle": "Hvem der står bag",
+    "behind1": "Ponos bliver til som et studieprojekt sammen med <strong>Corolab</strong>, en medlemsdrevet non-profit i Roskilde, der siden 2016 har samlet virksomheder, uddannelser og offentlige organisationer om projekter, ingen af dem kunne løfte alene.",
+    "behind2": "Det betyder, at platformen bliver prøvet af på en rigtig organisations ting og opgaver i stedet for på eksempler, vi selv har fundet på. Det er den slags brug, der afslører, om noget holder: de tilfælde ingen havde regnet med, og de steder hvor virkeligheden ikke lige passer ned i felterne.",
+    "behind3": "Har du spørgsmål til projektet, eller kunne du tænke dig at prøve Ponos af hos jer, hører vi gerne fra dig.",
+    "writeToUs": "Skriv til os"
+  },
+  "contact": {
+    "heroTitle": "Kontakt",
+    "heroDescription": "Har du et spørgsmål, er du stødt på noget, der driller, eller vil du bare høre mere? Så skriv endelig.",
+    "howToReach": "Sådan får du fat i os",
+    "emailLabel": "Email",
+    "locationLabel": "Vi holder til i",
+    "sendMail": "Send en mail",
+    "topicsTitle": "Du må gerne skrive om",
+    "topics": {
+      "fit": "Hvad Ponos kan, og om det passer til jer",
+      "bug": "Noget der ikke virker, som det skal",
+      "collaboration": "Samarbejde, eller lyst til at prøve det af hos jer"
+    },
+    "responseNote": "Vi læser med på hverdage og svarer, så hurtigt vi kan. Skriv gerne, hvilken organisation det handler om, og hvad du var i gang med - så slipper vi for at spørge om det først.",
+    "helpHintBefore": "Skal du bare bruge at vide, hvordan noget virker? Så står svaret måske allerede på",
+    "helpHintLink": "Hjælp & support"
+  },
+  "help": {
+    "heroTitle": "Hjælp & support",
+    "heroDescription": "Er du lige kommet i gang, eller er du kørt fast? Så er det her, du skal kigge først.",
+    "startTitle": "Kom godt i gang",
+    "startIntro": "Tre trin fra ny konto til noget, der rent faktisk står i systemet.",
+    "steps": {
+      "account": {
+        "title": "Opret en konto",
+        "description": "Du skal bruge en email og en adgangskode. Kontoen er din egen og følger dig, uanset hvor mange organisationer du ender med at være med i."
+      },
+      "organisation": {
+        "title": "Kom med i en organisation",
+        "description": "Opret din egen, eller bed om at komme med i en, der findes i forvejen. Næsten alt i Ponos hører til en organisation, så det her trin kan ikke springes over."
+      },
+      "data": {
+        "title": "Læg jeres ting ind",
+        "description": "Skriv jeres ressourcer ind i Datalageret, og opret de første opgaver. Statistikken begynder at regne af sig selv, så snart der er noget at regne på."
+      }
+    },
+    "faqTitle": "Det bliver vi oftest spurgt om",
+    "faq": {
+      "nothingToSee": {
+        "q": "Jeg er logget ind, men der er ingenting at se",
+        "a1": "Det er dét, de fleste undrer sig over først - og der er ikke noget galt. Opgaver, Statistik, Datalager og Nyheder hører til en organisation, så indtil du har en aktiv organisation, er der ikke noget at vise. Derfor er linkene heller ikke i menuen endnu.",
+        "a2": "Du kommer videre under <orgLink>Dashboard → Organisation</orgLink>, hvor du enten opretter din egen eller beder om at komme med i en, der findes."
+      },
+      "becomeMember": {
+        "q": "Hvordan bliver jeg medlem af en organisation?",
+        "a1": "Gå til Dashboard → Organisation, vælg \"Anmod om medlemskab\" og find organisationen på listen. En administrator dér skal sige ja, før du er inde.",
+        "a2": "Mens du venter, står der et banner øverst på siden. Bliver du i stedet inviteret af en administrator, dukker invitationen op samme sted - så skal du bare trykke acceptér."
+      },
+      "multipleOrgs": {
+        "q": "Kan jeg være med i flere organisationer?",
+        "a1": "Ja. Du har bare én <b>aktiv</b> ad gangen, og alt hvad du ser - opgaver, ting, statistik, roller - hører til netop den.",
+        "a2": "Du skifter under \"Mine organisationer\". Husk at dine rettigheder kan være forskellige fra sted til sted: du kan sagtens være administrator det ene sted og helt almindeligt medlem det andet."
+      },
+      "cannotEdit": {
+        "q": "Hvorfor kan jeg ikke oprette eller rette noget?",
+        "a1": "Fordi din rolle ikke har lov til det endnu. Rettigheder sættes for hver organisation for sig, og har du ikke lov til noget, viser vi slet ikke knappen - i stedet for at lade dig opdage det, når du trykker.",
+        "a2": "Skal du kunne mere, er det jeres administrator, der kan give dig en rolle med de rigtige rettigheder."
+      },
+      "invite": {
+        "q": "Hvordan inviterer jeg en ny bruger?",
+        "a1": "Dashboard → Administration → Invitationer, og så personens email. Det kræver, at du selv har lov til at invitere.",
+        "a2": "Personen skal have en Ponos-konto med netop den email i forvejen - vi sender ikke invitationer ud til en email, der ikke findes i systemet. Har de ingen konto endnu, må de oprette en først, og så kan du invitere dem bagefter."
+      },
+      "leaveOrDelete": {
+        "q": "Hvordan forlader eller sletter jeg en organisation?",
+        "a1": "Begge dele står under \"Mine organisationer\". Forlader du en, mens du er med i flere, bliver en af de andre automatisk din nye aktive.",
+        "a2": "Er du den eneste administrator, kan du ikke bare gå - så ville der ikke være nogen tilbage til at styre den. Giv en anden administratorrollen først. Og at <b>slette</b> en organisation fjerner alt, hvad den indeholder, også for de andre medlemmer. Det kan kun en administrator."
+      },
+      "editProfile": {
+        "q": "Hvordan retter jeg mit navn eller profilbillede?",
+        "a1": "På <profileLink>din profil</profileLink>. Navn, beskrivelse, billede og adgangskode kan du selv rette. Email og rolle kan du ikke - rollen hører til organisationen, og den er det en administrator, der giver dig."
+      },
+      "forgotPassword": {
+        "q": "Jeg har glemt min adgangskode",
+        "a1": "Klik <resetLink>\"Glemt din adgangskode?\"</resetLink> på loginsiden. Du bekræfter kontoen med din email og dit navn og vælger en ny adgangskode med det samme.",
+        "a2": "Driller det, skriver du til <mailLink>{{email}}</mailLink>, så hjælper vi dig ind igen."
+      }
+    },
+    "noAnswer": "Fandt du ikke svaret? <contactLink>Skriv til os</contactLink> - fortæl gerne, hvad du var i gang med, og hvad der skete i stedet."
+  },
+  "notFound": {
+    "title": "Siden findes ikke",
+    "body": "Der er ikke noget på den adresse. Enten er der smuttet et bogstav undervejs, eller også er siden flyttet, siden linket blev lavet.",
+    "toDashboard": "Gå til dashboardet",
+    "toHome": "Gå til forsiden",
+    "toHelp": "Hjælp & support"
+  }
+}

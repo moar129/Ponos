@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Aflați ce aveți.",
+    "line2": "Aflați cine ce face.",
+    "line3": "Aflați ce spun datele dumneavoastră.",
+    "intro": "Ponos adună resursele, sarcinile și analizele organizației într-un singur loc. Astfel știți mereu ce aveți, cine răspunde de ce și ce spun cifrele."
+  },
+  "cta": {
+    "signup": "Creați cont",
+    "login": "Autentificare",
+    "title": "Începeți cu Ponos",
+    "body": "Creați-vă un cont, apoi porniți-vă propria organizație sau alăturați-vă uneia existente."
+  },
+  "problem": {
+    "title": "Claritatea este împrăștiată",
+    "body": "Organizațiile își gestionează datele și munca în sisteme separate. De aceea este greu să răspundă chiar și la întrebări simple: ce resurse avem deja? Unde se află? Cine răspunde de această sarcină?"
+  },
+  "features": {
+    "title": "Trei întrebări, un singur loc",
+    "intro": "Ponos este construit pe cele trei întrebări la care orice organizație ar trebui să poată răspunde despre sine.",
+    "datalayer": {
+      "label": "Strat de date",
+      "question": "Ce avem?",
+      "description": "Înregistrați-vă resursele cu cantitate, categorie, stare și locație. Astfel vedeți mereu ce aveți și unde se află."
+    },
+    "tasks": {
+      "label": "Sarcini",
+      "question": "Cine ce face?",
+      "description": "Fiecare sarcină are un responsabil, participanți, o stare și articolele pe care le folosește. Munca este legată de resursele pe care le consumă efectiv."
+    },
+    "statistics": {
+      "label": "Statistici",
+      "question": "Ce spun datele noastre?",
+      "description": "Cifrele se calculează din ceea ce ați înregistrat deja. Nicio introducere manuală și niciun număr depășit încă din clipa în care îl scrieți."
+    }
+  },
+  "flow": {
+    "title": "Date care trăiesc mai departe",
+    "body": "Ponos nu este o arhivă. Ceea ce înregistrați într-un loc este refolosit la pasul următor. Un articol din stratul de date este același articol pe care îl folosește o sarcină și care intră în statistici.",
+    "steps": {
+      "data": "Date",
+      "people": "Oameni",
+      "tasks": "Sarcini",
+      "insight": "Perspectivă"
+    },
+    "quote": "În loc de <em>„lipsește ceva, hai să cumpărăm ceva nou”</em>, Ponos vă îndrumă spre <em>„lipsește ceva, hai să vedem ce avem deja”</em>."
+  },
+  "partner": {
+    "title": "Despre proiect",
+    "intro": "Ponos se construiește pentru <strong>Corolab</strong>, o organizație non-profit bazată pe membri din Roskilde, Danemarca. Din 2016 aduce împreună companii, instituții de învățământ și entități publice în jurul unor proiecte pe care niciuna nu le-ar fi putut duce singură la capăt. În propriile cuvinte: „În parteneriate facem o diferență pentru societate și pentru organizația dumneavoastră.”",
+    "figures": {
+      "events": "Evenimente",
+      "participants": "Participanți",
+      "projects": "Proiecte",
+      "funding": "Finanțare atrasă"
+    },
+    "figuresSource": "Date proprii ale Corolab, sursă: corolab.dk, septembrie 2026.",
+    "areasIntro": "Munca se împarte în șase domenii, de la crearea de legături până la atragerea de finanțare și punerea la dispoziție a spațiilor.",
+    "areas": {
+      "meet": "Evenimente profesionale și rețele de contacte.",
+      "pilots": "Inițiative comune lansate împreună cu membrii.",
+      "fund": "Finanțare de la membri, fundații și fonduri publice.",
+      "creation": "Proiecte care traversează sectoare.",
+      "lab": "Acces la medii de testare, spații și resurse comune.",
+      "branding": "Vizibilitate pentru responsabilitatea socială a membrilor."
+    },
+    "testEnvironment": "Ponos este testat în mediile de testare ale CO-lab. Acolo platforma trebuie să gestioneze resursele și sarcinile unei organizații reale, nu exemple inventate.",
+    "moreAboutProject": "Mai multe despre proiect",
+    "readMoreCorolab": "Aflați mai multe pe corolab.dk"
+  },
+  "helpStep": "Pasul {{step}}",
+  "about": {
+    "heroTitle": "Despre noi",
+    "heroDescription": "Construim Ponos pentru ca o organizație să poată răspunde la trei întrebări destul de simple fără să fie nevoită să întrebe mai întâi pe toată lumea.",
+    "whyTitle": "De ce contează pentru noi",
+    "why1": "Cele mai multe organizații știu exact ce au. Doar că se află în tabelul unei persoane, în e-mailurile alteia și în capul unei a treia. Cât timp toți sunt disponibili, merge. Începe să doară când cineva este în concediu, își schimbă locul de muncă sau când totul trebuie adunat în grabă.",
+    "why2": "Și doare foarte concret. Se cumpără ceva ce există deja, pentru că nimeni nu a reușit să afle unde este. Sarcinile rămân nefăcute, pentru că nu s-a spus niciodată ale cui sunt. Iar când cineva întreabă cum stă treaba, răspunsul este o presupunere.",
+    "why3": "Ponos aduce trei lucruri într-un singur loc: ce aveți, cine ce face și ce spun cifrele. Nu trei sisteme alăturate – aceleași date din trei perspective.",
+    "principlesTitle": "Cum gândim",
+    "principlesIntro": "Patru lucruri au decis majoritatea alegerilor pe parcurs.",
+    "principles": {
+      "multiTenant": {
+        "name": "Construit pentru mai multe, nu pentru una",
+        "description": "Ponos este pentru organizații, la plural. Prima care îl folosește este un exemplu – nu un tipar. Nimic nu este construit în jurul unui singur mod concret de a lucra."
+      },
+      "writeOnce": {
+        "name": "Scrieți o singură dată",
+        "description": "Ceea ce introduceți într-un loc este folosit mai departe de sistem. Un articol din stratul de date este același articol pe care îl folosește o sarcină – nu o copie care trebuie corectată în două locuri."
+      },
+      "autoNumbers": {
+        "name": "Cifrele se descurcă singure",
+        "description": "Statisticile se calculează din ceea ce a fost deja introdus. Nu există câmpuri pentru a scrie indicatori de mână, deci nici cifre care se învechesc înainte să termini de scris."
+      },
+      "yourData": {
+        "name": "Datele dumneavoastră sunt ale dumneavoastră",
+        "description": "Fiecare organizație vede doar ce este al ei, iar acest lucru este hotărât de baza de date – nu de un buton ascuns. Cine ce poate schimba stabiliți dumneavoastră prin roluri."
+      }
+    },
+    "behindTitle": "Cine este în spate",
+    "behind1": "Ponos ia naștere ca proiect studențesc în colaborare cu <strong>Corolab</strong>, o organizație non-profit bazată pe membri din Roskilde, Danemarca, care din 2016 aduce împreună companii, instituții de învățământ și entități publice în jurul unor proiecte pe care niciuna nu le-ar fi putut duce singură la capăt.",
+    "behind2": "Asta înseamnă că testăm platforma pe lucrurile și sarcinile unei organizații reale, nu pe exemple inventate de noi. Tocmai o astfel de folosire arată dacă ceva rezistă: cazurile la care nimeni nu s-a gândit și punctele în care realitatea nu încape chiar în câmpuri.",
+    "behind3": "Dacă aveți întrebări despre proiect sau vreți să încercați Ponos la dumneavoastră, ne-ar face plăcere să auzim de la dumneavoastră.",
+    "writeToUs": "Scrieți-ne"
+  },
+  "contact": {
+    "heroTitle": "Contact",
+    "heroDescription": "Aveți o întrebare, ați dat peste ceva care nu funcționează sau vreți doar să aflați mai multe? Atunci scrieți-ne.",
+    "howToReach": "Cum ne găsiți",
+    "emailLabel": "E-mail",
+    "locationLabel": "Unde ne aflăm",
+    "sendMail": "Trimiteți un e-mail",
+    "topicsTitle": "Scrieți-ne liniștit despre",
+    "topics": {
+      "fit": "Ce poate Ponos și dacă vi se potrivește",
+      "bug": "Ceva ce nu funcționează cum ar trebui",
+      "collaboration": "Colaborare sau dorința de a-l încerca la dumneavoastră"
+    },
+    "responseNote": "Citim mesajele în zilele lucrătoare și răspundem cât putem de repede. Scrieți despre ce organizație este vorba și ce făceați – așa nu mai trebuie să întrebăm întâi.",
+    "helpHintBefore": "Vreți doar să știți cum funcționează ceva? Atunci poate găsiți deja răspunsul aici:",
+    "helpHintLink": "Ajutor și asistență"
+  },
+  "help": {
+    "heroTitle": "Ajutor și asistență",
+    "heroDescription": "Tocmai ați început sau v-ați blocat? Atunci uitați-vă mai întâi aici.",
+    "startTitle": "Primii pași",
+    "startIntro": "Trei pași de la un cont nou până la ceva care chiar se află în sistem.",
+    "steps": {
+      "account": {
+        "title": "Creați-vă un cont",
+        "description": "Aveți nevoie de un e-mail și o parolă. Contul este al dumneavoastră și rămâne al dumneavoastră, oricâte organizații ați ajunge să aveți."
+      },
+      "organisation": {
+        "title": "Alăturați-vă unei organizații",
+        "description": "Creați-vă una proprie sau cereți să fiți primit într-una existentă. În Ponos aproape totul aparține unei organizații, deci acest pas nu poate fi sărit."
+      },
+      "data": {
+        "title": "Introduceți lucrurile dumneavoastră",
+        "description": "Introduceți-vă resursele în stratul de date și creați primele sarcini. Statisticile încep să calculeze singure de îndată ce există ce calcula."
+      }
+    },
+    "faqTitle": "Ce ne întreabă lumea cel mai des",
+    "faq": {
+      "nothingToSee": {
+        "q": "Sunt autentificat, dar nu văd nimic",
+        "a1": "De asta se miră majoritatea la început – și nimic nu este stricat. Sarcinile, statisticile, stratul de date și noutățile aparțin unei organizații, deci cât timp nu aveți o organizație activă, nu există nimic de afișat. De aceea nici linkurile nu apar în meniu.",
+        "a2": "De aici mergeți mai departe: <orgLink>Panou → Organizație</orgLink>, unde vă creați una proprie sau cereți să fiți primit într-una existentă."
+      },
+      "becomeMember": {
+        "q": "Cum devin membru al unei organizații?",
+        "a1": "Mergeți la Panou → Organizație, alegeți „Solicită aderarea” și găsiți organizația în listă. Un administrator trebuie să aprobe înainte să intrați.",
+        "a2": "Cât așteptați, sus în pagină apare o bandă informativă. Dacă în schimb vă invită un administrator, invitația apare în același loc – atunci trebuie doar să apăsați accept."
+      },
+      "multipleOrgs": {
+        "q": "Pot fi membru în mai multe organizații?",
+        "a1": "Da. Doar una este <b>activă</b> la un moment dat, iar tot ce vedeți – sarcini, lucruri, statistici, roluri – aparține acelei organizații.",
+        "a2": "Comutați la „Organizațiile mele”. Rețineți că drepturile dumneavoastră pot diferi de la un loc la altul: puteți fi foarte bine administrator într-una și membru obișnuit în alta."
+      },
+      "cannotEdit": {
+        "q": "De ce nu pot crea sau schimba nimic?",
+        "a1": "Pentru că rolul dumneavoastră nu permite încă acest lucru. Drepturile se stabilesc pentru fiecare organizație în parte, iar dacă ceva nu vă este permis, nu afișăm deloc butonul – în loc să aflați abia la clic.",
+        "a2": "Dacă aveți nevoie de mai mult, administratorul dumneavoastră vă poate da un rol cu drepturile potrivite."
+      },
+      "invite": {
+        "q": "Cum invit un utilizator nou?",
+        "a1": "Panou → Administrare → Invitații, apoi e-mailul persoanei. Trebuie să aveți și dreptul de a invita.",
+        "a2": "Persoana trebuie să aibă deja un cont Ponos cu exact acel e-mail – nu trimitem invitații către o adresă care nu există în sistem. Dacă nu are încă un cont, trebuie să și-l creeze mai întâi, iar apoi o puteți invita."
+      },
+      "leaveOrDelete": {
+        "q": "Cum părăsesc o organizație sau cum o șterg?",
+        "a1": "Ambele se găsesc la „Organizațiile mele”. Dacă părăsiți una în timp ce sunteți membru în mai multe, alta devine automat organizația activă.",
+        "a2": "Dacă sunteți singurul administrator, nu puteți pleca pur și simplu – nu ar mai rămâne nimeni la conducere. Transferați mai întâi rolul de administrator altcuiva. Iar <b>ștergerea</b> unei organizații șterge tot ce conține, și pentru ceilalți membri. Asta poate face doar un administrator."
+      },
+      "editProfile": {
+        "q": "Cum îmi schimb numele sau imaginea de profil?",
+        "a1": "În <profileLink>profilul dumneavoastră</profileLink>. Numele, descrierea, imaginea și parola le puteți schimba singur. E-mailul și rolul nu – rolul aparține organizației și vi-l dă un administrator."
+      },
+      "forgotPassword": {
+        "q": "Mi-am uitat parola",
+        "a1": "Apăsați pe <resetLink>„Ați uitat parola?”</resetLink> în pagina de autentificare. Confirmați contul cu e-mailul și numele și alegeți imediat o parolă nouă.",
+        "a2": "Dacă întâmpinați dificultăți, scrieți la <mailLink>{{email}}</mailLink> și vă ajutăm să reveniți."
+      }
+    },
+    "noAnswer": "Nu ați găsit răspunsul? <contactLink>Scrieți-ne</contactLink> – spuneți-ne liniștit ce făceați și ce s-a întâmplat în schimb."
+  },
+  "notFound": {
+    "title": "Această pagină nu există",
+    "body": "Nu se află nimic la această adresă. Ori s-a pierdut o literă pe drum, ori pagina s-a mutat de când a fost făcut linkul.",
+    "toDashboard": "Mergeți la panou",
+    "toHome": "Mergeți la pagina principală",
+    "toHelp": "Ajutor și asistență"
+  }
+}

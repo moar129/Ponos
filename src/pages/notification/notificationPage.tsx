@@ -1,6 +1,9 @@
 // pages/notifications/NotificationsPage.tsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
+import { notificationTitle } from '../../utils/notificationDisplay'
 import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
@@ -10,16 +13,8 @@ import {
   useUndismissNotificationMutation,
 } from '../../store/apis/notificationApi';
 import type { AppNotification } from '../../types/notification/notificationTypes';
+import { formatNumericDateTime } from '../../utils/formatDate';
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString('da-DK', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 // --- Kategorisering af notifikationer ---------------------------------
 // Notifikationstyperne kommer fra e_notification-check-constrainten:
@@ -36,12 +31,6 @@ function getNotificationCategory(type: string): NotificationCategory {
   return 'news';
 }
 
-const CATEGORY_LABELS: Record<NotificationCategory, string> = {
-  messages: 'Beskeder',
-  tasks: 'Opgaver',
-  news: 'Nyheder',
-};
-
 const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
   messages: MessageSquare,
   tasks: ListChecks,
@@ -51,6 +40,8 @@ const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
 const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news'];
 
 export default function NotificationsPage() {
+  const { t } = useTranslation(['notifications', 'common'])
+  const td = asDynamic(t)
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
 
@@ -131,7 +122,7 @@ export default function NotificationsPage() {
       {/* --- Sidebar med kategori-links --- */}
       <nav className="sm:w-48 sm:shrink-0 border-b sm:border-b-0 sm:border-r border-border-gray dark:border-slate-700 p-2 sm:p-3 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-visible">
         <SidebarLink
-          label="Alle"
+          label={t('common:all')}
           isActive={activeCategory === 'all'}
           hasUnread={totalUnread > 0}
           icon={Bell}
@@ -140,7 +131,7 @@ export default function NotificationsPage() {
         {CATEGORY_ORDER.map((category) => (
           <SidebarLink
             key={category}
-            label={CATEGORY_LABELS[category]}
+            label={td(`notifications:category.${category}`)}
             isActive={activeCategory === category}
             hasUnread={unreadCountByCategory[category] > 0}
             icon={CATEGORY_ICONS[category]}
@@ -155,7 +146,7 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
             <h1 className="text-lg font-semibold text-primary dark:text-slate-100">
-              {activeCategory === 'all' ? 'Notifikationer' : CATEGORY_LABELS[activeCategory]}
+              {activeCategory === 'all' ? t('title') : td(`notifications:category.${activeCategory}`)}
             </h1>
           </div>
           {activeUnreadCount > 0 && (
@@ -166,7 +157,7 @@ export default function NotificationsPage() {
               className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
             >
               <CheckCheck className="w-4 h-4" />
-              Markér alle som læst
+              {t('markAllRead')}
             </button>
           )}
         </div>
@@ -184,8 +175,8 @@ export default function NotificationsPage() {
             <Bell className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
             <p className="text-sm">
               {activeCategory === 'all'
-                ? 'Ingen notifikationer endnu.'
-                : `Ingen ${CATEGORY_LABELS[activeCategory].toLowerCase()}.`}
+                ? t('empty')
+                : t('emptyCategory', { category: td(`notifications:category.${activeCategory}`).toLowerCase() })}
             </p>
           </div>
         ) : (
@@ -212,12 +203,10 @@ export default function NotificationsPage() {
                         {!notification.isRead && !isDismissed && (
                           <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                         )}
-                        <p className="text-sm font-medium text-primary truncate dark:text-slate-100">
-                          {notification.title}
-                        </p>
+                        <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{notificationTitle(notification, td)}</p>
                         {isDismissed && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary shrink-0 dark:bg-slate-700 dark:text-slate-400">
-                            Skjult
+                            {t('hidden')}
                           </span>
                         )}
                       </div>
@@ -227,7 +216,7 @@ export default function NotificationsPage() {
                         </p>
                       )}
                       <p className="text-xs text-secondary mt-1.5 dark:text-slate-400">
-                        {formatDate(notification.createdAt)}
+                        {formatNumericDateTime(notification.createdAt)}
                       </p>
                     </button>
 
@@ -237,8 +226,8 @@ export default function NotificationsPage() {
                           type="button"
                           onClick={(e) => handleUndismiss(e, notification.id)}
                           className="p-2 rounded-lg hover:bg-bg-gray text-secondary hover:text-primary transition-colors dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                          title="Vis i klokken igen"
-                          aria-label="Vis i klokken igen"
+                          title={t('unhide')}
+                          aria-label={t('unhide')}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -258,8 +247,8 @@ export default function NotificationsPage() {
                         type="button"
                         onClick={(e) => handleDelete(e, notification.id)}
                         className="p-2 rounded-lg hover:bg-red-500/10 text-secondary hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:text-red-400"
-                        title="Slet permanent"
-                        aria-label="Slet notifikation permanent"
+                        title={t('deletePermanently')}
+                        aria-label={t('deleteAriaLabel')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -1,4 +1,6 @@
 // src/components/dashboard/TaskApprovalsPanel.tsx
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Check, X } from 'lucide-react'
 import {
@@ -6,6 +8,7 @@ import {
     useGetPendingTaskRequestsQuery,
     useRejectTaskRequestMutation,
 } from '../../store/apis/taskApi'
+import { formatDateTime } from '../../utils/formatDate'
 import {
     APPROVE_TASK_PRIVILEGE,
     REJECT_TASK_PRIVILEGE,
@@ -15,21 +18,7 @@ import type { TaskApprovalRowProps } from '../../types/Task/Task'
 
 type PendingDecision = NonNullable<TaskApprovalRowProps['pendingDecision']>
 
-// Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt.
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
-function formatDateTime(value: string): string {
-    const d = new Date(value)
-    const date = d.toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })
-    const time = d.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
-    return `${date} kl. ${time.replace('.', ':')}`
-}
 
 // Godkend/afvis opgaver som brugere har meldt færdige (Administration-
 // fanen). Godkend → anmodning Accepted + opgave Completed. Afvis →
@@ -37,6 +26,7 @@ function formatDateTime(value: string): string {
 // uafhængigt af sit eget privilegie (approve_task/reject_task); selve
 // adgangen håndhæves server-side i RPC'erne.
 export function TaskApprovalsPanel() {
+    const { t } = useTranslation(['roles', 'common', 'errors'])
     const { hasPrivilege: canApprove } = useHasPrivilege(APPROVE_TASK_PRIVILEGE)
     const { hasPrivilege: canReject } = useHasPrivilege(REJECT_TASK_PRIVILEGE)
 
@@ -76,9 +66,9 @@ export function TaskApprovalsPanel() {
             )}
 
             {isLoading ? (
-                <p className="text-secondary dark:text-slate-400">Indlæser opgavegodkendelser...</p>
+                <p className="text-secondary dark:text-slate-400">{t('roles:approvals.loading')}</p>
             ) : !requests || requests.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">Der er ingen opgaver, der afventer godkendelse.</p>
+                <p className="text-secondary dark:text-slate-400">{t('roles:approvals.empty')}</p>
             ) : (
                 <ul className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                     {requests.map((request) => (
@@ -111,13 +101,14 @@ function TaskApprovalRow({
     onCancel,
     onConfirm,
 }: TaskApprovalRowProps) {
+    const { t } = useTranslation(['roles', 'common', 'errors'])
     const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p className="font-medium">{request.taskTitle}</p>
-                <p className="text-sm text-secondary dark:text-slate-400">Meldt færdig af {request.requesterName}</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('roles:approvals.reportedDoneBy', { name: request.requesterName })}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDateTime(request.requestedAt)}</p>
             </div>
 
@@ -125,8 +116,8 @@ function TaskApprovalRow({
                 <div className="flex flex-wrap items-center gap-3">
                     <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'approve'
-                            ? 'Godkend og markér opgaven som afsluttet?'
-                            : 'Afvis anmodningen? Opgaven forbliver i gang.'}
+                            ? t('roles:approvals.confirmApprove')
+                            : t('roles:approvals.confirmReject')}
                     </p>
                     <button
                         type="button"
@@ -134,7 +125,7 @@ function TaskApprovalRow({
                         disabled={submitting}
                         className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
-                        {submitting ? 'Behandler...' : 'Ja'}
+                        {submitting ? t('common:processing') : t('common:yes')}
                     </button>
                     <button
                         type="button"
@@ -142,7 +133,7 @@ function TaskApprovalRow({
                         disabled={submitting}
                         className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                     >
-                        Annuller
+                        {t('common:cancel')}
                     </button>
                 </div>
             ) : (
@@ -155,7 +146,7 @@ function TaskApprovalRow({
                             className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             <Check className="w-4 h-4" />
-                            Godkend
+                            {t('roles:approvals.approve')}
                         </button>
                     )}
                     {canReject && (
@@ -166,7 +157,7 @@ function TaskApprovalRow({
                             className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                         >
                             <X className="w-4 h-4" />
-                            Afvis
+                            {t('roles:approvals.reject')}
                         </button>
                     )}
                 </div>

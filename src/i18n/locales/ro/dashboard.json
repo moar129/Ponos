@@ -1,0 +1,86 @@
+{
+  "title": "Panou",
+  "welcome": "Bine ați venit.",
+  "welcomeNamed": "Bine ați venit, {{name}}.",
+  "tabs": {
+    "overview": "Prezentare generală",
+    "organisation": "Organizație",
+    "administration": "Administrare"
+  },
+  "overview": {
+    "noOrganisation": "Nu aveți încă o organizație activă, deci nu există nimic de afișat aici.",
+    "goToOrganisation": "Mergeți la Organizație",
+    "shortcuts": "Scurtături",
+    "datalayerDescription": "Vizualizați și gestionați articole, categorii și locații.",
+    "tasksDescription": "Vizualizați și gestionați sarcinile organizației.",
+    "statisticsDescription": "Vizualizați analizele și statisticile organizației."
+  },
+  "myTasks": {
+    "title": "Sarcinile mele",
+    "goToTasks": "Mergeți la sarcini",
+    "loading": "Se încarcă sarcinile dumneavoastră...",
+    "empty": "Nu v-ați înscris încă la nicio sarcină.",
+    "endsOn": "Se încheie {{date}}"
+  },
+  "notifications": {
+    "title": "Notificări",
+    "seeAll": "Vezi tot",
+    "all": "Toate",
+    "unread": "Necitite",
+    "loading": "Se încarcă notificările...",
+    "emptyUnread": "Nicio notificare necitită.",
+    "empty": "Încă nicio notificare.",
+    "justNow": "Chiar acum",
+    "minutesAgo": "{{count}} min",
+    "hoursAgo": "{{count}} h",
+    "daysAgo": "{{count}} z"
+  },
+  "news": {
+    "title": "Noutăți",
+    "seeAll": "Vezi toate noutățile",
+    "loading": "Se încarcă noutățile...",
+    "empty": "Încă nicio noutate.",
+    "previous": "Noutatea anterioară",
+    "next": "Noutatea următoare",
+    "showNews": "Afișează noutatea numărul {{number}}"
+  },
+  "comingSoon": "În curând",
+  "administration": {
+    "noPrivileges": "Nu aveți drepturi pentru nicio funcție de administrare.",
+    "panels": {
+      "roles": "Roluri și drepturi",
+      "members": "Membri și atribuirea rolurilor",
+      "invitations": "Invitații",
+      "membershipRequests": "Cereri de aderare",
+      "organisation": "Organizație",
+      "taskApprovals": "Aprobări de sarcini",
+      "completedTasks": "Sarcini finalizate"
+    }
+  },
+  "completedTasks": {
+    "loading": "Se încarcă sarcinile finalizate...",
+    "empty": "Nicio sarcină nu a fost marcată încă drept finalizată.",
+    "searchPlaceholder": "Căutați după titlu sau descriere...",
+    "allPriorities": "Toate prioritățile",
+    "noMatch": "Nicio sarcină nu corespunde căutării sau filtrului.",
+    "noDescription": "Nicio descriere.",
+    "room": "Încăpere:",
+    "noRoom": "Fără încăpere",
+    "period": "Perioadă:",
+    "unknown": "Necunoscut",
+    "assignees": "Atribuită:",
+    "noAssignees": "Nimeni nu este atribuit",
+    "materials": "Materiale:",
+    "noMaterials": "Niciun material",
+    "edit": "Editează",
+    "reopen": "Redeschide",
+    "reopening": "Se redeschide..."
+  },
+  "statistics": {
+    "noOrganisation": "Nu aveți încă o organizație activă, deci nu există statistici de afișat.",
+    "goToOrganisation": "Mergeți la Organizație",
+    "title": "Statistici",
+    "description": "Indicatori și analize calculate din articolele și sarcinile organizației.",
+    "loading": "Se încarcă..."
+  }
+}

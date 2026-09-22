@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Cargando miembros...",
+    "empty": "La organización todavía no tiene miembros.",
+    "searchPlaceholder": "Buscar por nombre o correo...",
+    "noMatch": "Ningún miembro coincide con la búsqueda.",
+    "ownRow": "No puedes modificar tu propia fila",
+    "adminLockedTitle": "Solo un administrador puede cambiar el rol de otro administrador",
+    "locked": "Bloqueado",
+    "remove": "Quitar",
+    "confirmRemove": "¿Seguro que quieres quitar a {{name}} de la organización?",
+    "removing": "Quitando...",
+    "confirmRemoveYes": "Sí, quitar",
+    "confirmTransfer": "¿Traspasar el rol de administrador a {{name}}? Perderás tu propio acceso de administrador de inmediato y pasarás a ser un miembro normal.",
+    "transferring": "Traspasando...",
+    "confirmTransferYes": "Sí, traspasar la administración"
+  },
+  "invitations": {
+    "emailLabel": "Invitar por correo",
+    "send": "Enviar invitación",
+    "sending": "Enviando...",
+    "pendingHeading": "Invitaciones pendientes",
+    "loading": "Cargando invitaciones...",
+    "empty": "No hay invitaciones pendientes.",
+    "areYouSure": "¿Estás seguro?",
+    "cancelInvitation": "Anular",
+    "cancelling": "Anulando...",
+    "confirmCancelYes": "Sí, anular",
+    "undo": "Mejor no",
+    "emailPlaceholder": "nombre@ejemplo.es",
+    "invitedOn": "Invitado",
+    "invitedOnDate": "Invitado el {{date}}"
+  },
+  "requests": {
+    "loading": "Cargando solicitudes...",
+    "empty": "No hay solicitudes pendientes.",
+    "confirmAccept": "¿Seguro que {{name}} debe ser admitido en la organización?",
+    "confirmReject": "¿Seguro que quieres rechazar la solicitud? {{name}} podrá solicitarlo de nuevo más adelante.",
+    "processing": "Procesando...",
+    "yes": "Sí",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "requestedOn": "Solicitado el {{date}}"
+  },
+  "admin": {
+    "loading": "Cargando la organización...",
+    "loadFailed": "No se ha podido cargar la organización.",
+    "saved": "Se han guardado los datos de la organización.",
+    "nameLabel": "Nombre",
+    "memberCount": "Número de miembros",
+    "edit": "Editar organización",
+    "delete": "Eliminar organización",
+    "deleteWarning": "Esto elimina \"{{name}}\" de forma definitiva y no se puede deshacer.",
+    "typeNameToConfirm": "Escribe el nombre de la organización ({{name}}) para confirmar",
+    "ackDataLoss": "Entiendo que todos los datos de la organización (tareas, artículos, categorías, ubicaciones y estadísticas) se eliminan definitivamente y no se pueden recuperar.",
+    "ackMemberImpact": "Entiendo que los otros {{count}} miembros pierden su acceso de inmediato.",
+    "deleting": "Eliminando...",
+    "deletePermanently": "Eliminar definitivamente",
+    "deleted": "\"{{name}}\" se ha eliminado.",
+    "deletedNewActive": "\"{{name}}\" se ha eliminado. Tu organización activa es ahora \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" se ha eliminado. Ya no tienes ninguna organización activa."
+  },
+  "picker": {
+    "searchPlaceholder": "Buscar una organización...",
+    "empty": "No hay organizaciones entre las que elegir.",
+    "noMatch": "Ninguna organización coincide con tu búsqueda."
+  },
+  "loading": "Cargando la organización...",
+  "noActiveTitle": "Sin organización activa",
+  "noActiveWithMemberships": "Eres miembro de una o varias organizaciones, pero ahora mismo no hay ninguna activa: elige una en \"Mis organizaciones\", o crea o solicita una nueva.",
+  "noActiveWithout": "Todavía no eres miembro de ninguna organización. Crea una nueva organización o solicita la membresía de una existente.",
+  "tabs": {
+    "create": "Crear organización",
+    "request": "Solicitar membresía",
+    "memberships": "Mis organizaciones",
+    "invitations": "Invitaciones",
+    "details": "Organización"
+  },
+  "create": {
+    "nameLabel": "Nombre de la organización",
+    "submit": "Crear organización",
+    "submitting": "Creando...",
+    "created": "La organización \"{{name}}\" se ha creado y es ahora tu organización activa."
+  },
+  "request": {
+    "pending": "Tu solicitud de membresía se ha enviado y está pendiente de la aprobación de la administración de la organización.",
+    "chooseLabel": "Elegir organización",
+    "submit": "Enviar solicitud",
+    "submitting": "Enviando la solicitud...",
+    "noneAvailable": "No hay otras organizaciones a las que solicitar la membresía."
+  },
+  "details": {
+    "administrator": "Administrador",
+    "noRole": "Sin rol asignado",
+    "memberCount": "Número de miembros"
+  },
+  "myInvitations": {
+    "loading": "Cargando invitaciones...",
+    "empty": "No tienes invitaciones pendientes.",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "confirmAccept": "¿Seguro que quieres ser miembro de {{name}}?",
+    "confirmReject": "¿Seguro que quieres rechazar la invitación?",
+    "processing": "Procesando...",
+    "yes": "Sí",
+    "invitedOn": "Invitado",
+    "invitedOnDate": "Invitado el {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Cargando tus organizaciones...",
+    "empty": "No eres miembro de ninguna organización.",
+    "active": "Activa",
+    "makeActive": "Hacer activa",
+    "switching": "Cambiando...",
+    "areYouSure": "¿Estás seguro?",
+    "leave": "Salir",
+    "leaving": "Saliendo...",
+    "confirmLeaveYes": "Sí, salir",
+    "left": "Has salido de \"{{name}}\".",
+    "leftNewActive": "Has salido de \"{{name}}\". Tu organización activa es ahora \"{{newActive}}\".",
+    "leftNoActive": "Has salido de \"{{name}}\". Ya no tienes ninguna organización activa."
+  },
+  "genericLoading": "Cargando..."
+}

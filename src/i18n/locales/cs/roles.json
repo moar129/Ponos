@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Role a oprávnění",
+    "organisation": "Organizace",
+    "membership_requests": "Žádosti o členství",
+    "members": "Členové",
+    "invitations": "Pozvánky",
+    "news": "Novinky",
+    "datalayer": "Datová vrstva",
+    "tasks": "Úkoly",
+    "task_approval": "Schvalování úkolů"
+  },
+  "op": {
+    "create": "Vytvořit",
+    "read": "Zobrazit",
+    "update": "Upravit",
+    "delete": "Smazat",
+    "assign": "Přiřadit",
+    "approve": "Schválit",
+    "reject": "Zamítnout"
+  },
+  "privilege": {
+    "admin": "Plná správa (smí vše)"
+  },
+  "other": "Ostatní",
+  "matrix": {
+    "newRoleLabel": "Nová role",
+    "createRole": "Vytvořit roli",
+    "creatingRole": "Vytváření...",
+    "loading": "Načítání rolí...",
+    "noRoles": "Organizace zatím nemá žádné role.",
+    "selectAll": "Vybrat vše",
+    "removeAll": "Odebrat vše",
+    "savePrivilegeName": "Uložit název oprávnění",
+    "renamePrivilege": "Přejmenovat oprávnění",
+    "saveRoleName": "Uložit název role",
+    "renameRole": "Přejmenovat roli",
+    "deleteRole": "Smazat roli",
+    "newRolePlaceholder": "Např. Koordinátor dobrovolníků",
+    "privilegeColumn": "Oprávnění",
+    "removeAllTitle": "Odebere roli {{role}} všechna současná oprávnění (není to skutečný přístup administrátora)",
+    "selectAllTitle": "Dá roli {{role}} všechna současná oprávnění (není to skutečný přístup administrátora)",
+    "renamePrivilegeFor": "Přejmenovat toto oprávnění pro roli {{role}}",
+    "confirmDeleteRole": "Smazat roli „{{name}}“?"
+  },
+  "locked": {
+    "adminHasAll": "Admin už má plný přístup a nelze jej upravovat",
+    "memberFixed": "Pevná součást výchozí role Medlem",
+    "adminOnly": "Oprávnění admin může udělit pouze administrátor",
+    "adminRoleProtected": "Tato role má oprávnění admin, a proto ji nelze přejmenovat ani smazat",
+    "memberRoleProtected": "Výchozí roli Medlem nelze přejmenovat ani smazat",
+    "memberNotExtendable": "Výchozí roli Medlem nelze rozšiřovat"
+  },
+  "approvals": {
+    "loading": "Načítání schvalování úkolů...",
+    "empty": "Žádné úkoly nečekají na schválení.",
+    "confirmApprove": "Schválit a označit úkol jako dokončený?",
+    "confirmReject": "Zamítnout žádost? Úkol zůstane rozpracovaný.",
+    "reportedBy": "Nahlásil jako dokončené:",
+    "approve": "Schválit",
+    "reject": "Zamítnout",
+    "reportedDoneBy": "Jako dokončené nahlásil {{name}}"
+  }
+}

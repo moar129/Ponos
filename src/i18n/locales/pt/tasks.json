@@ -1,0 +1,135 @@
+{
+  "status": {
+    "Started": "Disponível",
+    "InProgress": "Em curso",
+    "Completed": "Concluída"
+  },
+  "priority": {
+    "Low": "Baixa",
+    "Medium": "Média",
+    "High": "Alta",
+    "Critical": "Crítica"
+  },
+  "fields": {
+    "title": "Título",
+    "description": "Descrição",
+    "room": "Sala",
+    "priority": "Prioridade",
+    "maxAssignees": "Número de pessoas",
+    "startDate": "Data de início",
+    "endDate": "Data de fim"
+  },
+  "page": {
+    "subtitle": "Obtenha uma visão geral do trabalho a fazer.",
+    "createTask": "Criar tarefa",
+    "noAvailableTasks": "Não há tarefas disponíveis",
+    "noTasksInProgress": "Não há tarefas em curso",
+    "roomNamePlaceholder": "Escreva o nome da sala",
+    "saveRoom": "Guardar a sala",
+    "loading": "A carregar tarefas...",
+    "noAccess": "Não tem acesso às tarefas desta organização.",
+    "heading": "Tarefas",
+    "createRoom": "Criar sala",
+    "availableHeading": "Tarefas disponíveis",
+    "inProgressHeading": "Em curso"
+  },
+  "mine": {
+    "loading": "A carregar as suas tarefas...",
+    "noAccess": "Não tem acesso para ver as suas tarefas nesta organização.",
+    "heading": "As minhas tarefas",
+    "subtitle": "Obtenha uma visão geral das tarefas às quais está atribuído.",
+    "availableHeading": "As minhas tarefas disponíveis",
+    "availableSubtitle": "Tarefas às quais está atribuído e nas quais pode trabalhar.",
+    "noAvailableTasks": "Não tem tarefas disponíveis",
+    "inProgressHeading": "As minhas tarefas em curso",
+    "inProgressSubtitle": "Tarefas em que já está a trabalhar.",
+    "noTasksInProgress": "Não tem tarefas em curso"
+  },
+  "rooms": {
+    "create": "Criar sala",
+    "moreActions": "Mais ações",
+    "edit": "Editar sala",
+    "deleteOne": "Eliminar uma sala",
+    "choose": "Escolher sala",
+    "noRoom": "Sem sala"
+  },
+  "create": {
+    "heading": "Criar tarefa",
+    "titlePlaceholder": "Título da tarefa",
+    "descriptionPlaceholder": "Descrição da tarefa",
+    "requiresApproval": "A tarefa requer aprovação",
+    "noApproval": "A tarefa não requer aprovação"
+  },
+  "edit": {
+    "heading": "Editar tarefa",
+    "endBeforeStart": "A data de fim não pode ser anterior à data de início.",
+    "deleteTask": "Eliminar tarefa",
+    "confirmDelete": "Tem a certeza de que quer eliminar \"{{name}}\"? Esta ação não pode ser anulada."
+  },
+  "priorityNone": "Sem prioridade",
+  "assignees": {
+    "noLimit": "Sem limite",
+    "count_one": "{{count}} pessoa",
+    "count_many": "{{count}} pessoas",
+    "count_other": "{{count}} pessoas",
+    "nobodyAssigned": "Ainda não foi atribuído a ninguém.",
+    "unknownUser": "Utilizador desconhecido",
+    "selfSigned": "Inscrito por si",
+    "assignedByOther": "Atribuída por outra pessoa",
+    "assignedToYou": "Atribuída a si",
+    "addEmployee": "Adicionar colaborador",
+    "chooseWho": "Escolha a quem a tarefa deve ser atribuída",
+    "maxReached": "Foi atingido o número máximo de colaboradores.",
+    "noFreeSlots": "Já não há vagas na tarefa.",
+    "nobodyToAssign": "Não há colaboradores para atribuir.",
+    "signUp": "Inscrever-se",
+    "signOff": "Desinscrever-se",
+    "employee": "Colaborador"
+  },
+  "card": {
+    "noDescription": "Sem descrição",
+    "requiresApproval": "Requer aprovação",
+    "startWork": "Começar o trabalho",
+    "awaitingApproval": "A aguardar aprovação",
+    "markDone": "Comunicar conclusão",
+    "priorityBadge": "Prioridade: {{priority}}",
+    "edit": "Editar",
+    "details": "Detalhes da tarefa",
+    "responsible": "Atribuída a",
+    "start": "Início",
+    "end": "Fim",
+    "statusLabel": "Estado:",
+    "addEmployeeShort": "+ Adicionar colaborador",
+    "created": "Criada",
+    "statusValue": "Estado: {{status}}"
+  },
+  "filter": {
+    "show": "Mostrar filtro",
+    "hide": "Ocultar filtro",
+    "searchPlaceholder": "Pesquisar tarefas...",
+    "all": "Todas",
+    "sortNewest": "Mais recentes",
+    "sortOldest": "Mais antigas",
+    "sortPriority": "Prioridade",
+    "sortDeadline": "Prazo",
+    "counts": "{{available}} disponíveis · {{inProgress}} em curso",
+    "sortBy": "Ordenar por"
+  },
+  "deleteRoom": {
+    "heading": "Eliminar sala",
+    "intro": "Escolha a sala que quer eliminar.",
+    "tasksInRoom": "Tarefas na sala",
+    "chooseTasks": "Escolha as tarefas que também devem ser eliminadas.",
+    "noTasks": "Não há tarefas nesta sala.",
+    "keptNote": "As tarefas que não selecionar não são eliminadas. São movidas para <b>{{room}}</b>.",
+    "failed": "Não foi possível eliminar a sala. Tente novamente.",
+    "deleting": "A eliminar...",
+    "submit": "Eliminar sala"
+  },
+  "editRoom": {
+    "heading": "Editar sala",
+    "intro": "Escolha uma sala e edite o nome.",
+    "namePlaceholder": "Escreva o nome da sala",
+    "failed": "Não foi possível editar a sala. Tente novamente."
+  }
+}

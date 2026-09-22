@@ -1,5 +1,6 @@
 // src/components/TextEditor/RichTextEditor.tsx
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ClipboardEvent, KeyboardEvent, MouseEvent } from 'react'
 import { Bold, Indent, Italic, Link2, List, ListOrdered, Outdent, Underline, X } from 'lucide-react'
 import { escapeHtml, isSafeHref, sanitizeRichText } from '../../lib/richText'
@@ -32,6 +33,7 @@ function normaliseUrl(value: string): string {
 }
 
 export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEditorProps) {
+  const { t } = useTranslation(['news', 'common'])
     const editorRef = useRef<HTMLDivElement>(null)
     const [activeCommands, setActiveCommands] = useState<Set<string>>(new Set())
     const [blockTag, setBlockTag] = useState<BlockTag>('p')
@@ -202,47 +204,47 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                 <select
                     value={blockTag}
                     onChange={(e) => run('formatBlock', `<${e.target.value}>`)}
-                    aria-label="Typografi"
+                    aria-label={t('editor.typography')}
                     className="text-sm text-secondary dark:text-slate-400 bg-transparent rounded-md px-1 py-1 hover:bg-bg-gray dark:hover:bg-slate-700 focus:outline-none"
                 >
-                    <option value="p">Normal</option>
-                    <option value="h2">Overskrift</option>
-                    <option value="h3">Underoverskrift</option>
+                    <option value="p">{t('editor.normal')}</option>
+                    <option value="h2">{t('editor.heading')}</option>
+                    <option value="h3">{t('editor.subheading')}</option>
                 </select>
 
                 <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('bold')} aria-label="Fed" aria-pressed={activeCommands.has('bold')} className={buttonClass(activeCommands.has('bold'))}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('bold')} aria-label={t('editor.bold')} aria-pressed={activeCommands.has('bold')} className={buttonClass(activeCommands.has('bold'))}>
                     <Bold className="w-4 h-4" />
                 </button>
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('italic')} aria-label="Kursiv" aria-pressed={activeCommands.has('italic')} className={buttonClass(activeCommands.has('italic'))}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('italic')} aria-label={t('editor.italic')} aria-pressed={activeCommands.has('italic')} className={buttonClass(activeCommands.has('italic'))}>
                     <Italic className="w-4 h-4" />
                 </button>
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('underline')} aria-label="Understreget" aria-pressed={activeCommands.has('underline')} className={buttonClass(activeCommands.has('underline'))}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('underline')} aria-label={t('editor.underline')} aria-pressed={activeCommands.has('underline')} className={buttonClass(activeCommands.has('underline'))}>
                     <Underline className="w-4 h-4" />
                 </button>
 
                 <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('insertUnorderedList')} aria-label="Punktopstilling" aria-pressed={activeCommands.has('insertUnorderedList')} className={buttonClass(activeCommands.has('insertUnorderedList'))}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('insertUnorderedList')} aria-label={t('editor.bulletList')} aria-pressed={activeCommands.has('insertUnorderedList')} className={buttonClass(activeCommands.has('insertUnorderedList'))}>
                     <List className="w-4 h-4" />
                 </button>
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('insertOrderedList')} aria-label="Nummereret liste" aria-pressed={activeCommands.has('insertOrderedList')} className={buttonClass(activeCommands.has('insertOrderedList'))}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('insertOrderedList')} aria-label={t('editor.numberedList')} aria-pressed={activeCommands.has('insertOrderedList')} className={buttonClass(activeCommands.has('insertOrderedList'))}>
                     <ListOrdered className="w-4 h-4" />
                 </button>
 
                 <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('outdent')} aria-label="Ryk ud" className={buttonClass(false)}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('outdent')} aria-label={t('editor.outdent')} className={buttonClass(false)}>
                     <Outdent className="w-4 h-4" />
                 </button>
-                <button type="button" onMouseDown={preventBlur} onClick={() => run('indent')} aria-label="Ryk ind" className={buttonClass(false)}>
+                <button type="button" onMouseDown={preventBlur} onClick={() => run('indent')} aria-label={t('editor.indent')} className={buttonClass(false)}>
                     <Indent className="w-4 h-4" />
                 </button>
 
                 <span className="w-px h-5 bg-border-gray dark:bg-slate-700 mx-1" />
 
-                <button type="button" onMouseDown={preventBlur} onClick={openLinkPanel} aria-label="Indsæt link" aria-pressed={linkDraft !== null} className={buttonClass(linkDraft !== null)}>
+                <button type="button" onMouseDown={preventBlur} onClick={openLinkPanel} aria-label={t('editor.insertLink')} aria-pressed={linkDraft !== null} className={buttonClass(linkDraft !== null)}>
                     <Link2 className="w-4 h-4" />
                 </button>
             </div>
@@ -257,8 +259,8 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         value={linkDraft.text}
                         onChange={(e) => setLinkDraft({ ...linkDraft, text: e.target.value })}
                         onKeyDown={handleLinkKeyDown}
-                        placeholder="Tekst der vises"
-                        aria-label="Linkets tekst"
+                        placeholder={t('editor.linkTextPlaceholder')}
+                        aria-label={t('editor.linkTextLabel')}
                         className="flex-1 min-w-40 rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-2 py-1 text-sm focus:outline-none focus:border-accent"
                     />
                     <input
@@ -267,7 +269,7 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         onChange={(e) => setLinkDraft({ ...linkDraft, url: e.target.value })}
                         onKeyDown={handleLinkKeyDown}
                         placeholder="https://..."
-                        aria-label="Linkets adresse"
+                        aria-label={t('editor.linkUrlLabel')}
                         className="flex-1 min-w-40 rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-2 py-1 text-sm focus:outline-none focus:border-accent"
                     />
                     <button
@@ -275,12 +277,12 @@ export function RichTextEditor({ value, onChange, id, placeholder }: RichTextEdi
                         onClick={applyLink}
                         className="text-sm font-medium text-accent hover:underline shrink-0"
                     >
-                        Indsæt
+                        {t('editor.insert')}
                     </button>
                     <button
                         type="button"
                         onClick={() => setLinkDraft(null)}
-                        aria-label="Annuller link"
+                        aria-label={t('editor.cancelLink')}
                         className="p-1 rounded-md text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors shrink-0"
                     >
                         <X className="w-4 h-4" />

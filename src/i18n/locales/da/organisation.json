@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Indlæser medlemmer...",
+    "empty": "Organisationen har ingen medlemmer endnu.",
+    "searchPlaceholder": "Søg efter navn eller e-mail...",
+    "noMatch": "Ingen medlemmer matcher søgningen.",
+    "ownRow": "Du kan ikke ændre din egen række",
+    "adminLockedTitle": "Kun en administrator kan ændre en anden administrators rolle",
+    "locked": "Låst",
+    "remove": "Fjern",
+    "confirmRemove": "Er du sikker på at du vil fjerne {{name}} fra organisationen?",
+    "removing": "Fjerner...",
+    "confirmRemoveYes": "Ja, fjern",
+    "confirmTransfer": "Giv admin-rollen videre til {{name}}? Du mister selv admin-adgangen med det samme og bliver almindeligt medlem.",
+    "transferring": "Overfører...",
+    "confirmTransferYes": "Ja, giv admin videre"
+  },
+  "invitations": {
+    "emailLabel": "Inviter via email",
+    "send": "Send invitation",
+    "sending": "Sender...",
+    "pendingHeading": "Ventende invitationer",
+    "loading": "Indlæser invitationer...",
+    "empty": "Ingen ventende invitationer.",
+    "areYouSure": "Er du sikker?",
+    "cancelInvitation": "Annullér",
+    "cancelling": "Annullerer...",
+    "confirmCancelYes": "Ja, annullér",
+    "undo": "Fortryd",
+    "emailPlaceholder": "navn@eksempel.dk",
+    "invitedOn": "Inviteret",
+    "invitedOnDate": "Inviteret {{date}}"
+  },
+  "requests": {
+    "loading": "Indlæser anmodninger...",
+    "empty": "Der er ingen ventende anmodninger.",
+    "confirmAccept": "Er du sikker på, at {{name}} skal optages i organisationen?",
+    "confirmReject": "Er du sikker på, at anmodningen skal afvises? {{name}} kan anmode igen senere.",
+    "processing": "Behandler...",
+    "yes": "Ja",
+    "accept": "Accepter",
+    "reject": "Afvis",
+    "requestedOn": "Anmodet {{date}}"
+  },
+  "admin": {
+    "loading": "Indlæser organisation...",
+    "loadFailed": "Kunne ikke hente organisationen.",
+    "saved": "Organisationens oplysninger er gemt.",
+    "nameLabel": "Navn",
+    "memberCount": "Antal medlemmer",
+    "edit": "Rediger organisation",
+    "delete": "Slet organisation",
+    "deleteWarning": "Dette sletter \"{{name}}\" permanent og kan ikke fortrydes.",
+    "typeNameToConfirm": "Skriv organisationens navn ({{name}}) for at bekræfte",
+    "ackDataLoss": "Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.",
+    "ackMemberImpact": "Jeg forstår at de {{count}} andre medlemmer mister deres adgang med det samme.",
+    "deleting": "Sletter...",
+    "deletePermanently": "Slet permanent",
+    "deleted": "\"{{name}}\" er slettet.",
+    "deletedNewActive": "\"{{name}}\" er slettet. Din aktive organisation er nu \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere."
+  },
+  "picker": {
+    "searchPlaceholder": "Søg efter organisation...",
+    "empty": "Der er ingen organisationer at vælge imellem.",
+    "noMatch": "Ingen organisationer matcher din søgning."
+  },
+  "loading": "Indlæser organisation...",
+  "noActiveTitle": "Ingen aktiv organisation",
+  "noActiveWithMemberships": "Du er medlem af en eller flere organisationer, men har ingen aktiv lige nu - vælg en under \"Mine organisationer\", eller opret/anmod om en ny.",
+  "noActiveWithout": "Du er ikke medlem af en organisation endnu. Opret en ny organisation, eller anmod om medlemskab af en eksisterende.",
+  "tabs": {
+    "create": "Opret organisation",
+    "request": "Anmod om medlemskab",
+    "memberships": "Mine organisationer",
+    "invitations": "Invitationer",
+    "details": "Organisation"
+  },
+  "create": {
+    "nameLabel": "Organisationens navn",
+    "submit": "Opret organisation",
+    "submitting": "Opretter...",
+    "created": "Organisationen \"{{name}}\" er oprettet og er nu din aktive organisation."
+  },
+  "request": {
+    "pending": "Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.",
+    "chooseLabel": "Vælg organisation",
+    "submit": "Send anmodning",
+    "submitting": "Sender anmodning...",
+    "noneAvailable": "Der er ingen andre organisationer at anmode om medlemskab af."
+  },
+  "details": {
+    "administrator": "Administrator",
+    "noRole": "Ingen rolle tildelt",
+    "memberCount": "Antal medlemmer"
+  },
+  "myInvitations": {
+    "loading": "Indlæser invitationer...",
+    "empty": "Du har ingen ventende invitationer.",
+    "accept": "Acceptér",
+    "reject": "Afvis",
+    "confirmAccept": "Er du sikker på, at du vil blive medlem af {{name}}?",
+    "confirmReject": "Er du sikker på, at invitationen skal afvises?",
+    "processing": "Behandler...",
+    "yes": "Ja",
+    "invitedOn": "Inviteret",
+    "invitedOnDate": "Inviteret {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Indlæser dine organisationer...",
+    "empty": "Du er ikke medlem af nogen organisationer.",
+    "active": "Aktiv",
+    "makeActive": "Gør aktiv",
+    "switching": "Skifter...",
+    "areYouSure": "Er du sikker?",
+    "leave": "Forlad",
+    "leaving": "Forlader...",
+    "confirmLeaveYes": "Ja, forlad",
+    "left": "Du har forladt \"{{name}}\".",
+    "leftNewActive": "Du har forladt \"{{name}}\". Din aktive organisation er nu \"{{newActive}}\".",
+    "leftNoActive": "Du har forladt \"{{name}}\". Du har ingen aktiv organisation længere."
+  },
+  "genericLoading": "Indlæser..."
+}

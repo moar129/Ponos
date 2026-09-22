@@ -1,0 +1,30 @@
+{
+  "loading": "Cargando el perfil...",
+  "notFound": "No se ha podido encontrar tu perfil.",
+  "saved": "Se han guardado tus datos.",
+  "nameRequired": "El nombre y los apellidos son obligatorios.",
+  "fields": {
+    "firstName": "Nombre",
+    "lastName": "Apellidos",
+    "email": "Correo electrónico",
+    "organisation": "Organización",
+    "role": "Rol",
+    "description": "Descripción",
+    "pictureUrl": "Foto de perfil (URL)"
+  },
+  "empty": {
+    "organisation": "Sin organización",
+    "role": "Sin rol asignado",
+    "description": "Sin descripción"
+  },
+  "readOnlyNote": "El correo, el rol y la organización no se pueden cambiar aquí. Contacta con tu administrador.",
+  "saveChanges": "Guardar cambios",
+  "editProfile": "Editar perfil",
+  "logout": "Cerrar sesión",
+  "loggingOut": "Cerrando sesión...",
+  "passwordHeading": "Contraseña",
+  "preferences": {
+    "title": "Visualización",
+    "hint": "El idioma y el tema se guardan en este navegador y solo se aplican a este dispositivo."
+  }
+}

@@ -6,6 +6,7 @@ import type {
     RespondInvitationInput,
     SentInvitation,
 } from '../../types/membership/membershipType'
+import { mapDbError } from './apiError'
 
 export const invitationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -21,7 +22,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     if (userError.name === 'AuthSessionMissingError') {
                         return { data: [] }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: userError.message } }
+                    return { error: mapDbError(userError) }
                 }
 
                 if (!userData.user) {
@@ -36,7 +37,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     .order('created_at')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return {
@@ -65,7 +66,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     .order('created_at')
 
                 if (invitationsError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: invitationsError.message } }
+                    return { error: mapDbError(invitationsError) }
                 }
 
                 if (!invitations || invitations.length === 0) {
@@ -78,7 +79,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     .in('id', invitations.map((invitation) => invitation.invited_user_id))
 
                 if (profilesError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                    return { error: mapDbError(profilesError) }
                 }
 
                 const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
@@ -116,13 +117,13 @@ export const invitationApi = supabaseApi.injectEndpoints({
                 const trimmed = email.trim()
 
                 if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Email skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.email' } }
                 }
 
                 const { error } = await supabase.rpc('invite_member', { p_email: trimmed })
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -142,7 +143,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     .eq('id', invitationId)
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -166,14 +167,14 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     .select('id')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 if (!data || data.length === 0) {
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Invitationen kunne ikke behandles. Den er måske allerede behandlet.',
+                            error: 'errors:invitationAlreadyHandled',
                         },
                     }
                 }

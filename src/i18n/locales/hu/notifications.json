@@ -1,0 +1,26 @@
+{
+  "title": "Értesítések",
+  "empty": "Még nincsenek értesítések.",
+  "markAllRead": "Összes megjelölése olvasottként",
+  "seeAll": "Összes értesítés megtekintése",
+  "hide": "Értesítés elrejtése",
+  "unhide": "Megjelenítés újra a csengőben",
+  "deletePermanently": "Végleges törlés",
+  "deleteAriaLabel": "Értesítés végleges törlése",
+  "hidden": "Elrejtve",
+  "justNow": "Épp most",
+  "emptyCategory": "Nincs {{category}}.",
+  "category": {
+    "messages": "Üzenetek",
+    "tasks": "Feladatok",
+    "news": "Hírek"
+  },
+  "type": {
+    "message": "Új üzenet",
+    "task_assigned": "Feladatot rendeltek Önhöz",
+    "task_updated": "Egy feladat frissült",
+    "task_completed": "Egy feladat befejeződött",
+    "task_approved": "A feladatát jóváhagyták",
+    "task_rejected": "A befejezés bejelentését elutasították"
+  }
+}

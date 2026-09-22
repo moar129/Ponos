@@ -1,0 +1,134 @@
+{
+  "status": {
+    "Started": "Verfügbar",
+    "InProgress": "In Arbeit",
+    "Completed": "Erledigt"
+  },
+  "priority": {
+    "Low": "Niedrig",
+    "Medium": "Mittel",
+    "High": "Hoch",
+    "Critical": "Kritisch"
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beschreibung",
+    "room": "Raum",
+    "priority": "Priorität",
+    "maxAssignees": "Anzahl Personen",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum"
+  },
+  "page": {
+    "subtitle": "Verschaffen Sie sich einen Überblick über die anstehende Arbeit.",
+    "createTask": "Aufgabe erstellen",
+    "noAvailableTasks": "Keine verfügbaren Aufgaben",
+    "noTasksInProgress": "Keine Aufgaben in Arbeit",
+    "roomNamePlaceholder": "Raumnamen eingeben",
+    "saveRoom": "Raum speichern",
+    "loading": "Aufgaben werden geladen...",
+    "noAccess": "Sie haben keinen Zugriff auf die Aufgaben dieser Organisation.",
+    "heading": "Aufgaben",
+    "createRoom": "Raum erstellen",
+    "availableHeading": "Verfügbare Aufgaben",
+    "inProgressHeading": "In Arbeit"
+  },
+  "mine": {
+    "loading": "Deine Aufgaben werden geladen...",
+    "noAccess": "Du hast keinen Zugriff, um deine Aufgaben in dieser Organisation zu sehen.",
+    "heading": "Meine Aufgaben",
+    "subtitle": "Verschaffe dir einen Überblick über die Aufgaben, denen du zugeordnet bist.",
+    "availableHeading": "Meine verfügbaren Aufgaben",
+    "availableSubtitle": "Aufgaben, denen du zugeordnet bist und an denen du arbeiten kannst.",
+    "noAvailableTasks": "Du hast keine verfügbaren Aufgaben",
+    "inProgressHeading": "Meine laufenden Aufgaben",
+    "inProgressSubtitle": "Aufgaben, an denen du bereits arbeitest.",
+    "noTasksInProgress": "Du hast keine laufenden Aufgaben"
+  },
+  "rooms": {
+    "create": "Raum erstellen",
+    "moreActions": "Weitere Aktionen",
+    "edit": "Raum bearbeiten",
+    "deleteOne": "Einen Raum löschen",
+    "choose": "Raum wählen",
+    "noRoom": "Ohne Raum"
+  },
+  "create": {
+    "heading": "Aufgabe erstellen",
+    "titlePlaceholder": "Titel der Aufgabe",
+    "descriptionPlaceholder": "Beschreibung der Aufgabe",
+    "requiresApproval": "Die Aufgabe erfordert eine Freigabe",
+    "noApproval": "Die Aufgabe erfordert keine Freigabe"
+  },
+  "edit": {
+    "heading": "Aufgabe bearbeiten",
+    "endBeforeStart": "Das Enddatum darf nicht vor dem Startdatum liegen.",
+    "deleteTask": "Aufgabe löschen",
+    "confirmDelete": "Möchten Sie \"{{name}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden."
+  },
+  "priorityNone": "Keine Priorität",
+  "assignees": {
+    "noLimit": "Keine Begrenzung",
+    "count_one": "{{count}} Person",
+    "count_other": "{{count}} Personen",
+    "nobodyAssigned": "Es wurde noch niemand zugewiesen.",
+    "unknownUser": "Unbekannter Benutzer",
+    "selfSigned": "Von Ihnen selbst angemeldet",
+    "assignedByOther": "Von jemand anderem zugewiesen",
+    "assignedToYou": "Ihnen zugewiesen",
+    "addEmployee": "Mitarbeiter hinzufügen",
+    "chooseWho": "Wählen Sie, wem die Aufgabe zugewiesen werden soll",
+    "maxReached": "Die maximale Anzahl an Mitarbeitenden ist erreicht.",
+    "noFreeSlots": "Es sind keine Plätze mehr für die Aufgabe frei.",
+    "nobodyToAssign": "Es gibt keine Mitarbeitenden zum Zuweisen.",
+    "signUp": "Anmelden",
+    "signOff": "Abmelden",
+    "employee": "Mitarbeiter"
+  },
+  "card": {
+    "noDescription": "Keine Beschreibung",
+    "requiresApproval": "Erfordert Freigabe",
+    "startWork": "Arbeit beginnen",
+    "awaitingApproval": "Wartet auf Freigabe",
+    "markDone": "Fertig melden",
+    "priorityBadge": "Priorität: {{priority}}",
+    "edit": "Bearbeiten",
+    "details": "Aufgabendetails",
+    "responsible": "Zugewiesen",
+    "start": "Start",
+    "end": "Ende",
+    "statusLabel": "Status:",
+    "addEmployeeShort": "+ Mitarbeiter hinzufügen",
+    "created": "Erstellt",
+    "statusValue": "Status: {{status}}"
+  },
+  "filter": {
+    "show": "Filter anzeigen",
+    "hide": "Filter ausblenden",
+    "searchPlaceholder": "Aufgaben suchen...",
+    "all": "Alle",
+    "sortNewest": "Neueste",
+    "sortOldest": "Älteste",
+    "sortPriority": "Priorität",
+    "sortDeadline": "Frist",
+    "counts": "{{available}} verfügbar · {{inProgress}} in Arbeit",
+    "sortBy": "Sortieren nach"
+  },
+  "deleteRoom": {
+    "heading": "Raum löschen",
+    "intro": "Wählen Sie den Raum, den Sie löschen möchten.",
+    "tasksInRoom": "Aufgaben im Raum",
+    "chooseTasks": "Wählen Sie die Aufgaben, die ebenfalls gelöscht werden sollen.",
+    "noTasks": "In diesem Raum gibt es keine Aufgaben.",
+    "keptNote": "Aufgaben, die Sie nicht auswählen, werden nicht gelöscht. Sie werden stattdessen nach <b>{{room}}</b> verschoben.",
+    "failed": "Der Raum konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "deleting": "Wird gelöscht...",
+    "submit": "Raum löschen"
+  },
+  "editRoom": {
+    "heading": "Raum bearbeiten",
+    "intro": "Wählen Sie einen Raum und bearbeiten Sie den Namen.",
+    "namePlaceholder": "Raumnamen eingeben",
+    "failed": "Der Raum konnte nicht bearbeitet werden. Bitte versuchen Sie es erneut."
+  }
+}

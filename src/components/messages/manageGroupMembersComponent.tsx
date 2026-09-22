@@ -1,4 +1,6 @@
 // components/messages/manageGroupMembersComponent.tsx
+import { readableError } from '../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react';
 import { X, Search, Loader2, UserPlus, UserMinus } from 'lucide-react';
 import {
@@ -14,13 +16,6 @@ function getInitials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-function readableError(err: unknown): string | null {
-  if (!err) return null;
-  if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-    return err.error;
-  }
-  return 'Noget gik galt. Prøv igen.';
-}
 
 // US-B9: administrer medlemmer i en gruppesamtale - fjern eksisterende
 // deltagere, og tilføj nye fra organisationens medlemmer, der endnu ikke
@@ -31,6 +26,7 @@ export function ManageGroupMembersComponent({
   conversationId,
   groupName,
 }: ManageGroupMembersComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const { data: participants = [], isLoading: loadingParticipants } =
     useGetConversationParticipantsQuery(conversationId, { skip: !isOpen });
   const { data: members = [], isLoading: loadingMembers } = useGetOrganisationMembersQuery();
@@ -73,7 +69,7 @@ export function ManageGroupMembersComponent({
 
   const handleAdd = async () => {
     if (selectedIds.size === 0) {
-      setFormError('Vælg mindst ét medlem at tilføje.');
+      setFormError(t('group.selectAtLeastOne'));
       return;
     }
     setFormError(null);
@@ -105,15 +101,15 @@ export function ManageGroupMembersComponent({
       <div className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700">
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Medlemmer</h2>
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('group.members')}</h2>
             <p className="text-xs text-secondary mt-0.5 truncate dark:text-slate-400">{groupName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-            title="Luk"
-            aria-label="Luk modal"
+            title={t('common:close')}
+            aria-label={t('common:close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -129,7 +125,7 @@ export function ManageGroupMembersComponent({
           {/* Nuværende medlemmer */}
           <div>
             <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">
-              Nuværende medlemmer ({participants.length})
+              {t('group.currentMembers', { count: participants.length })}
             </label>
             {loadingParticipants ? (
               <div className="flex justify-center py-4">
@@ -154,7 +150,7 @@ export function ManageGroupMembersComponent({
                       onClick={() => handleRemove(participant.userId)}
                       disabled={removingId === participant.userId}
                       className="p-1.5 rounded-md text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0 dark:text-slate-400 dark:hover:text-red-400"
-                      title="Fjern fra gruppen"
+                      title={t('group.removeFromGroup')}
                       aria-label={`Fjern ${participant.firstName} fra gruppen`}
                     >
                       {removingId === participant.userId ? (
@@ -172,9 +168,9 @@ export function ManageGroupMembersComponent({
           {/* Tilføj nye medlemmer */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">Tilføj medlemmer</label>
+              <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('group.addMembers')}</label>
               {selectedIds.size > 0 && (
-                <span className="text-xs text-accent">{selectedIds.size} valgt</span>
+                <span className="text-xs text-accent">{t('common:selectedCount', { count: selectedIds.size })}</span>
               )}
             </div>
 
@@ -182,7 +178,7 @@ export function ManageGroupMembersComponent({
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
               <input
                 type="text"
-                placeholder="Søg efter kontakt eller rolle..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -197,8 +193,8 @@ export function ManageGroupMembersComponent({
               ) : filteredAvailableMembers.length === 0 ? (
                 <p className="text-sm text-secondary text-center py-6 dark:text-slate-400">
                   {availableMembers.length === 0
-                    ? 'Alle organisationens medlemmer er allerede i gruppen.'
-                    : 'Ingen kontakter matcher din søgning.'}
+                    ? t('group.allAlreadyMembers')
+                    : t('noContactsMatch')}
                 </p>
               ) : (
                 <ul className="divide-y divide-border-gray dark:divide-slate-700">
@@ -224,7 +220,7 @@ export function ManageGroupMembersComponent({
                             <p className="text-sm text-primary truncate dark:text-slate-100">
                               {member.firstName} {member.lastName}
                             </p>
-                            <p className="text-xs text-secondary truncate dark:text-slate-400">{member.roleName ?? 'Ingen rolle'}</p>
+                            <p className="text-xs text-secondary truncate dark:text-slate-400">{member.roleName ?? t('noRole')}</p>
                           </div>
                         </label>
                       </li>
@@ -242,7 +238,7 @@ export function ManageGroupMembersComponent({
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
           >
-            Luk
+            {t('common:close')}
           </button>
           <button
             type="button"
@@ -251,7 +247,7 @@ export function ManageGroupMembersComponent({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-            Tilføj valgte
+            {t('group.addSelected')}
           </button>
         </div>
       </div>

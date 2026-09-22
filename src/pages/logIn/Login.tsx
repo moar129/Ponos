@@ -2,10 +2,12 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 
 export default function Login() {
     const navigate = useNavigate()
+    const { t } = useTranslation('auth')
 
     // US-68: ForgotPassword sender hertil med ?nulstillet=1 efter et
     // gennemført skift, så kvitteringen står, hvor man skal bruge den.
@@ -35,7 +37,7 @@ export default function Login() {
 
         if (signInError) {
             //viser en fejlmeddelelse ved forkert email/password.
-            setError('Forkert e-mail eller adgangskode.')
+            setError(t('login.wrongCredentials'))
             return
         }
 
@@ -46,11 +48,11 @@ export default function Login() {
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">Log ind</h1>
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">{t('login.title')}</h1>
 
                 {passwordWasReset && (
                     <div className="mb-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
-                        Din adgangskode er ændret. Log ind med den nye.
+                        {t('login.passwordWasReset')}
                     </div>
                 )}
 
@@ -61,7 +63,7 @@ export default function Login() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
                     <input
                         id="email"
                         type="email"
@@ -72,7 +74,7 @@ export default function Login() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
                     <input
                         id="password"
                         type="password"
@@ -81,7 +83,7 @@ export default function Login() {
                         className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
                     />
                     <p className="mt-2 text-sm">
-                        <Link to="/glemt-adgangskode" className="text-accent hover:underline">Glemt din adgangskode?</Link>
+                        <Link to="/glemt-adgangskode" className="text-accent hover:underline">{t('login.forgotPassword')}</Link>
                     </p>
                 </div>
 
@@ -90,11 +92,11 @@ export default function Login() {
                     disabled={loading}
                     className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {loading ? 'Logger ind...' : 'Log ind'}
+                    {loading ? t('login.submitting') : t('login.submit')}
                 </button>
 
                 <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    Har du ikke en konto? <Link to="/signup" className="text-accent hover:underline">Opret konto</Link>
+                    {t('login.noAccount')} <Link to="/signup" className="text-accent hover:underline">{t('signup.title')}</Link>
                 </p>
             </form>
         </div>

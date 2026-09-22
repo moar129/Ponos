@@ -1,0 +1,192 @@
+{
+  "hero": {
+    "line1": "Zobaczcie, co macie.",
+    "line2": "Zobaczcie, kto co robi.",
+    "line3": "Zobaczcie, co mówią wasze dane.",
+    "intro": "Ponos gromadzi zasoby, zadania i analizy waszej organizacji w jednym miejscu. Dzięki temu zawsze wiecie, co macie, kto jest odpowiedzialny i co mówią liczby."
+  },
+  "cta": {
+    "signup": "Załóż konto",
+    "login": "Zaloguj się",
+    "title": "Zacznij z Ponos",
+    "body": "Załóż konto, a następnie uruchom własną organizację lub dołącz do już istniejącej."
+  },
+  "problem": {
+    "title": "Obraz całości jest rozproszony",
+    "body": "Organizacje zarządzają danymi i pracą w osobnych systemach. Przez to trudno odpowiedzieć nawet na proste pytania: jakie zasoby już mamy? Gdzie się znajdują? Kto odpowiada za zadanie?"
+  },
+  "features": {
+    "title": "Trzy pytania, jedno miejsce",
+    "intro": "Ponos jest zbudowany wokół trzech pytań, na które każda organizacja powinna umieć odpowiedzieć o sobie.",
+    "datalayer": {
+      "label": "Warstwa danych",
+      "question": "Co mamy?",
+      "description": "Rejestrujcie zasoby wraz z ilością, kategorią, statusem i lokalizacją. Dzięki temu zawsze widzicie, co macie i gdzie to jest."
+    },
+    "tasks": {
+      "label": "Zadania",
+      "question": "Kto co robi?",
+      "description": "Każde zadanie ma osobę odpowiedzialną, uczestników, status oraz rzeczy, których używa. Praca jest powiązana z zasobami, z których faktycznie korzysta."
+    },
+    "statistics": {
+      "label": "Statystyki",
+      "question": "Co mówią nasze dane?",
+      "description": "Liczby są obliczane na podstawie tego, co już zarejestrowaliście. Bez ręcznego wprowadzania i bez liczb, które dezaktualizują się w chwili zapisania."
+    }
+  },
+  "flow": {
+    "title": "Dane, które są wykorzystywane dalej",
+    "body": "Ponos nie jest archiwum. To, co rejestrujecie w jednym miejscu, jest wykorzystywane w kolejnym kroku. Element w warstwie danych to ten sam element, z którego korzysta zadanie i który liczy się w statystykach.",
+    "steps": {
+      "data": "Dane",
+      "people": "Ludzie",
+      "tasks": "Zadania",
+      "insight": "Wnioski"
+    },
+    "quote": "Zamiast <em>\"czegoś nam brakuje, więc kupmy nowe\"</em> Ponos zachęca: <em>\"czegoś nam brakuje, więc sprawdźmy, co już mamy\"</em>."
+  },
+  "partner": {
+    "title": "O projekcie",
+    "intro": "Ponos powstaje dla <strong>Corolab</strong>, organizacji non-profit prowadzonej przez członków w Roskilde w Danii. Od 2016 roku łączy ona firmy, placówki edukacyjne i organizacje publiczne wokół projektów, których żadna z nich nie udźwignęłaby sama. Jak sami to ujmują: \"W partnerstwach robimy różnicę dla społeczeństwa i dla twojej organizacji.\"",
+    "figures": {
+      "events": "Wydarzenia",
+      "participants": "Uczestnicy",
+      "projects": "Projekty",
+      "funding": "Pozyskanego finansowania"
+    },
+    "figuresSource": "Dane własne Corolab, pobrane z corolab.dk we wrześniu 2026 roku.",
+    "areasIntro": "Praca dzieli się na sześć obszarów, od nawiązywania kontaktów po pozyskiwanie finansowania i udostępnianie zaplecza.",
+    "areas": {
+      "meet": "Wydarzenia branżowe i sieci kontaktów.",
+      "pilots": "Wspólne inicjatywy uruchamiane razem z członkami.",
+      "fund": "Finansowanie od członków, fundacji i ze środków publicznych.",
+      "creation": "Projekty rozwijane między sektorami.",
+      "lab": "Dostęp do środowisk testowych, zaplecza i wspólnych zasobów.",
+      "branding": "Widoczność odpowiedzialności społecznej członków."
+    },
+    "testEnvironment": "To w środowiskach testowych CO-lab Ponos jest sprawdzany. Platforma musi tam obsłużyć zasoby i zadania prawdziwej organizacji, a nie wymyślone przykłady.",
+    "moreAboutProject": "Więcej o projekcie",
+    "readMoreCorolab": "Czytaj więcej na corolab.dk"
+  },
+  "helpStep": "Krok {{step}}",
+  "about": {
+    "heroTitle": "O nas",
+    "heroDescription": "Budujemy Ponos, aby organizacja mogła odpowiedzieć na trzy dość proste pytania, nie musząc najpierw wypytywać dookoła.",
+    "whyTitle": "Dlaczego nam na tym zależy",
+    "why1": "Większość organizacji doskonale wie, co ma. Tyle że jest to w arkuszu jednej osoby, w wątku e-mailowym drugiej i w głowie trzeciej. Dopóki wszyscy są na miejscu, wszystko działa. Zaczyna boleć, gdy ktoś jest na urlopie, zmienia pracę albo gdy wszystko trzeba postawić na nogi w pośpiechu.",
+    "why2": "I boli w bardzo konkretny sposób. Kupuje się rzeczy, które już macie, bo nikt nie zdążył ustalić, gdzie stały. Zadania zostają niezrobione, bo nigdy nie powiedziano głośno, kto je ma. A gdy ktoś pyta, jak idzie, odpowiedzią jest przypuszczenie.",
+    "why3": "Ponos gromadzi te trzy rzeczy w jednym miejscu: co macie, kto co robi i co mówią liczby. Nie trzy systemy obok siebie - te same dane widziane z trzech stron.",
+    "principlesTitle": "Jak myślimy",
+    "principlesIntro": "Cztery rzeczy zdecydowały o większości wyborów po drodze.",
+    "principles": {
+      "multiTenant": {
+        "name": "Zbudowane dla więcej niż jednej",
+        "description": "Ponos jest tworzony dla organizacji w liczbie mnogiej. Ta pierwsza, która go używa, jest przykładem - a nie wzorcem. Nic nie jest zbudowane wokół jednego konkretnego sposobu pracy."
+      },
+      "writeOnce": {
+        "name": "Wpisz to raz",
+        "description": "To, co wpisujecie w jednym miejscu, jest wykorzystywane dalej. Rzecz w warstwie danych to ta sama rzecz, z której korzysta zadanie - a nie kopia, którą trzeba poprawiać w dwóch miejscach."
+      },
+      "autoNumbers": {
+        "name": "Liczby dbają o siebie same",
+        "description": "Statystyki są obliczane na podstawie tego, co już wpisaliście. Nie ma pól do wpisywania wskaźników, a więc i liczb, które dezaktualizują się, zanim zostaną dopisane do końca."
+      },
+      "yourData": {
+        "name": "Wasze dane są wasze",
+        "description": "Każda organizacja widzi tylko swoje, a decyduje o tym baza danych - a nie ukrycie przycisku. O tym, kto co może zmieniać, decydujecie sami za pomocą ról."
+      }
+    },
+    "behindTitle": "Kto za tym stoi",
+    "behind1": "Ponos powstaje jako projekt studencki wspólnie z <strong>Corolab</strong>, organizacją non-profit prowadzoną przez członków w Roskilde w Danii, która od 2016 roku łączy firmy, placówki edukacyjne i organizacje publiczne wokół projektów, których żadna z nich nie udźwignęłaby sama.",
+    "behind2": "Oznacza to, że platforma jest sprawdzana na rzeczach i zadaniach prawdziwej organizacji, a nie na przykładach, które sami wymyśliliśmy. To właśnie taki sposób użycia pokazuje, czy coś się broni: przypadki, których nikt nie przewidział, i miejsca, w których rzeczywistość nie całkiem mieści się w polach.",
+    "behind3": "Jeśli masz pytania o projekt albo chciałbyś wypróbować Ponos u siebie, chętnie się z Tobą skontaktujemy.",
+    "writeToUs": "Napisz do nas"
+  },
+  "contact": {
+    "heroTitle": "Kontakt",
+    "heroDescription": "Masz pytanie, natrafiłeś na coś, co nie działa, albo po prostu chcesz dowiedzieć się więcej? Napisz do nas.",
+    "howToReach": "Jak się z nami skontaktować",
+    "emailLabel": "E-mail",
+    "locationLabel": "Mamy siedzibę w",
+    "sendMail": "Wyślij e-mail",
+    "topicsTitle": "Możesz napisać o",
+    "topics": {
+      "fit": "Co potrafi Ponos i czy pasuje do was",
+      "bug": "Czymś, co nie działa tak, jak powinno",
+      "collaboration": "Współpracy albo chęci wypróbowania go u siebie"
+    },
+    "responseNote": "Czytamy w dni robocze i odpowiadamy tak szybko, jak potrafimy. Napisz, o którą organizację chodzi i co właśnie robiłeś - dzięki temu nie będziemy musieli najpierw o to pytać.",
+    "helpHintBefore": "Chcesz tylko wiedzieć, jak coś działa? Odpowiedź może już być w",
+    "helpHintLink": "Pomoc i wsparcie"
+  },
+  "help": {
+    "heroTitle": "Pomoc i wsparcie",
+    "heroDescription": "Dopiero zaczynasz albo utknąłeś? Zajrzyj najpierw tutaj.",
+    "startTitle": "Pierwsze kroki",
+    "startIntro": "Trzy kroki od nowego konta do czegoś, co naprawdę jest w systemie.",
+    "steps": {
+      "account": {
+        "title": "Załóż konto",
+        "description": "Potrzebujesz adresu e-mail i hasła. Konto jest Twoje i idzie z Tobą, niezależnie od tego, w ilu organizacjach ostatecznie będziesz."
+      },
+      "organisation": {
+        "title": "Dołącz do organizacji",
+        "description": "Utwórz własną albo poproś o dołączenie do już istniejącej. Prawie wszystko w Ponos należy do organizacji, więc tego kroku nie da się pominąć."
+      },
+      "data": {
+        "title": "Wprowadźcie swoje rzeczy",
+        "description": "Wpiszcie swoje zasoby do warstwy danych i utwórzcie pierwsze zadania. Statystyki zaczną liczyć się same, gdy tylko będzie co liczyć."
+      }
+    },
+    "faqTitle": "O co pytają nas najczęściej",
+    "faq": {
+      "nothingToSee": {
+        "q": "Jestem zalogowany, ale nic nie widać",
+        "a1": "To właśnie dziwi większość osób na początku - i nic nie jest zepsute. Zadania, statystyki, warstwa danych i aktualności należą do organizacji, więc dopóki nie masz aktywnej organizacji, nie ma czego pokazać. Dlatego linki też nie są jeszcze w menu.",
+        "a2": "Dalej przechodzisz w <orgLink>Panel → Organizacja</orgLink>, gdzie tworzysz własną albo prosisz o dołączenie do istniejącej."
+      },
+      "becomeMember": {
+        "q": "Jak zostać członkiem organizacji?",
+        "a1": "Przejdź do Panel → Organizacja, wybierz \"Złóż wniosek o członkostwo\" i znajdź organizację na liście. Administrator musi się zgodzić, zanim znajdziesz się w środku.",
+        "a2": "Gdy czekasz, u góry strony widnieje pasek informacyjny. Jeśli zamiast tego zaprosi Cię administrator, zaproszenie pojawi się w tym samym miejscu - wtedy wystarczy nacisnąć akceptuj."
+      },
+      "multipleOrgs": {
+        "q": "Czy mogę należeć do kilku organizacji?",
+        "a1": "Tak. Tylko jedna jest <b>aktywna</b> naraz, a wszystko, co widzisz - zadania, rzeczy, statystyki, role - należy właśnie do niej.",
+        "a2": "Przełączasz się w sekcji \"Moje organizacje\". Pamiętaj, że Twoje uprawnienia mogą być różne w różnych miejscach: spokojnie możesz być administratorem w jednej, a zwykłym członkiem w drugiej."
+      },
+      "cannotEdit": {
+        "q": "Dlaczego nie mogę nic utworzyć ani zmienić?",
+        "a1": "Bo Twoja rola jeszcze nie ma do tego uprawnień. Uprawnienia ustawia się osobno dla każdej organizacji, a jeśli czegoś nie możesz, w ogóle nie pokazujemy przycisku - zamiast pozwalać Ci odkryć to dopiero po kliknięciu.",
+        "a2": "Jeśli masz móc więcej, to Twój administrator może przydzielić Ci rolę z odpowiednimi uprawnieniami."
+      },
+      "invite": {
+        "q": "Jak zaprosić nowego użytkownika?",
+        "a1": "Panel → Administracja → Zaproszenia, a następnie adres e-mail tej osoby. Wymaga to, byś sam miał uprawnienie do zapraszania.",
+        "a2": "Osoba musi już mieć konto Ponos dokładnie z tym adresem - nie wysyłamy zaproszeń na adres, którego nie ma w systemie. Jeśli nie ma jeszcze konta, musi najpierw je założyć, a potem możesz ją zaprosić."
+      },
+      "leaveOrDelete": {
+        "q": "Jak opuścić lub usunąć organizację?",
+        "a1": "Obie opcje są w sekcji \"Moje organizacje\". Jeśli opuścisz jedną, należąc do kilku, jedna z pozostałych automatycznie stanie się Twoją nową aktywną.",
+        "a2": "Jeśli jesteś jedynym administratorem, nie możesz po prostu odejść - nie zostałby nikt, kto nią pokieruje. Najpierw przekaż komuś innemu rolę administratora. A <b>usunięcie</b> organizacji kasuje wszystko, co zawiera, również dla pozostałych członków. Może to zrobić tylko administrator."
+      },
+      "editProfile": {
+        "q": "Jak zmienić swoje imię albo zdjęcie profilowe?",
+        "a1": "W <profileLink>swoim profilu</profileLink>. Imię, opis, zdjęcie i hasło możesz zmienić sam. E-maila i roli nie - rola należy do organizacji i przydziela ją administrator."
+      },
+      "forgotPassword": {
+        "q": "Nie pamiętam hasła",
+        "a1": "Kliknij <resetLink>\"Nie pamiętasz hasła?\"</resetLink> na stronie logowania. Potwierdzasz konto swoim e-mailem i imieniem i od razu wybierasz nowe hasło.",
+        "a2": "Jeśli coś nie działa, napisz na <mailLink>{{email}}</mailLink>, a pomożemy Ci wrócić."
+      }
+    },
+    "noAnswer": "Nie znalazłeś odpowiedzi? <contactLink>Napisz do nas</contactLink> - opisz, co właśnie robiłeś i co stało się zamiast tego."
+  },
+  "notFound": {
+    "title": "Ta strona nie istnieje",
+    "body": "Pod tym adresem nic nie ma. Albo po drodze zgubiła się litera, albo strona została przeniesiona od czasu utworzenia linku.",
+    "toDashboard": "Przejdź do panelu",
+    "toHome": "Przejdź na stronę główną",
+    "toHelp": "Pomoc i wsparcie"
+  }
+}

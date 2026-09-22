@@ -1,6 +1,7 @@
 // src/pages/public/NotFoundPage.tsx
 import { Compass } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useGetSessionQuery } from '../../store/apis/authApi'
 
 // Catch-all for ukendte URL'er (<Route path="*"> i App.tsx). Før denne
@@ -12,6 +13,7 @@ import { useGetSessionQuery } from '../../store/apis/authApi'
 export default function NotFoundPage() {
     // Samme session-kilde som resten af appen. Bestemmer kun hvor "tilbage"
     // peger hen - siden vises ens for alle.
+    const { t } = useTranslation('public')
     const { data: session } = useGetSessionQuery()
 
     return (
@@ -21,12 +23,11 @@ export default function NotFoundPage() {
             </div>
 
             <h1 className="mt-6 text-2xl sm:text-3xl font-semibold text-primary dark:text-slate-100">
-                Siden findes ikke
+                {t('notFound.title')}
             </h1>
 
             <p className="mt-4 text-secondary dark:text-slate-400">
-                Der er ikke noget på den adresse. Enten er der smuttet et bogstav undervejs, eller
-                også er siden flyttet, siden linket blev lavet.
+                {t('notFound.body')}
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -34,13 +35,13 @@ export default function NotFoundPage() {
                     to={session ? '/dashboard' : '/'}
                     className="inline-flex items-center justify-center bg-accent text-white rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                 >
-                    {session ? 'Gå til dashboardet' : 'Gå til forsiden'}
+                    {session ? t('notFound.toDashboard') : t('notFound.toHome')}
                 </Link>
                 <Link
                     to="/hjaelp"
                     className="inline-flex items-center justify-center rounded-md border border-border-gray dark:border-slate-700 px-6 py-3 font-medium text-primary dark:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
                 >
-                    Hjælp &amp; support
+                    {t('notFound.toHelp')}
                 </Link>
             </div>
         </div>

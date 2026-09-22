@@ -1,0 +1,40 @@
+{
+  "create": "Utwórz wiadomość",
+  "edit": "Edytuj wiadomość",
+  "delete": "Usuń wiadomość",
+  "notFound": "Nie znaleziono wiadomości.",
+  "backToNews": "Wróć do aktualności",
+  "readFullArticle": "Przeczytaj cały artykuł",
+  "form": {
+    "descriptionPlaceholder": "Napisz tutaj wiadomość...",
+    "tooLong": "Opis jest za długi (maks. {{max}} znaków).",
+    "urlHint": "Wyświetlane jako \"Przeczytaj cały artykuł\" na dole wiadomości.",
+    "pictureUrlLabel": "Adres URL obrazu (opcjonalnie)",
+    "urlLabel": "Link do oryginalnego artykułu (opcjonalnie)"
+  },
+  "editor": {
+    "typography": "Typografia",
+    "normal": "Normalny",
+    "heading": "Nagłówek",
+    "subheading": "Podnagłówek",
+    "bold": "Pogrubienie",
+    "italic": "Kursywa",
+    "underline": "Podkreślenie",
+    "bulletList": "Lista punktowana",
+    "numberedList": "Lista numerowana",
+    "outdent": "Zmniejsz wcięcie",
+    "indent": "Zwiększ wcięcie",
+    "insertLink": "Wstaw link",
+    "linkTextPlaceholder": "Wyświetlany tekst",
+    "linkTextLabel": "Tekst linku",
+    "linkUrlLabel": "Adres linku",
+    "insert": "Wstaw",
+    "cancelLink": "Anuluj link"
+  },
+  "heading": "Aktualności",
+  "loading": "Ładowanie aktualności...",
+  "loadingOne": "Ładowanie wiadomości...",
+  "noAccess": "Nie masz dostępu do aktualności tej organizacji.",
+  "empty": "Nie ma jeszcze żadnych aktualności.",
+  "deleteTitle": "Usunąć \"{{name}}\"?"
+}

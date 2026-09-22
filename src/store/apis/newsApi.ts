@@ -1,12 +1,13 @@
 // src/store/apis/newsApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
+import { mapDbError, mapPermissionError } from './apiError'
 import type { CreateNewsInput, News, UpdateNewsInput } from '../../types/news/newsType'
 
 async function getAuthenticatedOrganisationId(): Promise<string> {
     const { data: authData, error: authError } = await supabase.auth.getUser()
     if (authError || !authData.user) {
-        throw new Error('Du skal være logget ind for at udføre denne handling.')
+        throw new Error('errors:loginRequiredForAction')
     }
 
     const { data: profileData, error: profileError } = await supabase
@@ -16,20 +17,10 @@ async function getAuthenticatedOrganisationId(): Promise<string> {
         .single()
 
     if (profileError || !profileData?.active_organisation_id) {
-        throw new Error('Kunne ikke hente din organisationstilknytning.')
+        throw new Error('errors:organisationLookupFailed')
     }
 
     return profileData.active_organisation_id
-}
-
-// 42501 = RLS afviste - bruger uden det relevante privilegie
-// (create_news/update_news/delete_news, Fase 3) forsøgte at
-// oprette/redigere/slette. Samme mønster som privilegeApi.ts/roleApi.ts.
-function mapNewsError(error: { code?: string; message: string }, action: string): { status: 'CUSTOM_ERROR'; error: string } {
-    if (error.code === '42501') {
-        return { status: 'CUSTOM_ERROR', error: `Du har ikke rettigheder til at ${action}.` }
-    }
-    return { status: 'CUSTOM_ERROR', error: error.message }
 }
 
 function mapNewsRow(row: {
@@ -66,12 +57,12 @@ export const newsApi = supabaseApi.injectEndpoints({
                         .order('published_at', { ascending: false })
 
                     if (error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                        return { error: mapDbError(error) }
                     }
 
                     return { data: (data ?? []).map(mapNewsRow) }
                 } catch (err: any) {
-                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved hentning af nyheder' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } }
                 }
             },
             providesTags: (result) =>
@@ -92,7 +83,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                     .single()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: mapNewsRow(data) }
@@ -105,7 +96,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                 try {
                     const trimmedTitle = input.title.trim()
                     if (!trimmedTitle) {
-                        return { error: { status: 'CUSTOM_ERROR', error: 'Nyhedens titel skal udfyldes.' } }
+                        return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.newsTitle' } }
                     }
 
                     const organisationId = await getAuthenticatedOrganisationId()
@@ -124,12 +115,12 @@ export const newsApi = supabaseApi.injectEndpoints({
                         .single()
 
                     if (error) {
-                        return { error: mapNewsError(error, 'oprette denne nyhed') }
+                        return { error: mapPermissionError(error, 'createNews') }
                     }
 
                     return { data: mapNewsRow(data) }
                 } catch (err: any) {
-                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'Fejl ved oprettelse af nyhed' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } }
                 }
             },
             invalidatesTags: [{ type: 'News', id: 'LIST' }],
@@ -138,7 +129,7 @@ export const newsApi = supabaseApi.injectEndpoints({
         updateNews: builder.mutation<void, UpdateNewsInput>({
             queryFn: async ({ id, ...changes }) => {
                 if (changes.title !== undefined && !changes.title.trim()) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Nyhedens titel skal udfyldes.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.newsTitle' } }
                 }
 
                 const { error } = await supabase
@@ -153,7 +144,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                     .eq('id', id)
 
                 if (error) {
-                    return { error: mapNewsError(error, 'redigere denne nyhed') }
+                    return { error: mapPermissionError(error, 'updateNews') }
                 }
 
                 return { data: undefined }
@@ -169,7 +160,7 @@ export const newsApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.from('news').delete().eq('id', id)
 
                 if (error) {
-                    return { error: mapNewsError(error, 'slette denne nyhed') }
+                    return { error: mapPermissionError(error, 'deleteNews') }
                 }
 
                 return { data: undefined }

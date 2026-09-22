@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Funções e permissões",
+    "organisation": "Organização",
+    "membership_requests": "Pedidos de adesão",
+    "members": "Membros",
+    "invitations": "Convites",
+    "news": "Notícias",
+    "datalayer": "Camada de dados",
+    "tasks": "Tarefas",
+    "task_approval": "Aprovação de tarefas"
+  },
+  "op": {
+    "create": "Criar",
+    "read": "Ver",
+    "update": "Editar",
+    "delete": "Eliminar",
+    "assign": "Atribuir",
+    "approve": "Aprovar",
+    "reject": "Rejeitar"
+  },
+  "privilege": {
+    "admin": "Administração completa (pode fazer tudo)"
+  },
+  "other": "Outro",
+  "matrix": {
+    "newRoleLabel": "Nova função",
+    "createRole": "Criar função",
+    "creatingRole": "A criar...",
+    "loading": "A carregar funções...",
+    "noRoles": "A organização ainda não tem funções.",
+    "selectAll": "Selecionar tudo",
+    "removeAll": "Remover tudo",
+    "savePrivilegeName": "Guardar o nome da permissão",
+    "renamePrivilege": "Mudar o nome da permissão",
+    "saveRoleName": "Guardar o nome da função",
+    "renameRole": "Mudar o nome da função",
+    "deleteRole": "Eliminar a função",
+    "newRolePlaceholder": "Por ex. Coordenação de voluntários",
+    "privilegeColumn": "Permissão",
+    "removeAllTitle": "Remove todas as permissões atuais de {{role}} (não é acesso real de administrador de sistema)",
+    "selectAllTitle": "Dá a {{role}} todas as permissões atuais (não é acesso real de administrador de sistema)",
+    "renamePrivilegeFor": "Mudar o nome desta permissão para {{role}}",
+    "confirmDeleteRole": "Eliminar \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin já tem acesso total e não pode ser personalizado",
+    "memberFixed": "Parte fixa da função predefinida Medlem",
+    "adminOnly": "Só um administrador pode conceder a permissão admin",
+    "adminRoleProtected": "Esta função tem a permissão admin e não pode ser renomeada nem eliminada",
+    "memberRoleProtected": "A função predefinida Medlem não pode ser renomeada nem eliminada",
+    "memberNotExtendable": "A função predefinida Medlem não pode ser alargada"
+  },
+  "approvals": {
+    "loading": "A carregar aprovações de tarefas...",
+    "empty": "Não há tarefas a aguardar aprovação.",
+    "confirmApprove": "Aprovar e marcar a tarefa como concluída?",
+    "confirmReject": "Rejeitar o pedido? A tarefa continua em curso.",
+    "reportedBy": "Conclusão comunicada por",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "reportedDoneBy": "Conclusão comunicada por {{name}}"
+  }
+}

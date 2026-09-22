@@ -1,14 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
 import { X, Package, Pencil, Trash2, Loader2, Save } from 'lucide-react';
 import { useUpdateItemMutation, useDeleteItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import { LocationPickerComponent } from './locationsPickerComponent';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
 import type { ItemDetailComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
+  const td = asDynamic(t)
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -94,7 +98,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setFormError('Navn er påkrævet.');
+      setFormError(t('itemDetail.nameRequired'));
       return;
     }
 
@@ -111,7 +115,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       setIsEditing(false);
       onClose(); // luk modalen, så listen viser opdaterede data
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer. Prøv igen.'));
+      setFormError(getErrorMessage(err, t('itemDetail.saveFailed')));
     }
   };
 
@@ -121,7 +125,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       setIsConfirmingDelete(false);
       onClose();
     } catch (err) {
-      setDeleteError(getErrorMessage(err, 'Kunne ikke slette itemet. Prøv igen.'));
+      setDeleteError(getErrorMessage(err, t('itemDetail.deleteFailed')));
     }
   };
 
@@ -144,7 +148,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
             <Package className="w-5 h-5 text-accent shrink-0" />
             <div className="min-w-0">
               {isEditing ? (
-                <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">Rediger item</h2>
+                <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{t('itemDetail.heading')}</h2>
               ) : (
                 <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{item.name}</h2>
               )}
@@ -154,7 +158,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                 const ancestors = parts.slice(0, -1);
                 return (
                   <p className="text-xs text-secondary truncate dark:text-slate-400">
-                    I kategori: {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
+                    {t('itemDetail.inCategory')} {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
                     <strong className="text-primary font-medium dark:text-slate-100">{current}</strong>
                   </p>
                 );
@@ -166,8 +170,8 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               <button
                 onClick={() => setIsEditing(true)}
                 className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                title="Rediger item"
-                aria-label="Rediger item"
+                title={t('itemDetail.editItem')}
+                aria-label={t('itemDetail.editItem')}
               >
                 <Pencil className="w-4 h-4" />
               </button>
@@ -176,13 +180,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               <button
                 onClick={() => setIsConfirmingDelete(true)}
                 className="p-1.5 rounded-md hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-                title="Slet item"
-                aria-label="Slet item"
+                title={t('itemDetail.deleteItem')}
+                aria-label={t('itemDetail.deleteItem')}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
-            <button type="button" onClick={requestClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk modal">
+            <button type="button" onClick={requestClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title={t('close')} aria-label={t('closeModal')}>
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -198,7 +202,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
           {isEditing && (
             <div>
               <label htmlFor="item-name-input" className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">
-                Navn <span aria-hidden="true" className="text-red-600 dark:text-red-400">*</span>
+                {t('fields.nameRequired')} <span aria-hidden="true" className="text-red-600 dark:text-red-400">*</span>
               </label>
               <input
                 id="item-name-input"
@@ -214,23 +218,23 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Status</span>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.status')}</span>
               {isEditing ? (
                 <select
                   value={itemStatus}
                   onChange={(e) => setItemStatus(e.target.value as (typeof ALL_ITEM_STATUSES)[number])}
                   className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 >
-                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{ITEM_STATUS_LABELS[status]}</option>)}
+                  {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
                 </select>
               ) : (
                 <span className={`inline-block px-2 py-0.5 rounded border text-sm ${ITEM_STATUS_STYLES[item.itemStatus] ?? 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-700'}`}>
-                  {ITEM_STATUS_LABELS[item.itemStatus]}
+                  {td(`datalayer:status.${item.itemStatus}`)}
                 </span>
               )}
             </div>
             <div>
-              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Antal</span>
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.quantity')}</span>
               {isEditing ? (
                 <input
                   type="number"
@@ -247,7 +251,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
            <div className="col-span-2">
               {!isEditing && (
-                <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Lager</span>
+                <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.location')}</span>
               )}
               {isEditing ? (
                 <LocationPickerComponent
@@ -262,27 +266,27 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                   type="button"
                   onClick={() => onViewLocation(currentLocation)}
                   className="text-primary hover:text-accent hover:underline underline-offset-2 text-left dark:text-slate-100"
-                  title="Vis items på denne lokation"
+                  title={t('itemDetail.showItemsAtLocation')}
                 >
                   {locationPathLabel(currentLocation, locations)}
                 </button>
               ) : (
-                <span className="text-secondary dark:text-slate-400">Intet lager</span>
+                <span className="text-secondary dark:text-slate-400">{t('itemDetail.noLocation')}</span>
               )}
             </div>
           </div>
           <div>
-            <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">Beskrivelse</span>
+            <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.description')}</span>
             {isEditing ? (
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Beskrivelse"
+                placeholder={t('addItems.descriptionPlaceholder')}
                 rows={3}
                 className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               />
             ) : (
-              <p className="text-sm text-secondary dark:text-slate-400">{item.description || 'Ingen beskrivelse'}</p>
+              <p className="text-sm text-secondary dark:text-slate-400">{item.description || t('itemDetail.noDescription')}</p>
             )}
           </div>
         </div>
@@ -294,7 +298,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               onClick={requestCancelEdit}
               className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
             >
-              Annullér
+              {t('common:cancel')}
             </button>
             <button
               type="button"
@@ -303,7 +307,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Gem
+              {t('common:save')}
             </button>
           </div>
         )}
@@ -312,9 +316,9 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
     <ConfirmDialogComponent
       isOpen={pendingDiscardAction !== null}
-      title="Kassér ændringer?"
-      message="Dine ændringer er ikke gemt."
-      confirmLabel="Kassér"
+      title={t('itemDetail.discardTitle')}
+      message={t('itemDetail.discardMessage')}
+      confirmLabel={t('itemDetail.discardConfirm')}
       onConfirm={() => {
         const action = pendingDiscardAction;
         setPendingDiscardAction(null);
@@ -327,9 +331,9 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
     <ConfirmDialogComponent
       isOpen={isConfirmingDelete}
-      title="Slet item?"
-      message={`"${item.name}" bliver slettet permanent.${deleteError ? ` ${deleteError}` : ''}`}
-      confirmLabel="Slet"
+      title={t('itemDetail.deleteTitle')}
+      message={`${t('itemDetail.deleteMessage', { name: item.name })}${deleteError ? ` ${deleteError}` : ''}`}
+      confirmLabel={t('itemDetail.deleteConfirm')}
       isLoading={isDeleting}
       onConfirm={handleDelete}
       onCancel={() => { setIsConfirmingDelete(false); setDeleteError(null); }}

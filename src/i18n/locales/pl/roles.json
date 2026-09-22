@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Role i uprawnienia",
+    "organisation": "Organizacja",
+    "membership_requests": "Wnioski o członkostwo",
+    "members": "Członkowie",
+    "invitations": "Zaproszenia",
+    "news": "Aktualności",
+    "datalayer": "Warstwa danych",
+    "tasks": "Zadania",
+    "task_approval": "Zatwierdzanie zadań"
+  },
+  "op": {
+    "create": "Tworzenie",
+    "read": "Podgląd",
+    "update": "Edycja",
+    "delete": "Usuwanie",
+    "assign": "Przydzielanie",
+    "approve": "Zatwierdzanie",
+    "reject": "Odrzucanie"
+  },
+  "privilege": {
+    "admin": "Pełna administracja (może wszystko)"
+  },
+  "other": "Inne",
+  "matrix": {
+    "newRoleLabel": "Nowa rola",
+    "createRole": "Utwórz rolę",
+    "creatingRole": "Tworzenie...",
+    "loading": "Ładowanie ról...",
+    "noRoles": "Organizacja nie ma jeszcze ról.",
+    "selectAll": "Zaznacz wszystko",
+    "removeAll": "Usuń wszystko",
+    "savePrivilegeName": "Zapisz nazwę uprawnienia",
+    "renamePrivilege": "Zmień nazwę uprawnienia",
+    "saveRoleName": "Zapisz nazwę roli",
+    "renameRole": "Zmień nazwę roli",
+    "deleteRole": "Usuń rolę",
+    "newRolePlaceholder": "Np. Koordynator wolontariuszy",
+    "privilegeColumn": "Uprawnienie",
+    "removeAllTitle": "Usuwa wszystkie obecne uprawnienia roli {{role}} (to nie jest prawdziwy dostęp administratora systemu)",
+    "selectAllTitle": "Nadaje roli {{role}} wszystkie obecne uprawnienia (to nie jest prawdziwy dostęp administratora systemu)",
+    "renamePrivilegeFor": "Zmień nazwę tego uprawnienia dla roli {{role}}",
+    "confirmDeleteRole": "Usunąć \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin ma już pełny dostęp i nie można go dostosować",
+    "memberFixed": "Stała część roli domyślnej Medlem",
+    "adminOnly": "Tylko administrator może nadać uprawnienie admin",
+    "adminRoleProtected": "Ta rola ma uprawnienie admin i nie można jej zmienić nazwy ani usunąć",
+    "memberRoleProtected": "Roli domyślnej Medlem nie można zmienić nazwy ani usunąć",
+    "memberNotExtendable": "Roli domyślnej Medlem nie można rozszerzyć"
+  },
+  "approvals": {
+    "loading": "Ładowanie zatwierdzeń zadań...",
+    "empty": "Żadne zadanie nie czeka na zatwierdzenie.",
+    "confirmApprove": "Zatwierdzić i oznaczyć zadanie jako zakończone?",
+    "confirmReject": "Odrzucić zgłoszenie? Zadanie pozostaje w toku.",
+    "reportedBy": "Zakończenie zgłosił",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "reportedDoneBy": "Zakończenie zgłosił {{name}}"
+  }
+}

@@ -1,5 +1,6 @@
 // components/messaging/ContactListComponent.tsx
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { Search, Loader2, Users } from 'lucide-react';
 import { useGetOrganisationMembersQuery } from '../../store/apis/roleApi';
 import { useGetMyProfileQuery } from '../../store/apis/profileApi';
@@ -15,6 +16,7 @@ function getInitials(firstName: string, lastName: string): string {
 }
 
 export function ContactListComponent({ selectedContactId, onSelectContact }: ContactListComponentProps) {
+  const { t } = useTranslation(['messages', 'common'])
   const { data: members = [], isLoading, error } = useGetOrganisationMembersQuery();
   const { data: myProfile } = useGetMyProfileQuery();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,7 +49,7 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
           <input
             type="text"
-            placeholder="Søg efter kontakt eller rolle..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -68,7 +70,7 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
           <div className="flex flex-col items-center justify-center py-12 text-center text-secondary px-4 dark:text-slate-400">
             <Users className="w-8 h-8 mb-2 stroke-[1.5] text-secondary dark:text-slate-400" />
             <p className="text-sm">
-              {searchQuery ? 'Ingen kontakter matcher din søgning.' : 'Ingen andre medlemmer i din organisation endnu.'}
+              {searchQuery ? t('noContactsMatch') : t('noOtherMembers')}
             </p>
           </div>
         ) : (
@@ -96,7 +98,7 @@ export function ContactListComponent({ selectedContactId, onSelectContact }: Con
                         {contact.firstName} {contact.lastName}
                       </p>
                       <p className="text-xs text-secondary truncate dark:text-slate-400">
-                        {contact.roleName ?? 'Ingen rolle'}
+                        {contact.roleName ?? t('noRole')}
                       </p>
                     </div>
                   </button>

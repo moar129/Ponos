@@ -2,10 +2,13 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/apis/profileApi'
 import { useSignOutMutation } from '../../store/apis/authApi'
 import ChangePasswordForm from '../../components/profile/ChangePasswordForm'
+import { PreferencesSection } from '../../components/profile/PreferencesSection'
+import { readableError } from '../../ErrorMessage'
 import { Avatar } from '../../components/common/Avatar'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
 
@@ -23,6 +26,7 @@ const emptyForm: UpdateProfileInput = {
 // brugeren selv må ændre. Rolle, organisation og e-mail vises kun.
 export default function ProfilePage() {
     const navigate = useNavigate()
+    const { t } = useTranslation(['profile', 'common'])
     const { data: profile, isLoading, error: queryError } = useGetMyProfileQuery()
     const [updateMyProfile, { isLoading: saving, error: mutationError }] = useUpdateMyProfileMutation()
     const [signOut, { isLoading: signingOut }] = useSignOutMutation()
@@ -61,7 +65,7 @@ export default function ProfilePage() {
         setSavedMessage(false)
 
         if (!form.firstName.trim() || !form.lastName.trim()) {
-            setValidationError('Fornavn og efternavn skal udfyldes.')
+            setValidationError(t('nameRequired'))
             return
         }
         setValidationError(null)
@@ -86,18 +90,8 @@ export default function ProfilePage() {
         }
     }
 
-    // Udtrækker en læsbar fejlbesked fra RTK Query's error-objekt, som kan
-    // komme i lidt forskellige former afhængigt af hvor fejlen opstod.
-    function readableError(err: unknown): string | null {
-        if (!err) return null
-        if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-            return err.error
-        }
-        return 'Noget gik galt. Prøv igen.'
-    }
-
     if (isLoading) {
-        return <p className="text-secondary dark:text-slate-400">Indlæser profil...</p>
+        return <p className="text-secondary dark:text-slate-400">{t('loading')}</p>
     }
 
     if (queryError) {
@@ -109,7 +103,7 @@ export default function ProfilePage() {
     }
 
     if (!profile) {
-        return <p className="text-secondary dark:text-slate-400">Din profil kunne ikke findes.</p>
+        return <p className="text-secondary dark:text-slate-400">{t('notFound')}</p>
     }
 
     const saveError = readableError(mutationError)
@@ -135,7 +129,7 @@ export default function ProfilePage() {
 
             {savedMessage && !isEditing && (
                 <div className="mb-4 rounded-md bg-green-50 dark:bg-emerald-900/30 border border-green-200 dark:border-emerald-800 text-green-700 dark:text-emerald-400 text-sm px-3 py-2">
-                    Dine oplysninger er gemt.
+                    {t('saved')}
                 </div>
             )}
 
@@ -148,7 +142,7 @@ export default function ProfilePage() {
             {isEditing ? (
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
                         <input
                             id="firstName"
                             type="text"
@@ -159,7 +153,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
                         <input
                             id="lastName"
                             type="text"
@@ -170,7 +164,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="description">Beskrivelse</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="description">{t('fields.description')}</label>
                         <textarea
                             id="description"
                             rows={3}
@@ -181,7 +175,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mb-6">
-                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="urlPicture">Profilbillede (URL)</label>
+                        <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="urlPicture">{t('fields.pictureUrl')}</label>
                         <input
                             id="urlPicture"
                             type="url"
@@ -195,7 +189,7 @@ export default function ProfilePage() {
                         e-mail hører til Supabase Auth, og rolle/organisation
                         blokeres server-side. */}
                     <p className="mb-6 text-xs text-secondary dark:text-slate-400">
-                        E-mail, rolle og organisation kan ikke ændres her. Kontakt din administrator.
+                        {t('readOnlyNote')}
                     </p>
 
                     <div className="flex gap-3">
@@ -204,7 +198,7 @@ export default function ProfilePage() {
                             disabled={saving}
                             className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
-                            {saving ? 'Gemmer...' : 'Gem ændringer'}
+                            {saving ? t('common:saving') : t('saveChanges')}
                         </button>
                         <button
                             type="button"
@@ -212,7 +206,7 @@ export default function ProfilePage() {
                             disabled={saving}
                             className="rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
-                            Annuller
+                            {t('common:cancel')}
                         </button>
                     </div>
                 </form>
@@ -220,36 +214,36 @@ export default function ProfilePage() {
                 <>
                     <dl className="divide-y divide-border-gray dark:divide-slate-700 border-t border-border-gray dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">Fornavn</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.firstName')}</dt>
                             <dd className="text-sm text-right">{profile.firstName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">Efternavn</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.lastName')}</dt>
                             <dd className="text-sm text-right">{profile.lastName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">E-mail</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.email')}</dt>
                             <dd className="text-sm text-right">{profile.email}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">Organisation</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.organisation')}</dt>
                             <dd className="text-sm text-right">
-                                {profile.organisationName ?? 'Ingen organisation'}
+                                {profile.organisationName ?? t('empty.organisation')}
                             </dd>
                         </div>
                         {/* Rolle vises kun, hvis brugeren har en aktiv organisation */}
                         {profile.activeOrganisationId && (
                             <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary dark:text-slate-400">Rolle</dt>
+                                <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.role')}</dt>
                                 <dd className="text-sm text-right">
-                                    {profile.roleName ?? 'Ingen rolle tildelt'}
+                                    {profile.roleName ?? t('empty.role')}
                                 </dd>
                             </div>
                         )}
                         <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">Beskrivelse</dt>
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.description')}</dt>
                             <dd className="text-sm text-right">
-                                {profile.description ?? 'Ingen beskrivelse'}
+                                {profile.description ?? t('empty.description')}
                             </dd>
                         </div>
                     </dl>
@@ -260,7 +254,7 @@ export default function ProfilePage() {
                             onClick={() => startEdit(profile)}
                             className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
-                            Rediger profil
+                            {t('editProfile')}
                         </button>
                         <button
                             type="button"
@@ -269,17 +263,29 @@ export default function ProfilePage() {
                             className="flex items-center gap-2 rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                         >
                             <LogOut className="w-4 h-4" />
-                            {signingOut ? 'Logger ud...' : 'Log ud'}
+                            {signingOut ? t('loggingOut') : t('logout')}
                         </button>
                     </div>
                 </>
+            )}
+
+            {/* Sprog + tema. Ligger uden for profilformularen, fordi begge
+                gemmes i browseren og ikke i profiles-tabellen. Skjules
+                under redigering, som afsnittet nedenfor. */}
+            {!isEditing && (
+                <section className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
+                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
+                        {t('preferences.title')}
+                    </h2>
+                    <PreferencesSection />
+                </section>
             )}
 
             {/* US-69: eget afsnit nederst. Skjules under redigering, så
                 der ikke står to formularer oven på hinanden. */}
             {!isEditing && (
                 <section className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
-                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">Adgangskode</h2>
+                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">{t('passwordHeading')}</h2>
                     <ChangePasswordForm />
                 </section>
             )}

@@ -1,12 +1,14 @@
 // src/components/profile/ChangePasswordForm.tsx
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useChangePasswordMutation } from '../../store/apis/authApi'
 
 // US-69: "Adgangskode"-afsnittet på profilsiden. Egen komponent frem for
 // endnu 60 linjer i ProfilePage.tsx. Den nuværende adgangskode bekræftes i
 // mutationen - derfor intet prototype-forbehold som på US-68.
 export default function ChangePasswordForm() {
+    const { t } = useTranslation(['auth', 'common'])
     const [changePassword, { isLoading }] = useChangePasswordMutation()
 
     const [currentPassword, setCurrentPassword] = useState('')
@@ -44,16 +46,16 @@ export default function ChangePasswordForm() {
     // kravet om at den nye kode faktisk er ny.
     function validate(): string | null {
         if (!currentPassword || !newPassword) {
-            return 'Udfyld både din nuværende og din nye adgangskode.'
+            return t('changePassword.bothRequired')
         }
         if (newPassword.length < 6) {
-            return 'Adgangskoden skal være mindst 6 tegn.'
+            return t('validation.passwordTooShort')
         }
         if (newPassword !== confirmPassword) {
-            return 'Adgangskoderne matcher ikke.'
+            return t('validation.passwordsDoNotMatch')
         }
         if (newPassword === currentPassword) {
-            return 'Den nye adgangskode skal være forskellig fra den nuværende.'
+            return t('changePassword.mustDiffer')
         }
         return null
     }
@@ -80,7 +82,7 @@ export default function ChangePasswordForm() {
             if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
                 setError(err.error)
             } else {
-                setError('Adgangskoden kunne ikke ændres. Prøv igen.')
+                setError(t('common:genericError'))
             }
         }
     }
@@ -92,7 +94,7 @@ export default function ChangePasswordForm() {
             <>
                 {savedMessage && (
                     <div className="mb-4 rounded-md bg-green-50 dark:bg-emerald-900/30 border border-green-200 dark:border-emerald-800 text-green-700 dark:text-emerald-400 text-sm px-3 py-2">
-                        Din adgangskode er ændret.
+                        {t('changePassword.changed')}
                     </div>
                 )}
 
@@ -101,7 +103,7 @@ export default function ChangePasswordForm() {
                     onClick={startEdit}
                     className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                 >
-                    Skift adgangskode
+                    {t('changePassword.submit')}
                 </button>
             </>
         )
@@ -116,7 +118,7 @@ export default function ChangePasswordForm() {
             )}
 
             <div className="mb-4">
-                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="currentPassword">Nuværende adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="currentPassword">{t('fields.currentPassword')}</label>
                 <input
                     id="currentPassword"
                     type="password"
@@ -128,7 +130,7 @@ export default function ChangePasswordForm() {
             </div>
 
             <div className="mb-4">
-                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="newPassword">Ny adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="newPassword">{t('fields.newPassword')}</label>
                 <input
                     id="newPassword"
                     type="password"
@@ -140,7 +142,7 @@ export default function ChangePasswordForm() {
             </div>
 
             <div className="mb-6">
-                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmNewPassword">Gentag ny adgangskode</label>
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmNewPassword">{t('fields.repeatNewPassword')}</label>
                 <input
                     id="confirmNewPassword"
                     type="password"
@@ -157,7 +159,7 @@ export default function ChangePasswordForm() {
                     disabled={isLoading}
                     className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {isLoading ? 'Skifter...' : 'Skift adgangskode'}
+                    {isLoading ? t('changePassword.submitting') : t('changePassword.submit')}
                 </button>
                 <button
                     type="button"
@@ -165,7 +167,7 @@ export default function ChangePasswordForm() {
                     disabled={isLoading}
                     className="rounded-md border border-border-gray dark:border-slate-700 px-4 py-2 font-medium text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
                 >
-                    Annuller
+                    {t('common:cancel')}
                 </button>
             </div>
         </form>

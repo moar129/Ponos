@@ -1,4 +1,27 @@
 -- ---------------------------------------------------------------------
+-- KENDT DRIFT (konstateret 2026-09-21 via docs/exportSchema.sql)
+-- ---------------------------------------------------------------------
+-- Beskedsystemet og notifikationerne står IKKE i denne fil. Live-skemaet
+-- har tabellerne conversations, conversation_participants, messages og
+-- notifications med tilhørende RLS, policies, triggers og RPC'er - intet
+-- af det er dokumenteret her.
+--
+-- Konkret mangler disse ni funktioner, som findes i databasen:
+--   add_group_participants, create_group_conversation, delete_message,
+--   edit_message, get_or_create_direct_conversation,
+--   leave_group_conversation, mark_conversation_read,
+--   remove_group_participant, rename_group_conversation
+-- samt validate_location_parent.
+--
+-- Det svarer til 51 af databasens 108 raise exception. De 57 der ER
+-- dokumenteret her, er opdaterede og korrekte.
+--
+-- Hører til Studerende 3 (beskeder/notifikationer) og Studerende 2
+-- (lokationer). Udestår.
+-- ---------------------------------------------------------------------
+
+
+-- ---------------------------------------------------------------------
 -- 0. EXTENSIONS
 -- ---------------------------------------------------------------------
 create extension if not exists "pgcrypto"; -- for gen_random_uuid()
@@ -529,10 +552,10 @@ as $$
 begin
   if new.id = auth.uid() then
     if new.role_id is distinct from old.role_id then
-      raise exception 'Du kan ikke tildele dig selv en rolle.';
+      raise exception 'Du kan ikke tildele dig selv en rolle.' using hint = 'CANNOT_ASSIGN_OWN_ROLE';
     end if;
     if new.organisation_id is distinct from old.organisation_id then
-      raise exception 'Du kan ikke ændre din egen organisationstilknytning direkte.';
+      raise exception 'Du kan ikke ændre din aktive organisation direkte.' using hint = 'CANNOT_CHANGE_ACTIVE_ORG_DIRECTLY';
     end if;
   end if;
   return new;
@@ -644,10 +667,10 @@ begin
 
   if old.name = 'admin' and role_name = 'Admin' then
     if tg_op = 'DELETE' then
-      raise exception 'Admin-privilegiet på rollen Admin kan ikke slettes.';
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke slettes.' using hint = 'ADMIN_PRIVILEGE_LOCKED_DELETE';
     end if;
     if new.name is distinct from old.name then
-      raise exception 'Admin-privilegiet på rollen Admin kan ikke omdøbes.';
+      raise exception 'Admin-privilegiet på rollen Admin kan ikke omdøbes.' using hint = 'ADMIN_PRIVILEGE_LOCKED_RENAME';
     end if;
   end if;
 
@@ -698,11 +721,11 @@ begin
   end if;
 
   if tg_op = 'DELETE' then
-    raise exception 'Rollen Admin har admin-privilegiet og kan ikke slettes.';
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke slettes.' using hint = 'ADMIN_ROLE_LOCKED_DELETE';
   end if;
 
   if new.name is distinct from old.name then
-    raise exception 'Rollen Admin har admin-privilegiet og kan ikke omdøbes.';
+    raise exception 'Rollen Admin har admin-privilegiet og kan ikke omdøbes.' using hint = 'ADMIN_ROLE_LOCKED_RENAME';
   end if;
   return new;
 end;
@@ -748,11 +771,11 @@ begin
   end if;
 
   if tg_op = 'DELETE' then
-    raise exception 'Standardrollen Medlem kan ikke slettes.';
+    raise exception 'Standardrollen Medlem kan ikke slettes.' using hint = 'MEMBER_ROLE_LOCKED_DELETE';
   end if;
 
   if new.name is distinct from old.name then
-    raise exception 'Standardrollen Medlem kan ikke omdøbes.';
+    raise exception 'Standardrollen Medlem kan ikke omdøbes.' using hint = 'MEMBER_ROLE_LOCKED_RENAME';
   end if;
   return new;
 end;
@@ -829,7 +852,7 @@ begin
     select name into role_name from public.roles where id = new.role_id;
 
     if role_name = 'Medlem' then
-      raise exception 'Standardrollen Medlem kan ikke tildeles nye privilegier.';
+      raise exception 'Standardrollen Medlem kan ikke tildeles nye privilegier.' using hint = 'MEMBER_ROLE_NOT_EXTENDABLE';
     end if;
 
     return new;
@@ -839,10 +862,10 @@ begin
 
   if role_name = 'Medlem' and old.name in ('read_news', 'read_tasks') then
     if tg_op = 'DELETE' then
-      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke fjernes.';
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke fjernes.' using hint = 'MEMBER_ROLE_PRIVILEGES_FIXED_REMOVE';
     end if;
     if new.name is distinct from old.name then
-      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke omdøbes.';
+      raise exception 'Standardrollen Medlems privilegier er faste og kan ikke omdøbes.' using hint = 'MEMBER_ROLE_PRIVILEGES_FIXED_RENAME';
     end if;
   end if;
 
@@ -894,7 +917,7 @@ begin
      and public.role_has_privilege(old.role_id, 'admin')
      and not public.has_privilege('admin')
   then
-    raise exception 'Du skal være administrator for at ændre en anden administrators rolle.';
+    raise exception 'Du skal være administrator for at ændre en anden administrators rolle.' using hint = 'ADMIN_REQUIRED_CHANGE_ADMIN_ROLE';
   end if;
 
   if new.role_id is not null and public.role_has_privilege(new.role_id, 'admin') then
@@ -906,7 +929,7 @@ begin
         and m.role_id is not null
         and public.role_has_privilege(m.role_id, 'admin')
     ) then
-      raise exception 'Organisationen har allerede en administrator - brug "Giv admin-rollen videre" i stedet.';
+      raise exception 'Organisationen har allerede en administrator - brug "Giv admin-rollen videre" i stedet.' using hint = 'ORG_ALREADY_HAS_ADMIN';
     end if;
   end if;
 
@@ -938,7 +961,7 @@ begin
   if new.id = auth.uid()
      and coalesce(current_setting('ponos.bypass_self_role_org_change', true), 'false') <> 'true' then
     if new.active_organisation_id is distinct from old.active_organisation_id then
-      raise exception 'Du kan ikke ændre din aktive organisation direkte.';
+      raise exception 'Du kan ikke ændre din aktive organisation direkte.' using hint = 'CANNOT_CHANGE_ACTIVE_ORG_DIRECTLY';
     end if;
   end if;
   return new;
@@ -976,11 +999,11 @@ declare
   v_user_id        uuid := auth.uid();
 begin
   if v_user_id is null then
-    raise exception 'Du skal være logget ind for at oprette en organisation.';
+    raise exception 'Du skal være logget ind for at oprette en organisation.' using hint = 'NOT_LOGGED_IN_CREATE_ORG';
   end if;
 
   if trim(coalesce(p_name, '')) = '' then
-    raise exception 'Organisationens navn skal udfyldes.';
+    raise exception 'Organisationens navn skal udfyldes.' using hint = 'ORG_NAME_REQUIRED';
   end if;
 
   insert into public.organisations (name)
@@ -1045,7 +1068,7 @@ begin
   end if;
 
   if new.user_id = auth.uid() and new.role_id is distinct from old.role_id then
-    raise exception 'Du kan ikke tildele dig selv en rolle.';
+    raise exception 'Du kan ikke tildele dig selv en rolle.' using hint = 'CANNOT_ASSIGN_OWN_ROLE';
   end if;
   return new;
 end;
@@ -1071,14 +1094,14 @@ declare
   v_user_id uuid := auth.uid();
 begin
   if v_user_id is null then
-    raise exception 'Du skal være logget ind for at skifte organisation.';
+    raise exception 'Du skal være logget ind for at skifte organisation.' using hint = 'NOT_LOGGED_IN_SWITCH_ORG';
   end if;
 
   if not exists (
     select 1 from public.memberships
     where user_id = v_user_id and organisation_id = p_organisation_id
   ) then
-    raise exception 'Du er ikke medlem af denne organisation.';
+    raise exception 'Du er ikke medlem af denne organisation.' using hint = 'NOT_MEMBER_OF_ORG';
   end if;
 
   perform set_config('ponos.bypass_self_role_org_change', 'true', true);
@@ -1118,7 +1141,7 @@ declare
   v_result        public.organisations;
 begin
   if v_user_id is null then
-    raise exception 'Du skal være logget ind for at forlade en organisation.';
+    raise exception 'Du skal være logget ind for at forlade en organisation.' using hint = 'NOT_LOGGED_IN_LEAVE_ORG';
   end if;
 
   select role_id into v_role_id
@@ -1126,7 +1149,7 @@ begin
   where user_id = v_user_id and organisation_id = p_organisation_id;
 
   if not found then
-    raise exception 'Du er ikke medlem af denne organisation.';
+    raise exception 'Du er ikke medlem af denne organisation.' using hint = 'NOT_MEMBER_OF_ORG';
   end if;
 
   v_is_admin := v_role_id is not null and exists (
@@ -1140,7 +1163,7 @@ begin
     where m.organisation_id = p_organisation_id and m.user_id <> v_user_id;
 
     if v_other_admins = 0 then
-      raise exception 'Du er den eneste administrator i organisationen. Gør et andet medlem til administrator, før du forlader den.';
+      raise exception 'Du er den eneste administrator i organisationen. Gør et andet medlem til administrator, før du forlader den.' using hint = 'ONLY_ADMIN_CANNOT_LEAVE';
     end if;
   end if;
 
@@ -1264,7 +1287,7 @@ declare
   v_result      public.organisations;
 begin
   if v_user_id is null then
-    raise exception 'Du skal være logget ind for at slette en organisation.';
+    raise exception 'Du skal være logget ind for at slette en organisation.' using hint = 'NOT_LOGGED_IN_DELETE_ORG';
   end if;
 
   select role_id into v_role_id
@@ -1272,7 +1295,7 @@ begin
   where user_id = v_user_id and organisation_id = p_organisation_id;
 
   if not found then
-    raise exception 'Du er ikke medlem af denne organisation.';
+    raise exception 'Du er ikke medlem af denne organisation.' using hint = 'NOT_MEMBER_OF_ORG';
   end if;
 
   v_is_admin := v_role_id is not null and exists (
@@ -1280,7 +1303,7 @@ begin
   );
 
   if not v_is_admin then
-    raise exception 'Kun en administrator kan slette organisationen.';
+    raise exception 'Kun en administrator kan slette organisationen.' using hint = 'ONLY_ADMIN_CAN_DELETE_ORG';
   end if;
 
   select (active_organisation_id = p_organisation_id) into v_was_active
@@ -1338,20 +1361,20 @@ declare
   v_next_org_id uuid;
 begin
   if v_caller_id is null then
-    raise exception 'Du skal være logget ind for at fjerne et medlem.';
+    raise exception 'Du skal være logget ind for at fjerne et medlem.' using hint = 'NOT_LOGGED_IN_REMOVE_MEMBER';
   end if;
 
   if p_user_id = v_caller_id then
-    raise exception 'Du kan ikke fjerne dig selv - brug "Forlad organisation" i stedet.';
+    raise exception 'Du kan ikke fjerne dig selv - brug "Forlad organisation" i stedet.' using hint = 'CANNOT_REMOVE_SELF';
   end if;
 
   v_org_id := public.auth_profile_org();
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not public.has_privilege_or_admin('delete_members') then
-    raise exception 'Du har ikke rettigheder til at fjerne medlemmer.';
+    raise exception 'Du har ikke rettigheder til at fjerne medlemmer.' using hint = 'NO_PRIV_REMOVE_MEMBERS';
   end if;
 
   select role_id into v_target_role_id
@@ -1359,14 +1382,14 @@ begin
   where user_id = p_user_id and organisation_id = v_org_id;
 
   if not found then
-    raise exception 'Brugeren er ikke medlem af organisationen.';
+    raise exception 'Brugeren er ikke medlem af organisationen.' using hint = 'USER_NOT_MEMBER';
   end if;
 
   v_target_is_admin := v_target_role_id is not null and exists (
     select 1 from public.privileges where role_id = v_target_role_id and name = 'admin'
   );
   if v_target_is_admin and not public.has_privilege('admin') then
-    raise exception 'Du skal være administrator for at fjerne en anden administrator.';
+    raise exception 'Du skal være administrator for at fjerne en anden administrator.' using hint = 'ADMIN_REQUIRED_REMOVE_ADMIN';
   end if;
 
   delete from public.memberships
@@ -1411,20 +1434,20 @@ declare
   v_target_membership_exists boolean;
 begin
   if v_caller_id is null then
-    raise exception 'Du skal være logget ind for at give admin-rollen videre.';
+    raise exception 'Du skal være logget ind for at give admin-rollen videre.' using hint = 'NOT_LOGGED_IN_TRANSFER_ADMIN';
   end if;
 
   if p_new_admin_user_id = v_caller_id then
-    raise exception 'Du er allerede administrator.';
+    raise exception 'Du er allerede administrator.' using hint = 'ALREADY_ADMIN';
   end if;
 
   v_org_id := public.auth_profile_org();
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not public.has_privilege('admin') then
-    raise exception 'Du skal være administrator for at give admin-rollen videre.';
+    raise exception 'Du skal være administrator for at give admin-rollen videre.' using hint = 'ADMIN_REQUIRED_TRANSFER_ADMIN';
   end if;
 
   select exists (
@@ -1433,14 +1456,14 @@ begin
   ) into v_target_membership_exists;
 
   if not v_target_membership_exists then
-    raise exception 'Brugeren er ikke medlem af organisationen.';
+    raise exception 'Brugeren er ikke medlem af organisationen.' using hint = 'USER_NOT_MEMBER';
   end if;
 
   select id into v_admin_role_id from public.roles where organisation_id = v_org_id and name = 'Admin';
   select id into v_member_role_id from public.roles where organisation_id = v_org_id and name = 'Medlem';
 
   if v_admin_role_id is null or v_member_role_id is null then
-    raise exception 'Organisationens standardroller mangler.';
+    raise exception 'Organisationens standardroller mangler.' using hint = 'ORG_DEFAULT_ROLES_MISSING';
   end if;
 
   perform set_config('ponos.bypass_admin_protection', 'true', true);
@@ -1529,11 +1552,11 @@ declare
   v_target_id uuid;
 begin
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not public.has_privilege_or_admin('create_invitations') then
-    raise exception 'Du har ikke rettigheder til at invitere medlemmer.';
+    raise exception 'Du har ikke rettigheder til at invitere medlemmer.' using hint = 'NO_PRIV_INVITE_MEMBERS';
   end if;
 
   select id into v_target_id
@@ -1541,14 +1564,14 @@ begin
   where lower(email) = lower(trim(p_email));
 
   if v_target_id is null then
-    raise exception 'Ingen bruger findes med denne email.';
+    raise exception 'Ingen bruger findes med denne email.' using hint = 'NO_USER_WITH_EMAIL';
   end if;
 
   if exists (
     select 1 from public.memberships
     where user_id = v_target_id and organisation_id = v_org_id
   ) then
-    raise exception 'Brugeren er allerede medlem af organisationen.';
+    raise exception 'Brugeren er allerede medlem af organisationen.' using hint = 'USER_ALREADY_MEMBER';
   end if;
 
   insert into public.membership_invitations (organisation_id, invited_user_id, invited_by)
@@ -1556,7 +1579,7 @@ begin
   on conflict (invited_user_id, organisation_id) where status = 'Pending' do nothing;
 
   if not found then
-    raise exception 'Brugeren har allerede en ventende invitation til organisationen.';
+    raise exception 'Brugeren har allerede en ventende invitation til organisationen.' using hint = 'USER_ALREADY_INVITED';
   end if;
 end;
 $$;
@@ -1595,7 +1618,7 @@ as $$
 declare v_user_id uuid;
 begin
   if length(p_new_password) < 6 then
-    raise exception 'Adgangskoden skal være mindst 6 tegn.';
+    raise exception 'Adgangskoden skal være mindst 6 tegn.' using hint = 'PASSWORD_TOO_SHORT';
   end if;
 
   select id into v_user_id
@@ -1607,7 +1630,7 @@ begin
   -- Én samlet fejl: afslører hverken om emailen findes, eller hvilket
   -- felt der ikke passede.
   if v_user_id is null then
-    raise exception 'Oplysningerne passer ikke på en konto.';
+    raise exception 'Oplysningerne passer ikke på en konto.' using hint = 'RESET_DETAILS_NO_MATCH';
   end if;
 
   update auth.users
@@ -1644,11 +1667,11 @@ declare
   v_is_assignee boolean;
 begin
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not exists (select 1 from public.tasks where id = p_task_id and organisation_id = v_org_id) then
-    raise exception 'Opgaven findes ikke i din organisation.';
+    raise exception 'Opgaven findes ikke i din organisation.' using hint = 'TASK_NOT_FOUND';
   end if;
 
   v_is_assignee := exists (
@@ -1656,7 +1679,7 @@ begin
   );
 
   if not (v_is_assignee or public.has_privilege_or_admin('update_tasks')) then
-    raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.';
+    raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.' using hint = 'NO_PRIV_SET_TASK_STATUS';
   end if;
 
   update public.tasks
@@ -1693,11 +1716,11 @@ declare
   v_title text;
 begin
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not public.has_privilege_or_admin('approve_task') then
-    raise exception 'Du har ikke rettigheder til at godkende opgaver.' using errcode = '42501';
+    raise exception 'Du har ikke rettigheder til at godkende opgaver.' using errcode = '42501', hint = 'NO_PRIV_APPROVE_TASKS';
   end if;
 
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
@@ -1706,11 +1729,11 @@ begin
   where r.id = p_request_id and t.organisation_id = v_org_id;
 
   if v_task_id is null then
-    raise exception 'Anmodningen findes ikke i din organisation.';
+    raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
   end if;
 
   if v_status <> 'Pending' then
-    raise exception 'Anmodningen er allerede behandlet.';
+    raise exception 'Anmodningen er allerede behandlet.' using hint = 'TASK_REQUEST_ALREADY_HANDLED';
   end if;
 
   update public.task_requests
@@ -1746,11 +1769,11 @@ declare
   v_title text;
 begin
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not public.has_privilege_or_admin('reject_task') then
-    raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501';
+    raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501', hint = 'NO_PRIV_REJECT_TASKS';
   end if;
 
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
@@ -1759,11 +1782,11 @@ begin
   where r.id = p_request_id and t.organisation_id = v_org_id;
 
   if v_task_id is null then
-    raise exception 'Anmodningen findes ikke i din organisation.';
+    raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
   end if;
 
   if v_status <> 'Pending' then
-    raise exception 'Anmodningen er allerede behandlet.';
+    raise exception 'Anmodningen er allerede behandlet.' using hint = 'TASK_REQUEST_ALREADY_HANDLED';
   end if;
 
   -- Opgaven røres ikke - den forbliver InProgress.
@@ -1797,11 +1820,11 @@ declare
   v_org_id uuid := public.auth_profile_org();
 begin
   if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.';
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
   end if;
 
   if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
-    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501';
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501', hint = 'NO_PRIV_READ_TASK_APPROVALS';
   end if;
 
   return query

@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Loading members...",
+    "empty": "The organisation has no members yet.",
+    "searchPlaceholder": "Search by name or email...",
+    "noMatch": "No members match the search.",
+    "ownRow": "You cannot change your own row",
+    "adminLockedTitle": "Only an administrator can change another administrator's role",
+    "locked": "Locked",
+    "remove": "Remove",
+    "confirmRemove": "Are you sure you want to remove {{name}} from the organisation?",
+    "removing": "Removing...",
+    "confirmRemoveYes": "Yes, remove",
+    "confirmTransfer": "Hand the admin role to {{name}}? You lose your own admin access immediately and become an ordinary member.",
+    "transferring": "Transferring...",
+    "confirmTransferYes": "Yes, hand over admin"
+  },
+  "invitations": {
+    "emailLabel": "Invite by email",
+    "send": "Send invitation",
+    "sending": "Sending...",
+    "pendingHeading": "Pending invitations",
+    "loading": "Loading invitations...",
+    "empty": "No pending invitations.",
+    "areYouSure": "Are you sure?",
+    "cancelInvitation": "Cancel",
+    "cancelling": "Cancelling...",
+    "confirmCancelYes": "Yes, cancel",
+    "undo": "Never mind",
+    "emailPlaceholder": "name@example.com",
+    "invitedOn": "Invited",
+    "invitedOnDate": "Invited {{date}}"
+  },
+  "requests": {
+    "loading": "Loading requests...",
+    "empty": "There are no pending requests.",
+    "confirmAccept": "Are you sure {{name}} should be admitted to the organisation?",
+    "confirmReject": "Are you sure the request should be rejected? {{name}} can request again later.",
+    "processing": "Processing...",
+    "yes": "Yes",
+    "accept": "Accept",
+    "reject": "Reject",
+    "requestedOn": "Requested {{date}}"
+  },
+  "admin": {
+    "loading": "Loading organisation...",
+    "loadFailed": "Could not load the organisation.",
+    "saved": "The organisation's details have been saved.",
+    "nameLabel": "Name",
+    "memberCount": "Number of members",
+    "edit": "Edit organisation",
+    "delete": "Delete organisation",
+    "deleteWarning": "This permanently deletes \"{{name}}\" and cannot be undone.",
+    "typeNameToConfirm": "Type the organisation's name ({{name}}) to confirm",
+    "ackDataLoss": "I understand that all of the organisation's data (tasks, items, categories, locations and statistics) is permanently deleted and cannot be recovered.",
+    "ackMemberImpact": "I understand that the {{count}} other members lose their access immediately.",
+    "deleting": "Deleting...",
+    "deletePermanently": "Delete permanently",
+    "deleted": "\"{{name}}\" has been deleted.",
+    "deletedNewActive": "\"{{name}}\" has been deleted. Your active organisation is now \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation."
+  },
+  "picker": {
+    "searchPlaceholder": "Search for an organisation...",
+    "empty": "There are no organisations to choose from.",
+    "noMatch": "No organisations match your search."
+  },
+  "loading": "Loading organisation...",
+  "noActiveTitle": "No active organisation",
+  "noActiveWithMemberships": "You are a member of one or more organisations, but none is active right now - pick one under \"My organisations\", or create/request a new one.",
+  "noActiveWithout": "You are not a member of an organisation yet. Create a new organisation, or request membership of an existing one.",
+  "tabs": {
+    "create": "Create organisation",
+    "request": "Request membership",
+    "memberships": "My organisations",
+    "invitations": "Invitations",
+    "details": "Organisation"
+  },
+  "create": {
+    "nameLabel": "Organisation name",
+    "submit": "Create organisation",
+    "submitting": "Creating...",
+    "created": "The organisation \"{{name}}\" has been created and is now your active organisation."
+  },
+  "request": {
+    "pending": "Your membership request has been sent and is awaiting approval from the organisation's administrator.",
+    "chooseLabel": "Choose organisation",
+    "submit": "Send request",
+    "submitting": "Sending request...",
+    "noneAvailable": "There are no other organisations to request membership of."
+  },
+  "details": {
+    "administrator": "Administrator",
+    "noRole": "No role assigned",
+    "memberCount": "Number of members"
+  },
+  "myInvitations": {
+    "loading": "Loading invitations...",
+    "empty": "You have no pending invitations.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "confirmAccept": "Are you sure you want to become a member of {{name}}?",
+    "confirmReject": "Are you sure the invitation should be rejected?",
+    "processing": "Processing...",
+    "yes": "Yes",
+    "invitedOn": "Invited",
+    "invitedOnDate": "Invited {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Loading your organisations...",
+    "empty": "You are not a member of any organisations.",
+    "active": "Active",
+    "makeActive": "Make active",
+    "switching": "Switching...",
+    "areYouSure": "Are you sure?",
+    "leave": "Leave",
+    "leaving": "Leaving...",
+    "confirmLeaveYes": "Yes, leave",
+    "left": "You have left \"{{name}}\".",
+    "leftNewActive": "You have left \"{{name}}\". Your active organisation is now \"{{newActive}}\".",
+    "leftNoActive": "You have left \"{{name}}\". You no longer have an active organisation."
+  },
+  "genericLoading": "Loading..."
+}

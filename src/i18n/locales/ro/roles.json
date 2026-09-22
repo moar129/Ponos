@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roluri și drepturi",
+    "organisation": "Organizație",
+    "membership_requests": "Cereri de aderare",
+    "members": "Membri",
+    "invitations": "Invitații",
+    "news": "Noutăți",
+    "datalayer": "Strat de date",
+    "tasks": "Sarcini",
+    "task_approval": "Aprobarea sarcinilor"
+  },
+  "op": {
+    "create": "Creează",
+    "read": "Vezi",
+    "update": "Editează",
+    "delete": "Șterge",
+    "assign": "Atribuie",
+    "approve": "Aprobă",
+    "reject": "Respinge"
+  },
+  "privilege": {
+    "admin": "Administrare completă (poate face orice)"
+  },
+  "other": "Altele",
+  "matrix": {
+    "newRoleLabel": "Rol nou",
+    "createRole": "Creează rol",
+    "creatingRole": "Se creează...",
+    "loading": "Se încarcă rolurile...",
+    "noRoles": "Organizația nu are încă roluri.",
+    "selectAll": "Selectează tot",
+    "removeAll": "Elimină tot",
+    "savePrivilegeName": "Salvează numele dreptului",
+    "renamePrivilege": "Redenumește dreptul",
+    "saveRoleName": "Salvează numele rolului",
+    "renameRole": "Redenumește rolul",
+    "deleteRole": "Șterge rolul",
+    "newRolePlaceholder": "De ex. Coordonator voluntari",
+    "privilegeColumn": "Drept",
+    "removeAllTitle": "Elimină toate drepturile actuale ale rolului {{role}} (nu este acces real de administrator)",
+    "selectAllTitle": "Acordă rolului {{role}} toate drepturile actuale (nu este acces real de administrator)",
+    "renamePrivilegeFor": "Redenumește acest drept pentru rolul {{role}}",
+    "confirmDeleteRole": "Ștergeți rolul „{{name}}”?"
+  },
+  "locked": {
+    "adminHasAll": "Admin are deja acces complet și nu poate fi ajustat",
+    "memberFixed": "Parte fixă a rolului implicit Medlem",
+    "adminOnly": "Doar un administrator poate acorda dreptul admin",
+    "adminRoleProtected": "Acest rol are dreptul admin și de aceea nu poate fi redenumit sau șters",
+    "memberRoleProtected": "Rolul implicit Medlem nu poate fi redenumit sau șters",
+    "memberNotExtendable": "Rolul implicit Medlem nu poate fi extins"
+  },
+  "approvals": {
+    "loading": "Se încarcă aprobările de sarcini...",
+    "empty": "Nicio sarcină nu așteaptă aprobare.",
+    "confirmApprove": "Aprobați și marcați sarcina drept finalizată?",
+    "confirmReject": "Respingeți cererea? Sarcina rămâne în lucru.",
+    "reportedBy": "Raportată drept finalizată de:",
+    "approve": "Aprobă",
+    "reject": "Respinge",
+    "reportedDoneBy": "Raportată drept finalizată de {{name}}"
+  }
+}

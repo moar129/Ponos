@@ -2,12 +2,14 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useResetPasswordMutation } from '../../store/apis/authApi'
 
 // US-68: den udloggede vej ind igen, når adgangskoden er glemt.
 // PROTOTYPE: der sendes ingen bekræftelse på mail - email + fornavn +
 // efternavn er hele kontrollen. Se forbeholdet i docs/studerende1-plan.md.
 export default function ForgotPassword() {
+    const { t } = useTranslation(['auth', 'common'])
     const navigate = useNavigate()
     const [resetPassword, { isLoading }] = useResetPasswordMutation()
 
@@ -24,13 +26,13 @@ export default function ForgotPassword() {
     // sige hver sit om den samme regel.
     function validate(): string | null {
         if (!email.trim() || !firstName.trim() || !lastName.trim()) {
-            return 'Udfyld e-mail, fornavn og efternavn.'
+            return t('forgotPassword.allFieldsRequired')
         }
         if (password.length < 6) {
-            return 'Adgangskoden skal være mindst 6 tegn.'
+            return t('validation.passwordTooShort')
         }
         if (password !== confirmPassword) {
-            return 'Adgangskoderne matcher ikke.'
+            return t('validation.passwordsDoNotMatch')
         }
         return null
     }
@@ -56,7 +58,7 @@ export default function ForgotPassword() {
             if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
                 setError(err.error)
             } else {
-                setError('Noget gik galt. Prøv igen.')
+                setError(t('common:genericError'))
             }
         }
     }
@@ -64,9 +66,9 @@ export default function ForgotPassword() {
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-2">Nulstil adgangskode</h1>
+                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-2">{t('forgotPassword.title')}</h1>
                 <p className="text-sm text-secondary dark:text-slate-400 mb-6">
-                    Bekræft din konto med e-mail og navn, og vælg en ny adgangskode.
+                    {t('forgotPassword.intro')}
                 </p>
 
                 {error && (
@@ -76,7 +78,7 @@ export default function ForgotPassword() {
                 )}
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">E-mail</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
                     <input
                         id="email"
                         type="email"
@@ -87,7 +89,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">Fornavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
                     <input
                         id="firstName"
                         type="text"
@@ -98,7 +100,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">Efternavn</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
                     <input
                         id="lastName"
                         type="text"
@@ -109,7 +111,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">Ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.newPassword')}</label>
                     <input
                         id="password"
                         type="password"
@@ -120,7 +122,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">Gentag ny adgangskode</label>
+                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatNewPassword')}</label>
                     <input
                         id="confirmPassword"
                         type="password"
@@ -135,17 +137,17 @@ export default function ForgotPassword() {
                     disabled={isLoading}
                     className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {isLoading ? 'Nulstiller...' : 'Nulstil adgangskode'}
+                    {isLoading ? t('forgotPassword.submitting') : t('forgotPassword.submit')}
                 </button>
 
                 {/* Ærlig note om prototypen - fjernes, når rigtig
                     mailbekræftelse kommer på. */}
                 <p className="mt-3 text-xs text-secondary dark:text-slate-400 text-center">
-                    Prototype: der sendes ingen bekræftelse på mail.
+                    {t('forgotPassword.prototypeNote')}
                 </p>
 
                 <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    Kom du i tanke om den? <Link to="/login" className="text-accent hover:underline">Log ind</Link>
+                    {t('forgotPassword.rememberedIt')} <Link to="/login" className="text-accent hover:underline">{t('login.title')}</Link>
                 </p>
             </form>
         </div>

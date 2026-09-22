@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Rollen und Berechtigungen",
+    "organisation": "Organisation",
+    "membership_requests": "Mitgliedsanfragen",
+    "members": "Mitglieder",
+    "invitations": "Einladungen",
+    "news": "Neuigkeiten",
+    "datalayer": "Datenebene",
+    "tasks": "Aufgaben",
+    "task_approval": "Aufgabenfreigabe"
+  },
+  "op": {
+    "create": "Erstellen",
+    "read": "Ansehen",
+    "update": "Bearbeiten",
+    "delete": "Löschen",
+    "assign": "Zuweisen",
+    "approve": "Freigeben",
+    "reject": "Ablehnen"
+  },
+  "privilege": {
+    "admin": "Vollständige Administration (kann alles)"
+  },
+  "other": "Sonstiges",
+  "matrix": {
+    "newRoleLabel": "Neue Rolle",
+    "createRole": "Rolle erstellen",
+    "creatingRole": "Wird erstellt...",
+    "loading": "Rollen werden geladen...",
+    "noRoles": "Die Organisation hat noch keine Rollen.",
+    "selectAll": "Alle auswählen",
+    "removeAll": "Alle entfernen",
+    "savePrivilegeName": "Berechtigungsnamen speichern",
+    "renamePrivilege": "Berechtigung umbenennen",
+    "saveRoleName": "Rollennamen speichern",
+    "renameRole": "Rolle umbenennen",
+    "deleteRole": "Rolle löschen",
+    "newRolePlaceholder": "Z. B. Freiwilligenkoordination",
+    "privilegeColumn": "Berechtigung",
+    "removeAllTitle": "Entfernt alle aktuellen Berechtigungen von {{role}} (kein echter Systemadministrator-Zugang)",
+    "selectAllTitle": "Gibt {{role}} alle aktuellen Berechtigungen (kein echter Systemadministrator-Zugang)",
+    "renamePrivilegeFor": "Diese Berechtigung für {{role}} umbenennen",
+    "confirmDeleteRole": "\"{{name}}\" löschen?"
+  },
+  "locked": {
+    "adminHasAll": "Admin hat bereits vollen Zugriff und kann nicht angepasst werden",
+    "memberFixed": "Fester Bestandteil der Standardrolle Medlem",
+    "adminOnly": "Nur ein Administrator kann die Admin-Berechtigung vergeben",
+    "adminRoleProtected": "Diese Rolle hat die Admin-Berechtigung und kann nicht umbenannt oder gelöscht werden",
+    "memberRoleProtected": "Die Standardrolle Medlem kann nicht umbenannt oder gelöscht werden",
+    "memberNotExtendable": "Die Standardrolle Medlem kann nicht erweitert werden"
+  },
+  "approvals": {
+    "loading": "Aufgabenfreigaben werden geladen...",
+    "empty": "Es warten keine Aufgaben auf Freigabe.",
+    "confirmApprove": "Freigeben und die Aufgabe als abgeschlossen markieren?",
+    "confirmReject": "Die Anfrage ablehnen? Die Aufgabe bleibt in Arbeit.",
+    "reportedBy": "Fertig gemeldet von",
+    "approve": "Freigeben",
+    "reject": "Ablehnen",
+    "reportedDoneBy": "Fertig gemeldet von {{name}}"
+  }
+}

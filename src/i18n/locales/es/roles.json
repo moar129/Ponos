@@ -1,0 +1,64 @@
+{
+  "domain": {
+    "roles": "Roles y permisos",
+    "organisation": "Organización",
+    "membership_requests": "Solicitudes de membresía",
+    "members": "Miembros",
+    "invitations": "Invitaciones",
+    "news": "Noticias",
+    "datalayer": "Capa de datos",
+    "tasks": "Tareas",
+    "task_approval": "Aprobación de tareas"
+  },
+  "op": {
+    "create": "Crear",
+    "read": "Ver",
+    "update": "Editar",
+    "delete": "Eliminar",
+    "assign": "Asignar",
+    "approve": "Aprobar",
+    "reject": "Rechazar"
+  },
+  "privilege": {
+    "admin": "Administración completa (puede hacerlo todo)"
+  },
+  "other": "Otros",
+  "matrix": {
+    "newRoleLabel": "Nuevo rol",
+    "createRole": "Crear rol",
+    "creatingRole": "Creando...",
+    "loading": "Cargando roles...",
+    "noRoles": "La organización todavía no tiene roles.",
+    "selectAll": "Seleccionar todo",
+    "removeAll": "Quitar todo",
+    "savePrivilegeName": "Guardar el nombre del permiso",
+    "renamePrivilege": "Renombrar el permiso",
+    "saveRoleName": "Guardar el nombre del rol",
+    "renameRole": "Renombrar el rol",
+    "deleteRole": "Eliminar el rol",
+    "newRolePlaceholder": "Por ej. Coordinación de voluntarios",
+    "privilegeColumn": "Permiso",
+    "removeAllTitle": "Quita todos los permisos actuales de {{role}} (no es acceso real de administrador del sistema)",
+    "selectAllTitle": "Da a {{role}} todos los permisos actuales (no es acceso real de administrador del sistema)",
+    "renamePrivilegeFor": "Renombrar este permiso para {{role}}",
+    "confirmDeleteRole": "¿Eliminar \"{{name}}\"?"
+  },
+  "locked": {
+    "adminHasAll": "Admin ya tiene acceso completo y no se puede personalizar",
+    "memberFixed": "Parte fija del rol por defecto Medlem",
+    "adminOnly": "Solo un administrador puede conceder el permiso admin",
+    "adminRoleProtected": "Este rol tiene el permiso admin y no se puede renombrar ni eliminar",
+    "memberRoleProtected": "El rol por defecto Medlem no se puede renombrar ni eliminar",
+    "memberNotExtendable": "El rol por defecto Medlem no se puede ampliar"
+  },
+  "approvals": {
+    "loading": "Cargando aprobaciones de tareas...",
+    "empty": "No hay tareas pendientes de aprobación.",
+    "confirmApprove": "¿Aprobar y marcar la tarea como finalizada?",
+    "confirmReject": "¿Rechazar la solicitud? La tarea sigue en curso.",
+    "reportedBy": "Finalización comunicada por",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "reportedDoneBy": "Finalización comunicada por {{name}}"
+  }
+}

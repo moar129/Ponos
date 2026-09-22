@@ -1,4 +1,7 @@
 // src/components/dashboard/roles/MatrixCell.tsx
+import { readableError } from '../../../ErrorMessage';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../../i18n/config'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Check, Lock, Pencil, X } from 'lucide-react'
@@ -13,13 +16,6 @@ import { ADMIN_ROLE_NAME } from '../../../store/apis/roleApi'
 import { cellLockState } from './privilegeLocking'
 import type { MatrixCellProps } from '../../../types/role/roleType'
 
-function readableError(err: unknown): string | null {
-    if (!err) return null
-    if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-        return err.error
-    }
-    return 'Noget gik galt. Prøv igen.'
-}
 
 // Én celle i matrixen: rolle × privilegie. Checket = rollen har
 // privilegiet. Toggle ER mutationen - intet separat "tilføj"-trin, i
@@ -38,6 +34,8 @@ export function MatrixCell({
     isProtectedAdminRole,
     rolePrivileges,
 }: MatrixCellProps) {
+    const { t } = useTranslation(['roles', 'common', 'errors'])
+    const td = asDynamic(t)
     const [createPrivilege, { isLoading: creating, error: createError }] = useCreatePrivilegeMutation()
     const [deletePrivilege, { isLoading: deleting, error: deleteError }] = useDeletePrivilegeMutation()
     const [updatePrivilege, { isLoading: renaming, error: renameError }] = useUpdatePrivilegeMutation()
@@ -47,7 +45,7 @@ export function MatrixCell({
     const [editName, setEditName] = useState(privilegeName)
 
     const hasPrivilege = !!privilege
-    const { locked, reason } = cellLockState(role, privilegeName, hasPrivilege, isFullAdmin, isProtectedAdminRole)
+    const { locked, reasonKey } = cellLockState(role, privilegeName, hasPrivilege, isFullAdmin, isProtectedAdminRole)
     const busy = creating || deleting || renaming || batchPending
     const error = readableError(createError) ?? readableError(deleteError) ?? readableError(renameError)
 
@@ -114,7 +112,7 @@ export function MatrixCell({
                 <button
                     type="submit"
                     disabled={renaming}
-                    aria-label="Gem privilegienavn"
+                    aria-label={t('matrix.savePrivilegeName')}
                     className="p-0.5 text-secondary hover:text-primary transition-colors dark:text-slate-400 dark:hover:text-slate-100"
                 >
                     <Check className="w-3 h-3" />
@@ -123,7 +121,7 @@ export function MatrixCell({
                     type="button"
                     onClick={() => setIsEditing(false)}
                     disabled={renaming}
-                    aria-label="Annuller"
+                    aria-label={t('common:cancel')}
                     className="p-0.5 text-secondary hover:text-primary transition-colors dark:text-slate-400 dark:hover:text-slate-100"
                 >
                     <X className="w-3 h-3" />
@@ -141,7 +139,7 @@ export function MatrixCell({
         return (
             <div className="flex items-center justify-center">
                 {locked ? (
-                    <span title={reason ?? undefined}>
+                    <span title={reasonKey ? td(reasonKey) : undefined}>
                         <Lock className="w-3.5 h-3.5 text-secondary dark:text-slate-500" />
                     </span>
                 ) : (
@@ -152,8 +150,8 @@ export function MatrixCell({
                         title={
                             error ??
                             (hasAllOrAdmin
-                                ? `Fjerner alle nuværende privilegier fra ${role.name} (ikke ægte systemadministrator-adgang)`
-                                : `Giver ${role.name} alle nuværende privilegier (ikke ægte systemadministrator-adgang)`)
+                                ? t('matrix.removeAllTitle', { role: role.name })
+                                : t('matrix.selectAllTitle', { role: role.name }))
                         }
                         className={`whitespace-nowrap rounded border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
                             hasAllOrAdmin
@@ -161,7 +159,7 @@ export function MatrixCell({
                                 : 'border-accent text-accent hover:bg-accent/10'
                         } ${error ? 'ring-2 ring-red-400' : ''}`}
                     >
-                        {busy ? '...' : hasAllOrAdmin ? 'Fjern alle' : 'Vælg alle'}
+                        {busy ? '...' : hasAllOrAdmin ? t('matrix.removeAll') : t('matrix.selectAll')}
                     </button>
                 )}
             </div>
@@ -176,7 +174,7 @@ export function MatrixCell({
     return (
         <div className="relative flex items-center justify-center h-6 w-6 mx-auto group/cell">
             {locked ? (
-                <span title={reason ?? undefined}>
+                <span title={reasonKey ? td(reasonKey) : undefined}>
                     <Lock className="w-3.5 h-3.5 text-secondary dark:text-slate-500" />
                 </span>
             ) : (
@@ -197,8 +195,8 @@ export function MatrixCell({
                         setEditName(privilegeName)
                         setIsEditing(true)
                     }}
-                    aria-label="Omdøb privilegie"
-                    title={`Omdøb dette privilegie for ${role.name}`}
+                    aria-label={t('matrix.renamePrivilege')}
+                    title={t('matrix.renamePrivilegeFor', { role: role.name })}
                     className="absolute left-full ml-1 opacity-0 group-hover/cell:opacity-100 p-0.5 text-secondary hover:text-primary transition-opacity dark:text-slate-400"
                 >
                     <Pencil className="w-3 h-3" />

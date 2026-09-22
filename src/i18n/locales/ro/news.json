@@ -1,0 +1,40 @@
+{
+  "create": "Creează noutate",
+  "edit": "Editează noutatea",
+  "delete": "Șterge noutatea",
+  "notFound": "Noutatea nu a fost găsită.",
+  "backToNews": "Înapoi la noutăți",
+  "readFullArticle": "Citiți articolul complet",
+  "form": {
+    "descriptionPlaceholder": "Scrieți noutatea aici...",
+    "tooLong": "Descrierea este prea lungă (max. {{max}} caractere).",
+    "urlHint": "Apare ca „Citiți articolul complet” în partea de jos a noutății.",
+    "pictureUrlLabel": "URL imagine (opțional)",
+    "urlLabel": "Link către articolul original (opțional)"
+  },
+  "editor": {
+    "typography": "Tipografie",
+    "normal": "Normal",
+    "heading": "Titlu",
+    "subheading": "Subtitlu",
+    "bold": "Aldin",
+    "italic": "Cursiv",
+    "underline": "Subliniat",
+    "bulletList": "Listă cu marcatori",
+    "numberedList": "Listă numerotată",
+    "outdent": "Micșorează indentarea",
+    "indent": "Mărește indentarea",
+    "insertLink": "Inserează link",
+    "linkTextPlaceholder": "Text afișat",
+    "linkTextLabel": "Textul linkului",
+    "linkUrlLabel": "Adresa linkului",
+    "insert": "Inserează",
+    "cancelLink": "Anulează linkul"
+  },
+  "heading": "Noutăți",
+  "loading": "Se încarcă noutățile...",
+  "loadingOne": "Se încarcă noutatea...",
+  "noAccess": "Nu aveți acces la noutățile acestei organizații.",
+  "empty": "Încă nicio noutate.",
+  "deleteTitle": "Ștergeți „{{name}}”?"
+}

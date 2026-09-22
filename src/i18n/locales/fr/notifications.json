@@ -1,0 +1,26 @@
+{
+  "title": "Notifications",
+  "empty": "Aucune notification pour le moment.",
+  "markAllRead": "Tout marquer comme lu",
+  "seeAll": "Voir toutes les notifications",
+  "hide": "Masquer la notification",
+  "unhide": "Réafficher dans la cloche",
+  "deletePermanently": "Supprimer définitivement",
+  "deleteAriaLabel": "Supprimer définitivement la notification",
+  "hidden": "Masquée",
+  "justNow": "À l'instant",
+  "emptyCategory": "Aucun(e) {{category}}.",
+  "category": {
+    "messages": "Messages",
+    "tasks": "Tâches",
+    "news": "Actualités"
+  },
+  "type": {
+    "message": "Nouveau message",
+    "task_assigned": "Une tâche vous a été assignée",
+    "task_updated": "Une tâche a été mise à jour",
+    "task_completed": "Une tâche a été terminée",
+    "task_approved": "Votre tâche a été validée",
+    "task_rejected": "Déclaration de fin refusée"
+  }
+}

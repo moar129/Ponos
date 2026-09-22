@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { X, Pencil as _Pencil, Trash2 as _Trash2, Loader2, Save, MapPin, Boxes, Plus, Package, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next'
+import { asDynamic } from '../../i18n/config'
+import { X, Loader2, Save, MapPin, Boxes, Plus, Package, Search } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
@@ -8,7 +10,7 @@ import {
 } from '../../store/apis/categoryApi';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
 import { LocationTreeNode } from './locationThreeNodeComponent';
-import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
@@ -25,6 +27,8 @@ export function LocationManagerComponent({
   items = [],
   onSelectItem,
 }: LocationManagerComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
+  const td = asDynamic(t)
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,7 +126,7 @@ export function LocationManagerComponent({
 
   async function handleCreate() {
     if (!newName.trim()) {
-      setCreateError('Navn er påkrævet.');
+      setCreateError(t('locations.nameRequired'));
       return;
     }
     try {
@@ -135,7 +139,7 @@ export function LocationManagerComponent({
       setIsCreating(false);
       setSelectedLocationId(id);
     } catch (err) {
-      setCreateError(getErrorMessage(err, 'Kunne ikke oprette lokation.'));
+      setCreateError(getErrorMessage(err, t('locations.createFailed')));
     }
   }
 
@@ -152,7 +156,7 @@ export function LocationManagerComponent({
   async function handleSaveEdit() {
     if (!editTarget) return;
     if (!editName.trim()) {
-      setFormError('Navn er påkrævet.');
+      setFormError(t('locations.nameRequired'));
       return;
     }
     try {
@@ -165,7 +169,7 @@ export function LocationManagerComponent({
       setSelectedLocationId(editTarget.id);
       setEditTarget(null);
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke gemme ændringer.'));
+      setFormError(getErrorMessage(err, t('locations.saveFailed')));
     }
   }
 
@@ -176,7 +180,7 @@ export function LocationManagerComponent({
       if (selectedLocationId === deleteTarget.id) setSelectedLocationId(null);
       setDeleteTarget(null);
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke slette lokationen.'));
+      setFormError(getErrorMessage(err, t('locations.deleteFailed')));
       setDeleteTarget(null);
     }
   }
@@ -192,7 +196,7 @@ export function LocationManagerComponent({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
-          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Administrer lagere</h2>
+          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('locations.heading')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
             <X className="w-5 h-5" />
           </button>
@@ -213,7 +217,7 @@ export function LocationManagerComponent({
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
               <input
                 type="text"
-                placeholder="Søg efter sektion eller lager..."
+                placeholder={t('locations.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -222,7 +226,7 @@ export function LocationManagerComponent({
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  aria-label="Ryd søgning"
+                  aria-label={t('locations.clearSearch')}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -237,7 +241,7 @@ export function LocationManagerComponent({
                 </div>
               ) : visibleWarehouses.length === 0 ? (
                 <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">
-                  {trimmedSearch ? `Ingen lagre eller sektioner matcher "${searchQuery.trim()}".` : 'Intet lager oprettet endnu.'}
+                  {trimmedSearch ? t('locations.noMatch', { query: searchQuery.trim() }) : t('locations.empty')}
                 </p>
               ) : (
                 visibleWarehouses.map((warehouse) => (
@@ -268,7 +272,7 @@ export function LocationManagerComponent({
                 className="flex items-center justify-center gap-2 px-4 py-2 mt-3 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shrink-0"
               >
                 <Plus className="w-4 h-4" />
-                Opret lager
+                {t('locations.createWarehouseButton')}
               </button>
             )}
           </div>
@@ -280,26 +284,26 @@ export function LocationManagerComponent({
             {isCreating ? (
               <div className="space-y-3 max-w-md">
                 <h3 className="text-sm font-semibold text-primary dark:text-slate-100">
-                  {createParentId ? 'Ny sektion' : 'Nyt lager'}
+                  {createParentId ? t('locations.newSectionHeading') : t('locations.newWarehouseHeading')}
                 </h3>
                 {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
                 <input
                   type="text"
-                  placeholder="Navn *"
+                  placeholder={createParentId ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
-                  placeholder="Adresse (valgfrit)"
+                  placeholder={t('locations.addressOptional')}
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
-                  placeholder="Beskrivelse (valgfrit)"
+                  placeholder={t('locations.descriptionOptional')}
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -312,41 +316,41 @@ export function LocationManagerComponent({
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
                   >
                     {isAdding && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Opret
+                    {t('common:create')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsCreating(false)}
                     className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                   >
-                    Annullér
+                    {t('common:cancel')}
                   </button>
                 </div>
               </div>
             ) : editTarget ? (
               <div className="space-y-3 max-w-md">
                 <h3 className="text-sm font-semibold text-primary dark:text-slate-100">
-                  Rediger {editTarget.parentLocationId ? 'sektion' : 'lager'}
+                  {editTarget.parentLocationId ? t('locations.editSectionHeading') : t('locations.editWarehouseHeading')}
                 </h3>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Navn"
+                  placeholder={t('locations.namePlaceholderShort')}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
                   value={editAddress}
                   onChange={(e) => setEditAddress(e.target.value)}
-                  placeholder="Adresse"
+                  placeholder={t('locations.addressPlaceholder')}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <input
                   type="text"
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  placeholder="Beskrivelse"
+                  placeholder={t('locations.descriptionPlaceholder')}
                   className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <div className="flex items-center gap-2">
@@ -357,14 +361,14 @@ export function LocationManagerComponent({
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
                   >
                     {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                    Gem
+                    {t('common:save')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditTarget(null)}
                     className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                   >
-                    Annullér
+                    {t('common:cancel')}
                   </button>
                 </div>
               </div>
@@ -385,7 +389,7 @@ export function LocationManagerComponent({
                 {itemsAtSelectedLocation.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center text-secondary dark:text-slate-400">
                     <Package className="w-8 h-8 mb-2 stroke-[1.5]" />
-                    <p className="text-sm">Ingen items er registreret her.</p>
+                    <p className="text-sm">{t('locations.noItemsAtSelected')}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border-gray border border-border-gray rounded-lg overflow-hidden dark:divide-slate-700 dark:border-slate-700">
@@ -401,9 +405,9 @@ export function LocationManagerComponent({
                           <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                          <span>Antal: {item.quantity}</span>
+                          <span>{t('quantityValue', { count: item.quantity })}</span>
                           <span className={`px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
-                            {ITEM_STATUS_LABELS[item.itemStatus]}
+                            {td(`datalayer:status.${item.itemStatus}`)}
                           </span>
                         </div>
                       </button>
@@ -413,7 +417,7 @@ export function LocationManagerComponent({
               </div>
             ) : (
               <div className="h-full flex items-center justify-center text-sm text-secondary dark:text-slate-400">
-                Vælg et lager eller en sektion i træet til venstre
+                {t('locations.chooseInTree')}
               </div>
             )}
           </div>
@@ -422,11 +426,13 @@ export function LocationManagerComponent({
 
       <ConfirmDialogComponent
         isOpen={!!deleteTarget}
-        title={deleteTarget?.parentLocationId ? 'Slet sektion?' : 'Slet lager?'}
+        title={deleteTarget?.parentLocationId ? t('locations.deleteSectionTitle') : t('locations.deleteTitle')}
         message={
           deleteTargetSectionCount > 0
-            ? `Er du sikker på, at du vil slette "${deleteTarget?.name}"? De ${deleteTargetSectionCount} sektion(er) på lageret slettes også. Items der bruger disse lokationer mister deres lokationstilknytning (bliver ikke slettet).`
-            : `Er du sikker på, at du vil slette "${deleteTarget?.name}"? Items der bruger denne lokation mister deres lokationstilknytning (bliver ikke slettet).`
+            ? t('locations.deleteMessageWithSections', { name: deleteTarget?.name ?? '', count: deleteTargetSectionCount })
+            : deleteTarget?.parentLocationId
+              ? t('locations.deleteSectionMessage', { name: deleteTarget?.name ?? '' })
+              : t('locations.deleteMessage', { name: deleteTarget?.name ?? '' })
         }
         isLoading={isDeleting}
         onConfirm={handleDelete}

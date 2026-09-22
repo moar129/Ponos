@@ -1,0 +1,42 @@
+{
+  "links": {
+    "home": "Domů",
+    "dashboard": "Přehled",
+    "tasks": "Úkoly",
+    "statistics": "Statistiky",
+    "datalayer": "Datová vrstva",
+    "news": "Novinky",
+    "messages": "Zprávy",
+    "login": "Přihlásit se",
+    "signup": "Vytvořit účet"
+  },
+  "user": {
+    "fallbackName": "Uživatel",
+    "noRole": "Žádná role",
+    "viewProfile": "Zobrazit profil",
+    "logout": "Odhlásit se",
+    "loggingOut": "Odhlašování..."
+  },
+  "menu": {
+    "open": "Otevřít nabídku",
+    "close": "Zavřít nabídku"
+  },
+  "footer": {
+    "tagline": "Vytváříme přehled, spolupráci a udržitelné výsledky – společně.",
+    "navigationLabel": "Navigace v patičce",
+    "navigation": "Navigace",
+    "aboutLabel": "O Ponosu",
+    "aboutHeading": "O Ponosu",
+    "about": "O nás",
+    "contact": "Kontakt",
+    "help": "Nápověda a podpora",
+    "copyright": "© {{year}} Ponos. Všechna práva vyhrazena."
+  },
+  "banner": {
+    "pendingRequest": "Vaše žádost do organizace <strong>{{organisation}}</strong> čeká na schválení.",
+    "invited": "Byli jste pozváni do organizace <strong>{{organisation}}</strong>.",
+    "seeInvitation": "Zobrazit pozvánku",
+    "noOrganisation": "Zatím nejste členem žádné organizace.",
+    "createOrRequest": "Vytvořte ji nebo požádejte o členství"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react';
 import { useDeleteItemMutation } from '../../store/apis/categoryApi';
 import type { DeleteItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
@@ -6,6 +7,7 @@ import { getErrorMessage } from '../../ErrorMessage';
 
 
 export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: DeleteItemsComponentProps) {
+  const { t } = useTranslation(['datalayer', 'common'])
   const [isDeleting, setIsDeleting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteItem] = useDeleteItemMutation();
@@ -22,7 +24,7 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
       onDeleted(ids);
       onClose();
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Kunne ikke slette alle valgte items. Prøv igen.'));
+      setFormError(getErrorMessage(err, t('deleteItems.deleteFailed')));
       setIsDeleting(false);
     }
   };
@@ -39,9 +41,9 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
           </div>
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-primary dark:text-slate-100">
-              Slet {items.length} item{items.length > 1 ? 's' : ''}?
+              {t('deleteItems.heading', { count: items.length })}
             </h2>
-            <p className="text-sm text-secondary mt-1 dark:text-slate-400">Dette kan ikke fortrydes.</p>
+            <p className="text-sm text-secondary mt-1 dark:text-slate-400">{t('deleteItems.cannotUndo')}</p>
           </div>
           <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
             <X className="w-4 h-4" />
@@ -69,7 +71,7 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
 
         <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-            Annullér
+            {t('common:cancel')}
           </button>
           <button
             type="button"
@@ -78,7 +80,7 @@ export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: Dele
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-60"
           >
             {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-            Slet {items.length}
+            {t('deleteItems.submit', { count: items.length })}
           </button>
         </div>
       </div>

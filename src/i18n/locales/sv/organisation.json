@@ -1,0 +1,124 @@
+{
+  "members": {
+    "loading": "Laddar medlemmar...",
+    "empty": "Organisationen har inga medlemmar ännu.",
+    "searchPlaceholder": "Sök på namn eller e-post...",
+    "noMatch": "Inga medlemmar matchar sökningen.",
+    "ownRow": "Du kan inte ändra din egen rad",
+    "adminLockedTitle": "Bara en administratör kan ändra en annan administratörs roll",
+    "locked": "Låst",
+    "remove": "Ta bort",
+    "confirmRemove": "Är du säker på att du vill ta bort {{name}} från organisationen?",
+    "removing": "Tar bort...",
+    "confirmRemoveYes": "Ja, ta bort",
+    "confirmTransfer": "Överlåta administratörsrollen till {{name}}? Du förlorar själv administratörsåtkomsten direkt och blir en vanlig medlem.",
+    "transferring": "Överlåter...",
+    "confirmTransferYes": "Ja, överlåt administratörsrollen"
+  },
+  "invitations": {
+    "emailLabel": "Bjud in via e-post",
+    "send": "Skicka inbjudan",
+    "sending": "Skickar...",
+    "pendingHeading": "Väntande inbjudningar",
+    "loading": "Laddar inbjudningar...",
+    "empty": "Inga väntande inbjudningar.",
+    "areYouSure": "Är du säker?",
+    "cancelInvitation": "Återkalla",
+    "cancelling": "Återkallar...",
+    "confirmCancelYes": "Ja, återkalla",
+    "undo": "Ändå inte",
+    "emailPlaceholder": "namn@exempel.se",
+    "invitedOn": "Inbjuden",
+    "invitedOnDate": "Inbjuden {{date}}"
+  },
+  "requests": {
+    "loading": "Laddar ansökningar...",
+    "empty": "Det finns inga väntande ansökningar.",
+    "confirmAccept": "Är du säker på att {{name}} ska tas in i organisationen?",
+    "confirmReject": "Är du säker på att ansökan ska avslås? {{name}} kan ansöka igen senare.",
+    "processing": "Behandlar...",
+    "yes": "Ja",
+    "accept": "Acceptera",
+    "reject": "Avslå",
+    "requestedOn": "Ansökt {{date}}"
+  },
+  "admin": {
+    "loading": "Laddar organisation...",
+    "loadFailed": "Organisationen kunde inte hämtas.",
+    "saved": "Organisationens uppgifter har sparats.",
+    "nameLabel": "Namn",
+    "memberCount": "Antal medlemmar",
+    "edit": "Redigera organisation",
+    "delete": "Radera organisation",
+    "deleteWarning": "Detta raderar \"{{name}}\" permanent och går inte att ångra.",
+    "typeNameToConfirm": "Skriv organisationens namn ({{name}}) för att bekräfta",
+    "ackDataLoss": "Jag förstår att all organisationens data (uppgifter, artiklar, kategorier, platser och statistik) raderas permanent och inte kan återskapas.",
+    "ackMemberImpact": "Jag förstår att de {{count}} andra medlemmarna förlorar sin åtkomst direkt.",
+    "deleting": "Raderar...",
+    "deletePermanently": "Radera permanent",
+    "deleted": "\"{{name}}\" har raderats.",
+    "deletedNewActive": "\"{{name}}\" har raderats. Din aktiva organisation är nu \"{{newActive}}\".",
+    "deletedNoActive": "\"{{name}}\" har raderats. Du har inte längre någon aktiv organisation."
+  },
+  "picker": {
+    "searchPlaceholder": "Sök efter en organisation...",
+    "empty": "Det finns inga organisationer att välja mellan.",
+    "noMatch": "Inga organisationer matchar din sökning."
+  },
+  "loading": "Laddar organisation...",
+  "noActiveTitle": "Ingen aktiv organisation",
+  "noActiveWithMemberships": "Du är medlem i en eller flera organisationer, men ingen är aktiv just nu - välj en under \"Mina organisationer\", eller skapa/ansök om en ny.",
+  "noActiveWithout": "Du är ännu inte medlem i någon organisation. Skapa en ny organisation eller ansök om medlemskap i en befintlig.",
+  "tabs": {
+    "create": "Skapa organisation",
+    "request": "Ansök om medlemskap",
+    "memberships": "Mina organisationer",
+    "invitations": "Inbjudningar",
+    "details": "Organisation"
+  },
+  "create": {
+    "nameLabel": "Organisationens namn",
+    "submit": "Skapa organisation",
+    "submitting": "Skapar...",
+    "created": "Organisationen \"{{name}}\" har skapats och är nu din aktiva organisation."
+  },
+  "request": {
+    "pending": "Din medlemsansökan har skickats och väntar på godkännande från organisationens administratör.",
+    "chooseLabel": "Välj organisation",
+    "submit": "Skicka ansökan",
+    "submitting": "Skickar ansökan...",
+    "noneAvailable": "Det finns inga andra organisationer att ansöka om medlemskap i."
+  },
+  "details": {
+    "administrator": "Administratör",
+    "noRole": "Ingen roll tilldelad",
+    "memberCount": "Antal medlemmar"
+  },
+  "myInvitations": {
+    "loading": "Laddar inbjudningar...",
+    "empty": "Du har inga väntande inbjudningar.",
+    "accept": "Acceptera",
+    "reject": "Avslå",
+    "confirmAccept": "Är du säker på att du vill bli medlem i {{name}}?",
+    "confirmReject": "Är du säker på att inbjudan ska avslås?",
+    "processing": "Behandlar...",
+    "yes": "Ja",
+    "invitedOn": "Inbjuden",
+    "invitedOnDate": "Inbjuden {{date}}"
+  },
+  "myOrganisations": {
+    "loading": "Laddar dina organisationer...",
+    "empty": "Du är inte medlem i någon organisation.",
+    "active": "Aktiv",
+    "makeActive": "Gör aktiv",
+    "switching": "Byter...",
+    "areYouSure": "Är du säker?",
+    "leave": "Lämna",
+    "leaving": "Lämnar...",
+    "confirmLeaveYes": "Ja, lämna",
+    "left": "Du har lämnat \"{{name}}\".",
+    "leftNewActive": "Du har lämnat \"{{name}}\". Din aktiva organisation är nu \"{{newActive}}\".",
+    "leftNoActive": "Du har lämnat \"{{name}}\". Du har inte längre någon aktiv organisation."
+  },
+  "genericLoading": "Laddar..."
+}

@@ -11,7 +11,7 @@ import type {
     TaskAssignee,
 } from '../../types/Task/Task'
 
-type QueryError = { status: 'CUSTOM_ERROR'; error: string }
+import { mapDbError, mapPermissionError, type QueryError } from './apiError'
 
 interface CreateTaskInput {
     title: string
@@ -70,20 +70,10 @@ interface TaskRequest {
 }
 
 
-// 42501 = RLS afviste - bruger uden det relevante privilegie
-// (create_tasks/update_tasks/delete_tasks, Fase 3) forsøgte at
-// oprette/redigere/slette. Samme mønster som newsApi.ts/categoryApi.ts.
-function mapTaskError(error: { code?: string; message: string }, action: string): QueryError {
-    if (error.code === '42501') {
-        return { status: 'CUSTOM_ERROR', error: `Du har ikke rettigheder til at ${action}.` }
-    }
-    return { status: 'CUSTOM_ERROR', error: error.message }
-}
-
 async function getAuthenticatedOrganisationId(): Promise<string> {
     const { data: authData, error: authError } = await supabase.auth.getUser()
     if (authError || !authData.user) {
-        throw new Error('Du skal være logget ind for at udføre denne handling.')
+        throw new Error('errors:loginRequiredForAction')
     }
 
     const { data: profileData, error: profileError } = await supabase
@@ -93,7 +83,7 @@ async function getAuthenticatedOrganisationId(): Promise<string> {
         .single()
 
     if (profileError || !profileData?.active_organisation_id) {
-        throw new Error('Kunne ikke hente din organisationstilknytning.')
+        throw new Error('errors:organisationLookupFailed')
     }
 
     return profileData.active_organisation_id
@@ -110,10 +100,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select('*')
                         .eq('organisation_id', organisationId)
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapDbError(error) as QueryError }
                     return { data: (data ?? []) as Task[] }
                 } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Fejl ved hentning af opgaver'
+                    const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
@@ -140,7 +130,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
                         .eq('status', 'Completed')
 
-                    if (tasksError) return { error: { status: 'CUSTOM_ERROR', error: tasksError.message } as QueryError }
+                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
                     if (!tasks || tasks.length === 0) return { data: [] }
 
                     const taskIds = tasks.map((task) => task.id)
@@ -197,7 +187,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         roomName: task.room_id ? (roomNameById.get(task.room_id) ?? null) : null,
                         assignees: assigneeRows
                             .filter((row) => row.task_id === task.id)
-                            .map((row) => ({ id: row.user_id, name: profileNameById.get(row.user_id) ?? 'Ukendt bruger' })),
+                            .map((row) => ({ id: row.user_id, name: profileNameById.get(row.user_id) ?? '' })),
                         materials: materialRows
                             .filter((row) => row.task_id === task.id)
                             .map((row) => ({
@@ -211,7 +201,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                     return { data }
                 } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Fejl ved hentning af afsluttede opgaver'
+                    const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
@@ -228,10 +218,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
                         .order('created_at', { ascending: true })
 
-                    if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                    if (error) return { error: mapDbError(error) as QueryError }
                     return { data: (data ?? []) as Room[] }
                 } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Fejl ved hentning af rum'
+                    const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
@@ -316,7 +306,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved hentning af medarbejdere'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -350,10 +340,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select()
                         .single()
 
-                    if (error) return { error: mapTaskError(error, 'oprette denne opgave') }
+                    if (error) return { error: mapPermissionError(error, 'createTask') }
                     return { data: data as Task }
                 } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Fejl ved oprettelse af opgave'
+                    const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
@@ -391,7 +381,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .single()
 
                     if (error) {
-                        return { error: mapTaskError(error, 'redigere denne opgave') }
+                        return { error: mapPermissionError(error, 'updateTask') }
                     }
 
                     return { data: data as Task }
@@ -399,7 +389,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved redigering af opgave'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -428,10 +418,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .select()
                         .single()
 
-                    if (error) return { error: mapTaskError(error, 'oprette dette rum') }
+                    if (error) return { error: mapPermissionError(error, 'createRoom') }
                     return { data: data as Room }
                 } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Fejl ved oprettelse af rum'
+                    const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
@@ -454,7 +444,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .single()
 
                     if (error) {
-                        return { error: mapTaskError(error, 'redigere dette rum') }
+                        return { error: mapPermissionError(error, 'updateRoom') }
                     }
 
                     return { data: data as Room }
@@ -462,7 +452,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved redigering af rum'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -490,11 +480,11 @@ export const taskApi = supabaseApi.injectEndpoints({
                     p_status: status,
                 })
 
-                if (rpcError) return { error: mapTaskError(rpcError, 'ændre denne opgaves status') }
+                if (rpcError) return { error: mapPermissionError(rpcError, 'setTaskStatus') }
 
                 const { data, error } = await supabase.from('tasks').select('*').eq('id', id).single()
 
-                if (error) return { error: { status: 'CUSTOM_ERROR', error: error.message } as QueryError }
+                if (error) return { error: mapDbError(error) as QueryError }
                 return { data: data as Task }
             },
             invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],
@@ -521,7 +511,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved hentning af ansvarlige'
+                            : 'errors:generic'
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
@@ -548,7 +538,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du skal være logget ind.',
+                                error: 'errors:loginRequired',
                             } as QueryError,
                         }
                     }
@@ -589,10 +579,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                     if (error) {
                         return {
-                            error: mapTaskError(
-                                error,
-                                'melde denne opgave færdig'
-                            ),
+                            error: mapPermissionError(error, 'finishTask'),
                         }
                     }
 
@@ -603,7 +590,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved oprettelse af anmodning om færdiggørelse'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -656,7 +643,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved hentning af task requests'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -682,7 +669,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             queryFn: async () => {
                 const { data, error } = await supabase.rpc('get_pending_task_requests')
 
-                if (error) return { error: mapTaskError(error, 'se opgavegodkendelser') }
+                if (error) return { error: mapPermissionError(error, 'readTaskApprovals') }
 
                 type Row = {
                     id: string
@@ -713,7 +700,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             queryFn: async ({ requestId }) => {
                 const { error } = await supabase.rpc('approve_task_request', { p_request_id: requestId })
 
-                if (error) return { error: mapTaskError(error, 'godkende opgaver') }
+                if (error) return { error: mapPermissionError(error, 'approveTasks') }
                 return { data: undefined }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
@@ -728,7 +715,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             queryFn: async ({ requestId }) => {
                 const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId })
 
-                if (error) return { error: mapTaskError(error, 'afvise opgaver') }
+                if (error) return { error: mapPermissionError(error, 'rejectTasks') }
                 return { data: undefined }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
@@ -746,7 +733,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du skal være logget ind.',
+                                error: 'errors:loginRequired',
                             } as QueryError,
                         }
                     }
@@ -758,7 +745,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             assigned_by: authData.user.id,
                         })
                     if (error) {
-                        return { error: mapTaskError(error, 'tilmelde en medarbejder til opgaven') }
+                        return { error: mapPermissionError(error, 'assignEmployee') }
                     }
                     return {
                         data: undefined,
@@ -767,7 +754,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved tilmelding til opgaven'
+                            : 'errors:generic'
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
@@ -794,7 +781,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du skal være logget ind.',
+                                error: 'errors:loginRequired',
                             } as QueryError,
                         };
                     }
@@ -805,7 +792,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('user_id', authData.user.id)
                         .eq('assigned_by', authData.user.id);
                     if (error) {
-                        return { error: mapTaskError(error, 'afmelde dig fra opgaven') };
+                        return { error: mapPermissionError(error, 'unassignSelf') };
                     }
                     return {
                         data: undefined,
@@ -814,7 +801,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved afmelding fra opgaven';
+                            : 'errors:generic';
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
@@ -843,7 +830,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du skal være logget ind.',
+                                error: 'errors:loginRequired',
                             } as QueryError,
                         }
                     }
@@ -855,7 +842,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('user_id', userId)
 
                     if (error) {
-                        return { error: mapTaskError(error, 'fjerne en medarbejder fra opgaven') }
+                        return { error: mapPermissionError(error, 'removeEmployee') }
                     }
 
                     return {
@@ -865,7 +852,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved fjernelse af medarbejder fra opgaven'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -894,7 +881,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du skal være logget ind.',
+                                error: 'errors:loginRequired',
                             } as QueryError,
                         };
                     }
@@ -917,7 +904,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved hentning af egne opgaver';
+                            : 'errors:generic';
 
                     return {
                         error: {
@@ -952,7 +939,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                                 .eq('organisation_id', organisationId)
 
                         if (deleteTasksError) {
-                            return { error: mapTaskError(deleteTasksError, 'slette opgaverne i rummet') }
+                            return { error: mapPermissionError(deleteTasksError, 'deleteRoomTasks') }
                         }
                     }
 
@@ -967,7 +954,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             .eq('organisation_id', organisationId)
 
                     if (updateTasksError) {
-                        return { error: mapTaskError(updateTasksError, 'flytte opgaverne ud af rummet') }
+                        return { error: mapPermissionError(updateTasksError, 'moveRoomTasks') }
                     }
 
                     // Slet selve rummet
@@ -979,7 +966,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             .eq('organisation_id', organisationId)
 
                     if (deleteRoomError) {
-                        return { error: mapTaskError(deleteRoomError, 'slette dette rum') }
+                        return { error: mapPermissionError(deleteRoomError, 'deleteRoom') }
                     }
 
                     return { data: undefined }
@@ -987,7 +974,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved sletning af rum'
+                            : 'errors:generic'
 
                     return {
                         error: {
@@ -1017,7 +1004,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .eq('organisation_id', organisationId)
 
                     if (error) {
-                        return { error: mapTaskError(error, 'slette denne opgave') }
+                        return { error: mapPermissionError(error, 'deleteTask') }
                     }
 
                     return { data: undefined }
@@ -1025,7 +1012,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const message =
                         err instanceof Error
                             ? err.message
-                            : 'Fejl ved sletning af opgave'
+                            : 'errors:generic'
 
                     return {
                         error: {

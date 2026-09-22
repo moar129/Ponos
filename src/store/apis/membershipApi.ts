@@ -6,6 +6,7 @@ import type {
     PendingMembershipRequest,
     ReviewMembershipRequestInput,
 } from '../../types/membership/membershipType'
+import { mapDbError } from './apiError'
 
 export const membershipApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -17,7 +18,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     if (userError.name === 'AuthSessionMissingError') {
                         return { data: null }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: userError.message } }
+                    return { error: mapDbError(userError) }
                 }
 
                 if (!userData.user) {
@@ -32,7 +33,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     .maybeSingle()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 if (!data) {
@@ -62,7 +63,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     return {
                         error: { 
                             status: 'CUSTOM_ERROR', 
-                            error: 'Du skal være logget ind for at anmode om medlemskab.' 
+                            error: 'errors:loginRequiredForMembership' 
                         },
                     }
                 }
@@ -84,11 +85,11 @@ export const membershipApi = supabaseApi.injectEndpoints({
                         return {
                             error: {
                                 status: 'CUSTOM_ERROR',
-                                error: 'Du har allerede en ventende anmodning til denne organisation.',
+                                error: 'errors:duplicateMembershipRequest',
                             },
                         }
                     }
-                    return { error: { status: 'CUSTOM_ERROR', error: insertError.message } }
+                    return { error: mapDbError(insertError) }
                 }
 
                 return { data: undefined }
@@ -115,7 +116,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     .order('requested_at')
 
                 if (requestsError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: requestsError.message } }
+                    return { error: mapDbError(requestsError) }
                 }
 
                 if (!requests || requests.length === 0) {
@@ -132,7 +133,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     .in('id', requests.map((request) => request.user_id))
 
                 if (profilesError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: profilesError.message } }
+                    return { error: mapDbError(profilesError) }
                 }
 
                 const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
@@ -175,7 +176,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     .select('id')
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 // Ingen rækker ramt = enten blokeret af RLS eller allerede
@@ -185,7 +186,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     return {
                         error: {
                             status: 'CUSTOM_ERROR',
-                            error: 'Anmodningen kunne ikke behandles. Den er måske allerede behandlet, eller du mangler rettigheder.',
+                            error: 'errors:requestAlreadyHandled',
                         },
                     }
                 }

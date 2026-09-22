@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { ChangePasswordInput, ResetPasswordInput } from '../../types/auth/authType'
+import { mapDbError } from './apiError'
 
 export const authApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -12,7 +13,7 @@ export const authApi = supabaseApi.injectEndpoints({
                 const { data, error } = await supabase.auth.getSession()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: data.session }
@@ -60,7 +61,7 @@ export const authApi = supabaseApi.injectEndpoints({
                 const { error } = await supabase.auth.signOut()
 
                 if (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -88,7 +89,7 @@ export const authApi = supabaseApi.injectEndpoints({
                     // RPC'ens raise exception-beskeder er allerede danske og
                     // bevidst ens uanset hvad der ikke passede, så de kan
                     // vises direkte til brugeren.
-                    return { error: { status: 'CUSTOM_ERROR', error: error.message } }
+                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
@@ -106,7 +107,7 @@ export const authApi = supabaseApi.injectEndpoints({
                 const email = sessionData.session?.user.email
 
                 if (!email) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Du er ikke logget ind.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:notLoggedIn' } }
                 }
 
                 // Trin 1 ER verifikationen: Supabase kræver ikke selv den
@@ -120,14 +121,14 @@ export const authApi = supabaseApi.injectEndpoints({
 
                 if (signInError) {
                     // Intet er ændret på dette tidspunkt.
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Din nuværende adgangskode er forkert.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:wrongCurrentPassword' } }
                 }
 
                 // Trin 2: selve skiftet. Brugeren forbliver logget ind.
                 const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
 
                 if (updateError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Adgangskoden kunne ikke ændres. Prøv igen.' } }
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:passwordChangeFailed' } }
                 }
 
                 return { data: undefined }
