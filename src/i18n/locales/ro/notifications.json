@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Șterge definitiv notificarea",
   "hidden": "Ascunsă",
   "justNow": "Chiar acum",
+  "emptyCategory": "Nicio {{category}}.",
+  "category": {
+    "messages": "Mesaje",
+    "tasks": "Sarcini",
+    "news": "Știri"
+  },
   "type": {
     "message": "Mesaj nou",
     "task_assigned": "Vi s-a atribuit o sarcină",

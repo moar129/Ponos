@@ -274,7 +274,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
           const { data, error } = await supabase
             .from('locations')
-            .select('id, name, description, address, organisation_id')
+            .select('id, name, description, address, organisation_id, parent_location_id')
             .eq('organisation_id', organisationId);
 
           if (error) {
@@ -287,6 +287,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
             name: loc.name,
             description: loc.description,
             address: loc.address,
+            parentLocationId: loc.parent_location_id,
           }));
 
           return { data: locations };
@@ -303,7 +304,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
           : [{ type: 'ItemLocation' as const, id: 'LIST' }],
     }),
 
-    addLocation: builder.mutation<string, { name: string; description?: string | null; address?: string | null }>({
+    addLocation: builder.mutation<string, { name: string; description?: string | null; address?: string | null; parentLocationId?: string | null }>({
       queryFn: async (location) => {
         try {
           const organisationId = await getAuthenticatedOrganisationId();
@@ -315,6 +316,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
               name: location.name,
               description: location.description ?? null,
               address: location.address ?? null,
+              parent_location_id: location.parentLocationId ?? null,
             })
             .select('id')
             .single();

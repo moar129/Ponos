@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Slet notifikation permanent",
   "hidden": "Skjult",
   "justNow": "Lige nu",
+  "emptyCategory": "Ingen {{category}}.",
+  "category": {
+    "messages": "Beskeder",
+    "tasks": "Opgaver",
+    "news": "Nyheder"
+  },
   "type": {
     "message": "Ny besked",
     "task_assigned": "Du er blevet tildelt en opgave",

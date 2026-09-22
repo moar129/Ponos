@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { MapPin, Settings2, Loader2, ChevronDown } from 'lucide-react';
+import { MapPin, Boxes, Settings2, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
 import { LocationManagerComponent } from './locationsManagerComponent';
 import type { LocationPickerComponentProps } from '../../types/dataLayer/datalayerTypes';
@@ -18,22 +18,79 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
   const [createError, setCreateError] = useState<string | null>(null);
   const [addLocation, { isLoading: isSaving }] = useAddLocationMutation();
 
-  const handleSelectChange = (val: string) => {
-    if (val === '__new__') {
+  const warehouses = locations.filter((l) => !l.parentLocationId);
+
+  // Hvilket lager der er valgt i første dropdown. Udledes af den aktuelle
+  // value (så et allerede valgt item's lokation vises korrekt ved åbning),
+  // men kan også ændres selvstændigt uden at det med det samme rører
+  // value - man kan bladre gennem lagre uden at ændre valget, før man
+  // rent faktisk vælger en sektion (eller lageret selv).
+  const selectedLocation = locations.find((l) => l.id === value) ?? null;
+  const initialWarehouseId = selectedLocation
+    ? (selectedLocation.parentLocationId ?? selectedLocation.id)
+    : null;
+
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(initialWarehouseId);
+
+  // Følger med, hvis value ændres udefra (fx nulstilles af formularen).
+  useEffect(() => {
+    setSelectedWarehouseId(initialWarehouseId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const sectionsInSelectedWarehouse = selectedWarehouseId
+    ? locations.filter((l) => l.parentLocationId === selectedWarehouseId)
+    : [];
+
+  const handleWarehouseChange = (val: string) => {
+    if (val === '__new_warehouse__') {
       setIsCreating(true);
       return;
     }
-    onChange(val === '' ? null : val);
+    if (val === '') {
+      setSelectedWarehouseId(null);
+      onChange(null);
+      return;
+    }
+    setSelectedWarehouseId(val);
+    // Vælger lageret selv, indtil brugeren evt. specificerer en sektion -
+    // et lager uden sektioner skal kunne vælges direkte.
+    onChange(val);
   };
- 
+
+  const handleSectionChange = (val: string) => {
+    if (val === '__new_section__') {
+      setIsCreating(true);
+      return;
+    }
+    // Tom værdi = "hele lageret" (ingen bestemt sektion).
+    onChange(val === '' ? selectedWarehouseId : val);
+  };
+
   const handleCreate = async () => {
     if (!newName.trim()) {
       setCreateError(t('locations.nameRequired'));
       return;
     }
     try {
-      const id = await addLocation({ name: newName.trim(), address: newAddress.trim() || null, description: newDescription.trim() || null }).unwrap();
-      onChange(id);
+      const id = await addLocation({
+        name: newName.trim(),
+        address: newAddress.trim() || null,
+        description: newDescription.trim() || null,
+        // Opretter en sektion under det valgte lager, hvis et lager
+        // allerede er valgt - ellers et nyt lager.
+        parentLocationId: selectedWarehouseId,
+      }).unwrap();
+
+      if (selectedWarehouseId) {
+        // Ny sektion: vælg den, og hold lageret som det er.
+        onChange(id);
+      } else {
+        // Nyt lager: gør det til det valgte lager.
+        setSelectedWarehouseId(id);
+        onChange(id);
+      }
+
       setIsCreating(false);
       setNewName('');
       setNewAddress('');
@@ -65,9 +122,12 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
       {isCreating ? (
         <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
           {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
+          <p className="text-xs text-secondary dark:text-slate-400">
+            {selectedWarehouseId ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
+          </p>
           <input
             type="text"
-            placeholder={t('locations.namePlaceholder')}
+            placeholder={selectedWarehouseId ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -79,13 +139,13 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
             onChange={(e) => setNewAddress(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
           />
-           <input
-              type="text"
-              placeholder={t('locations.descriptionOptional')}
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-            />
+          <input
+            type="text"
+            placeholder={t('locations.descriptionOptional')}
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+          />
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
@@ -106,21 +166,47 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
           </div>
         </div>
       ) : (
-        <div className="relative">
-          <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
-          <select
-            value={value ?? ''}
-            onChange={(e) => handleSelectChange(e.target.value)}
-            disabled={isLoading}
-            className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-          >
-            <option value="">{t('locations.none')}</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>{loc.name}</option>
-            ))}
-            {canCreate && <option value="__new__">{t('locations.createNew')}</option>}
-          </select>
-          <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+        <div className="space-y-2">
+          {/* Trin 1: vælg lager */}
+          <div className="relative">
+            <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+            <select
+              value={selectedWarehouseId ?? ''}
+              onChange={(e) => handleWarehouseChange(e.target.value)}
+              disabled={isLoading}
+              className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+            >
+              <option value="">{t('locations.none')}</option>
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+              {canCreate && <option value="__new_warehouse__">{t('locations.createNew')}</option>}
+            </select>
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+          </div>
+
+          {/* Trin 2: vælg sektion på det valgte lager, hvis det har nogen -
+              eller tilbyder at oprette den første. Skjules helt for et
+              lager uden sektioner og uden opret-adgang, så itemet i så
+              fald bare ligger direkte på lageret. */}
+          {selectedWarehouseId && (sectionsInSelectedWarehouse.length > 0 || canCreate) && (
+            <div className="relative">
+              <Boxes className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+              <select
+                value={sectionsInSelectedWarehouse.some((s) => s.id === value) ? value ?? '' : ''}
+                onChange={(e) => handleSectionChange(e.target.value)}
+                disabled={isLoading}
+                className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+              >
+                <option value="">{t('locations.noSectionOption')}</option>
+                {sectionsInSelectedWarehouse.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+                {canCreate && <option value="__new_section__">{t('locations.addNewSectionOption')}</option>}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+            </div>
+          )}
         </div>
       )}
 

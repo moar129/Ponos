@@ -1,11 +1,19 @@
 import { X, MapPin, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import type { LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
+import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 
+// Samme sti-opbygning som itemsDetailComponent.tsx bruger - viser
+// "Lager > Sektion" i stedet for kun sektionens eget navn, så det er
+// tydeligt hvilket lager man er inde under.
+function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[]): string {
+  if (!location.parentLocationId) return location.name;
+  const parent = allLocations.find((l) => l.id === location.parentLocationId);
+  return parent ? `${parent.name} > ${location.name}` : location.name;
+}
 
-export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem }: LocationItemsComponentProps) {
+export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem, allLocations }: LocationItemsComponentProps & { allLocations: ItemLocation[] }) {
   const { t } = useTranslation(['datalayer', 'common'])
   const td = asDynamic(t)
   if (!isOpen || !location) return null;
@@ -20,7 +28,18 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
           <div className="flex items-center gap-2 min-w-0">
             <MapPin className="w-5 h-5 text-accent shrink-0" />
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{location.name}</h2>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className={`text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border ${
+                  location.parentLocationId
+                    ? 'bg-accent/10 text-accent border-accent/30'
+                    : 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600'
+                }`}>
+                  {location.parentLocationId ? t('locations.section') : t('locations.warehouse')}
+                </span>
+              </div>
+              <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">
+                {locationPathLabel(location, allLocations)}
+              </h2>
               {location.address && <p className="text-xs text-secondary truncate dark:text-slate-400">{location.address}</p>}
             </div>
           </div>

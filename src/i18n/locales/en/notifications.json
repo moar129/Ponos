@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Delete notification permanently",
   "hidden": "Hidden",
   "justNow": "Just now",
+  "emptyCategory": "No {{category}}.",
+  "category": {
+    "messages": "Messages",
+    "tasks": "Tasks",
+    "news": "News"
+  },
   "type": {
     "message": "New message",
     "task_assigned": "You have been assigned a task",

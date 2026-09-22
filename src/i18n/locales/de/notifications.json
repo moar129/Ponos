@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Benachrichtigung endgültig löschen",
   "hidden": "Ausgeblendet",
   "justNow": "Gerade eben",
+  "emptyCategory": "Keine {{category}}.",
+  "category": {
+    "messages": "Nachrichten",
+    "tasks": "Aufgaben",
+    "news": "Neuigkeiten"
+  },
   "type": {
     "message": "Neue Nachricht",
     "task_assigned": "Ihnen wurde eine Aufgabe zugewiesen",

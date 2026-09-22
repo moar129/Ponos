@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Trvale smazat oznámení",
   "hidden": "Skryto",
   "justNow": "Právě teď",
+  "emptyCategory": "Žádné {{category}}.",
+  "category": {
+    "messages": "Zprávy",
+    "tasks": "Úkoly",
+    "news": "Novinky"
+  },
   "type": {
     "message": "Nová zpráva",
     "task_assigned": "Byl vám přiřazen úkol",

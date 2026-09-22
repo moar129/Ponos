@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Értesítés végleges törlése",
   "hidden": "Elrejtve",
   "justNow": "Épp most",
+  "emptyCategory": "Nincs {{category}}.",
+  "category": {
+    "messages": "Üzenetek",
+    "tasks": "Feladatok",
+    "news": "Hírek"
+  },
   "type": {
     "message": "Új üzenet",
     "task_assigned": "Feladatot rendeltek Önhöz",

@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Melding definitief verwijderen",
   "hidden": "Verborgen",
   "justNow": "Zojuist",
+  "emptyCategory": "Geen {{category}}.",
+  "category": {
+    "messages": "Berichten",
+    "tasks": "Taken",
+    "news": "Nieuws"
+  },
   "type": {
     "message": "Nieuw bericht",
     "task_assigned": "Er is een taak aan je toegewezen",

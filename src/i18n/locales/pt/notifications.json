@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Eliminar a notificação definitivamente",
   "hidden": "Oculta",
   "justNow": "Agora mesmo",
+  "emptyCategory": "Sem {{category}}.",
+  "category": {
+    "messages": "Mensagens",
+    "tasks": "Tarefas",
+    "news": "Notícias"
+  },
   "type": {
     "message": "Nova mensagem",
     "task_assigned": "Foi-lhe atribuída uma tarefa",

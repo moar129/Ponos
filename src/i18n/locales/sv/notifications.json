@@ -9,6 +9,12 @@
   "deleteAriaLabel": "Radera aviseringen permanent",
   "hidden": "Dold",
   "justNow": "Just nu",
+  "emptyCategory": "Inga {{category}}.",
+  "category": {
+    "messages": "Meddelanden",
+    "tasks": "Uppgifter",
+    "news": "Nyheter"
+  },
   "type": {
     "message": "Nytt meddelande",
     "task_assigned": "Du har tilldelats en uppgift",

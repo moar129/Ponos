@@ -5,7 +5,7 @@ import { X, Package, Pencil, Trash2, Loader2, Save } from 'lucide-react';
 import { useUpdateItemMutation, useDeleteItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import { LocationPickerComponent } from './locationsPickerComponent';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
-import type { ItemDetailComponentProps } from '../../types/dataLayer/datalayerTypes';
+import type { ItemDetailComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
@@ -47,6 +47,12 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   useEffect(() => {
     if (isEditing) nameInputRef.current?.focus();
   }, [isEditing]);
+
+  function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[]): string {
+    if (!location.parentLocationId) return location.name;
+    const parent = allLocations.find((l) => l.id === location.parentLocationId);
+    return parent ? `${parent.name} > ${location.name}` : location.name;
+  }
 
   const hasUnsavedChanges =
     !!item &&
@@ -243,7 +249,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               )}
             </div>
 
-            <div className="col-span-2">
+           <div className="col-span-2">
               {!isEditing && (
                 <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.location')}</span>
               )}
@@ -262,14 +268,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                   className="text-primary hover:text-accent hover:underline underline-offset-2 text-left dark:text-slate-100"
                   title={t('itemDetail.showItemsAtLocation')}
                 >
-                  {currentLocation.name}
+                  {locationPathLabel(currentLocation, locations)}
                 </button>
               ) : (
                 <span className="text-secondary dark:text-slate-400">{t('itemDetail.noLocation')}</span>
               )}
             </div>
           </div>
-
           <div>
             <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.description')}</span>
             {isEditing ? (
