@@ -61,7 +61,7 @@ export function MyTasksPage() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All'); 
+        useState<ETaskPriority | 'All'>('All');
     const [sortBy, setSortBy] = useState<TaskSortOption>('priority');
 
     const [selectedStatuses, setSelectedStatuses] =
@@ -123,9 +123,17 @@ export function MyTasksPage() {
     };
 
     const filteredTasks = tasks.filter((task) => {
-        const matchesSearch = task.title
-            ?.toLowerCase()
-            .includes(search.toLowerCase());
+        const searchTerm = search.trim().toLowerCase();
+
+        const taskRoom = rooms.find(
+            (room) => room.id === task.room_id
+        );
+
+        const matchesSearch =
+            searchTerm === '' ||
+            task.title?.toLowerCase().includes(searchTerm) ||
+            task.description?.toLowerCase().includes(searchTerm) ||
+            taskRoom?.name.toLowerCase().includes(searchTerm);
 
         const matchesRoom =
             selectedRoomId === null ||

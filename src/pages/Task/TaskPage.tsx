@@ -16,6 +16,7 @@ import {
     useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
+    useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
 import {
     CREATE_TASKS_PRIVILEGE,
@@ -106,6 +107,10 @@ export function TasksPage() {
         error: roomsError,
     } = useGetRoomsQuery();
 
+    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
+
+
+
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
 
@@ -124,9 +129,22 @@ export function TasksPage() {
     };
 
     const filteredTasks = tasks.filter((task) => {
-        const matchesSearch = task.title
-            ?.toLowerCase()
-            .includes(search.toLowerCase());
+        const searchTerm = search.trim().toLowerCase();
+
+        const taskRoom = rooms.find(
+            (room) => room.id === task.room_id
+        );
+
+        const isMineSearch =
+            searchTerm === 'dig' ||
+            searchTerm === 'mine';
+
+        const matchesSearch =
+            searchTerm === '' ||
+            task.title?.toLowerCase().includes(searchTerm) ||
+            task.description?.toLowerCase().includes(searchTerm) ||
+            taskRoom?.name.toLowerCase().includes(searchTerm) ||
+            (isMineSearch && myTaskIds.includes(task.id));
 
         const matchesRoom =
             selectedRoomId === null ||
