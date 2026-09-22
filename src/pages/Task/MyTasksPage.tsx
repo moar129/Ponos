@@ -3,8 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
-import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
-import type { ETaskStatus } from '../../types/Task/Task';
+import {
+    FilterPanel,
+    type TaskSortOption,
+} from '../../components/Task/FilterPanel.tsx';
+import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+import type {
+    ETaskPriority,
+    ETaskStatus,
+} from '../../types/Task/Task';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -49,8 +56,13 @@ export function MyTasksPage() {
         useState<string | null>(null);
 
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
+    const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    const [selectedPriority, setSelectedPriority] =
+        useState<ETaskPriority | 'All'>('All'); 
+    const [sortBy, setSortBy] = useState<TaskSortOption>('priority');
 
     const [selectedStatuses, setSelectedStatuses] =
         useState<ETaskStatus[]>([
@@ -122,6 +134,10 @@ export function MyTasksPage() {
         const matchesStatus =
             selectedStatuses.includes(task.status);
 
+        const matchesPriority =
+            selectedPriority === 'All' ||
+            task.priority === selectedPriority;
+
         const matchesMine =
             myTaskIds.includes(task.id);
 
@@ -129,6 +145,7 @@ export function MyTasksPage() {
             (matchesSearch &&
                 matchesRoom &&
                 matchesStatus &&
+                matchesPriority &&
                 matchesMine) ||
             task.id === openTaskId
         );
@@ -145,23 +162,44 @@ export function MyTasksPage() {
         a: typeof filteredTasks[number],
         b: typeof filteredTasks[number]
     ) => {
-        const priorityA =
-            priorityRank[a.priority ?? ''] ?? 5;
+        if (sortBy === 'priority') {
+            const priorityA =
+                priorityRank[a.priority ?? ''] ?? 5;
 
-        const priorityB =
-            priorityRank[b.priority ?? ''] ?? 5;
+            const priorityB =
+                priorityRank[b.priority ?? ''] ?? 5;
 
-        if (priorityA !== priorityB) {
-            return priorityA - priorityB;
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB;
+            }
+            if (a.end_date && b.end_date) {
+                return a.end_date.localeCompare(b.end_date);
+            }
+            if (a.end_date) return -1;
+            if (b.end_date) return 1;
+            return 0;
         }
+        if (sortBy === 'deadline') {
+            if (a.end_date && b.end_date) {
+                return a.end_date.localeCompare(b.end_date);
+            }
+            if (a.end_date) return -1;
+            if (b.end_date) return 1;
 
-        if (a.end_date && b.end_date) {
-            return a.end_date.localeCompare(b.end_date);
+            return 0;
         }
-
-        if (a.end_date) return -1;
-        if (b.end_date) return 1;
-
+        if (sortBy === 'newest') {
+            return (
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            );
+        }
+        if (sortBy === 'oldest') {
+            return (
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime()
+            );
+        }
         return 0;
     };
 
@@ -238,7 +276,19 @@ export function MyTasksPage() {
             <FilterPanel
                 isOpen={isFilterOpen}
                 selectedStatuses={selectedStatuses}
+                selectedPriority={selectedPriority}
+                sortBy={sortBy}
                 onStatusChange={setSelectedStatuses}
+                onPriorityChange={setSelectedPriority}
+                onSortChange={setSortBy}
+                onReset={() => {
+                    setSelectedStatuses([
+                        'Started',
+                        'InProgress',
+                    ]);
+                    setSelectedPriority('All');
+                    setSortBy('priority');
+                }}
             />
 
             {/* CREATE ROOM */}
@@ -320,6 +370,18 @@ export function MyTasksPage() {
                             Få overblik over de opgaver, du selv er tilknyttet.
                         </p>
                     </div>
+
+                    {canCreate && (
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setIsCreateTaskOpen(true)
+                            }
+                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+                        >
+                            Opret opgave
+                        </button>
+                    )}
                 </div>
 
                 {/* TASK COLUMNS */}
@@ -418,6 +480,16 @@ export function MyTasksPage() {
                 </div>
 
             </main>
+
+            {/* CREATE TASK */}
+            <CreateTaskModal
+                isOpen={isCreateTaskOpen}
+                onClose={() =>
+                    setIsCreateTaskOpen(false)
+                }
+                selectedRoomId={selectedRoomId}
+            />
+
         </div>
     );
 }

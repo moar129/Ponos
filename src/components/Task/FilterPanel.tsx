@@ -1,26 +1,40 @@
-import React, { useState } from 'react';
-import type { ETaskStatus } from '../../types/Task/Task';
+import React from 'react';
+import type { ETaskPriority, ETaskStatus } from '../../types/Task/Task';
+
+export type TaskSortOption =
+  | 'newest'
+  | 'oldest'
+  | 'priority'
+  | 'deadline';
 
 interface FilterPanelProps {
   isOpen: boolean;
   selectedStatuses: ETaskStatus[];
+  selectedPriority: ETaskPriority | 'All';
+  sortBy: TaskSortOption;
   onStatusChange: (statuses: ETaskStatus[]) => void;
+  onPriorityChange: (priority: ETaskPriority | 'All') => void;
+  onSortChange: (sort: TaskSortOption) => void;
+  onReset: () => void;
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
   isOpen,
   selectedStatuses,
-  onStatusChange
+  selectedPriority,
+  sortBy,
+  onStatusChange,
+  onPriorityChange,
+  onSortChange,
+  onReset,
 }) => {
-  const [statuses, setStatuses] = useState<ETaskStatus[]>(selectedStatuses);
-
   if (!isOpen) return null;
 
   const toggleStatus = (status: ETaskStatus) => {
-    const newStatuses = statuses.includes(status)
-      ? statuses.filter(s => s !== status)
-      : [...statuses, status];
-    setStatuses(newStatuses);
+    const newStatuses = selectedStatuses.includes(status)
+      ? selectedStatuses.filter((s) => s !== status)
+      : [...selectedStatuses, status];
+
     onStatusChange(newStatuses);
   };
 
@@ -28,32 +42,38 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     <div className="bg-white border-b border-border-gray shadow-sm dark:bg-slate-900 dark:border-slate-700">
       <div className="max-w-[1600px] mx-auto px-8 py-6">
         <div className="flex gap-12 items-start">
-          {/* Status */}
+
+          {/* STATUS */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">Status</h3>
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
+              Status
+            </h3>
+
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
                 <input
                   type="checkbox"
-                  checked={statuses.includes('Started')}
+                  checked={selectedStatuses.includes('Started')}
                   onChange={() => toggleStatus('Started')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
                 Tilgængelig
               </label>
+
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
                 <input
                   type="checkbox"
-                  checked={statuses.includes('InProgress')}
+                  checked={selectedStatuses.includes('InProgress')}
                   onChange={() => toggleStatus('InProgress')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
                 I gang
               </label>
+
               <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
                 <input
                   type="checkbox"
-                  checked={statuses.includes('Completed')}
+                  checked={selectedStatuses.includes('Completed')}
                   onChange={() => toggleStatus('Completed')}
                   className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
                 />
@@ -62,40 +82,62 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </div>
           </div>
 
-          {/* Prioritet */}
+          {/* PRIORITET */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">Prioritet</h3>
-            <select className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-              <option>Alle</option>
-              <option>Lav</option>
-              <option>Mellem</option>
-              <option>Høj</option>
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
+              Prioritet
+            </h3>
+
+            <select
+              value={selectedPriority}
+              onChange={(event) =>
+                onPriorityChange(
+                  event.target.value as ETaskPriority | 'All'
+                )
+              }
+              className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            >
+              <option value="All">Alle</option>
+              <option value="Low">Lav</option>
+              <option value="Medium">Mellem</option>
+              <option value="High">Høj</option>
+              <option value="Critical">Kritisk</option>
             </select>
           </div>
 
-          {/* Sortér */}
+          {/* SORTÉR */}
           <div>
-            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">Sortér efter</h3>
-            <select className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-              <option>Nyeste</option>
-              <option>Ældste</option>
-              <option>Prioritet</option>
-              <option>Deadline</option>
+            <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">
+              Sortér efter
+            </h3>
+
+            <select
+              value={sortBy}
+              onChange={(event) =>
+                onSortChange(
+                  event.target.value as TaskSortOption
+                )
+              }
+              className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            >
+              <option value="newest">Nyeste</option>
+              <option value="oldest">Ældste</option>
+              <option value="priority">Prioritet</option>
+              <option value="deadline">Deadline</option>
             </select>
           </div>
 
-          {/* Nulstil */}
+          {/* NULSTIL */}
           <div className="ml-auto">
             <button
-              onClick={() => {
-                setStatuses([]);
-                onStatusChange([]);
-              }}
+              type="button"
+              onClick={onReset}
               className="text-sm text-secondary hover:text-primary border border-border-gray rounded-lg px-4 py-2 hover:border-secondary transition dark:text-slate-400 dark:hover:text-slate-100 dark:border-slate-700"
             >
               Nulstil
             </button>
           </div>
+
         </div>
       </div>
     </div>

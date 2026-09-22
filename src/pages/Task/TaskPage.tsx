@@ -3,8 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
-import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
-import type { ETaskStatus } from '../../types/Task/Task';
+import {
+    FilterPanel,
+    type TaskSortOption,
+} from '../../components/Task/FilterPanel.tsx';
+import type {
+    ETaskPriority,
+    ETaskStatus,
+} from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import {
     useCreateRoomMutation,
@@ -61,6 +67,12 @@ export function TasksPage() {
             'Started',
             'InProgress',
         ]);
+
+    const [selectedPriority, setSelectedPriority] =
+        useState<ETaskPriority | 'All'>('All');
+
+    const [sortBy, setSortBy] =
+        useState<TaskSortOption>('priority');
 
     const [createRoom, { error: createRoomError }] =
         useCreateRoomMutation();
@@ -123,15 +135,18 @@ export function TasksPage() {
         const matchesStatus =
             selectedStatuses.includes(task.status);
 
-        // En opgave åbnet via et link vises altid,
-        // også hvis filteret ellers ville skjule den.
+        const matchesPriority =
+            selectedPriority === 'All' ||
+            task.priority === selectedPriority;
+
         const matchesOpenTask =
             task.id === openTaskId;
 
         return (
             (matchesSearch &&
                 matchesRoom &&
-                matchesStatus) ||
+                matchesStatus &&
+                matchesPriority) ||
             matchesOpenTask
         );
     });
@@ -147,23 +162,43 @@ export function TasksPage() {
         a: typeof filteredTasks[number],
         b: typeof filteredTasks[number]
     ) => {
-        const priorityA =
-            priorityRank[a.priority ?? ''] ?? 5;
-
-        const priorityB =
-            priorityRank[b.priority ?? ''] ?? 5;
-
-        if (priorityA !== priorityB) {
-            return priorityA - priorityB;
+        if (sortBy === 'priority') {
+            const priorityA =
+                priorityRank[a.priority ?? ''] ?? 5;
+            const priorityB =
+                priorityRank[b.priority ?? ''] ?? 5;
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB;
+            }
+            if (a.end_date && b.end_date) {
+                return a.end_date.localeCompare(b.end_date);
+            }
+            if (a.end_date) return -1;
+            if (b.end_date) return 1;
+            return 0;
         }
+        if (sortBy === 'deadline') {
+            if (a.end_date && b.end_date) {
+                return a.end_date.localeCompare(b.end_date);
+            }
 
-        if (a.end_date && b.end_date) {
-            return a.end_date.localeCompare(b.end_date);
+            if (a.end_date) return -1;
+            if (b.end_date) return 1;
+
+            return 0;
         }
-
-        if (a.end_date) return -1;
-        if (b.end_date) return 1;
-
+        if (sortBy === 'newest') {
+            return (
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            );
+        }
+        if (sortBy === 'oldest') {
+            return (
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime()
+            );
+        }
         return 0;
     };
 
@@ -234,7 +269,19 @@ export function TasksPage() {
             <FilterPanel
                 isOpen={isFilterOpen}
                 selectedStatuses={selectedStatuses}
+                selectedPriority={selectedPriority}
+                sortBy={sortBy}
                 onStatusChange={setSelectedStatuses}
+                onPriorityChange={setSelectedPriority}
+                onSortChange={setSortBy}
+                onReset={() => {
+                    setSelectedStatuses([
+                        'Started',
+                        'InProgress',
+                    ]);
+                    setSelectedPriority('All');
+                    setSortBy('priority');
+                }}
             />
 
             {/* CREATE ROOM */}
