@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Redigera artikel",
+    "inCategory": "I kategori:",
     "nameRequired": "Namn måste fyllas i.",
     "saveFailed": "Ändringarna kunde inte sparas. Försök igen.",
     "deleteFailed": "Artikeln kunde inte raderas. Försök igen.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Är du säker på att du vill radera \"{{name}}\"? Artiklar som använder den här platsen förlorar sin platskoppling (de raderas inte).",
     "none": "Ingen plats",
     "createNew": "+ Skapa ny plats…",
+    "createAndSelect": "Skapa & välj",
     "noItemsHere": "Inga artiklar är registrerade på den här platsen.",
     "addressOptional": "Adress (valfritt)",
     "descriptionOptional": "Beskrivning (valfritt)",

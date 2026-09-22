@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Artikel bewerken",
+    "inCategory": "In categorie:",
     "nameRequired": "Naam is verplicht.",
     "saveFailed": "De wijzigingen konden niet worden opgeslagen. Probeer het opnieuw.",
     "deleteFailed": "Het artikel kon niet worden verwijderd. Probeer het opnieuw.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Weet je zeker dat je \"{{name}}\" wilt verwijderen? Artikelen die deze locatie gebruiken verliezen hun koppeling (ze worden niet verwijderd).",
     "none": "Geen locatie",
     "createNew": "+ Nieuwe locatie aanmaken…",
+    "createAndSelect": "Aanmaken & selecteren",
     "noItemsHere": "Op deze locatie zijn geen artikelen geregistreerd.",
     "addressOptional": "Adres (optioneel)",
     "descriptionOptional": "Beschrijving (optioneel)",

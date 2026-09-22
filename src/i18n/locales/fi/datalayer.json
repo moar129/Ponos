@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Muokkaa nimikettä",
+    "inCategory": "Luokassa:",
     "nameRequired": "Nimi on pakollinen.",
     "saveFailed": "Muutoksia ei voitu tallentaa. Yritä uudelleen.",
     "deleteFailed": "Nimikettä ei voitu poistaa. Yritä uudelleen.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Haluatko varmasti poistaa sijainnin \"{{name}}\"? Tätä sijaintia käyttävät nimikkeet menettävät sijaintiyhteytensä (niitä ei poisteta).",
     "none": "Ei sijaintia",
     "createNew": "+ Luo uusi sijainti…",
+    "createAndSelect": "Luo ja valitse",
     "noItemsHere": "Tähän sijaintiin ei ole kirjattu nimikkeitä.",
     "addressOptional": "Osoite (valinnainen)",
     "descriptionOptional": "Kuvaus (valinnainen)",

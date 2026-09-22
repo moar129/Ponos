@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Tétel szerkesztése",
+    "inCategory": "Kategóriában:",
     "nameRequired": "A név megadása kötelező.",
     "saveFailed": "A módosításokat nem sikerült menteni. Próbálja újra.",
     "deleteFailed": "A tételt nem sikerült törölni. Próbálja újra.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Biztosan törli a(z) \"{{name}}\" helyszínt? Az ezt a helyszínt használó tételek elvesztik a helyszín-hozzárendelésüket (nem törlődnek).",
     "none": "Nincs helyszín",
     "createNew": "+ Új helyszín létrehozása…",
+    "createAndSelect": "Létrehozás és kiválasztás",
     "noItemsHere": "Ezen a helyszínen nincs nyilvántartott tétel.",
     "addressOptional": "Cím (nem kötelező)",
     "descriptionOptional": "Leírás (nem kötelező)",

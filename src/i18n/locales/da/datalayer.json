@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Rediger item",
+    "inCategory": "I kategori:",
     "nameRequired": "Navn er påkrævet.",
     "saveFailed": "Kunne ikke gemme ændringer. Prøv igen.",
     "deleteFailed": "Kunne ikke slette itemet. Prøv igen.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Er du sikker på, at du vil slette \"{{name}}\"? Items der bruger denne lokation mister deres lokationstilknytning (bliver ikke slettet).",
     "none": "Ingen lokation",
     "createNew": "+ Opret ny lokation…",
+    "createAndSelect": "Opret & vælg",
     "noItemsHere": "Ingen items er registreret på denne lokation.",
     "addressOptional": "Adresse (valgfrit)",
     "descriptionOptional": "Beskrivelse (valgfrit)",

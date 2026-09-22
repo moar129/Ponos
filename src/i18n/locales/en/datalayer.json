@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Edit item",
+    "inCategory": "In category:",
     "nameRequired": "Name is required.",
     "saveFailed": "Could not save the changes. Please try again.",
     "deleteFailed": "Could not delete the item. Please try again.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Are you sure you want to delete \"{{name}}\"? Items using this location lose their location link (they are not deleted).",
     "none": "No location",
     "createNew": "+ Create new location…",
+    "createAndSelect": "Create & select",
     "noItemsHere": "No items are registered at this location.",
     "addressOptional": "Address (optional)",
     "descriptionOptional": "Description (optional)",

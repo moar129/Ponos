@@ -152,7 +152,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                 const ancestors = parts.slice(0, -1);
                 return (
                   <p className="text-xs text-secondary truncate dark:text-slate-400">
-                    I kategori: {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
+                    {t('itemDetail.inCategory')} {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
                     <strong className="text-primary font-medium dark:text-slate-100">{current}</strong>
                   </p>
                 );

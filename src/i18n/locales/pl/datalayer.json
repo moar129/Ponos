@@ -106,6 +106,7 @@
   },
   "itemDetail": {
     "heading": "Edytuj element",
+    "inCategory": "W kategorii:",
     "nameRequired": "Nazwa jest wymagana.",
     "saveFailed": "Nie udało się zapisać zmian. Spróbuj ponownie.",
     "deleteFailed": "Nie udało się usunąć elementu. Spróbuj ponownie.",
@@ -137,6 +138,7 @@
     "deleteMessage": "Czy na pewno chcesz usunąć \"{{name}}\"? Elementy korzystające z tej lokalizacji stracą powiązanie z nią (nie zostaną usunięte).",
     "none": "Brak lokalizacji",
     "createNew": "+ Utwórz nową lokalizację…",
+    "createAndSelect": "Utwórz i wybierz",
     "noItemsHere": "W tej lokalizacji nie zarejestrowano żadnych elementów.",
     "addressOptional": "Adres (opcjonalnie)",
     "descriptionOptional": "Opis (opcjonalnie)",

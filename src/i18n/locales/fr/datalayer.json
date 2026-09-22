@@ -103,6 +103,7 @@
   },
   "itemDetail": {
     "heading": "Modifier l'article",
+    "inCategory": "Dans la catégorie :",
     "nameRequired": "Le nom est obligatoire.",
     "saveFailed": "Impossible d'enregistrer les modifications. Veuillez réessayer.",
     "deleteFailed": "Impossible de supprimer l'article. Veuillez réessayer.",
@@ -134,6 +135,7 @@
     "deleteMessage": "Voulez-vous vraiment supprimer \"{{name}}\" ? Les articles utilisant cet emplacement perdront leur rattachement (ils ne seront pas supprimés).",
     "none": "Aucun emplacement",
     "createNew": "+ Créer un nouvel emplacement…",
+    "createAndSelect": "Créer et sélectionner",
     "noItemsHere": "Aucun article n'est enregistré à cet emplacement.",
     "addressOptional": "Adresse (facultatif)",
     "descriptionOptional": "Description (facultatif)",

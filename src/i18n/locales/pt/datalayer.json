@@ -103,6 +103,7 @@
   },
   "itemDetail": {
     "heading": "Editar artigo",
+    "inCategory": "Na categoria:",
     "nameRequired": "O nome é obrigatório.",
     "saveFailed": "Não foi possível guardar as alterações. Tente novamente.",
     "deleteFailed": "Não foi possível eliminar o artigo. Tente novamente.",
@@ -134,6 +135,7 @@
     "deleteMessage": "Tem a certeza de que quer eliminar \"{{name}}\"? Os artigos que usam esta localização perdem a ligação (não são eliminados).",
     "none": "Sem localização",
     "createNew": "+ Criar nova localização…",
+    "createAndSelect": "Criar e selecionar",
     "noItemsHere": "Não há artigos registados nesta localização.",
     "addressOptional": "Endereço (opcional)",
     "descriptionOptional": "Descrição (opcional)",

@@ -100,6 +100,7 @@
   },
   "itemDetail": {
     "heading": "Artikel bearbeiten",
+    "inCategory": "In Kategorie:",
     "nameRequired": "Name ist erforderlich.",
     "saveFailed": "Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "deleteFailed": "Der Artikel konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
@@ -131,6 +132,7 @@
     "deleteMessage": "Möchten Sie \"{{name}}\" wirklich löschen? Artikel mit diesem Standort verlieren ihre Standortzuordnung (sie werden nicht gelöscht).",
     "none": "Kein Standort",
     "createNew": "+ Neuen Standort erstellen…",
+    "createAndSelect": "Erstellen & auswählen",
     "noItemsHere": "An diesem Standort sind keine Artikel erfasst.",
     "addressOptional": "Adresse (optional)",
     "descriptionOptional": "Beschreibung (optional)",

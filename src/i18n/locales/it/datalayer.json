@@ -103,6 +103,7 @@
   },
   "itemDetail": {
     "heading": "Modifica articolo",
+    "inCategory": "Nella categoria:",
     "nameRequired": "Il nome è obbligatorio.",
     "saveFailed": "Impossibile salvare le modifiche. Riprova.",
     "deleteFailed": "Impossibile eliminare l'articolo. Riprova.",
@@ -134,6 +135,7 @@
     "deleteMessage": "Vuoi davvero eliminare \"{{name}}\"? Gli articoli che usano questa posizione perderanno il collegamento (non verranno eliminati).",
     "none": "Nessuna posizione",
     "createNew": "+ Crea una nuova posizione…",
+    "createAndSelect": "Crea e seleziona",
     "noItemsHere": "In questa posizione non è registrato alcun articolo.",
     "addressOptional": "Indirizzo (facoltativo)",
     "descriptionOptional": "Descrizione (facoltativa)",

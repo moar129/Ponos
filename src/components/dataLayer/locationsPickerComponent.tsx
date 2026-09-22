@@ -101,7 +101,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
             >
               {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Opret &amp; vælg
+              {t('locations.createAndSelect')}
             </button>
           </div>
         </div>

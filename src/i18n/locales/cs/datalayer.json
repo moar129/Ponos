@@ -106,6 +106,7 @@
   },
   "itemDetail": {
     "heading": "Upravit položku",
+    "inCategory": "V kategorii:",
     "nameRequired": "Název je povinný.",
     "saveFailed": "Změny se nepodařilo uložit. Zkuste to znovu.",
     "deleteFailed": "Položku se nepodařilo smazat. Zkuste to znovu.",
@@ -137,6 +138,7 @@
     "deleteMessage": "Opravdu chcete smazat místo „{{name}}“? Položky, které toto místo používají, ztratí přiřazení místa (nebudou smazány).",
     "none": "Žádné místo",
     "createNew": "+ Vytvořit nové místo…",
+    "createAndSelect": "Vytvořit a vybrat",
     "noItemsHere": "Na tomto místě nejsou evidovány žádné položky.",
     "addressOptional": "Adresa (nepovinné)",
     "descriptionOptional": "Popis (nepovinné)",
