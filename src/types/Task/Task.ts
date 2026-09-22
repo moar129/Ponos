@@ -1,4 +1,3 @@
-
 export type ETaskStatus = 'Started' | 'InProgress' | 'Completed';
 export type ETaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
 
@@ -8,7 +7,7 @@ export interface Task {
   organisation_id: string;
   title: string;
   description: string | null;
-  
+
   created_at: string;
   start_date: string | null;
   end_date: string | null;
@@ -20,7 +19,7 @@ export interface Task {
   requires_approval: boolean;
 }
 
-export  interface Room {
+export interface Room {
   id: string;
   organisation_id: string;
   name: string;

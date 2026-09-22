@@ -21,6 +21,7 @@ import NotFoundPage from './pages/public/NotFoundPage';
 import { useGetSessionQuery } from './store/apis/authApi';
 import { MessagesPage } from './pages/messages/messagePage';
 import NotificationPage from './pages/notification/notificationPage';
+import { MyTasksPage } from './pages/Task/MyTasksPage';
 
 // Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
 // headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
@@ -64,6 +65,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/tasks/mine" element={<MyTasksPage />} />
             <Route path="/statistik" element={<StatisticsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/datalager" element={<DataLayerPage />} />

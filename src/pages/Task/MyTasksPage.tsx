@@ -7,11 +7,11 @@ import {
     FilterPanel,
     type TaskSortOption,
 } from '../../components/Task/FilterPanel.tsx';
+import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import type {
     ETaskPriority,
     ETaskStatus,
 } from '../../types/Task/Task';
-import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -19,11 +19,11 @@ import {
     useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
 import {
-    CREATE_TASKS_PRIVILEGE,
-    DELETE_TASKS_PRIVILEGE,
     READ_TASKS_PRIVILEGE,
     ASSIGN_TASKS_PRIVILEGE,
     UPDATE_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
+    CREATE_TASKS_PRIVILEGE,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 
@@ -42,12 +42,9 @@ function readableError(err: unknown): string | null {
     return 'Noget gik galt. Prøv igen.';
 }
 
-export function TasksPage() {
+export function MyTasksPage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // ?task= (Mine opgaver-widget, godkend/afvis-notifikationer)
-    // ?taskId= (notify_task_*-triggerne)
-    // åbner begge opgavens popup.
     const openTaskId =
         searchParams.get('task') ?? searchParams.get('taskId');
 
@@ -63,17 +60,15 @@ export function TasksPage() {
     const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+    const [selectedPriority, setSelectedPriority] =
+        useState<ETaskPriority | 'All'>('All');
+    const [sortBy, setSortBy] = useState<TaskSortOption>('priority');
+
     const [selectedStatuses, setSelectedStatuses] =
         useState<ETaskStatus[]>([
             'Started',
             'InProgress',
         ]);
-
-    const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All');
-
-    const [sortBy, setSortBy] =
-        useState<TaskSortOption>('priority');
 
     const [createRoom, { error: createRoomError }] =
         useCreateRoomMutation();
@@ -107,9 +102,8 @@ export function TasksPage() {
         error: roomsError,
     } = useGetRoomsQuery();
 
-    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
-
-
+    const { data: myTaskIds = [] } =
+        useGetMyTaskIdsQuery();
 
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
@@ -135,16 +129,11 @@ export function TasksPage() {
             (room) => room.id === task.room_id
         );
 
-        const isMineSearch =
-            searchTerm === 'dig' ||
-            searchTerm === 'mine';
-
         const matchesSearch =
             searchTerm === '' ||
             task.title?.toLowerCase().includes(searchTerm) ||
             task.description?.toLowerCase().includes(searchTerm) ||
-            taskRoom?.name.toLowerCase().includes(searchTerm) ||
-            (isMineSearch && myTaskIds.includes(task.id));
+            taskRoom?.name.toLowerCase().includes(searchTerm);
 
         const matchesRoom =
             selectedRoomId === null ||
@@ -157,15 +146,16 @@ export function TasksPage() {
             selectedPriority === 'All' ||
             task.priority === selectedPriority;
 
-        const matchesOpenTask =
-            task.id === openTaskId;
+        const matchesMine =
+            myTaskIds.includes(task.id);
 
         return (
             (matchesSearch &&
                 matchesRoom &&
                 matchesStatus &&
-                matchesPriority) ||
-            matchesOpenTask
+                matchesPriority &&
+                matchesMine) ||
+            task.id === openTaskId
         );
     });
 
@@ -183,8 +173,10 @@ export function TasksPage() {
         if (sortBy === 'priority') {
             const priorityA =
                 priorityRank[a.priority ?? ''] ?? 5;
+
             const priorityB =
                 priorityRank[b.priority ?? ''] ?? 5;
+
             if (priorityA !== priorityB) {
                 return priorityA - priorityB;
             }
@@ -199,7 +191,6 @@ export function TasksPage() {
             if (a.end_date && b.end_date) {
                 return a.end_date.localeCompare(b.end_date);
             }
-
             if (a.end_date) return -1;
             if (b.end_date) return 1;
 
@@ -220,12 +211,18 @@ export function TasksPage() {
         return 0;
     };
 
-    const availableTasks = filteredTasks
-        .filter((task) => task.status === 'Started')
+    const myAvailableTasks = filteredTasks
+        .filter(
+            (task) =>
+                task.status === 'Started'
+        )
         .sort(sortTasks);
 
-    const myTasks = filteredTasks
-        .filter((task) => task.status === 'InProgress')
+    const myInProgressTasks = filteredTasks
+        .filter(
+            (task) =>
+                task.status === 'InProgress'
+        )
         .sort(sortTasks);
 
     const pageError =
@@ -241,7 +238,7 @@ export function TasksPage() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="font-semibold">
-                    Henter opgaver...
+                    Henter dine opgaver...
                 </p>
             </div>
         );
@@ -251,7 +248,7 @@ export function TasksPage() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="text-secondary dark:text-slate-400">
-                    Du har ikke adgang til at se opgaver i denne organisation.
+                    Du har ikke adgang til at se dine opgaver i denne organisation.
                 </p>
             </div>
         );
@@ -279,8 +276,8 @@ export function TasksPage() {
                 }
                 search={search}
                 onSearchChange={setSearch}
-                availableCount={availableTasks.length}
-                inProgressCount={myTasks.length}
+                availableCount={myAvailableTasks.length}
+                inProgressCount={myInProgressTasks.length}
             />
 
             {/* FILTER PANEL */}
@@ -304,7 +301,13 @@ export function TasksPage() {
 
             {/* CREATE ROOM */}
             {isAddRoomOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4"
+                    onClick={() => {
+                        setIsAddRoomOpen(false);
+                        setNewRoomName('');
+                    }}
+                >
                     <div
                         className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
                         onClick={(event) =>
@@ -368,11 +371,11 @@ export function TasksPage() {
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-primary dark:text-slate-100">
-                            Opgaver
+                            Mine opgaver
                         </h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
-                            Få overblik over arbejdet, der skal udføres.
+                            Få overblik over de opgaver, du selv er tilknyttet.
                         </p>
                     </div>
 
@@ -392,20 +395,27 @@ export function TasksPage() {
                 {/* TASK COLUMNS */}
                 <div className="grid grid-cols-2 gap-8 items-start">
 
-                    {/* OPGAVER TILGÆNGELIGE */}
+                    {/* MINE TILGÆNGELIGE OPGAVER */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">
-                                Opgaver tilgængelige
-                            </h2>
+                            <div>
+                                <h2 className="font-bold text-lg text-primary dark:text-slate-100">
+                                    Mine tilgængelige opgaver
+                                </h2>
+
+                                <p className="text-sm text-secondary mt-1 dark:text-slate-400">
+                                    Opgaver, du er tilknyttet og kan arbejde på.
+                                </p>
+                            </div>
 
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
-                                {availableTasks.length}
+                                {myAvailableTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
-                            {availableTasks.map((task) => (
+
+                            {myAvailableTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
@@ -421,28 +431,36 @@ export function TasksPage() {
                                 />
                             ))}
 
-                            {availableTasks.length === 0 && (
+                            {myAvailableTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Ingen tilgængelige opgaver
+                                    Du har ingen tilgængelige opgaver
                                 </p>
                             )}
+
                         </div>
                     </section>
 
-                    {/* MINE OPGAVER / I GANG */}
+                    {/* MINE OPGAVER I GANG */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">
-                                I gang
-                            </h2>
+                            <div>
+                                <h2 className="font-bold text-lg text-primary dark:text-slate-100">
+                                    Mine opgaver i gang
+                                </h2>
+
+                                <p className="text-sm text-secondary mt-1 dark:text-slate-400">
+                                    Opgaver, du allerede er i gang med.
+                                </p>
+                            </div>
 
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
-                                {myTasks.length}
+                                {myInProgressTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
-                            {myTasks.map((task) => (
+
+                            {myInProgressTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
@@ -458,15 +476,17 @@ export function TasksPage() {
                                 />
                             ))}
 
-                            {myTasks.length === 0 && (
+                            {myInProgressTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    Ingen opgaver i gang
+                                    Du har ingen opgaver i gang
                                 </p>
                             )}
+
                         </div>
                     </section>
 
                 </div>
+
             </main>
 
             {/* CREATE TASK */}
