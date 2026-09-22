@@ -1,4 +1,4 @@
-import { X, MapPin, Package } from 'lucide-react';
+import { X, Package } from 'lucide-react';
 import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
 import { ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 
