@@ -33,6 +33,18 @@
     "availableHeading": "Dostupné úkoly",
     "inProgressHeading": "Probíhá"
   },
+  "mine": {
+    "loading": "Načítání vašich úkolů...",
+    "noAccess": "Nemáte přístup k zobrazení svých úkolů v této organizaci.",
+    "heading": "Moje úkoly",
+    "subtitle": "Získejte přehled o úkolech, ke kterým jste přiřazeni.",
+    "availableHeading": "Moje dostupné úkoly",
+    "availableSubtitle": "Úkoly, ke kterým jste přiřazeni a na kterých můžete pracovat.",
+    "noAvailableTasks": "Nemáte žádné dostupné úkoly",
+    "inProgressHeading": "Moje probíhající úkoly",
+    "inProgressSubtitle": "Úkoly, na kterých již pracujete.",
+    "noTasksInProgress": "Nemáte žádné probíhající úkoly"
+  },
   "rooms": {
     "create": "Vytvořit místnost",
     "moreActions": "Další akce",

@@ -33,6 +33,18 @@
     "availableHeading": "Elérhető feladatok",
     "inProgressHeading": "Folyamatban"
   },
+  "mine": {
+    "loading": "Feladataid betöltése...",
+    "noAccess": "Nincs jogosultságod megtekinteni a feladataidat ebben a szervezetben.",
+    "heading": "Saját feladataim",
+    "subtitle": "Áttekintés azokról a feladatokról, amelyekhez hozzá vagy rendelve.",
+    "availableHeading": "Elérhető feladataim",
+    "availableSubtitle": "Feladatok, amelyekhez hozzá vagy rendelve, és amelyeken dolgozhatsz.",
+    "noAvailableTasks": "Nincsenek elérhető feladataid",
+    "inProgressHeading": "Folyamatban lévő feladataim",
+    "inProgressSubtitle": "Feladatok, amelyeken már dolgozol.",
+    "noTasksInProgress": "Nincsenek folyamatban lévő feladataid"
+  },
   "rooms": {
     "create": "Helyiség létrehozása",
     "moreActions": "További műveletek",

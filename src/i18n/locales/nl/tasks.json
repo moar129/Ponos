@@ -33,6 +33,18 @@
     "availableHeading": "Beschikbare taken",
     "inProgressHeading": "Bezig"
   },
+  "mine": {
+    "loading": "Je taken worden geladen...",
+    "noAccess": "Je hebt geen toegang om je taken in deze organisatie te bekijken.",
+    "heading": "Mijn taken",
+    "subtitle": "Krijg een overzicht van de taken waaraan je bent toegewezen.",
+    "availableHeading": "Mijn beschikbare taken",
+    "availableSubtitle": "Taken waaraan je bent toegewezen en waaraan je kunt werken.",
+    "noAvailableTasks": "Je hebt geen beschikbare taken",
+    "inProgressHeading": "Mijn taken in uitvoering",
+    "inProgressSubtitle": "Taken waaraan je al werkt.",
+    "noTasksInProgress": "Je hebt geen taken in uitvoering"
+  },
   "rooms": {
     "create": "Ruimte aanmaken",
     "moreActions": "Meer acties",

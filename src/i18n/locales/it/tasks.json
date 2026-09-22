@@ -33,6 +33,18 @@
     "availableHeading": "Attività disponibili",
     "inProgressHeading": "In corso"
   },
+  "mine": {
+    "loading": "Caricamento delle tue attività...",
+    "noAccess": "Non hai accesso per visualizzare le tue attività in questa organizzazione.",
+    "heading": "Le mie attività",
+    "subtitle": "Ottieni una panoramica delle attività a cui sei assegnato.",
+    "availableHeading": "Le mie attività disponibili",
+    "availableSubtitle": "Attività a cui sei assegnato e su cui puoi lavorare.",
+    "noAvailableTasks": "Non hai attività disponibili",
+    "inProgressHeading": "Le mie attività in corso",
+    "inProgressSubtitle": "Attività su cui stai già lavorando.",
+    "noTasksInProgress": "Non hai attività in corso"
+  },
   "rooms": {
     "create": "Crea sala",
     "moreActions": "Altre azioni",

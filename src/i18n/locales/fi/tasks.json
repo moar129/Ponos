@@ -33,6 +33,18 @@
     "availableHeading": "Saatavilla olevat tehtävät",
     "inProgressHeading": "Käynnissä"
   },
+  "mine": {
+    "loading": "Ladataan tehtäviäsi...",
+    "noAccess": "Sinulla ei ole oikeutta nähdä tehtäviäsi tässä organisaatiossa.",
+    "heading": "Omat tehtävät",
+    "subtitle": "Saat yleiskuvan tehtävistä, joihin sinut on liitetty.",
+    "availableHeading": "Omat saatavilla olevat tehtävät",
+    "availableSubtitle": "Tehtävät, joihin sinut on liitetty ja joita voit tehdä.",
+    "noAvailableTasks": "Sinulla ei ole saatavilla olevia tehtäviä",
+    "inProgressHeading": "Omat käynnissä olevat tehtävät",
+    "inProgressSubtitle": "Tehtävät, joita jo teet.",
+    "noTasksInProgress": "Sinulla ei ole käynnissä olevia tehtäviä"
+  },
   "rooms": {
     "create": "Luo tila",
     "moreActions": "Lisää toimintoja",

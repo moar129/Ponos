@@ -33,6 +33,18 @@
     "availableHeading": "Verfügbare Aufgaben",
     "inProgressHeading": "In Arbeit"
   },
+  "mine": {
+    "loading": "Deine Aufgaben werden geladen...",
+    "noAccess": "Du hast keinen Zugriff, um deine Aufgaben in dieser Organisation zu sehen.",
+    "heading": "Meine Aufgaben",
+    "subtitle": "Verschaffe dir einen Überblick über die Aufgaben, denen du zugeordnet bist.",
+    "availableHeading": "Meine verfügbaren Aufgaben",
+    "availableSubtitle": "Aufgaben, denen du zugeordnet bist und an denen du arbeiten kannst.",
+    "noAvailableTasks": "Du hast keine verfügbaren Aufgaben",
+    "inProgressHeading": "Meine laufenden Aufgaben",
+    "inProgressSubtitle": "Aufgaben, an denen du bereits arbeitest.",
+    "noTasksInProgress": "Du hast keine laufenden Aufgaben"
+  },
   "rooms": {
     "create": "Raum erstellen",
     "moreActions": "Weitere Aktionen",

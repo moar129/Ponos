@@ -33,6 +33,18 @@
     "availableHeading": "Available tasks",
     "inProgressHeading": "In progress"
   },
+  "mine": {
+    "loading": "Loading your tasks...",
+    "noAccess": "You do not have access to view your tasks in this organisation.",
+    "heading": "My tasks",
+    "subtitle": "Get an overview of the tasks you are assigned to.",
+    "availableHeading": "My available tasks",
+    "availableSubtitle": "Tasks you are assigned to and can work on.",
+    "noAvailableTasks": "You have no available tasks",
+    "inProgressHeading": "My tasks in progress",
+    "inProgressSubtitle": "Tasks you are already working on.",
+    "noTasksInProgress": "You have no tasks in progress"
+  },
   "rooms": {
     "create": "Create room",
     "moreActions": "More actions",

@@ -33,6 +33,18 @@
     "availableHeading": "Tillgängliga uppgifter",
     "inProgressHeading": "Pågår"
   },
+  "mine": {
+    "loading": "Hämtar dina uppgifter...",
+    "noAccess": "Du har inte åtkomst till att se dina uppgifter i den här organisationen.",
+    "heading": "Mina uppgifter",
+    "subtitle": "Få en överblick över de uppgifter du själv är kopplad till.",
+    "availableHeading": "Mina tillgängliga uppgifter",
+    "availableSubtitle": "Uppgifter du är kopplad till och kan arbeta på.",
+    "noAvailableTasks": "Du har inga tillgängliga uppgifter",
+    "inProgressHeading": "Mina pågående uppgifter",
+    "inProgressSubtitle": "Uppgifter du redan arbetar med.",
+    "noTasksInProgress": "Du har inga pågående uppgifter"
+  },
   "rooms": {
     "create": "Skapa rum",
     "moreActions": "Fler åtgärder",

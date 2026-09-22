@@ -1,7 +1,7 @@
-import { readableError } from '../../ErrorMessage';
-import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
+import { readableError } from '../../ErrorMessage';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
@@ -9,11 +9,11 @@ import {
     FilterPanel,
     type TaskSortOption,
 } from '../../components/Task/FilterPanel.tsx';
+import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import type {
     ETaskPriority,
     ETaskStatus,
 } from '../../types/Task/Task';
-import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -21,22 +21,18 @@ import {
     useGetMyTaskIdsQuery,
 } from '../../store/apis/taskApi';
 import {
-    CREATE_TASKS_PRIVILEGE,
-    DELETE_TASKS_PRIVILEGE,
     READ_TASKS_PRIVILEGE,
     ASSIGN_TASKS_PRIVILEGE,
     UPDATE_TASKS_PRIVILEGE,
+    DELETE_TASKS_PRIVILEGE,
+    CREATE_TASKS_PRIVILEGE,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 
-
-export function TasksPage() {
-  const { t } = useTranslation(['tasks', 'common'])
+export function MyTasksPage() {
+    const { t } = useTranslation(['tasks', 'common'])
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // ?task= (Mine opgaver-widget, godkend/afvis-notifikationer)
-    // ?taskId= (notify_task_*-triggerne)
-    // åbner begge opgavens popup.
     const openTaskId =
         searchParams.get('task') ?? searchParams.get('taskId');
 
@@ -52,17 +48,15 @@ export function TasksPage() {
     const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+    const [selectedPriority, setSelectedPriority] =
+        useState<ETaskPriority | 'All'>('All');
+    const [sortBy, setSortBy] = useState<TaskSortOption>('priority');
+
     const [selectedStatuses, setSelectedStatuses] =
         useState<ETaskStatus[]>([
             'Started',
             'InProgress',
         ]);
-
-    const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All');
-
-    const [sortBy, setSortBy] =
-        useState<TaskSortOption>('priority');
 
     const [createRoom, { error: createRoomError }] =
         useCreateRoomMutation();
@@ -96,9 +90,8 @@ export function TasksPage() {
         error: roomsError,
     } = useGetRoomsQuery();
 
-    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
-
-
+    const { data: myTaskIds = [] } =
+        useGetMyTaskIdsQuery();
 
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
@@ -124,16 +117,11 @@ export function TasksPage() {
             (room) => room.id === task.room_id
         );
 
-        const isMineSearch =
-            searchTerm === 'dig' ||
-            searchTerm === 'mine';
-
         const matchesSearch =
             searchTerm === '' ||
             task.title?.toLowerCase().includes(searchTerm) ||
             task.description?.toLowerCase().includes(searchTerm) ||
-            taskRoom?.name.toLowerCase().includes(searchTerm) ||
-            (isMineSearch && myTaskIds.includes(task.id));
+            taskRoom?.name.toLowerCase().includes(searchTerm);
 
         const matchesRoom =
             selectedRoomId === null ||
@@ -146,15 +134,16 @@ export function TasksPage() {
             selectedPriority === 'All' ||
             task.priority === selectedPriority;
 
-        const matchesOpenTask =
-            task.id === openTaskId;
+        const matchesMine =
+            myTaskIds.includes(task.id);
 
         return (
             (matchesSearch &&
                 matchesRoom &&
                 matchesStatus &&
-                matchesPriority) ||
-            matchesOpenTask
+                matchesPriority &&
+                matchesMine) ||
+            task.id === openTaskId
         );
     });
 
@@ -172,8 +161,10 @@ export function TasksPage() {
         if (sortBy === 'priority') {
             const priorityA =
                 priorityRank[a.priority ?? ''] ?? 5;
+
             const priorityB =
                 priorityRank[b.priority ?? ''] ?? 5;
+
             if (priorityA !== priorityB) {
                 return priorityA - priorityB;
             }
@@ -188,7 +179,6 @@ export function TasksPage() {
             if (a.end_date && b.end_date) {
                 return a.end_date.localeCompare(b.end_date);
             }
-
             if (a.end_date) return -1;
             if (b.end_date) return 1;
 
@@ -209,12 +199,18 @@ export function TasksPage() {
         return 0;
     };
 
-    const availableTasks = filteredTasks
-        .filter((task) => task.status === 'Started')
+    const myAvailableTasks = filteredTasks
+        .filter(
+            (task) =>
+                task.status === 'Started'
+        )
         .sort(sortTasks);
 
-    const myTasks = filteredTasks
-        .filter((task) => task.status === 'InProgress')
+    const myInProgressTasks = filteredTasks
+        .filter(
+            (task) =>
+                task.status === 'InProgress'
+        )
         .sort(sortTasks);
 
     const pageError =
@@ -229,7 +225,9 @@ export function TasksPage() {
     ) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
-                <p className="font-semibold">{t('page.loading')}</p>
+                <p className="font-semibold">
+                    {t('mine.loading')}
+                </p>
             </div>
         );
     }
@@ -237,7 +235,9 @@ export function TasksPage() {
     if (!canRead) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
-                <p className="text-secondary dark:text-slate-400">{t('page.noAccess')}</p>
+                <p className="text-secondary dark:text-slate-400">
+                    {t('mine.noAccess')}
+                </p>
             </div>
         );
     }
@@ -264,8 +264,8 @@ export function TasksPage() {
                 }
                 search={search}
                 onSearchChange={setSearch}
-                availableCount={availableTasks.length}
-                inProgressCount={myTasks.length}
+                availableCount={myAvailableTasks.length}
+                inProgressCount={myInProgressTasks.length}
             />
 
             {/* FILTER PANEL */}
@@ -302,12 +302,16 @@ export function TasksPage() {
                             event.stopPropagation()
                         }
                     >
-                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">{t('page.createRoom')}</h3>
+                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">
+                            {t('page.createRoom')}
+                        </h3>
 
                         <input
                             type="text"
                             value={newRoomName}
-                            onChange={(e) => setNewRoomName(e.target.value)}
+                            onChange={(e) =>
+                                setNewRoomName(e.target.value)
+                            }
                             placeholder={t('page.roomNamePlaceholder')}
                             className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             onKeyDown={(e) => {
@@ -354,10 +358,12 @@ export function TasksPage() {
                 {/* PAGE INTRO */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('page.heading')}</h1>
+                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">
+                            {t('mine.heading')}
+                        </h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
-                            {t('page.subtitle')}
+                            {t('mine.subtitle')}
                         </p>
                     </div>
 
@@ -377,17 +383,27 @@ export function TasksPage() {
                 {/* TASK COLUMNS */}
                 <div className="grid grid-cols-2 gap-8 items-start">
 
-                    {/* OPGAVER TILGÆNGELIGE */}
+                    {/* MINE TILGÆNGELIGE OPGAVER */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.availableHeading')}</h2>
+                            <div>
+                                <h2 className="font-bold text-lg text-primary dark:text-slate-100">
+                                    {t('mine.availableHeading')}
+                                </h2>
+
+                                <p className="text-sm text-secondary mt-1 dark:text-slate-400">
+                                    {t('mine.availableSubtitle')}
+                                </p>
+                            </div>
+
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
-                                {availableTasks.length}
+                                {myAvailableTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
-                            {availableTasks.map((task) => (
+
+                            {myAvailableTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
@@ -403,25 +419,36 @@ export function TasksPage() {
                                 />
                             ))}
 
-                            {availableTasks.length === 0 && (
+                            {myAvailableTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noAvailableTasks')}
+                                    {t('mine.noAvailableTasks')}
                                 </p>
                             )}
+
                         </div>
                     </section>
 
-                    {/* MINE OPGAVER / I GANG */}
+                    {/* MINE OPGAVER I GANG */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.inProgressHeading')}</h2>
+                            <div>
+                                <h2 className="font-bold text-lg text-primary dark:text-slate-100">
+                                    {t('mine.inProgressHeading')}
+                                </h2>
+
+                                <p className="text-sm text-secondary mt-1 dark:text-slate-400">
+                                    {t('mine.inProgressSubtitle')}
+                                </p>
+                            </div>
+
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
-                                {myTasks.length}
+                                {myInProgressTasks.length}
                             </span>
                         </div>
 
                         <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
-                            {myTasks.map((task) => (
+
+                            {myInProgressTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
                                     task={task}
@@ -437,15 +464,17 @@ export function TasksPage() {
                                 />
                             ))}
 
-                            {myTasks.length === 0 && (
+                            {myInProgressTasks.length === 0 && (
                                 <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noTasksInProgress')}
+                                    {t('mine.noTasksInProgress')}
                                 </p>
                             )}
+
                         </div>
                     </section>
 
                 </div>
+
             </main>
 
             {/* CREATE TASK */}

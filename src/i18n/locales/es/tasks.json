@@ -33,6 +33,18 @@
     "availableHeading": "Tareas disponibles",
     "inProgressHeading": "En curso"
   },
+  "mine": {
+    "loading": "Cargando tus tareas...",
+    "noAccess": "No tienes acceso para ver tus tareas en esta organización.",
+    "heading": "Mis tareas",
+    "subtitle": "Obtén una visión general de las tareas a las que estás asignado.",
+    "availableHeading": "Mis tareas disponibles",
+    "availableSubtitle": "Tareas a las que estás asignado y puedes trabajar.",
+    "noAvailableTasks": "No tienes tareas disponibles",
+    "inProgressHeading": "Mis tareas en curso",
+    "inProgressSubtitle": "Tareas en las que ya estás trabajando.",
+    "noTasksInProgress": "No tienes tareas en curso"
+  },
   "rooms": {
     "create": "Crear sala",
     "moreActions": "Más acciones",

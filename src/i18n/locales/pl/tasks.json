@@ -33,6 +33,18 @@
     "availableHeading": "Dostępne zadania",
     "inProgressHeading": "W toku"
   },
+  "mine": {
+    "loading": "Wczytywanie Twoich zadań...",
+    "noAccess": "Nie masz dostępu do przeglądania swoich zadań w tej organizacji.",
+    "heading": "Moje zadania",
+    "subtitle": "Zdobądź przegląd zadań, do których jesteś przypisany.",
+    "availableHeading": "Moje dostępne zadania",
+    "availableSubtitle": "Zadania, do których jesteś przypisany i nad którymi możesz pracować.",
+    "noAvailableTasks": "Nie masz dostępnych zadań",
+    "inProgressHeading": "Moje zadania w toku",
+    "inProgressSubtitle": "Zadania, nad którymi już pracujesz.",
+    "noTasksInProgress": "Nie masz zadań w toku"
+  },
   "rooms": {
     "create": "Utwórz pomieszczenie",
     "moreActions": "Więcej działań",

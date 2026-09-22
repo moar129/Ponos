@@ -10,6 +10,7 @@ import {
   useUpdateTaskStatusMutation,
   useGetTaskRequestsQuery,
   useCreateTaskRequestMutation,
+  useGetRoomsQuery,
 } from '../../store/apis/taskApi';
 import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
@@ -20,11 +21,15 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
   const { t } = useTranslation(['tasks', 'common'])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(defaultDetailsOpen ?? false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(
+    defaultDetailsOpen ?? false
+  );
+
   const closeDetails = () => {
     setIsDetailsOpen(false);
     onDetailsClose?.();
   };
+
   const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
 
   const [assigneeProfiles, setAssigneeProfiles] = useState<
@@ -39,6 +44,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
   const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
   const { data: employees = [] } = useGetOrganisationEmployeesQuery();
+  const { data: rooms = [] } = useGetRoomsQuery();
   const { data: taskRequests = [] } = useGetTaskRequestsQuery(task.id);
 
   const [assignToTask] = useAssignToTaskMutation();
@@ -51,6 +57,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
   const [createTaskRequest, { isLoading: isCreatingRequest }] =
     useCreateTaskRequestMutation();
+
+  const taskRoom = rooms.find((room) => room.id === task.room_id);
 
   const currentAssignee = assignees.find(
     (assignee) => assignee.user_id === currentUserId
@@ -236,9 +244,17 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
       >
         {/* HEADER */}
         <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-xl font-bold text-primary dark:text-slate-100">
-            {task.title}
-          </h3>
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold text-primary dark:text-slate-100">
+              {task.title}
+            </h3>
+
+            <span className="mt-1 inline-flex w-fit items-center rounded-md border border-border-gray bg-bg-gray px-2 py-0.5 text-xs font-semibold text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+              {taskRoom
+                ? `Rum: ${taskRoom.name}`
+                : 'Rum: Uden rum'}
+            </span>
+          </div>
 
           {canUpdate && (
             <button
@@ -384,19 +400,63 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         {/* HANDLINGER */}
         <div className="flex flex-wrap gap-3">
           {/* TILMELD / AFMELD */}
-          {(task.status === 'Started' || task.status === 'InProgress') && (
-            <>
-              {!hasPendingCompletionRequest && (
-                <button
-                  type="button"
-                  disabled={isAssigned && !canUnassignSelf}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAssignment();
-                  }}
-                  className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
-                      ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
+          {(task.status === 'Started' ||
+            task.status === 'InProgress') && (
+              <>
+                {!hasPendingCompletionRequest && (
+                  <button
+                    type="button"
+                    disabled={isAssigned && !canUnassignSelf}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAssignment();
+                    }}
+                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+                        ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
+                        : isAssigned
+                          ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
+                          : 'border-accent text-accent hover:bg-accent hover:text-white'
+                      }`}
+                  >
+                    {canUnassignSelf
+                      ? 'Afmeld'
                       : isAssigned
+                        ? 'Tildelt dig'
+                        : 'Tilmeld'}
+                  </button>
+                )}
+
+                {/* PÅBEGYND ARBEJDE */}
+                {task.status === 'Started' && isAssigned && (
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartTask();
+                    }}
+                    className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isUpdatingStatus
+                      ? 'Opdaterer...'
+                      : 'Påbegynd arbejde'}
+                  </button>
+                )}
+
+                {/* MELD FÆRDIG */}
+                {task.status === 'InProgress' && isAssigned && (
+                  <button
+                    type="button"
+                    disabled={
+                      isUpdatingStatus ||
+                      isCreatingRequest ||
+                      hasPendingCompletionRequest
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCompleteTask();
+                    }}
+                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
                         ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
                         : 'border-accent text-accent hover:bg-accent hover:text-white'
                     }`}
@@ -478,6 +538,12 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 <p className="mt-1 text-sm text-secondary dark:text-slate-400">
                   {t('card.details')}
                 </p>
+
+                <span className="mt-1 inline-flex w-fit items-center rounded-md border border-border-gray bg-bg-gray px-2 py-0.5 text-xs font-semibold text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                  {taskRoom
+                    ? `Rum: ${taskRoom.name}`
+                    : 'Rum: Uden rum'}
+                </span>
               </div>
 
               {/* LUK */}
@@ -629,7 +695,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
               {canAssign && (
                 <button
                   type="button"
-                  onClick={() => setIsEmployeePickerOpen(true)}
+                  onClick={() =>
+                    setIsEmployeePickerOpen(true)
+                  }
                   className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
                 >
                   {t('card.addEmployeeShort')}
@@ -700,7 +768,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
               <button
                 type="button"
-                onClick={() => setIsEmployeePickerOpen(false)}
+                onClick={() =>
+                  setIsEmployeePickerOpen(false)
+                }
                 className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
               >
                 X
@@ -813,7 +883,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             <div className="mt-5 flex justify-end">
               <button
                 type="button"
-                onClick={() => setIsEmployeePickerOpen(false)}
+                onClick={() =>
+                  setIsEmployeePickerOpen(false)
+                }
                 className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
               >
                 {t('common:close')}

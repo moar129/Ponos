@@ -33,6 +33,18 @@
     "availableHeading": "Tâches disponibles",
     "inProgressHeading": "En cours"
   },
+  "mine": {
+    "loading": "Chargement de vos tâches...",
+    "noAccess": "Vous n'avez pas accès à vos tâches dans cette organisation.",
+    "heading": "Mes tâches",
+    "subtitle": "Obtenez une vue d'ensemble des tâches qui vous sont attribuées.",
+    "availableHeading": "Mes tâches disponibles",
+    "availableSubtitle": "Tâches qui vous sont attribuées et sur lesquelles vous pouvez travailler.",
+    "noAvailableTasks": "Vous n'avez aucune tâche disponible",
+    "inProgressHeading": "Mes tâches en cours",
+    "inProgressSubtitle": "Tâches sur lesquelles vous travaillez déjà.",
+    "noTasksInProgress": "Vous n'avez aucune tâche en cours"
+  },
   "rooms": {
     "create": "Créer une salle",
     "moreActions": "Plus d'actions",

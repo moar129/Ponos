@@ -33,6 +33,18 @@
     "availableHeading": "Sarcini disponibile",
     "inProgressHeading": "În lucru"
   },
+  "mine": {
+    "loading": "Se încarcă sarcinile tale...",
+    "noAccess": "Nu aveți acces pentru a vedea sarcinile dvs. în această organizație.",
+    "heading": "Sarcinile mele",
+    "subtitle": "Obțineți o imagine de ansamblu asupra sarcinilor la care sunteți alocat.",
+    "availableHeading": "Sarcinile mele disponibile",
+    "availableSubtitle": "Sarcini la care sunteți alocat și la care puteți lucra.",
+    "noAvailableTasks": "Nu aveți sarcini disponibile",
+    "inProgressHeading": "Sarcinile mele în desfășurare",
+    "inProgressSubtitle": "Sarcini la care lucrați deja.",
+    "noTasksInProgress": "Nu aveți sarcini în desfășurare"
+  },
   "rooms": {
     "create": "Creează încăpere",
     "moreActions": "Mai multe acțiuni",

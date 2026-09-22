@@ -33,6 +33,18 @@
     "availableHeading": "Opgaver tilgængelige",
     "inProgressHeading": "I gang"
   },
+  "mine": {
+    "loading": "Henter dine opgaver...",
+    "noAccess": "Du har ikke adgang til at se dine opgaver i denne organisation.",
+    "heading": "Mine opgaver",
+    "subtitle": "Få overblik over de opgaver, du selv er tilknyttet.",
+    "availableHeading": "Mine tilgængelige opgaver",
+    "availableSubtitle": "Opgaver, du er tilknyttet og kan arbejde på.",
+    "noAvailableTasks": "Du har ingen tilgængelige opgaver",
+    "inProgressHeading": "Mine opgaver i gang",
+    "inProgressSubtitle": "Opgaver, du allerede er i gang med.",
+    "noTasksInProgress": "Du har ingen opgaver i gang"
+  },
   "rooms": {
     "create": "Opret rum",
     "moreActions": "Flere handlinger",
