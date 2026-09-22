@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { X, Plus, Trash2, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { X, Plus, Trash2, Loader2, Folder, ChevronDown } from 'lucide-react';
 import { useAddItemsMutation } from '../../store/apis/categoryApi';
-import type { AddItemsComponentProps, ItemRow } from '../../types/dataLayer/datalayerTypes';
+import type { AddItemsComponentProps, DataLayerCat, ItemRow } from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 import { LocationPickerComponent } from './locationsPickerComponent';
@@ -11,13 +11,37 @@ function emptyRow(): ItemRow {
   return { key: crypto.randomUUID(), name: '', description: '', quantity: 1, itemStatus: 'Available' };
 }
 
+// Flader kategori-træet ud til "Forælder > Forælder > Kategori"-labels,
+// så man kan se hvor i hierarkiet man vælger, uden at skulle åbne
+// træet selv. Samme mønster som editCategoryComponent.tsx bruger til sin
+// "Overordnet kategori"-vælger.
+function flattenWithPath(categories: DataLayerCat[], path: string[] = []): { id: string; label: string }[] {
+  const result: { id: string; label: string }[] = [];
+  for (const cat of categories) {
+    const currentPath = [...path, cat.title];
+    result.push({ id: cat.id, label: currentPath.join(' > ') });
+    result.push(...flattenWithPath(cat.subCategories, currentPath));
+  }
+  return result;
+}
+
 export function AddItemsComponent({
-  isOpen, onClose, categoryId, categoryTitle, onSuccess, canCreate, canUpdate, canDelete,
+  isOpen, onClose, categoryTree, categoryId, categoryTitle, onSuccess, canCreate, canUpdate, canDelete,
 }: AddItemsComponentProps) {
   const [rows, setRows] = useState<ItemRow[]>([emptyRow()]);
   const [locationId, setLocationId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(categoryId);
   const [formError, setFormError] = useState<string | null>(null);
   const [addItems, { isLoading }] = useAddItemsMutation();
+
+  const categoryOptions = flattenWithPath(categoryTree);
+
+  // Genstiller den forudvalgte kategori, hver gang modalen åbnes for en
+  // ny kategori (fx hvis brugeren skifter kategori og trykker "Tilføj
+  // items" igen) - uden dette ville et tidligere valg blive hængende.
+  useEffect(() => {
+    if (isOpen) setSelectedCategoryId(categoryId);
+  }, [isOpen, categoryId]);
 
   if (!isOpen) return null;
 
@@ -37,7 +61,7 @@ export function AddItemsComponent({
   };
 
   const handleSubmit = async () => {
-    if (!categoryId) return setFormError('Ingen kategori valgt.');
+    if (!selectedCategoryId) return setFormError('Vælg en kategori.');
 
     const validRows = rows.filter((r) => r.name.trim().length > 0);
     if (validRows.length === 0) return setFormError('Tilføj mindst ét item med et navn.');
@@ -45,7 +69,7 @@ export function AddItemsComponent({
     try {
       await addItems(
         validRows.map((r) => ({
-          categoryId,
+          categoryId: selectedCategoryId,
           itemLocationId: locationId,
           name: r.name.trim(),
           description: r.description.trim() || null,
@@ -67,7 +91,7 @@ export function AddItemsComponent({
         <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
           <div>
             <h2 className="text-lg font-semibold text-primary dark:text-slate-100">Tilføj items</h2>
-            {categoryTitle && <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">Til kategori: {categoryTitle}</p>}
+            {categoryTitle && <p className="text-xs text-secondary mt-0.5 dark:text-slate-400">Foreslået kategori: {categoryTitle}</p>}
           </div>
           <button type="button" onClick={resetAndClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title="Luk" aria-label="Luk modal">
             <X className="w-5 h-5" />
@@ -80,6 +104,27 @@ export function AddItemsComponent({
               {formError}
             </div>
           )}
+
+          <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg dark:bg-slate-800/40 dark:border-slate-700">
+            <label className="block text-xs text-secondary uppercase tracking-wide mb-1.5 dark:text-slate-400">Kategori</label>
+            <div className="relative">
+              <Folder className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+              <select
+                value={selectedCategoryId ?? ''}
+                onChange={(e) => setSelectedCategoryId(e.target.value || null)}
+                className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-8 py-2 text-sm text-primary focus:outline-none focus:border-accent appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+              >
+                <option value="" disabled>Vælg en kategori</option>
+                {categoryOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
+            </div>
+            <p className="text-[11px] text-secondary mt-1.5 dark:text-slate-400">
+              Items i denne oprettelse lægges i den valgte kategori.
+            </p>
+          </div>
 
           <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg dark:bg-slate-800/40 dark:border-slate-700">
             <LocationPickerComponent

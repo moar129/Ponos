@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery, useUpdateCategoryMutation } from '../../store/apis/categoryApi';
+import { useGetCategoryTreeQuery, useUpdateCategoryMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -11,6 +11,7 @@ import {
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES, ITEM_STATUS_LABELS } from '../../types/dataLayer/datalayerTypes';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
+import { LocationTreeNode } from '../../components/dataLayer/locationThreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
 import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
 import { ItemDetailComponent } from '../../components/dataLayer/itemsDetailComponent';
@@ -18,8 +19,6 @@ import { EditCategoryComponent } from '../../components/dataLayer/editCategoryCo
 import { DeleteCategoryComponent } from '../../components/dataLayer/deleteCategoryComponent';
 import { DeleteItemsComponent } from '../../components/dataLayer/deleteItemComponent';
 import { FilterPanelComponent } from '../../components/dataLayer/filterPanelComponent';
-import { LocationManagerComponent } from '../../components/dataLayer/locationsManagerComponent';
-import { LocationItemsComponent } from '../../components/dataLayer/locationItemComponent';
 import { GlobalSearchResultsComponent } from '../../components/dataLayer/globalSearchComponent';
 import { getErrorMessage } from '../../ErrorMessage';
 import {
@@ -29,8 +28,9 @@ import {
   searchCategories,
   searchItemsGlobal,
 } from '../../store/slices/dataLayersSlices/aggregatedItems';
-import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin } from 'lucide-react';
+import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
+type LeftTab = 'categories' | 'locations';
 
 export function DataLayerPage() {
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
@@ -38,6 +38,7 @@ export function DataLayerPage() {
   const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
+  const { data: itemLocations = [] } = useGetItemLocationsQuery();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -56,11 +57,9 @@ export function DataLayerPage() {
   const [updateCategory] = useUpdateCategoryMutation();
 
   const [editCategoryTarget, setEditCategoryTarget] = useState<DataLayerCat | null>(null);
-
   const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<DataLayerCat | null>(null);
 
   const [isAddItemsModalOpen, setIsAddItemsModalOpen] = useState(false);
-
   const [selectedItem, setSelectedItem] = useState<AggregatedItem | null>(null);
 
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -72,8 +71,12 @@ export function DataLayerPage() {
   const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
   const [localItemSearch, setLocalItemSearch] = useState('');
 
-  const [isLocationManagerOpen, setIsLocationManagerOpen] = useState(false);
-  const [locationItemsTarget, setLocationItemsTarget] = useState<ItemLocation | null>(null);
+  // --- Venstrepanel: Kategorier / Lagre som faner ---
+  // Lagre-fanen er nu ren navigation (klik for at se items på et lager/
+  // en sektion) - ingen søgning og ingen "administrer"-adgang herfra.
+  const [leftTab, setLeftTab] = useState<LeftTab>('categories');
+  const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<Set<string>>(new Set());
+  const [selectedLocationView, setSelectedLocationView] = useState<ItemLocation | null>(null);
 
   function findCategoryInTree(
     categories: DataLayerCat[],
@@ -106,11 +109,8 @@ export function DataLayerPage() {
   const toggleExpandCategory = (id: string) => {
     setExpandedCategoryIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -175,6 +175,7 @@ export function DataLayerPage() {
   };
 
   const handleSelectCategory = (category: DataLayerCat) => {
+    setLeftTab('categories');
     setSelectedCategory(category);
     setSearchParams({ catId: category.id });
     exitSelectMode();
@@ -249,9 +250,39 @@ export function DataLayerPage() {
     });
   };
 
+  // --- Lagre-fane: ren visning af træet, ingen søgning/administration ---
+  const warehouses = useMemo(() => itemLocations.filter((l) => !l.parentLocationId), [itemLocations]);
+  const sectionsByWarehouseId = useMemo(() => {
+    const map = new Map<string, ItemLocation[]>();
+    for (const loc of itemLocations) {
+      if (!loc.parentLocationId) continue;
+      const list = map.get(loc.parentLocationId) ?? [];
+      list.push(loc);
+      map.set(loc.parentLocationId, list);
+    }
+    return map;
+  }, [itemLocations]);
+
+  const toggleExpandWarehouse = (id: string) => {
+    setExpandedWarehouseIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleSelectLocationView = (location: ItemLocation) => {
+    setLeftTab('locations');
+    setSelectedLocationView(location);
+    exitSelectMode();
+    setLocalItemSearch('');
+    if (location.parentLocationId) {
+      setExpandedWarehouseIds((prev) => new Set([...prev, location.parentLocationId as string]));
+    }
+  };
+
   const handleOpenItemFromLocation = (item: AggregatedItem) => {
-    setLocationItemsTarget(null);
-    setIsLocationManagerOpen(false);
     setSelectedItem(item);
   };
 
@@ -266,6 +297,11 @@ export function DataLayerPage() {
       handleSelectCategory(itemCategory);
     }
     setSelectedItem(item);
+    setSearchQuery('');
+  };
+
+  const handleSelectSearchLocation = (location: ItemLocation) => {
+    handleSelectLocationView(location);
     setSearchQuery('');
   };
 
@@ -306,20 +342,34 @@ export function DataLayerPage() {
     [aggregatedItems, selectedStatuses, selectedCategoryFilterIds, localItemSearch]
   );
 
-  const itemsMarkedForDeletion = useMemo(
-    () => aggregatedItems.filter((item) => selectedItemIds.has(item.id)),
-    [aggregatedItems, selectedItemIds]
-  );
-
   const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
 
-  const locationItems = useMemo(
+  const itemsAtSelectedLocation = useMemo(
     () =>
-      locationItemsTarget
-        ? allItemsFlat.filter((item) => item.itemLocationId === locationItemsTarget.id)
+      selectedLocationView
+        ? allItemsFlat.filter((item) => item.itemLocationId === selectedLocationView.id)
         : [],
-    [allItemsFlat, locationItemsTarget]
+    [allItemsFlat, selectedLocationView]
   );
+
+  // Samme lokale filtrering som kategori-panelet, bare på items for den
+  // valgte lokation i stedet for den valgte kategori.
+  const displayedLocationItems = useMemo(() => {
+    if (!selectedLocationView) return [];
+    if (!localItemSearch.trim()) return itemsAtSelectedLocation;
+    const q = localItemSearch.trim().toLowerCase();
+    return itemsAtSelectedLocation.filter(
+      (item) => item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q)
+    );
+  }, [itemsAtSelectedLocation, selectedLocationView, localItemSearch]);
+
+  // "Vælg til sletning" deler samme select-state på tværs af de to faner
+  // (kun én er synlig ad gangen), men kilden til de markerede items
+  // afhænger af hvilken fane man står i.
+  const itemsMarkedForDeletion = useMemo(() => {
+    const source = leftTab === 'locations' ? itemsAtSelectedLocation : aggregatedItems;
+    return source.filter((item) => selectedItemIds.has(item.id));
+  }, [leftTab, aggregatedItems, itemsAtSelectedLocation, selectedItemIds]);
 
   const matchedCategories = useMemo(
     () => searchCategories(categoryTree, searchQuery),
@@ -330,6 +380,12 @@ export function DataLayerPage() {
     () => searchItemsGlobal(categoryTree, searchQuery),
     [categoryTree, searchQuery]
   );
+
+  const matchedLocations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return itemLocations.filter((loc) => loc.name.toLowerCase().includes(q));
+  }, [itemLocations, searchQuery]);
 
   if (loadingReadPrivilege) {
     return (
@@ -375,8 +431,9 @@ export function DataLayerPage() {
       <AddItemsComponent
         isOpen={isAddItemsModalOpen}
         onClose={() => setIsAddItemsModalOpen(false)}
-        categoryId={selectedCategory?.id ?? null}
-        categoryTitle={selectedCategory?.title}
+        categoryTree={categoryTree}
+        categoryId={leftTab === 'locations' ? null : (selectedCategory?.id ?? null)}
+        categoryTitle={leftTab === 'locations' ? undefined : selectedCategory?.title}
         canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
@@ -385,7 +442,7 @@ export function DataLayerPage() {
       <ItemDetailComponent
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
-        onViewLocation={(loc) => { setSelectedItem(null); setLocationItemsTarget(loc); }}
+        onViewLocation={(loc) => { setSelectedItem(null); handleSelectLocationView(loc); }}
         canCreate={canCreate}
         canUpdate={canUpdate}
         canDelete={canDelete}
@@ -398,36 +455,19 @@ export function DataLayerPage() {
         onDeleted={handleItemsDeleted}
       />
 
-      <LocationManagerComponent
-        isOpen={isLocationManagerOpen}
-        onClose={() => setIsLocationManagerOpen(false)}
-        onViewItems={(loc) => setLocationItemsTarget(loc)}
-        canCreate={canCreate}
-        canUpdate={canUpdate}
-        canDelete={canDelete}
-      />
-
-      <LocationItemsComponent
-        isOpen={!!locationItemsTarget}
-        location={locationItemsTarget}
-        items={locationItems}
-        onClose={() => setLocationItemsTarget(null)}
-        onSelectItem={handleOpenItemFromLocation}
-      />
-
       {errorMessage && (
         <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
           {errorMessage}
         </div>
       )}
 
-      {/* Toolbar: søgning + Lokationer/Filter. Stables lodret på mobil, wrapper på tablet, én linje fra lg. */}
+      {/* Toolbar: global søgning (item/kategori/lager/sektion) + Filter */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border border-border-gray shadow-sm dark:bg-slate-800 dark:border-slate-700">
         <div className="relative w-full lg:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
           <input
             type="text"
-            placeholder="Søg efter item eller kategori..."
+            placeholder="Søg efter item, kategori, lager eller sektion..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
@@ -439,21 +479,15 @@ export function DataLayerPage() {
             query={searchQuery}
             matchedCategories={matchedCategories}
             matchedItems={matchedItems}
+            matchedLocations={matchedLocations}
+            allLocations={itemLocations}
             onSelectCategory={handleSelectSearchCategory}
             onSelectItem={handleSelectSearchItem}
+            onSelectLocation={handleSelectSearchLocation}
           />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 w-full lg:w-auto">
-          <button
-            type="button"
-            onClick={() => setIsLocationManagerOpen(true)}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
-          >
-            <MapPin className="w-4 h-4 shrink-0" />
-            <span>Lokationer</span>
-          </button>
-
           <div className="relative flex-1 lg:flex-none">
             <button
               type="button"
@@ -488,54 +522,105 @@ export function DataLayerPage() {
         </div>
       </div>
 
-      {/* Hovedlayout: stables på mobil/tablet-portræt, splittes fra md */}
+      {/* Hovedlayout */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
         <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
-          <div>
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border-gray dark:border-slate-700">
-              <h2 className="text-xs font-semibold text-secondary uppercase tracking-wider dark:text-slate-400">
+          <div className="min-h-0 flex flex-col">
+            {/* Fane-skifter */}
+            <div className="flex items-center border-b border-border-gray mb-4 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => { setLeftTab('categories'); exitSelectMode(); setLocalItemSearch(''); }}
+                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                  leftTab === 'categories'
+                    ? 'text-accent border-accent'
+                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
                 Kategorier
-              </h2>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setLeftTab('locations'); exitSelectMode(); setLocalItemSearch(''); }}
+                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                  leftTab === 'locations'
+                    ? 'text-accent border-accent'
+                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                Lagre
+              </button>
             </div>
 
-            {moveCategoryError && (
-              <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {moveCategoryError}
-              </div>
-            )}
+            {leftTab === 'categories' ? (
+              <>
+                {moveCategoryError && (
+                  <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                    {moveCategoryError}
+                  </div>
+                )}
 
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-accent" />
-              </div>
+                {isLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                  </div>
+                ) : (
+                  <div className="space-y-1 max-h-[300px] md:max-h-none overflow-y-auto">
+                    {categoryTree.map((cat, idx) => (
+                      <CategoryTreeNode
+                        key={cat.id}
+                        category={cat}
+                        selectedCategoryId={selectedCategory?.id ?? null}
+                        onSelectCategory={handleSelectCategory}
+                        onAddSubCategory={handleOpenAddModal}
+                        onEditCategory={setEditCategoryTarget}
+                        onDeleteCategory={setDeleteCategoryTarget}
+                        canCreate={canCreate}
+                        canUpdate={canUpdate}
+                        canDelete={canDelete}
+                        expandedCategoryIds={expandedCategoryIds}
+                        onToggleExpand={toggleExpandCategory}
+                        isFirst={idx === 0}
+                        isLast={idx === categoryTree.length - 1}
+                        isMoving={isMovingCategory}
+                        onMoveUp={(c) => handleMoveCategory(c, 'up')}
+                        onMoveDown={(c) => handleMoveCategory(c, 'down')}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="space-y-1 max-h-[300px] md:max-h-none overflow-y-auto">
-                {categoryTree.map((cat, idx) => (
-                  <CategoryTreeNode
-                    key={cat.id}
-                    category={cat}
-                    selectedCategoryId={selectedCategory?.id ?? null}
-                    onSelectCategory={handleSelectCategory}
-                    onAddSubCategory={handleOpenAddModal}
-                    onEditCategory={setEditCategoryTarget}
-                    onDeleteCategory={setDeleteCategoryTarget}
-                    canCreate={canCreate}
-                    canUpdate={canUpdate}
-                    canDelete={canDelete}
-                    expandedCategoryIds={expandedCategoryIds}
-                    onToggleExpand={toggleExpandCategory}
-                    isFirst={idx === 0}
-                    isLast={idx === categoryTree.length - 1}
-                    isMoving={isMovingCategory}
-                    onMoveUp={(c) => handleMoveCategory(c, 'up')}
-                    onMoveDown={(c) => handleMoveCategory(c, 'down')}
-                  />
-                ))}
+              // Lagre: rent navigations-træ, ingen søgning, ingen
+              // administrations-adgang - kun klik for at se items.
+              <div className="max-h-[300px] md:max-h-none overflow-y-auto space-y-1">
+                {warehouses.length === 0 ? (
+                  <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">Intet lager oprettet endnu.</p>
+                ) : (
+                  warehouses.map((warehouse) => (
+                    <LocationTreeNode
+                      key={warehouse.id}
+                      location={warehouse}
+                      childSections={sectionsByWarehouseId.get(warehouse.id) ?? []}
+                      isWarehouse
+                      selectedLocationId={selectedLocationView?.id ?? null}
+                      onSelectLocation={handleSelectLocationView}
+                      onAddSection={() => {}}
+                      onEditLocation={() => {}}
+                      onDeleteLocation={() => {}}
+                      canCreate={false}
+                      canUpdate={false}
+                      canDelete={false}
+                      isExpanded={expandedWarehouseIds.has(warehouse.id)}
+                      onToggleExpand={toggleExpandWarehouse}
+                    />
+                  ))
+                )}
               </div>
             )}
           </div>
 
-          {canCreate && (
+          {leftTab === 'categories' && canCreate && (
             <button
               type="button"
               onClick={() => handleOpenAddModal(null)}
@@ -548,16 +633,181 @@ export function DataLayerPage() {
         </div>
 
         <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
-          {selectedCategory ? (
+          {leftTab === 'locations' ? (
+            selectedLocationView ? (
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border-gray dark:border-slate-700">
+                  <div className="min-w-0">
+  <div className="flex items-center gap-2 mb-1">
+    <span className={`text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border ${
+      selectedLocationView.parentLocationId
+        ? 'bg-accent/10 text-accent border-accent/30'
+        : 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600'
+    }`}>
+      {selectedLocationView.parentLocationId ? 'Sektion' : 'Lager'}
+    </span>
+    {selectedLocationView.parentLocationId && (() => {
+      const parentWarehouse = itemLocations.find((l) => l.id === selectedLocationView.parentLocationId);
+      return parentWarehouse ? (
+        <button
+          type="button"
+          onClick={() => handleSelectLocationView(parentWarehouse)}
+          className="text-xs text-secondary hover:text-accent hover:underline truncate dark:text-slate-400"
+        >
+          {parentWarehouse.name}
+        </button>
+      ) : null;
+    })()}
+  </div>
+  <div className="flex items-center gap-2">
+    {selectedLocationView.parentLocationId ? (
+      <Boxes className="w-5 h-5 text-accent shrink-0" />
+    ) : (
+      <MapPin className="w-5 h-5 text-accent shrink-0" />
+    )}
+    <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
+      {selectedLocationView.name}
+    </h1>
+  </div>
+  {selectedLocationView.address && (
+    <p className="text-xs text-secondary mt-1 dark:text-slate-400">{selectedLocationView.address}</p>
+  )}
+</div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {canDelete && (isSelectMode ? (
+                      <button
+                        type="button"
+                        onClick={exitSelectMode}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
+                      >
+                        <XIcon className="w-4 h-4" />
+                        <span>Annullér</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setIsSelectMode(true)}
+                        disabled={displayedLocationItems.length === 0}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-bg-gray hover:bg-border-gray text-primary text-sm font-medium transition-colors border border-border-gray disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700"
+                      >
+                        <span>Vælg til sletning</span>
+                      </button>
+                    ))}
+
+                    {canCreate && (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddItemsModalOpen(true)}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Tilføj items</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative mb-4">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Filtrer items på denne lokation..."
+                    value={localItemSearch}
+                    onChange={(e) => setLocalItemSearch(e.target.value)}
+                    className="w-full bg-white border border-border-gray rounded-lg pl-9 pr-4 py-1.5 text-sm text-primary focus:outline-none focus:border-accent transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+                  />
+                </div>
+
+                {isSelectMode && (
+                  <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-bg-gray/40 border border-border-gray gap-2 dark:bg-slate-800/40 dark:border-slate-700">
+                    <span className="text-sm text-secondary shrink-0 dark:text-slate-400">{selectedItemIds.size} valgt</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsDeleteItemsOpen(true)}
+                      disabled={selectedItemIds.size === 0}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shrink-0 ${
+                        selectedItemIds.size === 0
+                          ? 'bg-red-100 text-red-300 cursor-not-allowed dark:bg-red-900/30 dark:text-red-800'
+                          : 'bg-red-600 hover:bg-red-700 text-white'
+                      }`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="hidden xs:inline">Slet valgte</span>
+                      <span className="xs:hidden">Slet</span>
+                    </button>
+                  </div>
+                )}
+
+                {itemsAtSelectedLocation.length > 0 && displayedLocationItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
+                    <Search className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                    <p className="text-base font-medium text-primary dark:text-slate-100">Ingen items matcher filtret</p>
+                    <button
+                      type="button"
+                      onClick={() => setLocalItemSearch('')}
+                      className="text-xs text-accent hover:text-accent-hover mt-2"
+                    >
+                      Ryd filter
+                    </button>
+                  </div>
+                ) : displayedLocationItems.length > 0 ? (
+                  <div className="divide-y divide-border-gray border border-border-gray rounded-lg overflow-hidden dark:divide-slate-700 dark:border-slate-700">
+                    {displayedLocationItems.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => (isSelectMode ? toggleItemSelected(item.id) : handleOpenItemFromLocation(item))}
+                        className="w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between p-3 sm:p-4 bg-white hover:bg-bg-gray/40 text-left transition-colors dark:bg-slate-800 dark:hover:bg-slate-700/40"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {isSelectMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedItemIds.has(item.id)}
+                              onChange={() => toggleItemSelected(item.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
+                            />
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                            <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">{item.sourceCategoryTitle}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
+                          <span className="sm:w-20 sm:text-right">Antal: {item.quantity}</span>
+                          <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
+                            {ITEM_STATUS_LABELS[item.itemStatus]}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
+                    <Box className="w-12 h-12 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                    <p className="text-base font-medium text-primary dark:text-slate-100">
+                      Ingen items er registreret her endnu
+                    </p>
+                    <p className="text-xs text-secondary mt-1 max-w-sm dark:text-slate-400">
+                      Du kan stadig tilføje nye items
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-secondary text-sm py-12 dark:text-slate-400">
+                Vælg et lager eller en sektion i træet til venstre
+              </div>
+            )
+          ) : selectedCategory ? (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border-gray dark:border-slate-700">
                 <div className="min-w-0">
                   <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
                     {selectedCategory.title}
                   </h1>
-                  <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
-                    Kategori ID: {selectedCategory.id}
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -671,7 +921,6 @@ export function DataLayerPage() {
                         </div>
                       </div>
 
-                      {/* Antal/status: på egen linje under navnet på mobil, ved siden af fra sm */}
                       <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
                         <span className="sm:w-20 sm:text-right">Antal: {item.quantity}</span>
                         <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>

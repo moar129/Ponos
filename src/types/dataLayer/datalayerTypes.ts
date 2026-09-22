@@ -25,6 +25,7 @@ export interface ItemLocation {
   name: string;
   description?: string | null;
   address?: string | null;
+  parentLocationId?: string | null;
 }
 
 export interface RawCategory {
@@ -79,10 +80,10 @@ export interface AggregatedItem extends DataLayerItem {
 export interface AddItemsComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  categoryId: string | null;
+  categoryTree: DataLayerCat[]; // NYT: hele træet, så en anden kategori kan vælges
+  categoryId: string | null;    // forudvalgt/foreslået kategori (den man havde åben)
   categoryTitle?: string;
   onSuccess?: () => void;
-  // Fase 3: sendes videre til LocationPickerComponent for lokationsfeltet.
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
@@ -162,14 +163,6 @@ export interface DeleteItemsComponentProps {
   onDeleted: (deletedIds: string[]) => void;
 }
 
-export interface LocationManagerComponentProps {
-  isOpen: boolean;
-  onClose: () => void;
-  // Fase 3: create/update/delete_datalayer - gater opret/rediger/slet-knapperne.
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-}
 
 export interface ConfirmDialogComponentProps {
   isOpen: boolean;
@@ -219,4 +212,32 @@ export interface GlobalSearchResultsComponentProps {
   matchedItems: AggregatedItem[];
   onSelectCategory: (category: DataLayerCat) => void;
   onSelectItem: (item: AggregatedItem) => void;
+}
+
+
+
+export interface LocationManagerComponentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  items?: AggregatedItem[];
+  onSelectItem?: (item: AggregatedItem) => void;
+}
+
+export interface LocationTreeNodeProps {
+  location: ItemLocation;
+  childSections: ItemLocation[];
+  isWarehouse: boolean;
+  selectedLocationId: string | null;
+  onSelectLocation: (location: ItemLocation) => void;
+  onAddSection: (warehouseId: string) => void;
+  onEditLocation: (location: ItemLocation) => void;
+  onDeleteLocation: (location: ItemLocation) => void;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isExpanded: boolean;
+  onToggleExpand: (id: string) => void;
 }
