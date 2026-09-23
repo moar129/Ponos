@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { MapPin, Boxes, Settings2, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
@@ -32,8 +32,20 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
 
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(initialWarehouseId);
 
+  // Springes over lige efter vi selv har initieret et value-skift (se
+  // handleCreate) - ellers overskriver denne effekt vores egen "vælg den
+  // nyoprettede lokation" med null, fordi `locations` (RTK Query-cachen)
+  // typisk endnu ikke er nået at blive refetchet med den nye lokation.
+  // Uden guarden hænger valget permanent tilbage på tomt, da locations'
+  // senere opdatering ikke selv trigger effekten igen (kun [value] gør).
+  const skipNextValueSyncRef = useRef(false);
+
   // Følger med, hvis value ændres udefra (fx nulstilles af formularen).
   useEffect(() => {
+    if (skipNextValueSyncRef.current) {
+      skipNextValueSyncRef.current = false;
+      return;
+    }
     setSelectedWarehouseId(initialWarehouseId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -81,6 +93,8 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         // allerede er valgt - ellers et nyt lager.
         parentLocationId: selectedWarehouseId,
       }).unwrap();
+
+      skipNextValueSyncRef.current = true;
 
       if (selectedWarehouseId) {
         // Ny sektion: vælg den, og hold lageret som det er.

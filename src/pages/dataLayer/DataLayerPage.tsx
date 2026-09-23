@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
 import { useSearchParams } from 'react-router-dom';
 import { useGetCategoryTreeQuery, useUpdateCategoryMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
 import {
@@ -11,7 +10,8 @@ import {
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
+import { ItemStatusBadges } from '../../components/dataLayer/itemStatusBadgesComponent';
 import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
 import { LocationTreeNode } from '../../components/dataLayer/locationThreeNodeComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
@@ -36,7 +36,6 @@ type LeftTab = 'categories' | 'locations';
 
 export function DataLayerPage() {
   const { t } = useTranslation(['datalayer', 'common'])
-  const td = asDynamic(t)
   const { data: categoryTree = [], isLoading, error } = useGetCategoryTreeQuery();
   const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
@@ -330,13 +329,22 @@ export function DataLayerPage() {
   const displayedItems = useMemo(
     () =>
       aggregatedItems.filter((item) => {
-        if (selectedStatuses.size > 0 && !selectedStatuses.has(item.itemStatus as ItemStatus)) return false;
+        // US-42: et item matcher nu et statusfilter, hvis blot ÉN af dets
+        // enheder/batches har den valgte status - ikke længere en enkelt
+        // status pr. item.
+        if (
+          selectedStatuses.size > 0 &&
+          ![...selectedStatuses].some((s: ItemStatus) => (item.statusCounts[s] ?? 0) > 0)
+        )
+          return false;
         if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
 
         if (localItemSearch.trim()) {
           const q = localItemSearch.trim().toLowerCase();
           const matches =
-            item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+            item.name.toLowerCase().includes(q) ||
+            (item.description ?? '').toLowerCase().includes(q) ||
+            (item.packaging ?? '').toLowerCase().includes(q);
 
           if (!matches) return false;
         }
@@ -780,10 +788,8 @@ export function DataLayerPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                          <span className="sm:w-20 sm:text-right">{t('quantityValue', { count: item.quantity })}</span>
-                          <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
-                            {td(`datalayer:status.${item.itemStatus}`)}
-                          </span>
+                          <span className="sm:w-20 sm:text-right">{formatItemQuantity(item)}</span>
+                          <ItemStatusBadges item={item} className="sm:w-40" />
                         </div>
                       </button>
                     ))}
@@ -929,10 +935,8 @@ export function DataLayerPage() {
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                        <span className="sm:w-20 sm:text-right">{t('quantityValue', { count: item.quantity })}</span>
-                        <span className={`sm:w-28 sm:text-center px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
-                          {td(`datalayer:status.${item.itemStatus}`)}
-                        </span>
+                        <span className="sm:w-20 sm:text-right">{formatItemQuantity(item)}</span>
+                        <ItemStatusBadges item={item} className="sm:w-40" />
                       </div>
                     </button>
                   ))}

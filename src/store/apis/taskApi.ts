@@ -1029,6 +1029,34 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
+        // US-42: afrapporterer det faktiske udfald af en opgaves materiale-
+        // linje ved færdiggørelse (fx "8 retur, 1 i stykker"). Kræves før
+        // set_task_status/approve_task_request tillader Completed - se
+        // assert_task_materials_resolved i docs/dbSchema.sql §15.21.
+        // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
+        resolveTaskMaterialUnits: builder.mutation<
+            void,
+            { taskMaterialId: string; taskId: string; outcomes: { status: string; quantity: number }[] }
+        >({
+            queryFn: async ({ taskMaterialId, outcomes }) => {
+                const { error } = await supabase.rpc('resolve_task_material_units', {
+                    p_task_material_id: taskMaterialId,
+                    p_outcomes: outcomes,
+                })
+
+                if (error) {
+                    return { error: mapPermissionError(error, 'resolveTaskMaterialUnits') }
+                }
+
+                return { data: undefined }
+            },
+            invalidatesTags: (_result, _error, { taskId }) => [
+                { type: 'Task', id: taskId },
+                { type: 'Task', id: 'LIST' },
+                { type: 'Item', id: 'LIST' },
+            ],
+        }),
+
     }),
 })
 
@@ -1054,4 +1082,5 @@ export const {
     useUnassignFromTaskMutation,
     useRemoveAssigneeFromTaskMutation,
     useGetMyTaskIdsQuery,
+    useResolveTaskMaterialUnitsMutation,
 } = taskApi

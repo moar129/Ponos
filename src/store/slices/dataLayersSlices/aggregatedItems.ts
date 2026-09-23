@@ -63,6 +63,9 @@ export function searchItemsGlobal(categories: DataLayerCat[], query: string): Ag
   const q = query.trim().toLowerCase();
   if (!q) return [];
   return flattenAllItems(categories).filter(
-    (item) => item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q)
+    (item) =>
+      item.name.toLowerCase().includes(q) ||
+      (item.description ?? '').toLowerCase().includes(q) ||
+      (item.packaging ?? '').toLowerCase().includes(q)
   );
 }

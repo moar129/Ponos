@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
 import { X, Loader2, Save, MapPin, Boxes, Plus, Package, Search } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
@@ -10,8 +9,9 @@ import {
 } from '../../store/apis/categoryApi';
 import { ConfirmDialogComponent } from './confirmDialogComponent';
 import { LocationTreeNode } from './locationThreeNodeComponent';
-import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { ItemStatusBadges } from './itemStatusBadgesComponent';
 import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
+import { formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../ErrorMessage';
 
 // Lagre/sektioner vises nu som et træ i venstre panel - samme mønster
@@ -28,7 +28,6 @@ export function LocationManagerComponent({
   onSelectItem,
 }: LocationManagerComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
-  const td = asDynamic(t)
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -405,10 +404,8 @@ export function LocationManagerComponent({
                           <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                          <span>{t('quantityValue', { count: item.quantity })}</span>
-                          <span className={`px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[item.itemStatus]}`}>
-                            {td(`datalayer:status.${item.itemStatus}`)}
-                          </span>
+                          <span>{formatItemQuantity(item)}</span>
+                          <ItemStatusBadges item={item} />
                         </div>
                       </button>
                     ))}

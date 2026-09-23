@@ -32,8 +32,17 @@ create extension if not exists "pgcrypto"; -- for gen_random_uuid()
 -- ---------------------------------------------------------------------
 create type e_task_status as enum ('Started', 'InProgress', 'Completed');
 
+-- 'Consumed' tilføjet 2026-09-23 (US-42): forbrugsvarer der bruges
+-- endeligt op ved en opgaves afrapportering, se resolve_task_material_units
+-- (§15.21). 'NeedsEmptying' tilføjet 2026-09-23: generisk "fuld,
+-- skal tømmes"-status til enheder der fyldes op (fx en skraldespand/
+-- opsamlingsbeholder) i stedet for at blive brugt op - se
+-- sync_status_from_contents (§15.21). 'NeedsRefilling' tilføjet 2026-09-23:
+-- symmetrisk modpart til 'NeedsEmptying' - "tom beholder, kræver
+-- påfyldning" (fx en dieseltank), da hverken 'OutOfStock' (detailbegreb)
+-- eller 'Consumed' (antyder selve beholderen er væk) passede.
 create type e_item_status as enum (
-  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance'
+  'Available', 'Reserved', 'OutOfStock', 'InUse', 'Missing', 'Damaged', 'Maintenance', 'Consumed', 'NeedsEmptying', 'NeedsRefilling'
 );
 
 create type e_request_status as enum ('Pending', 'Accepted', 'Rejected');
@@ -213,22 +222,147 @@ create index idx_categories_parent on public.data_layer_categories (parent_categ
 -- Organisation (Receives) jf. diagrammet. organisation_id holdes
 -- automatisk i sync med kategoriens organisation via trigger nedenfor,
 -- så man kun behøver angive category_id ved oprettelse.
+--
+-- US-42 (2026-09-23): item er nu en "item-definition", ikke længere en
+-- selvstændig lagerbeholdning. quantity/status er droppet herfra og
+-- flyttet til data_layer_item_units (§9a) - en item-definition kan nu
+-- have flere fysiske enheder/batches, hver med egen status, så
+-- lagerbeholdning altid er en afledt sum, aldrig manuelt indtastet.
+-- packaging (fri tekst, fx "6-pack") og unit_of_measurement (fri tekst,
+-- fx "stk"/"kg"/"liter", default 'stk') er nye, rent generiske felter.
+--
+-- amount_per_unit/amount_unit (2026-09-23, "vægt pr. enhed på Enkelt
+-- enhed") blev tilføjet og SAMME DAG rullet fuldt tilbage igen - virkede
+-- kun for tællelige varer (jernplader), ikke for ægte kontinuerte Mængde-
+-- varer (sand, kabel på rulle). Erstattet af package_size nedenfor.
+--
+-- package_size (2026-09-23, docs/migrations/README.md, 2026-09-23-
+-- package-size-replaces-amount-per-unit.sql): valgfrit, kun meningsfuldt
+-- for Mængde-varer (isDiscrete=false, ingen kapacitets-sporing) - "1
+-- [packaging] = package_size [unit_of_measurement]", fx "1 big bag = 500
+-- kg". Genbruger de EKSISTERENDE packaging/unit_of_measurement-felter som
+-- label/enhed - intet ekstra enheds-felt nødvendigt (i modsætning til det
+-- rullede-tilbage forsøg ovenfor). Bruges i frontend til at udlede/udfylde
+-- den faktiske lagrede mængde ud fra et "antal emballager"-hjælpefelt ved
+-- opret/genopfyldning - se docs/migrations/README.md. Item-egenskab.
 -- ---------------------------------------------------------------------
 create table public.data_layer_items (
-  id               uuid primary key default gen_random_uuid(),
-  organisation_id  uuid not null references public.organisations(id) on delete cascade,
-  category_id      uuid not null references public.data_layer_categories(id) on delete cascade,
-  location_id      uuid references public.locations(id) on delete set null,
-  name             text not null,
-  description      text,
-  quantity         numeric not null default 0,
-  status           e_item_status not null default 'Available'
+  id                   uuid primary key default gen_random_uuid(),
+  organisation_id      uuid not null references public.organisations(id) on delete cascade,
+  category_id          uuid not null references public.data_layer_categories(id) on delete cascade,
+  location_id          uuid references public.locations(id) on delete set null,
+  name                 text not null,
+  description          text,
+  packaging            text,
+  unit_of_measurement  text not null default 'stk',
+  package_size         numeric,
+  constraint package_size_positive check (package_size is null or package_size > 0)
 );
 
 create index idx_items_org on public.data_layer_items (organisation_id);
 create index idx_items_category on public.data_layer_items (category_id);
 create index idx_items_location on public.data_layer_items (location_id);
-create index idx_items_status on public.data_layer_items (status);
+
+
+-- ---------------------------------------------------------------------
+-- 9a. DATA LAYER ITEM UNIT (US-42, 2026-09-23)
+-- Én række pr. fysisk enhed (serial_number sat, quantity altid 1,
+-- håndhævet af constraint) ELLER pr. målt batch (serial_number null,
+-- quantity kan være > 1, fx "10" ved unit_of_measurement='kg'). En
+-- serienummereret række kan derfor aldrig splittes - kun batches kan.
+-- serial_number er unikt pr. item (ikke pr. organisation - to
+-- forskellige items må gerne dele et serienummer). organisation_id
+-- holdes i sync med item'et via sync_item_unit_organisation (§15.21).
+--
+-- contents_total/contents_remaining (2026-09-23, rettet fra en tidligere
+-- fejlslagen "delt pakke"-model - se docs/migrations/README.md,
+-- 2026-09-23-item-contents-not-shared-pack.sql): en enkelt enhed kan
+-- selv være en beholder med internt indhold (fx ÉN 12-pack sodavand, der
+-- selv rummer 12 dåser) - sporet PR. ENHED, ikke som en delt pulje
+-- mellem flere enheder. null (begge felter) = enheden har ikke sporet
+-- indhold (langt de fleste enheder).
+--
+-- contents_empty_status/contents_partial_status/contents_full_status
+-- (2026-09-23, generaliserer den tidligere hårdkodede "forbrugs-retning"
+-- - se docs/migrations/README.md, 2026-09-23-configurable-contents-
+-- status.sql): hver enhed angiver selv hvilken status den automatisk
+-- skal skifte til ved hhv. tomt/delvist/fuldt indhold. null = ingen
+-- automatisk ændring ved den tærskel. Se sync_status_from_contents
+-- (§15.21).
+--
+-- contents_total UDEN contents_remaining (2026-09-23, docs/migrations/
+-- README.md, 2026-09-23-measured-item-capacity-status.sql): en Målt
+-- mængde-batch (serial_number null, quantity kan være > 1) kan sætte
+-- contents_total som KAPACITET (fx en 200-liters tank) - niveauet er så
+-- quantity selv, ikke et separat contents_remaining. Det er netop
+-- forskellen fra Enkeltstyk+indhold ovenfor (begge felter sat): kun en
+-- Målt mængde-batch kan splittes/forbruges delvist af en opgave (§15.21,
+-- reserve_item_units), så kun DEN kan tappes/påfyldes af en opgave - en
+-- Enkeltstyk-"tønde" (quantity altid 1) kan det ikke, kun manuelt.
+-- ---------------------------------------------------------------------
+create table public.data_layer_item_units (
+  id                      uuid primary key default gen_random_uuid(),
+  organisation_id         uuid not null references public.organisations(id) on delete cascade,
+  item_id                 uuid not null references public.data_layer_items(id) on delete cascade,
+  location_id             uuid references public.locations(id) on delete set null,
+  serial_number           text,
+  quantity                numeric not null default 1,
+  status                  e_item_status not null default 'Available',
+  created_at              timestamptz not null default now(),
+  contents_total          numeric,
+  contents_remaining      numeric,
+  contents_empty_status   e_item_status,
+  contents_partial_status e_item_status,
+  contents_full_status    e_item_status,
+  constraint serial_requires_single_quantity check (serial_number is null or quantity = 1),
+  constraint contents_range check (
+    (contents_total is null and contents_remaining is null)
+    or (contents_total is not null and contents_remaining is null)
+    or (contents_total is not null and contents_remaining is not null
+        and contents_remaining >= 0 and contents_remaining <= contents_total)
+  ),
+  -- Rettet 2026-09-23 (docs/migrations/README.md, 2026-09-23-container-
+  -- count-and-split-fix.sql): var oprindeligt en inline `check (quantity >
+  -- 0)` - løsnet til at tillade quantity=0 for kapacitets-sporede rækker
+  -- (en tom container er en gyldig tilstand), mens ordinære rækker (intet
+  -- contents_total) stadig aldrig må ramme 0.
+  constraint quantity_positive_unless_capacity check (
+    (contents_total is not null and quantity >= 0)
+    or (contents_total is null and quantity > 0)
+  )
+);
+
+create index idx_item_units_item on public.data_layer_item_units (item_id);
+create index idx_item_units_org on public.data_layer_item_units (organisation_id);
+create index idx_item_units_status on public.data_layer_item_units (status);
+create unique index idx_item_units_serial_item
+  on public.data_layer_item_units (item_id, serial_number)
+  where serial_number is not null;
+
+-- Aggregeret status-fordeling pr. item - bruges af frontend (getCategoryTree)
+-- i stedet for at hente alle rå enheds-rækker. security_invoker=true er
+-- kritisk: uden den ville RLS på den underliggende tabel blive tjekket
+-- som view-ejeren, ikke den kaldende bruger.
+-- Rettet 2026-09-23 (docs/migrations/README.md, 2026-09-23-container-
+-- count-and-split-fix.sql): en kapacitets-sporet række (contents_total sat)
+-- tæller altid som 1 mod "Antal", uanset dens niveau (quantity) - en tank
+-- med niveau 200 er stadig kun ÉN beholder, ikke "200". Ordinære rækker
+-- (intet contents_total) summeres som før.
+-- Udvidet 2026-09-23 (docs/migrations/README.md, 2026-09-23-item-status-
+-- counts-capacity-flag.sql): has_capacity_units (bool_or) lader frontend
+-- undlade at vise unitOfMeasurement ved siden af "Antal" for en Beholder-
+-- vare - "1 liter" ville ellers være misvisende, da "1" er antal
+-- beholdere. Se formatItemQuantity i datalayerTypes.ts.
+create view public.data_layer_item_status_counts
+with (security_invoker = true)
+as
+select item_id, status,
+  sum(case when contents_total is not null then 1 else quantity end) as total_quantity,
+  bool_or(contents_total is not null and contents_remaining is null) as has_capacity_units
+from public.data_layer_item_units
+group by item_id, status;
+
+grant select on public.data_layer_item_status_counts to authenticated;
 
 
 -- ---------------------------------------------------------------------
@@ -333,6 +467,29 @@ create table public.task_materials (
 
 create index idx_task_materials_task on public.task_materials (task_id);
 create index idx_task_materials_item on public.task_materials (item_id);
+
+
+-- ---------------------------------------------------------------------
+-- 11a. TASK MATERIAL UNITS (US-42, 2026-09-23)
+-- Kobler en task_materials-linje til de konkrete data_layer_item_units-
+-- rækker den har reserveret (inkl. delvist forbrugte batches efter en
+-- split, se split_unit_if_needed §15.21). Ingen unique(unit_id) - en
+-- batch-række kan splittes, så flere task_material_units-rækker aldrig
+-- deler samme unit_id, men det håndhæves af RPC-logikken, ikke af et
+-- constraint. on delete cascade (ikke restrict!) på unit_id: ellers ville
+-- delete_organisation/kategori-sletning (§15.13), som i dag cascader
+-- ubetinget, blive blokeret af en aktiv reservation. Rækker
+-- oprettes/slettes udelukkende via RPC'erne i §15.21 eller cascade -
+-- ingen client-facing insert/update/delete-policy, se §16.7c.
+-- ---------------------------------------------------------------------
+create table public.task_material_units (
+  task_material_id  uuid not null references public.task_materials(id) on delete cascade,
+  unit_id           uuid not null references public.data_layer_item_units(id) on delete cascade,
+  primary key (task_material_id, unit_id)
+);
+
+create index idx_task_material_units_material on public.task_material_units (task_material_id);
+create index idx_task_material_units_unit on public.task_material_units (unit_id);
 
 
 -- ---------------------------------------------------------------------
@@ -1655,7 +1812,9 @@ grant execute on function public.reset_password_prototype(text, text, text, text
 -- Fejlede med "column status is of type e_task_status but expression is
 -- of type text" ved "Genåbn" i CompletedTasksPanel.tsx.
 -- Udvidet 2026-09-19 (US-75): sætter finished_at ved Completed og nulstiller
--- den ved alle andre statusser (også "Genåbn").
+-- den ved alle andre statusser (også "Genåbn"). Udvidet 2026-09-23 (US-42):
+-- blokerer Completed hvis opgaven har uafrapporterede materialer, se
+-- assert_task_materials_resolved (§15.21).
 create or replace function public.set_task_status(p_task_id uuid, p_status text)
 returns void
 language plpgsql
@@ -1680,6 +1839,10 @@ begin
 
   if not (v_is_assignee or public.has_privilege_or_admin('update_tasks')) then
     raise exception 'Du har ikke rettigheder til at ændre denne opgaves status.' using hint = 'NO_PRIV_SET_TASK_STATUS';
+  end if;
+
+  if p_status = 'Completed' then
+    perform public.assert_task_materials_resolved(p_task_id);
   end if;
 
   update public.tasks
@@ -1735,6 +1898,10 @@ begin
   if v_status <> 'Pending' then
     raise exception 'Anmodningen er allerede behandlet.' using hint = 'TASK_REQUEST_ALREADY_HANDLED';
   end if;
+
+  -- US-42 (2026-09-23): blokerer Completed hvis opgaven har uafrapporterede
+  -- materialer, se assert_task_materials_resolved (§15.21).
+  perform public.assert_task_materials_resolved(v_task_id);
 
   update public.task_requests
      set status = 'Accepted', handled_by = auth.uid(), done_at = now()
@@ -1888,6 +2055,633 @@ $function$;
 --   for each row execute function notify_task_completed();   (findes allerede i live)
 
 
+-- ---------------------------------------------------------------------
+-- 15.21 US-42 (2026-09-23): ITEM-ENHEDER OG TASK-MATERIALE-RESERVATION
+-- Hele kredsløbet mellem Datalager og Task: en opgave RESERVERER
+-- automatisk N ledige enheder af et item (reserve_item_units), frigiver
+-- dem ved annullering (release_item_units), og AFRAPPORTERER det
+-- faktiske udfald ved færdiggørelse (resolve_task_material_units) -
+-- kræves før set_task_status/approve_task_request tillader Completed
+-- (assert_task_materials_resolved, kaldt fra §15.18/§15.19). split_unit_if_needed
+-- er en delt hjælpefunktion, så splitning af en batch-række (fx "5 af 20
+-- liter") kun er implementeret ét sted. Alle funktioner er samlet her
+-- (ikke fordelt ved deres respektive tabeller i §9a/§11a), samme
+-- struktur som resten af filen (fx sync_item_organisation, §15.4, for
+-- tabellen i §9).
+-- ---------------------------------------------------------------------
+
+-- Sync organisation_id fra item, samme mønster som sync_item_organisation (§15.4).
+create or replace function public.sync_item_unit_organisation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  select organisation_id into new.organisation_id
+  from public.data_layer_items
+  where id = new.item_id;
+  return new;
+end;
+$$;
+
+create trigger trg_sync_item_unit_organisation
+  before insert or update of item_id on public.data_layer_item_units
+  for each row execute function public.sync_item_unit_organisation();
+
+-- Automatisk status ud fra en enheds indhold (2026-09-23), når "-1"/"+1"
+-- i itemsDetailComponent.tsx opdaterer contents_remaining. Generaliseret
+-- samme dag (docs/migrations/README.md, 2026-09-23-configurable-contents-
+-- status.sql) fra en hårdkodet "forbrugs-retning" til fuldt konfigurerbar
+-- pr. enhed: tom/delvis/fuld mapper til enhedens EGNE
+-- contents_empty_status/contents_partial_status/contents_full_status
+-- (§9a) - null ved en tærskel = ingen automatisk ændring der. Frontendens
+-- default (uændret) er tom=Consumed, delvis=Missing, fuld=Available.
+-- Fyrer kun ved UPDATE af contents_remaining/quantity, ikke ved
+-- oprettelse (så den valgte startstatus fra opret-/tilføj-formularen
+-- respekteres) og ikke ved almindelige statusskift via dropdown'en
+-- (rører ikke contents_remaining/quantity - ingen konflikt med
+-- guard-triggeren nedenfor, som er scopet til "update of status":
+-- SQL-kaldet herfra sætter aldrig status i sin egen SET-klausul, så
+-- guard-triggeren fyrer slet ikke).
+--
+-- To grene, samme diskriminator som §9a (2026-09-23, docs/migrations/
+-- README.md, 2026-09-23-measured-item-capacity-status.sql): begge
+-- contents_total/contents_remaining sat -> Enkeltstyk+indhold, niveauet
+-- er contents_remaining (fx 12-pack). Kun contents_total sat -> Målt
+-- mængde+kapacitet, niveauet er quantity selv (fx en tank) - dermed
+-- udløser split_unit_if_needed's quantity-reduktion på den
+-- tilbageværende/oprindelige række (§15.21, reserve_item_units/
+-- resolve_task_material_units) automatisk et statustjek ved hver
+-- opgave-reservation/afrapportering, uden ændringer i selve de
+-- funktioner.
+create or replace function public.sync_status_from_contents()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.contents_total is not null and new.contents_remaining is not null then
+    -- Enkeltstyk+indhold (fx 12-pack): niveauet er contents_remaining.
+    if new.contents_remaining <= 0 then
+      if new.contents_empty_status is not null then
+        new.status := new.contents_empty_status;
+      end if;
+    elsif new.contents_remaining < new.contents_total then
+      if new.contents_partial_status is not null then
+        new.status := new.contents_partial_status;
+      end if;
+    else
+      if new.contents_full_status is not null then
+        new.status := new.contents_full_status;
+      end if;
+    end if;
+  elsif new.contents_total is not null and new.contents_remaining is null then
+    -- Målt mængde+kapacitet (fx en tank): niveauet er quantity.
+    if new.quantity <= 0 then
+      if new.contents_empty_status is not null then
+        new.status := new.contents_empty_status;
+      end if;
+    elsif new.quantity < new.contents_total then
+      if new.contents_partial_status is not null then
+        new.status := new.contents_partial_status;
+      end if;
+    else
+      if new.contents_full_status is not null then
+        new.status := new.contents_full_status;
+      end if;
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_sync_status_from_contents
+  before update of contents_remaining, quantity on public.data_layer_item_units
+  for each row execute function public.sync_status_from_contents();
+
+-- Guard mod desync: blokerer direkte statusændring (fx via updateItemUnit)
+-- på en enhed der pt. er linket til en aktiv opgave-reservation - skal
+-- ske via release_item_units/resolve_task_material_units i stedet.
+create or replace function public.prevent_direct_status_change_on_reserved_unit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.status is distinct from old.status
+     and exists (select 1 from public.task_material_units where unit_id = old.id) then
+    raise exception 'Enheden er reserveret til en opgave og kan ikke ændres direkte - brug opgavens frigivelse/afrapportering.'
+      using hint = 'UNIT_LOCKED_BY_TASK_RESERVATION';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_direct_status_change_on_reserved_unit
+  before update of status on public.data_layer_item_units
+  for each row execute function public.prevent_direct_status_change_on_reserved_unit();
+
+-- Sikkerhedsnet: frigiv enheder hvis task_materials slettes uden om
+-- release_item_units (fx via §16.7's delete-only policy på task_materials).
+-- BEFORE DELETE (ikke AFTER!): task_material_units-rækkerne skal stadig
+-- eksistere når vi læser dem, og guard-triggeren ovenfor kræver at
+-- linket er væk FØR status ændres.
+create or replace function public.release_units_on_task_material_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_unit_ids uuid[];
+begin
+  select array_agg(unit_id) into v_unit_ids
+  from public.task_material_units
+  where task_material_id = old.id;
+
+  delete from public.task_material_units where task_material_id = old.id;
+
+  update public.data_layer_item_units
+     set status = 'Available'
+   where id = any(v_unit_ids);
+
+  return old;
+end;
+$$;
+
+create trigger trg_release_units_on_task_material_delete
+  before delete on public.task_materials
+  for each row execute function public.release_units_on_task_material_delete();
+
+-- Delt hjælpefunktion: splitter en batch-række (uden serienummer,
+-- quantity > 1) i to, så en reservation/afrapportering kan tage en
+-- præcis del-mængde. En serienummereret række (altid quantity=1, jf.
+-- constraint i §9a) rammes aldrig af split-grenen.
+-- Rettet 2026-09-23 (docs/migrations/README.md, 2026-09-23-container-
+-- count-and-split-fix.sql): genvejen (ingen splitning, returnér samme
+-- række) gjaldt tidligere også ved 100%-forbrug af en kapacitets-sporet
+-- beholder (fx en tank) - så beholder-RÆKKEN selv (med dens contents_total/
+-- status-konfiguration) blev omdøbt til afrapporteringens udfaldsstatus, og
+-- tanken forsvandt fra "Beholdere" i stedet for at blive tilbage som en tom
+-- (0/kapacitet) beholder. Genvejen gælder nu kun rækker UDEN
+-- kapacitets-sporing - en kapacitets-række splittes altid, også ved 100%.
+create or replace function public.split_unit_if_needed(p_unit_id uuid, p_needed numeric)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_unit public.data_layer_item_units;
+  v_new_id uuid;
+begin
+  select * into v_unit from public.data_layer_item_units where id = p_unit_id;
+
+  if v_unit.id is null then
+    raise exception 'Enheden findes ikke.' using hint = 'UNIT_NOT_FOUND';
+  end if;
+
+  if v_unit.organisation_id <> public.auth_profile_org() then
+    raise exception 'Enheden tilhører ikke din organisation.' using hint = 'UNIT_ORG_MISMATCH';
+  end if;
+
+  if v_unit.quantity = p_needed and v_unit.contents_total is null then
+    return v_unit.id;
+  end if;
+
+  update public.data_layer_item_units
+     set quantity = quantity - p_needed
+   where id = p_unit_id;
+
+  insert into public.data_layer_item_units
+    (organisation_id, item_id, location_id, quantity, status)
+  values
+    (v_unit.organisation_id, v_unit.item_id, v_unit.location_id, p_needed, v_unit.status)
+  returning id into v_new_id;
+
+  return v_new_id;
+end;
+$$;
+
+-- Forbrug, Datalager -> Task: vælger/splitter N ledige enheder atomisk
+-- (FIFO, for update skip locked), Available -> Reserved, opretter+linker
+-- task_materials-linjen.
+create or replace function public.reserve_item_units(p_task_id uuid, p_item_id uuid, p_quantity numeric)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_material_id uuid;
+  v_unit record;
+  v_remaining numeric := p_quantity;
+  v_take numeric;
+  v_unit_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if p_quantity is null or p_quantity <= 0 then
+    raise exception 'Mængden skal være større end 0.' using hint = 'INVALID_QUANTITY';
+  end if;
+
+  if not exists (select 1 from public.tasks where id = p_task_id and organisation_id = v_org_id) then
+    raise exception 'Opgaven findes ikke i din organisation.' using hint = 'TASK_NOT_FOUND';
+  end if;
+
+  if not exists (select 1 from public.data_layer_items where id = p_item_id and organisation_id = v_org_id) then
+    raise exception 'Item findes ikke i din organisation.' using hint = 'ITEM_NOT_FOUND';
+  end if;
+
+  if not public.has_privilege_or_admin('update_tasks') then
+    raise exception 'Du har ikke rettigheder til at reservere materialer på opgaver.'
+      using errcode = '42501', hint = 'NO_PRIV_RESERVE_MATERIALS';
+  end if;
+
+  insert into public.task_materials (task_id, item_id, quantity)
+  values (p_task_id, p_item_id, p_quantity)
+  returning id into v_task_material_id;
+
+  for v_unit in
+    select id, quantity
+    from public.data_layer_item_units
+    where item_id = p_item_id
+      and status = 'Available'
+    order by created_at
+    for update skip locked
+  loop
+    exit when v_remaining <= 0;
+
+    v_take := least(v_unit.quantity, v_remaining);
+    v_unit_id := public.split_unit_if_needed(v_unit.id, v_take);
+
+    update public.data_layer_item_units
+       set status = 'Reserved'
+     where id = v_unit_id;
+
+    insert into public.task_material_units (task_material_id, unit_id)
+    values (v_task_material_id, v_unit_id);
+
+    v_remaining := v_remaining - v_take;
+  end loop;
+
+  if v_remaining > 0 then
+    raise exception 'Der er ikke nok ledigt lager (mangler %).', v_remaining
+      using hint = 'INSUFFICIENT_AVAILABLE_QUANTITY';
+  end if;
+
+  return v_task_material_id;
+end;
+$$;
+
+grant execute on function public.reserve_item_units(uuid, uuid, numeric) to authenticated;
+
+-- Annullering/fjernelse før færdiggørelse: frigiver linkede enheder til
+-- Available, sletter kobling + task_materials-række.
+create or replace function public.release_item_units(p_task_material_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_unit_ids uuid[];
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  select task_id into v_task_id
+  from public.task_materials
+  where id = p_task_material_id;
+
+  if v_task_id is null or not exists (
+    select 1 from public.tasks where id = v_task_id and organisation_id = v_org_id
+  ) then
+    raise exception 'Materiale-linjen findes ikke i din organisation.' using hint = 'TASK_MATERIAL_NOT_FOUND';
+  end if;
+
+  if not public.has_privilege_or_admin('update_tasks') then
+    raise exception 'Du har ikke rettigheder til at frigive materialer på opgaver.'
+      using errcode = '42501', hint = 'NO_PRIV_RELEASE_MATERIALS';
+  end if;
+
+  select array_agg(unit_id) into v_unit_ids
+  from public.task_material_units
+  where task_material_id = p_task_material_id;
+
+  delete from public.task_material_units where task_material_id = p_task_material_id;
+
+  update public.data_layer_item_units
+     set status = 'Available'
+   where id = any(v_unit_ids);
+
+  delete from public.task_materials where id = p_task_material_id;
+end;
+$$;
+
+grant execute on function public.release_item_units(uuid) to authenticated;
+
+-- Afrapportering, Task -> Datalager, ved færdiggørelse. p_outcomes:
+-- fx '[{"status":"Available","quantity":8},{"status":"Damaged","quantity":1}]'
+-- - fuldt generisk, enhver e_item_status-værdi kan bruges. Kan kaldes
+-- flere gange pr. linje (delvis afrapportering over tid).
+create or replace function public.resolve_task_material_units(p_task_material_id uuid, p_outcomes jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_outcome jsonb;
+  v_status text;
+  v_total_outcome numeric;
+  v_total_linked numeric;
+  v_unit record;
+  v_remaining numeric;
+  v_take numeric;
+  v_unit_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  select task_id into v_task_id
+  from public.task_materials
+  where id = p_task_material_id;
+
+  if v_task_id is null or not exists (
+    select 1 from public.tasks where id = v_task_id and organisation_id = v_org_id
+  ) then
+    raise exception 'Materiale-linjen findes ikke i din organisation.' using hint = 'TASK_MATERIAL_NOT_FOUND';
+  end if;
+
+  if not public.has_privilege_or_admin('update_tasks') then
+    raise exception 'Du har ikke rettigheder til at afrapportere materialer på opgaver.'
+      using errcode = '42501', hint = 'NO_PRIV_RESOLVE_MATERIALS';
+  end if;
+
+  -- Lås linkede rækker (samme concurrency-beskyttelse som reservation) -
+  -- forhindrer dobbelt-afrapportering ved to samtidige kald.
+  perform 1 from public.data_layer_item_units
+   where id in (select unit_id from public.task_material_units where task_material_id = p_task_material_id)
+   for update;
+
+  select coalesce(sum(u.quantity), 0) into v_total_linked
+  from public.task_material_units tmu
+  join public.data_layer_item_units u on u.id = tmu.unit_id
+  where tmu.task_material_id = p_task_material_id;
+
+  select coalesce(sum((elem->>'quantity')::numeric), 0) into v_total_outcome
+  from jsonb_array_elements(p_outcomes) as elem;
+
+  if v_total_outcome <> v_total_linked then
+    raise exception 'Afrapporteringen (%) matcher ikke den reserverede mængde (%).', v_total_outcome, v_total_linked
+      using hint = 'OUTCOME_QUANTITY_MISMATCH';
+  end if;
+
+  for v_outcome in select * from jsonb_array_elements(p_outcomes)
+  loop
+    v_status := v_outcome->>'status';
+
+    if not exists (select 1 from unnest(enum_range(null::public.e_item_status)) s where s::text = v_status) then
+      raise exception 'Ugyldig status i afrapportering: %', v_status using hint = 'INVALID_OUTCOME_STATUS';
+    end if;
+
+    v_remaining := (v_outcome->>'quantity')::numeric;
+
+    for v_unit in
+      select u.id, u.quantity
+      from public.task_material_units tmu
+      join public.data_layer_item_units u on u.id = tmu.unit_id
+      where tmu.task_material_id = p_task_material_id
+      order by u.created_at
+    loop
+      exit when v_remaining <= 0;
+
+      v_take := least(v_unit.quantity, v_remaining);
+      v_unit_id := public.split_unit_if_needed(v_unit.id, v_take);
+
+      -- Link fjernes FØR status ændres - guard-triggeren ovenfor
+      -- blokerer ellers statusændring på en stadig-linket enhed.
+      delete from public.task_material_units
+       where task_material_id = p_task_material_id and unit_id = v_unit_id;
+
+      update public.data_layer_item_units
+         set status = v_status::public.e_item_status
+       where id = v_unit_id;
+
+      v_remaining := v_remaining - v_take;
+    end loop;
+  end loop;
+end;
+$$;
+
+grant execute on function public.resolve_task_material_units(uuid, jsonb) to authenticated;
+
+-- Item + enheder atomisk. p_is_discrete=true -> N rækker à quantity=1
+-- (evt. serienummer pr. række); false -> én batch-række med
+-- quantity=p_quantity. Erstatter en rå to-trins insert (item, så
+-- enheder), som ellers kunne efterlade et item uden enheder ved fejl.
+-- Rettet 2026-09-23 (dåse/flaske): p_is_discrete er en eksplicit
+-- parameter, sat af et separat "Enkeltstyk/Målt mængde"-valg i frontend-
+-- formularen, uafhængigt af det frie unit_of_measurement-tekstfelt.
+-- Rettet 2026-09-23 (contents_total/contents_remaining, §9a): en
+-- tidligere "delt pakke"-model (data_layer_item_packs/pack_id, nu
+-- fjernet igen) modellerede det forkerte forhold - flere enheder delte
+-- én pulje. p_contents_total (nullable) giver nu HVER af de p_quantity
+-- oprettede enheder sit EGET contents_total/contents_remaining - fx 5
+-- selvstændige 12-pack-enheder, hver startende for sig selv på 12/12.
+-- Udvidet 2026-09-23 (docs/migrations/README.md, 2026-09-23-
+-- configurable-contents-status.sql): tre nye, valgfrie parametre sætter
+-- enhedens egne contents_empty_status/contents_partial_status/
+-- contents_full_status (§9a/sync_status_from_contents, §15.21) - text,
+-- castet til e_item_status internt, tom streng/null = ingen automatisk
+-- ændring ved den tærskel.
+-- Udvidet igen 2026-09-23 (docs/migrations/README.md, 2026-09-23-
+-- measured-item-capacity-status.sql): den ikke-diskrete (Målt mængde)
+-- gren sætter nu også p_contents_total (som KAPACITET, fx en tank) og de
+-- tre status-parametre på batch-rækken - contents_remaining sættes IKKE,
+-- niveauet er quantity selv, så en opgave kan tappe/påfylde en delmængde
+-- (§15.21, reserve_item_units) i modsætning til Enkeltstyk-grenen ovenfor.
+-- Rettet igen 2026-09-23 (docs/migrations/README.md, 2026-09-23-measured-
+-- container-count.sql): p_quantity blev fejlagtigt brugt DIREKTE som
+-- niveauet på den ene batch-række der blev oprettet ved kapacitets-sporing
+-- - en "1 tønde à 200L" endte som "1 liter, 1/200 tilbage". Rettet: når
+-- p_contents_total er sat betyder p_quantity nu ANTAL BEHOLDERE (som
+-- Enkeltstyk-grenen) - hver får sin EGEN række med kapacitet + startniveau
+-- (nyt, nullable p_contents_start - null = start fuld, = p_contents_total).
+-- Ordinær pooled Målt mængde (intet kapacitets-total) er uændret: ÉN
+-- række med quantity=p_quantity.
+-- Udvidet 2026-09-23 (docs/migrations/README.md, 2026-09-23-amount-per-
+-- unit.sql), SAMME DAG rullet tilbage igen (docs/migrations/README.md,
+-- 2026-09-23-package-size-replaces-amount-per-unit.sql): p_amount_per_unit/
+-- p_amount_unit (vægt pr. Enkelt enhed) virkede kun for tællelige varer.
+-- Erstattet af ét p_package_size-parameter (kun for Mængde, se package_size
+-- ovenfor) - sættes på data_layer_items-rækken (item-egenskab, sættes ÉN
+-- gang ved oprettelse - ikke pr. enhed).
+-- Rettet 2026-09-23 (docs/migrations/README.md, 2026-09-23-package-count-
+-- separate-units.sql): "Antal emballager" gangede fejlagtigt ind i ÉT
+-- pooled Mængde-tal - rettet til at oprette N separate rækker (én pr.
+-- emballage), se p_package_size-grenen nedenfor. Ingen signaturændring.
+create or replace function public.add_item_with_units(
+  p_category_id uuid,
+  p_location_id uuid,
+  p_name text,
+  p_description text,
+  p_packaging text,
+  p_unit_of_measurement text,
+  p_quantity numeric,
+  p_status text,
+  p_serial_numbers text[],
+  p_is_discrete boolean,
+  p_contents_total numeric,
+  p_contents_empty_status text,
+  p_contents_partial_status text,
+  p_contents_full_status text,
+  p_contents_start numeric,
+  p_package_size numeric
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid;
+  v_item_id uuid;
+  v_unit_of_measurement text := coalesce(nullif(trim(p_unit_of_measurement), ''), 'stk');
+  v_i int;
+begin
+  select organisation_id into v_org_id
+  from public.data_layer_categories
+  where id = p_category_id;
+
+  if v_org_id is null or v_org_id <> public.auth_profile_org() then
+    raise exception 'Kategorien findes ikke i din organisation.' using hint = 'CATEGORY_NOT_FOUND';
+  end if;
+
+  if not public.has_privilege_or_admin('create_datalayer') then
+    raise exception 'Du har ikke rettigheder til at oprette items.'
+      using errcode = '42501', hint = 'NO_PRIV_CREATE_DATALAYER';
+  end if;
+
+  if p_quantity is null or p_quantity <= 0 then
+    raise exception 'Antal skal være større end 0.' using hint = 'INVALID_QUANTITY';
+  end if;
+
+  insert into public.data_layer_items
+    (organisation_id, category_id, location_id, name, description, packaging, unit_of_measurement,
+     package_size)
+  values
+    (v_org_id, p_category_id, p_location_id, p_name, p_description, p_packaging, v_unit_of_measurement,
+     p_package_size)
+  returning id into v_item_id;
+
+  if p_is_discrete then
+    for v_i in 1..p_quantity::int loop
+      insert into public.data_layer_item_units
+        (organisation_id, item_id, location_id, serial_number, quantity, status,
+         contents_total, contents_remaining,
+         contents_empty_status, contents_partial_status, contents_full_status)
+      values
+        (v_org_id, v_item_id, p_location_id,
+         case when p_serial_numbers is not null and array_length(p_serial_numbers, 1) >= v_i
+              then nullif(trim(p_serial_numbers[v_i]), '') else null end,
+         1, coalesce(p_status, 'Available')::public.e_item_status,
+         p_contents_total, p_contents_total,
+         nullif(p_contents_empty_status, '')::public.e_item_status,
+         nullif(p_contents_partial_status, '')::public.e_item_status,
+         nullif(p_contents_full_status, '')::public.e_item_status);
+    end loop;
+  elsif p_contents_total is not null then
+    -- Målt mængde + kapacitet (fx en tank): p_quantity er ANTAL BEHOLDERE,
+    -- hver får sin egen række med kapacitet + startniveau (default fuld).
+    for v_i in 1..p_quantity::int loop
+      insert into public.data_layer_item_units
+        (organisation_id, item_id, location_id, quantity, status,
+         contents_total,
+         contents_empty_status, contents_partial_status, contents_full_status)
+      values
+        (v_org_id, v_item_id, p_location_id,
+         coalesce(p_contents_start, p_contents_total),
+         coalesce(p_status, 'Available')::public.e_item_status,
+         p_contents_total,
+         nullif(p_contents_empty_status, '')::public.e_item_status,
+         nullif(p_contents_partial_status, '')::public.e_item_status,
+         nullif(p_contents_full_status, '')::public.e_item_status);
+    end loop;
+  elsif p_package_size is not null then
+    -- Rettet 2026-09-23 (docs/migrations/README.md, 2026-09-23-package-
+    -- count-separate-units.sql): Mængde + pakke-faktor (fx "1 big bag =
+    -- 500 kg") - p_quantity er ANTAL EMBALLAGER, hver får sin egen række
+    -- med quantity = p_package_size (ikke ét pooled tal, samme mønster
+    -- som Beholder-grenen ovenfor).
+    for v_i in 1..p_quantity::int loop
+      insert into public.data_layer_item_units
+        (organisation_id, item_id, location_id, quantity, status)
+      values
+        (v_org_id, v_item_id, p_location_id, p_package_size, coalesce(p_status, 'Available')::public.e_item_status);
+    end loop;
+  else
+    -- Ordinær pooled Målt mængde (ingen kapacitets-sporing/pakke-faktor):
+    -- uændret, ÉN række med quantity=p_quantity (fx "150 kg jernplader").
+    insert into public.data_layer_item_units
+      (organisation_id, item_id, location_id, quantity, status)
+    values
+      (v_org_id, v_item_id, p_location_id, p_quantity, coalesce(p_status, 'Available')::public.e_item_status);
+  end if;
+
+  return v_item_id;
+end;
+$$;
+
+grant execute on function public.add_item_with_units(uuid, uuid, text, text, text, text, numeric, text, text[], boolean, numeric, text, text, text, numeric, numeric) to authenticated;
+
+-- Kaldes fra set_task_status (§15.18) og approve_task_request (§15.19)
+-- før en opgave må blive Completed. Org-scoped defensivt (selvom kun
+-- kaldet internt fra allerede org-validerede RPC'er).
+create or replace function public.assert_task_materials_resolved(p_task_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_unresolved text;
+begin
+  if not exists (select 1 from public.tasks where id = p_task_id and organisation_id = v_org_id) then
+    raise exception 'Opgaven findes ikke i din organisation.' using hint = 'TASK_NOT_FOUND';
+  end if;
+
+  select string_agg(coalesce(di.name, tm.item_id::text), ', ')
+    into v_unresolved
+  from public.task_materials tm
+  join public.data_layer_items di on di.id = tm.item_id
+  where tm.task_id = p_task_id
+    and exists (
+      select 1 from public.task_material_units tmu where tmu.task_material_id = tm.id
+    );
+
+  if v_unresolved is not null then
+    raise exception 'Alle materialer skal afrapporteres, før opgaven kan færdiggøres.'
+      using hint = 'MATERIALS_NOT_RESOLVED', detail = v_unresolved;
+  end if;
+end;
+$$;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -1902,12 +2696,14 @@ alter table public.memberships             enable row level security;
 alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
+alter table public.data_layer_item_units   enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_requests           enable row level security;
 alter table public.task_materials          enable row level security;
+alter table public.task_material_units     enable row level security;
 alter table public.statistics_snapshots    enable row level security;
 alter table public.statistics_values       enable row level security;
 alter table public.news                    enable row level security;
@@ -2248,6 +3044,33 @@ create policy "Slet datalayer-items i egen organisation"
 
 
 -- ---------------------------------------------------------------------
+-- 16.6b DATA LAYER ITEM UNITS (US-42, 2026-09-23)
+-- Spejler 16.6's data_layer_items-policies 1:1, genbruger samme
+-- granulære privilegier.
+-- ---------------------------------------------------------------------
+create policy "Se item-enheder i egen organisation"
+  on public.data_layer_item_units for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_datalayer'));
+
+create policy "Opret item-enheder i egen organisation"
+  on public.data_layer_item_units for insert
+  to authenticated
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_datalayer'));
+
+create policy "Rediger item-enheder i egen organisation"
+  on public.data_layer_item_units for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'))
+  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_datalayer'));
+
+create policy "Slet item-enheder i egen organisation"
+  on public.data_layer_item_units for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_datalayer'));
+
+
+-- ---------------------------------------------------------------------
 -- 16.7 TASKS / TASK_ASSIGNEES / TASK_PARTICIPANTS / TASK_MATERIALS
 -- (Studerende 3's domæne. Fase 3 trin 6 (2026-09-17, docs/migrations/
 -- fase3-tasks-privileges.sql): create/read/update/delete_tasks erstatter
@@ -2392,14 +3215,16 @@ create policy "Se task_materials for opgaver i egen organisation"
     and public.has_privilege_or_admin('read_tasks')
   );
 
-create policy "Administrer task_materials for opgaver i egen organisation"
-  on public.task_materials for all
+-- US-42 (2026-09-23): den tidligere "for all"-policy er erstattet af kun
+-- delete - insert/opdatering af reservationer sker udelukkende via
+-- reserve_item_units/release_item_units/resolve_task_material_units
+-- (§15.21, SECURITY DEFINER, omgår RLS), ellers kunne en rå insert skabe
+-- en linje uden linkede enheder og bryde reservationsgarantien. Samme
+-- mønster som §15.19 brugte for task_requests.
+create policy "Slet task_materials for opgaver i egen organisation"
+  on public.task_materials for delete
   to authenticated
   using (
-    task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
-    and public.has_privilege_or_admin('update_tasks')
-  )
-  with check (
     task_id in (select id from public.tasks where organisation_id = public.auth_profile_org())
     and public.has_privilege_or_admin('update_tasks')
   );
@@ -2465,6 +3290,24 @@ create policy "Slet task rooms i egen organisation"
   on public.task_rooms for delete
   to authenticated
   using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_tasks'));
+
+
+-- ---------------------------------------------------------------------
+-- 16.7c TASK_MATERIAL_UNITS (US-42, 2026-09-23)
+-- Kun select - rækker oprettes/slettes udelukkende via RPC'erne i §15.21
+-- (SECURITY DEFINER, omgår RLS) eller via cascade (omgår også RLS).
+-- ---------------------------------------------------------------------
+create policy "Se task_material_units for opgaver i egen organisation"
+  on public.task_material_units for select
+  to authenticated
+  using (
+    task_material_id in (
+      select tm.id from public.task_materials tm
+      join public.tasks t on t.id = tm.task_id
+      where t.organisation_id = public.auth_profile_org()
+    )
+    and public.has_privilege_or_admin('read_tasks')
+  );
 
 
 -- ---------------------------------------------------------------------

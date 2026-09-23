@@ -1,8 +1,8 @@
 import { X, MapPin, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
 import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
+import { ItemStatusBadges } from './itemStatusBadgesComponent';
 
 // Samme sti-opbygning som itemsDetailComponent.tsx bruger - viser
 // "Lager > Sektion" i stedet for kun sektionens eget navn, så det er
@@ -15,7 +15,6 @@ function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[])
 
 export function LocationItemsComponent({ isOpen, location, items, onClose, onSelectItem, allLocations }: LocationItemsComponentProps & { allLocations: ItemLocation[] }) {
   const { t } = useTranslation(['datalayer', 'common'])
-  const td = asDynamic(t)
   if (!isOpen || !location) return null;
 
   return (
@@ -68,8 +67,8 @@ export function LocationItemsComponent({ isOpen, location, items, onClose, onSel
                     <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
-                    <span>{t('quantityValue', { count: item.quantity })}</span>
-                    <span className={`px-2 py-0.5 rounded border ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{td(`datalayer:status.${item.itemStatus}`)}</span>
+                    <span>{formatItemQuantity(item)}</span>
+                    <ItemStatusBadges item={item} />
                   </div>
                 </button>
               ))}
