@@ -1,4 +1,4 @@
-import type { CategoryTreeNodeProps } from '../../types/dataLayer/datalayerTypes';
+import type { CategoryTreeNodeProps } from '../../../types/dataLayer/datalayerTypes';
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -28,13 +28,21 @@ export function CategoryTreeNode({
   return (
     <div className="ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray my-0.5 dark:border-slate-700">
       <div
-        className={`flex items-center justify-between p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
+        className={`flex flex-wrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
             ? 'bg-accent/15 text-primary font-medium dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray/60 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
           }`}
         onClick={() => onSelectCategory(category)}
       >
-        <div className="flex items-center gap-1.5 overflow-hidden min-w-0">
+        {/*
+          min-w-[7rem] + flex-1 (i stedet for min-w-0) sikrer, at navnet
+          altid har en garanteret minimumsbredde og aldrig presses til 0px.
+          Kan handlingsknapperne (som har shrink-0) ikke være på samme
+          linje som navnet, folder flex-wrap dem ned på en ny linje i
+          stedet for at de "spiser" navnets plads - vigtigt på iPad/
+          smalle skærme, hvor knapperne altid er synlige (ikke kun ved hover).
+        */}
+        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] flex-1">
           {hasSubCategories ? (
             <button
               type="button"
@@ -61,9 +69,11 @@ export function CategoryTreeNode({
           Handlingsknapperne er altid synlige på touch-skærme (op til lg),
           fordi opacity-0/group-hover aldrig aktiveres uden en mus. Fra lg
           og op (hvor mus er sandsynlig) skjules de bag hover som før, for
-          at holde træet roligt at se på.
+          at holde træet roligt at se på. ml-auto sikrer at de flugter til
+          højre, både når de er på samme linje som navnet og når de er
+          foldet ned på deres egen linje.
         */}
-        <div className="flex items-center shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center shrink-0 ml-auto opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
           {canUpdate && (
             <button
               type="button"

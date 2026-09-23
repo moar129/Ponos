@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
+import { asDynamic } from '../../../i18n/config'
 import { X, Package, Pencil, Trash2, Loader2, Save } from 'lucide-react';
-import { useUpdateItemMutation, useDeleteItemMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
-import { LocationPickerComponent } from './locationsPickerComponent';
-import { ConfirmDialogComponent } from './confirmDialogComponent';
-import type { ItemDetailComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { useUpdateItemMutation, useDeleteItemMutation, useGetItemLocationsQuery } from '../../../store/apis/categoryApi';
+import { LocationPickerComponent } from '../warehouse/locationsPickerComponent';
+import { ConfirmDialogComponent } from '../confirmDialogComponent';
+import type { ItemDetailComponentProps, ItemLocation } from '../../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 
 export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {

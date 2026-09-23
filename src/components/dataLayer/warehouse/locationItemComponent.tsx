@@ -1,8 +1,8 @@
 import { X, MapPin, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
-import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { asDynamic } from '../../../i18n/config'
+import type { ItemLocation, LocationItemsComponentProps  } from '../../../types/dataLayer/datalayerTypes';
+import { ITEM_STATUS_STYLES } from '../../../types/dataLayer/datalayerTypes';
 
 // Samme sti-opbygning som itemsDetailComponent.tsx bruger - viser
 // "Lager > Sektion" i stedet for kun sektionens eget navn, så det er

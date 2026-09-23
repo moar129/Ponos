@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X, ChevronRight, ChevronDown } from 'lucide-react';
-import { useDeleteCategoryMutation } from '../../store/apis/categoryApi';
-import type { DataLayerCat, SubCategoryCheckboxProps, DeleteCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { useDeleteCategoryMutation } from '../../../store/apis/categoryApi';
+import type { DataLayerCat, SubCategoryCheckboxProps, DeleteCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 
 function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCategoryCheckboxProps) {
