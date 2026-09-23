@@ -72,6 +72,15 @@ export interface CompletedTaskMaterial {
   quantity: number;
 }
 
+export interface TaskMaterial {
+  id: string;
+  itemId: string;
+  itemName: string;
+  unitOfMeasurement: string;
+  quantity: number;
+  resolved: boolean;
+}
+
 export interface CompletedTaskDetails extends Task {
   roomName: string | null;
   assignees: CompletedTaskAssignee[];

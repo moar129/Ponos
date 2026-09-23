@@ -647,17 +647,19 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: data as string };
       },
-      invalidatesTags: (_result, _error, { itemId }) => [
+      invalidatesTags: (_result, _error, { taskId, itemId }) => [
         { type: 'ItemUnit', id: `ITEM-${itemId}` },
         { type: 'Item', id: itemId },
         { type: 'Item', id: 'LIST' },
+        { type: 'Task', id: taskId },
+        { type: 'Task', id: `${taskId}-MATERIALS` },
         { type: 'Task', id: 'LIST' },
       ],
     }),
 
     // Annullering/fjernelse før færdiggørelse - frigiver reserverede
     // enheder til Available igen (RPC release_item_units).
-    releaseItemUnits: builder.mutation<void, { taskMaterialId: string; itemId: string }>({
+    releaseItemUnits: builder.mutation<void, { taskMaterialId: string; itemId: string; taskId: string }>({
       queryFn: async ({ taskMaterialId }) => {
         const { error } = await supabase.rpc('release_item_units', {
           p_task_material_id: taskMaterialId,
@@ -669,10 +671,12 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: undefined };
       },
-      invalidatesTags: (_result, _error, { itemId }) => [
+      invalidatesTags: (_result, _error, { taskId, itemId }) => [
         { type: 'ItemUnit', id: `ITEM-${itemId}` },
         { type: 'Item', id: itemId },
         { type: 'Item', id: 'LIST' },
+        { type: 'Task', id: taskId },
+        { type: 'Task', id: `${taskId}-MATERIALS` },
         { type: 'Task', id: 'LIST' },
       ],
     }),

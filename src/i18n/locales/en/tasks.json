@@ -130,5 +130,38 @@
     "intro": "Choose a room and edit its name.",
     "namePlaceholder": "Enter a room name",
     "failed": "Could not edit the room. Please try again."
+  },
+  "materials": {
+    "heading": "Materials",
+    "none": "No materials attached.",
+    "addItem": "Add material",
+    "searchPlaceholder": "Search for an item...",
+    "noResults": "No items match \"{{query}}\".",
+    "quantityLabel": "Quantity",
+    "reserve": "Reserve",
+    "reserving": "Reserving...",
+    "release": "Release",
+    "releasing": "Releasing...",
+    "confirmRelease": "Release {{name}} from the task?",
+    "resolved": "Reported",
+    "reserved": "Reserved",
+    "available_one": "{{count}} available",
+    "available_other": "{{count}} available",
+    "insufficientAvailable": "Only {{available}} available.",
+    "resolve": {
+      "heading": "Report material usage",
+      "intro": "Confirm what actually happened to the reserved materials before the task can be completed.",
+      "introApproval": "Choose what should happen to the reserved materials. Your choices are saved and only applied once the task is approved - if it's rejected instead, the materials are left untouched.",
+      "hasDeviations": "There are deviations",
+      "defaultOutcomeHint": "The full amount ({{quantity}} {{unit}}) will be marked as \"{{status}}\" unless you specify deviations.",
+      "outcomeStatus": "Status",
+      "outcomeQuantity": "Quantity",
+      "addOutcomeLine": "+ Add line",
+      "removeOutcomeLine": "Remove",
+      "quantityMismatch": "The total must be {{expected}} (is currently {{actual}}).",
+      "confirm": "Confirm and complete task",
+      "confirming": "Reporting...",
+      "cancel": "Cancel"
+    }
   }
 }

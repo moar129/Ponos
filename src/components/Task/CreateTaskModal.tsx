@@ -5,8 +5,11 @@ import {
     useCreateTaskMutation,
     useGetRoomsQuery,
 } from '../../store/apis/taskApi';
+import { useReserveItemUnitsMutation } from '../../store/apis/categoryApi';
 import type { ETaskPriority } from '../../types/Task/Task';
+import type { AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 import { X } from 'lucide-react';
+import { TaskItemPicker } from './TaskItemPicker';
 
 interface CreateTaskModalProps {
     isOpen: boolean;
@@ -14,6 +17,11 @@ interface CreateTaskModalProps {
     selectedRoomId: string | null;
 }
 
+interface StagedMaterial {
+    key: string;
+    item: AggregatedItem;
+    quantity: number;
+}
 
 export function CreateTaskModal({
     isOpen,
@@ -30,13 +38,39 @@ export function CreateTaskModal({
     const [maxAssignees, setMaxAssignees] = useState<number | null>(null);
     const [requiresApproval, setRequiresApproval] = useState(true);
     const [roomId, setRoomId] = useState<string | null>(selectedRoomId);
+    const [pendingMaterials, setPendingMaterials] = useState<StagedMaterial[]>([]);
 
-    const [createTask, { isLoading, error }] = useCreateTaskMutation();
+    // Materialer vælges lokalt (US-42/US-43), FØR opgaven findes - RPC'en
+    // reserve_item_units kræver et task_id, så de reserveres først i
+    // samme klik som selve oprettelsen (se handleSubmit). createdTaskId
+    // huskes internt (ikke en synlig ekstra visning), så et gentaget klik
+    // efter en delvist mislykket reservation ikke opretter opgaven igen.
+    const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
+
+    const [createTask, { isLoading: isCreatingTask, error: createError }] = useCreateTaskMutation();
+    const [reserveItemUnits, { isLoading: isReserving, error: reserveError }] = useReserveItemUnitsMutation();
     const { data: rooms = [] } = useGetRoomsQuery();
 
     if (!isOpen) {
         return null;
     }
+
+    const resetForm = () => {
+        setTitle('');
+        setDescription('');
+        setEndDate('');
+        setPriority(null);
+        setMaxAssignees(null);
+        setRequiresApproval(true);
+        setRoomId(selectedRoomId);
+        setPendingMaterials([]);
+        setCreatedTaskId(null);
+    };
+
+    const handleClose = () => {
+        resetForm();
+        onClose();
+    };
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -44,38 +78,51 @@ export function CreateTaskModal({
         }
 
         try {
-            console.log('Opretter opgave med room_id:', roomId);
+            let taskId = createdTaskId;
 
-            await createTask({
-                title: title.trim(),
-                description: description.trim(),
-                start_date: today,
-                end_date: endDate || null,
-                priority,
-                requires_approval: requiresApproval,
-                max_assignees: maxAssignees,
-                room_id: roomId,
-            }).unwrap();
+            if (!taskId) {
+                const task = await createTask({
+                    title: title.trim(),
+                    description: description.trim(),
+                    start_date: today,
+                    end_date: endDate || null,
+                    priority,
+                    requires_approval: requiresApproval,
+                    max_assignees: maxAssignees,
+                    room_id: roomId,
+                }).unwrap();
 
-            setTitle('');
-            setDescription('');
-            setEndDate('');
-            setPriority(null);
-            setMaxAssignees(null);
-            setRequiresApproval(true);
-            setRoomId(selectedRoomId);
+                taskId = task.id;
+                setCreatedTaskId(taskId);
+            }
 
+            // Reservér én linje ad gangen - stopper ved første fejl (fx
+            // udsolgt siden den blev valgt) og lader resten stå i listen,
+            // så et gentaget klik kun forsøger de resterende igen, ikke
+            // dem der allerede lykkedes.
+            let remaining = pendingMaterials;
+
+            for (const pending of pendingMaterials) {
+                await reserveItemUnits({ taskId, itemId: pending.item.id, quantity: pending.quantity }).unwrap();
+                remaining = remaining.filter((m) => m.key !== pending.key);
+                setPendingMaterials(remaining);
+            }
+
+            resetForm();
             onClose();
         } catch {
-            // handled through mutation error state
+            // Fejl vises gennem createError/reserveError - en allerede
+            // oprettet opgave (og allerede reserverede materialer) består.
         }
     };
 
-    const errorMessage = readableError(error);
+    const errorMessage = readableError(createError) ?? readableError(reserveError);
+    const isSubmitting = isCreatingTask || isReserving;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-lg rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+            <div className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div className="overflow-y-auto p-6">
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
                         {t('create.heading')}
@@ -83,7 +130,7 @@ export function CreateTaskModal({
 
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
                     >
                         <X />
@@ -262,6 +309,49 @@ export function CreateTaskModal({
                         </select>
                     </div>
 
+                    {/* MATERIALER */}
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400">
+                            {t('materials.heading')}
+                        </label>
+
+                        {pendingMaterials.length > 0 && (
+                            <div className="mb-2 space-y-2">
+                                {pendingMaterials.map((pending) => (
+                                    <div
+                                        key={pending.key}
+                                        className="flex items-center justify-between rounded-lg border border-border-gray px-3 py-2 dark:border-slate-700"
+                                    >
+                                        <span className="text-sm text-primary dark:text-slate-100">
+                                            {pending.item.name} - {pending.quantity} {pending.item.unitOfMeasurement}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setPendingMaterials((prev) =>
+                                                    prev.filter((m) => m.key !== pending.key)
+                                                )
+                                            }
+                                            className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400"
+                                        >
+                                            {t('materials.release')}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <TaskItemPicker
+                            onStage={(item, quantity) =>
+                                setPendingMaterials((prev) => [
+                                    ...prev,
+                                    { key: `${item.id}-${prev.length}-${Date.now()}`, item, quantity },
+                                ])
+                            }
+                        />
+                    </div>
+
                     {/* GODKENDELSE */}
                     <div className="pt-3">
                         <div className="flex items-center justify-between rounded-lg border border-border-gray bg-bg-gray px-4 py-3 dark:border-slate-700 dark:bg-slate-700">
@@ -298,7 +388,7 @@ export function CreateTaskModal({
                 <div className="mt-6 flex justify-end gap-3">
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="rounded-lg px-4 py-2 text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
                     >
                         {t('common:cancel')}
@@ -307,12 +397,13 @@ export function CreateTaskModal({
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={isLoading}
+                        disabled={isSubmitting || !title.trim()}
                         className="rounded-lg bg-accent px-4 py-2 text-white transition-colors hover:bg-accent-hover disabled:opacity-60"
                     >
-                        {t('create.heading')}
+                        {isSubmitting ? t('common:saving') : t('create.heading')}
                     </button>
                 </div>
+              </div>
             </div>
         </div>
     );

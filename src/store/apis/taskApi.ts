@@ -9,6 +9,7 @@ import type {
     Room,
     Task,
     TaskAssignee,
+    TaskMaterial,
 } from '../../types/Task/Task'
 
 import { mapDbError, mapPermissionError, type QueryError } from './apiError'
@@ -528,8 +529,17 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
-        createTaskRequest: builder.mutation<TaskRequest, string>({
-            queryFn: async (taskId) => {
+        // materialOutcomes: den tildeltes valg af udfald pr. uafrapporteret
+        // materiale-linje (US-42), gemt som DATA på anmodningen - selve
+        // afrapporteringen (statusændring på enhederne) sker først i
+        // approve_task_request, ved godkendelse. Afvises anmodningen i
+        // stedet, forbliver materialerne urørt (Reserved/InUse) - se
+        // 2026-09-23-defer-material-resolution-to-approval.sql.
+        createTaskRequest: builder.mutation<
+            TaskRequest,
+            { taskId: string; materialOutcomes?: { taskMaterialId: string; outcomes: { status: string; quantity: number }[] }[] }
+        >({
+            queryFn: async ({ taskId, materialOutcomes }) => {
                 try {
                     const { data: authData, error: authError } =
                         await supabase.auth.getUser()
@@ -573,6 +583,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             task_id: taskId,
                             requested_by: authData.user.id,
                             status: 'Pending',
+                            material_outcomes: materialOutcomes ?? null,
                         })
                         .select()
                         .single()
@@ -601,7 +612,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
 
-            invalidatesTags: (_result, _error, taskId) => [
+            invalidatesTags: (_result, _error, { taskId }) => [
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 {
                     type: 'Task',
@@ -707,7 +718,9 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 { type: 'Task', id: `${taskId}-REQUESTS` },
                 { type: 'Task', id: taskId },
+                { type: 'Task', id: `${taskId}-MATERIALS` },
                 { type: 'Task', id: 'LIST' },
+                { type: 'Item', id: 'LIST' },
             ],
         }),
 
@@ -1036,7 +1049,7 @@ export const taskApi = supabaseApi.injectEndpoints({
         // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
         resolveTaskMaterialUnits: builder.mutation<
             void,
-            { taskMaterialId: string; taskId: string; outcomes: { status: string; quantity: number }[] }
+            { taskMaterialId: string; taskId: string; itemId: string; outcomes: { status: string; quantity: number }[] }
         >({
             queryFn: async ({ taskMaterialId, outcomes }) => {
                 const { error } = await supabase.rpc('resolve_task_material_units', {
@@ -1050,11 +1063,63 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 return { data: undefined }
             },
-            invalidatesTags: (_result, _error, { taskId }) => [
+            invalidatesTags: (_result, _error, { taskId, itemId }) => [
                 { type: 'Task', id: taskId },
+                { type: 'Task', id: `${taskId}-MATERIALS` },
                 { type: 'Task', id: 'LIST' },
                 { type: 'Item', id: 'LIST' },
+                { type: 'Item', id: itemId },
+                { type: 'ItemUnit', id: `ITEM-${itemId}` },
             ],
+        }),
+
+        // Materialer tilknyttet en opgave (US-42/US-43) - task_materials
+        // joinet med item-navn/enhed, plus om linjen stadig har linkede
+        // task_material_units (= stadig reserveret, ikke afrapporteret).
+        getTaskMaterials: builder.query<TaskMaterial[], string>({
+            queryFn: async (taskId) => {
+                const { data: materials, error: materialsError } = await supabase
+                    .from('task_materials')
+                    .select('id, item_id, quantity')
+                    .eq('task_id', taskId)
+
+                if (materialsError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: materialsError.message } as QueryError }
+                }
+                if (!materials || materials.length === 0) {
+                    return { data: [] }
+                }
+
+                const materialIds = materials.map((m) => m.id)
+                const itemIds = [...new Set(materials.map((m) => m.item_id))]
+
+                const [itemsResult, linkedUnitsResult] = await Promise.all([
+                    supabase.from('data_layer_items').select('id, name, unit_of_measurement').in('id', itemIds),
+                    supabase.from('task_material_units').select('task_material_id').in('task_material_id', materialIds),
+                ])
+
+                if (itemsResult.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: itemsResult.error.message } as QueryError }
+                }
+                if (linkedUnitsResult.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: linkedUnitsResult.error.message } as QueryError }
+                }
+
+                const itemById = new Map((itemsResult.data ?? []).map((i) => [i.id, i]))
+                const unresolvedIds = new Set((linkedUnitsResult.data ?? []).map((r) => r.task_material_id))
+
+                return {
+                    data: materials.map((m) => ({
+                        id: m.id,
+                        itemId: m.item_id,
+                        itemName: itemById.get(m.item_id)?.name ?? 'Ukendt materiale',
+                        unitOfMeasurement: itemById.get(m.item_id)?.unit_of_measurement ?? '',
+                        quantity: m.quantity,
+                        resolved: !unresolvedIds.has(m.id),
+                    })),
+                }
+            },
+            providesTags: (_result, _error, taskId) => [{ type: 'Task', id: `${taskId}-MATERIALS` }],
         }),
 
     }),
@@ -1083,4 +1148,5 @@ export const {
     useRemoveAssigneeFromTaskMutation,
     useGetMyTaskIdsQuery,
     useResolveTaskMaterialUnitsMutation,
+    useGetTaskMaterialsQuery,
 } = taskApi

@@ -444,14 +444,20 @@ create table public.task_participants (
 -- Færdigmeldinger der afventer godkendelse (US-75). En tilmeldt melder en
 -- opgave med requires_approval færdig -> Pending. Behandles KUN via RPC'erne
 -- approve_task_request/reject_task_request (15.19), ikke ved direkte UPDATE.
+-- material_outcomes (US-42, 2026-09-23): den tildeltes valgte udfald for
+-- opgavens uafrapporterede materialer på anmodningstidspunktet - kun DATA,
+-- udføres først i approve_task_request ved godkendelse (se 15.19/15.21b).
+-- Afvises anmodningen i stedet, bruges kolonnen aldrig - materialerne
+-- forbliver urørt.
 create table public.task_requests (
-  id            uuid primary key default gen_random_uuid(),
-  task_id       uuid not null references public.tasks(id) on delete cascade,
-  requested_by  uuid not null references public.profiles(id),
-  requested_at  timestamptz not null default now(),
-  status        e_request_status not null default 'Pending',
-  handled_by    uuid references public.profiles(id),
-  done_at       timestamptz
+  id                 uuid primary key default gen_random_uuid(),
+  task_id            uuid not null references public.tasks(id) on delete cascade,
+  requested_by       uuid not null references public.profiles(id),
+  requested_at       timestamptz not null default now(),
+  status             e_request_status not null default 'Pending',
+  handled_by         uuid references public.profiles(id),
+  done_at            timestamptz,
+  material_outcomes  jsonb
 );
 
 
@@ -1814,7 +1820,12 @@ grant execute on function public.reset_password_prototype(text, text, text, text
 -- Udvidet 2026-09-19 (US-75): sætter finished_at ved Completed og nulstiller
 -- den ved alle andre statusser (også "Genåbn"). Udvidet 2026-09-23 (US-42):
 -- blokerer Completed hvis opgaven har uafrapporterede materialer, se
--- assert_task_materials_resolved (§15.21).
+-- assert_task_materials_resolved (§15.21). Udvidet igen 2026-09-23: ved
+-- overgang til InProgress sættes opgavens reserverede (Reserved) materialer
+-- automatisk til InUse - "I brug" er mere retvisende mens arbejdet rent
+-- faktisk er i gang. Bruger en transaktions-lokal bypass af guard-triggeren
+-- trg_prevent_direct_status_change_on_reserved_unit (se den, samme afsnit
+-- ovenfor).
 create or replace function public.set_task_status(p_task_id uuid, p_status text)
 returns void
 language plpgsql
@@ -1849,6 +1860,22 @@ begin
      set status = p_status::public.e_task_status,
          finished_at = case when p_status = 'Completed' then now() else null end
    where id = p_task_id;
+
+  if p_status = 'InProgress' then
+    perform set_config('ponos.bypass_unit_status_guard', 'on', true);
+
+    update public.data_layer_item_units u
+       set status = 'InUse'
+     where u.status = 'Reserved'
+       and u.id in (
+         select tmu.unit_id
+         from public.task_material_units tmu
+         join public.task_materials tm on tm.id = tmu.task_material_id
+         where tm.task_id = p_task_id
+       );
+
+    perform set_config('ponos.bypass_unit_status_guard', 'off', true);
+  end if;
 end;
 $$;
 
@@ -1866,6 +1893,13 @@ grant execute on function public.set_task_status(uuid, text) to authenticated;
 -- får task_rejected. Notifikationslink: /tasks?task=<id> (param TaskPage.tsx
 -- læser). get_pending_task_requests leverer panelets liste og virker uden
 -- read_tasks. 42501 ved manglende privilegie (mappes i taskApi.ts).
+-- Udvidet 2026-09-23 (US-42, retter en bug): materialernes status blev
+-- tidligere ændret allerede ved selve færdigmeldingen - blev anmodningen
+-- AFVIST, stod materialerne så med en status der reelt ikke var sket endnu.
+-- Statusændringen sker derfor nu FØRST her, ved godkendelse, ud fra de
+-- gemte material_outcomes (se task_requests, §11) - se
+-- apply_task_material_outcomes (§15.21b). reject_task_request rører
+-- fortsat slet ikke materialerne.
 create or replace function public.approve_task_request(p_request_id uuid)
 returns void
 language plpgsql
@@ -1877,6 +1911,8 @@ declare
   v_task_id uuid;
   v_status public.e_request_status;
   v_title text;
+  v_material_outcomes jsonb;
+  v_material_outcome jsonb;
 begin
   if v_org_id is null then
     raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
@@ -1886,7 +1922,7 @@ begin
     raise exception 'Du har ikke rettigheder til at godkende opgaver.' using errcode = '42501', hint = 'NO_PRIV_APPROVE_TASKS';
   end if;
 
-  select r.task_id, r.status, t.title into v_task_id, v_status, v_title
+  select r.task_id, r.status, t.title, r.material_outcomes into v_task_id, v_status, v_title, v_material_outcomes
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
   where r.id = p_request_id and t.organisation_id = v_org_id;
@@ -1899,8 +1935,16 @@ begin
     raise exception 'Anmodningen er allerede behandlet.' using hint = 'TASK_REQUEST_ALREADY_HANDLED';
   end if;
 
-  -- US-42 (2026-09-23): blokerer Completed hvis opgaven har uafrapporterede
-  -- materialer, se assert_task_materials_resolved (§15.21).
+  for v_material_outcome in select * from jsonb_array_elements(coalesce(v_material_outcomes, '[]'::jsonb))
+  loop
+    perform public.apply_task_material_outcomes(
+      (v_material_outcome->>'taskMaterialId')::uuid,
+      v_material_outcome->'outcomes'
+    );
+  end loop;
+
+  -- Sikkerhedsnet: fanger materialer der ikke havde en gemt outcome (fx
+  -- tilføjet til opgaven efter anmodningen blev sendt), se §15.21.
   perform public.assert_task_materials_resolved(v_task_id);
 
   update public.task_requests
@@ -1956,7 +2000,9 @@ begin
     raise exception 'Anmodningen er allerede behandlet.' using hint = 'TASK_REQUEST_ALREADY_HANDLED';
   end if;
 
-  -- Opgaven røres ikke - den forbliver InProgress.
+  -- Opgaven røres ikke - den forbliver InProgress. Materialerne røres
+  -- heller ikke (2026-09-23) - de gemte material_outcomes bruges aldrig,
+  -- enhederne forbliver Reserved/InUse, klar til en ny færdigmelding.
   update public.task_requests
      set status = 'Rejected', handled_by = auth.uid(), done_at = now()
    where id = p_request_id;
@@ -2164,6 +2210,9 @@ create trigger trg_sync_status_from_contents
 -- Guard mod desync: blokerer direkte statusændring (fx via updateItemUnit)
 -- på en enhed der pt. er linket til en aktiv opgave-reservation - skal
 -- ske via release_item_units/resolve_task_material_units i stedet.
+-- Udvidet 2026-09-23: en betroet funktion (set_task_status, ved overgang
+-- til InProgress - se §15.18) kan sætte en transaktions-lokal bypass-flag
+-- for legitimt at ændre Reserved -> InUse uden at unlinke først.
 create or replace function public.prevent_direct_status_change_on_reserved_unit()
 returns trigger
 language plpgsql
@@ -2172,7 +2221,8 @@ set search_path = public
 as $$
 begin
   if new.status is distinct from old.status
-     and exists (select 1 from public.task_material_units where unit_id = old.id) then
+     and exists (select 1 from public.task_material_units where unit_id = old.id)
+     and coalesce(current_setting('ponos.bypass_unit_status_guard', true), 'off') <> 'on' then
     raise exception 'Enheden er reserveret til en opgave og kan ikke ændres direkte - brug opgavens frigivelse/afrapportering.'
       using hint = 'UNIT_LOCKED_BY_TASK_RESERVATION';
   end if;
@@ -2268,7 +2318,9 @@ $$;
 
 -- Forbrug, Datalager -> Task: vælger/splitter N ledige enheder atomisk
 -- (FIFO, for update skip locked), Available -> Reserved, opretter+linker
--- task_materials-linjen.
+-- task_materials-linjen. Udvidet 2026-09-23: reserveres et materiale på en
+-- opgave der allerede er InProgress, sættes enhederne direkte til InUse i
+-- stedet for Reserved - der er intet "vente"-trin tilbage for den opgave.
 create or replace function public.reserve_item_units(p_task_id uuid, p_item_id uuid, p_quantity numeric)
 returns uuid
 language plpgsql
@@ -2277,6 +2329,7 @@ set search_path = public
 as $$
 declare
   v_org_id uuid := public.auth_profile_org();
+  v_task_status public.e_task_status;
   v_task_material_id uuid;
   v_unit record;
   v_remaining numeric := p_quantity;
@@ -2291,7 +2344,11 @@ begin
     raise exception 'Mængden skal være større end 0.' using hint = 'INVALID_QUANTITY';
   end if;
 
-  if not exists (select 1 from public.tasks where id = p_task_id and organisation_id = v_org_id) then
+  select status into v_task_status
+  from public.tasks
+  where id = p_task_id and organisation_id = v_org_id;
+
+  if v_task_status is null then
     raise exception 'Opgaven findes ikke i din organisation.' using hint = 'TASK_NOT_FOUND';
   end if;
 
@@ -2322,7 +2379,7 @@ begin
     v_unit_id := public.split_unit_if_needed(v_unit.id, v_take);
 
     update public.data_layer_item_units
-       set status = 'Reserved'
+       set status = (case when v_task_status = 'InProgress' then 'InUse' else 'Reserved' end)::public.e_item_status
      where id = v_unit_id;
 
     insert into public.task_material_units (task_material_id, unit_id)
@@ -2390,19 +2447,20 @@ $$;
 
 grant execute on function public.release_item_units(uuid) to authenticated;
 
--- Afrapportering, Task -> Datalager, ved færdiggørelse. p_outcomes:
--- fx '[{"status":"Available","quantity":8},{"status":"Damaged","quantity":1}]'
--- - fuldt generisk, enhver e_item_status-værdi kan bruges. Kan kaldes
--- flere gange pr. linje (delvis afrapportering over tid).
-create or replace function public.resolve_task_material_units(p_task_material_id uuid, p_outcomes jsonb)
+-- 15.21b (2026-09-23): delt kerne bag afrapportering - splitter/unlinker/
+-- sætter status for de linkede enheder på ÉN task_materials-linje, ud fra
+-- p_outcomes (fx '[{"status":"Available","quantity":8},{"status":"Damaged",
+-- "quantity":1}]' - fuldt generisk, enhver e_item_status-værdi kan bruges).
+-- Ingen egne privilegie/org-tjek - kaldes kun fra betroede funktioner der
+-- allerede har valideret adgang (resolve_task_material_units nedenfor, og
+-- approve_task_request, §15.19, for de gemte material_outcomes).
+create or replace function public.apply_task_material_outcomes(p_task_material_id uuid, p_outcomes jsonb)
 returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
-  v_org_id uuid := public.auth_profile_org();
-  v_task_id uuid;
   v_outcome jsonb;
   v_status text;
   v_total_outcome numeric;
@@ -2412,25 +2470,6 @@ declare
   v_take numeric;
   v_unit_id uuid;
 begin
-  if v_org_id is null then
-    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
-  end if;
-
-  select task_id into v_task_id
-  from public.task_materials
-  where id = p_task_material_id;
-
-  if v_task_id is null or not exists (
-    select 1 from public.tasks where id = v_task_id and organisation_id = v_org_id
-  ) then
-    raise exception 'Materiale-linjen findes ikke i din organisation.' using hint = 'TASK_MATERIAL_NOT_FOUND';
-  end if;
-
-  if not public.has_privilege_or_admin('update_tasks') then
-    raise exception 'Du har ikke rettigheder til at afrapportere materialer på opgaver.'
-      using errcode = '42501', hint = 'NO_PRIV_RESOLVE_MATERIALS';
-  end if;
-
   -- Lås linkede rækker (samme concurrency-beskyttelse som reservation) -
   -- forhindrer dobbelt-afrapportering ved to samtidige kald.
   perform 1 from public.data_layer_item_units
@@ -2484,6 +2523,46 @@ begin
       v_remaining := v_remaining - v_take;
     end loop;
   end loop;
+end;
+$$;
+
+grant execute on function public.apply_task_material_outcomes(uuid, jsonb) to authenticated;
+
+-- Afrapportering, Task -> Datalager, kaldt DIREKTE (uden godkendelses-trin
+-- at vente på) - kun validering + kald af den delte kerne ovenfor. Kan
+-- kaldes flere gange pr. linje (delvis afrapportering over tid). Udvidet
+-- 2026-09-23: krop reduceret ved udtrækning af apply_task_material_outcomes,
+-- ingen ændring i ydre adfærd/signatur.
+create or replace function public.resolve_task_material_units(p_task_material_id uuid, p_outcomes jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  select task_id into v_task_id
+  from public.task_materials
+  where id = p_task_material_id;
+
+  if v_task_id is null or not exists (
+    select 1 from public.tasks where id = v_task_id and organisation_id = v_org_id
+  ) then
+    raise exception 'Materiale-linjen findes ikke i din organisation.' using hint = 'TASK_MATERIAL_NOT_FOUND';
+  end if;
+
+  if not public.has_privilege_or_admin('update_tasks') then
+    raise exception 'Du har ikke rettigheder til at afrapportere materialer på opgaver.'
+      using errcode = '42501', hint = 'NO_PRIV_RESOLVE_MATERIALS';
+  end if;
+
+  perform public.apply_task_material_outcomes(p_task_material_id, p_outcomes);
 end;
 $$;
 

@@ -11,9 +11,15 @@ import {
   useGetTaskRequestsQuery,
   useCreateTaskRequestMutation,
   useGetRoomsQuery,
+  useGetTaskMaterialsQuery,
+  useResolveTaskMaterialUnitsMutation,
 } from '../../store/apis/taskApi';
 import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
+import { TaskItemPicker } from './TaskItemPicker';
+import { TaskMaterialsList } from './TaskMaterialsList';
+import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
 import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
 import { supabase } from '../../lib/supabase';
 
@@ -46,6 +52,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
   const { data: employees = [] } = useGetOrganisationEmployeesQuery();
   const { data: rooms = [] } = useGetRoomsQuery();
   const { data: taskRequests = [] } = useGetTaskRequestsQuery(task.id);
+  const { data: materials = [] } = useGetTaskMaterialsQuery(task.id);
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
@@ -57,6 +64,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
   const [createTaskRequest, { isLoading: isCreatingRequest }] =
     useCreateTaskRequestMutation();
+
+  const [resolveTaskMaterialUnits] = useResolveTaskMaterialUnitsMutation();
+
+  const [showResolveModal, setShowResolveModal] = useState(false);
 
   const taskRoom = rooms.find((room) => room.id === task.room_id);
 
@@ -167,6 +178,53 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
     });
   };
 
+  const unresolvedMaterials = materials.filter((m) => !m.resolved);
+
+  const proceedToComplete = async () => {
+    if (task.requires_approval) {
+      await createTaskRequest({ taskId: task.id });
+      return;
+    }
+
+    await updateTaskStatus({
+      id: task.id,
+      status: 'Completed',
+    });
+  };
+
+  // Kaldes af ResolveTaskMaterialsModal, når den tildelte har valgt udfald
+  // for alle uafrapporterede materialer. To forskellige stier, afhængigt af
+  // om opgaven kræver godkendelse:
+  // - MED godkendelse: udfaldene gemmes kun som DATA på anmodningen
+  //   (createTaskRequest/materialOutcomes) - selve statusændringen på
+  //   enhederne sker først i approve_task_request, når en godkender rent
+  //   faktisk godkender. Afvises anmodningen i stedet, rører vi slet ikke
+  //   materialerne (se 2026-09-23-defer-material-resolution-to-approval.sql).
+  // - UDEN godkendelse: der er intet godkendelsestrin at vente på, så
+  //   udfaldene anvendes med det samme (resolveTaskMaterialUnits pr. linje),
+  //   før opgaven markeres Completed.
+  const handleResolveConfirm = async (entries: MaterialOutcomeEntry[]) => {
+    if (task.requires_approval) {
+      await createTaskRequest({
+        taskId: task.id,
+        materialOutcomes: entries.map(({ taskMaterialId, outcomes }) => ({ taskMaterialId, outcomes })),
+      }).unwrap();
+    } else {
+      for (const entry of entries) {
+        await resolveTaskMaterialUnits({
+          taskMaterialId: entry.taskMaterialId,
+          taskId: task.id,
+          itemId: entry.itemId,
+          outcomes: entry.outcomes,
+        }).unwrap();
+      }
+
+      await updateTaskStatus({ id: task.id, status: 'Completed' });
+    }
+
+    setShowResolveModal(false);
+  };
+
   const handleCompleteTask = async () => {
     if (!currentUserId || !isAssigned) {
       return;
@@ -176,15 +234,12 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
       return;
     }
 
-    if (task.requires_approval) {
-      await createTaskRequest(task.id);
+    if (unresolvedMaterials.length > 0) {
+      setShowResolveModal(true);
       return;
     }
 
-    await updateTaskStatus({
-      id: task.id,
-      status: 'Completed',
-    });
+    await proceedToComplete();
   };
 
   const getPriorityColor = (
@@ -438,8 +493,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isUpdatingStatus
-                      ? 'Opdaterer...'
-                      : 'Påbegynd arbejde'}
+                      ? t('common:updating')
+                      : t('card.startWork')}
                   </button>
                 )}
 
@@ -458,63 +513,30 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                     }}
                     className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
                         ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                        : 'border-accent text-accent hover:bg-accent hover:text-white'
-                    }`}
-                >
-                  {canUnassignSelf
-                    ? t('assignees.signOff')
-                    : isAssigned
-                      ? t('assignees.assignedToYou')
-                      : t('assignees.signUp')}
-                </button>
-              )}
-
-              {/* PÅBEGYND ARBEJDE */}
-              {task.status === 'Started' && isAssigned && (
-                <button
-                  type="button"
-                  disabled={isUpdatingStatus}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStartTask();
-                  }}
-                  className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isUpdatingStatus
-                    ? t('common:updating')
-                    : t('card.startWork')}
-                </button>
-              )}
-
-              {/* MELD FÆRDIG */}
-              {task.status === 'InProgress' && isAssigned && (
-                <button
-                  type="button"
-                  disabled={
-                    isUpdatingStatus ||
-                    isCreatingRequest ||
-                    hasPendingCompletionRequest
-                  }
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCompleteTask();
-                  }}
-                  className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
-                      ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                      : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
-                    }`}
-                >
-                  {hasPendingCompletionRequest
-                    ? t('card.awaitingApproval')
-                    : isCreatingRequest || isUpdatingStatus
-                      ? t('common:sending')
-                      : t('card.markDone')}
-                </button>
-              )}
-            </>
-          )}
+                        : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
+                      }`}
+                  >
+                    {hasPendingCompletionRequest
+                      ? t('card.awaitingApproval')
+                      : isCreatingRequest || isUpdatingStatus
+                        ? t('common:sending')
+                        : t('card.markDone')}
+                  </button>
+                )}
+              </>
+            )}
         </div>
       </div>
+
+      {/* AFRAPPORTERING AF MATERIALER (før færdiggørelse) */}
+      {showResolveModal && (
+        <ResolveTaskMaterialsModal
+          materials={materials}
+          requiresApproval={task.requires_approval}
+          onCancel={() => setShowResolveModal(false)}
+          onConfirm={handleResolveConfirm}
+        />
+      )}
 
       {/* TASK DETAILS POPUP */}
       {isDetailsOpen && (
@@ -525,9 +547,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           }}
         >
           <div
-            className="w-full max-w-lg rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+            className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
+          <div className="overflow-y-auto p-6">
             {/* HEADER */}
             <div className="mb-6 flex items-start justify-between">
               <div>
@@ -705,6 +728,17 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
               )}
             </div>
 
+            {/* MATERIALER */}
+            <div className="mb-6">
+              <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
+                {t('materials.heading')}
+              </span>
+
+              <TaskMaterialsList taskId={task.id} canManage={canUpdate} />
+
+              {canUpdate && <TaskItemPicker taskId={task.id} />}
+            </div>
+
             {/* DATOER */}
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
@@ -727,9 +761,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 </span>
               </div>
             </div>
+          </div>
 
             {/* HANDLINGER */}
-            <div className="flex justify-end">
+            <div className="flex justify-end border-t border-border-gray p-4 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => {
