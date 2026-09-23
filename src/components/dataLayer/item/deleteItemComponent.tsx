@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react';
-import { useDeleteItemMutation } from '../../store/apis/categoryApi';
-import type { DeleteItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { useDeleteItemMutation } from '../../../store/apis/categoryApi';
+import type { DeleteItemsComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 
 export function DeleteItemsComponent({ isOpen, items, onClose, onDeleted }: DeleteItemsComponentProps) {

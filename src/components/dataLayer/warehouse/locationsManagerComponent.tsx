@@ -1,18 +1,18 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
+import { asDynamic } from '../../../i18n/config'
 import { X, Loader2, Save, MapPin, Boxes, Plus, Package, Search } from 'lucide-react';
 import {
   useGetItemLocationsQuery,
   useUpdateLocationMutation,
   useDeleteLocationMutation,
   useAddLocationMutation,
-} from '../../store/apis/categoryApi';
-import { ConfirmDialogComponent } from './confirmDialogComponent';
+} from '../../../store/apis/categoryApi';
+import { ConfirmDialogComponent } from '../confirmDialogComponent';
 import { LocationTreeNode } from './locationThreeNodeComponent';
-import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
-import type { ItemLocation, LocationManagerComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { ITEM_STATUS_STYLES } from '../../../types/dataLayer/datalayerTypes';
+import type { ItemLocation, LocationManagerComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 // Lagre/sektioner vises nu som et træ i venstre panel - samme mønster
 // som kategori-træet i DataLayerPage.tsx - i stedet for den tidligere

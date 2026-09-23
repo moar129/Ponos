@@ -12,14 +12,17 @@ import {
 } from '../../store/apis/privilegeApi';
 import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES, ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
-import { CategoryTreeNode } from '../../components/dataLayer/CategoriTreeNodeComponent';
-import { LocationTreeNode } from '../../components/dataLayer/locationThreeNodeComponent';
-import { AddCategoryComponent } from '../../components/dataLayer/addCategoryComponent';
-import { AddItemsComponent } from '../../components/dataLayer/addItemsComponent';
-import { ItemDetailComponent } from '../../components/dataLayer/itemsDetailComponent';
-import { EditCategoryComponent } from '../../components/dataLayer/editCategoryComponent';
-import { DeleteCategoryComponent } from '../../components/dataLayer/deleteCategoryComponent';
-import { DeleteItemsComponent } from '../../components/dataLayer/deleteItemComponent';
+import { CategoryTreeNode } from '../../components/dataLayer/category/CategoriTreeNodeComponent';
+import { LocationTreeNode } from '../../components/dataLayer/warehouse/locationThreeNodeComponent';
+import { AddCategoryComponent } from '../../components/dataLayer/category/addCategoryComponent';
+import { AddLocationComponent } from '../../components/dataLayer/warehouse/addWarehouseComponent';
+import { AddItemsComponent } from '../../components/dataLayer/item/addItemsComponent';
+import { ItemDetailComponent } from '../../components/dataLayer/item/itemsDetailComponent';
+import { EditCategoryComponent } from '../../components/dataLayer/category/editCategoryComponent';
+import { EditLocationComponent } from '../../components/dataLayer/warehouse/editWarehouseComponent';
+import { DeleteCategoryComponent } from '../../components/dataLayer/category/deleteCategoryComponent';
+import { DeleteLocationComponent } from '../../components/dataLayer/warehouse/deleteWarehouseComponent';
+import { DeleteItemsComponent } from '../../components/dataLayer/item/deleteItemComponent';
 import { FilterPanelComponent } from '../../components/dataLayer/filterPanelComponent';
 import { GlobalSearchResultsComponent } from '../../components/dataLayer/globalSearchComponent';
 import { getErrorMessage } from '../../ErrorMessage';
@@ -75,12 +78,19 @@ export function DataLayerPage() {
   const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
   const [localItemSearch, setLocalItemSearch] = useState('');
 
-  // --- Venstrepanel: Kategorier / Lagre som faner ---
-  // Lagre-fanen er nu ren navigation (klik for at se items på et lager/
-  // en sektion) - ingen søgning og ingen "administrer"-adgang herfra.
+  // --- Venstrepanel: Kategorier / Lager som faner ---
   const [leftTab, setLeftTab] = useState<LeftTab>('categories');
   const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<Set<string>>(new Set());
   const [selectedLocationView, setSelectedLocationView] = useState<ItemLocation | null>(null);
+
+  // Lager: opret/rediger/slet - samme mønster som kategori-siden
+  // (AddLocationComponent/EditLocationComponent/DeleteLocationComponent
+  // er selvstændige fil-komponenter, 1:1 med Add/Edit/DeleteCategoryComponent).
+  const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
+  const [addLocationParentId, setAddLocationParentId] = useState<string | null>(null);
+  const [addLocationParentName, setAddLocationParentName] = useState<string | undefined>(undefined);
+  const [editLocationTarget, setEditLocationTarget] = useState<ItemLocation | null>(null);
+  const [deleteLocationTarget, setDeleteLocationTarget] = useState<ItemLocation | null>(null);
 
   function findCategoryInTree(
     categories: DataLayerCat[],
@@ -254,7 +264,7 @@ export function DataLayerPage() {
     });
   };
 
-  // --- Lagre-fane: ren visning af træet, ingen søgning/administration ---
+  // --- Lager-fane: navigations-træ + opret/rediger/slet ---
   const warehouses = useMemo(() => itemLocations.filter((l) => !l.parentLocationId), [itemLocations]);
   const sectionsByWarehouseId = useMemo(() => {
     const map = new Map<string, ItemLocation[]>();
@@ -283,6 +293,39 @@ export function DataLayerPage() {
     setLocalItemSearch('');
     if (location.parentLocationId) {
       setExpandedWarehouseIds((prev) => new Set([...prev, location.parentLocationId as string]));
+    }
+  };
+
+  const handleOpenAddLocation = (parentId: string | null) => {
+    setAddLocationParentId(parentId);
+    if (parentId) {
+      const parentWarehouse = itemLocations.find((l) => l.id === parentId);
+      setAddLocationParentName(parentWarehouse?.name);
+      setExpandedWarehouseIds((prev) => new Set([...prev, parentId]));
+    } else {
+      setAddLocationParentName(undefined);
+    }
+    setIsAddLocationModalOpen(true);
+  };
+
+  const handleLocationAdded = (newLocationId: string) => {
+    // Vises først i listen, når useGetItemLocationsQuery er blevet
+    // invalideret/genhentet (sker automatisk via invalidatesTags).
+    const parent = addLocationParentId
+      ? itemLocations.find((l) => l.id === addLocationParentId)
+      : null;
+    if (parent) {
+      setExpandedWarehouseIds((prev) => new Set([...prev, parent.id]));
+    }
+    // Vent til den nye lokation faktisk findes i listen (efter refetch),
+    // før den vælges - ellers ville selectedLocationView pege på et id
+    // der endnu ikke er i itemLocations.
+    setSelectedLocationView({ id: newLocationId } as ItemLocation);
+  };
+
+  const handleLocationDeleted = (deletedId: string) => {
+    if (selectedLocationView?.id === deletedId) {
+      setSelectedLocationView(null);
     }
   };
 
@@ -391,6 +434,13 @@ export function DataLayerPage() {
     return itemLocations.filter((loc) => loc.name.toLowerCase().includes(q));
   }, [itemLocations, searchQuery]);
 
+  // Selve locations-objektet for det slette-mål, samt antal sektioner
+  // hvis det er et lager - bruges af DeleteLocationComponent til
+  // cascade-advarslen.
+  const deleteLocationSectionCount = deleteLocationTarget && !deleteLocationTarget.parentLocationId
+    ? (sectionsByWarehouseId.get(deleteLocationTarget.id)?.length ?? 0)
+    : 0;
+
   if (loadingReadPrivilege) {
     return (
       <div className="flex justify-center py-12">
@@ -430,6 +480,28 @@ export function DataLayerPage() {
         category={deleteCategoryTarget}
         onClose={() => setDeleteCategoryTarget(null)}
         onDeleted={handleCategoriesDeleted}
+      />
+
+      <AddLocationComponent
+        isOpen={isAddLocationModalOpen}
+        onClose={() => setIsAddLocationModalOpen(false)}
+        parentId={addLocationParentId}
+        parentName={addLocationParentName}
+        onSuccess={handleLocationAdded}
+      />
+
+      <EditLocationComponent
+        isOpen={!!editLocationTarget}
+        onClose={() => setEditLocationTarget(null)}
+        location={editLocationTarget}
+      />
+
+      <DeleteLocationComponent
+        isOpen={!!deleteLocationTarget}
+        location={deleteLocationTarget}
+        sectionCount={deleteLocationSectionCount}
+        onClose={() => setDeleteLocationTarget(null)}
+        onDeleted={handleLocationDeleted}
       />
 
       <AddItemsComponent
@@ -552,7 +624,11 @@ export function DataLayerPage() {
                     : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                 }`}
               >
-                {t('page.locations')}
+                {/* Hardcodet i stedet for t('page.locations'), da
+                    oversættelsesnøglen stadig peger på "Lagre" i
+                    sprogfilen - ret gerne værdien der i stedet, hvis I
+                    vil have den styret via i18n igen. */}
+                Lager
               </button>
             </div>
 
@@ -595,8 +671,9 @@ export function DataLayerPage() {
                 )}
               </>
             ) : (
-              // Lagre: rent navigations-træ, ingen søgning, ingen
-              // administrations-adgang - kun klik for at se items.
+              // Lager: navigations-træ + opret/rediger/slet, med samme
+              // rettigheder (canCreate/canUpdate/canDelete) som
+              // kategori-fanen - IKKE længere hardcodet til false.
               <div className="max-h-[300px] md:max-h-none overflow-y-auto space-y-1">
                 {warehouses.length === 0 ? (
                   <p className="text-sm text-secondary text-center py-8 dark:text-slate-400">{t('locations.empty')}</p>
@@ -609,12 +686,12 @@ export function DataLayerPage() {
                       isWarehouse
                       selectedLocationId={selectedLocationView?.id ?? null}
                       onSelectLocation={handleSelectLocationView}
-                      onAddSection={() => {}}
-                      onEditLocation={() => {}}
-                      onDeleteLocation={() => {}}
-                      canCreate={false}
-                      canUpdate={false}
-                      canDelete={false}
+                      onAddSection={(warehouseId) => handleOpenAddLocation(warehouseId)}
+                      onEditLocation={setEditLocationTarget}
+                      onDeleteLocation={setDeleteLocationTarget}
+                      canCreate={canCreate}
+                      canUpdate={canUpdate}
+                      canDelete={canDelete}
                       isExpanded={expandedWarehouseIds.has(warehouse.id)}
                       onToggleExpand={toggleExpandWarehouse}
                     />
@@ -632,6 +709,17 @@ export function DataLayerPage() {
             >
               <Plus className="w-4 h-4" />
               <span>{t('page.createCategory')}</span>
+            </button>
+          )}
+
+          {leftTab === 'locations' && canCreate && (
+            <button
+              type="button"
+              onClick={() => handleOpenAddLocation(null)}
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t('locations.createWarehouseButton')}</span>
             </button>
           )}
         </div>

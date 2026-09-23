@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { X, Plus, Trash2, Loader2, Folder, ChevronDown } from 'lucide-react';
-import { useAddItemsMutation } from '../../store/apis/categoryApi';
-import type { AddItemsComponentProps, DataLayerCat, ItemRow } from '../../types/dataLayer/datalayerTypes';
-import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
-import { LocationPickerComponent } from './locationsPickerComponent';
+import { useAddItemsMutation } from '../../../store/apis/categoryApi';
+import type { AddItemsComponentProps, DataLayerCat, ItemRow } from '../../../types/dataLayer/datalayerTypes';
+import { ALL_ITEM_STATUSES } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
+import { LocationPickerComponent } from '../warehouse/locationsPickerComponent';
 
 
 function emptyRow(): ItemRow {

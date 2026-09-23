@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import { X, Loader2, Save } from 'lucide-react';
-import { useUpdateCategoryMutation } from '../../store/apis/categoryApi';
-import { getDescendantCategories } from '../../store/slices/dataLayersSlices/aggregatedItems';
-import type { DataLayerCat, EditCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { useUpdateCategoryMutation } from '../../../store/apis/categoryApi';
+import { getDescendantCategories } from '../../../store/slices/dataLayersSlices/aggregatedItems';
+import type { DataLayerCat, EditCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 function findCategoryInTree(categories: DataLayerCat[], id: string): DataLayerCat | null {
   for (const cat of categories) {
