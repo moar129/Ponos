@@ -478,10 +478,10 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       }`}
                   >
                     {canUnassignSelf
-                      ? 'Afmeld'
+                      ? t('assignees.signOff')
                       : isAssigned
-                        ? 'Tildelt dig'
-                        : 'Tilmeld'}
+                        ? t('assignees.assignedToYou')
+                        : t('assignees.signUp')}
                   </button>
                 )}
 
