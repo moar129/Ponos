@@ -519,8 +519,6 @@ export function DataLayerPage() {
         categoryId={leftTab === 'locations' ? null : (selectedCategory?.id ?? null)}
         categoryTitle={leftTab === 'locations' ? undefined : selectedCategory?.title}
         canCreate={canCreate}
-        canUpdate={canUpdate}
-        canDelete={canDelete}
       />
 
       <ItemDetailComponent

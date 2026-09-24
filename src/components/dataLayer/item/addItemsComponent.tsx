@@ -50,7 +50,7 @@ function flattenWithPath(categories: DataLayerCat[], path: string[] = []): { id:
 }
 
 export function AddItemsComponent({
-  isOpen, onClose, categoryTree, categoryId, categoryTitle, onSuccess, canCreate, canUpdate, canDelete,
+  isOpen, onClose, categoryTree, categoryId, categoryTitle, onSuccess, canCreate,
 }: AddItemsComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const td = asDynamic(t)
@@ -179,8 +179,6 @@ export function AddItemsComponent({
               value={locationId}
               onChange={setLocationId}
               canCreate={canCreate}
-              canUpdate={canUpdate}
-              canDelete={canDelete}
             />
             <p className="text-[11px] text-secondary mt-1.5 dark:text-slate-400">
               {t('addItems.locationNote')}

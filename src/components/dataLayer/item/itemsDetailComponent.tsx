@@ -557,8 +557,6 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                   value={itemLocationId}
                   onChange={setItemLocationId}
                   canCreate={canCreate}
-                  canUpdate={canUpdate}
-                  canDelete={canDelete}
                 />
               ) : currentLocation ? (
                 <button

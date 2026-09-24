@@ -165,8 +165,6 @@ export interface AddItemsComponentProps {
   categoryTitle?: string;
   onSuccess?: () => void;
   canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
 }
 
 export interface ItemDetailComponentProps {
@@ -284,11 +282,8 @@ export interface ConfirmDialogComponentProps {
 export interface LocationPickerComponentProps {
   value: string | null;
   onChange: (locationId: string | null) => void;
-  onViewItems?: (location: ItemLocation) => void;
   // Fase 3: create_datalayer - canCreate gater "Opret lager"/"+ ny sektion".
   canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
 }
 
 export interface FilterPanelComponentProps {
