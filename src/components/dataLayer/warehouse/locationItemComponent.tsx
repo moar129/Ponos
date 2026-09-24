@@ -1,8 +1,8 @@
 import { X, MapPin, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
-import type { ItemLocation, LocationItemsComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
-import { ItemStatusBadges } from './itemStatusBadgesComponent';
+import type { ItemLocation, LocationItemsComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { formatItemQuantity } from '../../../types/dataLayer/datalayerTypes';
+import { ItemStatusBadges } from '../itemStatusBadgesComponent';
 
 // Samme sti-opbygning som itemsDetailComponent.tsx bruger - viser
 // "Lager > Sektion" i stedet for kun sektionens eget navn, så det er

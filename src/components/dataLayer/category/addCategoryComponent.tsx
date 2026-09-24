@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next'
 import { X, FolderPlus, Loader2 } from 'lucide-react';
-import { useAddCategoryMutation } from '../../store/apis/categoryApi';
-import type { AddCategoryComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { useAddCategoryMutation } from '../../../store/apis/categoryApi';
+import type { AddCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 export function AddCategoryComponent({
   isOpen,

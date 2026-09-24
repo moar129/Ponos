@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { MapPin, Boxes, Settings2, Loader2, ChevronDown } from 'lucide-react';
-import { useGetItemLocationsQuery, useAddLocationMutation } from '../../store/apis/categoryApi';
-import { LocationManagerComponent } from './locationsManagerComponent';
-import type { LocationPickerComponentProps } from '../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../ErrorMessage';
+import { MapPin, Boxes, Plus, Loader2, ChevronDown } from 'lucide-react';
+import { useGetItemLocationsQuery, useAddLocationMutation } from '../../../store/apis/categoryApi';
+import type { LocationPickerComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { getErrorMessage } from '../../../ErrorMessage';
 
 
-export function LocationPickerComponent({ value, onChange, canCreate, canUpdate, canDelete }: LocationPickerComponentProps) {
+export function LocationPickerComponent({ value, onChange, canCreate }: LocationPickerComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
   // Hvad der oprettes styres af HVILKEN "opret"-option der blev valgt, ikke
@@ -16,7 +15,6 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
   const [creatingKind, setCreatingKind] = useState<'warehouse' | 'section' | null>(null);
   const isCreating = creatingKind !== null;
   const isCreatingSection = creatingKind === 'section';
-  const [isManaging, setIsManaging] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -60,10 +58,6 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
     : [];
 
   const handleWarehouseChange = (val: string) => {
-    if (val === '__new_warehouse__') {
-      setCreatingKind('warehouse');
-      return;
-    }
     if (val === '') {
       setSelectedWarehouseId(null);
       onChange(null);
@@ -82,6 +76,18 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
     }
     // Tom værdi = "hele lageret" (ingen bestemt sektion).
     onChange(val === '' ? selectedWarehouseId : val);
+  };
+
+  // "Opret lager" åbner altid oprettelse af et NYT lager (ikke en
+  // sektion) - en tydelig knap i toppen i stedet for en gemt mulighed
+  // nederst i dropdown'en.
+  const openCreateWarehouse = () => {
+    setSelectedWarehouseId(null);
+    setNewName('');
+    setNewAddress('');
+    setNewDescription('');
+    setCreateError(null);
+    setCreatingKind('warehouse');
   };
 
   const handleCreate = async () => {
@@ -121,18 +127,16 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <label className="block text-xs text-secondary uppercase tracking-wide dark:text-slate-400">{t('fields.location')}</label>
-        {(canUpdate || canDelete) && (
+        {canCreate && !isCreating && (
           <button
             type="button"
-            onClick={() => setIsManaging(true)}
-            className="flex items-center gap-1 text-xs text-secondary hover:text-accent dark:text-slate-400"
-            title={t('locations.manage')}
-            aria-label={t('locations.manage')}
+            onClick={openCreateWarehouse}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors shrink-0"
           >
-            <Settings2 className="w-3.5 h-3.5" />
-            {t('locations.manage')}
+            <Plus className="w-3.5 h-3.5" />
+            {t('locations.createWarehouseButton')}
           </button>
         )}
       </div>
@@ -145,6 +149,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
           </p>
           <input
             type="text"
+            autoFocus
             placeholder={isCreatingSection ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
@@ -198,7 +203,6 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
               {warehouses.map((w) => (
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
-              {canCreate && <option value="__new_warehouse__">{t('locations.createNew')}</option>}
             </select>
             <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none dark:text-slate-400" />
           </div>
@@ -227,14 +231,6 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
           )}
         </div>
       )}
-
-      <LocationManagerComponent
-        isOpen={isManaging}
-        onClose={() => setIsManaging(false)}
-        canCreate={canCreate}
-        canUpdate={canUpdate}
-        canDelete={canDelete}
-      />
     </div>
   );
 }

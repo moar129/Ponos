@@ -285,8 +285,7 @@ export interface LocationPickerComponentProps {
   value: string | null;
   onChange: (locationId: string | null) => void;
   onViewItems?: (location: ItemLocation) => void;
-  // Fase 3: create/update/delete_datalayer - canCreate gater "+ Opret ny
-  // lokation", canUpdate/canDelete sendes videre til LocationManagerComponent.
+  // Fase 3: create_datalayer - canCreate gater "Opret lager"/"+ ny sektion".
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
@@ -321,17 +320,6 @@ export interface GlobalSearchResultsComponentProps {
   onSelectItem: (item: AggregatedItem) => void;
 }
 
-
-
-export interface LocationManagerComponentProps {
-  isOpen: boolean;
-  onClose: () => void;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  items?: AggregatedItem[];
-  onSelectItem?: (item: AggregatedItem) => void;
-}
 
 export interface LocationTreeNodeProps {
   location: ItemLocation;
