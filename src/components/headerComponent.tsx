@@ -127,13 +127,13 @@ export function Header() {
 
   return (
     <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md relative z-40">
-      <div className="px-4 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
+      <div className="px-3 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
         {/* Logo -> /dashboard når man er logget ind, ellers forsiden (en
             udlogget bruger ville ellers bare blive redirigeret til /login) */}
         <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity shrink-0 min-w-0">
-          <img src={logo} alt="PONOS Logo" className="w-9 h-9 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
+          <img src={logo} alt="PONOS Logo" className="w-8 h-8 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
           <span className="flex items-center gap-1.5 min-w-0 truncate">
-            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100">
+            <span className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.08em] sm:tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100">
               PONOS
             </span>
             {profile?.organisationName && (
@@ -148,43 +148,50 @@ export function Header() {
             klapper den sammen i hamburgeren - det gælder begge tilstande, så
             headeren har samme tre zoner (logo, navigation, handlinger) uanset
             om man er logget ind. */}
+        {/* Mellem lg og xl er der ikke plads til fuld tekst på alle links
+            samtidig med klokke/avatar/sprog/tema i højre side - dét var det,
+            der fik teksten til at flyde ovenpå ikonerne. Derfor: kun ikoner
+            (med title som tooltip/tilgængelighed) fra lg, fuld tekst først
+            fra xl, hvor der er plads nok. shrink-0 + whitespace-nowrap på
+            navigationen sikrer desuden at den aldrig bliver klemt mindre end
+            sit indhold - kan den ikke være der, skal den ses, ikke overlappe. */}
         {isAuthenticated ? (
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
-            <NavLink to="/dashboard" className={getNavLinkClass}>
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 shrink-0 whitespace-nowrap">
+            <NavLink to="/dashboard" className={getNavLinkClass} title={t('links.dashboard')}>
               <LayoutDashboard className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-              <span>{t('links.dashboard')}</span>
+              <span className="hidden xl:inline">{t('links.dashboard')}</span>
             </NavLink>
 
             {hasOrganisation && (
               <>
                 {canReadTasks && (
-                  <NavLink to="/tasks" className={getNavLinkClass}>
+                  <NavLink to="/tasks" className={getNavLinkClass} title={t('links.tasks')}>
                     <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>{t('links.tasks')}</span>
+                    <span className="hidden xl:inline">{t('links.tasks')}</span>
                   </NavLink>
                 )}
 
-                <NavLink to="/statistik" className={getNavLinkClass}>
+                <NavLink to="/statistik" className={getNavLinkClass} title={t('links.statistics')}>
                   <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>{t('links.statistics')}</span>
+                  <span className="hidden xl:inline">{t('links.statistics')}</span>
                 </NavLink>
 
                 {canReadDatalayer && (
-                  <NavLink to="/datalager" className={getNavLinkClass}>
+                  <NavLink to="/datalager" className={getNavLinkClass} title={t('links.datalayer')}>
                     <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>{t('links.datalayer')}</span>
+                    <span className="hidden xl:inline">{t('links.datalayer')}</span>
                   </NavLink>
                 )}
 
                 {canReadNews && (
-                  <NavLink to="/nyheder" className={getNavLinkClass}>
+                  <NavLink to="/nyheder" className={getNavLinkClass} title={t('links.news')}>
                     <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                    <span>{t('links.news')}</span>
+                    <span className="hidden xl:inline">{t('links.news')}</span>
                   </NavLink>
                 )}
-                <NavLink to="/beskeder" className={getNavLinkClass}>
+                <NavLink to="/beskeder" className={getNavLinkClass} title={t('links.messages')}>
                   <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                  <span>{t('links.messages')}</span>
+                  <span className="hidden xl:inline">{t('links.messages')}</span>
                 </NavLink>
               </>
             )}
@@ -194,15 +201,15 @@ export function Header() {
           // ens. Forside hører kun til her - er man logget ind, hører man
           // hjemme på dashboardet, og "/" redirecter derhen alligevel.
           !isLoadingSession && (
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 min-w-0">
-              <NavLink to="/" className={getNavLinkClass}>
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 shrink-0 whitespace-nowrap">
+              <NavLink to="/" className={getNavLinkClass} title={t('links.home')}>
                 <Home className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                <span>{t('links.home')}</span>
+                <span className="hidden xl:inline">{t('links.home')}</span>
               </NavLink>
 
-              <NavLink to="/login" className={getNavLinkClass}>
+              <NavLink to="/login" className={getNavLinkClass} title={t('links.login')}>
                 <LogIn className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
-                <span>{t('links.login')}</span>
+                <span className="hidden xl:inline">{t('links.login')}</span>
               </NavLink>
             </nav>
           )
@@ -212,8 +219,15 @@ export function Header() {
             profil, logget ud "Opret konto". Hamburgeren er fælles og ligger
             derfor uden for if/else'en. Mens sessionen endnu hentes vises
             ingen af delene, så den udloggede header ikke blinker forbi for
-            en bruger der faktisk er logget ind. */}
-        <div className="flex items-center gap-2 lg:gap-3 xl:gap-5 shrink-0">
+            en bruger der faktisk er logget ind.
+
+            Sprogvælger og tema-knap er bevidst skjult under sm (640px) og
+            vises i stedet nederst i mobilmenuen (se dér) - på de smalleste
+            telefoner er der ellers for mange ikoner i træk til at det kan
+            være der uden at klemme eller skubbe layoutet ud i vandret
+            scroll. Fra sm og opad er der plads, og de flytter tilbage op i
+            topbaren. */}
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 xl:gap-5 shrink-0">
           {isAuthenticated ? (
             <>
               {/* Notifikationer er endnu ikke bygget (ingen tabel, ingen rute,
@@ -251,7 +265,7 @@ export function Header() {
                 {menuOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 mt-2 w-48 rounded-md bg-white dark:bg-slate-800 shadow-lg border border-border-gray dark:border-slate-700 py-1 z-50"
+                    className="absolute right-0 mt-2 w-48 max-w-[calc(100vw-1.5rem)] rounded-md bg-white dark:bg-slate-800 shadow-lg border border-border-gray dark:border-slate-700 py-1 z-50"
                   >
                     <Link
                       to="/bruger"
@@ -296,17 +310,21 @@ export function Header() {
 
           {/* Sprogvælger: samme regel som tema-toggle nedenfor - uafhængig
               af login-status, så den også virker på /login og forsiden.
-              Bevidst ikke i hamburgeren, ligesom tema-knappen. */}
-          <LanguageSelector />
+              Skjult under sm (se note ovenfor) - findes i stedet i
+              mobilmenuen på de mindste skærme. */}
+          <div className="hidden sm:block">
+            <LanguageSelector />
+          </div>
 
           {/* Tema-toggle: uafhængig af login-status, må derfor aldrig gates
-              af isLoadingSession eller stå inde i isAuthenticated-grenen. */}
+              af isLoadingSession eller stå inde i isAuthenticated-grenen.
+              Skjult under sm - se note ovenfor. */}
           <button
             type="button"
             onClick={toggleTheme}
             aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
             aria-pressed={mode === 'dark'}
-            className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+            className="hidden sm:block p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
           >
             {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -332,7 +350,7 @@ export function Header() {
           Indeholder alt det, desktop-headeren viser i de to øvrige zoner -
           også "Opret konto", så knappen ikke forsvinder på mobil. */}
       {mobileNavOpen && (
-        <nav className="lg:hidden border-t border-slate-800 bg-primary px-4 py-3 space-y-1">
+        <nav className="lg:hidden border-t border-slate-800 bg-primary px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
           {isAuthenticated ? (
             <>
               <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
@@ -398,6 +416,22 @@ export function Header() {
               </Link>
             </>
           )}
+
+          {/* Sprog + tema: kun her på de mindste skærme (<640px), hvor de er
+              skjult fra topbaren (se note dér). Fra sm og opad vises de i
+              stedet i topbaren og gentages derfor ikke her. */}
+          <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-slate-800">
+            <LanguageSelector />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
+              aria-pressed={mode === 'dark'}
+              className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+            >
+              {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </nav>
       )}
     </header>
