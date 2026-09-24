@@ -15,6 +15,7 @@
   "duplicateMembershipRequest": "Du har allerede en ventende anmodning til denne organisation.",
   "duplicateRoleName": "Der findes allerede en rolle med dette navn.",
   "duplicateOrganisationName": "Organisationsnavnet er allerede taget - vælg venligst et andet navn.",
+  "duplicateSerialNumber": "Det serienummer er allerede brugt på et andet styk af dette item - hvert serienummer skal være unikt.",
   "rolePrivilegeExists": "Rollen har allerede dette privilegie.",
   "required": {
     "email": "Email skal udfyldes.",
@@ -57,7 +58,14 @@
     "deleteItem": "Du har ikke rettigheder til at slette itemet.",
     "createLocation": "Du har ikke rettigheder til at oprette lokationen.",
     "updateLocation": "Du har ikke rettigheder til at redigere lokationen.",
-    "deleteLocation": "Du har ikke rettigheder til at slette lokationen."
+    "deleteLocation": "Du har ikke rettigheder til at slette lokationen.",
+    "addItemUnits": "Du har ikke rettigheder til at tilføje enheder til itemet.",
+    "updateItemUnit": "Du har ikke rettigheder til at redigere denne enhed.",
+    "deleteItemUnit": "Du har ikke rettigheder til at slette denne enhed.",
+    "reserveItemUnits": "Du har ikke rettigheder til at reservere materialer på opgaver.",
+    "releaseItemUnits": "Du har ikke rettigheder til at frigive materialer på opgaver.",
+    "resolveTaskMaterialUnits": "Du har ikke rettigheder til at afrapportere materialer på opgaver.",
+    "changeTaskMaterialStatus": "Du har ikke rettigheder til at ændre status på et materiale."
   },
   "db": {
     "NOT_LOGGED_IN": "Du skal være logget ind.",
@@ -133,6 +141,21 @@
     "LOCATION_OWN_PARENT": "En lokation kan ikke være sin egen sektion.",
     "LOCATION_PARENT_NOT_FOUND": "Det valgte lager findes ikke.",
     "LOCATION_SECTION_NO_CHILDREN": "En sektion kan ikke selv have underlokationer.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen skal høre til samme organisation som lageret."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen skal høre til samme organisation som lageret.",
+    "CATEGORY_NOT_FOUND": "Kategorien findes ikke i din organisation.",
+    "INVALID_QUANTITY": "Antal/mængde skal være større end 0.",
+    "ITEM_NOT_FOUND": "Item findes ikke i din organisation.",
+    "TASK_MATERIAL_NOT_FOUND": "Materiale-linjen findes ikke i din organisation.",
+    "INSUFFICIENT_AVAILABLE_QUANTITY": "Der er ikke nok ledigt lager.",
+    "OUTCOME_QUANTITY_MISMATCH": "Afrapporteringen matcher ikke den reserverede mængde.",
+    "INVALID_OUTCOME_STATUS": "Ugyldig status i afrapporteringen.",
+    "UNIT_NOT_FOUND": "Enheden findes ikke.",
+    "UNIT_ORG_MISMATCH": "Enheden tilhører ikke din organisation.",
+    "UNIT_LOCKED_BY_TASK_RESERVATION": "Enheden er reserveret til en opgave og kan ikke ændres direkte.",
+    "MATERIALS_NOT_RESOLVED": "Alle materialer skal afrapporteres, før opgaven kan færdiggøres.",
+    "TASK_NOT_IN_PROGRESS": "Materialets status kan kun ændres, mens opgaven er i gang.",
+    "QUANTITY_EXCEEDS_LINKED_QUANTITY": "Mængden overstiger hvad der er tilbage med denne status på materiale-linjen.",
+    "STATUS_UNCHANGED": "Den nye status er den samme som den nuværende.",
+    "RELEASE_STATUS_NOT_ALLOWED": "Et frigivet materiale kan ikke have status Reserveret eller I brug."
   }
 }

@@ -130,5 +130,54 @@
     "intro": "Choose a room and edit its name.",
     "namePlaceholder": "Enter a room name",
     "failed": "Could not edit the room. Please try again."
+  },
+  "materials": {
+    "heading": "Materials",
+    "none": "No materials attached.",
+    "addItem": "Add material",
+    "searchPlaceholder": "Search for an item...",
+    "noResults": "No items match \"{{query}}\".",
+    "quantityLabel": "Quantity",
+    "reserve": "Reserve",
+    "reserving": "Reserving...",
+    "release": "Release",
+    "resolved": "Reported",
+    "reserved": "Reserved",
+    "available_one": "{{count}} available",
+    "available_other": "{{count}} available",
+    "insufficientAvailable": "Only {{available}} available.",
+    "resolve": {
+      "heading": "Report material usage",
+      "intro": "Confirm what actually happened to the reserved materials before the task can be completed.",
+      "introApproval": "Choose what should happen to the reserved materials. Your choices are saved and only applied once the task is approved - if it's rejected instead, the materials are left untouched.",
+      "outcomeStatus": "Status",
+      "outcomeQuantity": "Quantity",
+      "addOutcomeLine": "+ Add line",
+      "removeOutcomeLine": "Remove",
+      "quantityMismatch": "The total must be {{expected}} (is currently {{actual}}).",
+      "confirm": "Confirm and complete task",
+      "confirming": "Reporting...",
+      "cancel": "Cancel"
+    },
+    "chooseStatusPlaceholder": "Choose status...",
+    "changeStatus": "Change status",
+    "changeStatusConfirm": "Confirm",
+    "changingStatus": "Changing status...",
+    "releaseModal": {
+      "heading": "Release materials",
+      "intro": "Choose which status the material should have when it is released from the task.",
+      "confirm": "Release",
+      "confirming": "Releasing..."
+    },
+    "deleteTaskModal": {
+      "heading": "Delete task with materials",
+      "intro": "The task still has materials attached. Choose which status they should have in the Data layer when the task is deleted.",
+      "confirm": "Delete task and update materials",
+      "confirming": "Deleting..."
+    },
+    "locationLabel": "Location",
+    "noLocation": "No location",
+    "noAvailableAnywhere": "There are no available units at any location.",
+    "availableAtLocation": "{{amount}} {{unit}} available"
   }
 }

@@ -9,8 +9,11 @@ import type {
     Room,
     Task,
     TaskAssignee,
+    TaskMaterial,
 } from '../../types/Task/Task'
 
+import type { ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes'
+import { locationPathLabel } from '../../utils/locationPathLabel'
 import { mapDbError, mapPermissionError, type QueryError } from './apiError'
 
 interface CreateTaskInput {
@@ -528,8 +531,17 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
-        createTaskRequest: builder.mutation<TaskRequest, string>({
-            queryFn: async (taskId) => {
+        // materialOutcomes: den tildeltes valg af udfald pr. uafrapporteret
+        // materiale-linje (US-42), gemt som DATA på anmodningen - selve
+        // afrapporteringen (statusændring på enhederne) sker først i
+        // approve_task_request, ved godkendelse. Afvises anmodningen i
+        // stedet, forbliver materialerne urørt (Reserved/InUse) - se
+        // 2026-09-23-defer-material-resolution-to-approval.sql.
+        createTaskRequest: builder.mutation<
+            TaskRequest,
+            { taskId: string; materialOutcomes?: { taskMaterialId: string; outcomes: { status: string; quantity: number }[] }[] }
+        >({
+            queryFn: async ({ taskId, materialOutcomes }) => {
                 try {
                     const { data: authData, error: authError } =
                         await supabase.auth.getUser()
@@ -573,6 +585,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             task_id: taskId,
                             requested_by: authData.user.id,
                             status: 'Pending',
+                            material_outcomes: materialOutcomes ?? null,
                         })
                         .select()
                         .single()
@@ -601,7 +614,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
 
-            invalidatesTags: (_result, _error, taskId) => [
+            invalidatesTags: (_result, _error, { taskId }) => [
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 {
                     type: 'Task',
@@ -707,7 +720,9 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 { type: 'Task', id: `${taskId}-REQUESTS` },
                 { type: 'Task', id: taskId },
+                { type: 'Task', id: `${taskId}-MATERIALS` },
                 { type: 'Task', id: 'LIST' },
+                { type: 'Item', id: 'LIST' },
             ],
         }),
 
@@ -989,6 +1004,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'TaskRoom', id: 'LIST' },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',
+                // Slettede opgavers materialer frigives af en trigger.
+                { type: 'Item', id: 'LIST' },
             ],
         }),
 
@@ -1026,7 +1043,158 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Task', id: taskId },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',
+                // Triggeren release_units_on_task_material_delete frigiver materialer.
+                { type: 'Item', id: 'LIST' },
             ],
+        }),
+
+        // US-42: afrapporterer det faktiske udfald af en opgaves materiale-
+        // linje ved færdiggørelse (fx "8 retur, 1 i stykker"). Kræves før
+        // set_task_status/approve_task_request tillader Completed - se
+        // assert_task_materials_resolved i docs/dbSchema.sql §15.21.
+        // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
+        resolveTaskMaterialUnits: builder.mutation<
+            void,
+            { taskMaterialId: string; taskId: string; itemId: string; outcomes: { status: string; quantity: number }[] }
+        >({
+            queryFn: async ({ taskMaterialId, outcomes }) => {
+                const { error } = await supabase.rpc('resolve_task_material_units', {
+                    p_task_material_id: taskMaterialId,
+                    p_outcomes: outcomes,
+                })
+
+                if (error) {
+                    return { error: mapPermissionError(error, 'resolveTaskMaterialUnits') }
+                }
+
+                return { data: undefined }
+            },
+            invalidatesTags: (_result, _error, { taskId, itemId }) => [
+                { type: 'Task', id: taskId },
+                { type: 'Task', id: `${taskId}-MATERIALS` },
+                { type: 'Task', id: 'LIST' },
+                { type: 'Item', id: 'LIST' },
+                { type: 'Item', id: itemId },
+                { type: 'ItemUnit', id: `ITEM-${itemId}` },
+            ],
+        }),
+
+        // Materialer tilknyttet en opgave (US-42/US-43) - task_materials
+        // joinet med item-navn/enhed, plus om linjen stadig har linkede
+        // task_material_units (= stadig reserveret, ikke afrapporteret),
+        // summeret pr. aktuel enheds-status (linkedGroups).
+        getTaskMaterials: builder.query<TaskMaterial[], string>({
+            queryFn: async (taskId) => {
+                const { data: materials, error: materialsError } = await supabase
+                    .from('task_materials')
+                    .select('id, item_id, quantity')
+                    .eq('task_id', taskId)
+
+                if (materialsError) {
+                    return { error: { status: 'CUSTOM_ERROR', error: materialsError.message } as QueryError }
+                }
+                if (!materials || materials.length === 0) {
+                    return { data: [] }
+                }
+
+                const materialIds = materials.map((m) => m.id)
+                const itemIds = [...new Set(materials.map((m) => m.item_id))]
+
+                const [itemsResult, linkedUnitsResult] = await Promise.all([
+                    supabase.from('data_layer_items').select('id, name, unit_of_measurement').in('id', itemIds),
+                    supabase
+                        .from('task_material_units')
+                        .select('task_material_id, data_layer_item_units(status, quantity, location_id)')
+                        .in('task_material_id', materialIds),
+                ])
+
+                if (itemsResult.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: itemsResult.error.message } as QueryError }
+                }
+                if (linkedUnitsResult.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: linkedUnitsResult.error.message } as QueryError }
+                }
+
+                const itemById = new Map((itemsResult.data ?? []).map((i) => [i.id, i]))
+                // Sum linked quantity per status per material line, and
+                // collect which locations the linked units are on.
+                const groupsByMaterial = new Map<string, Map<ItemStatus, number>>()
+                const locationIdsByMaterial = new Map<string, Set<string | null>>()
+                for (const row of linkedUnitsResult.data ?? []) {
+                    const unit = row.data_layer_item_units as unknown as
+                        { status: ItemStatus; quantity: number; location_id: string | null } | null
+                    if (!unit) continue
+                    const groups = groupsByMaterial.get(row.task_material_id) ?? new Map<ItemStatus, number>()
+                    groups.set(unit.status, (groups.get(unit.status) ?? 0) + Number(unit.quantity))
+                    groupsByMaterial.set(row.task_material_id, groups)
+                    const locationIds = locationIdsByMaterial.get(row.task_material_id) ?? new Set<string | null>()
+                    locationIds.add(unit.location_id)
+                    locationIdsByMaterial.set(row.task_material_id, locationIds)
+                }
+
+                // Linked units' locations, plus their parent warehouses (for
+                // "Lager > Sektion" labels).
+                const fetchLocations = async (ids: string[]) => {
+                    if (ids.length === 0) return { rows: [] as ItemLocation[], error: null }
+                    const { data, error } = await supabase
+                        .from('locations')
+                        .select('id, name, organisation_id, parent_location_id')
+                        .in('id', ids)
+                    const rows: ItemLocation[] = (data ?? []).map((l) => ({
+                        id: l.id,
+                        name: l.name,
+                        organisationId: l.organisation_id,
+                        parentLocationId: l.parent_location_id,
+                    }))
+                    return { rows, error }
+                }
+
+                const unitLocationIds = [...new Set(
+                    [...locationIdsByMaterial.values()].flatMap((ids) => [...ids]).filter((id): id is string => id !== null)
+                )]
+                const unitLocations = await fetchLocations(unitLocationIds)
+                if (unitLocations.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: unitLocations.error.message } as QueryError }
+                }
+                const parentIds = [...new Set(
+                    unitLocations.rows
+                        .map((l) => l.parentLocationId)
+                        .filter((id): id is string => !!id && !unitLocationIds.includes(id))
+                )]
+                const parentLocations = await fetchLocations(parentIds)
+                if (parentLocations.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: parentLocations.error.message } as QueryError }
+                }
+                const locations = [...unitLocations.rows, ...parentLocations.rows]
+
+                // null = units without a location; the UI translates that.
+                const locationLabelOf = (id: string | null): string | null => {
+                    if (id === null) return null
+                    const location = locations.find((l) => l.id === id)
+                    return location ? locationPathLabel(location, locations) : null
+                }
+
+                return {
+                    data: materials.map((m) => {
+                        const linkedGroups = [...(groupsByMaterial.get(m.id) ?? new Map<ItemStatus, number>())]
+                            .map(([status, quantity]) => ({ status, quantity }))
+                        return {
+                            id: m.id,
+                            itemId: m.item_id,
+                            itemName: itemById.get(m.item_id)?.name ?? 'Ukendt materiale',
+                            unitOfMeasurement: itemById.get(m.item_id)?.unit_of_measurement ?? '',
+                            quantity: m.quantity,
+                            linkedGroups,
+                            resolved: linkedGroups.length === 0,
+                            locationLabels: [...(locationIdsByMaterial.get(m.id) ?? [])]
+                                .map(locationLabelOf)
+                                .filter((label): label is string => label !== null),
+                            hasUnitsWithoutLocation: (locationIdsByMaterial.get(m.id) ?? new Set()).has(null),
+                        }
+                    }),
+                }
+            },
+            providesTags: (_result, _error, taskId) => [{ type: 'Task', id: `${taskId}-MATERIALS` }],
         }),
 
     }),
@@ -1054,4 +1222,6 @@ export const {
     useUnassignFromTaskMutation,
     useRemoveAssigneeFromTaskMutation,
     useGetMyTaskIdsQuery,
+    useResolveTaskMaterialUnitsMutation,
+    useGetTaskMaterialsQuery,
 } = taskApi

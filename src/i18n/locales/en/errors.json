@@ -15,6 +15,7 @@
   "duplicateMembershipRequest": "You already have a pending request to this organisation.",
   "duplicateRoleName": "A role with this name already exists.",
   "duplicateOrganisationName": "That organisation name is already taken - please choose another one.",
+  "duplicateSerialNumber": "That serial number is already used on another unit of this item - each serial number must be unique.",
   "rolePrivilegeExists": "The role already has this privilege.",
   "required": {
     "email": "Email is required.",
@@ -57,7 +58,14 @@
     "deleteItem": "You do not have permission to delete the item.",
     "createLocation": "You do not have permission to create the location.",
     "updateLocation": "You do not have permission to edit the location.",
-    "deleteLocation": "You do not have permission to delete the location."
+    "deleteLocation": "You do not have permission to delete the location.",
+    "addItemUnits": "You do not have permission to add units to this item.",
+    "updateItemUnit": "You do not have permission to edit this unit.",
+    "deleteItemUnit": "You do not have permission to delete this unit.",
+    "reserveItemUnits": "You do not have permission to reserve materials on tasks.",
+    "releaseItemUnits": "You do not have permission to release materials on tasks.",
+    "resolveTaskMaterialUnits": "You do not have permission to report material outcomes on tasks.",
+    "changeTaskMaterialStatus": "You do not have permission to change the status of a material."
   },
   "db": {
     "NOT_LOGGED_IN": "You must be logged in.",
@@ -133,6 +141,21 @@
     "LOCATION_OWN_PARENT": "A location cannot be its own section.",
     "LOCATION_PARENT_NOT_FOUND": "The selected storage does not exist.",
     "LOCATION_SECTION_NO_CHILDREN": "A section cannot itself have sub-locations.",
-    "LOCATION_SECTION_ORG_MISMATCH": "The section must belong to the same organisation as the storage."
+    "LOCATION_SECTION_ORG_MISMATCH": "The section must belong to the same organisation as the storage.",
+    "CATEGORY_NOT_FOUND": "The category does not exist in your organisation.",
+    "INVALID_QUANTITY": "The quantity must be greater than 0.",
+    "ITEM_NOT_FOUND": "The item does not exist in your organisation.",
+    "TASK_MATERIAL_NOT_FOUND": "The material line does not exist in your organisation.",
+    "INSUFFICIENT_AVAILABLE_QUANTITY": "There is not enough available stock.",
+    "OUTCOME_QUANTITY_MISMATCH": "The reported outcome does not match the reserved quantity.",
+    "INVALID_OUTCOME_STATUS": "Invalid status in the reported outcome.",
+    "UNIT_NOT_FOUND": "The unit does not exist.",
+    "UNIT_ORG_MISMATCH": "The unit does not belong to your organisation.",
+    "UNIT_LOCKED_BY_TASK_RESERVATION": "This unit is reserved for a task and cannot be changed directly.",
+    "MATERIALS_NOT_RESOLVED": "All materials must be reported before the task can be completed.",
+    "TASK_NOT_IN_PROGRESS": "A material's status can only be changed while the task is in progress.",
+    "QUANTITY_EXCEEDS_LINKED_QUANTITY": "The quantity exceeds what is left with this status on the material line.",
+    "STATUS_UNCHANGED": "The new status is the same as the current one.",
+    "RELEASE_STATUS_NOT_ALLOWED": "A released material cannot have the status Reserved or In use."
   }
 }

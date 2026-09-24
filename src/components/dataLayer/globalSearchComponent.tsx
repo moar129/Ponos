@@ -1,9 +1,8 @@
 import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
 import { Folder, Package, MapPin, Boxes } from 'lucide-react';
 import type { GlobalSearchResultsComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
-import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
+import { ItemStatusBadges } from './itemStatusBadgesComponent';
 
 // Udvider den eksisterende props-type lokalt, så vi ikke behøver at røre
 // den delte type-fil for at tilføje lager/sektion-søgning.
@@ -24,7 +23,6 @@ export function GlobalSearchResultsComponent({
   onSelectCategory, onSelectItem, onSelectLocation,
 }: Props) {
   const { t } = useTranslation(['datalayer', 'common'])
-  const td = asDynamic(t)
   if (!isOpen || !query.trim()) return null;
 
   const hasResults = matchedCategories.length > 0 || matchedItems.length > 0 || matchedLocations.length > 0;
@@ -105,7 +103,7 @@ export function GlobalSearchResultsComponent({
                       <p className="text-xs text-secondary truncate dark:text-slate-400">{item.sourceCategoryTitle}</p>
                     </div>
                   </div>
-                  <span className={`text-sm px-2 py-0.5 rounded border shrink-0 ${ITEM_STATUS_STYLES[item.itemStatus]}`}>{td(`datalayer:status.${item.itemStatus}`)}</span>
+                  <ItemStatusBadges item={item} className="shrink-0" />
                 </button>
               ))}
             </div>

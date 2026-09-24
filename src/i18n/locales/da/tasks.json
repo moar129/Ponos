@@ -130,5 +130,54 @@
     "intro": "Vælg et rum og rediger navnet.",
     "namePlaceholder": "Indtast rumnavn",
     "failed": "Kunne ikke redigere rummet. Prøv igen."
+  },
+  "materials": {
+    "heading": "Materialer",
+    "none": "Ingen materialer tilknyttet.",
+    "addItem": "Tilføj materiale",
+    "searchPlaceholder": "Søg efter et item...",
+    "noResults": "Ingen items matcher \"{{query}}\".",
+    "quantityLabel": "Antal",
+    "reserve": "Reservér",
+    "reserving": "Reserverer...",
+    "release": "Frigiv",
+    "resolved": "Afrapporteret",
+    "reserved": "Reserveret",
+    "available_one": "{{count}} ledig",
+    "available_other": "{{count}} ledige",
+    "insufficientAvailable": "Der er kun {{available}} ledige.",
+    "resolve": {
+      "heading": "Afrapportér materialer",
+      "intro": "Bekræft hvad der reelt skete med de reserverede materialer, før opgaven kan færdiggøres.",
+      "introApproval": "Vælg hvad der skal ske med de reserverede materialer. Dine valg gemmes og udføres først, når opgaven bliver godkendt - bliver den afvist i stedet, rører vi ikke materialerne.",
+      "outcomeStatus": "Status",
+      "outcomeQuantity": "Antal",
+      "addOutcomeLine": "+ Tilføj linje",
+      "removeOutcomeLine": "Fjern",
+      "quantityMismatch": "Summen skal være {{expected}} (er nu {{actual}}).",
+      "confirm": "Bekræft og afslut opgave",
+      "confirming": "Afrapporterer...",
+      "cancel": "Annuller"
+    },
+    "chooseStatusPlaceholder": "Vælg status...",
+    "changeStatus": "Skift status",
+    "changeStatusConfirm": "Bekræft",
+    "changingStatus": "Ændrer status...",
+    "releaseModal": {
+      "heading": "Frigiv materialer",
+      "intro": "Vælg hvilken status materialet skal have, når det frigives fra opgaven.",
+      "confirm": "Frigiv",
+      "confirming": "Frigiver..."
+    },
+    "deleteTaskModal": {
+      "heading": "Slet opgave med materialer",
+      "intro": "Opgaven har stadig tilknyttede materialer. Angiv hvilken status de skal have i Datalageret, når opgaven slettes.",
+      "confirm": "Slet opgave og opdatér materialer",
+      "confirming": "Sletter..."
+    },
+    "locationLabel": "Lager",
+    "noLocation": "Uden lager",
+    "noAvailableAnywhere": "Der er ingen ledige enheder på noget lager.",
+    "availableAtLocation": "{{amount}} {{unit}} ledige"
   }
 }
