@@ -17,7 +17,7 @@
           : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', theme);
 
-        // Sproget afgøres her - før React monterer - så siden ikke når
+        // Sproget afgøres her - før React monterer - så siden ikke når 
         // at blinke på et forkert sprog. languageSlice/config.ts læser
         // resultatet af <html lang> i stedet for at gentage logikken.
         // 'ponos-language' skal matche LANGUAGE_STORAGE_KEY i
