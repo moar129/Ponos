@@ -15,8 +15,7 @@ interface DeleteLocationComponentProps {
 }
 
 // Selvstændig "slet lager/sektion"-bekræftelse, 1:1 med mønstret fra
-// DeleteCategoryComponent - genbruger samme ConfirmDialogComponent som
-// LocationManagerComponent gjorde inline.
+// DeleteCategoryComponent - genbruger ConfirmDialogComponent.
 export function DeleteLocationComponent({ isOpen, location, sectionCount = 0, onClose, onDeleted }: DeleteLocationComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const [error, setError] = useState<string | null>(null);

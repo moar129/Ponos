@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { MapPin, Boxes, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../../store/apis/categoryApi';
@@ -9,7 +9,12 @@ import { getErrorMessage } from '../../../ErrorMessage';
 export function LocationPickerComponent({ value, onChange, canCreate }: LocationPickerComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
-  const [isCreating, setIsCreating] = useState(false);
+  // Hvad der oprettes styres af HVILKEN "opret"-option der blev valgt, ikke
+  // af om et lager tilfældigvis er valgt - ellers blev "Opret nyt lager"
+  // til en sektion, så snart et lager allerede var valgt.
+  const [creatingKind, setCreatingKind] = useState<'warehouse' | 'section' | null>(null);
+  const isCreating = creatingKind !== null;
+  const isCreatingSection = creatingKind === 'section';
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -30,8 +35,20 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
 
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(initialWarehouseId);
 
+  // Springes over lige efter vi selv har initieret et value-skift (se
+  // handleCreate) - ellers overskriver denne effekt vores egen "vælg den
+  // nyoprettede lokation" med null, fordi `locations` (RTK Query-cachen)
+  // typisk endnu ikke er nået at blive refetchet med den nye lokation.
+  // Uden guarden hænger valget permanent tilbage på tomt, da locations'
+  // senere opdatering ikke selv trigger effekten igen (kun [value] gør).
+  const skipNextValueSyncRef = useRef(false);
+
   // Følger med, hvis value ændres udefra (fx nulstilles af formularen).
   useEffect(() => {
+    if (skipNextValueSyncRef.current) {
+      skipNextValueSyncRef.current = false;
+      return;
+    }
     setSelectedWarehouseId(initialWarehouseId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -54,7 +71,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
 
   const handleSectionChange = (val: string) => {
     if (val === '__new_section__') {
-      setIsCreating(true);
+      setCreatingKind('section');
       return;
     }
     // Tom værdi = "hele lageret" (ingen bestemt sektion).
@@ -70,7 +87,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
     setNewAddress('');
     setNewDescription('');
     setCreateError(null);
-    setIsCreating(true);
+    setCreatingKind('warehouse');
   };
 
   const handleCreate = async () => {
@@ -83,12 +100,13 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
         name: newName.trim(),
         address: newAddress.trim() || null,
         description: newDescription.trim() || null,
-        // Opretter en sektion under det valgte lager, hvis et lager
-        // allerede er valgt - ellers et nyt lager.
-        parentLocationId: selectedWarehouseId,
+        // Sektion under det valgte lager, eller et nyt selvstændigt lager.
+        parentLocationId: isCreatingSection ? selectedWarehouseId : null,
       }).unwrap();
 
-      if (selectedWarehouseId) {
+      skipNextValueSyncRef.current = true;
+
+      if (isCreatingSection) {
         // Ny sektion: vælg den, og hold lageret som det er.
         onChange(id);
       } else {
@@ -97,7 +115,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
         onChange(id);
       }
 
-      setIsCreating(false);
+      setCreatingKind(null);
       setNewName('');
       setNewAddress('');
       setNewDescription('');
@@ -127,12 +145,12 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
         <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
           {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
           <p className="text-xs text-secondary dark:text-slate-400">
-            {selectedWarehouseId ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
+            {isCreatingSection ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
           </p>
           <input
             type="text"
             autoFocus
-            placeholder={selectedWarehouseId ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
+            placeholder={isCreatingSection ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -154,7 +172,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={() => { setIsCreating(false); setCreateError(null); }}
+              onClick={() => { setCreatingKind(null); setCreateError(null); }}
               className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
             >
               {t('common:cancel')}
