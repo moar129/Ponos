@@ -78,7 +78,16 @@
       "currentStatus": "Estado atual",
       "location": "Armazém",
       "proposedOutcome": "Resultado proposto na aprovação",
-      "missingOutcome": "Nenhum resultado indicado - a aprovação falhará até o material ser reportado."
-    }
+      "missingOutcome": "Nenhum resultado indicado - a aprovação falhará até o material ser reportado.",
+      "previousRejections": "Rejeições anteriores ({{count}})",
+      "rejectedBy": "Rejeitado por {{name}} · {{date}}",
+      "reportedBy": "concluído reportado por {{name}}",
+      "noReason": "Nenhum motivo indicado."
+    },
+    "rejectReasonLabel": "Motivo",
+    "rejectReasonPlaceholder": "Escreva porque a conclusão é rejeitada - a mensagem é enviada aos atribuídos.",
+    "rejectedCount_one": "Rejeitado {{count}} vez",
+    "rejectedCount_many": "Rejeitado {{count}} vezes",
+    "rejectedCount_other": "Rejeitado {{count}} vezes"
   }
 }

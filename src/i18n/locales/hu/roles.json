@@ -78,7 +78,15 @@
       "currentStatus": "Jelenlegi állapot",
       "location": "Raktár",
       "proposedOutcome": "Javasolt eredmény jóváhagyáskor",
-      "missingOutcome": "Nincs megadott eredmény - a jóváhagyás sikertelen lesz, amíg az anyagot nem jelentik."
-    }
+      "missingOutcome": "Nincs megadott eredmény - a jóváhagyás sikertelen lesz, amíg az anyagot nem jelentik.",
+      "previousRejections": "Korábbi elutasítások ({{count}})",
+      "rejectedBy": "Elutasította: {{name}} · {{date}}",
+      "reportedBy": "készre jelentette: {{name}}",
+      "noReason": "Nincs megadott indoklás."
+    },
+    "rejectReasonLabel": "Indoklás",
+    "rejectReasonPlaceholder": "Írja le, miért utasítja el a készre jelentést - az üzenetet a hozzárendeltek kapják meg.",
+    "rejectedCount_one": "{{count}} alkalommal elutasítva",
+    "rejectedCount_other": "{{count}} alkalommal elutasítva"
   }
 }

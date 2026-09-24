@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Lokalizacja nie może być własną sekcją.",
     "LOCATION_PARENT_NOT_FOUND": "Wybrany magazyn nie istnieje.",
     "LOCATION_SECTION_NO_CHILDREN": "Sekcja nie może sama mieć podlokalizacji.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sekcja musi należeć do tej samej organizacji co magazyn."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sekcja musi należeć do tej samej organizacji co magazyn.",
+    "REJECTION_REASON_REQUIRED": "Musisz podać uzasadnienie odrzucenia.",
+    "REJECTION_REASON_TOO_LONG": "Uzasadnienie może mieć maksymalnie 500 znaków."
   }
 }

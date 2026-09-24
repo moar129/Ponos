@@ -100,7 +100,8 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Tilføj medarbejder",
     "created": "Oprettet",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Færdigmelding afvist: {{reason}}"
   },
   "filter": {
     "show": "Vis filter",

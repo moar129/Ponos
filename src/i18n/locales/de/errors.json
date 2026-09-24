@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Ein Standort kann nicht sein eigener Bereich sein.",
     "LOCATION_PARENT_NOT_FOUND": "Das gewählte Lager existiert nicht.",
     "LOCATION_SECTION_NO_CHILDREN": "Ein Bereich kann selbst keine Unterstandorte haben.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Der Bereich muss zur selben Organisation gehören wie das Lager."
+    "LOCATION_SECTION_ORG_MISMATCH": "Der Bereich muss zur selben Organisation gehören wie das Lager.",
+    "REJECTION_REASON_REQUIRED": "Sie müssen eine Begründung für die Ablehnung angeben.",
+    "REJECTION_REASON_TOO_LONG": "Die Begründung darf höchstens 500 Zeichen lang sein."
   }
 }

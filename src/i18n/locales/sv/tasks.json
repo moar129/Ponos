@@ -100,7 +100,8 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Lägg till medarbetare",
     "created": "Skapad",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Färdiganmälan avvisad: {{reason}}"
   },
   "filter": {
     "show": "Visa filter",

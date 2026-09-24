@@ -78,7 +78,16 @@
       "currentStatus": "Stato attuale",
       "location": "Magazzino",
       "proposedOutcome": "Esito proposto all'approvazione",
-      "missingOutcome": "Nessun esito indicato - l'approvazione fallirà finché il materiale non sarà rendicontato."
-    }
+      "missingOutcome": "Nessun esito indicato - l'approvazione fallirà finché il materiale non sarà rendicontato.",
+      "previousRejections": "Rifiuti precedenti ({{count}})",
+      "rejectedBy": "Rifiutato da {{name}} · {{date}}",
+      "reportedBy": "segnalato completato da {{name}}",
+      "noReason": "Nessuna motivazione indicata."
+    },
+    "rejectReasonLabel": "Motivazione",
+    "rejectReasonPlaceholder": "Scrivi perché il completamento viene rifiutato - il messaggio viene inviato agli assegnati.",
+    "rejectedCount_one": "Rifiutato {{count}} volta",
+    "rejectedCount_many": "Rifiutato {{count}} volte",
+    "rejectedCount_other": "Rifiutato {{count}} volte"
   }
 }

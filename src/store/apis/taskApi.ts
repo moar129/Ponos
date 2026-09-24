@@ -5,6 +5,7 @@ import type {
     ETaskPriority,
     ETaskStatus,
     PendingTaskRequest,
+    RejectTaskRequestInput,
     ReviewTaskRequestInput,
     Room,
     Task,
@@ -71,6 +72,7 @@ interface TaskRequest {
     status: 'Pending' | 'Accepted' | 'Rejected'
     handled_by: string | null
     done_at: string | null
+    rejection_reason: string | null
 }
 
 
@@ -693,6 +695,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     requester_first_name: string | null
                     requester_last_name: string | null
                     requested_at: string
+                    rejection_count?: number
                 }
 
                 return {
@@ -704,6 +707,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         requesterName:
                             `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
                         requestedAt: row.requested_at,
+                        rejectionCount: row.rejection_count ?? 0,
                     })),
                 }
             },
@@ -745,6 +749,13 @@ export const taskApi = supabaseApi.injectEndpoints({
                         has_units_without_location: boolean
                         proposed_outcomes: StatusGroupRow[] | null
                     }[]
+                    previous_rejections?: {
+                        reason: string | null
+                        rejected_at: string | null
+                        rejected_by_name: string
+                        requester_name: string
+                        requested_at: string
+                    }[]
                 }
 
                 const row = data as Row
@@ -777,6 +788,13 @@ export const taskApi = supabaseApi.injectEndpoints({
                             hasUnitsWithoutLocation: m.has_units_without_location,
                             proposedOutcomes: m.proposed_outcomes ? toGroups(m.proposed_outcomes) : null,
                         })),
+                        previousRejections: (row.previous_rejections ?? []).map((r) => ({
+                            reason: r.reason,
+                            rejectedAt: r.rejected_at,
+                            rejectedByName: r.rejected_by_name || 'Ukendt bruger',
+                            requesterName: r.requester_name || 'Ukendt bruger',
+                            requestedAt: r.requested_at,
+                        })),
                     },
                 }
             },
@@ -801,9 +819,11 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
-        rejectTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
-            queryFn: async ({ requestId }) => {
-                const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId })
+        // reason er påkrævet (håndhæves også i RPC'en) - gemmes på anmodningen
+        // og sendes med i task_rejected-notifikationen til de tilmeldte.
+        rejectTaskRequest: builder.mutation<void, RejectTaskRequestInput>({
+            queryFn: async ({ requestId, reason }) => {
+                const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId, p_reason: reason })
 
                 if (error) return { error: mapPermissionError(error, 'rejectTasks') }
                 return { data: undefined }

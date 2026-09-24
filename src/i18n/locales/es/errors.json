@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Una ubicación no puede ser su propia sección.",
     "LOCATION_PARENT_NOT_FOUND": "El almacén seleccionado no existe.",
     "LOCATION_SECTION_NO_CHILDREN": "Una sección no puede tener a su vez sububicaciones.",
-    "LOCATION_SECTION_ORG_MISMATCH": "La sección debe pertenecer a la misma organización que el almacén."
+    "LOCATION_SECTION_ORG_MISMATCH": "La sección debe pertenecer a la misma organización que el almacén.",
+    "REJECTION_REASON_REQUIRED": "Debes escribir un motivo para el rechazo.",
+    "REJECTION_REASON_TOO_LONG": "El motivo puede tener como máximo 500 caracteres."
   }
 }

@@ -78,7 +78,15 @@
       "currentStatus": "Huidige status",
       "location": "Magazijn",
       "proposedOutcome": "Voorgestelde uitkomst bij goedkeuring",
-      "missingOutcome": "Geen uitkomst opgegeven - goedkeuring mislukt totdat het materiaal is gerapporteerd."
-    }
+      "missingOutcome": "Geen uitkomst opgegeven - goedkeuring mislukt totdat het materiaal is gerapporteerd.",
+      "previousRejections": "Eerdere afwijzingen ({{count}})",
+      "rejectedBy": "Afgewezen door {{name}} · {{date}}",
+      "reportedBy": "gereed gemeld door {{name}}",
+      "noReason": "Geen reden opgegeven."
+    },
+    "rejectReasonLabel": "Reden",
+    "rejectReasonPlaceholder": "Schrijf waarom de gereedmelding wordt afgewezen - het bericht gaat naar de toegewezenen.",
+    "rejectedCount_one": "{{count}} keer afgewezen",
+    "rejectedCount_other": "{{count}} keer afgewezen"
   }
 }

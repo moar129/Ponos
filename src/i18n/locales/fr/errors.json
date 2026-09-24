@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Un emplacement ne peut pas être sa propre section.",
     "LOCATION_PARENT_NOT_FOUND": "L'entrepôt sélectionné n'existe pas.",
     "LOCATION_SECTION_NO_CHILDREN": "Une section ne peut pas elle-même avoir de sous-emplacements.",
-    "LOCATION_SECTION_ORG_MISMATCH": "La section doit appartenir à la même organisation que l'entrepôt."
+    "LOCATION_SECTION_ORG_MISMATCH": "La section doit appartenir à la même organisation que l'entrepôt.",
+    "REJECTION_REASON_REQUIRED": "Vous devez indiquer un motif de refus.",
+    "REJECTION_REASON_TOO_LONG": "Le motif ne peut pas dépasser 500 caractères."
   }
 }

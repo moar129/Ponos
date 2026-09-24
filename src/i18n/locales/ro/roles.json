@@ -78,7 +78,16 @@
       "currentStatus": "Stare curentă",
       "location": "Depozit",
       "proposedOutcome": "Rezultat propus la aprobare",
-      "missingOutcome": "Niciun rezultat indicat - aprobarea va eșua până când materialul este raportat."
-    }
+      "missingOutcome": "Niciun rezultat indicat - aprobarea va eșua până când materialul este raportat.",
+      "previousRejections": "Respingeri anterioare ({{count}})",
+      "rejectedBy": "Respins de {{name}} · {{date}}",
+      "reportedBy": "raportat finalizat de {{name}}",
+      "noReason": "Niciun motiv indicat."
+    },
+    "rejectReasonLabel": "Motiv",
+    "rejectReasonPlaceholder": "Scrie de ce este respinsă raportarea finalizării - mesajul se trimite celor alocați.",
+    "rejectedCount_one": "Respins o dată",
+    "rejectedCount_few": "Respins de {{count}} ori",
+    "rejectedCount_other": "Respins de {{count}} de ori"
   }
 }

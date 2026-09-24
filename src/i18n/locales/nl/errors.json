@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Een locatie kan niet haar eigen sectie zijn.",
     "LOCATION_PARENT_NOT_FOUND": "Het gekozen magazijn bestaat niet.",
     "LOCATION_SECTION_NO_CHILDREN": "Een sectie kan zelf geen sublocaties hebben.",
-    "LOCATION_SECTION_ORG_MISMATCH": "De sectie moet tot dezelfde organisatie behoren als het magazijn."
+    "LOCATION_SECTION_ORG_MISMATCH": "De sectie moet tot dezelfde organisatie behoren als het magazijn.",
+    "REJECTION_REASON_REQUIRED": "Je moet een reden voor de afwijzing opgeven.",
+    "REJECTION_REASON_TOO_LONG": "De reden mag maximaal 500 tekens zijn."
   }
 }

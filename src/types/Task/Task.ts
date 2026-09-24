@@ -116,6 +116,7 @@ export interface PendingTaskRequest {
   requestedBy: string;
   requesterName: string;
   requestedAt: string;
+  rejectionCount: number; // earlier rejected completion requests on the task
 }
 
 export type TaskRequestDecision = 'approve' | 'reject';
@@ -123,6 +124,16 @@ export type TaskRequestDecision = 'approve' | 'reject';
 export interface ReviewTaskRequestInput {
   requestId: string;
   taskId: string;
+}
+
+export interface RejectTaskRequestInput extends ReviewTaskRequestInput {
+  reason: string;
+}
+
+export interface RejectReasonInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  disabled: boolean;
 }
 
 export interface TaskApprovalRowProps {
@@ -134,6 +145,8 @@ export interface TaskApprovalRowProps {
   onSelect: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
   onCancel: () => void;
   onConfirm: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
+  rejectReason: string;
+  onRejectReasonChange: (value: string) => void;
   onOpenDetails: () => void;
 }
 
@@ -148,6 +161,14 @@ export interface TaskRequestDetailsMaterial {
   proposedOutcomes: TaskMaterialStatusGroup[] | null; // requester's chosen outcome, applied on approval
 }
 
+export interface TaskRequestRejection {
+  reason: string | null; // null for rejections made before rejection_reason existed
+  rejectedAt: string | null;
+  rejectedByName: string;
+  requesterName: string;
+  requestedAt: string;
+}
+
 export interface TaskRequestDetails {
   task: Pick<Task, 'id' | 'title' | 'description' | 'priority' | 'status' | 'start_date' | 'end_date' | 'requires_approval'>;
   roomName: string | null;
@@ -155,6 +176,7 @@ export interface TaskRequestDetails {
   requestedAt: string;
   assignees: string[];
   materials: TaskRequestDetailsMaterial[];
+  previousRejections: TaskRequestRejection[]; // newest first
 }
 
 export type TaskApprovalDetailsModalProps = Omit<TaskApprovalRowProps, 'onOpenDetails'> & {

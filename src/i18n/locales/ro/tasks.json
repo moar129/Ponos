@@ -101,7 +101,8 @@
     "statusLabel": "Stare:",
     "addEmployeeShort": "+ Adaugă un angajat",
     "created": "Creată",
-    "statusValue": "Stare: {{status}}"
+    "statusValue": "Stare: {{status}}",
+    "rejectedWithReason": "Raportarea finalizării respinsă: {{reason}}"
   },
   "filter": {
     "show": "Arată filtrul",

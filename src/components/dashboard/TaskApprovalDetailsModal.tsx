@@ -7,6 +7,7 @@ import { useGetTaskRequestDetailsQuery } from '../../store/apis/taskApi'
 import { formatDateTime } from '../../utils/formatDate'
 import { PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
 import type { TaskApprovalDetailsModalProps, TaskMaterialStatusGroup } from '../../types/Task/Task'
+import { RejectReasonInput } from './RejectReasonInput'
 
 // Detaljer for en færdigmelding, så godkenderen ved hvad der godkendes/
 // afvises: opgave, tilmeldte og materialer - inkl. den tildeltes
@@ -23,12 +24,15 @@ export function TaskApprovalDetailsModal({
     onSelect,
     onCancel,
     onConfirm,
+    rejectReason,
+    onRejectReasonChange,
     onClose,
 }: TaskApprovalDetailsModalProps) {
     const { t } = useTranslation(['roles', 'tasks', 'datalayer', 'common'])
     const td = asDynamic(t)
     const { data: details, isLoading, error } = useGetTaskRequestDetailsQuery(request.id)
     const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
+    const missingReason = decision?.decision === 'reject' && rejectReason.trim() === ''
     const loadError = readableError(error)
 
     const formatGroups = (groups: TaskMaterialStatusGroup[], unit: string) =>
@@ -69,6 +73,32 @@ export function TaskApprovalDetailsModal({
                         </div>
                     ) : (
                         <>
+                            {/* TIDLIGERE AFVISNINGER */}
+                            {details.previousRejections.length > 0 && (
+                                <div className="mb-5">
+                                    <span className={labelClass}>
+                                        {t('roles:approvals.details.previousRejections', { count: details.previousRejections.length })}
+                                    </span>
+                                    <div className="space-y-2">
+                                        {details.previousRejections.map((rejection, index) => (
+                                            <div
+                                                key={`${rejection.requestedAt}-${index}`}
+                                                className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                            >
+                                                <p className="break-words">{rejection.reason ?? t('roles:approvals.details.noReason')}</p>
+                                                <p className="mt-1 text-xs opacity-80">
+                                                    {t('roles:approvals.details.rejectedBy', {
+                                                        name: rejection.rejectedByName,
+                                                        date: rejection.rejectedAt ? formatDateTime(rejection.rejectedAt) : '—',
+                                                    })}{' '}
+                                                    — {t('roles:approvals.details.reportedBy', { name: rejection.requesterName })}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* BADGES */}
                             <div className="mb-5 flex flex-wrap gap-2">
                                 {details.task.priority && (
@@ -160,13 +190,16 @@ export function TaskApprovalDetailsModal({
                 <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border-gray p-4 dark:border-slate-700">
                     {decision ? (
                         <>
+                            {decision.decision === 'reject' && (
+                                <RejectReasonInput value={rejectReason} onChange={onRejectReasonChange} disabled={submitting} />
+                            )}
                             <p className="text-sm text-secondary mr-auto dark:text-slate-400">
                                 {decision.decision === 'approve' ? t('roles:approvals.confirmApprove') : t('roles:approvals.confirmReject')}
                             </p>
                             <button
                                 type="button"
                                 onClick={() => onConfirm(decision)}
-                                disabled={submitting}
+                                disabled={submitting || missingReason}
                                 className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                             >
                                 {submitting ? t('common:processing') : t('common:yes')}

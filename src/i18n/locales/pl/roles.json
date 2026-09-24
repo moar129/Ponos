@@ -78,7 +78,17 @@
       "currentStatus": "Obecny status",
       "location": "Magazyn",
       "proposedOutcome": "Proponowany wynik przy zatwierdzeniu",
-      "missingOutcome": "Nie podano wyniku - zatwierdzenie nie powiedzie się, dopóki materiał nie zostanie zgłoszony."
-    }
+      "missingOutcome": "Nie podano wyniku - zatwierdzenie nie powiedzie się, dopóki materiał nie zostanie zgłoszony.",
+      "previousRejections": "Wcześniejsze odrzucenia ({{count}})",
+      "rejectedBy": "Odrzucone przez {{name}} · {{date}}",
+      "reportedBy": "ukończenie zgłosił(a) {{name}}",
+      "noReason": "Nie podano uzasadnienia."
+    },
+    "rejectReasonLabel": "Uzasadnienie",
+    "rejectReasonPlaceholder": "Napisz, dlaczego zgłoszenie ukończenia jest odrzucane - wiadomość trafi do przypisanych.",
+    "rejectedCount_one": "Odrzucono {{count}} raz",
+    "rejectedCount_few": "Odrzucono {{count}} razy",
+    "rejectedCount_many": "Odrzucono {{count}} razy",
+    "rejectedCount_other": "Odrzucono {{count}} razy"
   }
 }

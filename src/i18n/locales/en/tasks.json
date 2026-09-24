@@ -100,7 +100,8 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Add employee",
     "created": "Created",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Completion rejected: {{reason}}"
   },
   "filter": {
     "show": "Show filter",

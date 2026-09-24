@@ -78,7 +78,15 @@
       "currentStatus": "Nuværende status",
       "location": "Lager",
       "proposedOutcome": "Foreslået udfald ved godkendelse",
-      "missingOutcome": "Intet udfald angivet - godkendelse vil fejle, indtil materialet er afrapporteret."
-    }
+      "missingOutcome": "Intet udfald angivet - godkendelse vil fejle, indtil materialet er afrapporteret.",
+      "previousRejections": "Tidligere afvisninger ({{count}})",
+      "rejectedBy": "Afvist af {{name}} · {{date}}",
+      "reportedBy": "meldt færdig af {{name}}",
+      "noReason": "Ingen begrundelse angivet."
+    },
+    "rejectReasonLabel": "Begrundelse",
+    "rejectReasonPlaceholder": "Skriv hvorfor færdigmeldingen afvises - beskeden sendes til de tilmeldte.",
+    "rejectedCount_one": "Afvist {{count}} gang",
+    "rejectedCount_other": "Afvist {{count}} gange"
   }
 }

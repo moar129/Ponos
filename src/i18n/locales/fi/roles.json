@@ -78,7 +78,15 @@
       "currentStatus": "Nykyinen tila",
       "location": "Varasto",
       "proposedOutcome": "Ehdotettu lopputulos hyväksynnässä",
-      "missingOutcome": "Lopputulosta ei annettu - hyväksyntä epäonnistuu, kunnes materiaali on raportoitu."
-    }
+      "missingOutcome": "Lopputulosta ei annettu - hyväksyntä epäonnistuu, kunnes materiaali on raportoitu.",
+      "previousRejections": "Aiemmat hylkäykset ({{count}})",
+      "rejectedBy": "Hylännyt {{name}} · {{date}}",
+      "reportedBy": "valmiiksi ilmoittanut {{name}}",
+      "noReason": "Perustelua ei annettu."
+    },
+    "rejectReasonLabel": "Perustelu",
+    "rejectReasonPlaceholder": "Kirjoita, miksi valmisilmoitus hylätään - viesti lähetetään osallistujille.",
+    "rejectedCount_one": "Hylätty {{count}} kerran",
+    "rejectedCount_other": "Hylätty {{count}} kertaa"
   }
 }

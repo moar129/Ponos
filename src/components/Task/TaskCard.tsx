@@ -94,6 +94,20 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
   const hasPendingCompletionRequest =
     currentPendingRequest !== undefined;
 
+  // Seneste anmodning (listen er sorteret nyeste først) - er den afvist,
+  // vises godkenderens begrundelse, indtil opgaven meldes færdig igen.
+  const latestRequest = taskRequests[0];
+  const rejectionReason =
+    task.status === 'InProgress' && latestRequest?.status === 'Rejected'
+      ? latestRequest.rejection_reason
+      : null;
+
+  const rejectionBox = rejectionReason && (
+    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+      <p className="break-words">{t('card.rejectedWithReason', { reason: rejectionReason })}</p>
+    </div>
+  );
+
   useEffect(() => {
     const getCurrentUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -439,6 +453,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           </div>
         </div>
 
+        {/* AFVIST-BEGRUNDELSE */}
+        {rejectionBox}
+
         {/* HANDLINGER */}
         <div className="flex flex-wrap gap-3">
           {/* TILMELD / AFMELD */}
@@ -627,6 +644,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                   {t('card.statusValue', { status: t(`status.${task.status}`) })}
                 </span>
               </div>
+
+              {rejectionBox && <div className="mt-3">{rejectionBox}</div>}
 
               {task.requires_approval && (
                 <div className="mt-3">

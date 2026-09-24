@@ -78,7 +78,15 @@
       "currentStatus": "Current status",
       "location": "Location",
       "proposedOutcome": "Proposed outcome on approval",
-      "missingOutcome": "No outcome given - approval will fail until the material is reported."
-    }
+      "missingOutcome": "No outcome given - approval will fail until the material is reported.",
+      "previousRejections": "Previous rejections ({{count}})",
+      "rejectedBy": "Rejected by {{name}} · {{date}}",
+      "reportedBy": "reported done by {{name}}",
+      "noReason": "No reason given."
+    },
+    "rejectReasonLabel": "Reason",
+    "rejectReasonPlaceholder": "Write why the completion is rejected - the message is sent to the assignees.",
+    "rejectedCount_one": "Rejected {{count}} time",
+    "rejectedCount_other": "Rejected {{count}} times"
   }
 }

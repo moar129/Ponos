@@ -78,7 +78,15 @@
       "currentStatus": "Aktueller Status",
       "location": "Lager",
       "proposedOutcome": "Vorgeschlagenes Ergebnis bei Freigabe",
-      "missingOutcome": "Kein Ergebnis angegeben - die Freigabe schlägt fehl, bis das Material gemeldet ist."
-    }
+      "missingOutcome": "Kein Ergebnis angegeben - die Freigabe schlägt fehl, bis das Material gemeldet ist.",
+      "previousRejections": "Frühere Ablehnungen ({{count}})",
+      "rejectedBy": "Abgelehnt von {{name}} · {{date}}",
+      "reportedBy": "fertig gemeldet von {{name}}",
+      "noReason": "Keine Begründung angegeben."
+    },
+    "rejectReasonLabel": "Begründung",
+    "rejectReasonPlaceholder": "Schreiben Sie, warum die Fertigmeldung abgelehnt wird - die Nachricht geht an die Zugewiesenen.",
+    "rejectedCount_one": "{{count}}-mal abgelehnt",
+    "rejectedCount_other": "{{count}}-mal abgelehnt"
   }
 }

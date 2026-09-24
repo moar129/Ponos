@@ -78,7 +78,15 @@
       "currentStatus": "Nuvarande status",
       "location": "Lager",
       "proposedOutcome": "Föreslaget utfall vid godkännande",
-      "missingOutcome": "Inget utfall angivet - godkännandet misslyckas tills materialet är avrapporterat."
-    }
+      "missingOutcome": "Inget utfall angivet - godkännandet misslyckas tills materialet är avrapporterat.",
+      "previousRejections": "Tidigare avvisningar ({{count}})",
+      "rejectedBy": "Avvisad av {{name}} · {{date}}",
+      "reportedBy": "färdiganmäld av {{name}}",
+      "noReason": "Ingen motivering angiven."
+    },
+    "rejectReasonLabel": "Motivering",
+    "rejectReasonPlaceholder": "Skriv varför färdiganmälan avvisas - meddelandet skickas till de anmälda.",
+    "rejectedCount_one": "Avvisad {{count}} gång",
+    "rejectedCount_other": "Avvisad {{count}} gånger"
   }
 }
