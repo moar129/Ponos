@@ -2,6 +2,7 @@ import { supabaseApi } from './supabaseApi';
 import { supabase } from '../../lib/supabase';
 import { mapDbError, mapPermissionError } from './apiError';
 import type {
+  AvailableUnitLocation,
   DataLayerCat,
   DataLayerItem,
   ItemLocation,
@@ -379,6 +380,44 @@ export const categoryApi = supabaseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
     }),
 
+    // Ledig (Available) mængde pr. item pr. lager i hele organisationen -
+    // bruges af opgavernes materialevælger til at vise hvor noget ligger,
+    // før man vælger. Deler 'Item LIST'-tagget med getCategoryTree, da
+    // alle mutationer der ændrer status-fordelingen allerede invaliderer det.
+    getAvailableUnitLocations: builder.query<AvailableUnitLocation[], void>({
+      queryFn: async () => {
+        try {
+          const organisationId = await getAuthenticatedOrganisationId();
+
+          const { data, error } = await supabase
+            .from('data_layer_item_units')
+            .select('item_id, location_id, quantity')
+            .eq('organisation_id', organisationId)
+            .eq('status', 'Available');
+
+          if (error) {
+            return { error: mapDbError(error) };
+          }
+
+          const byKey = new Map<string, AvailableUnitLocation>();
+          for (const row of data ?? []) {
+            const key = `${row.item_id}|${row.location_id ?? ''}`;
+            const existing = byKey.get(key);
+            if (existing) {
+              existing.quantity += Number(row.quantity);
+            } else {
+              byKey.set(key, { itemId: row.item_id, locationId: row.location_id, quantity: Number(row.quantity) });
+            }
+          }
+
+          return { data: [...byKey.values()] };
+        } catch (err: unknown) {
+          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        }
+      },
+      providesTags: [{ type: 'Item', id: 'LIST' }],
+    }),
+
     getItemUnits: builder.query<ItemUnit[], string>({
       queryFn: async (itemId) => {
         const { data, error } = await supabase
@@ -633,12 +672,16 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // Forbrug, Datalager -> Task: systemet vælger/splitter N ledige
     // enheder atomisk (RPC reserve_item_units) - opgaven angiver kun en
     // mængde, aldrig specifikke serienumre.
-    reserveItemUnits: builder.mutation<string, { taskId: string; itemId: string; quantity: number }>({
-      queryFn: async ({ taskId, itemId, quantity }) => {
+    // locationId: reservér kun fra dette lager (null = enheder uden lager);
+    // udeladt = alle lagre.
+    reserveItemUnits: builder.mutation<string, { taskId: string; itemId: string; quantity: number; locationId?: string | null }>({
+      queryFn: async ({ taskId, itemId, quantity, locationId }) => {
         const { data, error } = await supabase.rpc('reserve_item_units', {
           p_task_id: taskId,
           p_item_id: itemId,
           p_quantity: quantity,
+          p_location_id: locationId ?? null,
+          p_restrict_location: locationId !== undefined,
         });
 
         if (error) {
@@ -657,12 +700,17 @@ export const categoryApi = supabaseApi.injectEndpoints({
       ],
     }),
 
-    // Annullering/fjernelse før færdiggørelse - frigiver reserverede
-    // enheder til Available igen (RPC release_item_units).
-    releaseItemUnits: builder.mutation<void, { taskMaterialId: string; itemId: string; taskId: string }>({
-      queryFn: async ({ taskMaterialId }) => {
+    // Annullering/fjernelse før færdiggørelse (RPC release_item_units).
+    // outcomes = brugerens valgte slutstatus pr. mængde; uden outcomes går
+    // kun Reserved/InUse tilbage til Available, andre statusser beholdes.
+    releaseItemUnits: builder.mutation<
+      void,
+      { taskMaterialId: string; itemId: string; taskId: string; outcomes?: { status: ItemStatus; quantity: number }[] }
+    >({
+      queryFn: async ({ taskMaterialId, outcomes }) => {
         const { error } = await supabase.rpc('release_item_units', {
           p_task_material_id: taskMaterialId,
+          p_outcomes: outcomes ?? null,
         });
 
         if (error) {
@@ -818,6 +866,7 @@ export const {
   useUpdateItemMutation,
   useDeleteItemMutation,
   useGetItemUnitsQuery,
+  useGetAvailableUnitLocationsQuery,
   useAddItemUnitsMutation,
   useUpdateItemUnitMutation,
   useDeleteItemUnitMutation,

@@ -7,6 +7,8 @@ import { useChangeTaskMaterialStatusMutation, useReleaseItemUnitsMutation } from
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import type { ItemStatus } from '../../types/dataLayer/datalayerTypes';
 import type { TaskMaterial, TaskMaterialsListProps } from '../../types/Task/Task';
+import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
 
 interface StatusChangeForm {
   materialId: string;
@@ -26,18 +28,26 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
   const { t } = useTranslation(['tasks', 'datalayer', 'common']);
   const td = asDynamic(t);
   const { data: materials = [] } = useGetTaskMaterialsQuery(taskId);
-  const [releaseItemUnits, { isLoading: isReleasing, error: releaseError }] = useReleaseItemUnitsMutation();
+  const [releaseItemUnits] = useReleaseItemUnitsMutation();
   const [changeTaskMaterialStatus, { isLoading: isChangingStatus, error: changeStatusError }] = useChangeTaskMaterialStatusMutation();
-  const [confirmReleaseId, setConfirmReleaseId] = useState<string | null>(null);
+  const [releaseMaterialId, setReleaseMaterialId] = useState<string | null>(null);
   const [statusForm, setStatusForm] = useState<StatusChangeForm | null>(null);
 
   const canChangeStatus = canManage && taskStatus === 'InProgress';
+  const releaseMaterials = materials.filter((m) => m.id === releaseMaterialId);
 
-  const handleReleaseMaterial = async (taskMaterialId: string, itemId: string) => {
-    await releaseItemUnits({ taskMaterialId, itemId, taskId }).unwrap().catch(() => {
-      // Fejlen vises gennem releaseError
-    });
-    setConfirmReleaseId(null);
+  // Brugeren har valgt slutstatus pr. statusgruppe i modalen - fejl kastes
+  // videre, så modalen selv viser dem.
+  const handleReleaseConfirm = async (entries: MaterialOutcomeEntry[]) => {
+    for (const entry of entries) {
+      await releaseItemUnits({
+        taskMaterialId: entry.taskMaterialId,
+        itemId: entry.itemId,
+        taskId,
+        outcomes: entry.outcomes,
+      }).unwrap();
+    }
+    setReleaseMaterialId(null);
   };
 
   const handleChangeStatus = async (material: TaskMaterial) => {
@@ -58,7 +68,7 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
     }
   };
 
-  const errorMessage = readableError(releaseError) ?? readableError(changeStatusError);
+  const errorMessage = readableError(changeStatusError);
 
   const inputClass =
     'rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-xs outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
@@ -82,6 +92,13 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
             >
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-primary dark:text-slate-100">{material.itemName}</p>
+
+                {!material.resolved && (material.locationLabels.length > 0 || material.hasUnitsWithoutLocation) && (
+                  <p className="text-xs text-secondary dark:text-slate-400">
+                    {t('materials.locationLabel')}:{' '}
+                    {[...material.locationLabels, ...(material.hasUnitsWithoutLocation ? [t('materials.noLocation')] : [])].join(', ')}
+                  </p>
+                )}
 
                 {material.resolved ? (
                   <p className="text-xs text-secondary dark:text-slate-400">
@@ -171,42 +188,26 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
               </div>
 
               {canManage && !material.resolved && (
-                confirmReleaseId === material.id ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-secondary dark:text-slate-400">
-                      {t('materials.confirmRelease', { name: material.itemName })}
-                    </span>
-
-                    <button
-                      type="button"
-                      disabled={isReleasing}
-                      onClick={() => handleReleaseMaterial(material.id, material.itemId)}
-                      className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400"
-                    >
-                      {isReleasing ? t('materials.releasing') : t('common:confirmDeleteYes')}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setConfirmReleaseId(null)}
-                      className="text-xs text-secondary hover:text-primary dark:text-slate-400"
-                    >
-                      {t('common:cancel')}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setConfirmReleaseId(material.id)}
-                    className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400"
-                  >
-                    {t('materials.release')}
-                  </button>
-                )
+                <button
+                  type="button"
+                  onClick={() => setReleaseMaterialId(material.id)}
+                  className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400"
+                >
+                  {t('materials.release')}
+                </button>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {releaseMaterials.length > 0 && (
+        <ResolveTaskMaterialsModal
+          mode="release"
+          materials={releaseMaterials}
+          onCancel={() => setReleaseMaterialId(null)}
+          onConfirm={handleReleaseConfirm}
+        />
       )}
     </div>
   );

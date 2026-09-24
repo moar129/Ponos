@@ -12,7 +12,8 @@ import type {
     TaskMaterial,
 } from '../../types/Task/Task'
 
-import type { ItemStatus } from '../../types/dataLayer/datalayerTypes'
+import type { ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes'
+import { locationPathLabel } from '../../utils/locationPathLabel'
 import { mapDbError, mapPermissionError, type QueryError } from './apiError'
 
 interface CreateTaskInput {
@@ -1003,6 +1004,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'TaskRoom', id: 'LIST' },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',
+                // Slettede opgavers materialer frigives af en trigger.
+                { type: 'Item', id: 'LIST' },
             ],
         }),
 
@@ -1040,6 +1043,8 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Task', id: taskId },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',
+                // Triggeren release_units_on_task_material_delete frigiver materialer.
+                { type: 'Item', id: 'LIST' },
             ],
         }),
 
@@ -1099,7 +1104,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     supabase.from('data_layer_items').select('id, name, unit_of_measurement').in('id', itemIds),
                     supabase
                         .from('task_material_units')
-                        .select('task_material_id, data_layer_item_units(status, quantity)')
+                        .select('task_material_id, data_layer_item_units(status, quantity, location_id)')
                         .in('task_material_id', materialIds),
                 ])
 
@@ -1111,14 +1116,62 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
 
                 const itemById = new Map((itemsResult.data ?? []).map((i) => [i.id, i]))
-                // Sum linked quantity per status per material line.
+                // Sum linked quantity per status per material line, and
+                // collect which locations the linked units are on.
                 const groupsByMaterial = new Map<string, Map<ItemStatus, number>>()
+                const locationIdsByMaterial = new Map<string, Set<string | null>>()
                 for (const row of linkedUnitsResult.data ?? []) {
-                    const unit = row.data_layer_item_units as unknown as { status: ItemStatus; quantity: number } | null
+                    const unit = row.data_layer_item_units as unknown as
+                        { status: ItemStatus; quantity: number; location_id: string | null } | null
                     if (!unit) continue
                     const groups = groupsByMaterial.get(row.task_material_id) ?? new Map<ItemStatus, number>()
                     groups.set(unit.status, (groups.get(unit.status) ?? 0) + Number(unit.quantity))
                     groupsByMaterial.set(row.task_material_id, groups)
+                    const locationIds = locationIdsByMaterial.get(row.task_material_id) ?? new Set<string | null>()
+                    locationIds.add(unit.location_id)
+                    locationIdsByMaterial.set(row.task_material_id, locationIds)
+                }
+
+                // Linked units' locations, plus their parent warehouses (for
+                // "Lager > Sektion" labels).
+                const fetchLocations = async (ids: string[]) => {
+                    if (ids.length === 0) return { rows: [] as ItemLocation[], error: null }
+                    const { data, error } = await supabase
+                        .from('locations')
+                        .select('id, name, organisation_id, parent_location_id')
+                        .in('id', ids)
+                    const rows: ItemLocation[] = (data ?? []).map((l) => ({
+                        id: l.id,
+                        name: l.name,
+                        organisationId: l.organisation_id,
+                        parentLocationId: l.parent_location_id,
+                    }))
+                    return { rows, error }
+                }
+
+                const unitLocationIds = [...new Set(
+                    [...locationIdsByMaterial.values()].flatMap((ids) => [...ids]).filter((id): id is string => id !== null)
+                )]
+                const unitLocations = await fetchLocations(unitLocationIds)
+                if (unitLocations.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: unitLocations.error.message } as QueryError }
+                }
+                const parentIds = [...new Set(
+                    unitLocations.rows
+                        .map((l) => l.parentLocationId)
+                        .filter((id): id is string => !!id && !unitLocationIds.includes(id))
+                )]
+                const parentLocations = await fetchLocations(parentIds)
+                if (parentLocations.error) {
+                    return { error: { status: 'CUSTOM_ERROR', error: parentLocations.error.message } as QueryError }
+                }
+                const locations = [...unitLocations.rows, ...parentLocations.rows]
+
+                // null = units without a location; the UI translates that.
+                const locationLabelOf = (id: string | null): string | null => {
+                    if (id === null) return null
+                    const location = locations.find((l) => l.id === id)
+                    return location ? locationPathLabel(location, locations) : null
                 }
 
                 return {
@@ -1133,6 +1186,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                             quantity: m.quantity,
                             linkedGroups,
                             resolved: linkedGroups.length === 0,
+                            locationLabels: [...(locationIdsByMaterial.get(m.id) ?? [])]
+                                .map(locationLabelOf)
+                                .filter((label): label is string => label !== null),
+                            hasUnitsWithoutLocation: (locationIdsByMaterial.get(m.id) ?? new Set()).has(null),
                         }
                     }),
                 }

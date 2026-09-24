@@ -310,19 +310,6 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 : 'Rum: Uden rum'}
             </span>
           </div>
-
-          {canUpdate && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditOpen(true);
-              }}
-              className="text-accent hover:text-accent-hover"
-            >
-              {t('card.edit')}
-            </button>
-          )}
         </div>
 
         {/* BESKRIVELSE */}
@@ -569,16 +556,31 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 </span>
               </div>
 
-              {/* LUK */}
-              <button
-                type="button"
-                onClick={() => {
-                  closeDetails();
-                }}
-                className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
-              >
-                X
-              </button>
+              <div className="flex items-center gap-4">
+                {/* REDIGER - gemme er gated af canUpdate og sletning af
+                    canDelete inde i EditTaskModal, så knappen vises ved
+                    hver af de to */}
+                {(canUpdate || canDelete) && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditOpen(true)}
+                    className="text-sm font-semibold text-accent hover:text-accent-hover"
+                  >
+                    {t('card.edit')}
+                  </button>
+                )}
+
+                {/* LUK */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeDetails();
+                  }}
+                  className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
+                >
+                  X
+                </button>
+              </div>
             </div>
 
             {/* BESKRIVELSE */}
@@ -937,6 +939,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         task={task}
         canUpdate={canUpdate}
         canDelete={canDelete}
+        assigneeNames={assignees.map((a) => assigneeProfiles[a.user_id]?.name || t('assignees.unknownUser'))}
       />
     </>
   );

@@ -155,6 +155,7 @@
     "MATERIALS_NOT_RESOLVED": "Alle materialer skal afrapporteres, før opgaven kan færdiggøres.",
     "TASK_NOT_IN_PROGRESS": "Materialets status kan kun ændres, mens opgaven er i gang.",
     "QUANTITY_EXCEEDS_LINKED_QUANTITY": "Mængden overstiger hvad der er tilbage med denne status på materiale-linjen.",
-    "STATUS_UNCHANGED": "Den nye status er den samme som den nuværende."
+    "STATUS_UNCHANGED": "Den nye status er den samme som den nuværende.",
+    "RELEASE_STATUS_NOT_ALLOWED": "Et frigivet materiale kan ikke have status Reserveret eller I brug."
   }
 }

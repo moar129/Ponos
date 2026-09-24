@@ -6,7 +6,7 @@ import {
     useGetRoomsQuery,
 } from '../../store/apis/taskApi';
 import { useReserveItemUnitsMutation } from '../../store/apis/categoryApi';
-import type { ETaskPriority } from '../../types/Task/Task';
+import type { ETaskPriority, StagedLocation } from '../../types/Task/Task';
 import type { AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 import { X } from 'lucide-react';
 import { TaskItemPicker } from './TaskItemPicker';
@@ -21,6 +21,7 @@ interface StagedMaterial {
     key: string;
     item: AggregatedItem;
     quantity: number;
+    location: StagedLocation;
 }
 
 export function CreateTaskModal({
@@ -103,7 +104,12 @@ export function CreateTaskModal({
             let remaining = pendingMaterials;
 
             for (const pending of pendingMaterials) {
-                await reserveItemUnits({ taskId, itemId: pending.item.id, quantity: pending.quantity }).unwrap();
+                await reserveItemUnits({
+                    taskId,
+                    itemId: pending.item.id,
+                    quantity: pending.quantity,
+                    locationId: pending.location.id,
+                }).unwrap();
                 remaining = remaining.filter((m) => m.key !== pending.key);
                 setPendingMaterials(remaining);
             }
@@ -323,7 +329,7 @@ export function CreateTaskModal({
                                         className="flex items-center justify-between rounded-lg border border-border-gray px-3 py-2 dark:border-slate-700"
                                     >
                                         <span className="text-sm text-primary dark:text-slate-100">
-                                            {pending.item.name} - {pending.quantity} {pending.item.unitOfMeasurement}
+                                            {pending.item.name} - {pending.quantity} {pending.item.unitOfMeasurement} ({pending.location.label})
                                         </span>
 
                                         <button
@@ -343,10 +349,10 @@ export function CreateTaskModal({
                         )}
 
                         <TaskItemPicker
-                            onStage={(item, quantity) =>
+                            onStage={(item, quantity, location) =>
                                 setPendingMaterials((prev) => [
                                     ...prev,
-                                    { key: `${item.id}-${prev.length}-${Date.now()}`, item, quantity },
+                                    { key: `${item.id}-${prev.length}-${Date.now()}`, item, quantity, location },
                                 ])
                             }
                         />

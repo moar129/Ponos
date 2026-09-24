@@ -87,6 +87,14 @@ export interface TaskMaterial {
   quantity: number; // original reserved quantity
   linkedGroups: TaskMaterialStatusGroup[]; // current status split of what is still linked - empty = fully resolved
   resolved: boolean; // linkedGroups.length === 0
+  locationLabels: string[]; // distinct locations of the still-linked units ("Lager > Sektion")
+  hasUnitsWithoutLocation: boolean; // some still-linked units have no location
+}
+
+// Location chosen when attaching a material; id null = units without a location.
+export interface StagedLocation {
+  id: string | null;
+  label: string;
 }
 
 export interface TaskMaterialsListProps {

@@ -141,8 +141,6 @@
     "reserve": "Reservér",
     "reserving": "Reserverer...",
     "release": "Frigiv",
-    "releasing": "Frigiver...",
-    "confirmRelease": "Frigiv {{name}} fra opgaven?",
     "resolved": "Afrapporteret",
     "reserved": "Reserveret",
     "available_one": "{{count}} ledig",
@@ -164,6 +162,22 @@
     "chooseStatusPlaceholder": "Vælg status...",
     "changeStatus": "Skift status",
     "changeStatusConfirm": "Bekræft",
-    "changingStatus": "Ændrer status..."
+    "changingStatus": "Ændrer status...",
+    "releaseModal": {
+      "heading": "Frigiv materialer",
+      "intro": "Vælg hvilken status materialet skal have, når det frigives fra opgaven.",
+      "confirm": "Frigiv",
+      "confirming": "Frigiver..."
+    },
+    "deleteTaskModal": {
+      "heading": "Slet opgave med materialer",
+      "intro": "Opgaven har stadig tilknyttede materialer. Angiv hvilken status de skal have i Datalageret, når opgaven slettes.",
+      "confirm": "Slet opgave og opdatér materialer",
+      "confirming": "Sletter..."
+    },
+    "locationLabel": "Lager",
+    "noLocation": "Uden lager",
+    "noAvailableAnywhere": "Der er ingen ledige enheder på noget lager.",
+    "availableAtLocation": "{{amount}} {{unit}} ledige"
   }
 }

@@ -10,12 +10,17 @@ import type { TaskMaterial } from '../../types/Task/Task';
 export interface MaterialOutcomeEntry {
   taskMaterialId: string;
   itemId: string;
-  outcomes: OutcomeLine[];
+  outcomes: { status: ItemStatus; quantity: number }[];
 }
+
+// resolve = afrapportering ved færdiggørelse; release = "Frigiv" på én
+// linje; deleteTask = alle linjer frigives, før opgaven slettes.
+export type MaterialOutcomesMode = 'resolve' | 'release' | 'deleteTask';
 
 interface ResolveTaskMaterialsModalProps {
   materials: TaskMaterial[];
-  requiresApproval: boolean;
+  mode?: MaterialOutcomesMode;
+  requiresApproval?: boolean;
   onConfirm: (entries: MaterialOutcomeEntry[]) => Promise<void>;
   onCancel: () => void;
 }
@@ -38,9 +43,20 @@ const NON_FINAL_STATUSES: ItemStatus[] = ['Reserved', 'InUse'];
 // introteksten). `materials` kommer reaktivt fra parent
 // (useGetTaskMaterialsQuery), så et delvist mislykket forsøg kun viser de
 // linjer der stadig mangler ved næste forsøg - ingen frossen kopi holdes her.
-export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfirm, onCancel }: ResolveTaskMaterialsModalProps) {
+// Genbruges til "Frigiv"/slet opgave (mode release/deleteTask): samme valg af
+// slutstatus pr. statusgruppe, men Reserved/InUse kan ikke vælges.
+export function ResolveTaskMaterialsModal({
+  materials,
+  mode = 'resolve',
+  requiresApproval = false,
+  onConfirm,
+  onCancel,
+}: ResolveTaskMaterialsModalProps) {
   const { t } = useTranslation(['tasks', 'datalayer', 'common']);
   const td = asDynamic(t);
+
+  const isRelease = mode !== 'resolve';
+  const statusOptions = isRelease ? ALL_ITEM_STATUSES.filter((s) => !NON_FINAL_STATUSES.includes(s)) : ALL_ITEM_STATUSES;
 
   const unresolved = materials.filter((m) => !m.resolved);
 
@@ -49,12 +65,14 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
   const [submitError, setSubmitError] = useState<unknown>(null);
 
   // Prefilled with one line per current status group (incl. statuses set
-  // manually during the task). Reserved/InUse are not end states, so those
-  // lines start empty - nothing is ever applied without an explicit choice.
+  // manually during the task). Reserved/InUse are not end states: on
+  // resolve those lines start empty (explicit choice required), on release
+  // they start as Available (back in stock). Nothing is applied before
+  // the user confirms.
   const getOutcomes = (material: TaskMaterial): OutcomeLine[] =>
     outcomesByMaterial[material.id] ??
     material.linkedGroups.map((group) => ({
-      status: NON_FINAL_STATUSES.includes(group.status) ? '' : group.status,
+      status: NON_FINAL_STATUSES.includes(group.status) ? (isRelease ? 'Available' : '') : group.status,
       quantity: group.quantity,
     }));
 
@@ -80,7 +98,8 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
     const entries: MaterialOutcomeEntry[] = unresolved.map((material) => ({
       taskMaterialId: material.id,
       itemId: material.itemId,
-      outcomes: getOutcomes(material),
+      // isValid guarantees no empty status.
+      outcomes: getOutcomes(material).map((o) => ({ status: o.status as ItemStatus, quantity: o.quantity })),
     }));
 
     try {
@@ -94,6 +113,28 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
 
   const errorMessage = readableError(submitError);
 
+  const texts =
+    mode === 'deleteTask'
+      ? {
+          heading: t('materials.deleteTaskModal.heading'),
+          intro: t('materials.deleteTaskModal.intro'),
+          confirm: t('materials.deleteTaskModal.confirm'),
+          confirming: t('materials.deleteTaskModal.confirming'),
+        }
+      : mode === 'release'
+        ? {
+            heading: t('materials.releaseModal.heading'),
+            intro: t('materials.releaseModal.intro'),
+            confirm: t('materials.releaseModal.confirm'),
+            confirming: t('materials.releaseModal.confirming'),
+          }
+        : {
+            heading: t('materials.resolve.heading'),
+            intro: requiresApproval ? t('materials.resolve.introApproval') : t('materials.resolve.intro'),
+            confirm: t('materials.resolve.confirm'),
+            confirming: t('materials.resolve.confirming'),
+          };
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
       <div
@@ -102,10 +143,8 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
       >
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-primary dark:text-slate-100">{t('materials.resolve.heading')}</h3>
-            <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-              {requiresApproval ? t('materials.resolve.introApproval') : t('materials.resolve.intro')}
-            </p>
+            <h3 className="text-xl font-bold text-primary dark:text-slate-100">{texts.heading}</h3>
+            <p className="mt-1 text-sm text-secondary dark:text-slate-400">{texts.intro}</p>
           </div>
 
           <button type="button" onClick={onCancel} className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100">
@@ -148,7 +187,7 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
                         <option value="" disabled>
                           {t('materials.chooseStatusPlaceholder')}
                         </option>
-                        {ALL_ITEM_STATUSES.map((status) => (
+                        {statusOptions.map((status) => (
                           <option key={status} value={status}>
                             {td(`datalayer:status.${status}`)}
                           </option>
@@ -214,7 +253,7 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
             disabled={isSubmitting || !isValid || unresolved.length === 0}
             className="rounded-lg bg-accent px-4 py-2 text-sm text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
           >
-            {isSubmitting ? t('materials.resolve.confirming') : t('materials.resolve.confirm')}
+            {isSubmitting ? texts.confirming : texts.confirm}
           </button>
         </div>
       </div>

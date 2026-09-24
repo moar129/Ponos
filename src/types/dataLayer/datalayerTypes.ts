@@ -71,6 +71,13 @@ export interface ItemUnit {
   contentsFullStatus?: ItemStatus | null;
 }
 
+// Available quantity of one item at one location (null = no location).
+export interface AvailableUnitLocation {
+  itemId: string;
+  locationId: string | null;
+  quantity: number;
+}
+
 // Rene forslag (datalist) - felterne forbliver frit tekst, ingen logik er
 // bundet til den konkrete værdi. Hjælper brugeren med hvad der plejer at
 // give mening at skrive, uden at begrænse dem til en fast liste.

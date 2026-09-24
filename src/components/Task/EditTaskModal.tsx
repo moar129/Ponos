@@ -3,10 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
 import {
     useDeleteTaskMutation,
+    useGetTaskMaterialsQuery,
     useUpdateTaskMutation,
 } from '../../store/apis/taskApi';
+import { useReleaseItemUnitsMutation } from '../../store/apis/categoryApi';
 import type { ETaskPriority, Task } from '../../types/Task/Task';
 import { X } from 'lucide-react';
+import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
+import { TaskMaterialsList } from './TaskMaterialsList';
 
 interface EditTaskModalProps {
     isOpen: boolean;
@@ -14,6 +19,8 @@ interface EditTaskModalProps {
     task: Task;
     canUpdate: boolean;
     canDelete: boolean;
+    // Navne på tilmeldte - TaskCard har allerede hentet profilerne.
+    assigneeNames: string[];
 }
 
 
@@ -23,6 +30,7 @@ export function EditTaskModal({
     task,
     canUpdate,
     canDelete,
+    assigneeNames,
 }: EditTaskModalProps) {
   const { t } = useTranslation(['tasks', 'common'])
     const today = new Date().toISOString().split('T')[0];
@@ -50,6 +58,11 @@ export function EditTaskModal({
 
     const [updateTask, { isLoading, error }] = useUpdateTaskMutation();
     const [deleteTask, { isLoading: isDeleting, error: deleteError }] = useDeleteTaskMutation();
+    const [releaseItemUnits] = useReleaseItemUnitsMutation();
+    const { data: materials = [] } = useGetTaskMaterialsQuery(task.id);
+    const [showReleaseModal, setShowReleaseModal] = useState(false);
+
+    const unresolvedMaterials = materials.filter((m) => !m.resolved);
 
     if (!isOpen) {
         return null;
@@ -79,13 +92,39 @@ export function EditTaskModal({
         onClose();
     };
 
+    // Har opgaven stadig linkede materialer, vælger brugeren først deres
+    // slutstatus (ResolveTaskMaterialsModal, mode deleteTask). Frigivelse
+    // kræver update_tasks - uden den slettes direkte, og triggeren
+    // release_units_on_task_material_delete anvender fallback-reglen
+    // (kun Reserved/InUse -> Available).
     const handleDelete = async () => {
+        if (unresolvedMaterials.length > 0 && canUpdate) {
+            setShowReleaseModal(true);
+            return;
+        }
+
         try {
             await deleteTask(task.id).unwrap();
             onClose();
         } catch {
             // Fejlen vises gennem deleteError
         }
+    };
+
+    // Fejl kastes videre, så modalen selv viser dem.
+    const handleReleaseAndDelete = async (entries: MaterialOutcomeEntry[]) => {
+        for (const entry of entries) {
+            await releaseItemUnits({
+                taskMaterialId: entry.taskMaterialId,
+                itemId: entry.itemId,
+                taskId: task.id,
+                outcomes: entry.outcomes,
+            }).unwrap();
+        }
+
+        await deleteTask(task.id).unwrap();
+        setShowReleaseModal(false);
+        onClose();
     };
 
     const handleSubmit = async () => {
@@ -126,7 +165,7 @@ export function EditTaskModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
+            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
 
                 {/* HEADER */}
                 <div className="mb-6 flex items-center justify-between">
@@ -301,6 +340,37 @@ export function EditTaskModal({
                         </select>
                     </div>
 
+                    {/* ANSVARLIGE (kun visning - tilmelding styres fra TaskCard) */}
+                    <div>
+                        <span className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400">
+                            {t('card.responsible')}
+                        </span>
+
+                        {assigneeNames.length === 0 ? (
+                            <p className="text-sm text-secondary dark:text-slate-400">{t('assignees.nobodyAssigned')}</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {assigneeNames.map((name, index) => (
+                                    <span
+                                        key={index}
+                                        className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-primary dark:bg-slate-700 dark:text-slate-100"
+                                    >
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* MATERIALER */}
+                    <div>
+                        <span className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400">
+                            {t('materials.heading')}
+                        </span>
+
+                        <TaskMaterialsList taskId={task.id} canManage={canUpdate} taskStatus={task.status} />
+                    </div>
+
                 </div>
 
                 {/* BUTTONS */}
@@ -361,6 +431,15 @@ export function EditTaskModal({
                 )}
 
             </div>
+
+            {showReleaseModal && (
+                <ResolveTaskMaterialsModal
+                    mode="deleteTask"
+                    materials={materials}
+                    onCancel={() => setShowReleaseModal(false)}
+                    onConfirm={handleReleaseAndDelete}
+                />
+            )}
         </div>
     );
 }

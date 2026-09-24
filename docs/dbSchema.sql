@@ -2235,10 +2235,12 @@ create trigger trg_prevent_direct_status_change_on_reserved_unit
   for each row execute function public.prevent_direct_status_change_on_reserved_unit();
 
 -- Sikkerhedsnet: frigiv enheder hvis task_materials slettes uden om
--- release_item_units (fx via §16.7's delete-only policy på task_materials).
--- BEFORE DELETE (ikke AFTER!): task_material_units-rækkerne skal stadig
--- eksistere når vi læser dem, og guard-triggeren ovenfor kræver at
--- linket er væk FØR status ændres.
+-- release_item_units med udfald (fx sletning af et rum med opgaver, eller
+-- release_item_units uden p_outcomes). BEFORE DELETE (ikke AFTER!):
+-- task_material_units-rækkerne skal stadig eksistere når vi læser dem, og
+-- guard-triggeren ovenfor kræver at linket er væk FØR status ændres.
+-- Rettet 2026-09-24: fallback-regel - kun Reserved/InUse -> Available,
+-- andre statusser (fx Damaged sat undervejs, §15.21c) beholdes.
 create or replace function public.release_units_on_task_material_delete()
 returns trigger
 language plpgsql
@@ -2256,7 +2258,8 @@ begin
 
   update public.data_layer_item_units
      set status = 'Available'
-   where id = any(v_unit_ids);
+   where id = any(v_unit_ids)
+     and status in ('Reserved', 'InUse');
 
   return old;
 end;
@@ -2321,7 +2324,17 @@ $$;
 -- task_materials-linjen. Udvidet 2026-09-23: reserveres et materiale på en
 -- opgave der allerede er InProgress, sættes enhederne direkte til InUse i
 -- stedet for Reserved - der er intet "vente"-trin tilbage for den opgave.
-create or replace function public.reserve_item_units(p_task_id uuid, p_item_id uuid, p_quantity numeric)
+-- Udvidet 2026-09-24: valgfri p_location_id/p_restrict_location - med
+-- p_restrict_location = true tages kun enheder hvor location_id IS NOT
+-- DISTINCT FROM p_location_id (null = "Uden lager"), så en opgave kun
+-- reserverer fra det lager brugeren valgte. Default = alle lagre.
+create or replace function public.reserve_item_units(
+  p_task_id uuid,
+  p_item_id uuid,
+  p_quantity numeric,
+  p_location_id uuid default null,
+  p_restrict_location boolean default false
+)
 returns uuid
 language plpgsql
 security definer
@@ -2370,6 +2383,7 @@ begin
     from public.data_layer_item_units
     where item_id = p_item_id
       and status = 'Available'
+      and (not p_restrict_location or location_id is not distinct from p_location_id)
     order by created_at
     for update skip locked
   loop
@@ -2397,11 +2411,15 @@ begin
 end;
 $$;
 
-grant execute on function public.reserve_item_units(uuid, uuid, numeric) to authenticated;
+grant execute on function public.reserve_item_units(uuid, uuid, numeric, uuid, boolean) to authenticated;
 
--- Annullering/fjernelse før færdiggørelse: frigiver linkede enheder til
--- Available, sletter kobling + task_materials-række.
-create or replace function public.release_item_units(p_task_material_id uuid)
+-- Annullering/fjernelse før færdiggørelse. Udvidet 2026-09-24 med
+-- valgfri p_outcomes (samme format som afrapportering): brugeren vælger
+-- slutstatus pr. mængde (Reserved/InUse afvises - RELEASE_STATUS_NOT_
+-- ALLOWED), anvendt via apply_task_material_outcomes (§15.21b). Uden
+-- p_outcomes anvender triggeren release_units_on_task_material_delete
+-- fallback-reglen. Linjen slettes altid til sidst.
+create or replace function public.release_item_units(p_task_material_id uuid, p_outcomes jsonb default null)
 returns void
 language plpgsql
 security definer
@@ -2410,7 +2428,6 @@ as $$
 declare
   v_org_id uuid := public.auth_profile_org();
   v_task_id uuid;
-  v_unit_ids uuid[];
 begin
   if v_org_id is null then
     raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
@@ -2431,21 +2448,25 @@ begin
       using errcode = '42501', hint = 'NO_PRIV_RELEASE_MATERIALS';
   end if;
 
-  select array_agg(unit_id) into v_unit_ids
-  from public.task_material_units
-  where task_material_id = p_task_material_id;
+  if p_outcomes is not null then
+    if exists (
+      select 1 from jsonb_array_elements(p_outcomes) as elem
+      where elem->>'status' in ('Reserved', 'InUse')
+    ) then
+      raise exception 'Et frigivet materiale kan ikke have status Reserveret eller I brug.'
+        using hint = 'RELEASE_STATUS_NOT_ALLOWED';
+    end if;
 
-  delete from public.task_material_units where task_material_id = p_task_material_id;
+    perform public.apply_task_material_outcomes(p_task_material_id, p_outcomes);
+  end if;
 
-  update public.data_layer_item_units
-     set status = 'Available'
-   where id = any(v_unit_ids);
-
+  -- Uden udfald anvender triggeren release_units_on_task_material_delete
+  -- fallback-reglen på de stadig linkede enheder.
   delete from public.task_materials where id = p_task_material_id;
 end;
 $$;
 
-grant execute on function public.release_item_units(uuid) to authenticated;
+grant execute on function public.release_item_units(uuid, jsonb) to authenticated;
 
 -- 15.21b (2026-09-23): delt kerne bag afrapportering - splitter/unlinker/
 -- sætter status for de linkede enheder på ÉN task_materials-linje, ud fra
@@ -2576,8 +2597,6 @@ grant execute on function public.resolve_task_material_units(uuid, jsonb) to aut
 -- (ingen split - split_unit_if_needed splitter ellers altid kapacitets-
 -- beholdere); delmængde splittes, og den NYE split-række re-linkes til
 -- samme linje (modsat apply_task_material_outcomes, §15.21b).
--- Kendt afgrænsning: release_item_units sætter stadig HELE linjen til
--- Available, også dele der undervejs er sat til fx Damaged.
 create or replace function public.update_task_material_status(
   p_task_material_id uuid,
   p_from_status text,

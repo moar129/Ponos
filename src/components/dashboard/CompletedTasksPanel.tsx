@@ -108,6 +108,7 @@ export function CompletedTasksPanel() {
                     onClose={() => setEditingTask(null)}
                     task={editingTask}
                     canUpdate={canUpdate}
+                    assigneeNames={editingTask.assignees.map((a) => a.name || t('tasks:assignees.unknownUser'))}
                     canDelete={canDelete}
                 />
             )}

@@ -10,7 +10,12 @@ import { getErrorMessage } from '../../ErrorMessage';
 export function LocationPickerComponent({ value, onChange, canCreate, canUpdate, canDelete }: LocationPickerComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const { data: locations = [], isLoading } = useGetItemLocationsQuery();
-  const [isCreating, setIsCreating] = useState(false);
+  // Hvad der oprettes styres af HVILKEN "opret"-option der blev valgt, ikke
+  // af om et lager tilfældigvis er valgt - ellers blev "Opret nyt lager"
+  // til en sektion, så snart et lager allerede var valgt.
+  const [creatingKind, setCreatingKind] = useState<'warehouse' | 'section' | null>(null);
+  const isCreating = creatingKind !== null;
+  const isCreatingSection = creatingKind === 'section';
   const [isManaging, setIsManaging] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
@@ -56,7 +61,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
 
   const handleWarehouseChange = (val: string) => {
     if (val === '__new_warehouse__') {
-      setIsCreating(true);
+      setCreatingKind('warehouse');
       return;
     }
     if (val === '') {
@@ -72,7 +77,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
 
   const handleSectionChange = (val: string) => {
     if (val === '__new_section__') {
-      setIsCreating(true);
+      setCreatingKind('section');
       return;
     }
     // Tom værdi = "hele lageret" (ingen bestemt sektion).
@@ -89,14 +94,13 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         name: newName.trim(),
         address: newAddress.trim() || null,
         description: newDescription.trim() || null,
-        // Opretter en sektion under det valgte lager, hvis et lager
-        // allerede er valgt - ellers et nyt lager.
-        parentLocationId: selectedWarehouseId,
+        // Sektion under det valgte lager, eller et nyt selvstændigt lager.
+        parentLocationId: isCreatingSection ? selectedWarehouseId : null,
       }).unwrap();
 
       skipNextValueSyncRef.current = true;
 
-      if (selectedWarehouseId) {
+      if (isCreatingSection) {
         // Ny sektion: vælg den, og hold lageret som det er.
         onChange(id);
       } else {
@@ -105,7 +109,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         onChange(id);
       }
 
-      setIsCreating(false);
+      setCreatingKind(null);
       setNewName('');
       setNewAddress('');
       setNewDescription('');
@@ -137,11 +141,11 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
         <div className="p-3 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
           {createError && <p className="text-xs text-red-600 dark:text-red-400">{createError}</p>}
           <p className="text-xs text-secondary dark:text-slate-400">
-            {selectedWarehouseId ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
+            {isCreatingSection ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
           </p>
           <input
             type="text"
-            placeholder={selectedWarehouseId ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
+            placeholder={isCreatingSection ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
@@ -163,7 +167,7 @@ export function LocationPickerComponent({ value, onChange, canCreate, canUpdate,
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={() => { setIsCreating(false); setCreateError(null); }}
+              onClick={() => { setCreatingKind(null); setCreateError(null); }}
               className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
             >
               {t('common:cancel')}
