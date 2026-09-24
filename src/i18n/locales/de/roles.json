@@ -59,6 +59,26 @@
     "reportedBy": "Fertig gemeldet von",
     "approve": "Freigeben",
     "reject": "Ablehnen",
-    "reportedDoneBy": "Fertig gemeldet von {{name}}"
+    "reportedDoneBy": "Fertig gemeldet von {{name}}",
+    "details": {
+      "open": "Details anzeigen",
+      "loading": "Details werden geladen...",
+      "loadFailed": "Details konnten nicht geladen werden.",
+      "room": "Raum",
+      "noRoom": "Ohne Raum",
+      "period": "Zeitraum",
+      "noDescription": "Keine Beschreibung.",
+      "assignees": "Zugewiesene",
+      "noAssignees": "Niemand zugewiesen.",
+      "materials": "Materialien",
+      "noMaterials": "Keine Materialien zugeordnet.",
+      "noLocation": "Ohne Lager",
+      "reserved": "Reserviert",
+      "alreadyResolved": "Bereits gemeldet.",
+      "currentStatus": "Aktueller Status",
+      "location": "Lager",
+      "proposedOutcome": "Vorgeschlagenes Ergebnis bei Freigabe",
+      "missingOutcome": "Kein Ergebnis angegeben - die Freigabe schlägt fehl, bis das Material gemeldet ist."
+    }
   }
 }

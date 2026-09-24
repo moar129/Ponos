@@ -10,6 +10,7 @@ import type {
     Task,
     TaskAssignee,
     TaskMaterial,
+    TaskRequestDetails,
 } from '../../types/Task/Task'
 
 import type { ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes'
@@ -709,6 +710,80 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
         }),
 
+        // Detaljer for én færdigmelding (opgave, tilmeldte, materialer +
+        // foreslåede udfald), til godkenderens detalje-modal. Security
+        // definer-RPC, da en godkender ikke nødvendigvis har read_tasks.
+        getTaskRequestDetails: builder.query<TaskRequestDetails, string>({
+            queryFn: async (requestId) => {
+                const { data, error } = await supabase.rpc('get_task_request_details', { p_request_id: requestId })
+
+                if (error) return { error: mapPermissionError(error, 'readTaskApprovals') }
+
+                type StatusGroupRow = { status: ItemStatus; quantity: number }
+                type Row = {
+                    task: {
+                        id: string
+                        title: string
+                        description: string | null
+                        priority: ETaskPriority | null
+                        status: ETaskStatus
+                        start_date: string | null
+                        end_date: string | null
+                        requires_approval: boolean
+                        room_name: string | null
+                    }
+                    requester_name: string
+                    requested_at: string
+                    assignees: string[]
+                    materials: {
+                        id: string
+                        item_name: string
+                        unit_of_measurement: string | null
+                        quantity: number
+                        linked_groups: StatusGroupRow[]
+                        location_labels: string[]
+                        has_units_without_location: boolean
+                        proposed_outcomes: StatusGroupRow[] | null
+                    }[]
+                }
+
+                const row = data as Row
+                const toGroups = (groups: StatusGroupRow[]) =>
+                    groups.map((g) => ({ status: g.status, quantity: Number(g.quantity) }))
+
+                return {
+                    data: {
+                        task: {
+                            id: row.task.id,
+                            title: row.task.title,
+                            description: row.task.description,
+                            priority: row.task.priority,
+                            status: row.task.status,
+                            start_date: row.task.start_date,
+                            end_date: row.task.end_date,
+                            requires_approval: row.task.requires_approval,
+                        },
+                        roomName: row.task.room_name,
+                        requesterName: row.requester_name || 'Ukendt bruger',
+                        requestedAt: row.requested_at,
+                        assignees: row.assignees,
+                        materials: row.materials.map((m) => ({
+                            id: m.id,
+                            itemName: m.item_name,
+                            unitOfMeasurement: m.unit_of_measurement ?? '',
+                            quantity: Number(m.quantity),
+                            linkedGroups: toGroups(m.linked_groups),
+                            locationLabels: m.location_labels,
+                            hasUnitsWithoutLocation: m.has_units_without_location,
+                            proposedOutcomes: m.proposed_outcomes ? toGroups(m.proposed_outcomes) : null,
+                        })),
+                    },
+                }
+            },
+            // Samme tag som listen, så godkend/afvis også genindlæser detaljerne.
+            providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
+        }),
+
         approveTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
             queryFn: async ({ requestId }) => {
                 const { error } = await supabase.rpc('approve_task_request', { p_request_id: requestId })
@@ -1209,6 +1284,7 @@ export const {
     useGetTaskRequestsQuery,
     useCreateTaskRequestMutation,
     useGetPendingTaskRequestsQuery,
+    useGetTaskRequestDetailsQuery,
     useApproveTaskRequestMutation,
     useRejectTaskRequestMutation,
     useCreateTaskMutation,

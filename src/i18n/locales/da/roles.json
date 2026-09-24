@@ -59,6 +59,26 @@
     "reportedBy": "Meldt færdig af",
     "approve": "Godkend",
     "reject": "Afvis",
-    "reportedDoneBy": "Meldt færdig af {{name}}"
+    "reportedDoneBy": "Meldt færdig af {{name}}",
+    "details": {
+      "open": "Se detaljer",
+      "loading": "Indlæser detaljer...",
+      "loadFailed": "Detaljerne kunne ikke hentes.",
+      "room": "Rum",
+      "noRoom": "Uden rum",
+      "period": "Periode",
+      "noDescription": "Ingen beskrivelse.",
+      "assignees": "Tilmeldte",
+      "noAssignees": "Ingen tilmeldte.",
+      "materials": "Materialer",
+      "noMaterials": "Ingen materialer tilknyttet.",
+      "noLocation": "Uden lager",
+      "reserved": "Reserveret",
+      "alreadyResolved": "Allerede afrapporteret.",
+      "currentStatus": "Nuværende status",
+      "location": "Lager",
+      "proposedOutcome": "Foreslået udfald ved godkendelse",
+      "missingOutcome": "Intet udfald angivet - godkendelse vil fejle, indtil materialet er afrapporteret."
+    }
   }
 }

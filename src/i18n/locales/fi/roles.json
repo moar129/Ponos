@@ -59,6 +59,26 @@
     "reportedBy": "Valmiiksi ilmoitti",
     "approve": "Hyväksy",
     "reject": "Hylkää",
-    "reportedDoneBy": "Valmiiksi ilmoitti {{name}}"
+    "reportedDoneBy": "Valmiiksi ilmoitti {{name}}",
+    "details": {
+      "open": "Näytä tiedot",
+      "loading": "Ladataan tietoja...",
+      "loadFailed": "Tietoja ei voitu hakea.",
+      "room": "Huone",
+      "noRoom": "Ei huonetta",
+      "period": "Ajanjakso",
+      "noDescription": "Ei kuvausta.",
+      "assignees": "Osallistujat",
+      "noAssignees": "Ei osallistujia.",
+      "materials": "Materiaalit",
+      "noMaterials": "Ei liitettyjä materiaaleja.",
+      "noLocation": "Ei varastoa",
+      "reserved": "Varattu",
+      "alreadyResolved": "Jo raportoitu.",
+      "currentStatus": "Nykyinen tila",
+      "location": "Varasto",
+      "proposedOutcome": "Ehdotettu lopputulos hyväksynnässä",
+      "missingOutcome": "Lopputulosta ei annettu - hyväksyntä epäonnistuu, kunnes materiaali on raportoitu."
+    }
   }
 }

@@ -59,6 +59,26 @@
     "reportedBy": "Déclarée terminée par",
     "approve": "Valider",
     "reject": "Refuser",
-    "reportedDoneBy": "Déclarée terminée par {{name}}"
+    "reportedDoneBy": "Déclarée terminée par {{name}}",
+    "details": {
+      "open": "Voir les détails",
+      "loading": "Chargement des détails...",
+      "loadFailed": "Impossible de charger les détails.",
+      "room": "Salle",
+      "noRoom": "Sans salle",
+      "period": "Période",
+      "noDescription": "Aucune description.",
+      "assignees": "Assignés",
+      "noAssignees": "Personne n'est assigné.",
+      "materials": "Matériaux",
+      "noMaterials": "Aucun matériau associé.",
+      "noLocation": "Sans entrepôt",
+      "reserved": "Réservé",
+      "alreadyResolved": "Déjà déclaré.",
+      "currentStatus": "Statut actuel",
+      "location": "Entrepôt",
+      "proposedOutcome": "Résultat proposé à la validation",
+      "missingOutcome": "Aucun résultat indiqué - la validation échouera tant que le matériau n'est pas déclaré."
+    }
   }
 }

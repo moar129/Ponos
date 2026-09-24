@@ -15,6 +15,7 @@ import {
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
 import type { TaskApprovalRowProps } from '../../types/Task/Task'
+import { TaskApprovalDetailsModal } from './TaskApprovalDetailsModal'
 
 type PendingDecision = NonNullable<TaskApprovalRowProps['pendingDecision']>
 
@@ -36,6 +37,9 @@ export function TaskApprovalsPanel() {
     const submitting = approving || rejecting
 
     const [pendingDecision, setPendingDecision] = useState<PendingDecision | null>(null)
+    const [detailsRequestId, setDetailsRequestId] = useState<string | null>(null)
+    // Afledt af listen, så modalen lukker af sig selv når anmodningen er behandlet.
+    const detailsRequest = requests?.find((r) => r.id === detailsRequestId) ?? null
 
     async function confirmDecision(decision: PendingDecision) {
         const request = requests?.find((r) => r.id === decision.requestId)
@@ -48,6 +52,7 @@ export function TaskApprovalsPanel() {
         try {
             if (decision.decision === 'approve') await approve(input).unwrap()
             else await reject(input).unwrap()
+            setDetailsRequestId(null)
         } catch {
             // Fejlen vises via mutationens error-state.
         }
@@ -82,10 +87,29 @@ export function TaskApprovalsPanel() {
                                 onSelect={setPendingDecision}
                                 onCancel={() => setPendingDecision(null)}
                                 onConfirm={confirmDecision}
+                                onOpenDetails={() => setDetailsRequestId(request.id)}
                             />
                         </li>
                     ))}
                 </ul>
+            )}
+
+            {detailsRequest && (
+                <TaskApprovalDetailsModal
+                    request={detailsRequest}
+                    canApprove={canApprove}
+                    canReject={canReject}
+                    pendingDecision={pendingDecision}
+                    submitting={submitting}
+                    errorMessage={actionError}
+                    onSelect={setPendingDecision}
+                    onCancel={() => setPendingDecision(null)}
+                    onConfirm={confirmDecision}
+                    onClose={() => {
+                        setDetailsRequestId(null)
+                        setPendingDecision(null)
+                    }}
+                />
             )}
         </div>
     )
@@ -100,17 +124,24 @@ function TaskApprovalRow({
     onSelect,
     onCancel,
     onConfirm,
+    onOpenDetails,
 }: TaskApprovalRowProps) {
     const { t } = useTranslation(['roles', 'common', 'errors'])
     const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <p className="font-medium">{request.taskTitle}</p>
+            <button
+                type="button"
+                onClick={onOpenDetails}
+                title={t('roles:approvals.details.open')}
+                className="group text-left"
+            >
+                <p className="font-medium group-hover:text-accent group-hover:underline">{request.taskTitle}</p>
                 <p className="text-sm text-secondary dark:text-slate-400">{t('roles:approvals.reportedDoneBy', { name: request.requesterName })}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDateTime(request.requestedAt)}</p>
-            </div>
+                <p className="text-xs font-semibold text-accent mt-1">{t('roles:approvals.details.open')}</p>
+            </button>
 
             {decision ? (
                 <div className="flex flex-wrap items-center gap-3">

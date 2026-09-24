@@ -59,6 +59,26 @@
     "reportedBy": "Slutrapporterad av",
     "approve": "Godkänn",
     "reject": "Avslå",
-    "reportedDoneBy": "Slutrapporterad av {{name}}"
+    "reportedDoneBy": "Slutrapporterad av {{name}}",
+    "details": {
+      "open": "Visa detaljer",
+      "loading": "Laddar detaljer...",
+      "loadFailed": "Detaljerna kunde inte hämtas.",
+      "room": "Rum",
+      "noRoom": "Utan rum",
+      "period": "Period",
+      "noDescription": "Ingen beskrivning.",
+      "assignees": "Anmälda",
+      "noAssignees": "Inga anmälda.",
+      "materials": "Material",
+      "noMaterials": "Inget material kopplat.",
+      "noLocation": "Utan lager",
+      "reserved": "Reserverat",
+      "alreadyResolved": "Redan avrapporterat.",
+      "currentStatus": "Nuvarande status",
+      "location": "Lager",
+      "proposedOutcome": "Föreslaget utfall vid godkännande",
+      "missingOutcome": "Inget utfall angivet - godkännandet misslyckas tills materialet är avrapporterat."
+    }
   }
 }

@@ -59,6 +59,26 @@
     "reportedBy": "Reported done by",
     "approve": "Approve",
     "reject": "Reject",
-    "reportedDoneBy": "Reported done by {{name}}"
+    "reportedDoneBy": "Reported done by {{name}}",
+    "details": {
+      "open": "View details",
+      "loading": "Loading details...",
+      "loadFailed": "Could not load details.",
+      "room": "Room",
+      "noRoom": "No room",
+      "period": "Period",
+      "noDescription": "No description.",
+      "assignees": "Assignees",
+      "noAssignees": "No assignees.",
+      "materials": "Materials",
+      "noMaterials": "No materials attached.",
+      "noLocation": "No location",
+      "reserved": "Reserved",
+      "alreadyResolved": "Already reported.",
+      "currentStatus": "Current status",
+      "location": "Location",
+      "proposedOutcome": "Proposed outcome on approval",
+      "missingOutcome": "No outcome given - approval will fail until the material is reported."
+    }
   }
 }

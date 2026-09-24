@@ -2058,6 +2058,118 @@ grant execute on function public.reject_task_request(uuid) to authenticated;
 grant execute on function public.get_pending_task_requests() to authenticated;
 
 
+-- 15.19b US-75-udvidelse (2026-09-24): detaljer for én færdigmelding til
+-- godkenderens detalje-modal (TaskApprovalDetailsModal.tsx): opgave, rum,
+-- tilmeldte, materialer (reserveret mængde, nuværende status-fordeling,
+-- lokationer) + den tildeltes foreslåede udfald fra material_outcomes.
+-- Security definer, da en godkender (approve_task/reject_task) ikke
+-- nødvendigvis har read_tasks - samme begrundelse som
+-- get_pending_task_requests. Org-isoleret via tasks.organisation_id.
+create or replace function public.get_task_request_details(p_request_id uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_result jsonb;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501', hint = 'NO_PRIV_READ_TASK_APPROVALS';
+  end if;
+
+  select r.task_id into v_task_id
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
+  end if;
+
+  select jsonb_build_object(
+    'task', jsonb_build_object(
+      'id', t.id,
+      'title', t.title,
+      'description', t.description,
+      'priority', t.priority,
+      'status', t.status,
+      'start_date', t.start_date,
+      'end_date', t.end_date,
+      'requires_approval', t.requires_approval,
+      'room_name', tr.name
+    ),
+    'requester_name', trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')),
+    'requested_at', r.requested_at,
+    'assignees', coalesce((
+      select jsonb_agg(trim(coalesce(ap.first_name, '') || ' ' || coalesce(ap.last_name, '')) order by ap.first_name, ap.last_name)
+      from public.task_assignees ta
+      left join public.profiles ap on ap.id = ta.user_id
+      where ta.task_id = t.id
+    ), '[]'::jsonb),
+    'materials', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', tm.id,
+        'item_name', i.name,
+        'unit_of_measurement', i.unit_of_measurement,
+        'quantity', tm.quantity,
+        'linked_groups', coalesce((
+          select jsonb_agg(jsonb_build_object('status', g.status, 'quantity', g.quantity))
+          from (
+            select u.status, sum(u.quantity) as quantity
+            from public.task_material_units tmu
+            join public.data_layer_item_units u on u.id = tmu.unit_id
+            where tmu.task_material_id = tm.id
+            group by u.status
+          ) g
+        ), '[]'::jsonb),
+        'location_labels', coalesce((
+          select jsonb_agg(distinct case when pl.id is null then l.name else pl.name || ' > ' || l.name end)
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          join public.locations l on l.id = u.location_id
+          left join public.locations pl on pl.id = l.parent_location_id
+          where tmu.task_material_id = tm.id
+        ), '[]'::jsonb),
+        'has_units_without_location', exists (
+          select 1
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          where tmu.task_material_id = tm.id and u.location_id is null
+        ),
+        'proposed_outcomes', (
+          select mo->'outcomes'
+          from jsonb_array_elements(coalesce(r.material_outcomes, '[]'::jsonb)) mo
+          where (mo->>'taskMaterialId')::uuid = tm.id
+          limit 1
+        )
+      ) order by i.name)
+      from public.task_materials tm
+      join public.data_layer_items i on i.id = tm.item_id
+      where tm.task_id = t.id
+    ), '[]'::jsonb)
+  ) into v_result
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  left join public.task_rooms tr on tr.id = t.room_id
+  left join public.profiles p on p.id = r.requested_by
+  where r.id = p_request_id;
+
+  return v_result;
+end;
+$$;
+
+revoke execute on function public.get_task_request_details(uuid) from public, anon;
+grant execute on function public.get_task_request_details(uuid) to authenticated;
+
+
 -- 15.20 US-75 (2026-09-19): notify_task_completed (notifikationsfeaturen,
 -- Rasmus' funktion - kun denne ene er dokumenteret her fordi vi ændrede den).
 -- Springer over, når approve_task_request (15.19) har sat det transaktions-

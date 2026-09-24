@@ -59,6 +59,26 @@
     "reportedBy": "Conclusão comunicada por",
     "approve": "Aprovar",
     "reject": "Rejeitar",
-    "reportedDoneBy": "Conclusão comunicada por {{name}}"
+    "reportedDoneBy": "Conclusão comunicada por {{name}}",
+    "details": {
+      "open": "Ver detalhes",
+      "loading": "A carregar detalhes...",
+      "loadFailed": "Não foi possível carregar os detalhes.",
+      "room": "Sala",
+      "noRoom": "Sem sala",
+      "period": "Período",
+      "noDescription": "Sem descrição.",
+      "assignees": "Atribuídos",
+      "noAssignees": "Ninguém atribuído.",
+      "materials": "Materiais",
+      "noMaterials": "Nenhum material associado.",
+      "noLocation": "Sem armazém",
+      "reserved": "Reservado",
+      "alreadyResolved": "Já reportado.",
+      "currentStatus": "Estado atual",
+      "location": "Armazém",
+      "proposedOutcome": "Resultado proposto na aprovação",
+      "missingOutcome": "Nenhum resultado indicado - a aprovação falhará até o material ser reportado."
+    }
   }
 }

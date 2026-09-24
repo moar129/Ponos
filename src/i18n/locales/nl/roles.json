@@ -59,6 +59,26 @@
     "reportedBy": "Gereedgemeld door",
     "approve": "Goedkeuren",
     "reject": "Afwijzen",
-    "reportedDoneBy": "Gereedgemeld door {{name}}"
+    "reportedDoneBy": "Gereedgemeld door {{name}}",
+    "details": {
+      "open": "Details bekijken",
+      "loading": "Details laden...",
+      "loadFailed": "Details konden niet worden geladen.",
+      "room": "Ruimte",
+      "noRoom": "Zonder ruimte",
+      "period": "Periode",
+      "noDescription": "Geen beschrijving.",
+      "assignees": "Toegewezen",
+      "noAssignees": "Niemand toegewezen.",
+      "materials": "Materialen",
+      "noMaterials": "Geen materialen gekoppeld.",
+      "noLocation": "Zonder magazijn",
+      "reserved": "Gereserveerd",
+      "alreadyResolved": "Al gerapporteerd.",
+      "currentStatus": "Huidige status",
+      "location": "Magazijn",
+      "proposedOutcome": "Voorgestelde uitkomst bij goedkeuring",
+      "missingOutcome": "Geen uitkomst opgegeven - goedkeuring mislukt totdat het materiaal is gerapporteerd."
+    }
   }
 }

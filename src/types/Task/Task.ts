@@ -134,4 +134,30 @@ export interface TaskApprovalRowProps {
   onSelect: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
   onCancel: () => void;
   onConfirm: (decision: { requestId: string; decision: TaskRequestDecision }) => void;
+  onOpenDetails: () => void;
 }
+
+export interface TaskRequestDetailsMaterial {
+  id: string;
+  itemName: string;
+  unitOfMeasurement: string;
+  quantity: number; // original reserved quantity
+  linkedGroups: TaskMaterialStatusGroup[]; // current status split of still-linked units
+  locationLabels: string[];
+  hasUnitsWithoutLocation: boolean;
+  proposedOutcomes: TaskMaterialStatusGroup[] | null; // requester's chosen outcome, applied on approval
+}
+
+export interface TaskRequestDetails {
+  task: Pick<Task, 'id' | 'title' | 'description' | 'priority' | 'status' | 'start_date' | 'end_date' | 'requires_approval'>;
+  roomName: string | null;
+  requesterName: string;
+  requestedAt: string;
+  assignees: string[];
+  materials: TaskRequestDetailsMaterial[];
+}
+
+export type TaskApprovalDetailsModalProps = Omit<TaskApprovalRowProps, 'onOpenDetails'> & {
+  errorMessage: string | null;
+  onClose: () => void;
+};

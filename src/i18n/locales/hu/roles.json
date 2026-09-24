@@ -59,6 +59,26 @@
     "reportedBy": "Befejezettként jelentette:",
     "approve": "Jóváhagyás",
     "reject": "Elutasítás",
-    "reportedDoneBy": "Befejezettként jelentette: {{name}}"
+    "reportedDoneBy": "Befejezettként jelentette: {{name}}",
+    "details": {
+      "open": "Részletek megtekintése",
+      "loading": "Részletek betöltése...",
+      "loadFailed": "A részleteket nem sikerült betölteni.",
+      "room": "Helyiség",
+      "noRoom": "Helyiség nélkül",
+      "period": "Időszak",
+      "noDescription": "Nincs leírás.",
+      "assignees": "Hozzárendeltek",
+      "noAssignees": "Nincs hozzárendelt személy.",
+      "materials": "Anyagok",
+      "noMaterials": "Nincs csatolt anyag.",
+      "noLocation": "Raktár nélkül",
+      "reserved": "Lefoglalva",
+      "alreadyResolved": "Már jelentve.",
+      "currentStatus": "Jelenlegi állapot",
+      "location": "Raktár",
+      "proposedOutcome": "Javasolt eredmény jóváhagyáskor",
+      "missingOutcome": "Nincs megadott eredmény - a jóváhagyás sikertelen lesz, amíg az anyagot nem jelentik."
+    }
   }
 }
