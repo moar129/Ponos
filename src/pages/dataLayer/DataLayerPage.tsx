@@ -29,13 +29,28 @@ import { getErrorMessage } from '../../ErrorMessage';
 import {
   getAggregatedItems,
   flattenAllItems,
-  getDescendantCategories,
   searchCategories,
   searchItemsGlobal,
 } from '../../store/slices/dataLayersSlices/aggregatedItems';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
 type LeftTab = 'categories' | 'locations';
+
+// Inden for en filter-sektion: OR. Mellem sektioner: AND.
+function itemMatchesFilters(item: AggregatedItem, statuses: Set<ItemStatus>, units: Set<string>): boolean {
+  // US-42: et item matcher et statusfilter, hvis blot ÉN af dets
+  // enheder/batches har den valgte status.
+  if (statuses.size > 0 && ![...statuses].some((s) => (item.statusCounts[s] ?? 0) > 0)) return false;
+  if (units.size > 0 && !units.has(item.unitOfMeasurement)) return false;
+  return true;
+}
+
+function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
+}
 
 export function DataLayerPage() {
   const { t } = useTranslation(['datalayer', 'common'])
@@ -74,7 +89,7 @@ export function DataLayerPage() {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<Set<ItemStatus>>(new Set());
-  const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
+  const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
   const [localItemSearch, setLocalItemSearch] = useState('');
 
   // --- Venstrepanel: Kategorier / Lager som faner ---
@@ -184,7 +199,15 @@ export function DataLayerPage() {
 
   const resetFilters = () => {
     setSelectedStatuses(new Set());
-    setSelectedCategoryFilterIds(new Set());
+    setSelectedUnits(new Set());
+  };
+
+  // Filteret (status/enhed) nulstilles bevidst IKKE ved skift af fane,
+  // kategori eller lager - man sætter det én gang og browser så rundt.
+  const handleSwitchTab = (tab: LeftTab) => {
+    setLeftTab(tab);
+    exitSelectMode();
+    setLocalItemSearch('');
   };
 
   const handleSelectCategory = (category: DataLayerCat) => {
@@ -192,7 +215,6 @@ export function DataLayerPage() {
     setSelectedCategory(category);
     setSearchParams({ catId: category.id });
     exitSelectMode();
-    resetFilters();
     setLocalItemSearch('');
   };
 
@@ -245,23 +267,8 @@ export function DataLayerPage() {
     exitSelectMode();
   };
 
-  const toggleStatusFilter = (status: ItemStatus) => {
-    setSelectedStatuses((prev) => {
-      const next = new Set(prev);
-      if (next.has(status)) next.delete(status);
-      else next.add(status);
-      return next;
-    });
-  };
-
-  const toggleCategoryFilter = (id: string) => {
-    setSelectedCategoryFilterIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const toggleStatusFilter = (status: ItemStatus) => setSelectedStatuses((prev) => toggleInSet(prev, status));
+  const toggleUnitFilter = (unit: string) => setSelectedUnits((prev) => toggleInSet(prev, unit));
 
   // --- Lager-fane: navigations-træ + opret/rediger/slet ---
   const warehouses = useMemo(() => itemLocations.filter((l) => !l.parentLocationId), [itemLocations]);
@@ -364,23 +371,31 @@ export function DataLayerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, categoryTree]);
 
-  const descendantCategories = useMemo(
-    () => (selectedCategory ? getDescendantCategories(selectedCategory) : []),
-    [selectedCategory]
+  const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
+
+  const itemsAtSelectedLocation = useMemo(
+    () =>
+      selectedLocationView
+        ? allItemsFlat.filter((item) => item.itemLocationId === selectedLocationView.id)
+        : [],
+    [allItemsFlat, selectedLocationView]
   );
+
+  // --- Filter: status + enhed, fælles for begge faner og bevaret på
+  // tværs af kategori/lager-skift. Kategori/lager vælges i træet til
+  // venstre, ikke i filteret. Enheder hentes fra ALLE orgens items, så en
+  // valgt enhed ikke forsvinder fra listen i en visning uden den enhed.
+  const filterUnits = useMemo(
+    () => Array.from(new Set(allItemsFlat.map((item) => item.unitOfMeasurement))).sort(),
+    [allItemsFlat]
+  );
+
+  const activeFilterCount = selectedStatuses.size + selectedUnits.size;
 
   const displayedItems = useMemo(
     () =>
       aggregatedItems.filter((item) => {
-        // US-42: et item matcher nu et statusfilter, hvis blot ÉN af dets
-        // enheder/batches har den valgte status - ikke længere en enkelt
-        // status pr. item.
-        if (
-          selectedStatuses.size > 0 &&
-          ![...selectedStatuses].some((s: ItemStatus) => (item.statusCounts[s] ?? 0) > 0)
-        )
-          return false;
-        if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
+        if (!itemMatchesFilters(item, selectedStatuses, selectedUnits)) return false;
 
         if (localItemSearch.trim()) {
           const q = localItemSearch.trim().toLowerCase();
@@ -394,29 +409,20 @@ export function DataLayerPage() {
 
         return true;
       }),
-    [aggregatedItems, selectedStatuses, selectedCategoryFilterIds, localItemSearch]
+    [aggregatedItems, selectedStatuses, selectedUnits, localItemSearch]
   );
 
-  const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
-
-  const itemsAtSelectedLocation = useMemo(
-    () =>
-      selectedLocationView
-        ? allItemsFlat.filter((item) => item.itemLocationId === selectedLocationView.id)
-        : [],
-    [allItemsFlat, selectedLocationView]
-  );
-
-  // Samme lokale filtrering som kategori-panelet, bare på items for den
-  // valgte lokation i stedet for den valgte kategori.
+  // Samme filtrering som kategori-panelet, bare på items for den valgte
+  // lokation i stedet for den valgte kategori.
   const displayedLocationItems = useMemo(() => {
     if (!selectedLocationView) return [];
-    if (!localItemSearch.trim()) return itemsAtSelectedLocation;
     const q = localItemSearch.trim().toLowerCase();
-    return itemsAtSelectedLocation.filter(
-      (item) => item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q)
-    );
-  }, [itemsAtSelectedLocation, selectedLocationView, localItemSearch]);
+    return itemsAtSelectedLocation.filter((item) => {
+      if (!itemMatchesFilters(item, selectedStatuses, selectedUnits)) return false;
+      if (!q) return true;
+      return item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+    });
+  }, [itemsAtSelectedLocation, selectedLocationView, selectedStatuses, selectedUnits, localItemSearch]);
 
   // "Vælg til sletning" deler samme select-state på tværs af de to faner
   // (kun én er synlig ad gangen), men kilden til de markerede items
@@ -575,28 +581,28 @@ export function DataLayerPage() {
               type="button"
               onClick={() => setIsFilterOpen((prev) => !prev)}
               className={`w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                selectedStatuses.size > 0 || selectedCategoryFilterIds.size > 0
-                  ? 'bg-accent/10 border-accent text-primary dark:text-slate-100'
+                activeFilterCount > 0
+                  ?'bg-accent/10 border-accent text-primary dark:text-slate-100'
                   : 'bg-bg-gray hover:bg-border-gray text-primary border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700'
               }`}
             >
               <Filter className="w-4 h-4 shrink-0" />
               <span>{t('page.filter')}</span>
-              {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
+              {activeFilterCount > 0 && (
                 <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
-                  {selectedStatuses.size + selectedCategoryFilterIds.size}
+                  {activeFilterCount}
                 </span>
               )}
             </button>
 
             <FilterPanelComponent
               isOpen={isFilterOpen}
-              categories={descendantCategories}
               statuses={ALL_ITEM_STATUSES}
-              selectedCategoryIds={selectedCategoryFilterIds}
               selectedStatuses={selectedStatuses}
-              onToggleCategory={toggleCategoryFilter}
               onToggleStatus={toggleStatusFilter}
+              units={filterUnits}
+              selectedUnits={selectedUnits}
+              onToggleUnit={toggleUnitFilter}
               onClear={resetFilters}
               onClose={() => setIsFilterOpen(false)}
             />
@@ -612,7 +618,7 @@ export function DataLayerPage() {
             <div className="flex items-center border-b border-border-gray mb-4 dark:border-slate-700">
               <button
                 type="button"
-                onClick={() => { setLeftTab('categories'); exitSelectMode(); setLocalItemSearch(''); }}
+                onClick={() => handleSwitchTab('categories')}
                 className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
                   leftTab === 'categories'
                     ? 'text-accent border-accent'
@@ -623,7 +629,7 @@ export function DataLayerPage() {
               </button>
               <button
                 type="button"
-                onClick={() => { setLeftTab('locations'); exitSelectMode(); setLocalItemSearch(''); }}
+                onClick={() => handleSwitchTab('locations')}
                 className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
                   leftTab === 'locations'
                     ? 'text-accent border-accent'
@@ -835,11 +841,11 @@ export function DataLayerPage() {
 
                 {itemsAtSelectedLocation.length > 0 && displayedLocationItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-                    <Search className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                    <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
                     <p className="text-base font-medium text-primary dark:text-slate-100">{t('page.noItemsMatch')}</p>
                     <button
                       type="button"
-                      onClick={() => setLocalItemSearch('')}
+                      onClick={() => { resetFilters(); setLocalItemSearch(''); }}
                       className="text-xs text-accent hover:text-accent-hover mt-2"
                     >
                       {t('page.clearFilters')}

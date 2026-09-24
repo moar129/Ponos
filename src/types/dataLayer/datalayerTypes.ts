@@ -290,12 +290,12 @@ export interface LocationPickerComponentProps {
 
 export interface FilterPanelComponentProps {
   isOpen: boolean;
-  categories: DataLayerCat[];
   statuses: ItemStatus[];
-  selectedCategoryIds: Set<string>;
   selectedStatuses: Set<ItemStatus>;
-  onToggleCategory: (id: string) => void;
   onToggleStatus: (status: ItemStatus) => void;
+  units: string[];
+  selectedUnits: Set<string>;
+  onToggleUnit: (unit: string) => void;
   onClear: () => void;
   onClose: () => void;
 }
