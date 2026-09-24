@@ -4,6 +4,8 @@ import { asDynamic } from '../../../i18n/config'
 import { X, Plus, Trash2, Loader2, Folder, ChevronDown, Info } from 'lucide-react';
 import { useAddItemsMutation } from '../../../store/apis/categoryApi';
 import type { AddItemsComponentProps, DataLayerCat, ItemRow } from '../../../types/dataLayer/datalayerTypes';
+import { NumberInput } from '../../common/NumberInput';
+import { numberInputError, parseNumberInput } from '../../../utils/numberInput';
 import {
   ALL_ITEM_STATUSES,
   UNIT_OF_MEASUREMENT_SUGGESTIONS,
@@ -21,12 +23,12 @@ function emptyRow(): ItemRow {
     description: '',
     packaging: '',
     unitOfMeasurement: 'stk',
-    quantity: 1,
+    quantity: '1',
     itemStatus: 'Available',
     isDiscrete: true,
     serialNumbersRaw: '',
     hasContents: false,
-    contentsTotal: 1,
+    contentsTotal: '1',
     contentsStart: '',
     contentsEmptyStatus: 'Consumed',
     contentsPartialStatus: 'Missing',
@@ -39,6 +41,18 @@ function emptyRow(): ItemRow {
 // så man kan se hvor i hierarkiet man vælger, uden at skulle åbne
 // træet selv. Samme mønster som editCategoryComponent.tsx bruger til sin
 // "Overordnet kategori"-vælger.
+// Fejl for en rækkes talfelter (i18n-nøgler), kun for de felter der er
+// relevante for rækkens form. Startniveau må gerne være 0 (tom beholder).
+function rowNumberErrors(row: ItemRow) {
+  return {
+    quantity: numberInputError(row.quantity),
+    packageSize: !row.isDiscrete && !row.hasContents ? numberInputError(row.packageSize, { required: false }) : null,
+    contentsTotal: row.hasContents ? numberInputError(row.contentsTotal) : null,
+    contentsStart:
+      !row.isDiscrete && row.hasContents ? numberInputError(row.contentsStart, { required: false, allowZero: true }) : null,
+  };
+}
+
 function flattenWithPath(categories: DataLayerCat[], path: string[] = []): { id: string; label: string }[] {
   const result: { id: string; label: string }[] = [];
   for (const cat of categories) {
@@ -58,6 +72,9 @@ export function AddItemsComponent({
   const [locationId, setLocationId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(categoryId);
   const [formError, setFormError] = useState<string | null>(null);
+  // Efter et forsøg på at oprette vises også "Skriv et tal." for tomme
+  // påkrævede felter - før det kun fejl for felter man har skrevet i.
+  const [submitted, setSubmitted] = useState(false);
   const [addItems, { isLoading }] = useAddItemsMutation();
 
   const categoryOptions = flattenWithPath(categoryTree);
@@ -74,6 +91,11 @@ export function AddItemsComponent({
   const updateRow = (key: string, patch: Partial<ItemRow>) =>
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
+  // Fejl vises for felter man har skrevet i, og - efter et forsøg på at
+  // oprette - også for tomme påkrævede felter i rækker med navn.
+  const visibleError = (row: ItemRow, value: string, field: keyof ReturnType<typeof rowNumberErrors>) =>
+    value.trim() !== '' || (submitted && row.name.trim() !== '') ? rowNumberErrors(row)[field] : null;
+
   const addRow = () => setRows((prev) => [...prev, emptyRow()]);
 
   const removeRow = (key: string) =>
@@ -83,6 +105,7 @@ export function AddItemsComponent({
     setRows([emptyRow()]);
     setLocationId(null);
     setFormError(null);
+    setSubmitted(false);
     onClose();
   };
 
@@ -91,6 +114,11 @@ export function AddItemsComponent({
 
     const validRows = rows.filter((r) => r.name.trim().length > 0);
     if (validRows.length === 0) return setFormError(t('addItems.atLeastOne'));
+
+    setSubmitted(true);
+    if (validRows.some((r) => Object.values(rowNumberErrors(r)).some((error) => error !== null))) {
+      return setFormError(t('common:numberInput.fixFields'));
+    }
 
     try {
       await addItems(
@@ -101,15 +129,15 @@ export function AddItemsComponent({
           description: r.description.trim() || null,
           packaging: r.packaging.trim() || null,
           unitOfMeasurement: r.unitOfMeasurement.trim() || 'stk',
-          quantity: r.quantity,
+          quantity: parseNumberInput(r.quantity)!,
           itemStatus: r.itemStatus,
           isDiscrete: r.isDiscrete,
-          contentsTotal: r.hasContents ? r.contentsTotal : undefined,
-          contentsStart: !r.isDiscrete && r.hasContents && r.contentsStart !== '' ? r.contentsStart : undefined,
+          contentsTotal: r.hasContents ? parseNumberInput(r.contentsTotal)! : undefined,
+          contentsStart: !r.isDiscrete && r.hasContents ? parseNumberInput(r.contentsStart) ?? undefined : undefined,
           contentsEmptyStatus: r.hasContents ? r.contentsEmptyStatus || null : undefined,
           contentsPartialStatus: r.hasContents ? r.contentsPartialStatus || null : undefined,
           contentsFullStatus: r.hasContents ? r.contentsFullStatus || null : undefined,
-          packageSize: !r.isDiscrete && !r.hasContents && r.packageSize !== '' ? r.packageSize : undefined,
+          packageSize: !r.isDiscrete && !r.hasContents ? parseNumberInput(r.packageSize) ?? undefined : undefined,
           serialNumbers:
             r.isDiscrete && r.serialNumbersRaw.trim()
               ? r.serialNumbersRaw.split(',').map((s) => s.trim())
@@ -276,15 +304,14 @@ export function AddItemsComponent({
                       ? 'addItems.quantityPlaceholder'
                       : row.hasContents
                       ? 'addItems.containerCountPlaceholder'
-                      : row.packageSize !== ''
+                      : row.packageSize.trim() !== ''
                       ? 'addItems.packageCountLabel'
                       : 'addItems.measuredQuantityPlaceholder'
                   )}
-                  <input
-                    type="number"
-                    min={0}
+                  <NumberInput
                     value={row.quantity}
-                    onChange={(e) => updateRow(row.key, { quantity: Number(e.target.value) })}
+                    onValueChange={(quantity) => updateRow(row.key, { quantity })}
+                    error={visibleError(row, row.quantity, 'quantity')}
                     className="mt-1 w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                   />
                 </label>
@@ -344,16 +371,15 @@ export function AddItemsComponent({
                   <div className="sm:col-span-2">
                     <label className="text-xs text-secondary dark:text-slate-400">
                       {t('addItems.packageSizeLabel')}
-                      <input
-                        type="number"
-                        min={0}
+                      <NumberInput
                         placeholder={t('addItems.packageSizePlaceholder')}
                         value={row.packageSize}
-                        onChange={(e) => updateRow(row.key, { packageSize: e.target.value === '' ? '' : Number(e.target.value) })}
+                        onValueChange={(packageSize) => updateRow(row.key, { packageSize })}
+                        error={visibleError(row, row.packageSize, 'packageSize')}
                         className="mt-1 w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                       />
                     </label>
-                    {row.packageSize !== '' && (
+                    {row.packageSize.trim() !== '' && (
                       <p className="mt-1 flex items-start gap-1 text-[11px] text-secondary dark:text-slate-400">
                         <Info className="w-3 h-3 mt-0.5 shrink-0 text-accent" />
                         {t('addItems.packageSizeHint')}
@@ -375,11 +401,10 @@ export function AddItemsComponent({
                   <div>
                     <label className="text-xs text-secondary dark:text-slate-400">
                       {t(row.isDiscrete ? 'addItems.contentsTotalPlaceholder' : 'addItems.contentsTotalPlaceholderMeasured')}
-                      <input
-                        type="number"
-                        min={1}
+                      <NumberInput
                         value={row.contentsTotal}
-                        onChange={(e) => updateRow(row.key, { contentsTotal: Number(e.target.value) })}
+                        onValueChange={(contentsTotal) => updateRow(row.key, { contentsTotal })}
+                        error={visibleError(row, row.contentsTotal, 'contentsTotal')}
                         className="mt-1 w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                       />
                     </label>
@@ -395,11 +420,10 @@ export function AddItemsComponent({
                   <div>
                     <label className="text-xs text-secondary dark:text-slate-400">
                       {t('addItems.contentsStartPlaceholder')}
-                      <input
-                        type="number"
-                        min={0}
+                      <NumberInput
                         value={row.contentsStart}
-                        onChange={(e) => updateRow(row.key, { contentsStart: e.target.value === '' ? '' : Number(e.target.value) })}
+                        onValueChange={(contentsStart) => updateRow(row.key, { contentsStart })}
+                        error={visibleError(row, row.contentsStart, 'contentsStart')}
                         className="mt-1 w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                       />
                     </label>

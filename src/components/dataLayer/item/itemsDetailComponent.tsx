@@ -23,6 +23,8 @@ import {
   formatItemQuantity,
 } from '../../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../../ErrorMessage';
+import { NumberInput } from '../../common/NumberInput';
+import { numberInputError, parseNumberInput, toNumberInput } from '../../../utils/numberInput';
 
 
 export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
@@ -33,7 +35,9 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   const [description, setDescription] = useState('');
   const [packaging, setPackaging] = useState('');
   const [unitOfMeasurement, setUnitOfMeasurement] = useState('stk');
-  const [packageSize, setPackageSize] = useState<number | ''>('');
+  // Talfelter holdes som tekst, så de kan være tomme mens man skriver -
+  // se utils/numberInput.ts.
+  const [packageSize, setPackageSize] = useState('');
   const [itemLocationId, setItemLocationId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingDiscardAction, setPendingDiscardAction] = useState<'close' | 'cancel' | null>(null);
@@ -50,12 +54,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   const [updateItemUnit] = useUpdateItemUnitMutation();
   const [deleteItemUnit] = useDeleteItemUnitMutation();
   const [showAddUnits, setShowAddUnits] = useState(false);
-  const [addQuantity, setAddQuantity] = useState(1);
+  const [addQuantity, setAddQuantity] = useState('1');
   const [addStatus, setAddStatus] = useState<ItemStatus>('Available');
   const [addIsDiscrete, setAddIsDiscrete] = useState(true);
   const [addHasContents, setAddHasContents] = useState(false);
-  const [addContentsTotal, setAddContentsTotal] = useState(1);
-  const [addContentsStart, setAddContentsStart] = useState<number | ''>('');
+  const [addContentsTotal, setAddContentsTotal] = useState('1');
+  const [addContentsStart, setAddContentsStart] = useState('');
+  const [addSubmitted, setAddSubmitted] = useState(false);
   const [addContentsEmptyStatus, setAddContentsEmptyStatus] = useState<ItemStatus | ''>('Consumed');
   const [addContentsPartialStatus, setAddContentsPartialStatus] = useState<ItemStatus | ''>('Missing');
   const [addContentsFullStatus, setAddContentsFullStatus] = useState<ItemStatus | ''>('Available');
@@ -70,7 +75,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       setDescription(item.description ?? '');
       setPackaging(item.packaging ?? '');
       setUnitOfMeasurement(item.unitOfMeasurement);
-      setPackageSize(item.packageSize ?? '');
+      setPackageSize(toNumberInput(item.packageSize));
       setItemLocationId(item.itemLocationId ?? null);
       setIsEditing(false);
       setFormError(null);
@@ -78,12 +83,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       setIsConfirmingDelete(false);
       setDeleteError(null);
       setShowAddUnits(false);
-      setAddQuantity(1);
+      setAddQuantity('1');
       setAddStatus('Available');
       setAddIsDiscrete(true);
       setAddHasContents(false);
-      setAddContentsTotal(1);
+      setAddContentsTotal('1');
       setAddContentsStart('');
+      setAddSubmitted(false);
       setAddContentsEmptyStatus('Consumed');
       setAddContentsPartialStatus('Missing');
       setAddContentsFullStatus('Available');
@@ -109,7 +115,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       description !== (item.description ?? '') ||
       packaging !== (item.packaging ?? '') ||
       unitOfMeasurement !== item.unitOfMeasurement ||
-      packageSize !== (item.packageSize ?? '') ||
+      packageSize.trim() !== toNumberInput(item.packageSize) ||
       itemLocationId !== (item.itemLocationId ?? null));
 
   useEffect(() => {
@@ -147,9 +153,26 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
     setFormError(null);
   };
 
+  const packageSizeError = numberInputError(packageSize, { required: false });
+
+  // Fejl for "Tilføj enheder"-felterne. Startniveau må gerne være 0.
+  const addNumberErrors = {
+    quantity: numberInputError(addQuantity),
+    contentsTotal: addHasContents ? numberInputError(addContentsTotal) : null,
+    contentsStart: !addIsDiscrete && addHasContents ? numberInputError(addContentsStart, { required: false, allowZero: true }) : null,
+  };
+  // Fejl vises for felter man har skrevet i, og efter et forsøg på at
+  // tilføje også for tomme påkrævede felter.
+  const visibleAddError = (value: string, error: string | null) =>
+    value.trim() !== '' || addSubmitted ? error : null;
+
   const handleSave = async () => {
     if (!name.trim()) {
       setFormError(t('itemDetail.nameRequired'));
+      return;
+    }
+    if (packageSizeError) {
+      setFormError(t('common:numberInput.fixFields'));
       return;
     }
 
@@ -160,7 +183,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
         description: description.trim() || null,
         packaging: packaging.trim() || null,
         unitOfMeasurement: unitOfMeasurement.trim() || 'stk',
-        packageSize: packageSize !== '' ? packageSize : null,
+        packageSize: parseNumberInput(packageSize),
         itemLocationId,
       }).unwrap();
 
@@ -189,7 +212,11 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   };
 
   const handleAddUnits = async () => {
-    if (addQuantity <= 0) return;
+    setAddSubmitted(true);
+    if (Object.values(addNumberErrors).some((error) => error !== null)) {
+      setUnitsError(t('common:numberInput.fixFields'));
+      return;
+    }
     setUnitsError(null);
     try {
       const serialNumbers =
@@ -199,11 +226,11 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
       await addItemUnits({
         itemId: item.id,
-        quantity: addQuantity,
+        quantity: parseNumberInput(addQuantity)!,
         status: addStatus,
         isDiscrete: addIsDiscrete,
-        contentsTotal: addHasContents ? addContentsTotal : undefined,
-        contentsStart: !addIsDiscrete && addHasContents && addContentsStart !== '' ? addContentsStart : undefined,
+        contentsTotal: addHasContents ? parseNumberInput(addContentsTotal)! : undefined,
+        contentsStart: !addIsDiscrete && addHasContents ? parseNumberInput(addContentsStart) ?? undefined : undefined,
         contentsEmptyStatus: addHasContents ? addContentsEmptyStatus || null : undefined,
         contentsPartialStatus: addHasContents ? addContentsPartialStatus || null : undefined,
         contentsFullStatus: addHasContents ? addContentsFullStatus || null : undefined,
@@ -211,12 +238,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
         serialNumbers,
       }).unwrap();
       setShowAddUnits(false);
-      setAddQuantity(1);
+      setAddQuantity('1');
       setAddStatus('Available');
       setAddIsDiscrete(true);
       setAddHasContents(false);
-      setAddContentsTotal(1);
+      setAddContentsTotal('1');
       setAddContentsStart('');
+      setAddSubmitted(false);
       setAddContentsEmptyStatus('Consumed');
       setAddContentsPartialStatus('Missing');
       setAddContentsFullStatus('Available');
@@ -258,6 +286,20 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
     }
   };
 
+  // Inline-rettelse af en enheds mængde/niveau, gemt ved blur. Ugyldig
+  // værdi (tom, negativ, 0 hvor det ikke giver mening) gemmes ikke - feltet
+  // nulstilles og fejlen vises. Et beholder-niveau må gerne være 0 (tom).
+  const commitUnitLevel = (unit: ItemUnit, input: HTMLInputElement, allowZero: boolean) => {
+    const error = numberInputError(input.value, { allowZero });
+    if (error) {
+      input.value = String(unit.quantity);
+      setUnitsError(td(error));
+      return;
+    }
+    const newQuantity = parseNumberInput(input.value)!;
+    if (newQuantity !== unit.quantity) handleUnitLevelChange(unit, newQuantity);
+  };
+
   const handleDeleteUnit = async () => {
     if (!unitPendingDelete) return;
     setUnitsError(null);
@@ -280,17 +322,12 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
         ) : unit.contentsTotal == null && canUpdate ? (
           <span className="flex items-center gap-1">
             <input
-              type="number"
-              min={0}
-              step="any"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
               key={`${unit.id}-${unit.quantity}`}
               defaultValue={unit.quantity}
-              onBlur={(e) => {
-                const newQuantity = Number(e.target.value);
-                if (!Number.isNaN(newQuantity) && newQuantity !== unit.quantity) {
-                  handleUnitLevelChange(unit, newQuantity);
-                }
-              }}
+              onBlur={(e) => commitUnitLevel(unit, e.currentTarget, false)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
               }}
@@ -312,17 +349,12 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
           <span className="flex items-center gap-1 text-[11px] text-secondary dark:text-slate-400">
             {canUpdate ? (
               <input
-                type="number"
-                min={0}
-                max={unit.contentsTotal}
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
                 key={`${unit.id}-${unit.quantity}`}
                 defaultValue={unit.quantity}
-                onBlur={(e) => {
-                  const newQuantity = Number(e.target.value);
-                  if (!Number.isNaN(newQuantity) && newQuantity !== unit.quantity) {
-                    handleUnitLevelChange(unit, newQuantity);
-                  }
-                }}
+                onBlur={(e) => commitUnitLevel(unit, e.currentTarget, true)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
                 }}
@@ -526,16 +558,15 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                 <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('addItems.packageSizeLabel')}</span>
                 {isEditing ? (
                   <>
-                    <input
-                      type="number"
-                      min={0}
+                    <NumberInput
                       placeholder={t('addItems.packageSizePlaceholder')}
                       value={packageSize}
-                      onChange={(e) => setPackageSize(e.target.value === '' ? '' : Number(e.target.value))}
+                      onValueChange={setPackageSize}
+                      error={packageSizeError}
                       onKeyDown={handleEnterSaves}
                       className="w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                     />
-                    {packageSize !== '' && (
+                    {packageSize.trim() !== '' && (
                       <p className="mt-1 flex items-start gap-1 text-[11px] text-secondary dark:text-slate-400">
                         <Info className="w-3 h-3 mt-0.5 shrink-0 text-accent" />
                         {t('addItems.packageSizeHint')}
@@ -673,12 +704,10 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                           ? 'addItems.packageCountLabel'
                           : 'addItems.quantityPlaceholder'
                       )}
-                      <input
-                        type="number"
-                        min={0}
-                        step="any"
+                      <NumberInput
                         value={addQuantity}
-                        onChange={(e) => setAddQuantity(Number(e.target.value))}
+                        onValueChange={setAddQuantity}
+                        error={visibleAddError(addQuantity, addNumberErrors.quantity)}
                         className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                       />
                     </label>
@@ -717,11 +746,10 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                       <div>
                         <label className="text-xs text-secondary dark:text-slate-400">
                           {t(addIsDiscrete ? 'addItems.contentsTotalPlaceholder' : 'addItems.contentsTotalPlaceholderMeasured')}
-                          <input
-                            type="number"
-                            min={1}
+                          <NumberInput
                             value={addContentsTotal}
-                            onChange={(e) => setAddContentsTotal(Number(e.target.value))}
+                            onValueChange={setAddContentsTotal}
+                            error={visibleAddError(addContentsTotal, addNumberErrors.contentsTotal)}
                             className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                           />
                         </label>
@@ -737,11 +765,10 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                       <div>
                         <label className="text-xs text-secondary dark:text-slate-400">
                           {t('addItems.contentsStartPlaceholder')}
-                          <input
-                            type="number"
-                            min={0}
+                          <NumberInput
                             value={addContentsStart}
-                            onChange={(e) => setAddContentsStart(e.target.value === '' ? '' : Number(e.target.value))}
+                            onValueChange={setAddContentsStart}
+                            error={visibleAddError(addContentsStart, addNumberErrors.contentsStart)}
                             className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                           />
                         </label>

@@ -45,5 +45,12 @@
   "updating": "Aktualizowanie...",
   "creating": "Tworzenie...",
   "yes": "Tak",
-  "send": "Wyślij"
+  "send": "Wyślij",
+  "numberInput": {
+    "required": "Wpisz liczbę.",
+    "invalid": "Nieprawidłowa liczba.",
+    "negative": "Liczba nie może być ujemna.",
+    "zero": "Liczba musi być większa od 0.",
+    "fixFields": "Popraw zaznaczone pola liczbowe."
+  }
 }

@@ -43,5 +43,12 @@
   "updating": "Päivitetään...",
   "creating": "Luodaan...",
   "yes": "Kyllä",
-  "send": "Lähetä"
+  "send": "Lähetä",
+  "numberInput": {
+    "required": "Kirjoita numero.",
+    "invalid": "Virheellinen numero.",
+    "negative": "Luku ei saa olla negatiivinen.",
+    "zero": "Luvun on oltava suurempi kuin 0.",
+    "fixFields": "Korjaa merkityt numerokentät."
+  }
 }

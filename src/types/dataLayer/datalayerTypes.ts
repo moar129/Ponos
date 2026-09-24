@@ -217,7 +217,9 @@ export interface ItemRow {
   description: string;
   packaging: string;
   unitOfMeasurement: string;
-  quantity: number;
+  // Talfelterne er tekst, så feltet kan være tomt mens man skriver - se
+  // utils/numberInput.ts. Parses til tal ved indsendelse.
+  quantity: string;
   itemStatus: ItemStatus;
   isDiscrete: boolean;
   serialNumbersRaw: string;
@@ -226,13 +228,13 @@ export interface ItemRow {
   // en 12-pack) - quantity styrer stadig kun hvor mange enheder der
   // oprettes (fx 5 kasser), helt uafhængigt af contentsTotal.
   hasContents: boolean;
-  contentsTotal: number;
+  contentsTotal: string;
   // Kun relevant når hasContents=true OG isDiscrete=false (Målt mængde +
   // kapacitet, fx en tank): startniveau pr. oprettet beholder. '' = start
   // fuld (= contentsTotal). Uden betydning for isDiscrete=true (Enkeltstyk
   // + indhold, fx 12-pack, starter altid fuld). Se add_item_with_units i
   // docs/dbSchema.sql §15.21.
-  contentsStart: number | '';
+  contentsStart: string;
   // Kun relevant når hasContents=true: hvilken status enheden automatisk
   // skal skifte til ved hhv. tomt/delvist/fuldt indhold. '' = ingen
   // automatisk ændring ved den tærskel. Se sync_status_from_contents i
@@ -244,7 +246,7 @@ export interface ItemRow {
   // packageSize [unitOfMeasurement]" (fx "1 big bag = 500 kg"). Når sat,
   // betyder `quantity` ANTAL EMBALLAGER (som containerCount for Beholder) -
   // hver emballage bliver sin egen enhed, se add_item_with_units.
-  packageSize: number | '';
+  packageSize: string;
 }
 
 export interface DeleteCategoryComponentProps {

@@ -43,5 +43,12 @@
   "yes": "Ja",
   "send": "Send",
   "selectedCount_one": "{{count}} valgt",
-  "selectedCount_other": "{{count}} valgt"
+  "selectedCount_other": "{{count}} valgt",
+  "numberInput": {
+    "required": "Skriv et tal.",
+    "invalid": "Ugyldigt tal.",
+    "negative": "Tallet må ikke være negativt.",
+    "zero": "Tallet skal være større end 0.",
+    "fixFields": "Ret de markerede talfelter."
+  }
 }

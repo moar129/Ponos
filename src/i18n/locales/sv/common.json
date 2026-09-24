@@ -43,5 +43,12 @@
   "yes": "Ja",
   "send": "Skicka",
   "selectedCount_one": "{{count}} vald",
-  "selectedCount_other": "{{count}} valda"
+  "selectedCount_other": "{{count}} valda",
+  "numberInput": {
+    "required": "Skriv ett tal.",
+    "invalid": "Ogiltigt tal.",
+    "negative": "Talet får inte vara negativt.",
+    "zero": "Talet måste vara större än 0.",
+    "fixFields": "Rätta de markerade sifferfälten."
+  }
 }
