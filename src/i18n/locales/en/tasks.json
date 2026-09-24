@@ -152,8 +152,6 @@
       "heading": "Report material usage",
       "intro": "Confirm what actually happened to the reserved materials before the task can be completed.",
       "introApproval": "Choose what should happen to the reserved materials. Your choices are saved and only applied once the task is approved - if it's rejected instead, the materials are left untouched.",
-      "hasDeviations": "There are deviations",
-      "defaultOutcomeHint": "The full amount ({{quantity}} {{unit}}) will be marked as \"{{status}}\" unless you specify deviations.",
       "outcomeStatus": "Status",
       "outcomeQuantity": "Quantity",
       "addOutcomeLine": "+ Add line",
@@ -162,6 +160,10 @@
       "confirm": "Confirm and complete task",
       "confirming": "Reporting...",
       "cancel": "Cancel"
-    }
+    },
+    "chooseStatusPlaceholder": "Choose status...",
+    "changeStatus": "Change status",
+    "changeStatusConfirm": "Confirm",
+    "changingStatus": "Changing status..."
   }
 }

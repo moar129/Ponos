@@ -681,6 +681,36 @@ export const categoryApi = supabaseApi.injectEndpoints({
       ],
     }),
 
+    // Statusskift på en del af en linjes linkede enheder MENS opgaven er
+    // InProgress (fx InUse -> Damaged) - linket til opgaven bevares, så
+    // materialet stadig skal afrapporteres (RPC update_task_material_status).
+    changeTaskMaterialStatus: builder.mutation<
+      void,
+      { taskMaterialId: string; itemId: string; taskId: string; fromStatus: ItemStatus; quantity: number; status: ItemStatus }
+    >({
+      queryFn: async ({ taskMaterialId, fromStatus, quantity, status }) => {
+        const { error } = await supabase.rpc('update_task_material_status', {
+          p_task_material_id: taskMaterialId,
+          p_from_status: fromStatus,
+          p_quantity: quantity,
+          p_status: status,
+        });
+
+        if (error) {
+          return { error: mapPermissionError(error, 'changeTaskMaterialStatus') };
+        }
+
+        return { data: undefined };
+      },
+      invalidatesTags: (_result, _error, { taskId, itemId }) => [
+        { type: 'ItemUnit', id: `ITEM-${itemId}` },
+        { type: 'Item', id: itemId },
+        { type: 'Item', id: 'LIST' },
+        { type: 'Task', id: taskId },
+        { type: 'Task', id: `${taskId}-MATERIALS` },
+      ],
+    }),
+
     getItemLocations: builder.query<ItemLocation[], void>({
       queryFn: async () => {
         try {
@@ -793,6 +823,7 @@ export const {
   useDeleteItemUnitMutation,
   useReserveItemUnitsMutation,
   useReleaseItemUnitsMutation,
+  useChangeTaskMaterialStatusMutation,
   useGetItemLocationsQuery,
   useAddLocationMutation,
   useUpdateLocationMutation,

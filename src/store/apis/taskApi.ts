@@ -12,6 +12,7 @@ import type {
     TaskMaterial,
 } from '../../types/Task/Task'
 
+import type { ItemStatus } from '../../types/dataLayer/datalayerTypes'
 import { mapDbError, mapPermissionError, type QueryError } from './apiError'
 
 interface CreateTaskInput {
@@ -1075,7 +1076,8 @@ export const taskApi = supabaseApi.injectEndpoints({
 
         // Materialer tilknyttet en opgave (US-42/US-43) - task_materials
         // joinet med item-navn/enhed, plus om linjen stadig har linkede
-        // task_material_units (= stadig reserveret, ikke afrapporteret).
+        // task_material_units (= stadig reserveret, ikke afrapporteret),
+        // summeret pr. aktuel enheds-status (linkedGroups).
         getTaskMaterials: builder.query<TaskMaterial[], string>({
             queryFn: async (taskId) => {
                 const { data: materials, error: materialsError } = await supabase
@@ -1095,7 +1097,10 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 const [itemsResult, linkedUnitsResult] = await Promise.all([
                     supabase.from('data_layer_items').select('id, name, unit_of_measurement').in('id', itemIds),
-                    supabase.from('task_material_units').select('task_material_id').in('task_material_id', materialIds),
+                    supabase
+                        .from('task_material_units')
+                        .select('task_material_id, data_layer_item_units(status, quantity)')
+                        .in('task_material_id', materialIds),
                 ])
 
                 if (itemsResult.error) {
@@ -1106,17 +1111,30 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
 
                 const itemById = new Map((itemsResult.data ?? []).map((i) => [i.id, i]))
-                const unresolvedIds = new Set((linkedUnitsResult.data ?? []).map((r) => r.task_material_id))
+                // Sum linked quantity per status per material line.
+                const groupsByMaterial = new Map<string, Map<ItemStatus, number>>()
+                for (const row of linkedUnitsResult.data ?? []) {
+                    const unit = row.data_layer_item_units as unknown as { status: ItemStatus; quantity: number } | null
+                    if (!unit) continue
+                    const groups = groupsByMaterial.get(row.task_material_id) ?? new Map<ItemStatus, number>()
+                    groups.set(unit.status, (groups.get(unit.status) ?? 0) + Number(unit.quantity))
+                    groupsByMaterial.set(row.task_material_id, groups)
+                }
 
                 return {
-                    data: materials.map((m) => ({
-                        id: m.id,
-                        itemId: m.item_id,
-                        itemName: itemById.get(m.item_id)?.name ?? 'Ukendt materiale',
-                        unitOfMeasurement: itemById.get(m.item_id)?.unit_of_measurement ?? '',
-                        quantity: m.quantity,
-                        resolved: !unresolvedIds.has(m.id),
-                    })),
+                    data: materials.map((m) => {
+                        const linkedGroups = [...(groupsByMaterial.get(m.id) ?? new Map<ItemStatus, number>())]
+                            .map(([status, quantity]) => ({ status, quantity }))
+                        return {
+                            id: m.id,
+                            itemId: m.item_id,
+                            itemName: itemById.get(m.item_id)?.name ?? 'Ukendt materiale',
+                            unitOfMeasurement: itemById.get(m.item_id)?.unit_of_measurement ?? '',
+                            quantity: m.quantity,
+                            linkedGroups,
+                            resolved: linkedGroups.length === 0,
+                        }
+                    }),
                 }
             },
             providesTags: (_result, _error, taskId) => [{ type: 'Task', id: `${taskId}-MATERIALS` }],

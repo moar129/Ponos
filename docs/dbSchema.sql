@@ -2568,6 +2568,129 @@ $$;
 
 grant execute on function public.resolve_task_material_units(uuid, jsonb) to authenticated;
 
+-- 15.21c (2026-09-24): manuel statusændring på opgave-materiale MENS opgaven
+-- er InProgress (fx 2 kg InUse -> Damaged). Ændrer kun enheder med
+-- p_from_status på ÉN task_materials-linje, UDEN at aflinke - materialet
+-- skal stadig afrapporteres ved færdiggørelse. Guard-triggeren omgås med
+-- samme bypass-flag som set_task_status (§15.18). Hel enhed ændres direkte
+-- (ingen split - split_unit_if_needed splitter ellers altid kapacitets-
+-- beholdere); delmængde splittes, og den NYE split-række re-linkes til
+-- samme linje (modsat apply_task_material_outcomes, §15.21b).
+-- Kendt afgrænsning: release_item_units sætter stadig HELE linjen til
+-- Available, også dele der undervejs er sat til fx Damaged.
+create or replace function public.update_task_material_status(
+  p_task_material_id uuid,
+  p_from_status text,
+  p_quantity numeric,
+  p_status text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_task_status public.e_task_status;
+  v_total_linked numeric;
+  v_unit record;
+  v_remaining numeric;
+  v_take numeric;
+  v_unit_id uuid;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if p_quantity is null or p_quantity <= 0 then
+    raise exception 'Mængden skal være større end 0.' using hint = 'INVALID_QUANTITY';
+  end if;
+
+  if not exists (select 1 from unnest(enum_range(null::public.e_item_status)) s where s::text = p_status)
+     or not exists (select 1 from unnest(enum_range(null::public.e_item_status)) s where s::text = p_from_status) then
+    raise exception 'Ugyldig status: %', p_status using hint = 'INVALID_OUTCOME_STATUS';
+  end if;
+
+  if p_status = p_from_status then
+    raise exception 'Den nye status er den samme som den nuværende.' using hint = 'STATUS_UNCHANGED';
+  end if;
+
+  select tm.task_id, t.status into v_task_id, v_task_status
+  from public.task_materials tm
+  join public.tasks t on t.id = tm.task_id
+  where tm.id = p_task_material_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Materiale-linjen findes ikke i din organisation.' using hint = 'TASK_MATERIAL_NOT_FOUND';
+  end if;
+
+  if v_task_status <> 'InProgress' then
+    raise exception 'Materialets status kan kun ændres, mens opgaven er i gang.' using hint = 'TASK_NOT_IN_PROGRESS';
+  end if;
+
+  if not public.has_privilege_or_admin('update_tasks') then
+    raise exception 'Du har ikke rettigheder til at ændre status på et materiale.'
+      using errcode = '42501', hint = 'NO_PRIV_UPDATE_MATERIAL_STATUS';
+  end if;
+
+  -- Lås linkede rækker (samme mønster som apply_task_material_outcomes).
+  perform 1 from public.data_layer_item_units
+   where id in (select unit_id from public.task_material_units where task_material_id = p_task_material_id)
+   for update;
+
+  select coalesce(sum(u.quantity), 0) into v_total_linked
+  from public.task_material_units tmu
+  join public.data_layer_item_units u on u.id = tmu.unit_id
+  where tmu.task_material_id = p_task_material_id
+    and u.status::text = p_from_status;
+
+  if p_quantity > v_total_linked then
+    raise exception 'Mængden (%) overstiger hvad der er tilbage med denne status på materiale-linjen (%).', p_quantity, v_total_linked
+      using hint = 'QUANTITY_EXCEEDS_LINKED_QUANTITY';
+  end if;
+
+  v_remaining := p_quantity;
+
+  for v_unit in
+    select u.id, u.quantity
+    from public.task_material_units tmu
+    join public.data_layer_item_units u on u.id = tmu.unit_id
+    where tmu.task_material_id = p_task_material_id
+      and u.status::text = p_from_status
+    order by u.created_at
+  loop
+    exit when v_remaining <= 0;
+
+    v_take := least(v_unit.quantity, v_remaining);
+
+    if v_take = v_unit.quantity then
+      v_unit_id := v_unit.id;
+    else
+      v_unit_id := public.split_unit_if_needed(v_unit.id, v_take);
+
+      -- Ny, endnu ulinket split-række (resten beholder det oprindelige
+      -- link) - link DENNE til samme materiale-linje, så den forbliver
+      -- sporet til opgaven; kun status ændres.
+      insert into public.task_material_units (task_material_id, unit_id)
+      values (p_task_material_id, v_unit_id);
+    end if;
+
+    perform set_config('ponos.bypass_unit_status_guard', 'on', true);
+
+    update public.data_layer_item_units
+       set status = p_status::public.e_item_status
+     where id = v_unit_id;
+
+    perform set_config('ponos.bypass_unit_status_guard', 'off', true);
+
+    v_remaining := v_remaining - v_take;
+  end loop;
+end;
+$$;
+
+grant execute on function public.update_task_material_status(uuid, text, numeric, text) to authenticated;
+
 -- Item + enheder atomisk. p_is_discrete=true -> N rækker à quantity=1
 -- (evt. serienummer pr. række); false -> én batch-række med
 -- quantity=p_quantity. Erstatter en rå to-trins insert (item, så

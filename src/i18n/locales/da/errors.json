@@ -64,7 +64,8 @@
     "deleteItemUnit": "Du har ikke rettigheder til at slette denne enhed.",
     "reserveItemUnits": "Du har ikke rettigheder til at reservere materialer på opgaver.",
     "releaseItemUnits": "Du har ikke rettigheder til at frigive materialer på opgaver.",
-    "resolveTaskMaterialUnits": "Du har ikke rettigheder til at afrapportere materialer på opgaver."
+    "resolveTaskMaterialUnits": "Du har ikke rettigheder til at afrapportere materialer på opgaver.",
+    "changeTaskMaterialStatus": "Du har ikke rettigheder til at ændre status på et materiale."
   },
   "db": {
     "NOT_LOGGED_IN": "Du skal være logget ind.",
@@ -151,6 +152,9 @@
     "UNIT_NOT_FOUND": "Enheden findes ikke.",
     "UNIT_ORG_MISMATCH": "Enheden tilhører ikke din organisation.",
     "UNIT_LOCKED_BY_TASK_RESERVATION": "Enheden er reserveret til en opgave og kan ikke ændres direkte.",
-    "MATERIALS_NOT_RESOLVED": "Alle materialer skal afrapporteres, før opgaven kan færdiggøres."
+    "MATERIALS_NOT_RESOLVED": "Alle materialer skal afrapporteres, før opgaven kan færdiggøres.",
+    "TASK_NOT_IN_PROGRESS": "Materialets status kan kun ændres, mens opgaven er i gang.",
+    "QUANTITY_EXCEEDS_LINKED_QUANTITY": "Mængden overstiger hvad der er tilbage med denne status på materiale-linjen.",
+    "STATUS_UNCHANGED": "Den nye status er den samme som den nuværende."
   }
 }

@@ -152,8 +152,6 @@
       "heading": "Afrapportér materialer",
       "intro": "Bekræft hvad der reelt skete med de reserverede materialer, før opgaven kan færdiggøres.",
       "introApproval": "Vælg hvad der skal ske med de reserverede materialer. Dine valg gemmes og udføres først, når opgaven bliver godkendt - bliver den afvist i stedet, rører vi ikke materialerne.",
-      "hasDeviations": "Der er afvigelser",
-      "defaultOutcomeHint": "Hele mængden ({{quantity}} {{unit}}) markeres som \"{{status}}\", medmindre du angiver afvigelser.",
       "outcomeStatus": "Status",
       "outcomeQuantity": "Antal",
       "addOutcomeLine": "+ Tilføj linje",
@@ -162,6 +160,10 @@
       "confirm": "Bekræft og afslut opgave",
       "confirming": "Afrapporterer...",
       "cancel": "Annuller"
-    }
+    },
+    "chooseStatusPlaceholder": "Vælg status...",
+    "changeStatus": "Skift status",
+    "changeStatusConfirm": "Bekræft",
+    "changingStatus": "Ændrer status..."
   }
 }

@@ -64,7 +64,8 @@
     "deleteItemUnit": "You do not have permission to delete this unit.",
     "reserveItemUnits": "You do not have permission to reserve materials on tasks.",
     "releaseItemUnits": "You do not have permission to release materials on tasks.",
-    "resolveTaskMaterialUnits": "You do not have permission to report material outcomes on tasks."
+    "resolveTaskMaterialUnits": "You do not have permission to report material outcomes on tasks.",
+    "changeTaskMaterialStatus": "You do not have permission to change the status of a material."
   },
   "db": {
     "NOT_LOGGED_IN": "You must be logged in.",
@@ -151,6 +152,9 @@
     "UNIT_NOT_FOUND": "The unit does not exist.",
     "UNIT_ORG_MISMATCH": "The unit does not belong to your organisation.",
     "UNIT_LOCKED_BY_TASK_RESERVATION": "This unit is reserved for a task and cannot be changed directly.",
-    "MATERIALS_NOT_RESOLVED": "All materials must be reported before the task can be completed."
+    "MATERIALS_NOT_RESOLVED": "All materials must be reported before the task can be completed.",
+    "TASK_NOT_IN_PROGRESS": "A material's status can only be changed while the task is in progress.",
+    "QUANTITY_EXCEEDS_LINKED_QUANTITY": "The quantity exceeds what is left with this status on the material line.",
+    "STATUS_UNCHANGED": "The new status is the same as the current one."
   }
 }

@@ -734,7 +734,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 {t('materials.heading')}
               </span>
 
-              <TaskMaterialsList taskId={task.id} canManage={canUpdate} />
+              <TaskMaterialsList taskId={task.id} canManage={canUpdate} taskStatus={task.status} />
 
               {canUpdate && <TaskItemPicker taskId={task.id} />}
             </div>

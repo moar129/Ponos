@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { asDynamic } from '../../i18n/config';
 import { readableError } from '../../ErrorMessage';
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
+import type { ItemStatus } from '../../types/dataLayer/datalayerTypes';
 import type { TaskMaterial } from '../../types/Task/Task';
 
 export interface MaterialOutcomeEntry {
@@ -20,9 +21,11 @@ interface ResolveTaskMaterialsModalProps {
 }
 
 interface OutcomeLine {
-  status: string;
+  status: ItemStatus | '';
   quantity: number;
 }
+
+const NON_FINAL_STATUSES: ItemStatus[] = ['Reserved', 'InUse'];
 
 // US-42/US-43: en opgave med uafrapporterede materialer kan ikke
 // færdiggøres - denne modal lader den tildelte bekræfte hvad der reelt
@@ -41,30 +44,32 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
 
   const unresolved = materials.filter((m) => !m.resolved);
 
-  const [deviations, setDeviations] = useState<Record<string, boolean>>({});
   const [outcomesByMaterial, setOutcomesByMaterial] = useState<Record<string, OutcomeLine[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown>(null);
 
+  // Prefilled with one line per current status group (incl. statuses set
+  // manually during the task). Reserved/InUse are not end states, so those
+  // lines start empty - nothing is ever applied without an explicit choice.
   const getOutcomes = (material: TaskMaterial): OutcomeLine[] =>
-    outcomesByMaterial[material.id] ?? [{ status: 'Consumed', quantity: material.quantity }];
+    outcomesByMaterial[material.id] ??
+    material.linkedGroups.map((group) => ({
+      status: NON_FINAL_STATUSES.includes(group.status) ? '' : group.status,
+      quantity: group.quantity,
+    }));
 
   const setOutcomes = (materialId: string, outcomes: OutcomeLine[]) => {
     setOutcomesByMaterial((prev) => ({ ...prev, [materialId]: outcomes }));
   };
 
-  const toggleDeviations = (material: TaskMaterial) => {
-    const nowOn = !deviations[material.id];
-    setDeviations((prev) => ({ ...prev, [material.id]: nowOn }));
-
-    if (nowOn && !outcomesByMaterial[material.id]) {
-      setOutcomes(material.id, [{ status: 'Consumed', quantity: material.quantity }]);
-    }
-  };
-
   const sumOf = (outcomes: OutcomeLine[]) => outcomes.reduce((sum, o) => sum + (Number.isFinite(o.quantity) ? o.quantity : 0), 0);
 
-  const isValid = unresolved.every((m) => sumOf(getOutcomes(m)) === m.quantity);
+  const linkedTotalOf = (material: TaskMaterial) => material.linkedGroups.reduce((sum, g) => sum + g.quantity, 0);
+
+  const isValid = unresolved.every((m) => {
+    const outcomes = getOutcomes(m);
+    return sumOf(outcomes) === linkedTotalOf(m) && outcomes.every((o) => o.status !== '');
+  });
 
   const handleConfirm = async () => {
     if (!isValid || unresolved.length === 0) return;
@@ -116,96 +121,78 @@ export function ResolveTaskMaterialsModal({ materials, requiresApproval, onConfi
 
         <div className="max-h-96 space-y-4 overflow-y-auto">
           {unresolved.map((material) => {
-            const hasDeviations = deviations[material.id] ?? false;
             const outcomes = getOutcomes(material);
             const sum = sumOf(outcomes);
+            const linkedTotal = linkedTotalOf(material);
 
             return (
               <div key={material.id} className="rounded-lg border border-border-gray p-3 dark:border-slate-700">
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-2">
                   <span className="font-medium text-primary dark:text-slate-100">
-                    {material.itemName} - {material.quantity} {material.unitOfMeasurement}
+                    {material.itemName} - {linkedTotal} {material.unitOfMeasurement}
                   </span>
-
-                  <label className="flex items-center gap-2 text-xs text-secondary dark:text-slate-400">
-                    <input
-                      type="checkbox"
-                      checked={hasDeviations}
-                      onChange={() => toggleDeviations(material)}
-                    />
-                    {t('materials.resolve.hasDeviations')}
-                  </label>
                 </div>
 
-                {!hasDeviations && (
-                  <p className="text-xs text-secondary dark:text-slate-400">
-                    {t('materials.resolve.defaultOutcomeHint', {
-                      quantity: material.quantity,
-                      unit: material.unitOfMeasurement,
-                      status: td('datalayer:status.Consumed'),
-                    })}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  {outcomes.map((outcome, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <select
+                        value={outcome.status}
+                        onChange={(e) => {
+                          const next = [...outcomes];
+                          next[index] = { ...next[index], status: e.target.value as ItemStatus | '' };
+                          setOutcomes(material.id, next);
+                        }}
+                        className="flex-1 rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                      >
+                        <option value="" disabled>
+                          {t('materials.chooseStatusPlaceholder')}
+                        </option>
+                        {ALL_ITEM_STATUSES.map((status) => (
+                          <option key={status} value={status}>
+                            {td(`datalayer:status.${status}`)}
+                          </option>
+                        ))}
+                      </select>
 
-                {hasDeviations && (
-                  <div className="space-y-2">
-                    {outcomes.map((outcome, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <select
-                          value={outcome.status}
-                          onChange={(e) => {
-                            const next = [...outcomes];
-                            next[index] = { ...next[index], status: e.target.value };
-                            setOutcomes(material.id, next);
-                          }}
-                          className="flex-1 rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                      <input
+                        type="number"
+                        min={0}
+                        value={outcome.quantity}
+                        onChange={(e) => {
+                          const next = [...outcomes];
+                          next[index] = { ...next[index], quantity: e.target.value === '' ? 0 : Number(e.target.value) };
+                          setOutcomes(material.id, next);
+                        }}
+                        className="w-20 rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                      />
+
+                      {outcomes.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setOutcomes(material.id, outcomes.filter((_, i) => i !== index))}
+                          className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
                         >
-                          {ALL_ITEM_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                              {td(`datalayer:status.${status}`)}
-                            </option>
-                          ))}
-                        </select>
+                          {t('materials.resolve.removeOutcomeLine')}
+                        </button>
+                      )}
+                    </div>
+                  ))}
 
-                        <input
-                          type="number"
-                          min={0}
-                          value={outcome.quantity}
-                          onChange={(e) => {
-                            const next = [...outcomes];
-                            next[index] = { ...next[index], quantity: e.target.value === '' ? 0 : Number(e.target.value) };
-                            setOutcomes(material.id, next);
-                          }}
-                          className="w-20 rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                        />
+                  <button
+                    type="button"
+                    onClick={() => setOutcomes(material.id, [...outcomes, { status: '', quantity: 0 }])}
+                    className="text-xs font-semibold text-accent hover:text-accent-hover"
+                  >
+                    {t('materials.resolve.addOutcomeLine')}
+                  </button>
 
-                        {outcomes.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => setOutcomes(material.id, outcomes.filter((_, i) => i !== index))}
-                            className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
-                          >
-                            {t('materials.resolve.removeOutcomeLine')}
-                          </button>
-                        )}
-                      </div>
-                    ))}
-
-                    <button
-                      type="button"
-                      onClick={() => setOutcomes(material.id, [...outcomes, { status: 'Consumed', quantity: 0 }])}
-                      className="text-xs font-semibold text-accent hover:text-accent-hover"
-                    >
-                      {t('materials.resolve.addOutcomeLine')}
-                    </button>
-
-                    {sum !== material.quantity && (
-                      <p className="text-xs text-red-600 dark:text-red-400">
-                        {t('materials.resolve.quantityMismatch', { expected: material.quantity, actual: sum })}
-                      </p>
-                    )}
-                  </div>
-                )}
+                  {sum !== linkedTotal && (
+                    <p className="text-xs text-red-600 dark:text-red-400">
+                      {t('materials.resolve.quantityMismatch', { expected: linkedTotal, actual: sum })}
+                    </p>
+                  )}
+                </div>
               </div>
             );
           })}

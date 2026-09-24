@@ -1,3 +1,5 @@
+import type { ItemStatus } from '../dataLayer/datalayerTypes';
+
 export type ETaskStatus = 'Started' | 'InProgress' | 'Completed';
 export type ETaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
 
@@ -72,13 +74,25 @@ export interface CompletedTaskMaterial {
   quantity: number;
 }
 
+export interface TaskMaterialStatusGroup {
+  status: ItemStatus;
+  quantity: number;
+}
+
 export interface TaskMaterial {
   id: string;
   itemId: string;
   itemName: string;
   unitOfMeasurement: string;
-  quantity: number;
-  resolved: boolean;
+  quantity: number; // original reserved quantity
+  linkedGroups: TaskMaterialStatusGroup[]; // current status split of what is still linked - empty = fully resolved
+  resolved: boolean; // linkedGroups.length === 0
+}
+
+export interface TaskMaterialsListProps {
+  taskId: string;
+  canManage: boolean;
+  taskStatus: ETaskStatus;
 }
 
 export interface CompletedTaskDetails extends Task {
