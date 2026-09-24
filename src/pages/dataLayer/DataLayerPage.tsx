@@ -630,11 +630,7 @@ export function DataLayerPage() {
                     : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                 }`}
               >
-                {/* Hardcodet i stedet for t('page.locations'), da
-                    oversættelsesnøglen stadig peger på "Lagre" i
-                    sprogfilen - ret gerne værdien der i stedet, hvis I
-                    vil have den styret via i18n igen. */}
-                Lager
+                {t('page.locations')}
               </button>
             </div>
 

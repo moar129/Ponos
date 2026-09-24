@@ -29,7 +29,7 @@
   "noAccess": "Du har ikke adgang til at se datalageret i denne organisation.",
   "page": {
     "searchPlaceholder": "Søg efter item, kategori, lager eller sektion...",
-    "locations": "Lagre",
+    "locations": "Lager",
     "filter": "Filter",
     "createCategory": "Opret kategori",
     "selectForDeletion": "Vælg til sletning",
