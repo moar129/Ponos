@@ -17,7 +17,8 @@
     "delete": "Törlés",
     "assign": "Hozzárendelés",
     "approve": "Jóváhagyás",
-    "reject": "Elutasítás"
+    "reject": "Elutasítás",
+    "viewAll": "Összes szoba megtekintése"
   },
   "privilege": {
     "admin": "Teljes adminisztráció (mindent megtehet)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Írja le, miért utasítja el a készre jelentést - az üzenetet a hozzárendeltek kapják meg.",
     "rejectedCount_one": "{{count}} alkalommal elutasítva",
     "rejectedCount_other": "{{count}} alkalommal elutasítva"
+  },
+  "quickCreate": {
+    "heading": "Szerepkör létrehozása",
+    "leaderSuffix": "Vezető",
+    "templateLabel": "Sablon",
+    "template": {
+      "participant": "Résztvevő",
+      "leader": "Vezető",
+      "copy": "Másolás innen"
+    },
+    "templateHint": {
+      "participant": "Látja a feladatokat és a híreket.",
+      "leader": "Résztvevő + feladatok létrehozása, szerkesztése, kiosztása és jóváhagyása."
+    },
+    "chooseRole": "Válasszon szerepkört",
+    "customize": "Jogosultságok testreszabása (kiválasztva: {{selected}})",
+    "notOwned": "Ez a jogosultság Önnek sincs meg, ezért nem adhatja meg.",
+    "assignHint": "Ne felejtse el kiosztani a szerepkört a tagoknak a Tagok alatt."
   }
 }

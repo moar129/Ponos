@@ -51,7 +51,14 @@
     "edit": "Raum bearbeiten",
     "deleteOne": "Einen Raum löschen",
     "choose": "Raum wählen",
-    "noRoom": "Ohne Raum"
+    "noRoom": "Ohne Raum",
+    "rolesLabel": "Zugriff für Rollen",
+    "rolesHint": "Keine ausgewählt = alle können den Raum sehen.",
+    "rolesLoading": "Rollen werden geladen...",
+    "rolesLoadFailed": "Rollen konnten nicht geladen werden.",
+    "noRoles": "Die Organisation hat keine Rollen.",
+    "restrictedTo": "Nur für: {{roles}}",
+    "newRole": "Neue Rolle"
   },
   "create": {
     "heading": "Aufgabe erstellen",
@@ -128,7 +135,7 @@
   },
   "editRoom": {
     "heading": "Raum bearbeiten",
-    "intro": "Wählen Sie einen Raum und bearbeiten Sie den Namen.",
+    "intro": "Wählen Sie einen Raum und bearbeiten Sie Namen und Zugriff.",
     "namePlaceholder": "Raumnamen eingeben",
     "failed": "Der Raum konnte nicht bearbeitet werden. Bitte versuchen Sie es erneut."
   }

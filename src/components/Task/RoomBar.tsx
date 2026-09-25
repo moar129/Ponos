@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal } from 'lucide-react';
+import { Lock, MoreHorizontal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { RoomBarProps } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
 import { DeleteRoomModal } from './DeleteRoomModal';
+import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
 
 export function RoomBar({
     rooms,
@@ -21,6 +22,14 @@ export function RoomBar({
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
 
     const menuRef = useRef<HTMLDivElement>(null);
+
+    const { data: roles = [] } = useGetOrganisationRolesQuery();
+
+    const roleNames = (roleIds: string[]) =>
+        roles
+            .filter((role) => roleIds.includes(role.id))
+            .map((role) => role.name)
+            .join(', ');
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -101,14 +110,22 @@ export function RoomBar({
                                     onSelectRoom(room.id);
                                     setIsMenuOpen(false);
                                 }}
+                                title={
+                                    room.role_ids.length > 0
+                                        ? t('rooms.restrictedTo', { roles: roleNames(room.role_ids) })
+                                        : undefined
+                                }
                                 className={`
-                                    whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
+                                    flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
                                     ${selectedRoomId === room.id
                                         ? 'border-accent text-accent'
                                         : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                                     }
                                 `}
                             >
+                                {room.role_ids.length > 0 && (
+                                    <Lock size={14} aria-hidden="true" />
+                                )}
                                 {room.name}
                             </button>
                         ))}

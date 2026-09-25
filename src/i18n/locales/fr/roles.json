@@ -17,7 +17,8 @@
     "delete": "Supprimer",
     "assign": "Assigner",
     "approve": "Valider",
-    "reject": "Refuser"
+    "reject": "Refuser",
+    "viewAll": "Voir toutes les salles"
   },
   "privilege": {
     "admin": "Administration complète (peut tout faire)"
@@ -89,5 +90,23 @@
     "rejectedCount_one": "Refusé {{count}} fois",
     "rejectedCount_many": "Refusé {{count}} fois",
     "rejectedCount_other": "Refusé {{count}} fois"
+  },
+  "quickCreate": {
+    "heading": "Créer un rôle",
+    "leaderSuffix": "Responsable",
+    "templateLabel": "Modèle",
+    "template": {
+      "participant": "Participant",
+      "leader": "Responsable",
+      "copy": "Copier depuis"
+    },
+    "templateHint": {
+      "participant": "Peut voir les tâches et les actualités.",
+      "leader": "Participant + créer, modifier, attribuer et approuver des tâches."
+    },
+    "chooseRole": "Choisir un rôle",
+    "customize": "Personnaliser les droits ({{selected}} sélectionnés)",
+    "notOwned": "Vous n'avez pas ce droit vous-même et ne pouvez donc pas l'accorder.",
+    "assignHint": "Pensez à attribuer le rôle aux membres sous Membres."
   }
 }

@@ -17,7 +17,8 @@
     "delete": "Delete",
     "assign": "Assign",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "viewAll": "View all rooms"
   },
   "privilege": {
     "admin": "Full administrator (can do everything)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Write why the completion is rejected - the message is sent to the assignees.",
     "rejectedCount_one": "Rejected {{count}} time",
     "rejectedCount_other": "Rejected {{count}} times"
+  },
+  "quickCreate": {
+    "heading": "Create role",
+    "leaderSuffix": "Lead",
+    "templateLabel": "Template",
+    "template": {
+      "participant": "Participant",
+      "leader": "Lead",
+      "copy": "Copy from"
+    },
+    "templateHint": {
+      "participant": "Can see tasks and news.",
+      "leader": "Participant + create, edit, assign and approve tasks."
+    },
+    "chooseRole": "Choose role",
+    "customize": "Customise privileges ({{selected}} selected)",
+    "notOwned": "You don't have this privilege yourself, so you can't grant it.",
+    "assignHint": "Remember to assign the role to members under Members."
   }
 }

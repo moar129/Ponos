@@ -17,7 +17,8 @@
     "delete": "Șterge",
     "assign": "Atribuie",
     "approve": "Aprobă",
-    "reject": "Respinge"
+    "reject": "Respinge",
+    "viewAll": "Vezi toate camerele"
   },
   "privilege": {
     "admin": "Administrare completă (poate face orice)"
@@ -89,5 +90,23 @@
     "rejectedCount_one": "Respins o dată",
     "rejectedCount_few": "Respins de {{count}} ori",
     "rejectedCount_other": "Respins de {{count}} de ori"
+  },
+  "quickCreate": {
+    "heading": "Creează rol",
+    "leaderSuffix": "Lider",
+    "templateLabel": "Șablon",
+    "template": {
+      "participant": "Participant",
+      "leader": "Lider",
+      "copy": "Copiază din"
+    },
+    "templateHint": {
+      "participant": "Poate vedea sarcini și știri.",
+      "leader": "Participant + creare, editare, atribuire și aprobare sarcini."
+    },
+    "chooseRole": "Alegeți rolul",
+    "customize": "Personalizați drepturile (selectate: {{selected}})",
+    "notOwned": "Nu aveți acest drept, deci nu îl puteți acorda.",
+    "assignHint": "Nu uitați să atribuiți rolul membrilor la Membri."
   }
 }

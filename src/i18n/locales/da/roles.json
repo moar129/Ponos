@@ -17,7 +17,8 @@
     "delete": "Slet",
     "assign": "Tildel",
     "approve": "Godkend",
-    "reject": "Afvis"
+    "reject": "Afvis",
+    "viewAll": "Se alle rum"
   },
   "privilege": {
     "admin": "Fuld administrator (kan alt)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Skriv hvorfor færdigmeldingen afvises - beskeden sendes til de tilmeldte.",
     "rejectedCount_one": "Afvist {{count}} gang",
     "rejectedCount_other": "Afvist {{count}} gange"
+  },
+  "quickCreate": {
+    "heading": "Opret rolle",
+    "leaderSuffix": "Leder",
+    "templateLabel": "Skabelon",
+    "template": {
+      "participant": "Deltager",
+      "leader": "Leder",
+      "copy": "Kopiér fra"
+    },
+    "templateHint": {
+      "participant": "Kan se opgaver og nyheder.",
+      "leader": "Deltager + opret, rediger, tildel og godkend opgaver."
+    },
+    "chooseRole": "Vælg rolle",
+    "customize": "Tilpas privilegier ({{selected}} valgt)",
+    "notOwned": "Du har ikke selv dette privilegie og kan derfor ikke give det.",
+    "assignHint": "Husk at tildele rollen til medlemmer under Medlemmer."
   }
 }

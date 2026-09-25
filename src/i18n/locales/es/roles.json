@@ -17,7 +17,8 @@
     "delete": "Eliminar",
     "assign": "Asignar",
     "approve": "Aprobar",
-    "reject": "Rechazar"
+    "reject": "Rechazar",
+    "viewAll": "Ver todas las salas"
   },
   "privilege": {
     "admin": "Administración completa (puede hacerlo todo)"
@@ -89,5 +90,23 @@
     "rejectedCount_one": "Rechazado {{count}} vez",
     "rejectedCount_many": "Rechazado {{count}} veces",
     "rejectedCount_other": "Rechazado {{count}} veces"
+  },
+  "quickCreate": {
+    "heading": "Crear rol",
+    "leaderSuffix": "Líder",
+    "templateLabel": "Plantilla",
+    "template": {
+      "participant": "Participante",
+      "leader": "Líder",
+      "copy": "Copiar de"
+    },
+    "templateHint": {
+      "participant": "Puede ver tareas y noticias.",
+      "leader": "Participante + crear, editar, asignar y aprobar tareas."
+    },
+    "chooseRole": "Elegir rol",
+    "customize": "Personalizar permisos ({{selected}} seleccionados)",
+    "notOwned": "No tiene este permiso y por eso no puede otorgarlo.",
+    "assignHint": "Recuerde asignar el rol a los miembros en Miembros."
   }
 }

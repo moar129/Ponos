@@ -135,6 +135,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Una sezione non può a sua volta avere sottoposizioni.",
     "LOCATION_SECTION_ORG_MISMATCH": "La sezione deve appartenere alla stessa organizzazione del magazzino.",
     "REJECTION_REASON_REQUIRED": "Devi scrivere una motivazione per il rifiuto.",
-    "REJECTION_REASON_TOO_LONG": "La motivazione può contenere al massimo 500 caratteri."
+    "REJECTION_REASON_TOO_LONG": "La motivazione può contenere al massimo 500 caratteri.",
+    "NO_PRIV_CREATE_ROLES": "Non hai i permessi per creare ruoli.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Puoi assegnare solo i permessi che hai.",
+    "ROLE_NAME_REQUIRED": "Il ruolo deve avere un nome."
   }
 }

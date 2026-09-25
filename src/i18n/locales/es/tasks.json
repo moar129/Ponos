@@ -51,7 +51,14 @@
     "edit": "Editar sala",
     "deleteOne": "Eliminar una sala",
     "choose": "Elegir sala",
-    "noRoom": "Sin sala"
+    "noRoom": "Sin sala",
+    "rolesLabel": "Acceso para roles",
+    "rolesHint": "Ninguno seleccionado = todos pueden ver la sala.",
+    "rolesLoading": "Cargando roles...",
+    "rolesLoadFailed": "No se pudieron cargar los roles.",
+    "noRoles": "La organización no tiene roles.",
+    "restrictedTo": "Solo para: {{roles}}",
+    "newRole": "Nuevo rol"
   },
   "create": {
     "heading": "Crear tarea",
@@ -129,7 +136,7 @@
   },
   "editRoom": {
     "heading": "Editar sala",
-    "intro": "Elige una sala y edita su nombre.",
+    "intro": "Elija una sala y edite su nombre y acceso.",
     "namePlaceholder": "Escribe el nombre de la sala",
     "failed": "No se ha podido editar la sala. Inténtalo de nuevo."
   }

@@ -51,7 +51,14 @@
     "edit": "Redigera rum",
     "deleteOne": "Radera ett rum",
     "choose": "Välj rum",
-    "noRoom": "Utan rum"
+    "noRoom": "Utan rum",
+    "rolesLabel": "Åtkomst för roller",
+    "rolesHint": "Inga valda = alla kan se rummet.",
+    "rolesLoading": "Hämtar roller...",
+    "rolesLoadFailed": "Kunde inte hämta roller.",
+    "noRoles": "Organisationen har inga roller.",
+    "restrictedTo": "Endast för: {{roles}}",
+    "newRole": "Ny roll"
   },
   "create": {
     "heading": "Skapa uppgift",
@@ -128,7 +135,7 @@
   },
   "editRoom": {
     "heading": "Redigera rum",
-    "intro": "Välj ett rum och redigera namnet.",
+    "intro": "Välj ett rum och redigera namn och åtkomst.",
     "namePlaceholder": "Skriv namn på rummet",
     "failed": "Rummet kunde inte redigeras. Försök igen."
   }

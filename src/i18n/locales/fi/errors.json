@@ -135,6 +135,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Osastolla ei voi itsellään olla alisijainteja.",
     "LOCATION_SECTION_ORG_MISMATCH": "Osaston on kuuluttava samaan organisaatioon kuin varasto.",
     "REJECTION_REASON_REQUIRED": "Sinun on kirjoitettava perustelu hylkäykselle.",
-    "REJECTION_REASON_TOO_LONG": "Perustelu saa olla enintään 500 merkkiä."
+    "REJECTION_REASON_TOO_LONG": "Perustelu saa olla enintään 500 merkkiä.",
+    "NO_PRIV_CREATE_ROLES": "Sinulla ei ole oikeutta luoda rooleja.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Voit antaa vain oikeuksia, jotka sinulla itselläsi on.",
+    "ROLE_NAME_REQUIRED": "Roolilla on oltava nimi."
   }
 }

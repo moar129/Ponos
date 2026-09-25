@@ -135,6 +135,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Uma secção não pode ter sublocalizações.",
     "LOCATION_SECTION_ORG_MISMATCH": "A secção tem de pertencer à mesma organização que o armazém.",
     "REJECTION_REASON_REQUIRED": "Tem de escrever um motivo para a rejeição.",
-    "REJECTION_REASON_TOO_LONG": "O motivo pode ter no máximo 500 caracteres."
+    "REJECTION_REASON_TOO_LONG": "O motivo pode ter no máximo 500 caracteres.",
+    "NO_PRIV_CREATE_ROLES": "Não tem permissões para criar funções.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Só pode atribuir permissões que tem.",
+    "ROLE_NAME_REQUIRED": "A função tem de ter um nome."
   }
 }

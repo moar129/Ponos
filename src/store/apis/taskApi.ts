@@ -42,12 +42,21 @@ interface UpdateTaskInput {
 
 interface CreateRoomInput {
     name: string
+    roleIds: string[]
 }
 
 interface UpdateRoomInput {
     id: string
     name: string
+    roleIds: string[]
 }
+
+type RoomRow = Omit<Room, 'role_ids'> & { task_room_roles?: { role_id: string }[] }
+
+const toRoom = ({ task_room_roles, ...room }: RoomRow): Room => ({
+    ...room,
+    role_ids: (task_room_roles ?? []).map((r) => r.role_id),
+})
 
 interface UpdateTaskStatusInput {
     id: string
@@ -220,12 +229,12 @@ export const taskApi = supabaseApi.injectEndpoints({
                     const organisationId = await getAuthenticatedOrganisationId()
                     const { data, error } = await supabase
                         .from('task_rooms')
-                        .select('*')
+                        .select('*, task_room_roles(role_id)')
                         .eq('organisation_id', organisationId)
                         .order('created_at', { ascending: true })
 
                     if (error) return { error: mapDbError(error) as QueryError }
-                    return { data: (data ?? []) as Room[] }
+                    return { data: ((data ?? []) as RoomRow[]).map(toRoom) }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
@@ -411,21 +420,18 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
+        // Rum + rolle-begrænsning oprettes/redigeres atomisk via RPC'er
+        // (task_room_roles har kun en select-policy).
         createRoom: builder.mutation<Room, CreateRoomInput>({
-            queryFn: async ({ name }) => {
+            queryFn: async ({ name, roleIds }) => {
                 try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data, error } = await supabase
-                        .from('task_rooms')
-                        .insert({
-                            organisation_id: organisationId,
-                            name,
-                        })
-                        .select()
-                        .single()
+                    const { data, error } = await supabase.rpc('create_task_room', {
+                        p_name: name,
+                        p_role_ids: roleIds,
+                    })
 
                     if (error) return { error: mapPermissionError(error, 'createRoom') }
-                    return { data: data as Room }
+                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
@@ -435,25 +441,19 @@ export const taskApi = supabaseApi.injectEndpoints({
         }),
 
         updateRoom: builder.mutation<Room, UpdateRoomInput>({
-            queryFn: async ({ id, name }) => {
+            queryFn: async ({ id, name, roleIds }) => {
                 try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-
-                    const { data, error } = await supabase
-                        .from('task_rooms')
-                        .update({
-                            name,
-                        })
-                        .eq('id', id)
-                        .eq('organisation_id', organisationId)
-                        .select()
-                        .single()
+                    const { data, error } = await supabase.rpc('update_task_room', {
+                        p_room_id: id,
+                        p_name: name,
+                        p_role_ids: roleIds,
+                    })
 
                     if (error) {
                         return { error: mapPermissionError(error, 'updateRoom') }
                     }
 
-                    return { data: data as Room }
+                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
                 } catch (err: unknown) {
                     const message =
                         err instanceof Error
@@ -468,9 +468,12 @@ export const taskApi = supabaseApi.injectEndpoints({
                     }
                 }
             },
+            // Rollerne styrer hvilke opgaver der er synlige (RLS).
             invalidatesTags: (_result, _error, { id }) => [
                 { type: 'TaskRoom', id },
                 { type: 'TaskRoom', id: 'LIST' },
+                { type: 'Task', id: 'LIST' },
+                'MyTasks',
             ],
         }),
 

@@ -17,7 +17,8 @@
     "delete": "Smazat",
     "assign": "Přiřadit",
     "approve": "Schválit",
-    "reject": "Zamítnout"
+    "reject": "Zamítnout",
+    "viewAll": "Vidět všechny místnosti"
   },
   "privilege": {
     "admin": "Plná správa (smí vše)"
@@ -90,5 +91,23 @@
     "rejectedCount_few": "Zamítnuto {{count}}krát",
     "rejectedCount_many": "Zamítnuto {{count}}krát",
     "rejectedCount_other": "Zamítnuto {{count}}krát"
+  },
+  "quickCreate": {
+    "heading": "Vytvořit roli",
+    "leaderSuffix": "Vedoucí",
+    "templateLabel": "Šablona",
+    "template": {
+      "participant": "Účastník",
+      "leader": "Vedoucí",
+      "copy": "Kopírovat z"
+    },
+    "templateHint": {
+      "participant": "Vidí úkoly a novinky.",
+      "leader": "Účastník + vytvářet, upravovat, přidělovat a schvalovat úkoly."
+    },
+    "chooseRole": "Vyberte roli",
+    "customize": "Upravit oprávnění (vybráno: {{selected}})",
+    "notOwned": "Toto oprávnění sami nemáte, a proto ho nemůžete udělit.",
+    "assignHint": "Nezapomeňte roli přiřadit členům v sekci Členové."
   }
 }

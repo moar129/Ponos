@@ -14,6 +14,7 @@ import type {
     ETaskStatus,
 } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -50,6 +51,7 @@ export function TasksPage() {
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [newRoomName, setNewRoomName] = useState('');
+    const [newRoomRoleIds, setNewRoomRoleIds] = useState<string[]>([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const [selectedStatuses, setSelectedStatuses] =
@@ -108,9 +110,10 @@ export function TasksPage() {
         }
 
         try {
-            await createRoom({ name: roomName }).unwrap();
+            await createRoom({ name: roomName, roleIds: newRoomRoleIds }).unwrap();
 
             setNewRoomName('');
+            setNewRoomRoleIds([]);
             setIsAddRoomOpen(false);
         } catch {
             // handled through mutation error state
@@ -294,6 +297,7 @@ export function TasksPage() {
                     onClick={() => {
                         setIsAddRoomOpen(false);
                         setNewRoomName('');
+                        setNewRoomRoleIds([]);
                     }}
                 >
                     <div
@@ -318,12 +322,21 @@ export function TasksPage() {
                             autoFocus
                         />
 
+                        <div className="mt-4">
+                            <RoomRolePicker
+                                selectedRoleIds={newRoomRoleIds}
+                                onChange={setNewRoomRoleIds}
+                                suggestedRoleName={newRoomName}
+                            />
+                        </div>
+
                         <div className="mt-5 flex justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setIsAddRoomOpen(false);
                                     setNewRoomName('');
+                                    setNewRoomRoleIds([]);
                                 }}
                                 className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >

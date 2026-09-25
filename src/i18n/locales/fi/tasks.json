@@ -51,7 +51,14 @@
     "edit": "Muokkaa tilaa",
     "deleteOne": "Poista tila",
     "choose": "Valitse tila",
-    "noRoom": "Ilman tilaa"
+    "noRoom": "Ilman tilaa",
+    "rolesLabel": "Pääsy rooleille",
+    "rolesHint": "Ei valintaa = kaikki näkevät huoneen.",
+    "rolesLoading": "Ladataan rooleja...",
+    "rolesLoadFailed": "Rooleja ei voitu ladata.",
+    "noRoles": "Organisaatiolla ei ole rooleja.",
+    "restrictedTo": "Vain: {{roles}}",
+    "newRole": "Uusi rooli"
   },
   "create": {
     "heading": "Luo tehtävä",
@@ -128,7 +135,7 @@
   },
   "editRoom": {
     "heading": "Muokkaa tilaa",
-    "intro": "Valitse tila ja muokkaa sen nimeä.",
+    "intro": "Valitse huone ja muokkaa nimeä ja pääsyä.",
     "namePlaceholder": "Kirjoita tilan nimi",
     "failed": "Tilaa ei voitu muokata. Yritä uudelleen."
   }

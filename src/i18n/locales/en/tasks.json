@@ -51,7 +51,14 @@
     "edit": "Edit room",
     "deleteOne": "Delete a room",
     "choose": "Choose room",
-    "noRoom": "No room"
+    "noRoom": "No room",
+    "rolesLabel": "Access for roles",
+    "rolesHint": "None selected = everyone can see the room.",
+    "rolesLoading": "Loading roles...",
+    "rolesLoadFailed": "Could not load roles.",
+    "noRoles": "The organisation has no roles.",
+    "restrictedTo": "Only for: {{roles}}",
+    "newRole": "New role"
   },
   "create": {
     "heading": "Create task",
@@ -128,7 +135,7 @@
   },
   "editRoom": {
     "heading": "Edit room",
-    "intro": "Choose a room and edit its name.",
+    "intro": "Choose a room and edit its name and access.",
     "namePlaceholder": "Enter a room name",
     "failed": "Could not edit the room. Please try again."
   },

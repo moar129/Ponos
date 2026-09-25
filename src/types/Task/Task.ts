@@ -25,8 +25,15 @@ export interface Room {
   id: string;
   organisation_id: string;
   name: string;
-  required_role_id: string | null;
+  role_ids: string[]; // empty = open to everyone with read_tasks
   created_at: string;
+}
+
+export interface RoomRolePickerProps {
+  selectedRoleIds: string[];
+  onChange: (roleIds: string[]) => void;
+  disabled?: boolean;
+  suggestedRoleName?: string; // prefilled name when creating a role from the picker
 }
 
 export interface TaskAssignee {

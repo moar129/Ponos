@@ -51,7 +51,14 @@
     "edit": "Editar sala",
     "deleteOne": "Eliminar uma sala",
     "choose": "Escolher sala",
-    "noRoom": "Sem sala"
+    "noRoom": "Sem sala",
+    "rolesLabel": "Acesso para funções",
+    "rolesHint": "Nenhuma selecionada = todos podem ver a sala.",
+    "rolesLoading": "A carregar funções...",
+    "rolesLoadFailed": "Não foi possível carregar as funções.",
+    "noRoles": "A organização não tem funções.",
+    "restrictedTo": "Apenas para: {{roles}}",
+    "newRole": "Nova função"
   },
   "create": {
     "heading": "Criar tarefa",
@@ -129,7 +136,7 @@
   },
   "editRoom": {
     "heading": "Editar sala",
-    "intro": "Escolha uma sala e edite o nome.",
+    "intro": "Escolha uma sala e edite o nome e o acesso.",
     "namePlaceholder": "Escreva o nome da sala",
     "failed": "Não foi possível editar a sala. Tente novamente."
   }

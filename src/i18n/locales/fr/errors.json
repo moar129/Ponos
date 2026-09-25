@@ -135,6 +135,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Une section ne peut pas elle-même avoir de sous-emplacements.",
     "LOCATION_SECTION_ORG_MISMATCH": "La section doit appartenir à la même organisation que l'entrepôt.",
     "REJECTION_REASON_REQUIRED": "Vous devez indiquer un motif de refus.",
-    "REJECTION_REASON_TOO_LONG": "Le motif ne peut pas dépasser 500 caractères."
+    "REJECTION_REASON_TOO_LONG": "Le motif ne peut pas dépasser 500 caractères.",
+    "NO_PRIV_CREATE_ROLES": "Vous n'avez pas le droit de créer des rôles.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Vous ne pouvez accorder que les droits que vous possédez.",
+    "ROLE_NAME_REQUIRED": "Le rôle doit avoir un nom."
   }
 }

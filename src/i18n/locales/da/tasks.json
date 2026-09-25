@@ -51,7 +51,14 @@
     "edit": "Rediger rum",
     "deleteOne": "Slet et rum",
     "choose": "Vælg rum",
-    "noRoom": "Uden rum"
+    "noRoom": "Uden rum",
+    "rolesLabel": "Adgang for roller",
+    "rolesHint": "Ingen valgt = alle kan se rummet.",
+    "rolesLoading": "Henter roller...",
+    "rolesLoadFailed": "Kunne ikke hente roller.",
+    "noRoles": "Organisationen har ingen roller.",
+    "restrictedTo": "Kun for: {{roles}}",
+    "newRole": "Ny rolle"
   },
   "create": {
     "heading": "Opret Opgave",
@@ -128,7 +135,7 @@
   },
   "editRoom": {
     "heading": "Rediger rum",
-    "intro": "Vælg et rum og rediger navnet.",
+    "intro": "Vælg et rum og rediger navn og adgang.",
     "namePlaceholder": "Indtast rumnavn",
     "failed": "Kunne ikke redigere rummet. Prøv igen."
   },
