@@ -126,6 +126,20 @@ export const notificationApi = supabaseApi.injectEndpoints({
                             }
                         }
                     )
+                    // edit_message/delete_message opdaterer body på
+                    // eksisterende besked-notifikationer - uden dette ville
+                    // den gamle tekst stå i klokken indtil genindlæsning.
+                    .on(
+                        'postgres_changes',
+                        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+                        (payload) => {
+                            const row = payload.new as { id: string; body: string | null }
+                            updateCachedData((draft) => {
+                                const notification = draft.find((n) => n.id === row.id)
+                                if (notification) notification.body = row.body
+                            })
+                        }
+                    )
                     .subscribe()
 
                 await cacheEntryRemoved

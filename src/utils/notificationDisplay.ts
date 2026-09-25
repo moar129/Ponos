@@ -2,7 +2,8 @@
 import type { AppNotification } from '../types/notification/notificationTypes'
 import type { DynamicTFunction } from '../i18n/config'
 
-// Overskriften på en notifikation. For alle opgave-typer er notifications.title
+// Overskriften på en notifikation. Alle typer undtagen 'message' (opgaver og
+// 'news') oversættes via notifications:type.<type>. For opgave-typerne er notifications.title
 // i databasen en fast dansk etiket der følger type-kolonnen 1:1 ('En opgave er
 // afsluttet' osv.), så den oversættes via notifications:type.<type>.
 //
@@ -23,4 +24,14 @@ export function notificationTitle(notification: AppNotification, t: DynamicTFunc
         return t('messages:unnamedGroup')
     }
     return notification.title
+}
+
+// Brødteksten. For 'message' er body beskedens indhold, men delete_message
+// overskriver den med den faste danske sentinel 'Denne besked er slettet',
+// så den gamle tekst ikke kan ses - den oversætter vi.
+export function notificationBody(notification: AppNotification, t: DynamicTFunction): string | null {
+    if (notification.type === 'message' && notification.body === 'Denne besked er slettet') {
+        return t('messages:messageDeleted')
+    }
+    return notification.body
 }

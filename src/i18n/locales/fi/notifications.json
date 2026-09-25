@@ -21,6 +21,7 @@
     "task_updated": "Tehtävää on päivitetty",
     "task_completed": "Tehtävä on saatu valmiiksi",
     "task_approved": "Tehtäväsi on hyväksytty",
-    "task_rejected": "Valmiiksi ilmoittaminen hylätty"
+    "task_rejected": "Valmiiksi ilmoittaminen hylätty",
+    "news": "Uusi uutinen"
   }
 }

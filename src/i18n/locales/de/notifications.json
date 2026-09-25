@@ -21,6 +21,7 @@
     "task_updated": "Eine Aufgabe wurde aktualisiert",
     "task_completed": "Eine Aufgabe wurde abgeschlossen",
     "task_approved": "Ihre Aufgabe wurde freigegeben",
-    "task_rejected": "Fertigmeldung abgelehnt"
+    "task_rejected": "Fertigmeldung abgelehnt",
+    "news": "Neue Neuigkeit"
   }
 }

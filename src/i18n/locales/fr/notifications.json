@@ -21,6 +21,7 @@
     "task_updated": "Une tâche a été mise à jour",
     "task_completed": "Une tâche a été terminée",
     "task_approved": "Votre tâche a été validée",
-    "task_rejected": "Déclaration de fin refusée"
+    "task_rejected": "Déclaration de fin refusée",
+    "news": "Nouvelle actualité"
   }
 }

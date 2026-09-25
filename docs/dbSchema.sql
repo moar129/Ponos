@@ -18,6 +18,20 @@
 --
 -- Hører til Studerende 3 (beskeder/notifikationer) og Studerende 2
 -- (lokationer). Udestår.
+--
+-- Ændret 2026-09-25 (sletning må ikke lække indhold):
+--   - delete_message sætter også content = '' og sætter body på
+--     beskedens notifikationer til sentinel 'Denne besked er slettet'
+--     (oversættes i src/utils/notificationDisplay.ts). Match:
+--     type='message', reference_id = conversation_id, created_at =
+--     messages.created_at (triggeren kører i samme transaktion).
+--   - edit_message opdaterer også notifikationernes body (left(.., 140)).
+--   - get_my_conversations: ny kolonne last_message_deleted boolean;
+--     last_message er null for slettet besked. Grants: authenticated,
+--     service_role.
+--   - messages_content_check:
+--     CHECK (((deleted_at IS NOT NULL) OR (btrim(content) <> ''::text)))
+--     (før: CHECK ((btrim(content) <> ''::text))).
 -- ---------------------------------------------------------------------
 
 

@@ -24,6 +24,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                     url_picture: string | null
                     last_message: string | null
                     last_message_at: string | null
+                    last_message_deleted: boolean
                     unread: boolean // NYT
                 }
 
@@ -36,6 +37,7 @@ export const messageApi = supabaseApi.injectEndpoints({
                         urlPicture: row.url_picture,
                         lastMessage: row.last_message,
                         lastMessageAt: row.last_message_at,
+                        lastMessageDeleted: row.last_message_deleted,
                         unread: row.unread, // NYT
                     })),
                 }
@@ -90,7 +92,7 @@ export const messageApi = supabaseApi.injectEndpoints({
 
     providesTags: (_result, _error, conversationId) => [{ type: 'Message', id: conversationId }],
 
-    async onCacheEntryAdded(conversationId, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+    async onCacheEntryAdded(conversationId, { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch }) {
         await cacheDataLoaded
 
         const channel = supabase
@@ -148,6 +150,9 @@ export const messageApi = supabaseApi.injectEndpoints({
                             message.deletedAt = row.deleted_at
                         }
                     })
+
+                    // Samtalelistens preview kan vise netop denne besked.
+                    dispatch(supabaseApi.util.invalidateTags(['Conversation']))
                 }
             )
             .subscribe()
@@ -417,7 +422,7 @@ editMessage: builder.mutation<void, { messageId: string; conversationId: string;
         return { data: undefined }
     },
 
-    invalidatesTags: (_result, _error, { conversationId }) => [{ type: 'Message', id: conversationId }],
+    invalidatesTags: (_result, _error, { conversationId }) => [{ type: 'Message', id: conversationId }, 'Conversation'],
 }),
 
 // US-B13: soft-sletter en besked jeg selv har sendt.
@@ -432,7 +437,7 @@ deleteMessage: builder.mutation<void, { messageId: string; conversationId: strin
         return { data: undefined }
     },
 
-    invalidatesTags: (_result, _error, { conversationId }) => [{ type: 'Message', id: conversationId }],
+    invalidatesTags: (_result, _error, { conversationId }) => [{ type: 'Message', id: conversationId }, 'Conversation'],
 }),
     }),
 })

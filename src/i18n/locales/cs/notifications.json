@@ -21,6 +21,7 @@
     "task_updated": "Úkol byl aktualizován",
     "task_completed": "Úkol byl dokončen",
     "task_approved": "Váš úkol byl schválen",
-    "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto"
+    "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto",
+    "news": "Nová novinka"
   }
 }

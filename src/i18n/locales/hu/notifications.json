@@ -21,6 +21,7 @@
     "task_updated": "Egy feladat frissült",
     "task_completed": "Egy feladat befejeződött",
     "task_approved": "A feladatát jóváhagyták",
-    "task_rejected": "A befejezés bejelentését elutasították"
+    "task_rejected": "A befejezés bejelentését elutasították",
+    "news": "Új hír"
   }
 }
