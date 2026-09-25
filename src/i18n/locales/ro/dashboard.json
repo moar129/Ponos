@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Sarcinile mele",
-    "goToTasks": "Mergeți la sarcini",
+    "goToTasks": "Mergeți la sarcinile mele",
     "loading": "Se încarcă sarcinile dumneavoastră...",
     "empty": "Nu v-ați înscris încă la nicio sarcină.",
     "endsOn": "Se încheie {{date}}"

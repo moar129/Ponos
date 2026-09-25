@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Moje zadania",
-    "goToTasks": "Przejdź do zadań",
+    "goToTasks": "Przejdź do moich zadań",
     "loading": "Ładowanie Twoich zadań...",
     "empty": "Nie jesteś jeszcze zapisany do żadnego zadania.",
     "endsOn": "Koniec {{date}}"

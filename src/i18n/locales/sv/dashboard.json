@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Mina uppgifter",
-    "goToTasks": "Gå till uppgifter",
+    "goToTasks": "Gå till mina uppgifter",
     "loading": "Laddar dina uppgifter...",
     "empty": "Du är ännu inte anmäld till några uppgifter.",
     "endsOn": "Slutar {{date}}"

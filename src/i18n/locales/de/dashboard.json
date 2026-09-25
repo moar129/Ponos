@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Meine Aufgaben",
-    "goToTasks": "Zu den Aufgaben",
+    "goToTasks": "Zu meinen Aufgaben",
     "loading": "Ihre Aufgaben werden geladen...",
     "empty": "Sie sind noch für keine Aufgaben angemeldet.",
     "endsOn": "Endet am {{date}}"

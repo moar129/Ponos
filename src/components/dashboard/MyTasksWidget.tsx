@@ -28,8 +28,8 @@ function sortByPriorityThenEndDate(a: Task, b: Task): number {
 // US-74: brugerens egne, ikke-afsluttede opgaver på Oversigt-fanen.
 // getTasks er filtreret på aktiv organisation, og task_assignees er
 // RLS-scopet til samme, så snittet kan aldrig indeholde andre
-// organisationers opgaver. Rækkerne navigerer til /tasks?task=<id>, hvor
-// TaskPage åbner opgavens egen popup (TaskCard).
+// organisationers opgaver. Rækkerne navigerer til /tasks/mine?task=<id>, hvor
+// MyTasksPage åbner opgavens egen popup (TaskCard).
 export function MyTasksWidget() {
     const { t } = useTranslation(['dashboard', 'tasks'])
     const navigate = useNavigate()
@@ -50,7 +50,7 @@ export function MyTasksWidget() {
                     <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
                     <h3 className="font-medium text-primary dark:text-slate-100">{t('myTasks.title')}</h3>
                 </div>
-                <Link to="/tasks" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
+                <Link to="/tasks/mine"className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
                     {t('myTasks.goToTasks')}
                     <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -68,7 +68,7 @@ export function MyTasksWidget() {
                         <li key={task.id}>
                             <button
                                 type="button"
-                                onClick={() => navigate(`/tasks?task=${task.id}`)}
+                                onClick={() => navigate(`/tasks/mine?task=${task.id}`)}
                                 className="w-full text-left py-2.5 -mx-2 px-2 rounded-md transition-colors hover:bg-bg-gray/50 dark:hover:bg-slate-700/50"
                             >
                                 <p className="font-medium text-primary truncate dark:text-slate-100">{task.title}</p>

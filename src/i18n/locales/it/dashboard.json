@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Le mie attività",
-    "goToTasks": "Vai alle attività",
+    "goToTasks": "Vai alle mie attività",
     "loading": "Caricamento delle tue attività...",
     "empty": "Non sei ancora iscritto a nessuna attività.",
     "endsOn": "Termina il {{date}}"
