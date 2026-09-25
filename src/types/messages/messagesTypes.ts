@@ -57,6 +57,7 @@ export interface ConversationSummary {
   urlPicture: string | null;
   lastMessage: string | null;
   lastMessageAt: string | null;
+  lastMessageDeleted: boolean;
   unread: boolean; // NYT
 }
 

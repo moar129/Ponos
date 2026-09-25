@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationTitle } from '../../utils/notificationDisplay'
+import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
 import { useNavigate } from 'react-router-dom';
 import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
 import {
@@ -132,7 +132,7 @@ export function NotificationBellComponent() {
                         )}
                       </div>
                       {notification.body && (
-                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notification.body}</p>
+                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notificationBody(notification, td)}</p>
                       )}
                       <p className="text-[11px] text-secondary dark:text-slate-400 mt-1">{timeAgo(notification.createdAt)}</p>
                     </button>

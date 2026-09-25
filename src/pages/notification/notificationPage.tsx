@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationTitle } from '../../utils/notificationDisplay'
+import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
 import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
@@ -211,7 +211,7 @@ export default function NotificationsPage() {
                       </div>
                       {notification.body && (
                         <p className="text-sm text-secondary mt-1 line-clamp-2 dark:text-slate-400">
-                          {notification.body}
+                          {notificationBody(notification, td)}
                         </p>
                       )}
                       <p className="text-xs text-secondary mt-1.5 dark:text-slate-400">

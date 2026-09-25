@@ -86,7 +86,11 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
                   )}
                 </div>
                 <p className="text-xs text-secondary truncate dark:text-slate-400">
-                  {conv.lastMessage ?? t('noMessagesYet')}
+                  {conv.lastMessageDeleted ? (
+                    <span className="italic">{t('messageDeleted')}</span>
+                  ) : (
+                    conv.lastMessage ?? t('noMessagesYet')
+                  )}
                 </p>
               </div>
             </button>
