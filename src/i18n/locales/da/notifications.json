@@ -21,6 +21,7 @@
     "task_updated": "En opgave er opdateret",
     "task_completed": "En opgave er afsluttet",
     "task_approved": "Din opgave er godkendt",
-    "task_rejected": "Færdigmelding afvist"
+    "task_rejected": "Færdigmelding afvist",
+    "news": "Ny nyhed"
   }
 }

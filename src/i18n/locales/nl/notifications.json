@@ -21,6 +21,7 @@
     "task_updated": "Een taak is bijgewerkt",
     "task_completed": "Een taak is afgerond",
     "task_approved": "Je taak is goedgekeurd",
-    "task_rejected": "Gereedmelding afgewezen"
+    "task_rejected": "Gereedmelding afgewezen",
+    "news": "Nieuw nieuwsbericht"
   }
 }

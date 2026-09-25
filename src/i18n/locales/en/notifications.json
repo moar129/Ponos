@@ -21,6 +21,7 @@
     "task_updated": "A task has been updated",
     "task_completed": "A task has been completed",
     "task_approved": "Your task has been approved",
-    "task_rejected": "Completion rejected"
+    "task_rejected": "Completion rejected",
+    "news": "New news"
   }
 }

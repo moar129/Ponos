@@ -19,9 +19,8 @@ import { formatNumericDateTime } from '../../utils/formatDate';
 // --- Kategorisering af notifikationer ---------------------------------
 // Notifikationstyperne kommer fra e_notification-check-constrainten:
 // 'message', 'task_assigned', 'task_updated', 'task_completed',
-// 'task_approved', 'task_rejected'. Der findes endnu ikke en dedikeret
-// "news"-type i databasen, men kategorien er klar til den dag der
-// tilføjes en notifikationstype for nyheder.
+// 'task_approved', 'task_rejected', 'news'. Ukendte typer falder
+// tilbage til 'news'.
 type NotificationCategory = 'messages' | 'tasks' | 'news';
 type CategoryFilter = NotificationCategory | 'all';
 

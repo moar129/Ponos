@@ -21,6 +21,7 @@
     "task_updated": "Un'attività è stata aggiornata",
     "task_completed": "Un'attività è stata completata",
     "task_approved": "La tua attività è stata approvata",
-    "task_rejected": "Segnalazione di completamento rifiutata"
+    "task_rejected": "Segnalazione di completamento rifiutata",
+    "news": "Nuova notizia"
   }
 }

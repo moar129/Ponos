@@ -21,6 +21,7 @@
     "task_updated": "Zadanie zostało zaktualizowane",
     "task_completed": "Zadanie zostało zakończone",
     "task_approved": "Twoje zadanie zostało zatwierdzone",
-    "task_rejected": "Zgłoszenie zakończenia odrzucone"
+    "task_rejected": "Zgłoszenie zakończenia odrzucone",
+    "news": "Nowa aktualność"
   }
 }

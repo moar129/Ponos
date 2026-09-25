@@ -2,7 +2,8 @@
 import type { AppNotification } from '../types/notification/notificationTypes'
 import type { DynamicTFunction } from '../i18n/config'
 
-// Overskriften på en notifikation. For alle opgave-typer er notifications.title
+// Overskriften på en notifikation. Alle typer undtagen 'message' (opgaver og
+// 'news') oversættes via notifications:type.<type>. For opgave-typerne er notifications.title
 // i databasen en fast dansk etiket der følger type-kolonnen 1:1 ('En opgave er
 // afsluttet' osv.), så den oversættes via notifications:type.<type>.
 //

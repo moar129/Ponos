@@ -21,6 +21,7 @@
     "task_updated": "Uma tarefa foi atualizada",
     "task_completed": "Uma tarefa foi concluída",
     "task_approved": "A sua tarefa foi aprovada",
-    "task_rejected": "Conclusão rejeitada"
+    "task_rejected": "Conclusão rejeitada",
+    "news": "Nova notícia"
   }
 }
