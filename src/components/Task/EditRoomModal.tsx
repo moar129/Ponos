@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useUpdateRoomMutation } from '../../store/apis/taskApi';
 import type { Room } from '../../types/Task/Task';
+import { RoomRolePicker } from './RoomRolePicker';
 
 interface EditRoomModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ export function EditRoomModal({
   const { t } = useTranslation(['tasks', 'common'])
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [roomName, setRoomName] = useState('');
+    const [roleIds, setRoleIds] = useState<string[]>([]);
 
     const [updateRoom, { isLoading, isError }] = useUpdateRoomMutation();
 
@@ -29,6 +31,7 @@ export function EditRoomModal({
 
         const room = rooms.find((room) => room.id === roomId);
         setRoomName(room?.name ?? '');
+        setRoleIds(room?.role_ids ?? []);
     };
 
     const handleSave = async () => {
@@ -42,6 +45,7 @@ export function EditRoomModal({
             await updateRoom({
                 id: selectedRoomId,
                 name: trimmedName,
+                roleIds,
             }).unwrap();
 
             onClose();
@@ -107,6 +111,13 @@ export function EditRoomModal({
                             className="w-full rounded-lg border border-border-gray bg-white text-primary px-3 py-2 text-sm focus:border-accent focus:outline-none disabled:bg-bg-gray disabled:text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
                         />
                     </div>
+
+                    <RoomRolePicker
+                        selectedRoleIds={roleIds}
+                        onChange={setRoleIds}
+                        disabled={!selectedRoomId}
+                        suggestedRoleName={roomName}
+                    />
 
                     {isError && (
                         <p className="text-sm text-red-700 dark:text-red-400">

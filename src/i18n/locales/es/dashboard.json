@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Cargando tareas finalizadas...",
     "empty": "Todavía no se ha marcado ninguna tarea como finalizada.",
-    "searchPlaceholder": "Buscar por título o descripción...",
+    "searchPlaceholder": "Buscar por título, sala o persona...",
     "allPriorities": "Todas las prioridades",
     "noMatch": "Ninguna tarea coincide con la búsqueda o el filtro.",
     "noDescription": "Sin descripción.",
@@ -74,7 +74,18 @@
     "noMaterials": "Sin materiales",
     "edit": "Editar",
     "reopen": "Reabrir",
-    "reopening": "Reabriendo..."
+    "reopening": "Reabriendo...",
+    "sortNewest": "Terminadas recientemente primero",
+    "sortOldest": "Terminadas más antiguas primero",
+    "sortDeadline": "Fecha límite más próxima primero",
+    "from": "Terminada desde",
+    "to": "hasta",
+    "presetToday": "Hoy",
+    "preset7": "7 días",
+    "preset30": "30 días",
+    "resetFilters": "Restablecer",
+    "finishedOn": "Terminada el {{date}}",
+    "showing": "{{count}} de {{total}}"
   },
   "statistics": {
     "noOrganisation": "Todavía no tienes una organización activa, así que no hay estadísticas que mostrar.",

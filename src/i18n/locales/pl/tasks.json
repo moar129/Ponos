@@ -28,7 +28,8 @@
     "saveRoom": "Zapisz pomieszczenie",
     "loading": "Ładowanie zadań...",
     "noAccess": "Nie masz dostępu do zadań tej organizacji.",
-    "heading": "Zadania",
+    "heading": "Wszystkie zadania",
+    "roomHeading": "Zadania – {{room}}",
     "createRoom": "Utwórz pomieszczenie",
     "availableHeading": "Dostępne zadania",
     "inProgressHeading": "W toku"
@@ -51,7 +52,14 @@
     "edit": "Edytuj pomieszczenie",
     "deleteOne": "Usuń pomieszczenie",
     "choose": "Wybierz pomieszczenie",
-    "noRoom": "Bez pomieszczenia"
+    "noRoom": "Bez pomieszczenia",
+    "rolesLabel": "Dostęp dla ról",
+    "rolesHint": "Brak wyboru = wszyscy widzą pokój.",
+    "rolesLoading": "Ładowanie ról...",
+    "rolesLoadFailed": "Nie udało się załadować ról.",
+    "noRoles": "Organizacja nie ma ról.",
+    "restrictedTo": "Tylko dla: {{roles}}",
+    "newRole": "Nowa rola"
   },
   "create": {
     "heading": "Utwórz zadanie",
@@ -130,7 +138,7 @@
   },
   "editRoom": {
     "heading": "Edytuj pomieszczenie",
-    "intro": "Wybierz pomieszczenie i zmień jego nazwę.",
+    "intro": "Wybierz pokój i edytuj nazwę oraz dostęp.",
     "namePlaceholder": "Wpisz nazwę pomieszczenia",
     "failed": "Nie udało się edytować pomieszczenia. Spróbuj ponownie."
   }

@@ -158,6 +158,9 @@
     "STATUS_UNCHANGED": "Den nye status er den samme som den nuværende.",
     "RELEASE_STATUS_NOT_ALLOWED": "Et frigivet materiale kan ikke have status Reserveret eller I brug.",
     "REJECTION_REASON_REQUIRED": "Du skal skrive en begrundelse for afvisningen.",
-    "REJECTION_REASON_TOO_LONG": "Begrundelsen må højst være 500 tegn."
+    "REJECTION_REASON_TOO_LONG": "Begrundelsen må højst være 500 tegn.",
+    "NO_PRIV_CREATE_ROLES": "Du har ikke rettigheder til at oprette roller.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Du kan kun give privilegier, du selv har.",
+    "ROLE_NAME_REQUIRED": "Rollen skal have et navn."
   }
 }

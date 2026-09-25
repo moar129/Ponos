@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Afgeronde taken worden geladen...",
     "empty": "Er zijn nog geen taken als afgerond gemarkeerd.",
-    "searchPlaceholder": "Zoeken op titel of beschrijving...",
+    "searchPlaceholder": "Zoeken op titel, ruimte of persoon...",
     "allPriorities": "Alle prioriteiten",
     "noMatch": "Geen taken komen overeen met de zoekopdracht of het filter.",
     "noDescription": "Geen beschrijving.",
@@ -74,7 +74,18 @@
     "noMaterials": "Geen materialen",
     "edit": "Bewerken",
     "reopen": "Heropenen",
-    "reopening": "Bezig met heropenen..."
+    "reopening": "Bezig met heropenen...",
+    "sortNewest": "Recent afgerond eerst",
+    "sortOldest": "Oudst afgerond eerst",
+    "sortDeadline": "Vroegste deadline eerst",
+    "from": "Afgerond van",
+    "to": "tot",
+    "presetToday": "Vandaag",
+    "preset7": "7 dagen",
+    "preset30": "30 dagen",
+    "resetFilters": "Wissen",
+    "finishedOn": "Afgerond {{date}}",
+    "showing": "{{count}} van {{total}}"
   },
   "statistics": {
     "noOrganisation": "Je hebt nog geen actieve organisatie, dus er zijn geen statistieken te tonen.",

@@ -28,7 +28,8 @@
     "saveRoom": "Ruimte opslaan",
     "loading": "Taken worden geladen...",
     "noAccess": "Je hebt geen toegang tot de taken van deze organisatie.",
-    "heading": "Taken",
+    "heading": "Alle taken",
+    "roomHeading": "{{room}} taken",
     "createRoom": "Ruimte aanmaken",
     "availableHeading": "Beschikbare taken",
     "inProgressHeading": "Bezig"
@@ -51,7 +52,14 @@
     "edit": "Ruimte bewerken",
     "deleteOne": "Een ruimte verwijderen",
     "choose": "Kies een ruimte",
-    "noRoom": "Zonder ruimte"
+    "noRoom": "Zonder ruimte",
+    "rolesLabel": "Toegang voor rollen",
+    "rolesHint": "Niets geselecteerd = iedereen kan de ruimte zien.",
+    "rolesLoading": "Rollen laden...",
+    "rolesLoadFailed": "Rollen konden niet worden geladen.",
+    "noRoles": "De organisatie heeft geen rollen.",
+    "restrictedTo": "Alleen voor: {{roles}}",
+    "newRole": "Nieuwe rol"
   },
   "create": {
     "heading": "Taak aanmaken",
@@ -128,7 +136,7 @@
   },
   "editRoom": {
     "heading": "Ruimte bewerken",
-    "intro": "Kies een ruimte en bewerk de naam.",
+    "intro": "Kies een ruimte en bewerk de naam en toegang.",
     "namePlaceholder": "Schrijf een naam voor de ruimte",
     "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
   }

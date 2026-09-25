@@ -1,7 +1,7 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
@@ -12,8 +12,10 @@ import {
 import type {
     ETaskPriority,
     ETaskStatus,
+    TasksLocationState,
 } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -44,12 +46,16 @@ export function TasksPage() {
         setSearchParams({}, { replace: true });
 
     const [search, setSearch] = useState('');
+    const location = useLocation();
     const [selectedRoomId, setSelectedRoomId] =
-        useState<string | null>(null);
+        useState<string | null>(
+            () => (location.state as TasksLocationState | null)?.roomId ?? null
+        );
 
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [newRoomName, setNewRoomName] = useState('');
+    const [newRoomRoleIds, setNewRoomRoleIds] = useState<string[]>([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const [selectedStatuses, setSelectedStatuses] =
@@ -98,6 +104,10 @@ export function TasksPage() {
 
     const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
 
+    const selectedRoom = rooms.find(
+        (room) => room.id === selectedRoomId
+    );
+
 
 
     const handleAddRoom = async () => {
@@ -108,9 +118,10 @@ export function TasksPage() {
         }
 
         try {
-            await createRoom({ name: roomName }).unwrap();
+            await createRoom({ name: roomName, roleIds: newRoomRoleIds }).unwrap();
 
             setNewRoomName('');
+            setNewRoomRoleIds([]);
             setIsAddRoomOpen(false);
         } catch {
             // handled through mutation error state
@@ -294,6 +305,7 @@ export function TasksPage() {
                     onClick={() => {
                         setIsAddRoomOpen(false);
                         setNewRoomName('');
+                        setNewRoomRoleIds([]);
                     }}
                 >
                     <div
@@ -318,12 +330,21 @@ export function TasksPage() {
                             autoFocus
                         />
 
+                        <div className="mt-4">
+                            <RoomRolePicker
+                                selectedRoleIds={newRoomRoleIds}
+                                onChange={setNewRoomRoleIds}
+                                suggestedRoleName={newRoomName}
+                            />
+                        </div>
+
                         <div className="mt-5 flex justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setIsAddRoomOpen(false);
                                     setNewRoomName('');
+                                    setNewRoomRoleIds([]);
                                 }}
                                 className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
                             >
@@ -354,7 +375,9 @@ export function TasksPage() {
                 {/* PAGE INTRO */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('page.heading')}</h1>
+                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{selectedRoom
+                            ? t('page.roomHeading', { room: selectedRoom.name })
+                            : t('page.heading')}</h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
                             {t('page.subtitle')}

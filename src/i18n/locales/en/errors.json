@@ -158,6 +158,9 @@
     "STATUS_UNCHANGED": "The new status is the same as the current one.",
     "RELEASE_STATUS_NOT_ALLOWED": "A released material cannot have the status Reserved or In use.",
     "REJECTION_REASON_REQUIRED": "You must write a reason for the rejection.",
-    "REJECTION_REASON_TOO_LONG": "The reason can be at most 500 characters."
+    "REJECTION_REASON_TOO_LONG": "The reason can be at most 500 characters.",
+    "NO_PRIV_CREATE_ROLES": "You do not have permission to create roles.",
+    "NO_PRIV_GRANT_PRIVILEGE": "You can only grant privileges you have yourself.",
+    "ROLE_NAME_REQUIRED": "The role must have a name."
   }
 }

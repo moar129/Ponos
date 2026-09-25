@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Ladataan valmiita tehtäviä...",
     "empty": "Yhtäkään tehtävää ei ole vielä merkitty valmiiksi.",
-    "searchPlaceholder": "Hae otsikolla tai kuvauksella...",
+    "searchPlaceholder": "Hae otsikolla, tilalla tai henkilöllä...",
     "allPriorities": "Kaikki prioriteetit",
     "noMatch": "Mikään tehtävä ei vastaa hakua tai suodatinta.",
     "noDescription": "Ei kuvausta.",
@@ -74,7 +74,18 @@
     "noMaterials": "Ei materiaaleja",
     "edit": "Muokkaa",
     "reopen": "Avaa uudelleen",
-    "reopening": "Avataan uudelleen..."
+    "reopening": "Avataan uudelleen...",
+    "sortNewest": "Viimeksi valmistuneet ensin",
+    "sortOldest": "Vanhimmat valmistuneet ensin",
+    "sortDeadline": "Aikaisin määräaika ensin",
+    "from": "Valmistunut alkaen",
+    "to": "asti",
+    "presetToday": "Tänään",
+    "preset7": "7 päivää",
+    "preset30": "30 päivää",
+    "resetFilters": "Tyhjennä",
+    "finishedOn": "Valmistui {{date}}",
+    "showing": "{{count}} / {{total}}"
   },
   "statistics": {
     "noOrganisation": "Sinulla ei ole vielä aktiivista organisaatiota, joten tilastoja ei ole näytettävänä.",

@@ -28,7 +28,8 @@
     "saveRoom": "Enregistrer la salle",
     "loading": "Chargement des tâches...",
     "noAccess": "Vous n'avez pas accès aux tâches de cette organisation.",
-    "heading": "Tâches",
+    "heading": "Toutes les tâches",
+    "roomHeading": "Tâches – {{room}}",
     "createRoom": "Créer une salle",
     "availableHeading": "Tâches disponibles",
     "inProgressHeading": "En cours"
@@ -51,7 +52,14 @@
     "edit": "Modifier la salle",
     "deleteOne": "Supprimer une salle",
     "choose": "Choisir une salle",
-    "noRoom": "Sans salle"
+    "noRoom": "Sans salle",
+    "rolesLabel": "Accès pour les rôles",
+    "rolesHint": "Aucun sélectionné = tout le monde peut voir la salle.",
+    "rolesLoading": "Chargement des rôles...",
+    "rolesLoadFailed": "Impossible de charger les rôles.",
+    "noRoles": "L'organisation n'a aucun rôle.",
+    "restrictedTo": "Uniquement pour : {{roles}}",
+    "newRole": "Nouveau rôle"
   },
   "create": {
     "heading": "Créer une tâche",
@@ -129,7 +137,7 @@
   },
   "editRoom": {
     "heading": "Modifier la salle",
-    "intro": "Choisissez une salle et modifiez son nom.",
+    "intro": "Choisissez une salle et modifiez son nom et son accès.",
     "namePlaceholder": "Saisissez un nom de salle",
     "failed": "Impossible de modifier la salle. Veuillez réessayer."
   }

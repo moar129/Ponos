@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Laddar avslutade uppgifter...",
     "empty": "Inga uppgifter har ännu markerats som avslutade.",
-    "searchPlaceholder": "Sök på titel eller beskrivning...",
+    "searchPlaceholder": "Sök på titel, rum eller person...",
     "allPriorities": "Alla prioriteringar",
     "noMatch": "Inga uppgifter matchar sökningen eller filtret.",
     "noDescription": "Ingen beskrivning.",
@@ -74,7 +74,18 @@
     "noMaterials": "Inget material",
     "edit": "Redigera",
     "reopen": "Återöppna",
-    "reopening": "Återöppnar..."
+    "reopening": "Återöppnar...",
+    "sortNewest": "Senast avslutade först",
+    "sortOldest": "Äldst avslutade först",
+    "sortDeadline": "Tidigaste deadline först",
+    "from": "Klar från",
+    "to": "till",
+    "presetToday": "Idag",
+    "preset7": "7 dagar",
+    "preset30": "30 dagar",
+    "resetFilters": "Återställ",
+    "finishedOn": "Klar {{date}}",
+    "showing": "Visar {{count}} av {{total}}"
   },
   "statistics": {
     "noOrganisation": "Du har ännu ingen aktiv organisation, så det finns ingen statistik att visa.",

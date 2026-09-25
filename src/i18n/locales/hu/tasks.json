@@ -28,7 +28,8 @@
     "saveRoom": "Helyiség mentése",
     "loading": "Feladatok betöltése...",
     "noAccess": "Nincs hozzáférése ennek a szervezetnek a feladataihoz.",
-    "heading": "Feladatok",
+    "heading": "Összes feladat",
+    "roomHeading": "{{room}} feladatok",
     "createRoom": "Helyiség létrehozása",
     "availableHeading": "Elérhető feladatok",
     "inProgressHeading": "Folyamatban"
@@ -51,7 +52,14 @@
     "edit": "Helyiség szerkesztése",
     "deleteOne": "Helyiség törlése",
     "choose": "Válasszon helyiséget",
-    "noRoom": "Helyiség nélkül"
+    "noRoom": "Helyiség nélkül",
+    "rolesLabel": "Hozzáférés szerepkörökhöz",
+    "rolesHint": "Nincs kijelölve = mindenki látja a szobát.",
+    "rolesLoading": "Szerepkörök betöltése...",
+    "rolesLoadFailed": "Nem sikerült betölteni a szerepköröket.",
+    "noRoles": "A szervezetnek nincsenek szerepkörei.",
+    "restrictedTo": "Csak: {{roles}}",
+    "newRole": "Új szerepkör"
   },
   "create": {
     "heading": "Feladat létrehozása",
@@ -128,7 +136,7 @@
   },
   "editRoom": {
     "heading": "Helyiség szerkesztése",
-    "intro": "Válasszon helyiséget, és szerkessze a nevét.",
+    "intro": "Válasszon szobát, és szerkessze a nevét és a hozzáférést.",
     "namePlaceholder": "Írja be a helyiség nevét",
     "failed": "A helyiséget nem sikerült szerkeszteni. Próbálja újra."
   }

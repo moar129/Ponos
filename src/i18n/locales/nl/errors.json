@@ -135,6 +135,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Een sectie kan zelf geen sublocaties hebben.",
     "LOCATION_SECTION_ORG_MISMATCH": "De sectie moet tot dezelfde organisatie behoren als het magazijn.",
     "REJECTION_REASON_REQUIRED": "Je moet een reden voor de afwijzing opgeven.",
-    "REJECTION_REASON_TOO_LONG": "De reden mag maximaal 500 tekens zijn."
+    "REJECTION_REASON_TOO_LONG": "De reden mag maximaal 500 tekens zijn.",
+    "NO_PRIV_CREATE_ROLES": "U hebt geen rechten om rollen aan te maken.",
+    "NO_PRIV_GRANT_PRIVILEGE": "U kunt alleen rechten toekennen die u zelf hebt.",
+    "ROLE_NAME_REQUIRED": "De rol moet een naam hebben."
   }
 }

@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Se încarcă sarcinile finalizate...",
     "empty": "Nicio sarcină nu a fost marcată încă drept finalizată.",
-    "searchPlaceholder": "Căutați după titlu sau descriere...",
+    "searchPlaceholder": "Căutați după titlu, încăpere sau persoană...",
     "allPriorities": "Toate prioritățile",
     "noMatch": "Nicio sarcină nu corespunde căutării sau filtrului.",
     "noDescription": "Nicio descriere.",
@@ -74,7 +74,18 @@
     "noMaterials": "Niciun material",
     "edit": "Editează",
     "reopen": "Redeschide",
-    "reopening": "Se redeschide..."
+    "reopening": "Se redeschide...",
+    "sortNewest": "Finalizate recent mai întâi",
+    "sortOldest": "Cele mai vechi finalizate mai întâi",
+    "sortDeadline": "Cel mai apropiat termen mai întâi",
+    "from": "Finalizată de la",
+    "to": "până la",
+    "presetToday": "Astăzi",
+    "preset7": "7 zile",
+    "preset30": "30 de zile",
+    "resetFilters": "Resetează",
+    "finishedOn": "Finalizată {{date}}",
+    "showing": "{{count}} din {{total}}"
   },
   "statistics": {
     "noOrganisation": "Nu aveți încă o organizație activă, deci nu există statistici de afișat.",
