@@ -44,6 +44,13 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 ## Næste op
 
+**0. Ret lint-fejl i `DataLayerPage.tsx` (planlagt 2026-09-24, IKKE startet).** Ad-hoc, ikke en user story. `npm run lint` fejler med `react-hooks/set-state-in-effect` i den `useEffect`, der sætter `selectedCategory` ud fra URL'ens `catId` + `categoryTree` (+ `exhaustive-deps`-advarsel om `findCategoryInTree`, og en `eslint-disable` ved `aggregatedItems`-memoet af samme grund). Fejlen var der før filter-ændringerne 24/09. Tjek først linjenumre/tilstand, filen kan have ændret sig. Fix, kun i `src/pages/dataLayer/DataLayerPage.tsx`:
+1. Flyt de rene træ-helpers `findCategoryInTree`, `getCategoryPath` og `findSiblingsArray` ud af komponenten (module scope). Logikken er uændret. Fjern derefter `eslint-disable`-linjen ved `aggregatedItems`.
+2. Erstat `selectedCategory`-state + hele `useEffect`'en med en afledt værdi: `const selectedCategory = (categoryIdFromUrl ? findCategoryInTree(categoryTree, categoryIdFromUrl) : null) ?? categoryTree[0] ?? null;`. Fjern `useEffect`-importen, hvis den ikke længere bruges.
+3. Fjern `setSelectedCategory(...)` i `handleSelectCategory` (URL'en er nok) og i `handleCategoriesDeleted` (`setSearchParams({})` falder tilbage til første kategori).
+
+Bevar denne adfærd: ingen/ugyldig `catId` → første rod-kategori; tom org → `null` ("Vælg kategori"); klik i træ, global søgning og ny kategori vælger via URL. Test: `npm run lint` + `npm run build`, derefter /datalager manuelt (første load, klik, reload med `?catId=`, slet valgt kategori, opret kategori, søg → item, browser tilbage/frem).
+
 **1. ~~Kør bugfixen~~ ✅ FÆRDIG 2026-09-11** — `memberships`-policyens escalation-guard er rettet, kørt og testet. Dokumenteret i `dbSchema.sql` §16.10; migrations-filen er slettet efter kørsel, jf. konventionen. De to Fase 2-privilegier er samtidig tilføjet i `privilegeApi.ts`, så de kan tildeles inden gatingen strammes.
 
 **2. ~~US-74 – Se egne opgaver på dashboardet~~ ✅ FÆRDIG 2026-09-14** — ny `MyTasksWidget.tsx` på Oversigt-fanen, testet i browseren. Se US-74-rækken.
