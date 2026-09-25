@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { Lock, MoreHorizontal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { RoomBarProps } from '../../types/Task/Task';
+import type { RoomBarProps, TasksLocationState } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
 import { DeleteRoomModal } from './DeleteRoomModal';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
@@ -107,7 +107,12 @@ export function RoomBar({
                                 key={room.id}
                                 type="button"
                                 onClick={() => {
-                                    onSelectRoom(room.id);
+                                    if (isMyTasksPage) {
+                                        const state: TasksLocationState = { roomId: room.id };
+                                        navigate('/tasks', { state });
+                                    } else {
+                                        onSelectRoom(room.id);
+                                    }
                                     setIsMenuOpen(false);
                                 }}
                                 title={

@@ -28,7 +28,8 @@
     "saveRoom": "Salvează încăperea",
     "loading": "Se încarcă sarcinile...",
     "noAccess": "Nu aveți acces la sarcinile acestei organizații.",
-    "heading": "Sarcini",
+    "heading": "Toate sarcinile",
+    "roomHeading": "Sarcini – {{room}}",
     "createRoom": "Creează încăpere",
     "availableHeading": "Sarcini disponibile",
     "inProgressHeading": "În lucru"

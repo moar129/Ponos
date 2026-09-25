@@ -1,7 +1,7 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
@@ -12,6 +12,7 @@ import {
 import type {
     ETaskPriority,
     ETaskStatus,
+    TasksLocationState,
 } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
@@ -45,8 +46,11 @@ export function TasksPage() {
         setSearchParams({}, { replace: true });
 
     const [search, setSearch] = useState('');
+    const location = useLocation();
     const [selectedRoomId, setSelectedRoomId] =
-        useState<string | null>(null);
+        useState<string | null>(
+            () => (location.state as TasksLocationState | null)?.roomId ?? null
+        );
 
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -99,6 +103,10 @@ export function TasksPage() {
     } = useGetRoomsQuery();
 
     const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
+
+    const selectedRoom = rooms.find(
+        (room) => room.id === selectedRoomId
+    );
 
 
 
@@ -367,7 +375,9 @@ export function TasksPage() {
                 {/* PAGE INTRO */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('page.heading')}</h1>
+                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{selectedRoom
+                            ? t('page.roomHeading', { room: selectedRoom.name })
+                            : t('page.heading')}</h1>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
                             {t('page.subtitle')}

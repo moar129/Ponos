@@ -28,7 +28,8 @@
     "saveRoom": "Helyiség mentése",
     "loading": "Feladatok betöltése...",
     "noAccess": "Nincs hozzáférése ennek a szervezetnek a feladataihoz.",
-    "heading": "Feladatok",
+    "heading": "Összes feladat",
+    "roomHeading": "{{room}} feladatok",
     "createRoom": "Helyiség létrehozása",
     "availableHeading": "Elérhető feladatok",
     "inProgressHeading": "Folyamatban"

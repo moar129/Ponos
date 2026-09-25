@@ -28,7 +28,8 @@
     "saveRoom": "Gem rum",
     "loading": "Henter opgaver...",
     "noAccess": "Du har ikke adgang til at se opgaver i denne organisation.",
-    "heading": "Opgaver",
+    "heading": "Alle opgaver",
+    "roomHeading": "{{room}} Opgaver",
     "createRoom": "Opret rum",
     "availableHeading": "Opgaver tilgængelige",
     "inProgressHeading": "I gang"

@@ -28,7 +28,8 @@
     "saveRoom": "Enregistrer la salle",
     "loading": "Chargement des tâches...",
     "noAccess": "Vous n'avez pas accès aux tâches de cette organisation.",
-    "heading": "Tâches",
+    "heading": "Toutes les tâches",
+    "roomHeading": "Tâches – {{room}}",
     "createRoom": "Créer une salle",
     "availableHeading": "Tâches disponibles",
     "inProgressHeading": "En cours"

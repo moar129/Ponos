@@ -28,7 +28,8 @@
     "saveRoom": "Guardar sala",
     "loading": "Cargando tareas...",
     "noAccess": "No tienes acceso a las tareas de esta organización.",
-    "heading": "Tareas",
+    "heading": "Todas las tareas",
+    "roomHeading": "Tareas de {{room}}",
     "createRoom": "Crear sala",
     "availableHeading": "Tareas disponibles",
     "inProgressHeading": "En curso"

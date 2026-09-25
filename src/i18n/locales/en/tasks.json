@@ -28,7 +28,8 @@
     "saveRoom": "Save room",
     "loading": "Loading tasks...",
     "noAccess": "You do not have access to view tasks in this organisation.",
-    "heading": "Tasks",
+    "heading": "All tasks",
+    "roomHeading": "{{room}} tasks",
     "createRoom": "Create room",
     "availableHeading": "Available tasks",
     "inProgressHeading": "In progress"

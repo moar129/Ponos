@@ -28,7 +28,8 @@
     "saveRoom": "Tallenna tila",
     "loading": "Haetaan tehtäviä...",
     "noAccess": "Sinulla ei ole pääsyä tämän organisaation tehtäviin.",
-    "heading": "Tehtävät",
+    "heading": "Kaikki tehtävät",
+    "roomHeading": "{{room}}: tehtävät",
     "createRoom": "Luo tila",
     "availableHeading": "Saatavilla olevat tehtävät",
     "inProgressHeading": "Käynnissä"

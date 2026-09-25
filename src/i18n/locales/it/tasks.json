@@ -28,7 +28,8 @@
     "saveRoom": "Salva la sala",
     "loading": "Caricamento delle attività...",
     "noAccess": "Non hai accesso alle attività di questa organizzazione.",
-    "heading": "Attività",
+    "heading": "Tutte le attività",
+    "roomHeading": "Attività di {{room}}",
     "createRoom": "Crea sala",
     "availableHeading": "Attività disponibili",
     "inProgressHeading": "In corso"

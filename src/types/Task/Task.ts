@@ -50,6 +50,11 @@ export interface TaskState {
   userOrgId: string | null;
 }
 
+// Router state for /tasks — preselects a room when arriving from /tasks/mine
+export interface TasksLocationState {
+    roomId?: string;
+}
+
 export interface RoomBarProps {
   rooms: Room[];
   selectedRoomId: string | null;

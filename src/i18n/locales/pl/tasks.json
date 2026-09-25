@@ -28,7 +28,8 @@
     "saveRoom": "Zapisz pomieszczenie",
     "loading": "Ładowanie zadań...",
     "noAccess": "Nie masz dostępu do zadań tej organizacji.",
-    "heading": "Zadania",
+    "heading": "Wszystkie zadania",
+    "roomHeading": "Zadania – {{room}}",
     "createRoom": "Utwórz pomieszczenie",
     "availableHeading": "Dostępne zadania",
     "inProgressHeading": "W toku"

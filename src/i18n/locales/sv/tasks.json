@@ -28,7 +28,8 @@
     "saveRoom": "Spara rummet",
     "loading": "Hämtar uppgifter...",
     "noAccess": "Du har inte åtkomst till uppgifterna i den här organisationen.",
-    "heading": "Uppgifter",
+    "heading": "Alla uppgifter",
+    "roomHeading": "{{room}} uppgifter",
     "createRoom": "Skapa rum",
     "availableHeading": "Tillgängliga uppgifter",
     "inProgressHeading": "Pågår"

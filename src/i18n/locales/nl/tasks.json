@@ -28,7 +28,8 @@
     "saveRoom": "Ruimte opslaan",
     "loading": "Taken worden geladen...",
     "noAccess": "Je hebt geen toegang tot de taken van deze organisatie.",
-    "heading": "Taken",
+    "heading": "Alle taken",
+    "roomHeading": "{{room}} taken",
     "createRoom": "Ruimte aanmaken",
     "availableHeading": "Beschikbare taken",
     "inProgressHeading": "Bezig"

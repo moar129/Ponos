@@ -28,7 +28,8 @@
     "saveRoom": "Uložit místnost",
     "loading": "Načítání úkolů...",
     "noAccess": "Nemáte přístup k úkolům této organizace.",
-    "heading": "Úkoly",
+    "heading": "Všechny úkoly",
+    "roomHeading": "Úkoly – {{room}}",
     "createRoom": "Vytvořit místnost",
     "availableHeading": "Dostupné úkoly",
     "inProgressHeading": "Probíhá"

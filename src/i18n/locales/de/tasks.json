@@ -28,7 +28,8 @@
     "saveRoom": "Raum speichern",
     "loading": "Aufgaben werden geladen...",
     "noAccess": "Sie haben keinen Zugriff auf die Aufgaben dieser Organisation.",
-    "heading": "Aufgaben",
+    "heading": "Alle Aufgaben",
+    "roomHeading": "{{room}} – Aufgaben",
     "createRoom": "Raum erstellen",
     "availableHeading": "Verfügbare Aufgaben",
     "inProgressHeading": "In Arbeit"
