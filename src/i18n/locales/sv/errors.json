@@ -57,7 +57,8 @@
     "deleteItem": "Du har inte behörighet att radera artikeln.",
     "createLocation": "Du har inte behörighet att skapa platsen.",
     "updateLocation": "Du har inte behörighet att redigera platsen.",
-    "deleteLocation": "Du har inte behörighet att radera platsen."
+    "deleteLocation": "Du har inte behörighet att radera platsen.",
+    "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret."
   },
   "db": {
     "NOT_LOGGED_IN": "Du måste vara inloggad.",

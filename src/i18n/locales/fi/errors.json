@@ -57,7 +57,8 @@
     "deleteItem": "Sinulla ei ole oikeutta poistaa nimikettä.",
     "createLocation": "Sinulla ei ole oikeutta luoda sijaintia.",
     "updateLocation": "Sinulla ei ole oikeutta muokata sijaintia.",
-    "deleteLocation": "Sinulla ei ole oikeutta poistaa sijaintia."
+    "deleteLocation": "Sinulla ei ole oikeutta poistaa sijaintia.",
+    "favoriteDatalayer": "Sinulla ei ole oikeutta muuttaa tietokerroksen suosikkeja."
   },
   "db": {
     "NOT_LOGGED_IN": "Sinun on oltava kirjautuneena sisään.",

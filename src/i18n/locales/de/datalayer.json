@@ -186,5 +186,11 @@
   "quantityLabel": "Anzahl:",
   "categoryIdValue": "Kategorie-ID: {{id}}",
   "quantityValue": "Anzahl: {{count}}",
-  "itemCountParen": "({{count}} Artikel)"
+  "itemCountParen": "({{count}} Artikel)",
+  "favorites": {
+    "title": "Favoriten",
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "toggleFailed": "Favorit konnte nicht aktualisiert werden."
+  }
 }

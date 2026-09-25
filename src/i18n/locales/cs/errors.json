@@ -57,7 +57,8 @@
     "deleteItem": "Nemáte oprávnění smazat položku.",
     "createLocation": "Nemáte oprávnění vytvořit místo.",
     "updateLocation": "Nemáte oprávnění upravit místo.",
-    "deleteLocation": "Nemáte oprávnění smazat místo."
+    "deleteLocation": "Nemáte oprávnění smazat místo.",
+    "favoriteDatalayer": "Nemáte oprávnění měnit oblíbené v datové vrstvě."
   },
   "db": {
     "NOT_LOGGED_IN": "Musíte být přihlášeni.",

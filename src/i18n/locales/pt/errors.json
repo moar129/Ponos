@@ -57,7 +57,8 @@
     "deleteItem": "Não tem permissão para eliminar o artigo.",
     "createLocation": "Não tem permissão para criar a localização.",
     "updateLocation": "Não tem permissão para editar a localização.",
-    "deleteLocation": "Não tem permissão para eliminar a localização."
+    "deleteLocation": "Não tem permissão para eliminar a localização.",
+    "favoriteDatalayer": "Não tem permissão para alterar os favoritos da camada de dados."
   },
   "db": {
     "NOT_LOGGED_IN": "Tem de ter sessão iniciada.",

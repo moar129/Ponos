@@ -57,7 +57,8 @@
     "deleteItem": "Je hebt geen rechten om het artikel te verwijderen.",
     "createLocation": "Je hebt geen rechten om de locatie aan te maken.",
     "updateLocation": "Je hebt geen rechten om de locatie te bewerken.",
-    "deleteLocation": "Je hebt geen rechten om de locatie te verwijderen."
+    "deleteLocation": "Je hebt geen rechten om de locatie te verwijderen.",
+    "favoriteDatalayer": "Je hebt geen rechten om favorieten in de datalaag te wijzigen."
   },
   "db": {
     "NOT_LOGGED_IN": "U moet ingelogd zijn.",
