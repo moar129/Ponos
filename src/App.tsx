@@ -22,6 +22,7 @@ import { useGetSessionQuery } from './store/apis/authApi';
 import { MessagesPage } from './pages/messages/messagePage';
 import NotificationPage from './pages/notification/notificationPage';
 import { MyTasksPage } from './pages/Task/MyTasksPage';
+import { useOrganisationTheme } from './store/hooks/orgHook';
 
 // Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
 // headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
@@ -29,6 +30,7 @@ import { MyTasksPage } from './pages/Task/MyTasksPage';
 const FULL_WIDTH_ROUTES = ['/', '/om-os', '/kontakt', '/hjaelp'];
 
 function App() {
+  useOrganisationTheme();
   // Holder session-queryen aktiv hele appens levetid.
   // Den aktiverer authApi's onAuthStateChange-listener,
   // så login/logout slår igennem uden sideskift eller refresh.

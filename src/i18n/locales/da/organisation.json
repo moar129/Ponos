@@ -58,7 +58,18 @@
     "deletePermanently": "Slet permanent",
     "deleted": "\"{{name}}\" er slettet.",
     "deletedNewActive": "\"{{name}}\" er slettet. Din aktive organisation er nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere."
+    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere.",
+    "colorLabel": "Farve",
+    "colorHint": "Vælg en farve der repræsenterer jeres organisation. Alle farver er tilladt.",
+    "colorPickerAriaLabel": "Vælg organisationens farve",
+    "colorReset": "Nulstil",
+    "colorNoneSet": "Ingen valgt (standard)",
+    "colorInvalid": "Farven skal være en gyldig hex-kode, fx #C7975D.",
+    "colorSuggestions": {
+      "accent": "Ponos guld",
+      "primary": "Ponos navy",
+      "secondary": "Ponos blågrå"
+    }
   },
   "picker": {
     "searchPlaceholder": "Søg efter organisation...",
