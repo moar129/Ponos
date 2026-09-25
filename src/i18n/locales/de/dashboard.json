@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Abgeschlossene Aufgaben werden geladen...",
     "empty": "Es wurden noch keine Aufgaben als abgeschlossen markiert.",
-    "searchPlaceholder": "Nach Titel oder Beschreibung suchen...",
+    "searchPlaceholder": "Nach Titel, Raum oder Person suchen...",
     "allPriorities": "Alle Prioritäten",
     "noMatch": "Keine Aufgaben entsprechen der Suche oder dem Filter.",
     "noDescription": "Keine Beschreibung.",
@@ -74,7 +74,18 @@
     "noMaterials": "Keine Materialien",
     "edit": "Bearbeiten",
     "reopen": "Wieder öffnen",
-    "reopening": "Wird wieder geöffnet..."
+    "reopening": "Wird wieder geöffnet...",
+    "sortNewest": "Zuletzt erledigte zuerst",
+    "sortOldest": "Älteste erledigte zuerst",
+    "sortDeadline": "Früheste Deadline zuerst",
+    "from": "Erledigt von",
+    "to": "bis",
+    "presetToday": "Heute",
+    "preset7": "7 Tage",
+    "preset30": "30 Tage",
+    "resetFilters": "Zurücksetzen",
+    "finishedOn": "Erledigt {{date}}",
+    "showing": "{{count}} von {{total}}"
   },
   "statistics": {
     "noOrganisation": "Sie haben noch keine aktive Organisation, daher gibt es keine Statistiken anzuzeigen.",

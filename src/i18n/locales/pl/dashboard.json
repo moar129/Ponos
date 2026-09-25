@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Ładowanie zakończonych zadań...",
     "empty": "Żadne zadanie nie zostało jeszcze oznaczone jako zakończone.",
-    "searchPlaceholder": "Szukaj według tytułu lub opisu...",
+    "searchPlaceholder": "Szukaj według tytułu, pomieszczenia lub osoby...",
     "allPriorities": "Wszystkie priorytety",
     "noMatch": "Żadne zadanie nie pasuje do wyszukiwania ani filtra.",
     "noDescription": "Brak opisu.",
@@ -74,7 +74,18 @@
     "noMaterials": "Brak materiałów",
     "edit": "Edytuj",
     "reopen": "Otwórz ponownie",
-    "reopening": "Ponowne otwieranie..."
+    "reopening": "Ponowne otwieranie...",
+    "sortNewest": "Ostatnio ukończone najpierw",
+    "sortOldest": "Najdawniej ukończone najpierw",
+    "sortDeadline": "Najbliższy termin najpierw",
+    "from": "Ukończono od",
+    "to": "do",
+    "presetToday": "Dziś",
+    "preset7": "7 dni",
+    "preset30": "30 dni",
+    "resetFilters": "Resetuj",
+    "finishedOn": "Ukończono {{date}}",
+    "showing": "{{count}} z {{total}}"
   },
   "statistics": {
     "noOrganisation": "Nie masz jeszcze aktywnej organizacji, więc nie ma statystyk do pokazania.",

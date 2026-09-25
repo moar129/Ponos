@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Načítání dokončených úkolů...",
     "empty": "Zatím nebyl žádný úkol označen jako dokončený.",
-    "searchPlaceholder": "Hledat podle názvu nebo popisu...",
+    "searchPlaceholder": "Hledat podle názvu, místnosti nebo osoby...",
     "allPriorities": "Všechny priority",
     "noMatch": "Žádný úkol neodpovídá hledání nebo filtru.",
     "noDescription": "Žádný popis.",
@@ -74,7 +74,18 @@
     "noMaterials": "Žádné materiály",
     "edit": "Upravit",
     "reopen": "Znovu otevřít",
-    "reopening": "Otevírání..."
+    "reopening": "Otevírání...",
+    "sortNewest": "Naposledy dokončené první",
+    "sortOldest": "Nejstarší dokončené první",
+    "sortDeadline": "Nejbližší termín první",
+    "from": "Dokončeno od",
+    "to": "do",
+    "presetToday": "Dnes",
+    "preset7": "7 dní",
+    "preset30": "30 dní",
+    "resetFilters": "Obnovit",
+    "finishedOn": "Dokončeno {{date}}",
+    "showing": "{{count}} z {{total}}"
   },
   "statistics": {
     "noOrganisation": "Zatím nemáte aktivní organizaci, takže není co zobrazit.",

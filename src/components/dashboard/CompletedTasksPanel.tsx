@@ -9,6 +9,42 @@ import { DELETE_TASKS_PRIVILEGE, UPDATE_TASKS_PRIVILEGE, useHasPrivilege } from 
 import { ALL_PRIORITIES, PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
 import type { CompletedTaskDetails, ETaskPriority } from '../../types/Task/Task'
 
+type CompletedSortOption = 'newest' | 'oldest' | 'deadline'
+
+// Local YYYY-MM-DD - same format as <input type="date">, so plain string
+// comparison works for the range filter.
+function toDateKey(date: Date): string {
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${date.getFullYear()}-${month}-${day}`
+}
+
+// When the task was finished. finished_at is null for tasks completed
+// before the column existed - fall back to the planned end_date.
+function completedOn(task: CompletedTaskDetails): string | null {
+    return task.finished_at ?? task.end_date
+}
+
+function completedOnKey(task: CompletedTaskDetails): string | null {
+    const value = completedOn(task)
+    if (!value) return null
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : toDateKey(new Date(value))
+}
+
+function daysAgoKey(days: number): string {
+    const date = new Date()
+    date.setDate(date.getDate() - days)
+    return toDateKey(date)
+}
+
+// Nulls last regardless of direction.
+function compareNullable(a: string | null, b: string | null, direction: 1 | -1): number {
+    if (a && b) return direction * a.localeCompare(b)
+    if (a) return -1
+    if (b) return 1
+    return 0
+}
+
 
 // US-70: organisationens afsluttede opgaver med fulde detaljer, til
 // opfølgning på udført arbejde. Ekspanderbar række til detaljer (i stedet
@@ -21,6 +57,9 @@ export function CompletedTasksPanel() {
     const { data: tasks, isLoading, error: tasksError } = useGetCompletedTasksQuery()
     const [searchTerm, setSearchTerm] = useState('')
     const [priorityFilter, setPriorityFilter] = useState<ETaskPriority | 'all'>('all')
+    const [sortBy, setSortBy] = useState<CompletedSortOption>('newest')
+    const [fromDate, setFromDate] = useState('')
+    const [toDate, setToDate] = useState('')
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const [editingTask, setEditingTask] = useState<CompletedTaskDetails | null>(null)
 
@@ -50,18 +89,53 @@ export function CompletedTasksPanel() {
         return <p className="text-secondary dark:text-slate-400">{t('completedTasks.empty')}</p>
     }
 
-    const filteredTasks = tasks.filter((task) => {
-        const matchesSearch =
-            searchTerm.trim() === '' ||
-            task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (task.description ?? '').toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter
-        return matchesSearch && matchesPriority
-    })
+    const search = searchTerm.trim().toLowerCase()
+
+    const filteredTasks = tasks
+        .filter((task) => {
+            const matchesSearch =
+                search === '' ||
+                task.title.toLowerCase().includes(search) ||
+                (task.description ?? '').toLowerCase().includes(search) ||
+                (task.roomName ?? '').toLowerCase().includes(search) ||
+                task.assignees.some((a) => a.name.toLowerCase().includes(search))
+            const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter
+
+            const dateKey = completedOnKey(task)
+            const matchesRange =
+                (fromDate === '' && toDate === '') ||
+                (dateKey !== null &&
+                    (fromDate === '' || dateKey >= fromDate) &&
+                    (toDate === '' || dateKey <= toDate))
+
+            return matchesSearch && matchesPriority && matchesRange
+        })
+        .sort((a, b) => {
+            if (sortBy === 'deadline') return compareNullable(a.end_date, b.end_date, 1)
+            return compareNullable(completedOn(a), completedOn(b), sortBy === 'newest' ? -1 : 1)
+        })
+
+    const setPreset = (days: number) => {
+        setFromDate(daysAgoKey(days))
+        setToDate(toDateKey(new Date()))
+    }
+
+    const resetFilters = () => {
+        setSearchTerm('')
+        setPriorityFilter('all')
+        setSortBy('newest')
+        setFromDate('')
+        setToDate('')
+    }
+
+    const inputClass =
+        'rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100'
+    const presetClass =
+        'rounded-full border border-border-gray px-3 py-1 text-xs font-medium text-secondary hover:bg-bg-gray hover:text-primary dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
 
     return (
         <div>
-            <div className="flex flex-wrap items-center gap-3 mb-4">
+            <div className="flex flex-wrap items-center gap-3 mb-3">
                 <input
                     type="text"
                     value={searchTerm}
@@ -79,7 +153,45 @@ export function CompletedTasksPanel() {
                         <option key={priority} value={priority}>{t(`tasks:priority.${priority}`)}</option>
                     ))}
                 </select>
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as CompletedSortOption)}
+                    className={inputClass}
+                >
+                    <option value="newest">{t('completedTasks.sortNewest')}</option>
+                    <option value="oldest">{t('completedTasks.sortOldest')}</option>
+                    <option value="deadline">{t('completedTasks.sortDeadline')}</option>
+                </select>
             </div>
+
+            <div className="flex flex-wrap items-center gap-2 mb-3 text-sm text-secondary dark:text-slate-400">
+                <label htmlFor="completed-from">{t('completedTasks.from')}</label>
+                <input
+                    id="completed-from"
+                    type="date"
+                    value={fromDate}
+                    max={toDate || undefined}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className={inputClass}
+                />
+                <label htmlFor="completed-to">{t('completedTasks.to')}</label>
+                <input
+                    id="completed-to"
+                    type="date"
+                    value={toDate}
+                    min={fromDate || undefined}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className={inputClass}
+                />
+                <button type="button" onClick={() => setPreset(0)} className={presetClass}>{t('completedTasks.presetToday')}</button>
+                <button type="button" onClick={() => setPreset(7)} className={presetClass}>{t('completedTasks.preset7')}</button>
+                <button type="button" onClick={() => setPreset(30)} className={presetClass}>{t('completedTasks.preset30')}</button>
+                <button type="button" onClick={resetFilters} className={presetClass}>{t('completedTasks.resetFilters')}</button>
+            </div>
+
+            <p className="mb-6 text-xs text-secondary dark:text-slate-400">
+                {t('completedTasks.showing', { count: filteredTasks.length, total: tasks.length })}
+            </p>
 
             {filteredTasks.length === 0 ? (
                 <p className="text-secondary dark:text-slate-400">{t('completedTasks.noMatch')}</p>
@@ -138,6 +250,7 @@ function CompletedTaskRow({
     reopenErrorMessage: string | null
 }) {
     const { t } = useTranslation(['dashboard', 'tasks'])
+    const finishedDate = completedOn(task)
 
     return (
         <li className="py-3">
@@ -150,8 +263,8 @@ function CompletedTaskRow({
                                 {t(`tasks:priority.${task.priority}`)}
                             </span>
                         )}
-                        {task.end_date && (
-                            <span className="text-secondary dark:text-slate-400">{t('myTasks.endsOn', { date: formatDate(task.end_date) })}</span>
+                        {finishedDate && (
+                            <span className="text-secondary dark:text-slate-400">{t('completedTasks.finishedOn', { date: formatDate(finishedDate) })}</span>
                         )}
                     </div>
                 </div>

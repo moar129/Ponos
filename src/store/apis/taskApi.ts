@@ -212,8 +212,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             })),
                     }))
 
-                    data.sort((a, b) => (b.end_date ?? '').localeCompare(a.end_date ?? ''))
-
+                    // Sorted client-side in CompletedTasksPanel (user-selectable).
                     return { data }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
