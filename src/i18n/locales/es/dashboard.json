@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Mis tareas",
-    "goToTasks": "Ir a las tareas",
+    "goToTasks": "Ir a mis tareas",
     "loading": "Cargando tus tareas...",
     "empty": "Todavía no te has apuntado a ninguna tarea.",
     "endsOn": "Termina el {{date}}"

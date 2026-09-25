@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Moje úkoly",
-    "goToTasks": "Přejít na úkoly",
+    "goToTasks": "Přejít na mé úkoly",
     "loading": "Načítání vašich úkolů...",
     "empty": "Zatím jste se nepřihlásili k žádnému úkolu.",
     "endsOn": "Končí {{date}}"

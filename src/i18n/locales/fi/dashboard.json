@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Omat tehtävät",
-    "goToTasks": "Siirry tehtäviin",
+    "goToTasks": "Siirry omiin tehtäviin",
     "loading": "Ladataan tehtäviäsi...",
     "empty": "Et ole vielä ilmoittautunut yhteenkään tehtävään.",
     "endsOn": "Päättyy {{date}}"

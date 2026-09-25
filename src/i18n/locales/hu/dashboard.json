@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Saját feladatok",
-    "goToTasks": "Ugrás a feladatokhoz",
+    "goToTasks": "Ugrás a saját feladataimhoz",
     "loading": "Feladatai betöltése...",
     "empty": "Még egyetlen feladatra sem jelentkezett.",
     "endsOn": "Vége: {{date}}"

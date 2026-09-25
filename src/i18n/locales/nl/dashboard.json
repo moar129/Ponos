@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Mijn taken",
-    "goToTasks": "Ga naar taken",
+    "goToTasks": "Ga naar mijn taken",
     "loading": "Je taken worden geladen...",
     "empty": "Je bent nog voor geen enkele taak ingeschreven.",
     "endsOn": "Eindigt op {{date}}"

@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "Mine opgaver",
-    "goToTasks": "Gå til opgaver",
+    "goToTasks": "Gå til mine opgaver",
     "loading": "Indlæser dine opgaver...",
     "empty": "Du er ikke tilmeldt nogen opgaver endnu.",
     "endsOn": "Slut {{date}}"

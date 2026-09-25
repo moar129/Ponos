@@ -17,7 +17,7 @@
   },
   "myTasks": {
     "title": "My tasks",
-    "goToTasks": "Go to tasks",
+    "goToTasks": "Go to my tasks",
     "loading": "Loading your tasks...",
     "empty": "You are not signed up for any tasks yet.",
     "endsOn": "Ends {{date}}"
