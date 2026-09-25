@@ -126,7 +126,7 @@ export function Header() {
     }`;
 
   return (
-    <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md relative z-40">
+    <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md sticky top-0 z-40">
       <div className="px-3 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
         {/* Logo -> /dashboard når man er logget ind, ellers forsiden (en
             udlogget bruger ville ellers bare blive redirigeret til /login) */}
