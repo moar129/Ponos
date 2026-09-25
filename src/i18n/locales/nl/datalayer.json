@@ -39,7 +39,12 @@
     "chooseCategory": "Kies een categorie in het menu links",
     "moveCategoryFailed": "De categorie kon niet worden verplaatst.",
     "filterItemsAtLocationPlaceholder": "Artikelen in dit magazijn filteren...",
-    "noItemsAtLocationYet": "Hier zijn nog geen artikelen geregistreerd"
+    "noItemsAtLocationYet": "Hier zijn nog geen artikelen geregistreerd",
+    "categoriesHere": "Categorieën hier",
+    "placements": "Locaties",
+    "itemCount": "{{count}} artikelen",
+    "goTo": "Ga naar",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Omhoog",

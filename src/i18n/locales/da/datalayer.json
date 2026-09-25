@@ -44,7 +44,12 @@
     "chooseCategory": "Vælg en kategori i menuen til venstre",
     "moveCategoryFailed": "Kunne ikke flytte kategorien.",
     "filterItemsAtLocationPlaceholder": "Filtrer items på dette lager...",
-    "noItemsAtLocationYet": "Ingen items er registreret her endnu"
+    "noItemsAtLocationYet": "Ingen items er registreret her endnu",
+    "categoriesHere": "Kategorier her",
+    "placements": "Placeringer",
+    "itemCount": "{{count}} items",
+    "goTo": "Gå til",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Flyt op",

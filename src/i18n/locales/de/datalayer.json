@@ -39,7 +39,12 @@
     "chooseCategory": "Wählen Sie links im Menü eine Kategorie",
     "moveCategoryFailed": "Die Kategorie konnte nicht verschoben werden.",
     "filterItemsAtLocationPlaceholder": "Artikel in diesem Lager filtern...",
-    "noItemsAtLocationYet": "Hier sind noch keine Artikel erfasst"
+    "noItemsAtLocationYet": "Hier sind noch keine Artikel erfasst",
+    "categoriesHere": "Kategorien hier",
+    "placements": "Standorte",
+    "itemCount": "{{count}} Artikel",
+    "goTo": "Gehe zu",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Nach oben",

@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery, useUpdateCategoryMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
+import {
+  useGetCategoryTreeQuery,
+  useUpdateCategoryMutation,
+  useGetItemLocationsQuery,
+  useGetUnitLocationCountsQuery,
+} from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -9,7 +14,14 @@ import {
   UPDATE_DATALAYER_PRIVILEGE,
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
-import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
+import type {
+  DataLayerCat,
+  AggregatedItem,
+  ItemLocation,
+  ItemStatus,
+  SummaryChip,
+  UnitLocationCount,
+} from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES, formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
 import { ItemStatusBadges } from '../../components/dataLayer/itemStatusBadgesComponent';
 import { CategoryTreeNode } from '../../components/dataLayer/category/CategoriTreeNodeComponent';
@@ -34,9 +46,20 @@ import {
   searchCategories,
   searchItemsGlobal,
 } from '../../store/slices/dataLayersSlices/aggregatedItems';
+import {
+  buildPlacementIndex,
+  getPlacements,
+  scopeItemToLocations,
+  summarizeByCategory,
+  summarizeByLocation,
+} from '../../store/slices/dataLayersSlices/itemPlacements';
+import { SummaryChips } from '../../components/dataLayer/summaryChipsComponent';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
 type LeftTab = 'categories' | 'locations';
+
+// Stabil reference, så placementIndex ikke genberegnes hver render mens query'en loader.
+const EMPTY_UNIT_COUNTS: UnitLocationCount[] = [];
 
 // Inden for en filter-sektion: OR. Mellem sektioner: AND.
 function itemMatchesFilters(item: AggregatedItem, statuses: Set<ItemStatus>, units: Set<string>): boolean {
@@ -62,6 +85,7 @@ export function DataLayerPage() {
   const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
   const { data: itemLocations = [] } = useGetItemLocationsQuery();
+  const { data: unitLocationCounts = EMPTY_UNIT_COUNTS, error: unitCountsError } = useGetUnitLocationCountsQuery();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -357,8 +381,9 @@ export function DataLayerPage() {
     }
   };
 
+  // Detaljevisningen skal vise hele item'et, ikke kun den del der ligger her.
   const handleOpenItemFromLocation = (item: AggregatedItem) => {
-    setSelectedItem(item);
+    setSelectedItem(allItemsFlat.find((i) => i.id === item.id) ?? item);
   };
 
   const handleSelectSearchCategory = (category: DataLayerCat) => {
@@ -380,9 +405,10 @@ export function DataLayerPage() {
     setSearchQuery('');
   };
 
+  const loadError = error ?? unitCountsError;
   const errorMessage =
-    error && typeof error === 'object' && 'error' in error
-      ? (error as { error: string }).error
+    loadError && typeof loadError === 'object' && 'error' in loadError
+      ? (loadError as { error: string }).error
       : null;
 
   const aggregatedItems = useMemo(() => {
@@ -395,21 +421,90 @@ export function DataLayerPage() {
 
   const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
 
+  // Placering er pr. enhed - et item kan ligge flere steder. Mens counts
+  // loader, falder hvert item tilbage til sin egen location_id.
+  const placementIndex = useMemo(
+    () => buildPlacementIndex(unitLocationCounts, allItemsFlat),
+    [unitLocationCounts, allItemsFlat]
+  );
+
   // Et lager viser også indholdet af alle sine sektioner; en sektion kun sit eget.
-  const itemsAtSelectedLocation = useMemo(() => {
-    if (!selectedLocationView) return [];
-    const locationIds = new Set([selectedLocationView.id]);
+  const selectedLocationIds = useMemo(() => {
+    const ids = new Set<string>();
+    if (!selectedLocationView) return ids;
+    ids.add(selectedLocationView.id);
     if (!selectedLocationView.parentLocationId) {
       for (const section of sectionsByWarehouseId.get(selectedLocationView.id) ?? []) {
-        locationIds.add(section.id);
+        ids.add(section.id);
       }
     }
-    return allItemsFlat.filter((item) => item.itemLocationId && locationIds.has(item.itemLocationId));
-  }, [allItemsFlat, selectedLocationView, sectionsByWarehouseId]);
+    return ids;
+  }, [selectedLocationView, sectionsByWarehouseId]);
+
+  // Antal/status i lager-visningen er kun det, der ligger på den valgte lokation.
+  const itemsAtSelectedLocation = useMemo(
+    () =>
+      allItemsFlat.flatMap((item) => {
+        const scoped = scopeItemToLocations(item, getPlacements(placementIndex, item.id), selectedLocationIds);
+        return scoped ? [scoped] : [];
+      }),
+    [allItemsFlat, placementIndex, selectedLocationIds]
+  );
 
   const locationsById = useMemo(
     () => new Map(itemLocations.map((loc) => [loc.id, loc])),
     [itemLocations]
+  );
+
+  // Placeringer til række-tag; kendte lokationer før "Intet lager".
+  const placementIdsFor = (itemId: string, within?: Set<string>): (string | null)[] =>
+    getPlacements(placementIndex, itemId)
+      .map((p) => p.locationId)
+      .filter((id) => !within || (id !== null && within.has(id)))
+      .sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0));
+
+  const locationChipLabel = (location: ItemLocation): string => {
+    const parent = location.parentLocationId ? locationsById.get(location.parentLocationId) : undefined;
+    return parent ? `${parent.name} › ${location.name}` : location.name;
+  };
+
+  // Chips over listen: kategorier i lager-visningen, placeringer i kategori-visningen.
+  const categoryChips = useMemo<SummaryChip[]>(
+    () =>
+      summarizeByCategory(itemsAtSelectedLocation).map((summary) => ({
+        id: summary.categoryId,
+        label: summary.path.split(' > ').join(' › '),
+        count: summary.itemCount,
+        kind: 'category',
+        onNavigate: () => {
+          const category = findCategoryInTree(categoryTree, summary.categoryId);
+          if (category) handleSelectCategory(category);
+        },
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [itemsAtSelectedLocation, categoryTree]
+  );
+
+  const locationChips = useMemo<SummaryChip[]>(
+    () =>
+      summarizeByLocation(aggregatedItems, placementIndex)
+        .flatMap((summary): SummaryChip[] => {
+          if (summary.locationId === null) {
+            return [{ id: 'none', label: t('itemDetail.noLocation'), count: summary.itemCount, kind: 'none' }];
+          }
+          const location = locationsById.get(summary.locationId);
+          if (!location) return [];
+          return [{
+            id: location.id,
+            label: locationChipLabel(location),
+            count: summary.itemCount,
+            kind: location.parentLocationId ? 'section' : 'warehouse',
+            onNavigate: () => handleSelectLocationView(location),
+          }];
+        })
+        .sort((a, b) => (a.kind === 'none' ? 1 : 0) - (b.kind === 'none' ? 1 : 0) || a.label.localeCompare(b.label)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [aggregatedItems, placementIndex, locationsById, t]
   );
 
   // --- Filter: status + enhed, fælles for begge faner og bevaret på
@@ -842,6 +937,11 @@ export function DataLayerPage() {
                   </div>
                 </div>
 
+                <SummaryChips
+                  title={t('page.categoriesHere')}
+                  chips={categoryChips}
+                />
+
                 <div className="relative mb-4">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
                   <input
@@ -906,11 +1006,14 @@ export function DataLayerPage() {
                           )}
                           <div className="min-w-0">
                             <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0 text-xs text-secondary dark:text-slate-400">
-                              <ItemLocationTag locationId={item.itemLocationId} locationsById={locationsById} />
+                            <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
+                              <ItemLocationTag locationIds={placementIdsFor(item.id, selectedLocationIds)} locationsById={locationsById} />
                               <span className="shrink-0">·</span>
                               <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
                             </div>
+                            {item.description && (
+                              <p className="text-xs text-secondary truncate mt-1 dark:text-slate-400">{item.description}</p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
@@ -983,6 +1086,11 @@ export function DataLayerPage() {
                 </div>
               </div>
 
+              <SummaryChips
+                title={t('page.placements')}
+                chips={locationChips}
+              />
+
               <div className="relative mb-4">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
                 <input
@@ -1047,17 +1155,14 @@ export function DataLayerPage() {
                         )}
                         <div className="min-w-0">
                           <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                          <div className="flex items-center gap-1.5 mt-0.5 min-w-0 text-xs text-secondary dark:text-slate-400">
-                            <ItemLocationTag locationId={item.itemLocationId} locationsById={locationsById} />
+                          <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
+                            <ItemLocationTag locationIds={placementIdsFor(item.id)} locationsById={locationsById} />
                             <span className="shrink-0">·</span>
                             <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
-                            {item.description && (
-                              <>
-                                <span className="shrink-0">·</span>
-                                <span className="truncate">{item.description}</span>
-                              </>
-                            )}
                           </div>
+                          {item.description && (
+                            <p className="text-xs text-secondary truncate mt-1 dark:text-slate-400">{item.description}</p>
+                          )}
                         </div>
                       </div>
 

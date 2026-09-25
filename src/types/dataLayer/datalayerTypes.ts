@@ -78,6 +78,21 @@ export interface AvailableUnitLocation {
   quantity: number;
 }
 
+// Quantity of one item's units at one location with one status (null = no location).
+export interface UnitLocationCount {
+  itemId: string;
+  locationId: string | null;
+  status: ItemStatus;
+  quantity: number;
+}
+
+// Where (part of) an item physically is - derived from its units' locations.
+export interface ItemPlacement {
+  locationId: string | null;
+  quantity: number;
+  statusCounts: Partial<Record<ItemStatus, number>>;
+}
+
 // Rene forslag (datalist) - felterne forbliver frit tekst, ingen logik er
 // bundet til den konkrete værdi. Hjælper brugeren med hvad der plejer at
 // give mening at skrive, uden at begrænse dem til en fast liste.
@@ -334,7 +349,8 @@ export interface LocationTreeNodeProps {
   onToggleExpand: (id: string) => void;
 }
 export interface ItemLocationTagProps {
-  locationId?: string | null;
+  // Alle steder item'et ligger (null = uden lager); første vises, resten som "+N".
+  locationIds: (string | null)[];
   locationsById: Map<string, ItemLocation>;
   className?: string;
 }
@@ -342,4 +358,19 @@ export interface ItemLocationTagProps {
 export interface ItemCategoryTagProps {
   categoryPath: string;
   className?: string;
+}
+
+export type SummaryChipKind = 'category' | 'warehouse' | 'section' | 'none';
+
+export interface SummaryChip {
+  id: string;
+  label: string;
+  count: number;
+  kind: SummaryChipKind;
+  onNavigate?: () => void;
+}
+
+export interface SummaryChipsProps {
+  title: string;
+  chips: SummaryChip[];
 }
