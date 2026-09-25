@@ -333,3 +333,13 @@ export interface LocationTreeNodeProps {
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
 }
+export interface ItemLocationTagProps {
+  locationId?: string | null;
+  locationsById: Map<string, ItemLocation>;
+  className?: string;
+}
+
+export interface ItemCategoryTagProps {
+  categoryPath: string;
+  className?: string;
+}

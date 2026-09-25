@@ -14,6 +14,8 @@ import { ALL_ITEM_STATUSES, formatItemQuantity } from '../../types/dataLayer/dat
 import { ItemStatusBadges } from '../../components/dataLayer/itemStatusBadgesComponent';
 import { CategoryTreeNode } from '../../components/dataLayer/category/CategoriTreeNodeComponent';
 import { LocationTreeNode } from '../../components/dataLayer/warehouse/locationThreeNodeComponent';
+import { ItemLocationTag } from '../../components/dataLayer/warehouse/itemLocationTagComponent';
+import { ItemCategoryTag } from '../../components/dataLayer/category/itemCategoryTagComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/category/addCategoryComponent';
 import { AddLocationComponent } from '../../components/dataLayer/warehouse/addWarehouseComponent';
 import { AddItemsComponent } from '../../components/dataLayer/item/addItemsComponent';
@@ -63,6 +65,20 @@ export function DataLayerPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
+  const locationIdFromUrl = searchParams.get('locId');
+  const tabFromUrl = searchParams.get('tab');
+
+  // Ændrer kun de givne URL-params; resten (fx valget i den anden fane) bevares.
+  const updateParams = (patch: Record<string, string | null>) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [key, value] of Object.entries(patch)) {
+        if (value === null) next.delete(key);
+        else next.set(key, value);
+      }
+      return next;
+    });
+  };
 
   const [selectedCategory, setSelectedCategory] = useState<DataLayerCat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,9 +109,19 @@ export function DataLayerPage() {
   const [localItemSearch, setLocalItemSearch] = useState('');
 
   // --- Venstrepanel: Kategorier / Lager som faner ---
-  const [leftTab, setLeftTab] = useState<LeftTab>('categories');
+  // Fane + valgt lager/sektion læses fra URL'en, så F5/tilbage/delte links virker.
+  // Lager er standard; et gammelt ?catId=-link uden tab åbner dog i Kategorier.
+  const leftTab: LeftTab =
+    tabFromUrl === 'categories' || tabFromUrl === 'locations'
+      ? tabFromUrl
+      : categoryIdFromUrl && !locationIdFromUrl
+        ? 'categories'
+        : 'locations';
   const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<Set<string>>(new Set());
-  const [selectedLocationView, setSelectedLocationView] = useState<ItemLocation | null>(null);
+  const selectedLocationView = useMemo(
+    () => (locationIdFromUrl ? itemLocations.find((l) => l.id === locationIdFromUrl) ?? null : null),
+    [itemLocations, locationIdFromUrl]
+  );
 
   // Lager: opret/rediger/slet - samme mønster som kategori-siden
   // (AddLocationComponent/EditLocationComponent/DeleteLocationComponent
@@ -205,15 +231,14 @@ export function DataLayerPage() {
   // Filteret (status/enhed) nulstilles bevidst IKKE ved skift af fane,
   // kategori eller lager - man sætter det én gang og browser så rundt.
   const handleSwitchTab = (tab: LeftTab) => {
-    setLeftTab(tab);
+    updateParams({ tab });
     exitSelectMode();
     setLocalItemSearch('');
   };
 
   const handleSelectCategory = (category: DataLayerCat) => {
-    setLeftTab('categories');
     setSelectedCategory(category);
-    setSearchParams({ catId: category.id });
+    updateParams({ tab: 'categories', catId: category.id });
     exitSelectMode();
     setLocalItemSearch('');
   };
@@ -239,13 +264,13 @@ export function DataLayerPage() {
         setExpandedCategoryIds((prev) => new Set([...prev, ...path.map((cat) => cat.id)]));
       }
     }
-    setSearchParams({ catId: newCategoryId });
+    updateParams({ tab: 'categories', catId: newCategoryId });
   };
 
   const handleCategoriesDeleted = (deletedIds: string[]) => {
     if (selectedCategory && deletedIds.includes(selectedCategory.id)) {
       setSelectedCategory(null);
-      setSearchParams({});
+      updateParams({ catId: null });
     }
   };
 
@@ -293,8 +318,7 @@ export function DataLayerPage() {
   };
 
   const handleSelectLocationView = (location: ItemLocation) => {
-    setLeftTab('locations');
-    setSelectedLocationView(location);
+    updateParams({ tab: 'locations', locId: location.id });
     exitSelectMode();
     setLocalItemSearch('');
     if (location.parentLocationId) {
@@ -323,15 +347,13 @@ export function DataLayerPage() {
     if (parent) {
       setExpandedWarehouseIds((prev) => new Set([...prev, parent.id]));
     }
-    // Vent til den nye lokation faktisk findes i listen (efter refetch),
-    // før den vælges - ellers ville selectedLocationView pege på et id
-    // der endnu ikke er i itemLocations.
-    setSelectedLocationView({ id: newLocationId } as ItemLocation);
+    // selectedLocationView afledes af URL'en og dukker op, når refetch er færdig.
+    updateParams({ tab: 'locations', locId: newLocationId });
   };
 
   const handleLocationDeleted = (deletedId: string) => {
-    if (selectedLocationView?.id === deletedId) {
-      setSelectedLocationView(null);
+    if (locationIdFromUrl === deletedId) {
+      updateParams({ locId: null });
     }
   };
 
@@ -373,12 +395,21 @@ export function DataLayerPage() {
 
   const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
 
-  const itemsAtSelectedLocation = useMemo(
-    () =>
-      selectedLocationView
-        ? allItemsFlat.filter((item) => item.itemLocationId === selectedLocationView.id)
-        : [],
-    [allItemsFlat, selectedLocationView]
+  // Et lager viser også indholdet af alle sine sektioner; en sektion kun sit eget.
+  const itemsAtSelectedLocation = useMemo(() => {
+    if (!selectedLocationView) return [];
+    const locationIds = new Set([selectedLocationView.id]);
+    if (!selectedLocationView.parentLocationId) {
+      for (const section of sectionsByWarehouseId.get(selectedLocationView.id) ?? []) {
+        locationIds.add(section.id);
+      }
+    }
+    return allItemsFlat.filter((item) => item.itemLocationId && locationIds.has(item.itemLocationId));
+  }, [allItemsFlat, selectedLocationView, sectionsByWarehouseId]);
+
+  const locationsById = useMemo(
+    () => new Map(itemLocations.map((loc) => [loc.id, loc])),
+    [itemLocations]
   );
 
   // --- Filter: status + enhed, fælles for begge faner og bevaret på
@@ -618,17 +649,6 @@ export function DataLayerPage() {
             <div className="flex items-center border-b border-border-gray mb-4 dark:border-slate-700">
               <button
                 type="button"
-                onClick={() => handleSwitchTab('categories')}
-                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
-                  leftTab === 'categories'
-                    ? 'text-accent border-accent'
-                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
-                }`}
-              >
-                {t('categories')}
-              </button>
-              <button
-                type="button"
                 onClick={() => handleSwitchTab('locations')}
                 className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
                   leftTab === 'locations'
@@ -637,6 +657,17 @@ export function DataLayerPage() {
                 }`}
               >
                 {t('page.locations')}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchTab('categories')}
+                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                  leftTab === 'categories'
+                    ? 'text-accent border-accent'
+                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                {t('categories')}
               </button>
             </div>
 
@@ -700,7 +731,10 @@ export function DataLayerPage() {
                       canCreate={canCreate}
                       canUpdate={canUpdate}
                       canDelete={canDelete}
-                      isExpanded={expandedWarehouseIds.has(warehouse.id)}
+                      isExpanded={
+                        expandedWarehouseIds.has(warehouse.id) ||
+                        selectedLocationView?.parentLocationId === warehouse.id
+                      }
                       onToggleExpand={toggleExpandWarehouse}
                     />
                   ))
@@ -872,7 +906,11 @@ export function DataLayerPage() {
                           )}
                           <div className="min-w-0">
                             <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                            <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">{item.sourceCategoryTitle}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0 text-xs text-secondary dark:text-slate-400">
+                              <ItemLocationTag locationId={item.itemLocationId} locationsById={locationsById} />
+                              <span className="shrink-0">·</span>
+                              <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
@@ -1008,17 +1046,18 @@ export function DataLayerPage() {
                           />
                         )}
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                            {item.isFromSubCategory && (
-                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary dark:bg-slate-700 dark:text-slate-400">
-                                {item.sourceCategoryTitle}
-                              </span>
+                          <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5 min-w-0 text-xs text-secondary dark:text-slate-400">
+                            <ItemLocationTag locationId={item.itemLocationId} locationsById={locationsById} />
+                            <span className="shrink-0">·</span>
+                            <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
+                            {item.description && (
+                              <>
+                                <span className="shrink-0">·</span>
+                                <span className="truncate">{item.description}</span>
+                              </>
                             )}
                           </div>
-                          <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">
-                            {item.description}
-                          </p>
                         </div>
                       </div>
 
