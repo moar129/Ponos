@@ -102,7 +102,8 @@
     "statusLabel": "Stav:",
     "addEmployeeShort": "+ Přidat pracovníka",
     "created": "Vytvořeno",
-    "statusValue": "Stav: {{status}}"
+    "statusValue": "Stav: {{status}}",
+    "rejectedWithReason": "Nahlášení dokončení zamítnuto: {{reason}}"
   },
   "filter": {
     "show": "Zobrazit filtr",

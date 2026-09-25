@@ -43,5 +43,12 @@
   "yes": "Ja",
   "send": "Senden",
   "selectedCount_one": "{{count}} ausgewählt",
-  "selectedCount_other": "{{count}} ausgewählt"
+  "selectedCount_other": "{{count}} ausgewählt",
+  "numberInput": {
+    "required": "Geben Sie eine Zahl ein.",
+    "invalid": "Ungültige Zahl.",
+    "negative": "Die Zahl darf nicht negativ sein.",
+    "zero": "Die Zahl muss größer als 0 sein.",
+    "fixFields": "Korrigieren Sie die markierten Zahlenfelder."
+  }
 }

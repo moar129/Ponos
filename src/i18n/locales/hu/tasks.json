@@ -100,7 +100,8 @@
     "statusLabel": "Állapot:",
     "addEmployeeShort": "+ Munkatárs hozzáadása",
     "created": "Létrehozva",
-    "statusValue": "Állapot: {{status}}"
+    "statusValue": "Állapot: {{status}}",
+    "rejectedWithReason": "Készre jelentés elutasítva: {{reason}}"
   },
   "filter": {
     "show": "Szűrő megjelenítése",

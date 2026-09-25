@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Egy helyszín nem lehet a saját szekciója.",
     "LOCATION_PARENT_NOT_FOUND": "A kiválasztott raktár nem létezik.",
     "LOCATION_SECTION_NO_CHILDREN": "Egy szekciónak nem lehetnek alhelyszínei.",
-    "LOCATION_SECTION_ORG_MISMATCH": "A szekciónak ugyanahhoz a szervezethez kell tartoznia, mint a raktárnak."
+    "LOCATION_SECTION_ORG_MISMATCH": "A szekciónak ugyanahhoz a szervezethez kell tartoznia, mint a raktárnak.",
+    "REJECTION_REASON_REQUIRED": "Meg kell adnia az elutasítás indoklását.",
+    "REJECTION_REASON_TOO_LONG": "Az indoklás legfeljebb 500 karakter lehet."
   }
 }

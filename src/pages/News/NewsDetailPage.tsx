@@ -7,6 +7,7 @@ import { ArrowLeft, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useDeleteNewsMutation, useGetNewsByIdQuery } from '../../store/apis/newsApi'
 import { DELETE_NEWS_PRIVILEGE, UPDATE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
+import { NewsImage } from '../../components/News/NewsImage'
 import { isRichText, sanitizeRichText } from '../../lib/richText'
 import { formatDate } from '../../utils/formatDate'
 
@@ -55,9 +56,12 @@ export function NewsDetailPage() {
                 </div>
             ) : (
                 <article className="rounded-lg border border-border-gray dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800">
-                    {news.pictureUrl && (
-                        <img src={news.pictureUrl} alt="" className="w-full max-h-96 object-cover" />
-                    )}
+                    <NewsImage
+                        key={news.pictureUrl}
+                        pictureUrl={news.pictureUrl}
+                        className="w-full max-h-96 object-cover"
+                        placeholderClassName="w-full h-56 sm:h-72"
+                    />
                     <div className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>

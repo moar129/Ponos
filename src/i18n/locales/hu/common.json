@@ -43,5 +43,12 @@
   "updating": "Frissítés...",
   "creating": "Létrehozás...",
   "yes": "Igen",
-  "send": "Küldés"
+  "send": "Küldés",
+  "numberInput": {
+    "required": "Adjon meg egy számot.",
+    "invalid": "Érvénytelen szám.",
+    "negative": "A szám nem lehet negatív.",
+    "zero": "A számnak 0-nál nagyobbnak kell lennie.",
+    "fixFields": "Javítsa a megjelölt számmezőket."
+  }
 }

@@ -5,6 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { richTextToPlainText } from '../../lib/richText'
 import { formatDate } from '../../utils/formatDate'
 import type { NewsCardProps } from '../../types/news/newsType'
+import { NewsImage } from './NewsImage'
 
 // Ét nyhedskort - US-56's acceptkriterier (titel, beskrivelse, evt.
 // billede, dato). Rediger/slet vises uafhængigt af hinanden (Fase 3:
@@ -25,9 +26,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
             tabIndex={0}
             className="rounded-lg border border-border-gray dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 cursor-pointer hover:border-accent transition-colors"
         >
-            {news.pictureUrl && (
-                <img src={news.pictureUrl} alt="" className="w-full h-40 object-cover" />
-            )}
+            <NewsImage key={news.pictureUrl} pictureUrl={news.pictureUrl} className="w-full h-40 object-cover" />
             <div className="p-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

@@ -39,7 +39,12 @@
     "chooseCategory": "Vyberte kategorii v nabídce vlevo",
     "moveCategoryFailed": "Kategorii se nepodařilo přesunout.",
     "filterItemsAtLocationPlaceholder": "Filtrovat položky v tomto skladu...",
-    "noItemsAtLocationYet": "Zatím zde nejsou evidovány žádné položky"
+    "noItemsAtLocationYet": "Zatím zde nejsou evidovány žádné položky",
+    "categoriesHere": "Kategorie zde",
+    "placements": "Umístění",
+    "itemCount": "{{count}} položek",
+    "goTo": "Přejít na",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Posunout nahoru",

@@ -1,5 +1,5 @@
 // src/components/News/NewsFormModal.tsx
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
@@ -7,7 +7,7 @@ import { useCreateNewsMutation, useUpdateNewsMutation } from '../../store/apis/n
 import { RichTextEditor } from '../TextEditor/RichTextEditor'
 import { isEmptyRichText, plainTextToRichText, richTextToPlainText, sanitizeRichText } from '../../lib/richText'
 import { formatNumber } from '../../utils/formatDate'
-import type { NewsFormModalProps } from '../../types/news/newsType'
+import type { NewsFormModalProps, NewsFormProps } from '../../types/news/newsType'
 
 // Blødt loft, kun for at fange et utilsigtet indsat kæmpedokument -
 // ikke en forretningsregel, og derfor heller ingen DB-constraint.
@@ -22,36 +22,36 @@ interface FormState {
 
 const emptyForm: FormState = { title: '', description: '', pictureUrl: '', url: '' }
 
+function initialForm(editingNews: NewsFormProps['editingNews']): FormState {
+    if (!editingNews) return emptyForm
+    return {
+        title: editingNews.title,
+        // Nyheder fra før editoren er ren tekst - konverteres, så
+        // deres linjeskift ikke forsvinder i contentEditable.
+        description: plainTextToRichText(editingNews.description ?? ''),
+        pictureUrl: editingNews.pictureUrl ?? '',
+        url: editingNews.url ?? '',
+    }
+}
+
 // Opret- og rediger-nyhed i samme modal - editingNews === null betyder
 // opret, ellers redigeres den givne nyhed (samme mønster som andre
 // modaler i appen, fx EditTaskModal/CreateTaskModal er adskilt, men her
 // er felterne identiske nok til at dele én komponent).
+// Formularen afmonteres ved luk, så hver åbning starter med frisk state -
+// key sikrer det samme, hvis der skiftes nyhed mens modalen er åben.
 export function NewsFormModal({ isOpen, onClose, editingNews }: NewsFormModalProps) {
+    if (!isOpen) return null
+    return <NewsForm key={editingNews?.id ?? 'new'} onClose={onClose} editingNews={editingNews} />
+}
+
+function NewsForm({ onClose, editingNews }: NewsFormProps) {
   const { t } = useTranslation(['news', 'common', 'errors'])
     const [createNews, { isLoading: creating, error: createError }] = useCreateNewsMutation()
     const [updateNews, { isLoading: updating, error: updateError }] = useUpdateNewsMutation()
 
-    const [form, setForm] = useState<FormState>(emptyForm)
+    const [form, setForm] = useState<FormState>(() => initialForm(editingNews))
     const [validationError, setValidationError] = useState<string | null>(null)
-
-    useEffect(() => {
-        if (!isOpen) return
-        setValidationError(null)
-        setForm(
-            editingNews
-                ? {
-                      title: editingNews.title,
-                      // Nyheder fra før editoren er ren tekst - konverteres, så
-                      // deres linjeskift ikke forsvinder i contentEditable.
-                      description: plainTextToRichText(editingNews.description ?? ''),
-                      pictureUrl: editingNews.pictureUrl ?? '',
-                      url: editingNews.url ?? '',
-                  }
-                : emptyForm,
-        )
-    }, [isOpen, editingNews])
-
-    if (!isOpen) return null
 
     const isSaving = creating || updating
     const mutationError = editingNews ? updateError : createError

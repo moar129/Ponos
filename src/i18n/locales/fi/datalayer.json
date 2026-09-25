@@ -39,7 +39,12 @@
     "chooseCategory": "Valitse luokka vasemmalta valikosta",
     "moveCategoryFailed": "Luokkaa ei voitu siirtää.",
     "filterItemsAtLocationPlaceholder": "Suodata tämän varaston nimikkeitä...",
-    "noItemsAtLocationYet": "Täällä ei ole vielä kirjattuja nimikkeitä"
+    "noItemsAtLocationYet": "Täällä ei ole vielä kirjattuja nimikkeitä",
+    "categoriesHere": "Kategoriat täällä",
+    "placements": "Sijainnit",
+    "itemCount": "{{count}} nimikettä",
+    "goTo": "Siirry",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Siirrä ylös",

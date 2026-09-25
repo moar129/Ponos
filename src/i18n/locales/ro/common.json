@@ -44,5 +44,12 @@
   "updating": "Se actualizează...",
   "creating": "Se creează...",
   "yes": "Da",
-  "send": "Trimite"
+  "send": "Trimite",
+  "numberInput": {
+    "required": "Introdu un număr.",
+    "invalid": "Număr invalid.",
+    "negative": "Numărul nu poate fi negativ.",
+    "zero": "Numărul trebuie să fie mai mare decât 0.",
+    "fixFields": "Corectează câmpurile numerice marcate."
+  }
 }

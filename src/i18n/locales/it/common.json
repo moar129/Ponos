@@ -44,5 +44,12 @@
   "send": "Invia",
   "selectedCount_one": "{{count}} selezionato",
   "selectedCount_many": "{{count}} selezionati",
-  "selectedCount_other": "{{count}} selezionati"
+  "selectedCount_other": "{{count}} selezionati",
+  "numberInput": {
+    "required": "Inserisci un numero.",
+    "invalid": "Numero non valido.",
+    "negative": "Il numero non può essere negativo.",
+    "zero": "Il numero deve essere maggiore di 0.",
+    "fixFields": "Correggi i campi numerici evidenziati."
+  }
 }

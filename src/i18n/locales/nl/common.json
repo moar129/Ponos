@@ -43,5 +43,12 @@
   "yes": "Ja",
   "send": "Verzenden",
   "selectedCount_one": "{{count}} geselecteerd",
-  "selectedCount_other": "{{count}} geselecteerd"
+  "selectedCount_other": "{{count}} geselecteerd",
+  "numberInput": {
+    "required": "Vul een getal in.",
+    "invalid": "Ongeldig getal.",
+    "negative": "Het getal mag niet negatief zijn.",
+    "zero": "Het getal moet groter zijn dan 0.",
+    "fixFields": "Corrigeer de gemarkeerde getalvelden."
+  }
 }

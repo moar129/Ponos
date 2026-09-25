@@ -101,7 +101,8 @@
     "statusLabel": "Statut :",
     "addEmployeeShort": "+ Ajouter un collaborateur",
     "created": "Créée",
-    "statusValue": "Statut : {{status}}"
+    "statusValue": "Statut : {{status}}",
+    "rejectedWithReason": "Achèvement refusé : {{reason}}"
   },
   "filter": {
     "show": "Afficher le filtre",

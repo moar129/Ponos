@@ -59,6 +59,35 @@
     "reportedBy": "Finalización comunicada por",
     "approve": "Aprobar",
     "reject": "Rechazar",
-    "reportedDoneBy": "Finalización comunicada por {{name}}"
+    "reportedDoneBy": "Finalización comunicada por {{name}}",
+    "details": {
+      "open": "Ver detalles",
+      "loading": "Cargando detalles...",
+      "loadFailed": "No se pudieron cargar los detalles.",
+      "room": "Sala",
+      "noRoom": "Sin sala",
+      "period": "Periodo",
+      "noDescription": "Sin descripción.",
+      "assignees": "Asignados",
+      "noAssignees": "Nadie asignado.",
+      "materials": "Materiales",
+      "noMaterials": "No hay materiales asociados.",
+      "noLocation": "Sin almacén",
+      "reserved": "Reservado",
+      "alreadyResolved": "Ya informado.",
+      "currentStatus": "Estado actual",
+      "location": "Almacén",
+      "proposedOutcome": "Resultado propuesto al aprobar",
+      "missingOutcome": "No se indicó resultado - la aprobación fallará hasta que se informe el material.",
+      "previousRejections": "Rechazos anteriores ({{count}})",
+      "rejectedBy": "Rechazado por {{name}} · {{date}}",
+      "reportedBy": "finalizado por {{name}}",
+      "noReason": "No se indicó motivo."
+    },
+    "rejectReasonLabel": "Motivo",
+    "rejectReasonPlaceholder": "Escribe por qué se rechaza la finalización - el mensaje se envía a los asignados.",
+    "rejectedCount_one": "Rechazado {{count}} vez",
+    "rejectedCount_many": "Rechazado {{count}} veces",
+    "rejectedCount_other": "Rechazado {{count}} veces"
   }
 }

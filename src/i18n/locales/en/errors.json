@@ -156,6 +156,8 @@
     "TASK_NOT_IN_PROGRESS": "A material's status can only be changed while the task is in progress.",
     "QUANTITY_EXCEEDS_LINKED_QUANTITY": "The quantity exceeds what is left with this status on the material line.",
     "STATUS_UNCHANGED": "The new status is the same as the current one.",
-    "RELEASE_STATUS_NOT_ALLOWED": "A released material cannot have the status Reserved or In use."
+    "RELEASE_STATUS_NOT_ALLOWED": "A released material cannot have the status Reserved or In use.",
+    "REJECTION_REASON_REQUIRED": "You must write a reason for the rejection.",
+    "REJECTION_REASON_TOO_LONG": "The reason can be at most 500 characters."
   }
 }

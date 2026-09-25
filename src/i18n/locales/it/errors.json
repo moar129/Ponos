@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Una posizione non può essere la propria sezione.",
     "LOCATION_PARENT_NOT_FOUND": "Il magazzino selezionato non esiste.",
     "LOCATION_SECTION_NO_CHILDREN": "Una sezione non può a sua volta avere sottoposizioni.",
-    "LOCATION_SECTION_ORG_MISMATCH": "La sezione deve appartenere alla stessa organizzazione del magazzino."
+    "LOCATION_SECTION_ORG_MISMATCH": "La sezione deve appartenere alla stessa organizzazione del magazzino.",
+    "REJECTION_REASON_REQUIRED": "Devi scrivere una motivazione per il rifiuto.",
+    "REJECTION_REASON_TOO_LONG": "La motivazione può contenere al massimo 500 caratteri."
   }
 }

@@ -59,6 +59,36 @@
     "reportedBy": "Nahlásil jako dokončené:",
     "approve": "Schválit",
     "reject": "Zamítnout",
-    "reportedDoneBy": "Jako dokončené nahlásil {{name}}"
+    "reportedDoneBy": "Jako dokončené nahlásil {{name}}",
+    "details": {
+      "open": "Zobrazit podrobnosti",
+      "loading": "Načítání podrobností...",
+      "loadFailed": "Podrobnosti se nepodařilo načíst.",
+      "room": "Místnost",
+      "noRoom": "Bez místnosti",
+      "period": "Období",
+      "noDescription": "Bez popisu.",
+      "assignees": "Přiřazení",
+      "noAssignees": "Nikdo není přiřazen.",
+      "materials": "Materiály",
+      "noMaterials": "Žádné přiřazené materiály.",
+      "noLocation": "Bez skladu",
+      "reserved": "Rezervováno",
+      "alreadyResolved": "Již nahlášeno.",
+      "currentStatus": "Aktuální stav",
+      "location": "Sklad",
+      "proposedOutcome": "Navrhovaný výsledek při schválení",
+      "missingOutcome": "Výsledek nebyl zadán - schválení selže, dokud nebude materiál nahlášen.",
+      "previousRejections": "Předchozí zamítnutí ({{count}})",
+      "rejectedBy": "Zamítl(a) {{name}} · {{date}}",
+      "reportedBy": "dokončení nahlásil(a) {{name}}",
+      "noReason": "Bez uvedeného odůvodnění."
+    },
+    "rejectReasonLabel": "Odůvodnění",
+    "rejectReasonPlaceholder": "Napište, proč je nahlášení dokončení zamítnuto - zpráva bude odeslána přiřazeným.",
+    "rejectedCount_one": "Zamítnuto {{count}}krát",
+    "rejectedCount_few": "Zamítnuto {{count}}krát",
+    "rejectedCount_many": "Zamítnuto {{count}}krát",
+    "rejectedCount_other": "Zamítnuto {{count}}krát"
   }
 }

@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "O locație nu poate fi propria sa secțiune.",
     "LOCATION_PARENT_NOT_FOUND": "Depozitul selectat nu există.",
     "LOCATION_SECTION_NO_CHILDREN": "O secțiune nu poate avea ea însăși sublocații.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Secțiunea trebuie să aparțină aceleiași organizații ca depozitul."
+    "LOCATION_SECTION_ORG_MISMATCH": "Secțiunea trebuie să aparțină aceleiași organizații ca depozitul.",
+    "REJECTION_REASON_REQUIRED": "Trebuie să scrii un motiv pentru respingere.",
+    "REJECTION_REASON_TOO_LONG": "Motivul poate avea cel mult 500 de caractere."
   }
 }

@@ -100,7 +100,8 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Medewerker toevoegen",
     "created": "Aangemaakt",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Gereedmelding afgewezen: {{reason}}"
   },
   "filter": {
     "show": "Filter tonen",

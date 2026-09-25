@@ -39,7 +39,12 @@
     "chooseCategory": "Choisissez une catégorie dans le menu de gauche",
     "moveCategoryFailed": "Impossible de déplacer la catégorie.",
     "filterItemsAtLocationPlaceholder": "Filtrer les articles de cet entrepôt...",
-    "noItemsAtLocationYet": "Aucun article n'est encore enregistré ici"
+    "noItemsAtLocationYet": "Aucun article n'est encore enregistré ici",
+    "categoriesHere": "Catégories ici",
+    "placements": "Emplacements",
+    "itemCount": "{{count}} articles",
+    "goTo": "Aller à",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Monter",

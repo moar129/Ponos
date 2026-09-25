@@ -59,6 +59,34 @@
     "reportedBy": "Fertig gemeldet von",
     "approve": "Freigeben",
     "reject": "Ablehnen",
-    "reportedDoneBy": "Fertig gemeldet von {{name}}"
+    "reportedDoneBy": "Fertig gemeldet von {{name}}",
+    "details": {
+      "open": "Details anzeigen",
+      "loading": "Details werden geladen...",
+      "loadFailed": "Details konnten nicht geladen werden.",
+      "room": "Raum",
+      "noRoom": "Ohne Raum",
+      "period": "Zeitraum",
+      "noDescription": "Keine Beschreibung.",
+      "assignees": "Zugewiesene",
+      "noAssignees": "Niemand zugewiesen.",
+      "materials": "Materialien",
+      "noMaterials": "Keine Materialien zugeordnet.",
+      "noLocation": "Ohne Lager",
+      "reserved": "Reserviert",
+      "alreadyResolved": "Bereits gemeldet.",
+      "currentStatus": "Aktueller Status",
+      "location": "Lager",
+      "proposedOutcome": "Vorgeschlagenes Ergebnis bei Freigabe",
+      "missingOutcome": "Kein Ergebnis angegeben - die Freigabe schlägt fehl, bis das Material gemeldet ist.",
+      "previousRejections": "Frühere Ablehnungen ({{count}})",
+      "rejectedBy": "Abgelehnt von {{name}} · {{date}}",
+      "reportedBy": "fertig gemeldet von {{name}}",
+      "noReason": "Keine Begründung angegeben."
+    },
+    "rejectReasonLabel": "Begründung",
+    "rejectReasonPlaceholder": "Schreiben Sie, warum die Fertigmeldung abgelehnt wird - die Nachricht geht an die Zugewiesenen.",
+    "rejectedCount_one": "{{count}}-mal abgelehnt",
+    "rejectedCount_other": "{{count}}-mal abgelehnt"
   }
 }

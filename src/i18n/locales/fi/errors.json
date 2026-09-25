@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Sijainti ei voi olla oma osastonsa.",
     "LOCATION_PARENT_NOT_FOUND": "Valittua varastoa ei ole.",
     "LOCATION_SECTION_NO_CHILDREN": "Osastolla ei voi itsellään olla alisijainteja.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Osaston on kuuluttava samaan organisaatioon kuin varasto."
+    "LOCATION_SECTION_ORG_MISMATCH": "Osaston on kuuluttava samaan organisaatioon kuin varasto.",
+    "REJECTION_REASON_REQUIRED": "Sinun on kirjoitettava perustelu hylkäykselle.",
+    "REJECTION_REASON_TOO_LONG": "Perustelu saa olla enintään 500 merkkiä."
   }
 }

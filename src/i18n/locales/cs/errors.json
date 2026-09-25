@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "Místo nemůže být vlastní sekcí.",
     "LOCATION_PARENT_NOT_FOUND": "Vybraný sklad neexistuje.",
     "LOCATION_SECTION_NO_CHILDREN": "Sekce nemůže sama mít podřízená místa.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sekce musí patřit do stejné organizace jako sklad."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sekce musí patřit do stejné organizace jako sklad.",
+    "REJECTION_REASON_REQUIRED": "Musíte napsat odůvodnění zamítnutí.",
+    "REJECTION_REASON_TOO_LONG": "Odůvodnění může mít nejvýše 500 znaků."
   }
 }

@@ -78,6 +78,21 @@ export interface AvailableUnitLocation {
   quantity: number;
 }
 
+// Quantity of one item's units at one location with one status (null = no location).
+export interface UnitLocationCount {
+  itemId: string;
+  locationId: string | null;
+  status: ItemStatus;
+  quantity: number;
+}
+
+// Where (part of) an item physically is - derived from its units' locations.
+export interface ItemPlacement {
+  locationId: string | null;
+  quantity: number;
+  statusCounts: Partial<Record<ItemStatus, number>>;
+}
+
 // Rene forslag (datalist) - felterne forbliver frit tekst, ingen logik er
 // bundet til den konkrete værdi. Hjælper brugeren med hvad der plejer at
 // give mening at skrive, uden at begrænse dem til en fast liste.
@@ -217,7 +232,9 @@ export interface ItemRow {
   description: string;
   packaging: string;
   unitOfMeasurement: string;
-  quantity: number;
+  // Talfelterne er tekst, så feltet kan være tomt mens man skriver - se
+  // utils/numberInput.ts. Parses til tal ved indsendelse.
+  quantity: string;
   itemStatus: ItemStatus;
   isDiscrete: boolean;
   serialNumbersRaw: string;
@@ -226,13 +243,13 @@ export interface ItemRow {
   // en 12-pack) - quantity styrer stadig kun hvor mange enheder der
   // oprettes (fx 5 kasser), helt uafhængigt af contentsTotal.
   hasContents: boolean;
-  contentsTotal: number;
+  contentsTotal: string;
   // Kun relevant når hasContents=true OG isDiscrete=false (Målt mængde +
   // kapacitet, fx en tank): startniveau pr. oprettet beholder. '' = start
   // fuld (= contentsTotal). Uden betydning for isDiscrete=true (Enkeltstyk
   // + indhold, fx 12-pack, starter altid fuld). Se add_item_with_units i
   // docs/dbSchema.sql §15.21.
-  contentsStart: number | '';
+  contentsStart: string;
   // Kun relevant når hasContents=true: hvilken status enheden automatisk
   // skal skifte til ved hhv. tomt/delvist/fuldt indhold. '' = ingen
   // automatisk ændring ved den tærskel. Se sync_status_from_contents i
@@ -244,7 +261,7 @@ export interface ItemRow {
   // packageSize [unitOfMeasurement]" (fx "1 big bag = 500 kg"). Når sat,
   // betyder `quantity` ANTAL EMBALLAGER (som containerCount for Beholder) -
   // hver emballage bliver sin egen enhed, se add_item_with_units.
-  packageSize: number | '';
+  packageSize: string;
 }
 
 export interface DeleteCategoryComponentProps {
@@ -288,12 +305,12 @@ export interface LocationPickerComponentProps {
 
 export interface FilterPanelComponentProps {
   isOpen: boolean;
-  categories: DataLayerCat[];
   statuses: ItemStatus[];
-  selectedCategoryIds: Set<string>;
   selectedStatuses: Set<ItemStatus>;
-  onToggleCategory: (id: string) => void;
   onToggleStatus: (status: ItemStatus) => void;
+  units: string[];
+  selectedUnits: Set<string>;
+  onToggleUnit: (unit: string) => void;
   onClear: () => void;
   onClose: () => void;
 }
@@ -330,4 +347,30 @@ export interface LocationTreeNodeProps {
   canDelete: boolean;
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
+}
+export interface ItemLocationTagProps {
+  // Alle steder item'et ligger (null = uden lager); første vises, resten som "+N".
+  locationIds: (string | null)[];
+  locationsById: Map<string, ItemLocation>;
+  className?: string;
+}
+
+export interface ItemCategoryTagProps {
+  categoryPath: string;
+  className?: string;
+}
+
+export type SummaryChipKind = 'category' | 'warehouse' | 'section' | 'none';
+
+export interface SummaryChip {
+  id: string;
+  label: string;
+  count: number;
+  kind: SummaryChipKind;
+  onNavigate?: () => void;
+}
+
+export interface SummaryChipsProps {
+  title: string;
+  chips: SummaryChip[];
 }

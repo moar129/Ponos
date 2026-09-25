@@ -101,7 +101,8 @@
     "statusLabel": "Estado:",
     "addEmployeeShort": "+ Añadir empleado",
     "created": "Creada",
-    "statusValue": "Estado: {{status}}"
+    "statusValue": "Estado: {{status}}",
+    "rejectedWithReason": "Finalización rechazada: {{reason}}"
   },
   "filter": {
     "show": "Mostrar filtro",

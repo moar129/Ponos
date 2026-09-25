@@ -9,6 +9,7 @@ import type {
   ItemStatus,
   ItemUnit,
   RawCategory,
+  UnitLocationCount,
 } from '../../types/dataLayer/datalayerTypes';
 
 function buildCategoryTree(
@@ -416,6 +417,51 @@ export const categoryApi = supabaseApi.injectEndpoints({
         }
       },
       providesTags: [{ type: 'Item', id: 'LIST' }],
+    }),
+
+    // Mængde pr. item pr. lokation pr. status (alle statusser) - enheder kan
+    // flyttes enkeltvis, så et item kan ligge flere steder. Bruges af
+    // datalager-siden til at vise hvad der ligger hvor. ItemLocation LIST
+    // med, da sletning af en lokation sætter enhedernes location_id til null.
+    getUnitLocationCounts: builder.query<UnitLocationCount[], void>({
+      queryFn: async () => {
+        try {
+          const organisationId = await getAuthenticatedOrganisationId();
+
+          const { data, error } = await supabase
+            .from('data_layer_item_units')
+            .select('item_id, location_id, status, quantity')
+            .eq('organisation_id', organisationId);
+
+          if (error) {
+            return { error: mapDbError(error) };
+          }
+
+          const byKey = new Map<string, UnitLocationCount>();
+          for (const row of data ?? []) {
+            const key = `${row.item_id}|${row.location_id ?? ''}|${row.status}`;
+            const existing = byKey.get(key);
+            if (existing) {
+              existing.quantity += Number(row.quantity);
+            } else {
+              byKey.set(key, {
+                itemId: row.item_id,
+                locationId: row.location_id,
+                status: row.status as ItemStatus,
+                quantity: Number(row.quantity),
+              });
+            }
+          }
+
+          return { data: [...byKey.values()] };
+        } catch (err: unknown) {
+          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        }
+      },
+      providesTags: [
+        { type: 'Item', id: 'LIST' },
+        { type: 'ItemLocation', id: 'LIST' },
+      ],
     }),
 
     getItemUnits: builder.query<ItemUnit[], string>({
@@ -867,6 +913,7 @@ export const {
   useDeleteItemMutation,
   useGetItemUnitsQuery,
   useGetAvailableUnitLocationsQuery,
+  useGetUnitLocationCountsQuery,
   useAddItemUnitsMutation,
   useUpdateItemUnitMutation,
   useDeleteItemUnitMutation,

@@ -15,6 +15,8 @@ import {
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
 import type { TaskApprovalRowProps } from '../../types/Task/Task'
+import { TaskApprovalDetailsModal } from './TaskApprovalDetailsModal'
+import { RejectReasonInput } from './RejectReasonInput'
 
 type PendingDecision = NonNullable<TaskApprovalRowProps['pendingDecision']>
 
@@ -36,22 +38,34 @@ export function TaskApprovalsPanel() {
     const submitting = approving || rejecting
 
     const [pendingDecision, setPendingDecision] = useState<PendingDecision | null>(null)
+    const [rejectReason, setRejectReason] = useState('')
+    const [detailsRequestId, setDetailsRequestId] = useState<string | null>(null)
+    // Afledt af listen, så modalen lukker af sig selv når anmodningen er behandlet.
+    const detailsRequest = requests?.find((r) => r.id === detailsRequestId) ?? null
+
+    // Ny beslutning/annullering starter altid med en tom begrundelse.
+    function selectDecision(decision: PendingDecision | null) {
+        setPendingDecision(decision)
+        setRejectReason('')
+    }
 
     async function confirmDecision(decision: PendingDecision) {
         const request = requests?.find((r) => r.id === decision.requestId)
         if (!request) {
-            setPendingDecision(null)
+            selectDecision(null)
             return
         }
 
         const input = { requestId: request.id, taskId: request.taskId }
         try {
             if (decision.decision === 'approve') await approve(input).unwrap()
-            else await reject(input).unwrap()
+            else await reject({ ...input, reason: rejectReason.trim() }).unwrap()
+            setDetailsRequestId(null)
+            selectDecision(null)
         } catch {
-            // Fejlen vises via mutationens error-state.
+            // Fejlen vises via mutationens error-state. Beslutningen (og en
+            // skrevet begrundelse) bevares, så man kan prøve igen.
         }
-        setPendingDecision(null)
     }
 
     const listError = readableError(queryError)
@@ -79,13 +93,36 @@ export function TaskApprovalsPanel() {
                                 canReject={canReject}
                                 pendingDecision={pendingDecision}
                                 submitting={submitting}
-                                onSelect={setPendingDecision}
-                                onCancel={() => setPendingDecision(null)}
+                                onSelect={selectDecision}
+                                onCancel={() => selectDecision(null)}
                                 onConfirm={confirmDecision}
+                                rejectReason={rejectReason}
+                                onRejectReasonChange={setRejectReason}
+                                onOpenDetails={() => setDetailsRequestId(request.id)}
                             />
                         </li>
                     ))}
                 </ul>
+            )}
+
+            {detailsRequest && (
+                <TaskApprovalDetailsModal
+                    request={detailsRequest}
+                    canApprove={canApprove}
+                    canReject={canReject}
+                    pendingDecision={pendingDecision}
+                    submitting={submitting}
+                    errorMessage={actionError}
+                    onSelect={selectDecision}
+                    onCancel={() => selectDecision(null)}
+                    onConfirm={confirmDecision}
+                    rejectReason={rejectReason}
+                    onRejectReasonChange={setRejectReason}
+                    onClose={() => {
+                        setDetailsRequestId(null)
+                        selectDecision(null)
+                    }}
+                />
             )}
         </div>
     )
@@ -100,29 +137,49 @@ function TaskApprovalRow({
     onSelect,
     onCancel,
     onConfirm,
+    rejectReason,
+    onRejectReasonChange,
+    onOpenDetails,
 }: TaskApprovalRowProps) {
     const { t } = useTranslation(['roles', 'common', 'errors'])
     const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
+    const missingReason = decision?.decision === 'reject' && rejectReason.trim() === ''
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <p className="font-medium">{request.taskTitle}</p>
+            <button
+                type="button"
+                onClick={onOpenDetails}
+                title={t('roles:approvals.details.open')}
+                className="group text-left"
+            >
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium group-hover:text-accent group-hover:underline">{request.taskTitle}</p>
+                    {request.rejectionCount > 0 && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                            {t('roles:approvals.rejectedCount', { count: request.rejectionCount })}
+                        </span>
+                    )}
+                </div>
                 <p className="text-sm text-secondary dark:text-slate-400">{t('roles:approvals.reportedDoneBy', { name: request.requesterName })}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDateTime(request.requestedAt)}</p>
-            </div>
+                <p className="text-xs font-semibold text-accent mt-1">{t('roles:approvals.details.open')}</p>
+            </button>
 
             {decision ? (
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:max-w-md">
                     <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'approve'
                             ? t('roles:approvals.confirmApprove')
                             : t('roles:approvals.confirmReject')}
                     </p>
+                    {decision.decision === 'reject' && (
+                        <RejectReasonInput value={rejectReason} onChange={onRejectReasonChange} disabled={submitting} />
+                    )}
                     <button
                         type="button"
                         onClick={() => onConfirm(decision)}
-                        disabled={submitting}
+                        disabled={submitting || missingReason}
                         className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? t('common:processing') : t('common:yes')}

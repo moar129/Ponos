@@ -133,6 +133,8 @@
     "LOCATION_OWN_PARENT": "En plats kan inte vara sin egen sektion.",
     "LOCATION_PARENT_NOT_FOUND": "Det valda lagret finns inte.",
     "LOCATION_SECTION_NO_CHILDREN": "En sektion kan inte själv ha underplatser.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen måste tillhöra samma organisation som lagret."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen måste tillhöra samma organisation som lagret.",
+    "REJECTION_REASON_REQUIRED": "Du måste skriva en motivering för avvisningen.",
+    "REJECTION_REASON_TOO_LONG": "Motiveringen får vara högst 500 tecken."
   }
 }

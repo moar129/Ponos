@@ -100,7 +100,8 @@
     "statusLabel": "Tila:",
     "addEmployeeShort": "+ Lisää työntekijä",
     "created": "Luotu",
-    "statusValue": "Tila: {{status}}"
+    "statusValue": "Tila: {{status}}",
+    "rejectedWithReason": "Valmisilmoitus hylätty: {{reason}}"
   },
   "filter": {
     "show": "Näytä suodatin",

@@ -44,7 +44,12 @@
     "chooseCategory": "Choose a category in the menu on the left",
     "moveCategoryFailed": "Could not move the category.",
     "filterItemsAtLocationPlaceholder": "Filter items at this warehouse...",
-    "noItemsAtLocationYet": "No items are registered here yet"
+    "noItemsAtLocationYet": "No items are registered here yet",
+    "categoriesHere": "Categories here",
+    "placements": "Locations",
+    "itemCount": "{{count}} items",
+    "goTo": "Go to",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Move up",

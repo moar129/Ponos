@@ -449,6 +449,9 @@ create table public.task_participants (
 -- udføres først i approve_task_request ved godkendelse (se 15.19/15.21b).
 -- Afvises anmodningen i stedet, bruges kolonnen aldrig - materialerne
 -- forbliver urørt.
+-- rejection_reason (2026-09-24): godkenderens påkrævede begrundelse ved
+-- afvisning, sat af reject_task_request (15.19). Vises for de tilmeldte på
+-- opgavekortet, indtil opgaven meldes færdig igen.
 create table public.task_requests (
   id                 uuid primary key default gen_random_uuid(),
   task_id            uuid not null references public.tasks(id) on delete cascade,
@@ -457,7 +460,8 @@ create table public.task_requests (
   status             e_request_status not null default 'Pending',
   handled_by         uuid references public.profiles(id),
   done_at            timestamptz,
-  material_outcomes  jsonb
+  material_outcomes  jsonb,
+  rejection_reason   text
 );
 
 
@@ -1967,7 +1971,10 @@ begin
 end;
 $$;
 
-create or replace function public.reject_task_request(p_request_id uuid)
+-- 2026-09-24: påkrævet begrundelse (p_reason, maks. 500 tegn) - gemmes i
+-- task_requests.rejection_reason og sendes med i notifikationens body.
+-- Den gamle signatur reject_task_request(uuid) er droppet.
+create or replace function public.reject_task_request(p_request_id uuid, p_reason text)
 returns void
 language plpgsql
 security definer
@@ -1978,6 +1985,7 @@ declare
   v_task_id uuid;
   v_status public.e_request_status;
   v_title text;
+  v_reason text := nullif(trim(p_reason), '');
 begin
   if v_org_id is null then
     raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
@@ -1985,6 +1993,14 @@ begin
 
   if not public.has_privilege_or_admin('reject_task') then
     raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501', hint = 'NO_PRIV_REJECT_TASKS';
+  end if;
+
+  if v_reason is null then
+    raise exception 'Du skal skrive en begrundelse for afvisningen.' using hint = 'REJECTION_REASON_REQUIRED';
+  end if;
+
+  if length(v_reason) > 500 then
+    raise exception 'Begrundelsen må højst være 500 tegn.' using hint = 'REJECTION_REASON_TOO_LONG';
   end if;
 
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
@@ -2004,16 +2020,19 @@ begin
   -- heller ikke (2026-09-23) - de gemte material_outcomes bruges aldrig,
   -- enhederne forbliver Reserved/InUse, klar til en ny færdigmelding.
   update public.task_requests
-     set status = 'Rejected', handled_by = auth.uid(), done_at = now()
+     set status = 'Rejected', handled_by = auth.uid(), done_at = now(), rejection_reason = v_reason
    where id = p_request_id;
 
   insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
-  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title, '/tasks?task=' || v_task_id, v_task_id
+  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title || ': ' || v_reason, '/tasks?task=' || v_task_id, v_task_id
   from public.task_assignees ta
   where ta.task_id = v_task_id and ta.user_id <> auth.uid();
 end;
 $$;
 
+-- 2026-09-24: + rejection_count (antal tidligere afviste færdigmeldinger
+-- på opgaven, til "Afvist n gange"-mærket i listen). Returtypen ændret -
+-- blev kørt som drop + create.
 create or replace function public.get_pending_task_requests()
 returns table (
   id uuid,
@@ -2022,7 +2041,8 @@ returns table (
   requested_by uuid,
   requester_first_name text,
   requester_last_name text,
-  requested_at timestamptz
+  requested_at timestamptz,
+  rejection_count integer
 )
 language plpgsql
 stable
@@ -2041,7 +2061,9 @@ begin
   end if;
 
   return query
-    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at
+    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at,
+      (select count(*)::integer from public.task_requests pr
+        where pr.task_id = r.task_id and pr.status = 'Rejected') as rejection_count
     from public.task_requests r
     join public.tasks t on t.id = r.task_id
     left join public.profiles p on p.id = r.requested_by
@@ -2051,11 +2073,138 @@ end;
 $$;
 
 revoke execute on function public.approve_task_request(uuid) from public, anon;
-revoke execute on function public.reject_task_request(uuid) from public, anon;
+revoke execute on function public.reject_task_request(uuid, text) from public, anon;
 revoke execute on function public.get_pending_task_requests() from public, anon;
 grant execute on function public.approve_task_request(uuid) to authenticated;
-grant execute on function public.reject_task_request(uuid) to authenticated;
+grant execute on function public.reject_task_request(uuid, text) to authenticated;
 grant execute on function public.get_pending_task_requests() to authenticated;
+
+
+-- 15.19b US-75-udvidelse (2026-09-24): detaljer for én færdigmelding til
+-- godkenderens detalje-modal (TaskApprovalDetailsModal.tsx): opgave, rum,
+-- tilmeldte, materialer (reserveret mængde, nuværende status-fordeling,
+-- lokationer) + den tildeltes foreslåede udfald fra material_outcomes.
+-- Security definer, da en godkender (approve_task/reject_task) ikke
+-- nødvendigvis har read_tasks - samme begrundelse som
+-- get_pending_task_requests. Org-isoleret via tasks.organisation_id.
+-- 2026-09-24: + previous_rejections (opgavens afviste færdigmeldinger m.
+-- begrundelse, afvist af/tidspunkt, meldt færdig af), nyeste først.
+create or replace function public.get_task_request_details(p_request_id uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_result jsonb;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501', hint = 'NO_PRIV_READ_TASK_APPROVALS';
+  end if;
+
+  select r.task_id into v_task_id
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id;
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
+  end if;
+
+  select jsonb_build_object(
+    'task', jsonb_build_object(
+      'id', t.id,
+      'title', t.title,
+      'description', t.description,
+      'priority', t.priority,
+      'status', t.status,
+      'start_date', t.start_date,
+      'end_date', t.end_date,
+      'requires_approval', t.requires_approval,
+      'room_name', tr.name
+    ),
+    'requester_name', trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')),
+    'requested_at', r.requested_at,
+    'assignees', coalesce((
+      select jsonb_agg(trim(coalesce(ap.first_name, '') || ' ' || coalesce(ap.last_name, '')) order by ap.first_name, ap.last_name)
+      from public.task_assignees ta
+      left join public.profiles ap on ap.id = ta.user_id
+      where ta.task_id = t.id
+    ), '[]'::jsonb),
+    'materials', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', tm.id,
+        'item_name', i.name,
+        'unit_of_measurement', i.unit_of_measurement,
+        'quantity', tm.quantity,
+        'linked_groups', coalesce((
+          select jsonb_agg(jsonb_build_object('status', g.status, 'quantity', g.quantity))
+          from (
+            select u.status, sum(u.quantity) as quantity
+            from public.task_material_units tmu
+            join public.data_layer_item_units u on u.id = tmu.unit_id
+            where tmu.task_material_id = tm.id
+            group by u.status
+          ) g
+        ), '[]'::jsonb),
+        'location_labels', coalesce((
+          select jsonb_agg(distinct case when pl.id is null then l.name else pl.name || ' > ' || l.name end)
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          join public.locations l on l.id = u.location_id
+          left join public.locations pl on pl.id = l.parent_location_id
+          where tmu.task_material_id = tm.id
+        ), '[]'::jsonb),
+        'has_units_without_location', exists (
+          select 1
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          where tmu.task_material_id = tm.id and u.location_id is null
+        ),
+        'proposed_outcomes', (
+          select mo->'outcomes'
+          from jsonb_array_elements(coalesce(r.material_outcomes, '[]'::jsonb)) mo
+          where (mo->>'taskMaterialId')::uuid = tm.id
+          limit 1
+        )
+      ) order by i.name)
+      from public.task_materials tm
+      join public.data_layer_items i on i.id = tm.item_id
+      where tm.task_id = t.id
+    ), '[]'::jsonb),
+    'previous_rejections', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'reason', pr.rejection_reason,
+        'rejected_at', pr.done_at,
+        'rejected_by_name', trim(coalesce(hp.first_name, '') || ' ' || coalesce(hp.last_name, '')),
+        'requester_name', trim(coalesce(rp.first_name, '') || ' ' || coalesce(rp.last_name, '')),
+        'requested_at', pr.requested_at
+      ) order by pr.done_at desc nulls last)
+      from public.task_requests pr
+      left join public.profiles hp on hp.id = pr.handled_by
+      left join public.profiles rp on rp.id = pr.requested_by
+      where pr.task_id = t.id and pr.status = 'Rejected'
+    ), '[]'::jsonb)
+  ) into v_result
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  left join public.task_rooms tr on tr.id = t.room_id
+  left join public.profiles p on p.id = r.requested_by
+  where r.id = p_request_id;
+
+  return v_result;
+end;
+$$;
+
+revoke execute on function public.get_task_request_details(uuid) from public, anon;
+grant execute on function public.get_task_request_details(uuid) to authenticated;
 
 
 -- 15.20 US-75 (2026-09-19): notify_task_completed (notifikationsfeaturen,

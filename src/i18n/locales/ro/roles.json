@@ -59,6 +59,35 @@
     "reportedBy": "Raportată drept finalizată de:",
     "approve": "Aprobă",
     "reject": "Respinge",
-    "reportedDoneBy": "Raportată drept finalizată de {{name}}"
+    "reportedDoneBy": "Raportată drept finalizată de {{name}}",
+    "details": {
+      "open": "Vezi detalii",
+      "loading": "Se încarcă detaliile...",
+      "loadFailed": "Detaliile nu au putut fi încărcate.",
+      "room": "Cameră",
+      "noRoom": "Fără cameră",
+      "period": "Perioadă",
+      "noDescription": "Fără descriere.",
+      "assignees": "Alocați",
+      "noAssignees": "Nimeni alocat.",
+      "materials": "Materiale",
+      "noMaterials": "Niciun material asociat.",
+      "noLocation": "Fără depozit",
+      "reserved": "Rezervat",
+      "alreadyResolved": "Deja raportat.",
+      "currentStatus": "Stare curentă",
+      "location": "Depozit",
+      "proposedOutcome": "Rezultat propus la aprobare",
+      "missingOutcome": "Niciun rezultat indicat - aprobarea va eșua până când materialul este raportat.",
+      "previousRejections": "Respingeri anterioare ({{count}})",
+      "rejectedBy": "Respins de {{name}} · {{date}}",
+      "reportedBy": "raportat finalizat de {{name}}",
+      "noReason": "Niciun motiv indicat."
+    },
+    "rejectReasonLabel": "Motiv",
+    "rejectReasonPlaceholder": "Scrie de ce este respinsă raportarea finalizării - mesajul se trimite celor alocați.",
+    "rejectedCount_one": "Respins o dată",
+    "rejectedCount_few": "Respins de {{count}} ori",
+    "rejectedCount_other": "Respins de {{count}} de ori"
   }
 }

@@ -59,6 +59,35 @@
     "reportedBy": "Segnalata completata da",
     "approve": "Approva",
     "reject": "Rifiuta",
-    "reportedDoneBy": "Segnalata completata da {{name}}"
+    "reportedDoneBy": "Segnalata completata da {{name}}",
+    "details": {
+      "open": "Vedi dettagli",
+      "loading": "Caricamento dettagli...",
+      "loadFailed": "Impossibile caricare i dettagli.",
+      "room": "Stanza",
+      "noRoom": "Senza stanza",
+      "period": "Periodo",
+      "noDescription": "Nessuna descrizione.",
+      "assignees": "Assegnati",
+      "noAssignees": "Nessun assegnato.",
+      "materials": "Materiali",
+      "noMaterials": "Nessun materiale collegato.",
+      "noLocation": "Senza magazzino",
+      "reserved": "Riservato",
+      "alreadyResolved": "Già rendicontato.",
+      "currentStatus": "Stato attuale",
+      "location": "Magazzino",
+      "proposedOutcome": "Esito proposto all'approvazione",
+      "missingOutcome": "Nessun esito indicato - l'approvazione fallirà finché il materiale non sarà rendicontato.",
+      "previousRejections": "Rifiuti precedenti ({{count}})",
+      "rejectedBy": "Rifiutato da {{name}} · {{date}}",
+      "reportedBy": "segnalato completato da {{name}}",
+      "noReason": "Nessuna motivazione indicata."
+    },
+    "rejectReasonLabel": "Motivazione",
+    "rejectReasonPlaceholder": "Scrivi perché il completamento viene rifiutato - il messaggio viene inviato agli assegnati.",
+    "rejectedCount_one": "Rifiutato {{count}} volta",
+    "rejectedCount_many": "Rifiutato {{count}} volte",
+    "rejectedCount_other": "Rifiutato {{count}} volte"
   }
 }

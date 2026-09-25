@@ -39,7 +39,12 @@
     "chooseCategory": "Escolha uma categoria no menu à esquerda",
     "moveCategoryFailed": "Não foi possível mover a categoria.",
     "filterItemsAtLocationPlaceholder": "Filtrar artigos deste armazém...",
-    "noItemsAtLocationYet": "Ainda não há artigos registados aqui"
+    "noItemsAtLocationYet": "Ainda não há artigos registados aqui",
+    "categoriesHere": "Categorias aqui",
+    "placements": "Localizações",
+    "itemCount": "{{count}} artigos",
+    "goTo": "Ir para",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Mover para cima",

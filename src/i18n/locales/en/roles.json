@@ -59,6 +59,34 @@
     "reportedBy": "Reported done by",
     "approve": "Approve",
     "reject": "Reject",
-    "reportedDoneBy": "Reported done by {{name}}"
+    "reportedDoneBy": "Reported done by {{name}}",
+    "details": {
+      "open": "View details",
+      "loading": "Loading details...",
+      "loadFailed": "Could not load details.",
+      "room": "Room",
+      "noRoom": "No room",
+      "period": "Period",
+      "noDescription": "No description.",
+      "assignees": "Assignees",
+      "noAssignees": "No assignees.",
+      "materials": "Materials",
+      "noMaterials": "No materials attached.",
+      "noLocation": "No location",
+      "reserved": "Reserved",
+      "alreadyResolved": "Already reported.",
+      "currentStatus": "Current status",
+      "location": "Location",
+      "proposedOutcome": "Proposed outcome on approval",
+      "missingOutcome": "No outcome given - approval will fail until the material is reported.",
+      "previousRejections": "Previous rejections ({{count}})",
+      "rejectedBy": "Rejected by {{name}} · {{date}}",
+      "reportedBy": "reported done by {{name}}",
+      "noReason": "No reason given."
+    },
+    "rejectReasonLabel": "Reason",
+    "rejectReasonPlaceholder": "Write why the completion is rejected - the message is sent to the assignees.",
+    "rejectedCount_one": "Rejected {{count}} time",
+    "rejectedCount_other": "Rejected {{count}} times"
   }
 }

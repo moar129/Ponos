@@ -41,3 +41,13 @@ export interface NewsFormModalProps {
     onClose: () => void
     editingNews: News | null
 }
+
+// Selve formularen i NewsFormModal - kun monteret mens modalen er åben.
+export type NewsFormProps = Omit<NewsFormModalProps, 'isOpen'>
+
+export interface NewsImageProps {
+    pictureUrl: string | null
+    className?: string
+    // Til placeholderen, hvis den skal have anden størrelse end et rigtigt billede.
+    placeholderClassName?: string
+}

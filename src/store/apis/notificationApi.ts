@@ -79,8 +79,13 @@ export const notificationApi = supabaseApi.injectEndpoints({
                 const userId = userData.user?.id
                 if (!userId) return
 
+                // Unikt kanalnavn pr. cache-entry: klokken ({ limit: 8 }) og
+                // dashboard-widget'en (intet arg) er to entries på samme side,
+                // og supabase.channel() genbruger en eksisterende kanal med
+                // samme navn - så ville .on() ramme en allerede subscribed
+                // kanal og kaste. Filteret + RLS styrer stadig hvad der modtages.
                 const channel = supabase
-                    .channel(`notifications:${userId}`)
+                    .channel(`notifications:${userId}:${crypto.randomUUID()}`)
                     .on(
                         'postgres_changes',
                         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },

@@ -100,7 +100,8 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Mitarbeiter hinzufügen",
     "created": "Erstellt",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Fertigmeldung abgelehnt: {{reason}}"
   },
   "filter": {
     "show": "Filter anzeigen",

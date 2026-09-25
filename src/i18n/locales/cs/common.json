@@ -45,5 +45,12 @@
   "updating": "Aktualizace...",
   "creating": "Vytváření...",
   "yes": "Ano",
-  "send": "Odeslat"
+  "send": "Odeslat",
+  "numberInput": {
+    "required": "Zadejte číslo.",
+    "invalid": "Neplatné číslo.",
+    "negative": "Číslo nesmí být záporné.",
+    "zero": "Číslo musí být větší než 0.",
+    "fixFields": "Opravte označená číselná pole."
+  }
 }

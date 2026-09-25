@@ -59,6 +59,36 @@
     "reportedBy": "Zakończenie zgłosił",
     "approve": "Zatwierdź",
     "reject": "Odrzuć",
-    "reportedDoneBy": "Zakończenie zgłosił {{name}}"
+    "reportedDoneBy": "Zakończenie zgłosił {{name}}",
+    "details": {
+      "open": "Zobacz szczegóły",
+      "loading": "Ładowanie szczegółów...",
+      "loadFailed": "Nie udało się wczytać szczegółów.",
+      "room": "Pomieszczenie",
+      "noRoom": "Bez pomieszczenia",
+      "period": "Okres",
+      "noDescription": "Brak opisu.",
+      "assignees": "Przypisani",
+      "noAssignees": "Nikt nie jest przypisany.",
+      "materials": "Materiały",
+      "noMaterials": "Brak powiązanych materiałów.",
+      "noLocation": "Bez magazynu",
+      "reserved": "Zarezerwowano",
+      "alreadyResolved": "Już zgłoszono.",
+      "currentStatus": "Obecny status",
+      "location": "Magazyn",
+      "proposedOutcome": "Proponowany wynik przy zatwierdzeniu",
+      "missingOutcome": "Nie podano wyniku - zatwierdzenie nie powiedzie się, dopóki materiał nie zostanie zgłoszony.",
+      "previousRejections": "Wcześniejsze odrzucenia ({{count}})",
+      "rejectedBy": "Odrzucone przez {{name}} · {{date}}",
+      "reportedBy": "ukończenie zgłosił(a) {{name}}",
+      "noReason": "Nie podano uzasadnienia."
+    },
+    "rejectReasonLabel": "Uzasadnienie",
+    "rejectReasonPlaceholder": "Napisz, dlaczego zgłoszenie ukończenia jest odrzucane - wiadomość trafi do przypisanych.",
+    "rejectedCount_one": "Odrzucono {{count}} raz",
+    "rejectedCount_few": "Odrzucono {{count}} razy",
+    "rejectedCount_many": "Odrzucono {{count}} razy",
+    "rejectedCount_other": "Odrzucono {{count}} razy"
   }
 }
