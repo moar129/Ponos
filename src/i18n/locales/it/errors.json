@@ -57,7 +57,8 @@
     "deleteItem": "Non hai i permessi per eliminare l'articolo.",
     "createLocation": "Non hai i permessi per creare la posizione.",
     "updateLocation": "Non hai i permessi per modificare la posizione.",
-    "deleteLocation": "Non hai i permessi per eliminare la posizione."
+    "deleteLocation": "Non hai i permessi per eliminare la posizione.",
+    "favoriteDatalayer": "Non hai i permessi per modificare i preferiti del livello dati."
   },
   "db": {
     "NOT_LOGGED_IN": "Devi aver effettuato l'accesso.",

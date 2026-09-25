@@ -186,5 +186,11 @@
   "quantityLabel": "Antal:",
   "categoryIdValue": "Kategori-ID: {{id}}",
   "quantityValue": "Antal: {{count}}",
-  "itemCountParen": "({{count}} artiklar)"
+  "itemCountParen": "({{count}} artiklar)",
+  "favorites": {
+    "title": "Favoriter",
+    "add": "Lägg till i favoriter",
+    "remove": "Ta bort från favoriter",
+    "toggleFailed": "Kunde inte uppdatera favorit."
+  }
 }

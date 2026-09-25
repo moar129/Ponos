@@ -14,8 +14,16 @@ import {
   UPDATE_DATALAYER_PRIVILEGE,
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
+import {
+  useGetDataLayerFavoritesQuery,
+  useAddDataLayerFavoriteMutation,
+  useRemoveDataLayerFavoriteMutation,
+} from '../../store/apis/dataLayerFavoriteApi';
 import type {
   DataLayerCat,
+  DataLayerFavorite,
+  DataLayerFavoriteTarget,
+  FavoriteEntry,
   AggregatedItem,
   ItemLocation,
   ItemStatus,
@@ -54,12 +62,15 @@ import {
   summarizeByLocation,
 } from '../../store/slices/dataLayersSlices/itemPlacements';
 import { SummaryChips } from '../../components/dataLayer/summaryChipsComponent';
+import { FavoritesSection } from '../../components/dataLayer/favorites/favoritesSectionComponent';
+import { FavoriteStarButton } from '../../components/dataLayer/favorites/favoriteStarButtonComponent';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
 type LeftTab = 'categories' | 'locations';
 
 // Stabil reference, så placementIndex ikke genberegnes hver render mens query'en loader.
 const EMPTY_UNIT_COUNTS: UnitLocationCount[] = [];
+const EMPTY_FAVORITES: DataLayerFavorite[] = [];
 
 // Inden for en filter-sektion: OR. Mellem sektioner: AND.
 function itemMatchesFilters(item: AggregatedItem, statuses: Set<ItemStatus>, units: Set<string>): boolean {
@@ -86,6 +97,10 @@ export function DataLayerPage() {
   const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
   const { data: itemLocations = [] } = useGetItemLocationsQuery();
   const { data: unitLocationCounts = EMPTY_UNIT_COUNTS, error: unitCountsError } = useGetUnitLocationCountsQuery();
+  const { data: favorites = EMPTY_FAVORITES } = useGetDataLayerFavoritesQuery(undefined, { skip: !canRead });
+  const [addFavorite] = useAddDataLayerFavoriteMutation();
+  const [removeFavorite] = useRemoveDataLayerFavoriteMutation();
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
@@ -349,6 +364,95 @@ export function DataLayerPage() {
       setExpandedWarehouseIds((prev) => new Set([...prev, location.parentLocationId as string]));
     }
   };
+
+  // --- Favoritter: personlige stjernemarkeringer øverst i hver fane ---
+  const favoriteCategoryIds = useMemo(
+    () => new Set(favorites.flatMap((fav) => (fav.categoryId ? [fav.categoryId] : []))),
+    [favorites]
+  );
+  const favoriteLocationIds = useMemo(
+    () => new Set(favorites.flatMap((fav) => (fav.locationId ? [fav.locationId] : []))),
+    [favorites]
+  );
+
+  const toggleFavorite = async (target: DataLayerFavoriteTarget, isFavorite: boolean) => {
+    setFavoriteError(null);
+    try {
+      if (isFavorite) await removeFavorite(target).unwrap();
+      else await addFavorite(target).unwrap();
+    } catch (err) {
+      setFavoriteError(getErrorMessage(err, t('favorites.toggleFailed')));
+    }
+  };
+
+  const handleToggleCategoryFavorite = (id: string) =>
+    toggleFavorite({ categoryId: id }, favoriteCategoryIds.has(id));
+  const handleToggleLocationFavorite = (id: string) =>
+    toggleFavorite({ locationId: id }, favoriteLocationIds.has(id));
+
+  // Favoritter hvis mål ikke (længere) findes i træet udelades - fx mens
+  // træet loader, eller hvis kategorien lige er slettet (cascade fjerner
+  // rækken i DB, refetch følger).
+  // Vælger kategorien og folder dens forfædre ud i træet, så den kan ses dér.
+  const selectCategoryAndReveal = (category: DataLayerCat) => {
+    const path = getCategoryPath(categoryTree, category.id) ?? [];
+    setExpandedCategoryIds((prev) => new Set([...prev, ...path.slice(0, -1).map((cat) => cat.id)]));
+    handleSelectCategory(category);
+  };
+
+  // Undergrupper gemmes ikke som favoritter - de vises foldbart under
+  // favoritten, så nye underkategorier automatisk kommer med.
+  const buildCategoryChildEntries = (category: DataLayerCat, parentKey: string): FavoriteEntry[] =>
+    category.subCategories.map((sub) => {
+      const key = `${parentKey}/${sub.id}`;
+      return {
+        key,
+        label: sub.title,
+        isSelected: selectedCategory?.id === sub.id,
+        onSelect: () => selectCategoryAndReveal(sub),
+        children: buildCategoryChildEntries(sub, key),
+      };
+    });
+
+  const categoryFavoriteEntries: FavoriteEntry[] = [...favoriteCategoryIds]
+    .flatMap((id) => {
+      const path = getCategoryPath(categoryTree, id);
+      if (!path) return [];
+      const category = path[path.length - 1];
+      return [{
+        key: id,
+        label: path.map((cat) => cat.title).join(' › '),
+        isSelected: selectedCategory?.id === id,
+        onSelect: () => selectCategoryAndReveal(category),
+        onRemove: () => handleToggleCategoryFavorite(id),
+        children: buildCategoryChildEntries(category, id),
+      }];
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const locationFavoriteEntries: FavoriteEntry[] = [...favoriteLocationIds]
+    .flatMap((id) => {
+      const location = itemLocations.find((l) => l.id === id);
+      if (!location) return [];
+      const parent = location.parentLocationId
+        ? itemLocations.find((l) => l.id === location.parentLocationId)
+        : null;
+      return [{
+        key: id,
+        label: parent ? `${parent.name} › ${location.name}` : location.name,
+        isSelected: selectedLocationView?.id === id,
+        onSelect: () => handleSelectLocationView(location),
+        onRemove: () => handleToggleLocationFavorite(id),
+        children: (sectionsByWarehouseId.get(id) ?? []).map((section) => ({
+          key: `${id}/${section.id}`,
+          label: section.name,
+          isSelected: selectedLocationView?.id === section.id,
+          onSelect: () => handleSelectLocationView(section),
+          children: [],
+        })),
+      }];
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const handleOpenAddLocation = (parentId: string | null) => {
     setAddLocationParentId(parentId);
@@ -766,6 +870,16 @@ export function DataLayerPage() {
               </button>
             </div>
 
+            {favoriteError && (
+              <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                {favoriteError}
+              </div>
+            )}
+
+            <FavoritesSection
+              entries={leftTab === 'categories' ? categoryFavoriteEntries : locationFavoriteEntries}
+            />
+
             {leftTab === 'categories' ? (
               <>
                 {moveCategoryError && (
@@ -799,6 +913,9 @@ export function DataLayerPage() {
                         isMoving={isMovingCategory}
                         onMoveUp={(c) => handleMoveCategory(c, 'up')}
                         onMoveDown={(c) => handleMoveCategory(c, 'down')}
+                        favoriteIds={favoriteCategoryIds}
+                        canFavorite={canRead}
+                        onToggleFavorite={handleToggleCategoryFavorite}
                       />
                     ))}
                   </div>
@@ -831,6 +948,9 @@ export function DataLayerPage() {
                         selectedLocationView?.parentLocationId === warehouse.id
                       }
                       onToggleExpand={toggleExpandWarehouse}
+                      favoriteIds={favoriteLocationIds}
+                      canFavorite={canRead}
+                      onToggleFavorite={handleToggleLocationFavorite}
                     />
                   ))
                 )}
@@ -897,6 +1017,13 @@ export function DataLayerPage() {
     <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
       {selectedLocationView.name}
     </h1>
+    {canRead && (
+      <FavoriteStarButton
+        variant="heading"
+        isFavorite={favoriteLocationIds.has(selectedLocationView.id)}
+        onToggle={() => handleToggleLocationFavorite(selectedLocationView.id)}
+      />
+    )}
   </div>
   {selectedLocationView.address && (
     <p className="text-xs text-secondary mt-1 dark:text-slate-400">{selectedLocationView.address}</p>
@@ -1044,9 +1171,18 @@ export function DataLayerPage() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border-gray dark:border-slate-700">
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
-                    {selectedCategory.title}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
+                      {selectedCategory.title}
+                    </h1>
+                    {canRead && (
+                      <FavoriteStarButton
+                        variant="heading"
+                        isFavorite={favoriteCategoryIds.has(selectedCategory.id)}
+                        onToggle={() => handleToggleCategoryFavorite(selectedCategory.id)}
+                      />
+                    )}
+                  </div>
                   <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
                     {t('categoryIdValue', { id: selectedCategory.id })}
                   </p>

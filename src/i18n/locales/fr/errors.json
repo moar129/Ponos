@@ -57,7 +57,8 @@
     "deleteItem": "Vous n'avez pas le droit de supprimer l'article.",
     "createLocation": "Vous n'avez pas le droit de créer l'emplacement.",
     "updateLocation": "Vous n'avez pas le droit de modifier l'emplacement.",
-    "deleteLocation": "Vous n'avez pas le droit de supprimer l'emplacement."
+    "deleteLocation": "Vous n'avez pas le droit de supprimer l'emplacement.",
+    "favoriteDatalayer": "Vous n'avez pas le droit de modifier les favoris de la couche de données."
   },
   "db": {
     "NOT_LOGGED_IN": "Vous devez être connecté.",

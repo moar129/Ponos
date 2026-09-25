@@ -123,6 +123,44 @@ export interface ItemLocation {
   parentLocationId?: string | null;
 }
 
+// Personlig stjernemarkering (data_layer_favorites) - præcis ét af
+// categoryId/locationId er sat.
+export interface DataLayerFavorite {
+  id: string;
+  categoryId: string | null;
+  locationId: string | null;
+}
+
+export type DataLayerFavoriteTarget = { categoryId: string } | { locationId: string };
+
+export interface FavoriteEntry {
+  key: string;
+  label: string;
+  isSelected: boolean;
+  onSelect: () => void;
+  // Kun sat på selve favoritten - undergrupper vist under den har ingen stjerne.
+  onRemove?: () => void;
+  // Undergrupper (underkategorier/sektioner), der kan foldes ud i listen.
+  children: FavoriteEntry[];
+}
+
+export interface FavoritesSectionProps {
+  entries: FavoriteEntry[];
+}
+
+export interface FavoriteRowProps {
+  entry: FavoriteEntry;
+  expandedKeys: Set<string>;
+  onToggleExpand: (key: string) => void;
+}
+
+export interface FavoriteStarButtonProps {
+  isFavorite: boolean;
+  onToggle: () => void;
+  // Detalje-overskriften: tom stjerne altid synlig (ingen hover-regel) og større.
+  variant?: 'row' | 'heading';
+}
+
 export interface RawCategory {
   id: string;
   title: string;
@@ -149,6 +187,11 @@ export interface CategoryTreeNodeProps {
   isMoving: boolean;
   onMoveUp: (category: DataLayerCat) => void;
   onMoveDown: (category: DataLayerCat) => void;
+  // Personlige favoritter - gated separat på canFavorite (read_datalayer),
+  // uafhængigt af canUpdate.
+  favoriteIds: Set<string>;
+  canFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
 }
 
 export interface EditCategoryComponentProps {
@@ -347,6 +390,9 @@ export interface LocationTreeNodeProps {
   canDelete: boolean;
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
+  favoriteIds: Set<string>;
+  canFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
 }
 export interface ItemLocationTagProps {
   // Alle steder item'et ligger (null = uden lager); første vises, resten som "+N".

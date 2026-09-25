@@ -57,7 +57,8 @@
     "deleteItem": "Nu aveți dreptul de a șterge articolul.",
     "createLocation": "Nu aveți dreptul de a crea locația.",
     "updateLocation": "Nu aveți dreptul de a edita locația.",
-    "deleteLocation": "Nu aveți dreptul de a șterge locația."
+    "deleteLocation": "Nu aveți dreptul de a șterge locația.",
+    "favoriteDatalayer": "Nu aveți dreptul de a modifica favoritele din stratul de date."
   },
   "db": {
     "NOT_LOGGED_IN": "Trebuie să fiți autentificat.",

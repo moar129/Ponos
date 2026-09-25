@@ -186,5 +186,11 @@
   "quantityLabel": "Määrä:",
   "categoryIdValue": "Luokan tunnus: {{id}}",
   "quantityValue": "Määrä: {{count}}",
-  "itemCountParen": "({{count}} nimikettä)"
+  "itemCountParen": "({{count}} nimikettä)",
+  "favorites": {
+    "title": "Suosikit",
+    "add": "Lisää suosikkeihin",
+    "remove": "Poista suosikeista",
+    "toggleFailed": "Suosikin päivitys epäonnistui."
+  }
 }

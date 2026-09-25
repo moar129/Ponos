@@ -192,5 +192,11 @@
   "quantityLabel": "Množství:",
   "categoryIdValue": "ID kategorie: {{id}}",
   "quantityValue": "Množství: {{count}}",
-  "itemCountParen": "({{count}} položek)"
+  "itemCountParen": "({{count}} položek)",
+  "favorites": {
+    "title": "Oblíbené",
+    "add": "Přidat do oblíbených",
+    "remove": "Odebrat z oblíbených",
+    "toggleFailed": "Oblíbenou položku se nepodařilo aktualizovat."
+  }
 }

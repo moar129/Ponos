@@ -380,6 +380,28 @@ grant select on public.data_layer_item_status_counts to authenticated;
 
 
 -- ---------------------------------------------------------------------
+-- 9.1 DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Personlige stjernemarkeringer på /datalager: præcis én kategori ELLER
+-- ét lager/sektion pr. række. Undergrupper gemmes ikke - frontend viser
+-- dem foldbart under favoritten. Cascade fjerner favoritten, når målet,
+-- brugeren eller organisationen slettes.
+-- ---------------------------------------------------------------------
+create table public.data_layer_favorites (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  category_id      uuid references public.data_layer_categories(id) on delete cascade,
+  location_id      uuid references public.locations(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  constraint data_layer_favorites_one_target check (num_nonnulls(category_id, location_id) = 1),
+  constraint data_layer_favorites_user_category_key unique (user_id, category_id),
+  constraint data_layer_favorites_user_location_key unique (user_id, location_id)
+);
+
+create index idx_data_layer_favorites_user_org on public.data_layer_favorites (user_id, organisation_id);
+
+
+-- ---------------------------------------------------------------------
 -- 9.5 TASK ROOM (Studerende 3's tilføjelse)
 -- Dokumenteret her fra DB-eksport 2026-09-11 - IKKE oprettet eller
 -- ændret af Studerende 1. Tabellen stod indtil da slet ikke i denne fil,
@@ -3265,6 +3287,7 @@ alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.data_layer_item_units   enable row level security;
+alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_room_roles         enable row level security;
@@ -3637,6 +3660,48 @@ create policy "Slet item-enheder i egen organisation"
   on public.data_layer_item_units for delete
   to authenticated
   using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_datalayer'));
+
+
+-- ---------------------------------------------------------------------
+-- 16.6c DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Kun egne rækker i aktiv org; read_datalayer er nok (en favorit ændrer
+-- ikke data). Insert kræver desuden, at målet tilhører egen org. Ingen
+-- update-policy - toggle = insert/delete.
+-- ---------------------------------------------------------------------
+create policy "Se egne datalager-favoritter"
+  on public.data_layer_favorites for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
+
+create policy "Opret egne datalager-favoritter"
+  on public.data_layer_favorites for insert
+  to authenticated
+  with check (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+    and (category_id is null or exists (
+      select 1 from public.data_layer_categories c
+      where c.id = category_id and c.organisation_id = public.auth_profile_org()
+    ))
+    and (location_id is null or exists (
+      select 1 from public.locations l
+      where l.id = location_id and l.organisation_id = public.auth_profile_org()
+    ))
+  );
+
+create policy "Slet egne datalager-favoritter"
+  on public.data_layer_favorites for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
 
 
 -- ---------------------------------------------------------------------

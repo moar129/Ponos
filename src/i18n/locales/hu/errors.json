@@ -57,7 +57,8 @@
     "deleteItem": "Nincs jogosultsága a tétel törléséhez.",
     "createLocation": "Nincs jogosultsága a helyszín létrehozásához.",
     "updateLocation": "Nincs jogosultsága a helyszín szerkesztéséhez.",
-    "deleteLocation": "Nincs jogosultsága a helyszín törléséhez."
+    "deleteLocation": "Nincs jogosultsága a helyszín törléséhez.",
+    "favoriteDatalayer": "Nincs jogosultsága az adatréteg kedvenceinek módosításához."
   },
   "db": {
     "NOT_LOGGED_IN": "Be kell jelentkeznie.",

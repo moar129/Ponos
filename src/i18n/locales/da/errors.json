@@ -65,7 +65,8 @@
     "reserveItemUnits": "Du har ikke rettigheder til at reservere materialer på opgaver.",
     "releaseItemUnits": "Du har ikke rettigheder til at frigive materialer på opgaver.",
     "resolveTaskMaterialUnits": "Du har ikke rettigheder til at afrapportere materialer på opgaver.",
-    "changeTaskMaterialStatus": "Du har ikke rettigheder til at ændre status på et materiale."
+    "changeTaskMaterialStatus": "Du har ikke rettigheder til at ændre status på et materiale.",
+    "favoriteDatalayer": "Du har ikke rettigheder til at ændre favoritter i datalageret."
   },
   "db": {
     "NOT_LOGGED_IN": "Du skal være logget ind.",

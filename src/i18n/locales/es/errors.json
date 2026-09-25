@@ -57,7 +57,8 @@
     "deleteItem": "No tienes permiso para eliminar el artículo.",
     "createLocation": "No tienes permiso para crear la ubicación.",
     "updateLocation": "No tienes permiso para editar la ubicación.",
-    "deleteLocation": "No tienes permiso para eliminar la ubicación."
+    "deleteLocation": "No tienes permiso para eliminar la ubicación.",
+    "favoriteDatalayer": "No tienes permiso para cambiar los favoritos de la capa de datos."
   },
   "db": {
     "NOT_LOGGED_IN": "Debe iniciar sesión.",
