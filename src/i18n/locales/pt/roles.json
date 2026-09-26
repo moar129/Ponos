@@ -17,7 +17,8 @@
     "delete": "Eliminar",
     "assign": "Atribuir",
     "approve": "Aprovar",
-    "reject": "Rejeitar"
+    "reject": "Rejeitar",
+    "viewAll": "Ver todas as salas"
   },
   "privilege": {
     "admin": "Administração completa (pode fazer tudo)"
@@ -89,5 +90,23 @@
     "rejectedCount_one": "Rejeitado {{count}} vez",
     "rejectedCount_many": "Rejeitado {{count}} vezes",
     "rejectedCount_other": "Rejeitado {{count}} vezes"
+  },
+  "quickCreate": {
+    "heading": "Criar função",
+    "leaderSuffix": "Líder",
+    "templateLabel": "Modelo",
+    "template": {
+      "participant": "Participante",
+      "leader": "Líder",
+      "copy": "Copiar de"
+    },
+    "templateHint": {
+      "participant": "Pode ver tarefas e notícias.",
+      "leader": "Participante + criar, editar, atribuir e aprovar tarefas."
+    },
+    "chooseRole": "Escolher função",
+    "customize": "Personalizar permissões ({{selected}} selecionadas)",
+    "notOwned": "Não tem esta permissão e por isso não a pode atribuir.",
+    "assignHint": "Lembre-se de atribuir a função aos membros em Membros."
   }
 }

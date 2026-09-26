@@ -57,7 +57,8 @@
     "deleteItem": "Nemáte oprávnění smazat položku.",
     "createLocation": "Nemáte oprávnění vytvořit místo.",
     "updateLocation": "Nemáte oprávnění upravit místo.",
-    "deleteLocation": "Nemáte oprávnění smazat místo."
+    "deleteLocation": "Nemáte oprávnění smazat místo.",
+    "favoriteDatalayer": "Nemáte oprávnění měnit oblíbené v datové vrstvě."
   },
   "db": {
     "NOT_LOGGED_IN": "Musíte být přihlášeni.",
@@ -135,6 +136,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Sekce nemůže sama mít podřízená místa.",
     "LOCATION_SECTION_ORG_MISMATCH": "Sekce musí patřit do stejné organizace jako sklad.",
     "REJECTION_REASON_REQUIRED": "Musíte napsat odůvodnění zamítnutí.",
-    "REJECTION_REASON_TOO_LONG": "Odůvodnění může mít nejvýše 500 znaků."
+    "REJECTION_REASON_TOO_LONG": "Odůvodnění může mít nejvýše 500 znaků.",
+    "NO_PRIV_CREATE_ROLES": "Nemáte oprávnění vytvářet role.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Můžete udělit jen oprávnění, která sami máte.",
+    "ROLE_NAME_REQUIRED": "Role musí mít název."
   }
 }

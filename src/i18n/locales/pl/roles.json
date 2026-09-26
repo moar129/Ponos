@@ -17,7 +17,8 @@
     "delete": "Usuwanie",
     "assign": "Przydzielanie",
     "approve": "Zatwierdzanie",
-    "reject": "Odrzucanie"
+    "reject": "Odrzucanie",
+    "viewAll": "Widzieć wszystkie pokoje"
   },
   "privilege": {
     "admin": "Pełna administracja (może wszystko)"
@@ -90,5 +91,23 @@
     "rejectedCount_few": "Odrzucono {{count}} razy",
     "rejectedCount_many": "Odrzucono {{count}} razy",
     "rejectedCount_other": "Odrzucono {{count}} razy"
+  },
+  "quickCreate": {
+    "heading": "Utwórz rolę",
+    "leaderSuffix": "Lider",
+    "templateLabel": "Szablon",
+    "template": {
+      "participant": "Uczestnik",
+      "leader": "Lider",
+      "copy": "Kopiuj z"
+    },
+    "templateHint": {
+      "participant": "Widzi zadania i aktualności.",
+      "leader": "Uczestnik + tworzenie, edycja, przydzielanie i zatwierdzanie zadań."
+    },
+    "chooseRole": "Wybierz rolę",
+    "customize": "Dostosuj uprawnienia (wybrano: {{selected}})",
+    "notOwned": "Nie masz tego uprawnienia, więc nie możesz go nadać.",
+    "assignHint": "Pamiętaj, aby przypisać rolę członkom w zakładce Członkowie."
   }
 }

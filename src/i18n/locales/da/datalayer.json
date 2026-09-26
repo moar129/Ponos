@@ -250,5 +250,11 @@
   "quantityLabel": "Antal:",
   "categoryIdValue": "Kategori ID: {{id}}",
   "quantityValue": "Antal: {{count}}",
-  "itemCountParen": "({{count}} items)"
+  "itemCountParen": "({{count}} items)",
+  "favorites": {
+    "title": "Favoritter",
+    "add": "Tilføj til favoritter",
+    "remove": "Fjern fra favoritter",
+    "toggleFailed": "Kunne ikke opdatere favorit."
+  }
 }

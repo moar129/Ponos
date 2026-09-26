@@ -17,7 +17,8 @@
     "delete": "Radera",
     "assign": "Tilldela",
     "approve": "Godkänn",
-    "reject": "Avslå"
+    "reject": "Avslå",
+    "viewAll": "Se alla rum"
   },
   "privilege": {
     "admin": "Fullständig administratör (kan allt)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Skriv varför färdiganmälan avvisas - meddelandet skickas till de anmälda.",
     "rejectedCount_one": "Avvisad {{count}} gång",
     "rejectedCount_other": "Avvisad {{count}} gånger"
+  },
+  "quickCreate": {
+    "heading": "Skapa roll",
+    "leaderSuffix": "Ledare",
+    "templateLabel": "Mall",
+    "template": {
+      "participant": "Deltagare",
+      "leader": "Ledare",
+      "copy": "Kopiera från"
+    },
+    "templateHint": {
+      "participant": "Kan se uppgifter och nyheter.",
+      "leader": "Deltagare + skapa, redigera, tilldela och godkänna uppgifter."
+    },
+    "chooseRole": "Välj roll",
+    "customize": "Anpassa behörigheter ({{selected}} valda)",
+    "notOwned": "Du har inte själv denna behörighet och kan därför inte ge den.",
+    "assignHint": "Kom ihåg att tilldela rollen till medlemmar under Medlemmar."
   }
 }

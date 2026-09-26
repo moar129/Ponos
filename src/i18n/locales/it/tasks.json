@@ -28,7 +28,8 @@
     "saveRoom": "Salva la sala",
     "loading": "Caricamento delle attività...",
     "noAccess": "Non hai accesso alle attività di questa organizzazione.",
-    "heading": "Attività",
+    "heading": "Tutte le attività",
+    "roomHeading": "Attività di {{room}}",
     "createRoom": "Crea sala",
     "availableHeading": "Attività disponibili",
     "inProgressHeading": "In corso"
@@ -51,7 +52,14 @@
     "edit": "Modifica sala",
     "deleteOne": "Elimina una sala",
     "choose": "Scegli la sala",
-    "noRoom": "Senza sala"
+    "noRoom": "Senza sala",
+    "rolesLabel": "Accesso per ruoli",
+    "rolesHint": "Nessuno selezionato = tutti possono vedere la stanza.",
+    "rolesLoading": "Caricamento ruoli...",
+    "rolesLoadFailed": "Impossibile caricare i ruoli.",
+    "noRoles": "L'organizzazione non ha ruoli.",
+    "restrictedTo": "Solo per: {{roles}}",
+    "newRole": "Nuovo ruolo"
   },
   "create": {
     "heading": "Crea attività",
@@ -129,7 +137,7 @@
   },
   "editRoom": {
     "heading": "Modifica sala",
-    "intro": "Scegli una sala e modificane il nome.",
+    "intro": "Scegli una stanza e modifica nome e accesso.",
     "namePlaceholder": "Scrivi il nome della sala",
     "failed": "Impossibile modificare la sala. Riprova."
   }

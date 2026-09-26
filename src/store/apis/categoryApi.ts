@@ -39,7 +39,7 @@ function flattenCategoryIds(cat: DataLayerCat): { type: 'Category' | 'Item'; id:
   ];
 }
 
-async function getAuthenticatedOrganisationId(): Promise<string> {
+export async function getAuthenticatedOrganisationId(): Promise<string> {
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) {
     throw new Error('errors:loginRequiredForAction');

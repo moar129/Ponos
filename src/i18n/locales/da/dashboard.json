@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Indlæser afsluttede opgaver...",
     "empty": "Ingen opgaver er markeret som afsluttede endnu.",
-    "searchPlaceholder": "Søg efter titel eller beskrivelse...",
+    "searchPlaceholder": "Søg efter titel, rum eller person...",
     "allPriorities": "Alle prioriteter",
     "noMatch": "Ingen opgaver matcher søgningen/filteret.",
     "noDescription": "Ingen beskrivelse.",
@@ -74,7 +74,18 @@
     "noMaterials": "Ingen materialer",
     "edit": "Rediger",
     "reopen": "Genåbn",
-    "reopening": "Genåbner..."
+    "reopening": "Genåbner...",
+    "sortNewest": "Nyeste afsluttede først",
+    "sortOldest": "Ældst afsluttede først",
+    "sortDeadline": "Tidligste deadline først",
+    "from": "Færdig fra",
+    "to": "til",
+    "presetToday": "I dag",
+    "preset7": "7 dage",
+    "preset30": "30 dage",
+    "resetFilters": "Nulstil",
+    "finishedOn": "Færdig {{date}}",
+    "showing": "Viser {{count}} af {{total}}"
   },
   "statistics": {
     "noOrganisation": "Du har ingen aktiv organisation endnu, så der er ingen statistik at vise.",

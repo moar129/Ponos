@@ -186,5 +186,11 @@
   "quantityLabel": "Aantal:",
   "categoryIdValue": "Categorie-ID: {{id}}",
   "quantityValue": "Aantal: {{count}}",
-  "itemCountParen": "({{count}} artikelen)"
+  "itemCountParen": "({{count}} artikelen)",
+  "favorites": {
+    "title": "Favorieten",
+    "add": "Toevoegen aan favorieten",
+    "remove": "Verwijderen uit favorieten",
+    "toggleFailed": "Kon favoriet niet bijwerken."
+  }
 }

@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Befejezett feladatok betöltése...",
     "empty": "Még egyetlen feladatot sem jelöltek befejezettként.",
-    "searchPlaceholder": "Keresés cím vagy leírás alapján...",
+    "searchPlaceholder": "Keresés cím, helyiség vagy személy alapján...",
     "allPriorities": "Összes prioritás",
     "noMatch": "Egyetlen feladat sem felel meg a keresésnek vagy a szűrőnek.",
     "noDescription": "Nincs leírás.",
@@ -74,7 +74,18 @@
     "noMaterials": "Nincsenek anyagok",
     "edit": "Szerkesztés",
     "reopen": "Újranyitás",
-    "reopening": "Újranyitás..."
+    "reopening": "Újranyitás...",
+    "sortNewest": "Legutóbb befejezettek elöl",
+    "sortOldest": "Legrégebben befejezettek elöl",
+    "sortDeadline": "Legkorábbi határidő elöl",
+    "from": "Befejezve ettől",
+    "to": "eddig",
+    "presetToday": "Ma",
+    "preset7": "7 nap",
+    "preset30": "30 nap",
+    "resetFilters": "Visszaállítás",
+    "finishedOn": "Befejezve: {{date}}",
+    "showing": "{{count}} / {{total}}"
   },
   "statistics": {
     "noOrganisation": "Még nincs aktív szervezete, így nincs megjeleníthető statisztika.",

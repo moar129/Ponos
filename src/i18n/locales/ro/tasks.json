@@ -28,7 +28,8 @@
     "saveRoom": "Salvează încăperea",
     "loading": "Se încarcă sarcinile...",
     "noAccess": "Nu aveți acces la sarcinile acestei organizații.",
-    "heading": "Sarcini",
+    "heading": "Toate sarcinile",
+    "roomHeading": "Sarcini – {{room}}",
     "createRoom": "Creează încăpere",
     "availableHeading": "Sarcini disponibile",
     "inProgressHeading": "În lucru"
@@ -51,7 +52,14 @@
     "edit": "Editează încăperea",
     "deleteOne": "Șterge încăperea",
     "choose": "Alegeți o încăpere",
-    "noRoom": "Fără încăpere"
+    "noRoom": "Fără încăpere",
+    "rolesLabel": "Acces pentru roluri",
+    "rolesHint": "Niciunul selectat = toată lumea vede camera.",
+    "rolesLoading": "Se încarcă rolurile...",
+    "rolesLoadFailed": "Rolurile nu au putut fi încărcate.",
+    "noRoles": "Organizația nu are roluri.",
+    "restrictedTo": "Doar pentru: {{roles}}",
+    "newRole": "Rol nou"
   },
   "create": {
     "heading": "Creează sarcină",
@@ -129,7 +137,7 @@
   },
   "editRoom": {
     "heading": "Editează încăperea",
-    "intro": "Alegeți o încăpere și editați-i numele.",
+    "intro": "Alegeți o cameră și editați numele și accesul.",
     "namePlaceholder": "Introduceți numele încăperii",
     "failed": "Încăperea nu a putut fi editată. Încercați din nou."
   }

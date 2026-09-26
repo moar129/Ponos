@@ -17,7 +17,8 @@
     "delete": "Verwijderen",
     "assign": "Toewijzen",
     "approve": "Goedkeuren",
-    "reject": "Afwijzen"
+    "reject": "Afwijzen",
+    "viewAll": "Alle ruimtes zien"
   },
   "privilege": {
     "admin": "Volledig beheer (kan alles)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Schrijf waarom de gereedmelding wordt afgewezen - het bericht gaat naar de toegewezenen.",
     "rejectedCount_one": "{{count}} keer afgewezen",
     "rejectedCount_other": "{{count}} keer afgewezen"
+  },
+  "quickCreate": {
+    "heading": "Rol aanmaken",
+    "leaderSuffix": "Leider",
+    "templateLabel": "Sjabloon",
+    "template": {
+      "participant": "Deelnemer",
+      "leader": "Leider",
+      "copy": "Kopiëren van"
+    },
+    "templateHint": {
+      "participant": "Kan taken en nieuws zien.",
+      "leader": "Deelnemer + taken aanmaken, bewerken, toewijzen en goedkeuren."
+    },
+    "chooseRole": "Kies rol",
+    "customize": "Rechten aanpassen ({{selected}} geselecteerd)",
+    "notOwned": "U hebt dit recht zelf niet en kunt het daarom niet toekennen.",
+    "assignHint": "Vergeet niet de rol toe te wijzen aan leden onder Leden."
   }
 }

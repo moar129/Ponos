@@ -17,7 +17,8 @@
     "delete": "Elimina",
     "assign": "Assegna",
     "approve": "Approva",
-    "reject": "Rifiuta"
+    "reject": "Rifiuta",
+    "viewAll": "Vedere tutte le stanze"
   },
   "privilege": {
     "admin": "Amministrazione completa (può fare tutto)"
@@ -89,5 +90,23 @@
     "rejectedCount_one": "Rifiutato {{count}} volta",
     "rejectedCount_many": "Rifiutato {{count}} volte",
     "rejectedCount_other": "Rifiutato {{count}} volte"
+  },
+  "quickCreate": {
+    "heading": "Crea ruolo",
+    "leaderSuffix": "Responsabile",
+    "templateLabel": "Modello",
+    "template": {
+      "participant": "Partecipante",
+      "leader": "Responsabile",
+      "copy": "Copia da"
+    },
+    "templateHint": {
+      "participant": "Può vedere attività e notizie.",
+      "leader": "Partecipante + creare, modificare, assegnare e approvare attività."
+    },
+    "chooseRole": "Scegli ruolo",
+    "customize": "Personalizza permessi ({{selected}} selezionati)",
+    "notOwned": "Non hai questo permesso e quindi non puoi assegnarlo.",
+    "assignHint": "Ricorda di assegnare il ruolo ai membri in Membri."
   }
 }

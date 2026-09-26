@@ -57,7 +57,8 @@
     "deleteItem": "Du har inte behörighet att radera artikeln.",
     "createLocation": "Du har inte behörighet att skapa platsen.",
     "updateLocation": "Du har inte behörighet att redigera platsen.",
-    "deleteLocation": "Du har inte behörighet att radera platsen."
+    "deleteLocation": "Du har inte behörighet att radera platsen.",
+    "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret."
   },
   "db": {
     "NOT_LOGGED_IN": "Du måste vara inloggad.",
@@ -135,6 +136,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "En sektion kan inte själv ha underplatser.",
     "LOCATION_SECTION_ORG_MISMATCH": "Sektionen måste tillhöra samma organisation som lagret.",
     "REJECTION_REASON_REQUIRED": "Du måste skriva en motivering för avvisningen.",
-    "REJECTION_REASON_TOO_LONG": "Motiveringen får vara högst 500 tecken."
+    "REJECTION_REASON_TOO_LONG": "Motiveringen får vara högst 500 tecken.",
+    "NO_PRIV_CREATE_ROLES": "Du har inte behörighet att skapa roller.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Du kan bara ge behörigheter som du själv har.",
+    "ROLE_NAME_REQUIRED": "Rollen måste ha ett namn."
   }
 }

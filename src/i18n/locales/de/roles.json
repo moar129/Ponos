@@ -17,7 +17,8 @@
     "delete": "Löschen",
     "assign": "Zuweisen",
     "approve": "Freigeben",
-    "reject": "Ablehnen"
+    "reject": "Ablehnen",
+    "viewAll": "Alle Räume sehen"
   },
   "privilege": {
     "admin": "Vollständige Administration (kann alles)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Schreiben Sie, warum die Fertigmeldung abgelehnt wird - die Nachricht geht an die Zugewiesenen.",
     "rejectedCount_one": "{{count}}-mal abgelehnt",
     "rejectedCount_other": "{{count}}-mal abgelehnt"
+  },
+  "quickCreate": {
+    "heading": "Rolle erstellen",
+    "leaderSuffix": "Leitung",
+    "templateLabel": "Vorlage",
+    "template": {
+      "participant": "Teilnehmer",
+      "leader": "Leitung",
+      "copy": "Kopieren von"
+    },
+    "templateHint": {
+      "participant": "Kann Aufgaben und Neuigkeiten sehen.",
+      "leader": "Teilnehmer + Aufgaben erstellen, bearbeiten, zuweisen und genehmigen."
+    },
+    "chooseRole": "Rolle wählen",
+    "customize": "Berechtigungen anpassen ({{selected}} ausgewählt)",
+    "notOwned": "Sie haben diese Berechtigung selbst nicht und können sie daher nicht vergeben.",
+    "assignHint": "Denken Sie daran, die Rolle unter Mitglieder zuzuweisen."
   }
 }

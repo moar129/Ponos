@@ -192,5 +192,11 @@
   "quantityLabel": "Ilość:",
   "categoryIdValue": "ID kategorii: {{id}}",
   "quantityValue": "Ilość: {{count}}",
-  "itemCountParen": "({{count}} elementów)"
+  "itemCountParen": "({{count}} elementów)",
+  "favorites": {
+    "title": "Ulubione",
+    "add": "Dodaj do ulubionych",
+    "remove": "Usuń z ulubionych",
+    "toggleFailed": "Nie udało się zaktualizować ulubionych."
+  }
 }

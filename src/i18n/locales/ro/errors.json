@@ -57,7 +57,8 @@
     "deleteItem": "Nu aveți dreptul de a șterge articolul.",
     "createLocation": "Nu aveți dreptul de a crea locația.",
     "updateLocation": "Nu aveți dreptul de a edita locația.",
-    "deleteLocation": "Nu aveți dreptul de a șterge locația."
+    "deleteLocation": "Nu aveți dreptul de a șterge locația.",
+    "favoriteDatalayer": "Nu aveți dreptul de a modifica favoritele din stratul de date."
   },
   "db": {
     "NOT_LOGGED_IN": "Trebuie să fiți autentificat.",
@@ -135,6 +136,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "O secțiune nu poate avea ea însăși sublocații.",
     "LOCATION_SECTION_ORG_MISMATCH": "Secțiunea trebuie să aparțină aceleiași organizații ca depozitul.",
     "REJECTION_REASON_REQUIRED": "Trebuie să scrii un motiv pentru respingere.",
-    "REJECTION_REASON_TOO_LONG": "Motivul poate avea cel mult 500 de caractere."
+    "REJECTION_REASON_TOO_LONG": "Motivul poate avea cel mult 500 de caractere.",
+    "NO_PRIV_CREATE_ROLES": "Nu aveți dreptul de a crea roluri.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Puteți acorda doar drepturile pe care le aveți.",
+    "ROLE_NAME_REQUIRED": "Rolul trebuie să aibă un nume."
   }
 }

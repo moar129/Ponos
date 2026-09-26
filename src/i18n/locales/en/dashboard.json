@@ -60,7 +60,7 @@
   "completedTasks": {
     "loading": "Loading completed tasks...",
     "empty": "No tasks have been marked as completed yet.",
-    "searchPlaceholder": "Search by title or description...",
+    "searchPlaceholder": "Search by title, room or person...",
     "allPriorities": "All priorities",
     "noMatch": "No tasks match the search or filter.",
     "noDescription": "No description.",
@@ -74,7 +74,18 @@
     "noMaterials": "No materials",
     "edit": "Edit",
     "reopen": "Reopen",
-    "reopening": "Reopening..."
+    "reopening": "Reopening...",
+    "sortNewest": "Recently completed first",
+    "sortOldest": "Oldest completed first",
+    "sortDeadline": "Earliest deadline first",
+    "from": "Finished from",
+    "to": "to",
+    "presetToday": "Today",
+    "preset7": "7 days",
+    "preset30": "30 days",
+    "resetFilters": "Reset",
+    "finishedOn": "Finished {{date}}",
+    "showing": "Showing {{count}} of {{total}}"
   },
   "statistics": {
     "noOrganisation": "You do not have an active organisation yet, so there are no statistics to show.",

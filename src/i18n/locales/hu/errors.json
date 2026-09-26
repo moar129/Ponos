@@ -57,7 +57,8 @@
     "deleteItem": "Nincs jogosultsága a tétel törléséhez.",
     "createLocation": "Nincs jogosultsága a helyszín létrehozásához.",
     "updateLocation": "Nincs jogosultsága a helyszín szerkesztéséhez.",
-    "deleteLocation": "Nincs jogosultsága a helyszín törléséhez."
+    "deleteLocation": "Nincs jogosultsága a helyszín törléséhez.",
+    "favoriteDatalayer": "Nincs jogosultsága az adatréteg kedvenceinek módosításához."
   },
   "db": {
     "NOT_LOGGED_IN": "Be kell jelentkeznie.",
@@ -135,6 +136,9 @@
     "LOCATION_SECTION_NO_CHILDREN": "Egy szekciónak nem lehetnek alhelyszínei.",
     "LOCATION_SECTION_ORG_MISMATCH": "A szekciónak ugyanahhoz a szervezethez kell tartoznia, mint a raktárnak.",
     "REJECTION_REASON_REQUIRED": "Meg kell adnia az elutasítás indoklását.",
-    "REJECTION_REASON_TOO_LONG": "Az indoklás legfeljebb 500 karakter lehet."
+    "REJECTION_REASON_TOO_LONG": "Az indoklás legfeljebb 500 karakter lehet.",
+    "NO_PRIV_CREATE_ROLES": "Nincs jogosultsága szerepkörök létrehozásához.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Csak olyan jogosultságot adhat, amellyel Ön is rendelkezik.",
+    "ROLE_NAME_REQUIRED": "A szerepkörnek nevet kell adni."
   }
 }

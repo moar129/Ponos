@@ -17,7 +17,8 @@
     "delete": "Poista",
     "assign": "Määritä",
     "approve": "Hyväksy",
-    "reject": "Hylkää"
+    "reject": "Hylkää",
+    "viewAll": "Nähdä kaikki huoneet"
   },
   "privilege": {
     "admin": "Täysi ylläpito (voi tehdä kaiken)"
@@ -88,5 +89,23 @@
     "rejectReasonPlaceholder": "Kirjoita, miksi valmisilmoitus hylätään - viesti lähetetään osallistujille.",
     "rejectedCount_one": "Hylätty {{count}} kerran",
     "rejectedCount_other": "Hylätty {{count}} kertaa"
+  },
+  "quickCreate": {
+    "heading": "Luo rooli",
+    "leaderSuffix": "Johtaja",
+    "templateLabel": "Malli",
+    "template": {
+      "participant": "Osallistuja",
+      "leader": "Johtaja",
+      "copy": "Kopioi roolista"
+    },
+    "templateHint": {
+      "participant": "Näkee tehtävät ja uutiset.",
+      "leader": "Osallistuja + tehtävien luonti, muokkaus, osoitus ja hyväksyntä."
+    },
+    "chooseRole": "Valitse rooli",
+    "customize": "Mukauta oikeuksia (valittu: {{selected}})",
+    "notOwned": "Sinulla ei itselläsi ole tätä oikeutta, joten et voi antaa sitä.",
+    "assignHint": "Muista antaa rooli jäsenille kohdassa Jäsenet."
   }
 }

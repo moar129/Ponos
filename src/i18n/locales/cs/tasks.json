@@ -28,7 +28,8 @@
     "saveRoom": "Uložit místnost",
     "loading": "Načítání úkolů...",
     "noAccess": "Nemáte přístup k úkolům této organizace.",
-    "heading": "Úkoly",
+    "heading": "Všechny úkoly",
+    "roomHeading": "Úkoly – {{room}}",
     "createRoom": "Vytvořit místnost",
     "availableHeading": "Dostupné úkoly",
     "inProgressHeading": "Probíhá"
@@ -51,7 +52,14 @@
     "edit": "Upravit místnost",
     "deleteOne": "Smazat místnost",
     "choose": "Vyberte místnost",
-    "noRoom": "Bez místnosti"
+    "noRoom": "Bez místnosti",
+    "rolesLabel": "Přístup pro role",
+    "rolesHint": "Nic nevybráno = místnost vidí všichni.",
+    "rolesLoading": "Načítání rolí...",
+    "rolesLoadFailed": "Role se nepodařilo načíst.",
+    "noRoles": "Organizace nemá žádné role.",
+    "restrictedTo": "Pouze pro: {{roles}}",
+    "newRole": "Nová role"
   },
   "create": {
     "heading": "Vytvořit úkol",
@@ -130,7 +138,7 @@
   },
   "editRoom": {
     "heading": "Upravit místnost",
-    "intro": "Vyberte místnost a upravte její název.",
+    "intro": "Vyberte místnost a upravte název a přístup.",
     "namePlaceholder": "Zadejte název místnosti",
     "failed": "Místnost se nepodařilo upravit. Zkuste to znovu."
   }

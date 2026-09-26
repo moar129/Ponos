@@ -380,6 +380,28 @@ grant select on public.data_layer_item_status_counts to authenticated;
 
 
 -- ---------------------------------------------------------------------
+-- 9.1 DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Personlige stjernemarkeringer på /datalager: præcis én kategori ELLER
+-- ét lager/sektion pr. række. Undergrupper gemmes ikke - frontend viser
+-- dem foldbart under favoritten. Cascade fjerner favoritten, når målet,
+-- brugeren eller organisationen slettes.
+-- ---------------------------------------------------------------------
+create table public.data_layer_favorites (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  category_id      uuid references public.data_layer_categories(id) on delete cascade,
+  location_id      uuid references public.locations(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  constraint data_layer_favorites_one_target check (num_nonnulls(category_id, location_id) = 1),
+  constraint data_layer_favorites_user_category_key unique (user_id, category_id),
+  constraint data_layer_favorites_user_location_key unique (user_id, location_id)
+);
+
+create index idx_data_layer_favorites_user_org on public.data_layer_favorites (user_id, organisation_id);
+
+
+-- ---------------------------------------------------------------------
 -- 9.5 TASK ROOM (Studerende 3's tilføjelse)
 -- Dokumenteret her fra DB-eksport 2026-09-11 - IKKE oprettet eller
 -- ændret af Studerende 1. Tabellen stod indtil da slet ikke i denne fil,
@@ -389,22 +411,29 @@ grant select on public.data_layer_item_status_counts to authenticated;
 -- (tasks.room_id, afsnit 10). Placeret her - FØR tasks - fordi tasks'
 -- FK peger på den.
 --
--- required_role_id er Studerende 3's eget rolle-gate-koncept på
--- rum-niveau. Kolonnen findes i skemaet og i src/types/Task/Task.ts, men
--- bruges IKKE af nogen query eller UI endnu. Den overlapper konceptuelt
--- med US-63's planlagte manage_tasks-privilegie (to forskellige
--- adgangsmodeller) - se docs/migrations/us-63-tasks-write-privileges.sql,
--- spørgsmål 3.
+-- Rolle-begrænsning (2026-09-25): et rum kan begrænses til en eller
+-- flere roller via task_room_roles. Ingen rækker = åbent for alle med
+-- read_tasks. Se can_access_task_room (§15.22) og policies §16.7/16.7b.
+-- Erstattede den ubrugte enkelt-rolle-kolonne required_role_id (droppet).
 -- ---------------------------------------------------------------------
 create table public.task_rooms (
   id                uuid primary key default gen_random_uuid(),
   organisation_id   uuid not null references public.organisations(id) on delete cascade,
   name              text not null,
-  required_role_id  uuid references public.roles(id) on delete set null,
   created_at        timestamptz not null default now()
 );
 
 create index idx_task_rooms_org on public.task_rooms (organisation_id);
+
+-- Hvilke roller har adgang til et rum. Slettes en rolle, cascader den ud;
+-- står rummet derefter uden roller, bliver det åbent (bevidst accepteret).
+create table public.task_room_roles (
+  room_id  uuid not null references public.task_rooms(id) on delete cascade,
+  role_id  uuid not null references public.roles(id) on delete cascade,
+  primary key (room_id, role_id)
+);
+
+create index idx_task_room_roles_role on public.task_room_roles (role_id);
 
 
 -- ---------------------------------------------------------------------
@@ -3066,6 +3095,183 @@ end;
 $$;
 
 
+-- ---------------------------------------------------------------------
+-- 15.22 (2026-09-25): ROLLE-BEGRÆNSEDE OPGAVERUM
+-- can_access_task_room: true hvis rummet er null, kalderen har
+-- view_all_task_rooms/admin, rummet ingen roller har, eller kalderens
+-- rolle i den aktive org er blandt rummets roller. is_task_assignee:
+-- tilmeldte ser altid egne opgaver. Begge security definer, så tasks-
+-- policyen ikke rekursivt rammer task_assignees' policy (som slår op i
+-- tasks). create_task_room/update_task_room er eneste skrivevej til
+-- task_room_roles (kun select-policy, §16.7b).
+-- ---------------------------------------------------------------------
+create or replace function public.can_access_task_room(p_room_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p_room_id is null
+    or public.has_privilege_or_admin('view_all_task_rooms')
+    or not exists (select 1 from public.task_room_roles where room_id = p_room_id)
+    or exists (
+      select 1
+      from public.task_room_roles trr
+      join public.memberships m on m.role_id = trr.role_id
+      join public.profiles pr on pr.id = m.user_id and pr.active_organisation_id = m.organisation_id
+      where trr.room_id = p_room_id and pr.id = auth.uid()
+    );
+$$;
+
+create or replace function public.is_task_assignee(p_task_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.task_assignees where task_id = p_task_id and user_id = auth.uid()
+  );
+$$;
+
+grant execute on function public.can_access_task_room(uuid) to authenticated;
+grant execute on function public.is_task_assignee(uuid) to authenticated;
+
+create or replace function public.create_task_room(p_name text, p_role_ids uuid[])
+returns public.task_rooms
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org  uuid := public.auth_profile_org();
+  v_room public.task_rooms;
+begin
+  if v_org is null or not public.has_privilege_or_admin('create_tasks') then
+    raise exception 'Du har ikke rettigheder til at oprette rum.' using errcode = '42501';
+  end if;
+
+  if coalesce(trim(p_name), '') = '' then
+    raise exception 'Rummet skal have et navn.';
+  end if;
+
+  if exists (
+    select 1 from unnest(coalesce(p_role_ids, '{}')) r(id)
+    where not exists (select 1 from public.roles where id = r.id and organisation_id = v_org)
+  ) then
+    raise exception 'En eller flere roller tilhører ikke organisationen.';
+  end if;
+
+  insert into public.task_rooms (organisation_id, name)
+  values (v_org, trim(p_name))
+  returning * into v_room;
+
+  insert into public.task_room_roles (room_id, role_id)
+  select distinct v_room.id, r.id from unnest(coalesce(p_role_ids, '{}')) r(id);
+
+  return v_room;
+end;
+$$;
+
+create or replace function public.update_task_room(p_room_id uuid, p_name text, p_role_ids uuid[])
+returns public.task_rooms
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org  uuid := public.auth_profile_org();
+  v_room public.task_rooms;
+begin
+  if v_org is null
+    or not public.has_privilege_or_admin('update_tasks')
+    or not public.can_access_task_room(p_room_id)
+    or not exists (select 1 from public.task_rooms where id = p_room_id and organisation_id = v_org)
+  then
+    raise exception 'Du har ikke rettigheder til at redigere rummet.' using errcode = '42501';
+  end if;
+
+  if coalesce(trim(p_name), '') = '' then
+    raise exception 'Rummet skal have et navn.';
+  end if;
+
+  if exists (
+    select 1 from unnest(coalesce(p_role_ids, '{}')) r(id)
+    where not exists (select 1 from public.roles where id = r.id and organisation_id = v_org)
+  ) then
+    raise exception 'En eller flere roller tilhører ikke organisationen.';
+  end if;
+
+  update public.task_rooms set name = trim(p_name)
+  where id = p_room_id
+  returning * into v_room;
+
+  delete from public.task_room_roles where room_id = p_room_id;
+
+  insert into public.task_room_roles (room_id, role_id)
+  select distinct p_room_id, r.id from unnest(coalesce(p_role_ids, '{}')) r(id);
+
+  return v_room;
+end;
+$$;
+
+grant execute on function public.create_task_room(text, uuid[]) to authenticated;
+grant execute on function public.update_task_room(uuid, text, uuid[]) to authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.23 (2026-09-25): HURTIG ROLLE-OPRETTELSE MED PRIVILEGIER
+-- Bruges af QuickCreateRoleModal.tsx (opret/rediger rum). Opretter rolle
+-- + privilegier atomisk. Kræver kun create_roles - en almindelig insert i
+-- privileges kræver update_roles (§16.4). Eskalerings-guard: man kan kun
+-- give privilegier, man selv har (admin: alle), og aldrig 'admin'.
+-- Dublet-navn giver 23505 via unique (organisation_id, name).
+-- ---------------------------------------------------------------------
+create or replace function public.create_role_with_privileges(p_name text, p_privilege_names text[])
+returns table (id uuid, name text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org     uuid := public.auth_profile_org();
+  v_role_id uuid;
+  v_name    text := trim(coalesce(p_name, ''));
+  v_priv    text;
+begin
+  if v_org is null or not public.has_privilege_or_admin('create_roles') then
+    raise exception 'Du har ikke rettigheder til at oprette roller.'
+      using errcode = '42501', hint = 'NO_PRIV_CREATE_ROLES';
+  end if;
+
+  if v_name = '' then
+    raise exception 'Rollen skal have et navn.' using hint = 'ROLE_NAME_REQUIRED';
+  end if;
+
+  foreach v_priv in array coalesce(p_privilege_names, '{}') loop
+    if v_priv = 'admin' or not (public.has_privilege('admin') or public.has_privilege(v_priv)) then
+      raise exception 'Du kan kun give privilegier, du selv har.'
+        using errcode = '42501', hint = 'NO_PRIV_GRANT_PRIVILEGE';
+    end if;
+  end loop;
+
+  -- Unik (organisation_id, name) giver 23505 ved dublet - mappes i roleApi.ts.
+  insert into public.roles (organisation_id, name)
+  values (v_org, v_name)
+  returning roles.id into v_role_id;
+
+  insert into public.privileges (role_id, name)
+  select distinct v_role_id, p from unnest(coalesce(p_privilege_names, '{}')) p;
+
+  return query select v_role_id, v_name;
+end;
+$$;
+
+grant execute on function public.create_role_with_privileges(text, text[]) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -3081,8 +3287,10 @@ alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.data_layer_item_units   enable row level security;
+alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
+alter table public.task_room_roles         enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_requests           enable row level security;
@@ -3455,6 +3663,48 @@ create policy "Slet item-enheder i egen organisation"
 
 
 -- ---------------------------------------------------------------------
+-- 16.6c DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Kun egne rækker i aktiv org; read_datalayer er nok (en favorit ændrer
+-- ikke data). Insert kræver desuden, at målet tilhører egen org. Ingen
+-- update-policy - toggle = insert/delete.
+-- ---------------------------------------------------------------------
+create policy "Se egne datalager-favoritter"
+  on public.data_layer_favorites for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
+
+create policy "Opret egne datalager-favoritter"
+  on public.data_layer_favorites for insert
+  to authenticated
+  with check (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+    and (category_id is null or exists (
+      select 1 from public.data_layer_categories c
+      where c.id = category_id and c.organisation_id = public.auth_profile_org()
+    ))
+    and (location_id is null or exists (
+      select 1 from public.locations l
+      where l.id = location_id and l.organisation_id = public.auth_profile_org()
+    ))
+  );
+
+create policy "Slet egne datalager-favoritter"
+  on public.data_layer_favorites for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
+
+
+-- ---------------------------------------------------------------------
 -- 16.7 TASKS / TASK_ASSIGNEES / TASK_PARTICIPANTS / TASK_MATERIALS
 -- (Studerende 3's domæne. Fase 3 trin 6 (2026-09-17, docs/migrations/
 -- fase3-tasks-privileges.sql): create/read/update/delete_tasks erstatter
@@ -3467,23 +3717,40 @@ create policy "Slet item-enheder i egen organisation"
 -- 2026-09-17, oprindeligt split på create_tasks/delete_tasks - se
 -- kommentaren ved task_assignees' insert/delete-policies nedenfor).
 -- "Medlem"-standardrollen (15.6b) har read_tasks som udgangspunkt (se
--- 15.8). task_rooms.required_role_id forbliver bevidst urørt/uafklaret.)
+-- 15.8). Rolle-begrænsede rum (2026-09-25): select kræver desuden
+-- can_access_task_room(room_id) eller is_task_assignee(id); insert/update
+-- kan ikke placere en opgave i et rum, man ikke har adgang til.)
 -- ---------------------------------------------------------------------
 create policy "Se opgaver i egen organisation"
   on public.tasks for select
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and (public.can_access_task_room(room_id) or public.is_task_assignee(id))
+  );
 
 create policy "Opret opgaver i egen organisation"
   on public.tasks for insert
   to authenticated
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('create_tasks')
+    and public.can_access_task_room(room_id)
+  );
 
 create policy "Rediger opgaver i egen organisation"
   on public.tasks for update
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+    and public.can_access_task_room(room_id)
+  );
 
 create policy "Slet opgaver i egen organisation"
   on public.tasks for delete
@@ -3652,28 +3919,47 @@ create policy "Opret completion request for egne tasks"
 -- DB-eksport ("Users can view/create task rooms in their organisation")
 -- er droppet samtidig med at "Medlemmer kan administrere ..." blev
 -- splittet op - ellers ville RLS-policies OR'es og gøre gatingen af
--- INSERT/SELECT virkningsløs.
+-- INSERT/SELECT virkningsløs. 2026-09-25: select/update/delete kræver
+-- desuden can_access_task_room(id) (§15.22).
 -- ---------------------------------------------------------------------
 create policy "Se task rooms i egen organisation"
   on public.task_rooms for select
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
-
-create policy "Opret task rooms i egen organisation"
-  on public.task_rooms for insert
-  to authenticated
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and public.can_access_task_room(id)
+  );
 
 create policy "Rediger task rooms i egen organisation"
   on public.task_rooms for update
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+    and public.can_access_task_room(id)
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+  );
 
 create policy "Slet task rooms i egen organisation"
   on public.task_rooms for delete
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('delete_tasks')
+    and public.can_access_task_room(id)
+  );
+
+-- task_room_roles: kun select. Skrivning sker udelukkende via
+-- create_task_room/update_task_room (§15.22, security definer) eller
+-- cascade - samme mønster som task_material_units (§16.7c).
+create policy "Se task_room_roles for rum i egen organisation"
+  on public.task_room_roles for select
+  to authenticated
+  using (room_id in (select id from public.task_rooms));
 
 
 -- ---------------------------------------------------------------------

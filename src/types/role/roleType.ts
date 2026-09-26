@@ -30,6 +30,18 @@ export interface CreateRoleInput {
     name: string
 }
 
+export interface CreateRoleWithPrivilegesInput {
+    name: string
+    privilegeNames: string[]
+}
+
+export interface QuickCreateRoleModalProps {
+    isOpen: boolean
+    onClose: () => void
+    onCreated: (role: Role) => void
+    suggestedName?: string
+}
+
 export interface UpdateRoleInput {
     roleId: string
     name: string
