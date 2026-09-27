@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
-import type { FavoriteStarButtonProps } from '../../../types/dataLayer/datalayerTypes';
+import type { FavoriteStarButtonProps } from '../../types/common/favoriteStarButtonType';
 
-// Delt af kategori- og lagertræet samt favoritlisten. En markeret favorit
-// er altid synlig; en tom stjerne følger trærækkens hover-regel (synlig på
-// touch, skjult bag hover fra lg).
+// Delt af datalagerets træer/favoritliste og opgavesidens rum-faner. En
+// markeret favorit er altid synlig; en tom stjerne følger rækkens
+// hover-regel (synlig på touch, skjult bag hover fra lg - forælder skal
+// have `group`).
 export function FavoriteStarButton({ isFavorite, onToggle, variant = 'row' }: FavoriteStarButtonProps) {
-  const { t } = useTranslation('datalayer');
+  const { t } = useTranslation('common');
   const label = isFavorite ? t('favorites.remove') : t('favorites.add');
   const isHeading = variant === 'heading';
 
