@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "Motiveringen får vara högst 500 tecken.",
     "NO_PRIV_CREATE_ROLES": "Du har inte behörighet att skapa roller.",
     "NO_PRIV_GRANT_PRIVILEGE": "Du kan bara ge behörigheter som du själv har.",
-    "ROLE_NAME_REQUIRED": "Rollen måste ha ett namn."
+    "ROLE_NAME_REQUIRED": "Rollen måste ha ett namn.",
+    "SYSTEM_GROUP_LOCKED": "Gruppen hanteras automatiskt av uppgiften/rummet och kan inte ändras manuellt.",
+    "INVALID_CHAT_CHOICE": "Ogiltigt val.",
+    "NOT_TASK_CHAT": "Konversationen är inte en uppgiftschatt.",
+    "TASK_NOT_COMPLETED": "Du kan välja först när uppgiften är avslutad.",
+    "ROOM_NOT_ACCESSIBLE": "Rummet finns inte, eller så har du inte åtkomst till det.",
+    "ROOM_NOT_ROLE_LOCKED": "Rummet är inte rollbegränsat och har ingen chatt.",
+    "CONVERSATION_CLOSED": "Chatten är stängd - endast läsning."
   }
 }

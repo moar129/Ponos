@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "De reden mag maximaal 500 tekens zijn.",
     "NO_PRIV_CREATE_ROLES": "U hebt geen rechten om rollen aan te maken.",
     "NO_PRIV_GRANT_PRIVILEGE": "U kunt alleen rechten toekennen die u zelf hebt.",
-    "ROLE_NAME_REQUIRED": "De rol moet een naam hebben."
+    "ROLE_NAME_REQUIRED": "De rol moet een naam hebben.",
+    "SYSTEM_GROUP_LOCKED": "Deze groep wordt automatisch beheerd door de taak/ruimte en kan niet handmatig worden gewijzigd.",
+    "INVALID_CHAT_CHOICE": "Ongeldige keuze.",
+    "NOT_TASK_CHAT": "Dit gesprek is geen taakchat.",
+    "TASK_NOT_COMPLETED": "Je kunt pas kiezen als de taak is afgerond.",
+    "ROOM_NOT_ACCESSIBLE": "De ruimte bestaat niet, of je hebt er geen toegang toe.",
+    "ROOM_NOT_ROLE_LOCKED": "De ruimte is niet rolbeperkt en heeft geen chat.",
+    "CONVERSATION_CLOSED": "De chat is gesloten - alleen lezen."
   }
 }

@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Nie udało się załadować ról.",
     "noRoles": "Organizacja nie ma ról.",
     "restrictedTo": "Tylko dla: {{roles}}",
-    "newRole": "Nowa rola"
+    "newRole": "Nowa rola",
+    "chat": "Czat pokoju"
   },
   "create": {
     "heading": "Utwórz zadanie",
@@ -111,7 +112,8 @@
     "addEmployeeShort": "+ Dodaj pracownika",
     "created": "Utworzone",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Zgłoszenie ukończenia odrzucone: {{reason}}"
+    "rejectedWithReason": "Zgłoszenie ukończenia odrzucone: {{reason}}",
+    "chat": "Czat"
   },
   "filter": {
     "show": "Pokaż filtr",

@@ -50,5 +50,25 @@
   "conversations": "Gesprekken",
   "seen": "Gezien",
   "noConversations": "Nog geen gesprekken. Vind een collega onder \"Alle contacten\" om er een te starten.",
-  "writeFirstTo": "Schrijf het eerste bericht aan {{name}}."
+  "writeFirstTo": "Schrijf het eerste bericht aan {{name}}.",
+  "system": {
+    "taskChatCreated": "Groep aangemaakt voor de taak",
+    "taskCompleted": "De taak is afgerond",
+    "taskReopened": "De taak is heropend",
+    "roomChatCreated": "Groep aangemaakt voor de ruimte",
+    "roomChatClosed": "De ruimte is niet meer rolbeperkt - de chat is gesloten",
+    "roomChatReopened": "De ruimte is weer rolbeperkt - de chat is heropend"
+  },
+  "systemChat": {
+    "taskChat": "Taakchat",
+    "roomChat": "Ruimtechat",
+    "goToTask": "Naar taak",
+    "goToRoom": "Naar ruimte",
+    "completedPrompt": "De taak is klaar. Wil je de chat behouden?",
+    "keep": "Actief houden",
+    "close": "Chat sluiten",
+    "closedByMe": "Je hebt de chat gesloten - alleen lezen.",
+    "reopen": "Heropenen",
+    "roomClosed": "De ruimte is niet meer rolbeperkt - de chat is alleen-lezen."
+  }
 }

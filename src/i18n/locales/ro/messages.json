@@ -51,5 +51,25 @@
   "conversations": "Conversații",
   "seen": "Văzut",
   "noConversations": "Încă nicio conversație. Găsiți un coleg la „Toate contactele” și începeți una.",
-  "writeFirstTo": "Scrieți primul mesaj către {{name}}."
+  "writeFirstTo": "Scrieți primul mesaj către {{name}}.",
+  "system": {
+    "taskChatCreated": "Grup creat pentru sarcină",
+    "taskCompleted": "Sarcina a fost finalizată",
+    "taskReopened": "Sarcina a fost redeschisă",
+    "roomChatCreated": "Grup creat pentru cameră",
+    "roomChatClosed": "Camera nu mai este restricționată pe roluri - chatul este închis",
+    "roomChatReopened": "Camera este din nou restricționată pe roluri - chatul a fost redeschis"
+  },
+  "systemChat": {
+    "taskChat": "Chat sarcină",
+    "roomChat": "Chat cameră",
+    "goToTask": "Mergi la sarcină",
+    "goToRoom": "Mergi la cameră",
+    "completedPrompt": "Sarcina este finalizată. Vrei să păstrezi chatul?",
+    "keep": "Păstrează activ",
+    "close": "Închide chatul",
+    "closedByMe": "Ai închis chatul - doar citire.",
+    "reopen": "Redeschide",
+    "roomClosed": "Camera nu mai este restricționată pe roluri - chatul este doar pentru citire."
+  }
 }

@@ -1,6 +1,7 @@
 // src/utils/notificationDisplay.ts
 import type { AppNotification, NotificationTypeGroup } from '../types/notification/notificationTypes'
 import type { DynamicTFunction } from '../i18n/config'
+import { systemMessageText } from './systemMessageDisplay'
 
 // Overskriften på en notifikation. Alle typer undtagen 'message' (opgaver og
 // 'news') oversættes via notifications:type.<type>. For opgave-typerne er notifications.title
@@ -32,6 +33,10 @@ export function notificationTitle(notification: AppNotification, t: DynamicTFunc
 export function notificationBody(notification: AppNotification, t: DynamicTFunction): string | null {
     if (notification.type === 'message' && notification.body === 'Denne besked er slettet') {
         return t('messages:messageDeleted')
+    }
+    // 'Opgaven er afsluttet' i en opgave-chat giver også en notifikation.
+    if (notification.type === 'message' && notification.body) {
+        return systemMessageText(notification.body, t)
     }
     return notification.body
 }

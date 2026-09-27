@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "Odůvodnění může mít nejvýše 500 znaků.",
     "NO_PRIV_CREATE_ROLES": "Nemáte oprávnění vytvářet role.",
     "NO_PRIV_GRANT_PRIVILEGE": "Můžete udělit jen oprávnění, která sami máte.",
-    "ROLE_NAME_REQUIRED": "Role musí mít název."
+    "ROLE_NAME_REQUIRED": "Role musí mít název.",
+    "SYSTEM_GROUP_LOCKED": "Tuto skupinu spravuje automaticky úkol/místnost a nelze ji ručně měnit.",
+    "INVALID_CHAT_CHOICE": "Neplatná volba.",
+    "NOT_TASK_CHAT": "Tato konverzace není chat úkolu.",
+    "TASK_NOT_COMPLETED": "Vybrat můžete až po dokončení úkolu.",
+    "ROOM_NOT_ACCESSIBLE": "Místnost neexistuje, nebo k ní nemáte přístup.",
+    "ROOM_NOT_ROLE_LOCKED": "Místnost není omezena rolemi a nemá chat.",
+    "CONVERSATION_CLOSED": "Chat je uzavřen - pouze ke čtení."
   }
 }

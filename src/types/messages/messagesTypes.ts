@@ -1,4 +1,5 @@
 import type { OrganisationMember } from '../../types/role/roleType';
+import type { ETaskStatus } from '../../types/Task/Task';
 
 export interface Message {
   id: string;
@@ -59,6 +60,25 @@ export interface ConversationSummary {
   lastMessageAt: string | null;
   lastMessageDeleted: boolean;
   unread: boolean; // NYT
+  // System-styrede grupper: koblet til en opgave eller et rolle-låst rum.
+  // Medlemskab synkes af databasen, så de kan ikke administreres manuelt.
+  taskId: string | null;
+  roomId: string | null;
+  taskStatus: ETaskStatus | null;
+  // Skrivebeskyttet for mig: rummet er ikke længere låst, eller jeg har
+  // selv lukket opgave-chatten efter opgaven blev afsluttet.
+  closed: boolean;
+  completionChoice: TaskChatChoice | null;
+}
+
+export type TaskChatChoice = 'keep' | 'close';
+
+export interface TaskChatButtonProps {
+  taskId: string;
+}
+
+export interface RoomChatButtonProps {
+  roomId: string;
 }
 
 export interface ConversationListComponentProps {

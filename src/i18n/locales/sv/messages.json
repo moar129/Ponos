@@ -50,5 +50,25 @@
   "conversations": "Konversationer",
   "seen": "Sett",
   "noConversations": "Inga konversationer ännu. Hitta en kollega under \"Alla kontakter\" för att starta en.",
-  "writeFirstTo": "Skriv det första meddelandet till {{name}}."
+  "writeFirstTo": "Skriv det första meddelandet till {{name}}.",
+  "system": {
+    "taskChatCreated": "Grupp skapad för uppgiften",
+    "taskCompleted": "Uppgiften är avslutad",
+    "taskReopened": "Uppgiften har öppnats igen",
+    "roomChatCreated": "Grupp skapad för rummet",
+    "roomChatClosed": "Rummet är inte längre rollbegränsat - chatten är stängd",
+    "roomChatReopened": "Rummet är rollbegränsat igen - chatten har öppnats igen"
+  },
+  "systemChat": {
+    "taskChat": "Uppgiftschatt",
+    "roomChat": "Rumschatt",
+    "goToTask": "Gå till uppgift",
+    "goToRoom": "Gå till rum",
+    "completedPrompt": "Uppgiften är klar. Vill du behålla chatten?",
+    "keep": "Håll aktiv",
+    "close": "Stäng chatt",
+    "closedByMe": "Du har stängt chatten - endast läsning.",
+    "reopen": "Öppna igen",
+    "roomClosed": "Rummet är inte längre rollbegränsat - chatten är skrivskyddad."
+  }
 }

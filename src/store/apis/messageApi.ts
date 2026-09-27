@@ -1,7 +1,8 @@
 // src/store/apis/messageApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { ConversationParticipant, ConversationSummary, Message } from '../../types/messages/messagesTypes'
+import type { ConversationParticipant, ConversationSummary, Message, TaskChatChoice } from '../../types/messages/messagesTypes'
+import type { ETaskStatus } from '../../types/Task/Task'
 import { mapDbError } from './apiError'
 
 export const messageApi = supabaseApi.injectEndpoints({
@@ -26,6 +27,11 @@ export const messageApi = supabaseApi.injectEndpoints({
                     last_message_at: string | null
                     last_message_deleted: boolean
                     unread: boolean // NYT
+                    task_id: string | null
+                    room_id: string | null
+                    task_status: ETaskStatus | null
+                    closed: boolean
+                    completion_choice: TaskChatChoice | null
                 }
 
                 return {
@@ -39,6 +45,11 @@ export const messageApi = supabaseApi.injectEndpoints({
                         lastMessageAt: row.last_message_at,
                         lastMessageDeleted: row.last_message_deleted,
                         unread: row.unread, // NYT
+                        taskId: row.task_id,
+                        roomId: row.room_id,
+                        taskStatus: row.task_status,
+                        closed: row.closed,
+                        completionChoice: row.completion_choice,
                     })),
                 }
             },
@@ -439,6 +450,45 @@ deleteMessage: builder.mutation<void, { messageId: string; conversationId: strin
 
     invalidatesTags: (_result, _error, { conversationId }) => [{ type: 'Message', id: conversationId }, 'Conversation'],
 }),
+
+        // Rum-chat for et rolle-låst rum. RPC'en tjekker can_access_task_room
+        // og tilføjer mig som deltager, hvis jeg mangler (fx nyt medlem eller
+        // ny rolle siden rummet blev oprettet), og returnerer samtalens id.
+        getOrJoinRoomConversation: builder.mutation<string, { roomId: string }>({
+            queryFn: async ({ roomId }) => {
+                const { data, error } = await supabase.rpc('get_or_join_room_conversation', {
+                    p_room_id: roomId,
+                })
+
+                if (error) {
+                    return { error: mapDbError(error) }
+                }
+
+                return { data: data as string }
+            },
+
+            invalidatesTags: ['Conversation'],
+        }),
+
+        // Mit eget valg i en afsluttet opgaves chat: behold aktiv eller luk
+        // (skrivebeskyttet for mig). Nulstilles af databasen, hvis opgaven
+        // genåbnes.
+        setTaskChatChoice: builder.mutation<void, { conversationId: string; choice: TaskChatChoice }>({
+            queryFn: async ({ conversationId, choice }) => {
+                const { error } = await supabase.rpc('set_task_chat_choice', {
+                    p_conversation_id: conversationId,
+                    p_choice: choice,
+                })
+
+                if (error) {
+                    return { error: mapDbError(error) }
+                }
+
+                return { data: undefined }
+            },
+
+            invalidatesTags: ['Conversation'],
+        }),
     }),
 })
 
@@ -455,4 +505,6 @@ export const {
     useMarkConversationReadMutation,
     useEditMessageMutation,
     useDeleteMessageMutation,
+    useGetOrJoinRoomConversationMutation,
+    useSetTaskChatChoiceMutation,
 } = messageApi

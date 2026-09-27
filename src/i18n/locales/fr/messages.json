@@ -51,5 +51,25 @@
   "seen": "Vu",
   "noConversations": "Aucune conversation pour le moment. Trouvez un collègue sous \"Tous les contacts\" pour en démarrer une.",
   "writeFirstTo": "Écrivez le premier message à {{name}}.",
-  "participantCount_many": "{{count}} participants"
+  "participantCount_many": "{{count}} participants",
+  "system": {
+    "taskChatCreated": "Groupe créé pour la tâche",
+    "taskCompleted": "La tâche est terminée",
+    "taskReopened": "La tâche a été rouverte",
+    "roomChatCreated": "Groupe créé pour la salle",
+    "roomChatClosed": "La salle n'est plus limitée par rôle - le chat est fermé",
+    "roomChatReopened": "La salle est de nouveau limitée par rôle - le chat a été rouvert"
+  },
+  "systemChat": {
+    "taskChat": "Chat de tâche",
+    "roomChat": "Chat de salle",
+    "goToTask": "Aller à la tâche",
+    "goToRoom": "Aller à la salle",
+    "completedPrompt": "La tâche est terminée. Voulez-vous garder le chat ?",
+    "keep": "Garder actif",
+    "close": "Fermer le chat",
+    "closedByMe": "Vous avez fermé le chat - lecture seule.",
+    "reopen": "Rouvrir",
+    "roomClosed": "La salle n'est plus limitée par rôle - le chat est en lecture seule."
+  }
 }

@@ -2,7 +2,8 @@ import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { formatDayMonthTime } from '../../utils/formatDate';
-import { Send, Loader2, MessageSquareText, Users, UserCog, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Send, Loader2, MessageSquareText, Users, UserCog, LogOut, Pencil, Trash2, ClipboardList, DoorOpen, Lock } from 'lucide-react';
 import {
   useGetMessagesQuery,
   useGetConversationParticipantsQuery,
@@ -11,10 +12,15 @@ import {
   useMarkConversationReadMutation,
   useEditMessageMutation,
   useDeleteMessageMutation,
+  useGetMyConversationsQuery,
+  useSetTaskChatChoiceMutation,
 } from '../../store/apis/messageApi';
 import { ManageGroupMembersComponent } from './manageGroupMembersComponent';
 import { ConfirmDialogComponent } from '../dataLayer/confirmDialogComponent';
-import type { GroupConversationComponentProps, Message } from '../../types/messages/messagesTypes';
+import { systemMessageText } from '../../utils/systemMessageDisplay';
+import { asDynamic } from '../../i18n/config';
+import type { GroupConversationComponentProps, Message, TaskChatChoice } from '../../types/messages/messagesTypes';
+import type { TasksLocationState } from '../../types/Task/Task';
 
 
 function getInitials(firstName: string, lastName: string): string {
@@ -29,6 +35,7 @@ export function GroupConversationComponent({
   onLeft,
 }: GroupConversationComponentProps) {
   const { t } = useTranslation(['messages', 'common'])
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [isManageMembersOpen, setIsManageMembersOpen] = useState(false);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
@@ -43,6 +50,37 @@ export function GroupConversationComponent({
   const [leaveGroupConversation, { isLoading: isLeaving, error: leaveError }] =
     useLeaveGroupConversationMutation();
   const [markConversationRead] = useMarkConversationReadMutation();
+
+  // Opgave-/rum-chats: medlemskab styres af databasen, så administrér/forlad
+  // skjules. Summary hentes fra den allerede cachede samtaleliste, så
+  // valg/lukning opdaterer sig, når 'Conversation' invalideres.
+  const { data: conversations = [] } = useGetMyConversationsQuery();
+  const summary = conversations.find((c) => c.conversationId === conversationId);
+  const isSystemChat = Boolean(summary?.taskId || summary?.roomId);
+  const [setTaskChatChoice, { isLoading: isSettingChoice, error: choiceError }] =
+    useSetTaskChatChoiceMutation();
+  const choiceErrorMessage = readableError(choiceError);
+
+  const showChoicePrompt =
+    summary?.taskId != null && summary.taskStatus === 'Completed' && summary.completionChoice === null;
+  const closedByMe = summary?.taskId != null && summary.completionChoice === 'close';
+
+  function handleChoice(choice: TaskChatChoice) {
+    void setTaskChatChoice({ conversationId, choice }).unwrap().catch(() => {
+      // Fejlen vises via choiceErrorMessage.
+    });
+  }
+
+  function goToSource() {
+    if (summary?.taskId) {
+      navigate(
+        summary.taskStatus === 'Completed' ? '/tasks/afsluttede' : `/tasks/mine?task=${summary.taskId}`
+      );
+    } else if (summary?.roomId) {
+      const state: TasksLocationState = { roomId: summary.roomId };
+      navigate('/tasks', { state });
+    }
+  }
 
   // US-B13: redigér/slet egen besked.
   const [editMessage, { isLoading: isSavingEdit, error: editError }] = useEditMessageMutation();
@@ -174,7 +212,13 @@ export function GroupConversationComponent({
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border-gray shrink-0 dark:border-slate-700">
         <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
-          <Users className="w-5 h-5" />
+          {summary?.taskId ? (
+            <ClipboardList className="w-5 h-5" />
+          ) : summary?.roomId ? (
+            <DoorOpen className="w-5 h-5" />
+          ) : (
+            <Users className="w-5 h-5" />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-primary truncate dark:text-slate-100">{groupName}</p>
@@ -182,24 +226,36 @@ export function GroupConversationComponent({
             {t('participantCount', { count: participants.length })}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsManageMembersOpen(true)}
-          className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
-          title={t('group.manageMembers')}
-          aria-label={t('group.manageMembers')}
-        >
-          <UserCog className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setConfirmingLeave(true)}
-          className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
-          title={t('group.leave')}
-          aria-label={t('group.leave')}
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
+        {isSystemChat ? (
+          <button
+            type="button"
+            onClick={goToSource}
+            className="text-xs font-semibold text-accent hover:text-accent-hover shrink-0"
+          >
+            {summary?.taskId ? t('systemChat.goToTask') : t('systemChat.goToRoom')} →
+          </button>
+        ) : (
+          <>
+          <button
+            type="button"
+            onClick={() => setIsManageMembersOpen(true)}
+            className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
+            title={t('group.manageMembers')}
+            aria-label={t('group.manageMembers')}
+          >
+            <UserCog className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmingLeave(true)}
+            className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
+            title={t('group.leave')}
+            aria-label={t('group.leave')}
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+          </>
+        )}
       </div>
 
       {/* Beskeder */}
@@ -227,7 +283,7 @@ export function GroupConversationComponent({
                 return (
                   <div key={msg.id} className="flex justify-center">
                     <p className="text-[11px] text-secondary bg-bg-gray rounded-full px-3 py-1 dark:text-slate-400 dark:bg-slate-700">
-                      {msg.content}
+                      {systemMessageText(msg.content, asDynamic(t))}
                     </p>
                   </div>
                 );
@@ -391,30 +447,82 @@ export function GroupConversationComponent({
         )}
       </div>
 
-      {/* Beskedfelt */}
-      <div className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700">
-        <div className="flex items-end gap-2">
-          <textarea
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`Skriv en besked til ${groupName}...`}
-            rows={1}
-            disabled={isSending}
-            className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-          />
-          <button
-            type="button"
-            onClick={() => void handleSendMessage()}
-            disabled={!message.trim() || isSending}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            aria-label={t('sendMessage')}
-          >
-            {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </button>
+      {/* Afsluttet opgave: hver deltager vælger selv, om chatten skal
+          forblive aktiv eller lukkes (skrivebeskyttet for dem). */}
+      {showChoicePrompt && (
+        <div className="border-t border-border-gray bg-bg-gray/60 px-4 py-3 shrink-0 dark:border-slate-700 dark:bg-slate-900/40">
+          <p className="text-sm text-primary dark:text-slate-100">{t('systemChat.completedPrompt')}</p>
+          {choiceErrorMessage && (
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{choiceErrorMessage}</p>
+          )}
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleChoice('keep')}
+              disabled={isSettingChoice}
+              className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-primary hover:bg-accent-hover disabled:opacity-50"
+            >
+              {t('systemChat.keep')}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleChoice('close')}
+              disabled={isSettingChoice}
+              className="rounded-lg border border-border-gray px-3 py-1.5 text-xs font-semibold text-secondary hover:bg-bg-gray disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700"
+            >
+              {t('systemChat.close')}
+            </button>
+          </div>
         </div>
-        <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">{t('enterHint')}</p>
-      </div>
+      )}
+
+      {/* Beskedfelt */}
+      {summary?.closed ? (
+        <div className="flex items-center justify-center gap-2 border-t border-border-gray p-4 text-sm text-secondary shrink-0 dark:border-slate-700 dark:text-slate-400">
+          <Lock className="w-4 h-4" aria-hidden="true" />
+          {closedByMe ? (
+            <>
+              <span>{t('systemChat.closedByMe')}</span>
+              {summary.taskStatus === 'Completed' && (
+                <button
+                  type="button"
+                  onClick={() => handleChoice('keep')}
+                  disabled={isSettingChoice}
+                  className="font-semibold text-accent hover:text-accent-hover disabled:opacity-50"
+                >
+                  {t('systemChat.reopen')}
+                </button>
+              )}
+            </>
+          ) : (
+            <span>{t('systemChat.roomClosed')}</span>
+          )}
+        </div>
+      ) : (
+        <div className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700">
+          <div className="flex items-end gap-2">
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Skriv en besked til ${groupName}...`}
+              rows={1}
+              disabled={isSending}
+              className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+            />
+            <button
+              type="button"
+              onClick={() => void handleSendMessage()}
+              disabled={!message.trim() || isSending}
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('sendMessage')}
+            >
+              {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">{t('enterHint')}</p>
+        </div>
+      )}
 
       <ManageGroupMembersComponent
         isOpen={isManageMembersOpen}

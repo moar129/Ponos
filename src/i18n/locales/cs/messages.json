@@ -52,5 +52,25 @@
   "conversations": "Konverzace",
   "seen": "Viděno",
   "noConversations": "Zatím žádné konverzace. Najděte kolegu v části „Všechny kontakty“ a začněte novou.",
-  "writeFirstTo": "Napište uživateli {{name}} první zprávu."
+  "writeFirstTo": "Napište uživateli {{name}} první zprávu.",
+  "system": {
+    "taskChatCreated": "Skupina vytvořena pro úkol",
+    "taskCompleted": "Úkol byl dokončen",
+    "taskReopened": "Úkol byl znovu otevřen",
+    "roomChatCreated": "Skupina vytvořena pro místnost",
+    "roomChatClosed": "Místnost už není omezena rolemi - chat je uzavřen",
+    "roomChatReopened": "Místnost je opět omezena rolemi - chat byl znovu otevřen"
+  },
+  "systemChat": {
+    "taskChat": "Chat úkolu",
+    "roomChat": "Chat místnosti",
+    "goToTask": "Přejít na úkol",
+    "goToRoom": "Přejít do místnosti",
+    "completedPrompt": "Úkol je hotový. Chcete chat ponechat?",
+    "keep": "Ponechat aktivní",
+    "close": "Zavřít chat",
+    "closedByMe": "Chat jste zavřeli - pouze ke čtení.",
+    "reopen": "Znovu otevřít",
+    "roomClosed": "Místnost už není omezena rolemi - chat je pouze ke čtení."
+  }
 }

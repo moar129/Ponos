@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "O motivo pode ter no máximo 500 caracteres.",
     "NO_PRIV_CREATE_ROLES": "Não tem permissões para criar funções.",
     "NO_PRIV_GRANT_PRIVILEGE": "Só pode atribuir permissões que tem.",
-    "ROLE_NAME_REQUIRED": "A função tem de ter um nome."
+    "ROLE_NAME_REQUIRED": "A função tem de ter um nome.",
+    "SYSTEM_GROUP_LOCKED": "Este grupo é gerido automaticamente pela tarefa/sala e não pode ser alterado manualmente.",
+    "INVALID_CHAT_CHOICE": "Escolha inválida.",
+    "NOT_TASK_CHAT": "Esta conversa não é um chat de tarefa.",
+    "TASK_NOT_COMPLETED": "Só pode escolher quando a tarefa estiver concluída.",
+    "ROOM_NOT_ACCESSIBLE": "A sala não existe ou não tem acesso a ela.",
+    "ROOM_NOT_ROLE_LOCKED": "A sala não está restrita por função e não tem chat.",
+    "CONVERSATION_CLOSED": "O chat está fechado - só leitura."
   }
 }

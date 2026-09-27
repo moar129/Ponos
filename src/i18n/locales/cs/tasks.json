@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Role se nepodařilo načíst.",
     "noRoles": "Organizace nemá žádné role.",
     "restrictedTo": "Pouze pro: {{roles}}",
-    "newRole": "Nová role"
+    "newRole": "Nová role",
+    "chat": "Chat místnosti"
   },
   "create": {
     "heading": "Vytvořit úkol",
@@ -111,7 +112,8 @@
     "addEmployeeShort": "+ Přidat pracovníka",
     "created": "Vytvořeno",
     "statusValue": "Stav: {{status}}",
-    "rejectedWithReason": "Nahlášení dokončení zamítnuto: {{reason}}"
+    "rejectedWithReason": "Nahlášení dokončení zamítnuto: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Zobrazit filtr",

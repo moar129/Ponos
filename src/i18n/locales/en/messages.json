@@ -50,5 +50,25 @@
   "conversations": "Conversations",
   "seen": "Seen",
   "noConversations": "No conversations yet. Find a colleague under \"All contacts\" to start one.",
-  "writeFirstTo": "Write the first message to {{name}}."
+  "writeFirstTo": "Write the first message to {{name}}.",
+  "system": {
+    "taskChatCreated": "Group created for the task",
+    "taskCompleted": "The task has been completed",
+    "taskReopened": "The task has been reopened",
+    "roomChatCreated": "Group created for the room",
+    "roomChatClosed": "The room is no longer role-restricted - the chat is closed",
+    "roomChatReopened": "The room is role-restricted again - the chat has been reopened"
+  },
+  "systemChat": {
+    "taskChat": "Task chat",
+    "roomChat": "Room chat",
+    "goToTask": "Go to task",
+    "goToRoom": "Go to room",
+    "completedPrompt": "The task is done. Do you want to keep the chat?",
+    "keep": "Keep active",
+    "close": "Close chat",
+    "closedByMe": "You have closed the chat - read only.",
+    "reopen": "Reopen",
+    "roomClosed": "The room is no longer role-restricted - the chat is read only."
+  }
 }

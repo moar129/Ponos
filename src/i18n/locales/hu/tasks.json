@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Nem sikerült betölteni a szerepköröket.",
     "noRoles": "A szervezetnek nincsenek szerepkörei.",
     "restrictedTo": "Csak: {{roles}}",
-    "newRole": "Új szerepkör"
+    "newRole": "Új szerepkör",
+    "chat": "Helyiség-csevegés"
   },
   "create": {
     "heading": "Feladat létrehozása",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Munkatárs hozzáadása",
     "created": "Létrehozva",
     "statusValue": "Állapot: {{status}}",
-    "rejectedWithReason": "Készre jelentés elutasítva: {{reason}}"
+    "rejectedWithReason": "Készre jelentés elutasítva: {{reason}}",
+    "chat": "Csevegés"
   },
   "filter": {
     "show": "Szűrő megjelenítése",

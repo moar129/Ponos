@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "Le motif ne peut pas dépasser 500 caractères.",
     "NO_PRIV_CREATE_ROLES": "Vous n'avez pas le droit de créer des rôles.",
     "NO_PRIV_GRANT_PRIVILEGE": "Vous ne pouvez accorder que les droits que vous possédez.",
-    "ROLE_NAME_REQUIRED": "Le rôle doit avoir un nom."
+    "ROLE_NAME_REQUIRED": "Le rôle doit avoir un nom.",
+    "SYSTEM_GROUP_LOCKED": "Ce groupe est géré automatiquement par la tâche/la salle et ne peut pas être modifié manuellement.",
+    "INVALID_CHAT_CHOICE": "Choix invalide.",
+    "NOT_TASK_CHAT": "Cette conversation n'est pas un chat de tâche.",
+    "TASK_NOT_COMPLETED": "Vous ne pouvez choisir que lorsque la tâche est terminée.",
+    "ROOM_NOT_ACCESSIBLE": "La salle n'existe pas, ou vous n'y avez pas accès.",
+    "ROOM_NOT_ROLE_LOCKED": "La salle n'est pas limitée par rôle et n'a pas de chat.",
+    "CONVERSATION_CLOSED": "Le chat est fermé - lecture seule."
   }
 }

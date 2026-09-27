@@ -140,6 +140,13 @@
     "REJECTION_REASON_TOO_LONG": "La motivazione può contenere al massimo 500 caratteri.",
     "NO_PRIV_CREATE_ROLES": "Non hai i permessi per creare ruoli.",
     "NO_PRIV_GRANT_PRIVILEGE": "Puoi assegnare solo i permessi che hai.",
-    "ROLE_NAME_REQUIRED": "Il ruolo deve avere un nome."
+    "ROLE_NAME_REQUIRED": "Il ruolo deve avere un nome.",
+    "SYSTEM_GROUP_LOCKED": "Questo gruppo è gestito automaticamente dall'attività/stanza e non può essere modificato manualmente.",
+    "INVALID_CHAT_CHOICE": "Scelta non valida.",
+    "NOT_TASK_CHAT": "Questa conversazione non è una chat dell'attività.",
+    "TASK_NOT_COMPLETED": "Puoi scegliere solo quando l'attività è completata.",
+    "ROOM_NOT_ACCESSIBLE": "La stanza non esiste o non hai accesso.",
+    "ROOM_NOT_ROLE_LOCKED": "La stanza non è limitata per ruolo e non ha una chat.",
+    "CONVERSATION_CLOSED": "La chat è chiusa - sola lettura."
   }
 }

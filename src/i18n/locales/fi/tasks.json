@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Rooleja ei voitu ladata.",
     "noRoles": "Organisaatiolla ei ole rooleja.",
     "restrictedTo": "Vain: {{roles}}",
-    "newRole": "Uusi rooli"
+    "newRole": "Uusi rooli",
+    "chat": "Huoneen keskustelu"
   },
   "create": {
     "heading": "Luo tehtävä",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Lisää työntekijä",
     "created": "Luotu",
     "statusValue": "Tila: {{status}}",
-    "rejectedWithReason": "Valmisilmoitus hylätty: {{reason}}"
+    "rejectedWithReason": "Valmisilmoitus hylätty: {{reason}}",
+    "chat": "Keskustelu"
   },
   "filter": {
     "show": "Näytä suodatin",

@@ -19,6 +19,7 @@ import { TaskTimeline } from './TaskTimeline';
 import { TaskItemPicker } from './TaskItemPicker';
 import { TaskMaterialsList } from './TaskMaterialsList';
 import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import { TaskChatButton } from './TaskChatButton';
 import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
 import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
 import { supabase } from '../../lib/supabase';
@@ -529,6 +530,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 )}
               </>
             )}
+
+          {/* OPGAVE-CHAT - kun når DB har oprettet den og jeg er deltager */}
+          <TaskChatButton taskId={task.id} />
         </div>
       </div>
 

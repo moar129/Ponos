@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Impossibile caricare i ruoli.",
     "noRoles": "L'organizzazione non ha ruoli.",
     "restrictedTo": "Solo per: {{roles}}",
-    "newRole": "Nuovo ruolo"
+    "newRole": "Nuovo ruolo",
+    "chat": "Chat della stanza"
   },
   "create": {
     "heading": "Crea attività",
@@ -110,7 +111,8 @@
     "addEmployeeShort": "+ Aggiungi collaboratore",
     "created": "Creata",
     "statusValue": "Stato: {{status}}",
-    "rejectedWithReason": "Completamento rifiutato: {{reason}}"
+    "rejectedWithReason": "Completamento rifiutato: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Mostra il filtro",
