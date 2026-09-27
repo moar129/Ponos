@@ -22,6 +22,8 @@
     "task_completed": "Egy feladat befejeződött",
     "task_approved": "A feladatát jóváhagyták",
     "task_rejected": "A befejezés bejelentését elutasították",
+    "task_favorite_room": "Új feladat egy kedvenc teremben",
     "news": "Új hír"
-  }
+  },
+  "settingsLink": "Beállítások"
 }

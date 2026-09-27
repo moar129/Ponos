@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { LocationTreeNodeProps } from '../../../types/dataLayer/datalayerTypes';
 import { ChevronRight, ChevronDown, MapPin, Boxes, Plus, Pencil, Trash2 } from 'lucide-react';
-import { FavoriteStarButton } from '../favorites/favoriteStarButtonComponent';
+import { FavoriteStarButton } from '../../common/FavoriteStarButton';
 
 // Samme visuelle mønster som CategoryTreeNode.tsx (indrykning, hover-
 // synlige handlingsknapper, chevron for udfoldning, samt samme

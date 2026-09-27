@@ -115,14 +115,18 @@
   "filter": {
     "show": "Afficher le filtre",
     "hide": "Masquer le filtre",
-    "searchPlaceholder": "Rechercher des tâches...",
+    "searchPlaceholder": "Rechercher titre, description, salle ou personne...",
     "all": "Toutes",
     "sortNewest": "Plus récentes",
     "sortOldest": "Plus anciennes",
     "sortPriority": "Priorité",
     "sortDeadline": "Échéance",
     "counts": "{{available}} disponibles · {{inProgress}} en cours",
-    "sortBy": "Trier par"
+    "sortBy": "Trier par",
+    "noMatches": "Aucune tâche ne correspond à la recherche/aux filtres.",
+    "activeCount_one": "{{count}} filtre actif",
+    "activeCount_many": "{{count}} filtres actifs",
+    "activeCount_other": "{{count}} filtres actifs"
   },
   "deleteRoom": {
     "heading": "Supprimer une salle",
@@ -140,5 +144,23 @@
     "intro": "Choisissez une salle et modifiez son nom et son accès.",
     "namePlaceholder": "Saisissez un nom de salle",
     "failed": "Impossible de modifier la salle. Veuillez réessayer."
+  },
+  "favorites": {
+    "toggleFailed": "Impossible de mettre à jour la salle favorite."
+  },
+  "completed": {
+    "tab": "Terminées",
+    "heading": "Tâches terminées",
+    "subtitle": "Toutes les tâches terminées de l'organisation.",
+    "noAccess": "Vous n'avez pas accès aux tâches terminées."
+  },
+  "approvals": {
+    "tab": "À approuver",
+    "heading": "À approuver",
+    "subtitle": "Tâches signalées terminées en attente d'approbation.",
+    "noAccess": "Vous n'avez pas accès aux approbations de tâches.",
+    "pendingCount_one": "{{count}} en attente",
+    "pendingCount_many": "{{count}} en attente",
+    "pendingCount_other": "{{count}} en attente"
   }
 }

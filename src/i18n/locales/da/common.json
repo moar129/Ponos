@@ -50,5 +50,9 @@
     "negative": "Tallet må ikke være negativt.",
     "zero": "Tallet skal være større end 0.",
     "fixFields": "Ret de markerede talfelter."
+  },
+  "favorites": {
+    "add": "Tilføj til favoritter",
+    "remove": "Fjern fra favoritter"
   }
 }

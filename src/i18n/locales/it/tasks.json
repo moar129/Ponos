@@ -115,14 +115,18 @@
   "filter": {
     "show": "Mostra il filtro",
     "hide": "Nascondi il filtro",
-    "searchPlaceholder": "Cerca attività...",
+    "searchPlaceholder": "Cerca titolo, descrizione, stanza o persona...",
     "all": "Tutte",
     "sortNewest": "Più recenti",
     "sortOldest": "Meno recenti",
     "sortPriority": "Priorità",
     "sortDeadline": "Scadenza",
     "counts": "{{available}} disponibili · {{inProgress}} in corso",
-    "sortBy": "Ordina per"
+    "sortBy": "Ordina per",
+    "noMatches": "Nessuna attività corrisponde alla ricerca/ai filtri.",
+    "activeCount_one": "{{count}} filtro attivo",
+    "activeCount_many": "{{count}} filtri attivi",
+    "activeCount_other": "{{count}} filtri attivi"
   },
   "deleteRoom": {
     "heading": "Elimina sala",
@@ -140,5 +144,23 @@
     "intro": "Scegli una stanza e modifica nome e accesso.",
     "namePlaceholder": "Scrivi il nome della sala",
     "failed": "Impossibile modificare la sala. Riprova."
+  },
+  "favorites": {
+    "toggleFailed": "Impossibile aggiornare la stanza preferita."
+  },
+  "completed": {
+    "tab": "Completate",
+    "heading": "Attività completate",
+    "subtitle": "Tutte le attività completate dell'organizzazione.",
+    "noAccess": "Non hai accesso alle attività completate."
+  },
+  "approvals": {
+    "tab": "Da approvare",
+    "heading": "Da approvare",
+    "subtitle": "Attività segnalate come completate in attesa di approvazione.",
+    "noAccess": "Non hai accesso alle approvazioni delle attività.",
+    "pendingCount_one": "{{count}} in attesa",
+    "pendingCount_many": "{{count}} in attesa",
+    "pendingCount_other": "{{count}} in attesa"
   }
 }

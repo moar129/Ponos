@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Visualizzazione",
     "hint": "La lingua e il tema vengono salvati in questo browser e valgono solo per questo dispositivo."
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "master": "Ricevi notifiche",
+    "hint": "Le notifiche disattivate non vengono create. Quelle già ricevute vengono mantenute.",
+    "loading": "Caricamento impostazioni...",
+    "loadFailed": "Impossibile caricare le impostazioni.",
+    "saveFailed": "Impossibile salvare l'impostazione."
   }
 }

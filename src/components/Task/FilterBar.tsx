@@ -8,6 +8,9 @@ interface FilterBarProps {
   onSearchChange: (value: string) => void;
   availableCount: number;
   inProgressCount: number;
+  // Antal filtre der skjuler opgaver (søgning, prioritet, fravalgt status) -
+  // vises som badge, så det er synligt selv når panelet er lukket.
+  activeFilterCount: number;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -17,6 +20,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSearchChange,
   availableCount,
   inProgressCount,
+  activeFilterCount,
 }) => {
   const { t } = useTranslation(['tasks', 'common'])
   return (
@@ -47,6 +51,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               />
             </svg>
             {isFilterOpen ? t('filter.hide') : t('filter.show')}
+            {activeFilterCount > 0 && (
+              <span
+                className={`rounded-full px-1.5 text-xs font-bold ${isFilterOpen ? 'bg-white text-accent' : 'bg-accent text-white'}`}
+                aria-label={t('filter.activeCount', { count: activeFilterCount })}
+              >
+                {activeFilterCount}
+              </span>
+            )}
           </button>
 
           <input
@@ -54,7 +66,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={t('filter.searchPlaceholder')}
-            className="w-56 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="w-80 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
         </div>
 

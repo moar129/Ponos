@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Visning",
     "hint": "Sprog og tema gemmes i denne browser og gælder kun på denne enhed."
+  },
+  "notifications": {
+    "title": "Notifikationer",
+    "master": "Modtag notifikationer",
+    "hint": "Slåede-fra notifikationer oprettes slet ikke. Allerede modtagne bevares.",
+    "loading": "Indlæser indstillinger...",
+    "loadFailed": "Kunne ikke hente indstillinger.",
+    "saveFailed": "Kunne ikke gemme indstillingen."
   }
 }

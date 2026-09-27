@@ -115,14 +115,18 @@
   "filter": {
     "show": "Arată filtrul",
     "hide": "Ascunde filtrul",
-    "searchPlaceholder": "Căutați sarcini...",
+    "searchPlaceholder": "Caută în titlu, descriere, cameră sau persoană...",
     "all": "Toate",
     "sortNewest": "Cele mai noi",
     "sortOldest": "Cele mai vechi",
     "sortPriority": "Prioritate",
     "sortDeadline": "Termen",
     "counts": "{{available}} disponibile · {{inProgress}} în lucru",
-    "sortBy": "Sortează după"
+    "sortBy": "Sortează după",
+    "noMatches": "Nicio sarcină nu corespunde căutării/filtrelor.",
+    "activeCount_one": "{{count}} filtru activ",
+    "activeCount_few": "{{count}} filtre active",
+    "activeCount_other": "{{count}} de filtre active"
   },
   "deleteRoom": {
     "heading": "Șterge încăperea",
@@ -140,5 +144,23 @@
     "intro": "Alegeți o cameră și editați numele și accesul.",
     "namePlaceholder": "Introduceți numele încăperii",
     "failed": "Încăperea nu a putut fi editată. Încercați din nou."
+  },
+  "favorites": {
+    "toggleFailed": "Nu s-a putut actualiza camera favorită."
+  },
+  "completed": {
+    "tab": "Finalizate",
+    "heading": "Sarcini finalizate",
+    "subtitle": "Toate sarcinile finalizate din organizație.",
+    "noAccess": "Nu ai acces la sarcinile finalizate."
+  },
+  "approvals": {
+    "tab": "De aprobat",
+    "heading": "De aprobat",
+    "subtitle": "Sarcini raportate ca finalizate care așteaptă aprobarea.",
+    "noAccess": "Nu ai acces la aprobările de sarcini.",
+    "pendingCount_one": "{{count}} așteaptă",
+    "pendingCount_few": "{{count}} așteaptă",
+    "pendingCount_other": "{{count}} așteaptă"
   }
 }

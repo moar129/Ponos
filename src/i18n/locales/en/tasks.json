@@ -114,14 +114,17 @@
   "filter": {
     "show": "Show filter",
     "hide": "Hide filter",
-    "searchPlaceholder": "Search tasks...",
+    "searchPlaceholder": "Search title, description, room or person...",
     "all": "All",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
     "sortPriority": "Priority",
     "sortDeadline": "Deadline",
     "counts": "{{available}} available · {{inProgress}} in progress",
-    "sortBy": "Sort by"
+    "sortBy": "Sort by",
+    "noMatches": "No tasks match your search/filters.",
+    "activeCount_one": "{{count}} active filter",
+    "activeCount_other": "{{count}} active filters"
   },
   "deleteRoom": {
     "heading": "Delete room",
@@ -188,5 +191,22 @@
     "noLocation": "No location",
     "noAvailableAnywhere": "There are no available units at any location.",
     "availableAtLocation": "{{amount}} {{unit}} available"
+  },
+  "favorites": {
+    "toggleFailed": "Could not update favorite room."
+  },
+  "completed": {
+    "tab": "Completed",
+    "heading": "Completed tasks",
+    "subtitle": "All completed tasks in the organisation.",
+    "noAccess": "You do not have access to completed tasks."
+  },
+  "approvals": {
+    "tab": "Awaiting approval",
+    "heading": "Awaiting approval",
+    "subtitle": "Tasks marked as done that are waiting for approval.",
+    "noAccess": "You do not have access to task approvals.",
+    "pendingCount_one": "{{count}} waiting",
+    "pendingCount_other": "{{count}} waiting"
   }
 }

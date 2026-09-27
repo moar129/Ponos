@@ -20,7 +20,18 @@
     "goToTasks": "Go to my tasks",
     "loading": "Loading your tasks...",
     "empty": "You are not signed up for any tasks yet.",
-    "endsOn": "Ends {{date}}"
+    "endsOn": "Ends {{date}}",
+    "tab": "Tasks"
+  },
+  "favoriteRooms": {
+    "title": "My favorite rooms",
+    "goToTasks": "Go to tasks",
+    "loading": "Loading favorite rooms...",
+    "empty": "You have no favorite rooms yet.",
+    "emptyLink": "Star rooms under Tasks.",
+    "openTasks_one": "{{count}} open",
+    "openTasks_other": "{{count}} open",
+    "tab": "Favorite rooms"
   },
   "notifications": {
     "title": "Notifications",

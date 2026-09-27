@@ -195,8 +195,6 @@
   "itemCountParen": "({{count}} elementów)",
   "favorites": {
     "title": "Ulubione",
-    "add": "Dodaj do ulubionych",
-    "remove": "Usuń z ulubionych",
     "toggleFailed": "Nie udało się zaktualizować ulubionych."
   }
 }

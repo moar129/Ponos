@@ -114,14 +114,17 @@
   "filter": {
     "show": "Vis filter",
     "hide": "Skjul filter",
-    "searchPlaceholder": "Søg opgaver...",
+    "searchPlaceholder": "Søg i titel, beskrivelse, rum eller person...",
     "all": "Alle",
     "sortNewest": "Nyeste",
     "sortOldest": "Ældste",
     "sortPriority": "Prioritet",
     "sortDeadline": "Deadline",
     "counts": "{{available}} tilgængelige · {{inProgress}} i gang",
-    "sortBy": "Sortér efter"
+    "sortBy": "Sortér efter",
+    "noMatches": "Ingen opgaver matcher søgning/filter.",
+    "activeCount_one": "{{count}} aktivt filter",
+    "activeCount_other": "{{count}} aktive filtre"
   },
   "deleteRoom": {
     "heading": "Slet rum",
@@ -188,5 +191,22 @@
     "noLocation": "Uden lager",
     "noAvailableAnywhere": "Der er ingen ledige enheder på noget lager.",
     "availableAtLocation": "{{amount}} {{unit}} ledige"
+  },
+  "favorites": {
+    "toggleFailed": "Kunne ikke opdatere favoritrum."
+  },
+  "completed": {
+    "tab": "Afsluttede",
+    "heading": "Afsluttede opgaver",
+    "subtitle": "Alle afsluttede opgaver i organisationen.",
+    "noAccess": "Du har ikke adgang til afsluttede opgaver."
+  },
+  "approvals": {
+    "tab": "Til godkendelse",
+    "heading": "Til godkendelse",
+    "subtitle": "Opgaver meldt færdige, der venter på godkendelse.",
+    "noAccess": "Du har ikke adgang til opgavegodkendelser.",
+    "pendingCount_one": "{{count}} venter",
+    "pendingCount_other": "{{count}} venter"
   }
 }

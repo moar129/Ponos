@@ -20,7 +20,18 @@
     "goToTasks": "Ugrás a saját feladataimhoz",
     "loading": "Feladatai betöltése...",
     "empty": "Még egyetlen feladatra sem jelentkezett.",
-    "endsOn": "Vége: {{date}}"
+    "endsOn": "Vége: {{date}}",
+    "tab": "Feladatok"
+  },
+  "favoriteRooms": {
+    "title": "Kedvenc termeim",
+    "goToTasks": "Ugrás a feladatokhoz",
+    "loading": "Kedvenc termek betöltése...",
+    "empty": "Még nincsenek kedvenc termeid.",
+    "emptyLink": "Jelölj meg termeket csillaggal a Feladatok alatt.",
+    "openTasks_one": "{{count}} nyitott",
+    "openTasks_other": "{{count}} nyitott",
+    "tab": "Kedvenc termek"
   },
   "notifications": {
     "title": "Értesítések",

@@ -437,6 +437,41 @@ create index idx_task_room_roles_role on public.task_room_roles (role_id);
 
 
 -- ---------------------------------------------------------------------
+-- 9.5b TASK ROOM FAVORITES (ad-hoc, 2026-09-26)
+-- Personlige stjernemarkerede rum på /tasks - samme mønster som
+-- data_layer_favorites (§9.1). Toggle = insert/delete. Cascade fjerner
+-- favoritten, når rummet, brugeren eller organisationen slettes. Mister
+-- brugeren adgang til et rolle-låst rum, bliver rækken liggende, men
+-- rummet returneres ikke af task_rooms-policyen -> skjult i UI.
+-- ---------------------------------------------------------------------
+create table public.task_room_favorites (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  room_id          uuid not null references public.task_rooms(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  constraint task_room_favorites_user_room_key unique (user_id, room_id)
+);
+
+create index idx_task_room_favorites_user_org on public.task_room_favorites (user_id, organisation_id);
+
+
+-- ---------------------------------------------------------------------
+-- 9.9 NOTIFICATION PREFERENCES (US-79, 2026-09-27)
+-- Brugerens notifikationsindstillinger på /bruger: hovedkontakt (enabled)
+-- + fravalgte typer (muted_types). Én række pr. bruger, global (gælder
+-- alle organisationer). Ingen række = alt slået til. Håndhæves af
+-- triggeren skip_muted_notification på notifications (§15.20c).
+-- ---------------------------------------------------------------------
+create table public.notification_preferences (
+  user_id      uuid primary key default auth.uid() references public.profiles(id) on delete cascade,
+  enabled      boolean not null default true,
+  muted_types  text[]  not null default '{}',
+  updated_at   timestamptz not null default now()
+);
+
+
+-- ---------------------------------------------------------------------
 -- 10. TASK (tilhører organisation)
 -- De tre sidste kolonner (room_id, priority, max_assignees) og
 -- idx_tasks_room er Studerende 3's tilføjelser - dokumenteret her fra
@@ -1947,6 +1982,14 @@ grant execute on function public.set_task_status(uuid, text) to authenticated;
 -- gemte material_outcomes (se task_requests, §11) - se
 -- apply_task_material_outcomes (§15.21b). reject_task_request rører
 -- fortsat slet ikke materialerne.
+-- 2026-09-27: alle fire godkendelses-RPC'er (også get_pending_task_requests
+-- og get_task_request_details, §15.19b) respekterer rum-adgang via
+-- can_access_task_room(t.room_id) (§15.22, kører som godkenderen): en
+-- godkender ser/behandler kun anmodninger i rum, de har adgang til (åbne
+-- rum, rolle i rummet, view_all_task_rooms/admin). Låst rum = samme fejl
+-- som ukendt anmodning. Kræver stadig ikke read_tasks. Bruges også af fanen
+-- "Til godkendelse" (/tasks/godkend). Egen færdigmelding må godkendes
+-- (bevidst, bruger-valg 2026-09-27).
 create or replace function public.approve_task_request(p_request_id uuid)
 returns void
 language plpgsql
@@ -1972,7 +2015,8 @@ begin
   select r.task_id, r.status, t.title, r.material_outcomes into v_task_id, v_status, v_title, v_material_outcomes
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2049,7 +2093,8 @@ begin
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2111,6 +2156,7 @@ begin
     join public.tasks t on t.id = r.task_id
     left join public.profiles p on p.id = r.requested_by
     where r.status = 'Pending' and t.organisation_id = v_org_id
+      and public.can_access_task_room(t.room_id)
     order by r.requested_at;
 end;
 $$;
@@ -2155,7 +2201,8 @@ begin
   select r.task_id into v_task_id
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2256,9 +2303,11 @@ grant execute on function public.get_task_request_details(uuid) to authenticated
 -- lokale flag ponos.skip_task_completed_notify, ellers ville tilmeldte få både
 -- "godkendt" og "afsluttet". notifications-tabellen og de to øvrige
 -- notify_task_*-triggere mangler stadig i dette dokument. Tabellens
--- type-constraint tillader nu:
+-- type-constraint (notifications_type_check, type er text) tillader
+-- pr. 2026-09-27 (verificeret live):
 --   check (type = any (array['message','task_assigned','task_updated',
---                            'task_completed','task_approved','task_rejected']))
+--                            'task_completed','task_approved','task_rejected',
+--                            'news','task_favorite_room']))
 create or replace function public.notify_task_completed()
 returns trigger
 language plpgsql
@@ -2291,6 +2340,92 @@ $function$;
 
 -- create trigger trg_notify_task_completed after update of status on public.tasks
 --   for each row execute function notify_task_completed();   (findes allerede i live)
+
+
+-- ---------------------------------------------------------------------
+-- 15.20b US-78 (2026-09-27): notify_task_created_in_favorite_room
+-- Ny opgave i et rum -> notifikation 'task_favorite_room' til brugere med
+-- rummet som favorit (task_room_favorites, §9.5b), ekskl. opretteren. Kun
+-- ved insert (ikke når en opgave flyttes ind i et rum); ingen opt-out.
+-- Rettigheder tjekkes for MODTAGEREN via memberships.role_id +
+-- role_has_privilege: can_access_task_room/has_privilege_or_admin bruger
+-- auth.uid() (= opretteren i triggeren) og kan ikke genbruges.
+-- Body "Rum: Opgavetitel", link /tasks?taskId=. Kørt og testet 2026-09-27.
+-- ---------------------------------------------------------------------
+create or replace function public.notify_task_created_in_favorite_room()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select
+    f.user_id,
+    new.organisation_id,
+    'task_favorite_room',
+    'Ny opgave i et favoritrum',
+    tr.name || ': ' || new.title,
+    '/tasks?taskId=' || new.id,
+    new.id
+  from task_room_favorites f
+  join task_rooms tr on tr.id = f.room_id
+  join memberships m on m.user_id = f.user_id and m.organisation_id = new.organisation_id
+  where f.room_id = new.room_id
+    and f.organisation_id = new.organisation_id
+    and f.user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+    and m.role_id is not null
+    and (role_has_privilege(m.role_id, 'read_tasks') or role_has_privilege(m.role_id, 'admin'))
+    and (
+      role_has_privilege(m.role_id, 'admin')
+      or role_has_privilege(m.role_id, 'view_all_task_rooms')
+      or not exists (select 1 from task_room_roles trr where trr.room_id = new.room_id)
+      or exists (select 1 from task_room_roles trr where trr.room_id = new.room_id and trr.role_id = m.role_id)
+    );
+
+  return new;
+end;
+$function$;
+
+create trigger trg_notify_task_created_in_favorite_room
+  after insert on public.tasks
+  for each row
+  when (new.room_id is not null)
+  execute function public.notify_task_created_in_favorite_room();
+
+
+-- ---------------------------------------------------------------------
+-- 15.20c US-79 (2026-09-27): skip_muted_notification
+-- before insert-trigger på notifications (Rasmus' tabel - hans notify_*-
+-- triggere er ikke ændret): dropper rækken (return null), hvis modtageren
+-- har slået alt eller typen fra i notification_preferences (§9.9). Virker
+-- derfor for alle eksisterende og fremtidige notify-triggere. Slåede-fra
+-- notifikationer oprettes slet ikke. Kørt og testet 2026-09-27.
+-- ---------------------------------------------------------------------
+create or replace function public.skip_muted_notification()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if exists (
+    select 1
+    from notification_preferences p
+    where p.user_id = new.user_id
+      and (not p.enabled or new.type = any(p.muted_types))
+  ) then
+    return null;
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_skip_muted_notification
+  before insert on public.notifications
+  for each row
+  execute function public.skip_muted_notification();
 
 
 -- ---------------------------------------------------------------------
@@ -3291,6 +3426,8 @@ alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_room_roles         enable row level security;
+alter table public.task_room_favorites     enable row level security;
+alter table public.notification_preferences enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_requests           enable row level security;
@@ -3720,6 +3857,13 @@ create policy "Slet egne datalager-favoritter"
 -- 15.8). Rolle-begrænsede rum (2026-09-25): select kræver desuden
 -- can_access_task_room(room_id) eller is_task_assignee(id); insert/update
 -- kan ikke placere en opgave i et rum, man ikke har adgang til.)
+-- Afsluttede opgaver (2026-09-27): status 'Completed' kræver desuden
+-- view_completed_tasks ("Opgaver — Se afsluttede") eller admin - ELLER at
+-- man er tilmeldt (is_task_assignee), så egne afsluttede opgaver og
+-- notifikations-links virker. Privilegiet blev backfillet til alle roller
+-- med update_tasks eller delete_tasks (ikke Medlem, 15.6d). Bruges af
+-- fanen "Afsluttede" (/tasks/afsluttede) og dashboardets panel. Før var
+-- afsluttede opgaver kun UI-gated på update/delete_tasks.
 -- ---------------------------------------------------------------------
 create policy "Se opgaver i egen organisation"
   on public.tasks for select
@@ -3728,6 +3872,11 @@ create policy "Se opgaver i egen organisation"
     organisation_id = public.auth_profile_org()
     and public.has_privilege_or_admin('read_tasks')
     and (public.can_access_task_room(room_id) or public.is_task_assignee(id))
+    and (
+      status <> 'Completed'
+      or public.has_privilege_or_admin('view_completed_tasks')
+      or public.is_task_assignee(id)
+    )
   );
 
 create policy "Opret opgaver i egen organisation"
@@ -3960,6 +4109,67 @@ create policy "Se task_room_roles for rum i egen organisation"
   on public.task_room_roles for select
   to authenticated
   using (room_id in (select id from public.task_rooms));
+
+
+-- ---------------------------------------------------------------------
+-- 16.7d TASK_ROOM_FAVORITES (ad-hoc, 2026-09-26)
+-- Kun egne rækker i aktiv org; read_tasks er nok (en favorit ændrer ikke
+-- data). Insert kræver desuden, at rummet tilhører egen org og at
+-- brugeren må se det (can_access_task_room, §15.22). Ingen update-policy.
+-- ---------------------------------------------------------------------
+create policy "Se egne favoritrum"
+  on public.task_room_favorites for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+create policy "Opret egne favoritrum"
+  on public.task_room_favorites for insert
+  to authenticated
+  with check (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and exists (
+      select 1 from public.task_rooms r
+      where r.id = room_id and r.organisation_id = public.auth_profile_org()
+    )
+    and public.can_access_task_room(room_id)
+  );
+
+create policy "Slet egne favoritrum"
+  on public.task_room_favorites for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.7e NOTIFICATION_PREFERENCES (US-79, 2026-09-27)
+-- Kun egen række; intet privilegie (personlig indstilling). Ingen
+-- delete-policy - frontend upserter.
+-- ---------------------------------------------------------------------
+create policy "Se egne notifikationsindstillinger"
+  on public.notification_preferences for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "Opret egne notifikationsindstillinger"
+  on public.notification_preferences for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "Rediger egne notifikationsindstillinger"
+  on public.notification_preferences for update
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
 
 
 -- ---------------------------------------------------------------------

@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Display",
     "hint": "Language and theme are saved in this browser and apply to this device only."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "master": "Receive notifications",
+    "hint": "Notifications that are turned off are not created at all. Ones already received are kept.",
+    "loading": "Loading settings...",
+    "loadFailed": "Could not load settings.",
+    "saveFailed": "Could not save the setting."
   }
 }

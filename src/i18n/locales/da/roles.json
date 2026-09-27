@@ -18,7 +18,8 @@
     "assign": "Tildel",
     "approve": "Godkend",
     "reject": "Afvis",
-    "viewAll": "Se alle rum"
+    "viewAll": "Se alle rum",
+    "viewCompleted": "Se afsluttede"
   },
   "privilege": {
     "admin": "Fuld administrator (kan alt)"

@@ -18,7 +18,8 @@
     "assign": "Määritä",
     "approve": "Hyväksy",
     "reject": "Hylkää",
-    "viewAll": "Nähdä kaikki huoneet"
+    "viewAll": "Nähdä kaikki huoneet",
+    "viewCompleted": "Nähdä valmiit"
   },
   "privilege": {
     "admin": "Täysi ylläpito (voi tehdä kaiken)"

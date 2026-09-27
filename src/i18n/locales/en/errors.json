@@ -66,7 +66,8 @@
     "releaseItemUnits": "You do not have permission to release materials on tasks.",
     "resolveTaskMaterialUnits": "You do not have permission to report material outcomes on tasks.",
     "changeTaskMaterialStatus": "You do not have permission to change the status of a material.",
-    "favoriteDatalayer": "You do not have permission to change favorites in the data layer."
+    "favoriteDatalayer": "You do not have permission to change favorites in the data layer.",
+    "favoriteTasks": "You do not have permission to change favorite rooms."
   },
   "db": {
     "NOT_LOGGED_IN": "You must be logged in.",

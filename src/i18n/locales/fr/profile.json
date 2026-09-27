@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Affichage",
     "hint": "La langue et le thème sont enregistrés dans ce navigateur et ne s'appliquent qu'à cet appareil."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "master": "Recevoir des notifications",
+    "hint": "Les notifications désactivées ne sont pas créées du tout. Celles déjà reçues sont conservées.",
+    "loading": "Chargement des paramètres...",
+    "loadFailed": "Impossible de charger les paramètres.",
+    "saveFailed": "Impossible d'enregistrer le paramètre."
   }
 }

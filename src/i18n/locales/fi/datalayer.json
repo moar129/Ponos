@@ -189,8 +189,6 @@
   "itemCountParen": "({{count}} nimikettä)",
   "favorites": {
     "title": "Suosikit",
-    "add": "Lisää suosikkeihin",
-    "remove": "Poista suosikeista",
     "toggleFailed": "Suosikin päivitys epäonnistui."
   }
 }

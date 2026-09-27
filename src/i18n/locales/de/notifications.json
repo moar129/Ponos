@@ -22,6 +22,8 @@
     "task_completed": "Eine Aufgabe wurde abgeschlossen",
     "task_approved": "Ihre Aufgabe wurde freigegeben",
     "task_rejected": "Fertigmeldung abgelehnt",
+    "task_favorite_room": "Neue Aufgabe in einem Favoritenraum",
     "news": "Neue Neuigkeit"
-  }
+  },
+  "settingsLink": "Einstellungen"
 }

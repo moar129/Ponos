@@ -115,14 +115,18 @@
   "filter": {
     "show": "Mostrar filtro",
     "hide": "Ocultar filtro",
-    "searchPlaceholder": "Buscar tareas...",
+    "searchPlaceholder": "Buscar título, descripción, sala o persona...",
     "all": "Todas",
     "sortNewest": "Más recientes",
     "sortOldest": "Más antiguas",
     "sortPriority": "Prioridad",
     "sortDeadline": "Plazo",
     "counts": "{{available}} disponibles · {{inProgress}} en curso",
-    "sortBy": "Ordenar por"
+    "sortBy": "Ordenar por",
+    "noMatches": "Ninguna tarea coincide con la búsqueda/filtros.",
+    "activeCount_one": "{{count}} filtro activo",
+    "activeCount_many": "{{count}} filtros activos",
+    "activeCount_other": "{{count}} filtros activos"
   },
   "deleteRoom": {
     "heading": "Eliminar sala",
@@ -140,5 +144,23 @@
     "intro": "Elija una sala y edite su nombre y acceso.",
     "namePlaceholder": "Escribe el nombre de la sala",
     "failed": "No se ha podido editar la sala. Inténtalo de nuevo."
+  },
+  "favorites": {
+    "toggleFailed": "No se pudo actualizar la sala favorita."
+  },
+  "completed": {
+    "tab": "Completadas",
+    "heading": "Tareas completadas",
+    "subtitle": "Todas las tareas completadas de la organización.",
+    "noAccess": "No tienes acceso a las tareas completadas."
+  },
+  "approvals": {
+    "tab": "Pendientes de aprobación",
+    "heading": "Pendientes de aprobación",
+    "subtitle": "Tareas marcadas como terminadas que esperan aprobación.",
+    "noAccess": "No tienes acceso a las aprobaciones de tareas.",
+    "pendingCount_one": "{{count}} pendiente",
+    "pendingCount_many": "{{count}} pendientes",
+    "pendingCount_other": "{{count}} pendientes"
   }
 }

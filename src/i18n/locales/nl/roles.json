@@ -18,7 +18,8 @@
     "assign": "Toewijzen",
     "approve": "Goedkeuren",
     "reject": "Afwijzen",
-    "viewAll": "Alle ruimtes zien"
+    "viewAll": "Alle ruimtes zien",
+    "viewCompleted": "Voltooide zien"
   },
   "privilege": {
     "admin": "Volledig beheer (kan alles)"

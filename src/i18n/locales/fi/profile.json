@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Näyttö",
     "hint": "Kieli ja teema tallennetaan tähän selaimeen ja koskevat vain tätä laitetta."
+  },
+  "notifications": {
+    "title": "Ilmoitukset",
+    "master": "Vastaanota ilmoituksia",
+    "hint": "Pois käytöstä olevia ilmoituksia ei luoda lainkaan. Jo vastaanotetut säilyvät.",
+    "loading": "Ladataan asetuksia...",
+    "loadFailed": "Asetuksia ei voitu ladata.",
+    "saveFailed": "Asetusta ei voitu tallentaa."
   }
 }

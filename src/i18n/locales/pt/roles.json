@@ -18,7 +18,8 @@
     "assign": "Atribuir",
     "approve": "Aprovar",
     "reject": "Rejeitar",
-    "viewAll": "Ver todas as salas"
+    "viewAll": "Ver todas as salas",
+    "viewCompleted": "Ver concluídas"
   },
   "privilege": {
     "admin": "Administração completa (pode fazer tudo)"

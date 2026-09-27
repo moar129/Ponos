@@ -58,7 +58,8 @@
     "createLocation": "Nie masz uprawnień, aby utworzyć lokalizację.",
     "updateLocation": "Nie masz uprawnień, aby edytować lokalizację.",
     "deleteLocation": "Nie masz uprawnień, aby usunąć lokalizację.",
-    "favoriteDatalayer": "Nie masz uprawnień, aby zmieniać ulubione w warstwie danych."
+    "favoriteDatalayer": "Nie masz uprawnień, aby zmieniać ulubione w warstwie danych.",
+    "favoriteTasks": "Nie masz uprawnień, aby zmieniać ulubione pokoje."
   },
   "db": {
     "NOT_LOGGED_IN": "Musisz być zalogowany.",

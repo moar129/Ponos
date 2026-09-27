@@ -114,14 +114,17 @@
   "filter": {
     "show": "Filter tonen",
     "hide": "Filter verbergen",
-    "searchPlaceholder": "Taken zoeken...",
+    "searchPlaceholder": "Zoek op titel, beschrijving, ruimte of persoon...",
     "all": "Alle",
     "sortNewest": "Nieuwste",
     "sortOldest": "Oudste",
     "sortPriority": "Prioriteit",
     "sortDeadline": "Deadline",
     "counts": "{{available}} beschikbaar · {{inProgress}} bezig",
-    "sortBy": "Sorteren op"
+    "sortBy": "Sorteren op",
+    "noMatches": "Geen taken komen overeen met zoekopdracht/filter.",
+    "activeCount_one": "{{count}} actief filter",
+    "activeCount_other": "{{count}} actieve filters"
   },
   "deleteRoom": {
     "heading": "Ruimte verwijderen",
@@ -139,5 +142,22 @@
     "intro": "Kies een ruimte en bewerk de naam en toegang.",
     "namePlaceholder": "Schrijf een naam voor de ruimte",
     "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
+  },
+  "favorites": {
+    "toggleFailed": "Kon favoriete ruimte niet bijwerken."
+  },
+  "completed": {
+    "tab": "Voltooid",
+    "heading": "Voltooide taken",
+    "subtitle": "Alle voltooide taken in de organisatie.",
+    "noAccess": "Je hebt geen toegang tot voltooide taken."
+  },
+  "approvals": {
+    "tab": "Ter goedkeuring",
+    "heading": "Ter goedkeuring",
+    "subtitle": "Als klaar gemelde taken die wachten op goedkeuring.",
+    "noAccess": "Je hebt geen toegang tot taakgoedkeuringen.",
+    "pendingCount_one": "{{count}} wacht",
+    "pendingCount_other": "{{count}} wachten"
   }
 }

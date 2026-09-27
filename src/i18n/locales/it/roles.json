@@ -18,7 +18,8 @@
     "assign": "Assegna",
     "approve": "Approva",
     "reject": "Rifiuta",
-    "viewAll": "Vedere tutte le stanze"
+    "viewAll": "Vedere tutte le stanze",
+    "viewCompleted": "Vedere le completate"
   },
   "privilege": {
     "admin": "Amministrazione completa (può fare tutto)"

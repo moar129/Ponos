@@ -58,7 +58,8 @@
     "createLocation": "Du har inte behörighet att skapa platsen.",
     "updateLocation": "Du har inte behörighet att redigera platsen.",
     "deleteLocation": "Du har inte behörighet att radera platsen.",
-    "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret."
+    "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret.",
+    "favoriteTasks": "Du har inte behörighet att ändra favoritrum."
   },
   "db": {
     "NOT_LOGGED_IN": "Du måste vara inloggad.",

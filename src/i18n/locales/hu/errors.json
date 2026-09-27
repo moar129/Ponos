@@ -58,7 +58,8 @@
     "createLocation": "Nincs jogosultsága a helyszín létrehozásához.",
     "updateLocation": "Nincs jogosultsága a helyszín szerkesztéséhez.",
     "deleteLocation": "Nincs jogosultsága a helyszín törléséhez.",
-    "favoriteDatalayer": "Nincs jogosultsága az adatréteg kedvenceinek módosításához."
+    "favoriteDatalayer": "Nincs jogosultsága az adatréteg kedvenceinek módosításához.",
+    "favoriteTasks": "Nincs jogosultsága a kedvenc termek módosításához."
   },
   "db": {
     "NOT_LOGGED_IN": "Be kell jelentkeznie.",

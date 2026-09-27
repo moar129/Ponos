@@ -154,13 +154,6 @@ export interface FavoriteRowProps {
   onToggleExpand: (key: string) => void;
 }
 
-export interface FavoriteStarButtonProps {
-  isFavorite: boolean;
-  onToggle: () => void;
-  // Detalje-overskriften: tom stjerne altid synlig (ingen hover-regel) og større.
-  variant?: 'row' | 'heading';
-}
-
 export interface RawCategory {
   id: string;
   title: string;

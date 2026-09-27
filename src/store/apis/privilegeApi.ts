@@ -56,6 +56,10 @@ export const ASSIGN_TASKS_PRIVILEGE = 'assign_tasks'
 // Se alle opgaverum, også dem der er begrænset til roller man ikke har
 // (se can_access_task_room, docs/migrations/2026-09-25-task-room-roles.sql).
 export const VIEW_ALL_TASK_ROOMS_PRIVILEGE = 'view_all_task_rooms'
+// Se afsluttede opgaver (fanen "Afsluttede" + dashboardets panel).
+// Håndhæves i tasks-select-policyen; tilmeldte ser altid egne afsluttede
+// (docs/migrations/2026-09-27-view-completed-tasks.sql).
+export const VIEW_COMPLETED_TASKS_PRIVILEGE = 'view_completed_tasks'
 
 // Medlems seedede privilegier (create_organisation, 15.8) er låst fast -
 // kan hverken fjernes fra rollen eller omdøbes (se
@@ -69,7 +73,7 @@ export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, 
 export const APPROVE_TASK_PRIVILEGE = 'approve_task'
 export const REJECT_TASK_PRIVILEGE = 'reject_task'
 
-type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'viewAll' | 'approve' | 'reject'
+type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'viewAll' | 'viewCompleted' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
     /** Stabil nøgle. Etiketten hentes med t('roles:domain.<domain>'). */
@@ -137,6 +141,7 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
             delete: DELETE_TASKS_PRIVILEGE,
             assign: ASSIGN_TASKS_PRIVILEGE,
             viewAll: VIEW_ALL_TASK_ROOMS_PRIVILEGE,
+            viewCompleted: VIEW_COMPLETED_TASKS_PRIVILEGE,
         },
     },
     {
@@ -161,6 +166,7 @@ export const ROLE_TEMPLATES: Record<RoleTemplateKey, string[]> = {
         CREATE_TASKS_PRIVILEGE,
         UPDATE_TASKS_PRIVILEGE,
         ASSIGN_TASKS_PRIVILEGE,
+        VIEW_COMPLETED_TASKS_PRIVILEGE,
         APPROVE_TASK_PRIVILEGE,
         REJECT_TASK_PRIVILEGE,
     ],

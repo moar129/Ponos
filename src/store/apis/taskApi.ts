@@ -222,6 +222,62 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: [{ type: 'Task' as const, id: 'LIST' }],
         }),
 
+        // Navne på tilmeldte pr. åben opgave (Started/InProgress) i aktiv
+        // organisation - bruges af søgefeltet på /tasks og /tasks/mine.
+        // Samme batch-mønster som getCompletedTasks. Tilmeld/afmeld
+        // invaliderer 'MyTasks' + Task LIST, så navnene følger med.
+        getOpenTaskAssigneeNames: builder.query<Record<string, string[]>, void>({
+            queryFn: async () => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId()
+                    const { data: tasks, error: tasksError } = await supabase
+                        .from('tasks')
+                        .select('id')
+                        .eq('organisation_id', organisationId)
+                        .in('status', ['Started', 'InProgress'])
+
+                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
+                    if (!tasks || tasks.length === 0) return { data: {} }
+
+                    const { data: assigneeRows, error: assigneesError } = await supabase
+                        .from('task_assignees')
+                        .select('task_id,user_id')
+                        .in('task_id', tasks.map((task) => task.id))
+
+                    if (assigneesError) return { error: mapDbError(assigneesError) as QueryError }
+
+                    const userIds = [...new Set((assigneeRows ?? []).map((row) => row.user_id))]
+                    if (userIds.length === 0) return { data: {} }
+
+                    const { data: profiles, error: profilesError } = await supabase
+                        .from('profiles')
+                        .select('id,first_name,last_name')
+                        .in('id', userIds)
+
+                    if (profilesError) return { error: mapDbError(profilesError) as QueryError }
+
+                    const nameById = new Map(
+                        (profiles ?? []).map((profile) => [
+                            profile.id as string,
+                            `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
+                        ])
+                    )
+
+                    const data: Record<string, string[]> = {}
+                    for (const row of assigneeRows ?? []) {
+                        const name = nameById.get(row.user_id)
+                        if (!name) continue
+                        ;(data[row.task_id] ??= []).push(name)
+                    }
+                    return { data }
+                } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'errors:generic'
+                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
+                }
+            },
+            providesTags: ['MyTasks', { type: 'Task' as const, id: 'LIST' }],
+        }),
+
         getRooms: builder.query<Room[], void>({
             queryFn: async () => {
                 try {
@@ -481,7 +537,10 @@ export const taskApi = supabaseApi.injectEndpoints({
         // færdig"/"genåbn". Kalder i stedet set_task_status-RPC'en
         // (fase3-tasks-privileges.sql), som tillader ENTEN en tilmeldt bruger
         // ELLER update_tasks/admin.
-        updateTaskStatus: builder.mutation<Task, UpdateTaskStatusInput>({
+        // Returnerer null, hvis opgaven ikke længere er synlig efter
+        // statusskiftet (Completed uden view_completed_tasks og uden at være
+        // tilmeldt) - statusskiftet er stadig lykkedes.
+        updateTaskStatus: builder.mutation<Task | null, UpdateTaskStatusInput>({
             queryFn: async ({ id, status }) => {
                 const { error: rpcError } = await supabase.rpc('set_task_status', {
                     p_task_id: id,
@@ -490,10 +549,10 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 if (rpcError) return { error: mapPermissionError(rpcError, 'setTaskStatus') }
 
-                const { data, error } = await supabase.from('tasks').select('*').eq('id', id).single()
+                const { data, error } = await supabase.from('tasks').select('*').eq('id', id).maybeSingle()
 
                 if (error) return { error: mapDbError(error) as QueryError }
-                return { data: data as Task }
+                return { data: (data as Task | null) ?? null }
             },
             invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],
         }),
@@ -1300,6 +1359,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 export const {
     useGetTasksQuery,
     useGetCompletedTasksQuery,
+    useGetOpenTaskAssigneeNamesQuery,
     useGetRoomsQuery,
     useGetOrganisationEmployeesQuery,
     useGetTaskAssigneesQuery,

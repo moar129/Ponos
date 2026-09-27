@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Visning",
     "hint": "Språk och tema sparas i den här webbläsaren och gäller bara den här enheten."
+  },
+  "notifications": {
+    "title": "Aviseringar",
+    "master": "Ta emot aviseringar",
+    "hint": "Avstängda aviseringar skapas inte alls. Redan mottagna behålls.",
+    "loading": "Laddar inställningar...",
+    "loadFailed": "Kunde inte hämta inställningar.",
+    "saveFailed": "Kunde inte spara inställningen."
   }
 }

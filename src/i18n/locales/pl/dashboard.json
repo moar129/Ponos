@@ -20,7 +20,20 @@
     "goToTasks": "Przejdź do moich zadań",
     "loading": "Ładowanie Twoich zadań...",
     "empty": "Nie jesteś jeszcze zapisany do żadnego zadania.",
-    "endsOn": "Koniec {{date}}"
+    "endsOn": "Koniec {{date}}",
+    "tab": "Zadania"
+  },
+  "favoriteRooms": {
+    "title": "Moje ulubione pokoje",
+    "goToTasks": "Przejdź do zadań",
+    "loading": "Ładowanie ulubionych pokoi...",
+    "empty": "Nie masz jeszcze ulubionych pokoi.",
+    "emptyLink": "Oznacz pokoje gwiazdką w Zadaniach.",
+    "openTasks_one": "{{count}} otwarte",
+    "openTasks_few": "{{count}} otwarte",
+    "openTasks_many": "{{count}} otwartych",
+    "openTasks_other": "{{count}} otwartego",
+    "tab": "Ulubione pokoje"
   },
   "notifications": {
     "title": "Powiadomienia",

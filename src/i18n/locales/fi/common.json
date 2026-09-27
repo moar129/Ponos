@@ -50,5 +50,9 @@
     "negative": "Luku ei saa olla negatiivinen.",
     "zero": "Luvun on oltava suurempi kuin 0.",
     "fixFields": "Korjaa merkityt numerokentät."
+  },
+  "favorites": {
+    "add": "Lisää suosikkeihin",
+    "remove": "Poista suosikeista"
   }
 }

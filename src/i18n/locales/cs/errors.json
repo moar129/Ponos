@@ -58,7 +58,8 @@
     "createLocation": "Nemáte oprávnění vytvořit místo.",
     "updateLocation": "Nemáte oprávnění upravit místo.",
     "deleteLocation": "Nemáte oprávnění smazat místo.",
-    "favoriteDatalayer": "Nemáte oprávnění měnit oblíbené v datové vrstvě."
+    "favoriteDatalayer": "Nemáte oprávnění měnit oblíbené v datové vrstvě.",
+    "favoriteTasks": "Nemáte oprávnění měnit oblíbené místnosti."
   },
   "db": {
     "NOT_LOGGED_IN": "Musíte být přihlášeni.",

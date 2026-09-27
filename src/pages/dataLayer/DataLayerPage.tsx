@@ -63,7 +63,7 @@ import {
 } from '../../store/slices/dataLayersSlices/itemPlacements';
 import { SummaryChips } from '../../components/dataLayer/summaryChipsComponent';
 import { FavoritesSection } from '../../components/dataLayer/favorites/favoritesSectionComponent';
-import { FavoriteStarButton } from '../../components/dataLayer/favorites/favoriteStarButtonComponent';
+import { FavoriteStarButton } from '../../components/common/FavoriteStarButton';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
 type LeftTab = 'categories' | 'locations';

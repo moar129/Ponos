@@ -20,7 +20,19 @@
     "goToTasks": "Vai alle mie attività",
     "loading": "Caricamento delle tue attività...",
     "empty": "Non sei ancora iscritto a nessuna attività.",
-    "endsOn": "Termina il {{date}}"
+    "endsOn": "Termina il {{date}}",
+    "tab": "Attività"
+  },
+  "favoriteRooms": {
+    "title": "Le mie stanze preferite",
+    "goToTasks": "Vai alle attività",
+    "loading": "Caricamento stanze preferite...",
+    "empty": "Non hai ancora stanze preferite.",
+    "emptyLink": "Contrassegna le stanze con una stella in Attività.",
+    "openTasks_one": "{{count}} aperta",
+    "openTasks_many": "{{count}} aperte",
+    "openTasks_other": "{{count}} aperte",
+    "tab": "Stanze preferite"
   },
   "notifications": {
     "title": "Notifiche",

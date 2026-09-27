@@ -50,5 +50,9 @@
     "negative": "Talet får inte vara negativt.",
     "zero": "Talet måste vara större än 0.",
     "fixFields": "Rätta de markerade sifferfälten."
+  },
+  "favorites": {
+    "add": "Lägg till i favoriter",
+    "remove": "Ta bort från favoriter"
   }
 }

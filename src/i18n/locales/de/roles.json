@@ -18,7 +18,8 @@
     "assign": "Zuweisen",
     "approve": "Freigeben",
     "reject": "Ablehnen",
-    "viewAll": "Alle Räume sehen"
+    "viewAll": "Alle Räume sehen",
+    "viewCompleted": "Abgeschlossene sehen"
   },
   "privilege": {
     "admin": "Vollständige Administration (kann alles)"

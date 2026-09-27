@@ -21,6 +21,12 @@ export interface Task {
   requires_approval: boolean;
 }
 
+// Sortering på /tasks og /tasks/mine (FilterPanel, utils/taskFilters.ts).
+export type TaskSortOption = 'newest' | 'oldest' | 'priority' | 'deadline';
+
+// Statusser der har en kolonne på /tasks og /tasks/mine.
+export type OpenTaskStatus = Extract<ETaskStatus, 'Started' | 'InProgress'>;
+
 export interface Room {
   id: string;
   organisation_id: string;
@@ -63,6 +69,16 @@ export interface RoomBarProps {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  // Personlige favoritrum - read_tasks, uafhængigt af update/delete.
+  canFavorite: boolean;
+}
+
+export interface TaskColumnEmptyStateProps {
+  // Tekst når kolonnen er tom uden aktive filtre ("Ingen opgaver i gang").
+  emptyText: string;
+  // Aktive filtre/søgning -> "Ingen opgaver matcher" + Nulstil i stedet.
+  hasActiveFilters: boolean;
+  onReset: () => void;
 }
 
 export interface TaskCardProps {

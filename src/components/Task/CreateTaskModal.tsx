@@ -6,13 +6,15 @@ import {
     useGetRoomsQuery,
 } from '../../store/apis/taskApi';
 import { useReserveItemUnitsMutation } from '../../store/apis/categoryApi';
+import { useGetTaskRoomFavoritesQuery } from '../../store/apis/taskRoomFavoriteApi';
+import { splitFavoriteRooms } from '../../utils/splitFavoriteRooms';
 import type { ETaskPriority, StagedLocation } from '../../types/Task/Task';
 import type { AggregatedItem } from '../../types/dataLayer/datalayerTypes';
 import { X } from 'lucide-react';
 import { TaskItemPicker } from './TaskItemPicker';
+import { ToggleSwitch } from '../common/ToggleSwitch';
 
 interface CreateTaskModalProps {
-    isOpen: boolean;
     onClose: () => void;
     selectedRoomId: string | null;
 }
@@ -24,8 +26,9 @@ interface StagedMaterial {
     location: StagedLocation;
 }
 
+// Forælderen mounter kun modal'en, mens den er åben - derfor starter
+// roomId altid med det rum, brugeren står i (selectedRoomId).
 export function CreateTaskModal({
-    isOpen,
     onClose,
     selectedRoomId,
 }: CreateTaskModalProps) {
@@ -51,10 +54,9 @@ export function CreateTaskModal({
     const [createTask, { isLoading: isCreatingTask, error: createError }] = useCreateTaskMutation();
     const [reserveItemUnits, { isLoading: isReserving, error: reserveError }] = useReserveItemUnitsMutation();
     const { data: rooms = [] } = useGetRoomsQuery();
-
-    if (!isOpen) {
-        return null;
-    }
+    const { data: favoriteRoomIds } = useGetTaskRoomFavoritesQuery();
+    // Favoritrum først (samme rækkefølge som RoomBar), markeret med ★.
+    const { favoriteRooms, otherRooms } = splitFavoriteRooms(rooms, new Set(favoriteRoomIds));
 
     const resetForm = () => {
         setTitle('');
@@ -207,7 +209,13 @@ export function CreateTaskModal({
                         >
                             <option value="">{t('rooms.choose')}</option>
 
-                            {rooms.map((room) => (
+                            {favoriteRooms.map((room) => (
+                                <option key={room.id} value={room.id}>
+                                    ★ {room.name}
+                                </option>
+                            ))}
+
+                            {otherRooms.map((room) => (
                                 <option key={room.id} value={room.id}>
                                     {room.name}
                                 </option>
@@ -367,25 +375,11 @@ export function CreateTaskModal({
                                     : t('create.noApproval')}
                             </p>
 
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-checked={requiresApproval}
-                                onClick={() =>
-                                    setRequiresApproval((current) => !current)
-                                }
-                                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${requiresApproval
-                                        ? 'bg-green-500'
-                                        : 'bg-gray-300 dark:bg-slate-500'
-                                    }`}
-                            >
-                                <span
-                                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${requiresApproval
-                                            ? 'translate-x-5'
-                                            : 'translate-x-0.5'
-                                        }`}
-                                />
-                            </button>
+                            <ToggleSwitch
+                                checked={requiresApproval}
+                                onChange={setRequiresApproval}
+                                label={t('create.requiresApproval')}
+                            />
                         </div>
                     </div>
                 </div>
