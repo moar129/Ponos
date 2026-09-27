@@ -167,7 +167,7 @@ function TaskApprovalRow({
             </button>
 
             {decision ? (
-                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:max-w-md">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:max-w-xl">
                     <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
                         {decision.decision === 'approve'
                             ? t('roles:approvals.confirmApprove')
@@ -176,22 +176,24 @@ function TaskApprovalRow({
                     {decision.decision === 'reject' && (
                         <RejectReasonInput value={rejectReason} onChange={onRejectReasonChange} disabled={submitting} />
                     )}
-                    <button
-                        type="button"
-                        onClick={() => onConfirm(decision)}
-                        disabled={submitting || missingReason}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                    >
-                        {submitting ? t('common:processing') : t('common:yes')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={submitting}
-                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                    >
-                        {t('common:cancel')}
-                    </button>
+                    <div className="flex shrink-0 items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => onConfirm(decision)}
+                            disabled={submitting || missingReason}
+                            className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        >
+                            {submitting ? t('common:processing') : t('common:yes')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            disabled={submitting}
+                            className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                        >
+                            {t('common:cancel')}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="flex items-center gap-3">
