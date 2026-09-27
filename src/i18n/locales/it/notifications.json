@@ -24,5 +24,6 @@
     "task_rejected": "Segnalazione di completamento rifiutata",
     "task_favorite_room": "Nuova attività in una stanza preferita",
     "news": "Nuova notizia"
-  }
+  },
+  "settingsLink": "Impostazioni"
 }

@@ -24,5 +24,6 @@
     "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto",
     "task_favorite_room": "Nový úkol v oblíbené místnosti",
     "news": "Nová novinka"
-  }
+  },
+  "settingsLink": "Nastavení"
 }

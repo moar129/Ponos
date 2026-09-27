@@ -1,10 +1,10 @@
 // pages/notifications/NotificationsPage.tsx
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
-import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper } from 'lucide-react';
+import { NOTIFICATION_SETTINGS_ANCHOR, notificationBody, notificationTitle } from '../../utils/notificationDisplay'
+import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
   useMarkNotificationReadMutation,
@@ -148,17 +148,27 @@ export default function NotificationsPage() {
               {activeCategory === 'all' ? t('title') : td(`notifications:category.${activeCategory}`)}
             </h1>
           </div>
-          {activeUnreadCount > 0 && (
-            <button
-              type="button"
-              onClick={handleMarkVisibleRead}
-              disabled={isMarkingAll}
-              className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
+          <div className="flex items-center gap-4">
+            {activeUnreadCount > 0 && (
+              <button
+                type="button"
+                onClick={handleMarkVisibleRead}
+                disabled={isMarkingAll}
+                className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
+              >
+                <CheckCheck className="w-4 h-4" />
+                {t('markAllRead')}
+              </button>
+            )}
+            {/* US-79: genvej til notifikationsindstillingerne på /bruger */}
+            <Link
+              to={`/bruger#${NOTIFICATION_SETTINGS_ANCHOR}`}
+              className="flex items-center gap-1.5 text-sm text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
             >
-              <CheckCheck className="w-4 h-4" />
-              {t('markAllRead')}
-            </button>
-          )}
+              <Settings className="w-4 h-4" />
+              {t('settingsLink')}
+            </Link>
+          </div>
         </div>
 
         {isLoading ? (

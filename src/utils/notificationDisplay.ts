@@ -1,5 +1,5 @@
 // src/utils/notificationDisplay.ts
-import type { AppNotification } from '../types/notification/notificationTypes'
+import type { AppNotification, NotificationTypeGroup } from '../types/notification/notificationTypes'
 import type { DynamicTFunction } from '../i18n/config'
 
 // Overskriften på en notifikation. Alle typer undtagen 'message' (opgaver og
@@ -35,3 +35,18 @@ export function notificationBody(notification: AppNotification, t: DynamicTFunct
     }
     return notification.body
 }
+
+// Notifikationstyperne grupperet som på /notifikationer - bruges af
+// indstillingerne på /bruger (US-79). Ny type i e_notification-
+// constrainten skal også tilføjes her, ellers kan den ikke slås fra.
+// Anker for afsnittet på /bruger - genvejen fra /notifikationer linker hertil.
+export const NOTIFICATION_SETTINGS_ANCHOR = 'notifikationer'
+
+export const NOTIFICATION_TYPE_GROUPS: NotificationTypeGroup[] = [
+    { key: 'messages', types: ['message'] },
+    {
+        key: 'tasks',
+        types: ['task_assigned', 'task_updated', 'task_completed', 'task_approved', 'task_rejected', 'task_favorite_room'],
+    },
+    { key: 'news', types: ['news'] },
+]

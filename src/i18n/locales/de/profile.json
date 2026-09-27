@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Darstellung",
     "hint": "Sprache und Design werden in diesem Browser gespeichert und gelten nur für dieses Gerät."
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "master": "Benachrichtigungen erhalten",
+    "hint": "Deaktivierte Benachrichtigungen werden gar nicht erstellt. Bereits erhaltene bleiben erhalten.",
+    "loading": "Einstellungen werden geladen...",
+    "loadFailed": "Einstellungen konnten nicht geladen werden.",
+    "saveFailed": "Einstellung konnte nicht gespeichert werden."
   }
 }

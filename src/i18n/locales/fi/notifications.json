@@ -24,5 +24,6 @@
     "task_rejected": "Valmiiksi ilmoittaminen hylätty",
     "task_favorite_room": "Uusi tehtävä suosikkihuoneessa",
     "news": "Uusi uutinen"
-  }
+  },
+  "settingsLink": "Asetukset"
 }

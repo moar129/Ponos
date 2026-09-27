@@ -24,5 +24,6 @@
     "task_rejected": "Raportarea finalizării a fost respinsă",
     "task_favorite_room": "Sarcină nouă într-o cameră favorită",
     "news": "Știre nouă"
-  }
+  },
+  "settingsLink": "Setări"
 }

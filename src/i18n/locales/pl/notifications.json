@@ -24,5 +24,6 @@
     "task_rejected": "Zgłoszenie zakończenia odrzucone",
     "task_favorite_room": "Nowe zadanie w ulubionym pokoju",
     "news": "Nowa aktualność"
-  }
+  },
+  "settingsLink": "Ustawienia"
 }

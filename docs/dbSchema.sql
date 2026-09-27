@@ -457,6 +457,21 @@ create index idx_task_room_favorites_user_org on public.task_room_favorites (use
 
 
 -- ---------------------------------------------------------------------
+-- 9.9 NOTIFICATION PREFERENCES (US-79, 2026-09-27)
+-- Brugerens notifikationsindstillinger på /bruger: hovedkontakt (enabled)
+-- + fravalgte typer (muted_types). Én række pr. bruger, global (gælder
+-- alle organisationer). Ingen række = alt slået til. Håndhæves af
+-- triggeren skip_muted_notification på notifications (§15.20c).
+-- ---------------------------------------------------------------------
+create table public.notification_preferences (
+  user_id      uuid primary key default auth.uid() references public.profiles(id) on delete cascade,
+  enabled      boolean not null default true,
+  muted_types  text[]  not null default '{}',
+  updated_at   timestamptz not null default now()
+);
+
+
+-- ---------------------------------------------------------------------
 -- 10. TASK (tilhører organisation)
 -- De tre sidste kolonner (room_id, priority, max_assignees) og
 -- idx_tasks_room er Studerende 3's tilføjelser - dokumenteret her fra
@@ -2368,6 +2383,40 @@ create trigger trg_notify_task_created_in_favorite_room
 
 
 -- ---------------------------------------------------------------------
+-- 15.20c US-79 (2026-09-27): skip_muted_notification
+-- before insert-trigger på notifications (Rasmus' tabel - hans notify_*-
+-- triggere er ikke ændret): dropper rækken (return null), hvis modtageren
+-- har slået alt eller typen fra i notification_preferences (§9.9). Virker
+-- derfor for alle eksisterende og fremtidige notify-triggere. Slåede-fra
+-- notifikationer oprettes slet ikke. Kørt og testet 2026-09-27.
+-- ---------------------------------------------------------------------
+create or replace function public.skip_muted_notification()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if exists (
+    select 1
+    from notification_preferences p
+    where p.user_id = new.user_id
+      and (not p.enabled or new.type = any(p.muted_types))
+  ) then
+    return null;
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_skip_muted_notification
+  before insert on public.notifications
+  for each row
+  execute function public.skip_muted_notification();
+
+
+-- ---------------------------------------------------------------------
 -- 15.21 US-42 (2026-09-23): ITEM-ENHEDER OG TASK-MATERIALE-RESERVATION
 -- Hele kredsløbet mellem Datalager og Task: en opgave RESERVERER
 -- automatisk N ledige enheder af et item (reserve_item_units), frigiver
@@ -3366,6 +3415,7 @@ alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
 alter table public.task_room_roles         enable row level security;
 alter table public.task_room_favorites     enable row level security;
+alter table public.notification_preferences enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_requests           enable row level security;
@@ -4086,6 +4136,28 @@ create policy "Slet egne favoritrum"
     and organisation_id = public.auth_profile_org()
     and public.has_privilege_or_admin('read_tasks')
   );
+
+
+-- ---------------------------------------------------------------------
+-- 16.7e NOTIFICATION_PREFERENCES (US-79, 2026-09-27)
+-- Kun egen række; intet privilegie (personlig indstilling). Ingen
+-- delete-policy - frontend upserter.
+-- ---------------------------------------------------------------------
+create policy "Se egne notifikationsindstillinger"
+  on public.notification_preferences for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "Opret egne notifikationsindstillinger"
+  on public.notification_preferences for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "Rediger egne notifikationsindstillinger"
+  on public.notification_preferences for update
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
 
 
 -- ---------------------------------------------------------------------

@@ -8,6 +8,8 @@ import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/ap
 import { useSignOutMutation } from '../../store/apis/authApi'
 import ChangePasswordForm from '../../components/profile/ChangePasswordForm'
 import { PreferencesSection } from '../../components/profile/PreferencesSection'
+import { NotificationSettingsSection } from '../../components/profile/NotificationSettingsSection'
+import { NOTIFICATION_SETTINGS_ANCHOR } from '../../utils/notificationDisplay'
 import { readableError } from '../../ErrorMessage'
 import { Avatar } from '../../components/common/Avatar'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
@@ -278,6 +280,20 @@ export default function ProfilePage() {
                         {t('preferences.title')}
                     </h2>
                     <PreferencesSection />
+                </section>
+            )}
+
+            {/* US-79: notifikationsindstillinger - gemmes i databasen med
+                det samme (notification_preferences), ingen Gem-knap. */}
+            {!isEditing && (
+                <section
+                    id={NOTIFICATION_SETTINGS_ANCHOR}
+                    className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700"
+                >
+                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
+                        {t('notifications.title')}
+                    </h2>
+                    <NotificationSettingsSection />
                 </section>
             )}
 

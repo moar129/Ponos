@@ -24,5 +24,6 @@
     "task_rejected": "Færdigmelding afvist",
     "task_favorite_room": "Ny opgave i et favoritrum",
     "news": "Ny nyhed"
-  }
+  },
+  "settingsLink": "Indstillinger"
 }

@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Afișare",
     "hint": "Limba și tema se salvează în acest browser și se aplică doar acestui dispozitiv."
+  },
+  "notifications": {
+    "title": "Notificări",
+    "master": "Primește notificări",
+    "hint": "Notificările dezactivate nu sunt create deloc. Cele deja primite se păstrează.",
+    "loading": "Se încarcă setările...",
+    "loadFailed": "Nu s-au putut încărca setările.",
+    "saveFailed": "Nu s-a putut salva setarea."
   }
 }

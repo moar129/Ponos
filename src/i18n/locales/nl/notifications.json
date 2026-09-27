@@ -24,5 +24,6 @@
     "task_rejected": "Gereedmelding afgewezen",
     "task_favorite_room": "Nieuwe taak in een favoriete ruimte",
     "news": "Nieuw nieuwsbericht"
-  }
+  },
+  "settingsLink": "Instellingen"
 }

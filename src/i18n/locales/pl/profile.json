@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Wyświetlanie",
     "hint": "Język i motyw są zapisywane w tej przeglądarce i dotyczą tylko tego urządzenia."
+  },
+  "notifications": {
+    "title": "Powiadomienia",
+    "master": "Otrzymuj powiadomienia",
+    "hint": "Wyłączone powiadomienia w ogóle nie są tworzone. Już otrzymane zostają zachowane.",
+    "loading": "Ładowanie ustawień...",
+    "loadFailed": "Nie udało się wczytać ustawień.",
+    "saveFailed": "Nie udało się zapisać ustawienia."
   }
 }

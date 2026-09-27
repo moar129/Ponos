@@ -1518,6 +1518,27 @@ Som bruger vil jeg få besked, når der oprettes en ny opgave i et af mine favor
 - Valgfrit (afklares før start): brugerindstilling på `/bruger` til at slå favoritrum-notifikationer fra.
 - Server-side håndhævelse; ingen notifikationer på tværs af organisationer.
 
+## US-79 – Notifikationsindstillinger
+
+**Priority:** Medium
+
+**Note:** Opfølgning på US-78 (ingen opt-out). Filtreringen sker server-side i en `before insert`-trigger på `notifications` (`skip_muted_notification`), så den gælder alle notify-triggere - også fremtidige - uden at de skal ændres. `notifications` er Rasmus' tabel; hans triggere røres ikke. Indstillingen er global pr. bruger (alle organisationer).
+
+### User Story
+
+Som bruger vil jeg kunne slå notifikationer fra og til og vælge hvilke typer jeg vil modtage, så jeg kun får de beskeder der er relevante for mig.
+
+### Acceptance Criteria
+
+- `/bruger` har et afsnit "Notifikationer" med en hovedkontakt "Modtag notifikationer" og en kontakt pr. type, grupperet i Beskeder, Opgaver og Nyheder (samme grupper som `/notifikationer`).
+- Ændringer gemmes med det samme (ingen Gem-knap); fejl ruller kontakten tilbage og viser en besked.
+- Når hovedkontakten er slået fra, oprettes ingen notifikationer; typerne vises nedtonet og deres valg huskes, til hovedkontakten slås til igen.
+- En slået-fra type oprettes slet ikke (filtreres i databasen ved oprettelse). Allerede modtagne notifikationer bevares; slås typen til igen, kommer tidligere notifikationer ikke tilbage.
+- Brugere uden gemte indstillinger modtager alt som hidtil.
+- Kun brugeren selv kan se og ændre sine indstillinger (RLS på `notification_preferences`).
+- `/notifikationer` har en genvej "Indstillinger", der åbner afsnittet på `/bruger`.
+- Nye notifikationstyper skal tilføjes til `NOTIFICATION_TYPE_GROUPS` (`utils/notificationDisplay.ts`) for at kunne slås fra.
+
 ---
 
 # 11. Prioriteringsoversigt

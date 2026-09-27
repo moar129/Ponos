@@ -24,5 +24,6 @@
     "task_rejected": "A befejezés bejelentését elutasították",
     "task_favorite_room": "Új feladat egy kedvenc teremben",
     "news": "Új hír"
-  }
+  },
+  "settingsLink": "Beállítások"
 }

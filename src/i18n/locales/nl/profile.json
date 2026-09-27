@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Weergave",
     "hint": "Taal en thema worden in deze browser opgeslagen en gelden alleen voor dit apparaat."
+  },
+  "notifications": {
+    "title": "Meldingen",
+    "master": "Meldingen ontvangen",
+    "hint": "Uitgeschakelde meldingen worden helemaal niet aangemaakt. Al ontvangen meldingen blijven bewaard.",
+    "loading": "Instellingen laden...",
+    "loadFailed": "Kon instellingen niet laden.",
+    "saveFailed": "Kon de instelling niet opslaan."
   }
 }
