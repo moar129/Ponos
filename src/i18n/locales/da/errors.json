@@ -170,6 +170,7 @@
     "TASK_NOT_COMPLETED": "Du kan først vælge, når opgaven er afsluttet.",
     "ROOM_NOT_ACCESSIBLE": "Rummet findes ikke, eller du har ikke adgang til det.",
     "ROOM_NOT_ROLE_LOCKED": "Rummet er ikke rolle-låst og har ingen chat.",
-    "CONVERSATION_CLOSED": "Chatten er lukket - kun læsning."
+    "CONVERSATION_CLOSED": "Chatten er lukket - kun læsning.",
+    "TASK_CHAT_NOT_AVAILABLE": "Opgave-chatten er ikke tilgængelig for dig."
   }
 }

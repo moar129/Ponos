@@ -69,6 +69,7 @@
     "close": "Luk chat",
     "closedByMe": "Du har lukket chatten - kun læsning.",
     "reopen": "Genåbn",
-    "roomClosed": "Rummet er ikke længere rolle-låst - chatten er kun til læsning."
+    "roomClosed": "Rummet er ikke længere rolle-låst - chatten er kun til læsning.",
+    "confirmLeaveBody": "Er du sikker på, at du vil forlade \"{{name}}\"? Du kan komme tilbage via Chat-knappen på opgaven/rummet."
   }
 }

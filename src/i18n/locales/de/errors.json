@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Du kannst erst wählen, wenn die Aufgabe abgeschlossen ist.",
     "ROOM_NOT_ACCESSIBLE": "Der Raum existiert nicht, oder du hast keinen Zugriff darauf.",
     "ROOM_NOT_ROLE_LOCKED": "Der Raum ist nicht rollenbeschränkt und hat keinen Chat.",
-    "CONVERSATION_CLOSED": "Der Chat ist geschlossen - nur Lesen."
+    "CONVERSATION_CLOSED": "Der Chat ist geschlossen - nur Lesen.",
+    "TASK_CHAT_NOT_AVAILABLE": "Der Aufgaben-Chat ist für dich nicht verfügbar."
   }
 }

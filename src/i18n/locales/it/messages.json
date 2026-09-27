@@ -70,6 +70,7 @@
     "close": "Chiudi chat",
     "closedByMe": "Hai chiuso la chat - sola lettura.",
     "reopen": "Riapri",
-    "roomClosed": "La stanza non è più limitata per ruolo - la chat è di sola lettura."
+    "roomClosed": "La stanza non è più limitata per ruolo - la chat è di sola lettura.",
+    "confirmLeaveBody": "Vuoi davvero lasciare \"{{name}}\"? Puoi tornare tramite il pulsante Chat dell'attività/stanza."
   }
 }

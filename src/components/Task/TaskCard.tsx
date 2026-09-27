@@ -531,8 +531,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
               </>
             )}
 
-          {/* OPGAVE-CHAT - kun når DB har oprettet den og jeg er deltager */}
-          <TaskChatButton taskId={task.id} />
+          {/* OPGAVE-CHAT - jeg er deltager, eller tilmeldt og kan melde mig ind igen */}
+          <TaskChatButton taskId={task.id} canJoin={isAssigned && assignees.length >= 2} />
         </div>
       </div>
 

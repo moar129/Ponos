@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Poți alege doar după ce sarcina este finalizată.",
     "ROOM_NOT_ACCESSIBLE": "Camera nu există sau nu ai acces la ea.",
     "ROOM_NOT_ROLE_LOCKED": "Camera nu este restricționată pe roluri și nu are chat.",
-    "CONVERSATION_CLOSED": "Chatul este închis - doar citire."
+    "CONVERSATION_CLOSED": "Chatul este închis - doar citire.",
+    "TASK_CHAT_NOT_AVAILABLE": "Chatul sarcinii nu este disponibil pentru tine."
   }
 }

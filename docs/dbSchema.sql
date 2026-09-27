@@ -38,6 +38,8 @@
 -- completion_choice; edit_message, notify_new_message, gruppe-RPC'erne
 -- (add/remove/rename/leave) og get_my_conversations er genskabt i §15.24
 -- og står dér i deres nuværende, fulde form.
+-- Samme dag: ny tabel conversation_opt_outs + RPC join_task_conversation;
+-- opgave-/rum-chats kan forlades (§15.24).
 -- ---------------------------------------------------------------------
 
 
@@ -3440,6 +3442,10 @@ grant execute on function public.create_role_with_privileges(text, text[]) to au
 -- 'close', og skjules i get_my_conversations; af-arkiveres når en deltager
 -- ikke har valgt 'close' (genåbnet opgave nulstiller valg, ny tilmeldt).
 -- Styres af sync_task_conversation_archive. Beskederne bevares.
+-- Opfølgning 2026-09-27 (2026-09-27-system-chat-leave.sql): opgave-/rum-
+-- chats kan forlades (leave_group_conversation); fravalget huskes i
+-- conversation_opt_outs. Genindtræden via Chat-knap (join_task_conversation /
+-- get_or_join_room_conversation). Tilføj/fjern/omdøb er stadig låst.
 -- ---------------------------------------------------------------------
 -- ---------------------------------------------------------------------
 -- 1. Kolonner
@@ -3454,6 +3460,20 @@ alter table public.conversations
 alter table public.conversation_participants
   add column completion_choice text
     constraint conversation_participants_completion_choice_check check (completion_choice in ('keep', 'close'));
+
+-- Brugere, der selv har forladt en opgave-/rum-chat. sync_task_conversation/
+-- sync_room_conversation springer dem over; fravalget slettes ved
+-- genindtræden (join_task_conversation/get_or_join_room_conversation), ved
+-- afmelding af opgaven og ved mistet rum-adgang.
+create table public.conversation_opt_outs (
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (conversation_id, user_id)
+);
+
+-- Kun security definer-funktionerne rører tabellen.
+alter table public.conversation_opt_outs enable row level security;
 
 -- ---------------------------------------------------------------------
 -- 2. Hjælpefunktioner
@@ -3607,10 +3627,15 @@ begin
     values (v_conversation_id, v_actor, 'Gruppe oprettet for opgaven', 'system');
   end if;
 
+  -- Tilmeldte, undtagen dem der selv har forladt chatten.
   insert into public.conversation_participants (conversation_id, user_id)
   select v_conversation_id, ta.user_id
   from public.task_assignees ta
   where ta.task_id = p_task_id
+    and not exists (
+      select 1 from public.conversation_opt_outs o
+      where o.conversation_id = v_conversation_id and o.user_id = ta.user_id
+    )
   on conflict (conversation_id, user_id) do nothing;
 
   delete from public.conversation_participants cp
@@ -3618,6 +3643,14 @@ begin
     and not exists (
       select 1 from public.task_assignees ta
       where ta.task_id = p_task_id and ta.user_id = cp.user_id
+    );
+
+  -- Afmeldt opgaven: fravalget glemmes, så en ny tilmelding melder ind igen.
+  delete from public.conversation_opt_outs o
+  where o.conversation_id = v_conversation_id
+    and not exists (
+      select 1 from public.task_assignees ta
+      where ta.task_id = p_task_id and ta.user_id = o.user_id
     );
 
   -- Arkivering følger deltagernes valg (alle 'close' = arkiveret).
@@ -3813,9 +3846,10 @@ begin
        and name is distinct from v_room.name;
   end if;
 
-  -- Medlemmer med en af rummets roller. Admins/view_all_task_rooms tilføjes
-  -- ikke automatisk, men kan selv melde sig ind (get_or_join_room_conversation)
-  -- og fjernes ikke herunder, da de stadig har adgang.
+  -- Medlemmer med en af rummets roller, undtagen dem der selv har forladt
+  -- chatten. Admins/view_all_task_rooms tilføjes ikke automatisk, men kan
+  -- selv melde sig ind (get_or_join_room_conversation) og fjernes ikke
+  -- herunder, da de stadig har adgang.
   insert into public.conversation_participants (conversation_id, user_id)
   select distinct v_conversation_id, m.user_id
   from public.memberships m
@@ -3823,11 +3857,20 @@ begin
   where trr.room_id = p_room_id
     and m.organisation_id = v_room.organisation_id
     and (public.role_has_privilege(m.role_id, 'read_tasks') or public.role_has_privilege(m.role_id, 'admin'))
+    and not exists (
+      select 1 from public.conversation_opt_outs o
+      where o.conversation_id = v_conversation_id and o.user_id = m.user_id
+    )
   on conflict (conversation_id, user_id) do nothing;
 
   delete from public.conversation_participants cp
   where cp.conversation_id = v_conversation_id
     and not public.member_can_access_room(cp.user_id, p_room_id);
+
+  -- Mistet rum-adgang: fravalget glemmes, så ny adgang melder ind igen.
+  delete from public.conversation_opt_outs o
+  where o.conversation_id = v_conversation_id
+    and not public.member_can_access_room(o.user_id, p_room_id);
 
   update public.conversations c
      set archived_at = null, archived_by = null
@@ -3870,6 +3913,10 @@ begin
     select id into v_conversation_id from public.conversations where room_id = p_room_id;
   end if;
 
+  delete from public.conversation_opt_outs
+  where conversation_id = v_conversation_id
+    and user_id = auth.uid();
+
   insert into public.conversation_participants (conversation_id, user_id)
   values (v_conversation_id, auth.uid())
   on conflict (conversation_id, user_id) do nothing;
@@ -3881,6 +3928,66 @@ begin
   return v_conversation_id;
 end;
 $function$;
+
+-- Tilmeldt bruger melder sig (ind) igen via Chat-knappen på opgavekortet.
+create or replace function public.join_task_conversation(p_task_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_org uuid := public.auth_profile_org();
+  v_conversation_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if v_org is null
+     or not exists (
+       select 1
+       from public.tasks t
+       join public.task_assignees ta on ta.task_id = t.id and ta.user_id = auth.uid()
+       where t.id = p_task_id and t.organisation_id = v_org
+     )
+  then
+    raise exception 'Opgave-chatten er ikke tilgængelig for dig.' using hint = 'TASK_CHAT_NOT_AVAILABLE';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('task_conversation:' || p_task_id::text, 0));
+
+  select id into v_conversation_id from public.conversations where task_id = p_task_id;
+
+  if v_conversation_id is null then
+    perform public.sync_task_conversation(p_task_id);
+    select id into v_conversation_id from public.conversations where task_id = p_task_id;
+
+    if v_conversation_id is null then
+      raise exception 'Opgave-chatten er ikke tilgængelig for dig.' using hint = 'TASK_CHAT_NOT_AVAILABLE';
+    end if;
+  end if;
+
+  delete from public.conversation_opt_outs
+  where conversation_id = v_conversation_id
+    and user_id = auth.uid();
+
+  -- Stadig deltager, men chatten er arkiveret (alle lukkede): Chat-klik
+  -- fortryder mit 'close', så den dukker op igen.
+  insert into public.conversation_participants (conversation_id, user_id)
+  values (v_conversation_id, auth.uid())
+  on conflict (conversation_id, user_id) do update
+    set completion_choice = null
+    where conversation_participants.completion_choice = 'close';
+
+  perform public.sync_task_conversation_archive(v_conversation_id);
+
+  return v_conversation_id;
+end;
+$function$;
+
+revoke execute on function public.join_task_conversation(uuid) from public, anon;
+grant execute on function public.join_task_conversation(uuid) to authenticated;
 
 -- create_task_room / update_task_room kalder sync_room_conversation - se §15.22.
 
@@ -4346,7 +4453,8 @@ declare
   v_caller_org uuid;
   v_conversation_org uuid;
   v_is_group boolean;
-  v_is_system boolean;
+  v_task_id uuid;
+  v_room_id uuid;
   v_caller_name text;
   v_deleted_count int;
 begin
@@ -4354,8 +4462,8 @@ begin
     raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
   end if;
 
-  select c.is_group, c.organisation_id, (c.task_id is not null or c.room_id is not null)
-    into v_is_group, v_conversation_org, v_is_system
+  select c.is_group, c.organisation_id, c.task_id, c.room_id
+    into v_is_group, v_conversation_org, v_task_id, v_room_id
   from public.conversations c
   where c.id = p_conversation_id;
 
@@ -4364,9 +4472,6 @@ begin
   end if;
   if not v_is_group then
     raise exception 'Du kan kun forlade gruppesamtaler.' using hint = 'LEAVE_GROUP_ONLY';
-  end if;
-  if v_is_system then
-    raise exception 'Gruppen styres automatisk af opgaven/rummet og kan ikke ændres manuelt.' using hint = 'SYSTEM_GROUP_LOCKED';
   end if;
 
   select p.active_organisation_id
@@ -4379,6 +4484,20 @@ begin
   end if;
   if not public.is_conversation_participant(p_conversation_id, v_caller_id) then
     raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+  end if;
+
+  -- System-chat: samme lås som sync-funktionerne, og fravalget huskes, så
+  -- automatikken ikke melder mig ind igen.
+  if v_task_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('task_conversation:' || v_task_id::text, 0));
+  elsif v_room_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('room_conversation:' || v_room_id::text, 0));
+  end if;
+
+  if v_task_id is not null or v_room_id is not null then
+    insert into public.conversation_opt_outs (conversation_id, user_id)
+    values (p_conversation_id, v_caller_id)
+    on conflict (conversation_id, user_id) do nothing;
   end if;
 
   select concat_ws(' ', p.first_name, p.last_name)
@@ -4400,6 +4519,11 @@ begin
       coalesce(v_caller_name, 'Et medlem') || ' forlod gruppen.',
       'system'
     );
+
+    -- Resten har måske alle valgt 'close' -> arkivér.
+    if v_task_id is not null then
+      perform public.sync_task_conversation_archive(p_conversation_id);
+    end if;
   end if;
 end;
 $function$;

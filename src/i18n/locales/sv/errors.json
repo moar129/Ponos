@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Du kan välja först när uppgiften är avslutad.",
     "ROOM_NOT_ACCESSIBLE": "Rummet finns inte, eller så har du inte åtkomst till det.",
     "ROOM_NOT_ROLE_LOCKED": "Rummet är inte rollbegränsat och har ingen chatt.",
-    "CONVERSATION_CLOSED": "Chatten är stängd - endast läsning."
+    "CONVERSATION_CLOSED": "Chatten är stängd - endast läsning.",
+    "TASK_CHAT_NOT_AVAILABLE": "Uppgiftschatten är inte tillgänglig för dig."
   }
 }

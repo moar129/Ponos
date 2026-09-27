@@ -71,6 +71,7 @@
     "close": "Zamknij czat",
     "closedByMe": "Czat został zamknięty - tylko do odczytu.",
     "reopen": "Otwórz ponownie",
-    "roomClosed": "Pokój nie jest już ograniczony rolami - czat jest tylko do odczytu."
+    "roomClosed": "Pokój nie jest już ograniczony rolami - czat jest tylko do odczytu.",
+    "confirmLeaveBody": "Czy na pewno chcesz opuścić „{{name}}\"? Możesz wrócić przyciskiem Czat przy zadaniu/pokoju."
   }
 }

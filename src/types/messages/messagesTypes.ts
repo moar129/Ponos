@@ -75,6 +75,9 @@ export type TaskChatChoice = 'keep' | 'close';
 
 export interface TaskChatButtonProps {
   taskId: string;
+  // Tilmeldt + 2 eller flere tilmeldte: knappen vises, selvom jeg har
+  // forladt chatten, og melder mig ind igen.
+  canJoin: boolean;
 }
 
 export interface RoomChatButtonProps {

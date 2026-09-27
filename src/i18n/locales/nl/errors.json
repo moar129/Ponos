@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Je kunt pas kiezen als de taak is afgerond.",
     "ROOM_NOT_ACCESSIBLE": "De ruimte bestaat niet, of je hebt er geen toegang toe.",
     "ROOM_NOT_ROLE_LOCKED": "De ruimte is niet rolbeperkt en heeft geen chat.",
-    "CONVERSATION_CLOSED": "De chat is gesloten - alleen lezen."
+    "CONVERSATION_CLOSED": "De chat is gesloten - alleen lezen.",
+    "TASK_CHAT_NOT_AVAILABLE": "De taakchat is niet beschikbaar voor jou."
   }
 }

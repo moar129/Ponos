@@ -71,6 +71,7 @@
     "close": "Zavřít chat",
     "closedByMe": "Chat jste zavřeli - pouze ke čtení.",
     "reopen": "Znovu otevřít",
-    "roomClosed": "Místnost už není omezena rolemi - chat je pouze ke čtení."
+    "roomClosed": "Místnost už není omezena rolemi - chat je pouze ke čtení.",
+    "confirmLeaveBody": "Opravdu chcete opustit „{{name}}\"? Vrátit se můžete tlačítkem Chat u úkolu/místnosti."
   }
 }

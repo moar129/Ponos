@@ -69,6 +69,7 @@
     "close": "Close chat",
     "closedByMe": "You have closed the chat - read only.",
     "reopen": "Reopen",
-    "roomClosed": "The room is no longer role-restricted - the chat is read only."
+    "roomClosed": "The room is no longer role-restricted - the chat is read only.",
+    "confirmLeaveBody": "Are you sure you want to leave \"{{name}}\"? You can come back via the Chat button on the task/room."
   }
 }

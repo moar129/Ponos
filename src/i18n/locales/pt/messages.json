@@ -70,6 +70,7 @@
     "close": "Fechar chat",
     "closedByMe": "Fechou o chat - só leitura.",
     "reopen": "Reabrir",
-    "roomClosed": "A sala já não está restrita por função - o chat é só de leitura."
+    "roomClosed": "A sala já não está restrita por função - o chat é só de leitura.",
+    "confirmLeaveBody": "Tem a certeza de que quer sair de \"{{name}}\"? Pode voltar através do botão Chat na tarefa/sala."
   }
 }

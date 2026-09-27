@@ -63,6 +63,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 | 27/09 | Opfølgning på opgave-/rum-chats efter bruger-beslutning: når ALLE deltagere har valgt "Luk chat", arkiveres opgave-chatten (skjules fra alles liste, beskeder bevares) i stedet for at slettes; genåbnet opgave eller ny tilmeldt uden valg af-arkiverer. Migration `docs/migrations/2026-09-27-task-chat-archive-when-all-closed.sql` (ny helper `sync_task_conversation_archive`, `get_my_conversations` skjuler arkiverede opgave-chats) kørt og testet af bruger 27/09; `dbSchema.sql` §15.24. Frontend: `messagePage` afleder `activeGroup`, så en åben chat der forsvinder fra listen lukkes (tomtilstand) i stedet for at vise administrér/forlad. |
 
+| 27/09 | Opfølgning på opgave-/rum-chats efter bruger-forespørgsel: auto-grupper kan nu forlades (før låst med SYSTEM_GROUP_LOCKED). Ny tabel `conversation_opt_outs` husker fravalget, så `sync_task_conversation`/`sync_room_conversation` ikke melder brugeren ind igen; fravalget glemmes ved afmelding af opgaven/mistet rum-adgang. Genindtræden via Chat-knap: ny RPC `join_task_conversation` (opgavekort, vises for tilmeldt ved ≥2 tilmeldte) og `get_or_join_room_conversation` (rum-bar). Forlad-knap i chat-header for system-chats. `dbSchema.sql` §15.24. Kørt og testet af bruger. |
+
 ## Næste op
 
 **00. ~~Godkendelse: fane "Til godkendelse" + rum-adgang~~ ✅ FÆRDIG 2026-09-27** — kørt og testet, se logbog 27/09. Evt. opfølgning: notifikation til godkendere ved ny færdigmelding (fravalgt for nu).

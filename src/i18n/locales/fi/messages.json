@@ -69,6 +69,7 @@
     "close": "Sulje keskustelu",
     "closedByMe": "Olet sulkenut keskustelun - vain luku.",
     "reopen": "Avaa uudelleen",
-    "roomClosed": "Huone ei ole enää roolirajattu - keskustelu on vain luku -tilassa."
+    "roomClosed": "Huone ei ole enää roolirajattu - keskustelu on vain luku -tilassa.",
+    "confirmLeaveBody": "Haluatko varmasti poistua ryhmästä \"{{name}}\"? Voit palata tehtävän/huoneen Chat-painikkeella."
   }
 }

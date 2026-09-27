@@ -69,6 +69,7 @@
     "close": "Chat sluiten",
     "closedByMe": "Je hebt de chat gesloten - alleen lezen.",
     "reopen": "Heropenen",
-    "roomClosed": "De ruimte is niet meer rolbeperkt - de chat is alleen-lezen."
+    "roomClosed": "De ruimte is niet meer rolbeperkt - de chat is alleen-lezen.",
+    "confirmLeaveBody": "Weet je zeker dat je \"{{name}}\" wilt verlaten? Je kunt terugkomen via de Chat-knop bij de taak/ruimte."
   }
 }

@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Csak a feladat befejezése után választhatsz.",
     "ROOM_NOT_ACCESSIBLE": "A helyiség nem létezik, vagy nincs hozzáférésed.",
     "ROOM_NOT_ROLE_LOCKED": "A helyiség nincs szerepkörhöz kötve, és nincs csevegése.",
-    "CONVERSATION_CLOSED": "A csevegés lezárva - csak olvasható."
+    "CONVERSATION_CLOSED": "A csevegés lezárva - csak olvasható.",
+    "TASK_CHAT_NOT_AVAILABLE": "A feladat csevegése nem érhető el számodra."
   }
 }

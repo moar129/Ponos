@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Vybrat můžete až po dokončení úkolu.",
     "ROOM_NOT_ACCESSIBLE": "Místnost neexistuje, nebo k ní nemáte přístup.",
     "ROOM_NOT_ROLE_LOCKED": "Místnost není omezena rolemi a nemá chat.",
-    "CONVERSATION_CLOSED": "Chat je uzavřen - pouze ke čtení."
+    "CONVERSATION_CLOSED": "Chat je uzavřen - pouze ke čtení.",
+    "TASK_CHAT_NOT_AVAILABLE": "Chat úkolu pro vás není dostupný."
   }
 }

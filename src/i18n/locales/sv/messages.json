@@ -69,6 +69,7 @@
     "close": "Stäng chatt",
     "closedByMe": "Du har stängt chatten - endast läsning.",
     "reopen": "Öppna igen",
-    "roomClosed": "Rummet är inte längre rollbegränsat - chatten är skrivskyddad."
+    "roomClosed": "Rummet är inte längre rollbegränsat - chatten är skrivskyddad.",
+    "confirmLeaveBody": "Är du säker på att du vill lämna \"{{name}}\"? Du kan komma tillbaka via Chatt-knappen på uppgiften/rummet."
   }
 }

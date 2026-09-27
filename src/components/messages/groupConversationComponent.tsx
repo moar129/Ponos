@@ -51,12 +51,13 @@ export function GroupConversationComponent({
     useLeaveGroupConversationMutation();
   const [markConversationRead] = useMarkConversationReadMutation();
 
-  // Opgave-/rum-chats: medlemskab styres af databasen, så administrér/forlad
-  // skjules. Summary hentes fra den allerede cachede samtaleliste, så
+  // Opgave-/rum-chats: medlemskab styres af databasen, så administrér
+  // skjules; forlad er tilladt (DB husker fravalget). Summary hentes fra den allerede cachede samtaleliste, så
   // valg/lukning opdaterer sig, når 'Conversation' invalideres.
   const { data: conversations = [] } = useGetMyConversationsQuery();
   const summary = conversations.find((c) => c.conversationId === conversationId);
   const isSystemChat = Boolean(summary?.taskId || summary?.roomId);
+  const leaveBodyKey = isSystemChat ? 'systemChat.confirmLeaveBody' : 'group.confirmLeaveBody';
   const [setTaskChatChoice, { isLoading: isSettingChoice, error: choiceError }] =
     useSetTaskChatChoiceMutation();
   const choiceErrorMessage = readableError(choiceError);
@@ -235,7 +236,6 @@ export function GroupConversationComponent({
             {summary?.taskId ? t('systemChat.goToTask') : t('systemChat.goToRoom')} →
           </button>
         ) : (
-          <>
           <button
             type="button"
             onClick={() => setIsManageMembersOpen(true)}
@@ -245,17 +245,16 @@ export function GroupConversationComponent({
           >
             <UserCog className="w-5 h-5" />
           </button>
-          <button
-            type="button"
-            onClick={() => setConfirmingLeave(true)}
-            className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
-            title={t('group.leave')}
-            aria-label={t('group.leave')}
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
-          </>
         )}
+        <button
+          type="button"
+          onClick={() => setConfirmingLeave(true)}
+          className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors shrink-0"
+          title={t('group.leave')}
+          aria-label={t('group.leave')}
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Beskeder */}
@@ -536,8 +535,8 @@ export function GroupConversationComponent({
         title={t('group.confirmLeave')}
         message={
           readableLeaveError()
-            ? `${t('group.confirmLeaveBody', { name: groupName })} ${readableLeaveError()}`
-            : t('group.confirmLeaveBody', { name: groupName })
+            ? `${t(leaveBodyKey, { name: groupName })} ${readableLeaveError()}`
+            : t(leaveBodyKey, { name: groupName })
         }
         confirmLabel={t('group.leaveConfirm')}
         isLoading={isLeaving}

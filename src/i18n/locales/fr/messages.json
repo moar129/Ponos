@@ -70,6 +70,7 @@
     "close": "Fermer le chat",
     "closedByMe": "Vous avez fermé le chat - lecture seule.",
     "reopen": "Rouvrir",
-    "roomClosed": "La salle n'est plus limitée par rôle - le chat est en lecture seule."
+    "roomClosed": "La salle n'est plus limitée par rôle - le chat est en lecture seule.",
+    "confirmLeaveBody": "Voulez-vous vraiment quitter « {{name}} » ? Vous pouvez revenir via le bouton Chat de la tâche/salle."
   }
 }

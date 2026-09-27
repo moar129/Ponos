@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Możesz wybrać dopiero po ukończeniu zadania.",
     "ROOM_NOT_ACCESSIBLE": "Pokój nie istnieje lub nie masz do niego dostępu.",
     "ROOM_NOT_ROLE_LOCKED": "Pokój nie jest ograniczony rolami i nie ma czatu.",
-    "CONVERSATION_CLOSED": "Czat jest zamknięty - tylko do odczytu."
+    "CONVERSATION_CLOSED": "Czat jest zamknięty - tylko do odczytu.",
+    "TASK_CHAT_NOT_AVAILABLE": "Czat zadania nie jest dla ciebie dostępny."
   }
 }

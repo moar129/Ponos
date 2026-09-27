@@ -69,6 +69,7 @@
     "close": "Csevegés lezárása",
     "closedByMe": "Lezártad a csevegést - csak olvasható.",
     "reopen": "Újranyitás",
-    "roomClosed": "A helyiség már nincs szerepkörhöz kötve - a csevegés csak olvasható."
+    "roomClosed": "A helyiség már nincs szerepkörhöz kötve - a csevegés csak olvasható.",
+    "confirmLeaveBody": "Biztosan kilépsz ebből: „{{name}}\"? A feladat/terem Chat gombjával visszatérhetsz."
   }
 }

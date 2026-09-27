@@ -70,6 +70,7 @@
     "close": "Închide chatul",
     "closedByMe": "Ai închis chatul - doar citire.",
     "reopen": "Redeschide",
-    "roomClosed": "Camera nu mai este restricționată pe roluri - chatul este doar pentru citire."
+    "roomClosed": "Camera nu mai este restricționată pe roluri - chatul este doar pentru citire.",
+    "confirmLeaveBody": "Sigur vrei să părăsești „{{name}}\"? Poți reveni prin butonul Chat de la sarcină/cameră."
   }
 }

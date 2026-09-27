@@ -147,6 +147,7 @@
     "TASK_NOT_COMPLETED": "Solo puedes elegir cuando la tarea esté completada.",
     "ROOM_NOT_ACCESSIBLE": "La sala no existe o no tienes acceso a ella.",
     "ROOM_NOT_ROLE_LOCKED": "La sala no está restringida por rol y no tiene chat.",
-    "CONVERSATION_CLOSED": "El chat está cerrado - solo lectura."
+    "CONVERSATION_CLOSED": "El chat está cerrado - solo lectura.",
+    "TASK_CHAT_NOT_AVAILABLE": "El chat de la tarea no está disponible para ti."
   }
 }

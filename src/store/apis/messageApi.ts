@@ -470,6 +470,24 @@ deleteMessage: builder.mutation<void, { messageId: string; conversationId: strin
             invalidatesTags: ['Conversation'],
         }),
 
+        // Opgave-chat for en opgave, jeg er tilmeldt - melder mig ind igen,
+        // hvis jeg har forladt den (eller den er arkiveret, fordi alle lukkede).
+        joinTaskConversation: builder.mutation<string, { taskId: string }>({
+            queryFn: async ({ taskId }) => {
+                const { data, error } = await supabase.rpc('join_task_conversation', {
+                    p_task_id: taskId,
+                })
+
+                if (error) {
+                    return { error: mapDbError(error) }
+                }
+
+                return { data: data as string }
+            },
+
+            invalidatesTags: ['Conversation'],
+        }),
+
         // Mit eget valg i en afsluttet opgaves chat: behold aktiv eller luk
         // (skrivebeskyttet for mig). Nulstilles af databasen, hvis opgaven
         // genåbnes.
@@ -506,5 +524,6 @@ export const {
     useEditMessageMutation,
     useDeleteMessageMutation,
     useGetOrJoinRoomConversationMutation,
+    useJoinTaskConversationMutation,
     useSetTaskChatChoiceMutation,
 } = messageApi

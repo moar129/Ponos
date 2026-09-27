@@ -69,6 +69,7 @@
     "close": "Chat schließen",
     "closedByMe": "Du hast den Chat geschlossen - nur Lesen.",
     "reopen": "Wieder öffnen",
-    "roomClosed": "Der Raum ist nicht mehr rollenbeschränkt - der Chat ist schreibgeschützt."
+    "roomClosed": "Der Raum ist nicht mehr rollenbeschränkt - der Chat ist schreibgeschützt.",
+    "confirmLeaveBody": "Möchtest du „{{name}}\" wirklich verlassen? Du kannst über die Chat-Schaltfläche der Aufgabe/des Raums zurückkehren."
   }
 }
