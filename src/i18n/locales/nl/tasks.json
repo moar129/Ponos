@@ -114,14 +114,17 @@
   "filter": {
     "show": "Filter tonen",
     "hide": "Filter verbergen",
-    "searchPlaceholder": "Taken zoeken...",
+    "searchPlaceholder": "Zoek op titel, beschrijving, ruimte of persoon...",
     "all": "Alle",
     "sortNewest": "Nieuwste",
     "sortOldest": "Oudste",
     "sortPriority": "Prioriteit",
     "sortDeadline": "Deadline",
     "counts": "{{available}} beschikbaar · {{inProgress}} bezig",
-    "sortBy": "Sorteren op"
+    "sortBy": "Sorteren op",
+    "noMatches": "Geen taken komen overeen met zoekopdracht/filter.",
+    "activeCount_one": "{{count}} actief filter",
+    "activeCount_other": "{{count}} actieve filters"
   },
   "deleteRoom": {
     "heading": "Ruimte verwijderen",
@@ -142,5 +145,11 @@
   },
   "favorites": {
     "toggleFailed": "Kon favoriete ruimte niet bijwerken."
+  },
+  "completed": {
+    "tab": "Voltooid",
+    "heading": "Voltooide taken",
+    "subtitle": "Alle voltooide taken in de organisatie.",
+    "noAccess": "Je hebt geen toegang tot voltooide taken."
   }
 }

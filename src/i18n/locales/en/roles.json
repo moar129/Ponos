@@ -18,7 +18,8 @@
     "assign": "Assign",
     "approve": "Approve",
     "reject": "Reject",
-    "viewAll": "View all rooms"
+    "viewAll": "View all rooms",
+    "viewCompleted": "View completed"
   },
   "privilege": {
     "admin": "Full administrator (can do everything)"

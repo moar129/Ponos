@@ -18,7 +18,8 @@
     "assign": "Hozzárendelés",
     "approve": "Jóváhagyás",
     "reject": "Elutasítás",
-    "viewAll": "Összes szoba megtekintése"
+    "viewAll": "Összes szoba megtekintése",
+    "viewCompleted": "Befejezettek megtekintése"
   },
   "privilege": {
     "admin": "Teljes adminisztráció (mindent megtehet)"

@@ -115,14 +115,18 @@
   "filter": {
     "show": "Mostrar filtro",
     "hide": "Ocultar filtro",
-    "searchPlaceholder": "Pesquisar tarefas...",
+    "searchPlaceholder": "Pesquisar título, descrição, sala ou pessoa...",
     "all": "Todas",
     "sortNewest": "Mais recentes",
     "sortOldest": "Mais antigas",
     "sortPriority": "Prioridade",
     "sortDeadline": "Prazo",
     "counts": "{{available}} disponíveis · {{inProgress}} em curso",
-    "sortBy": "Ordenar por"
+    "sortBy": "Ordenar por",
+    "noMatches": "Nenhuma tarefa corresponde à pesquisa/filtros.",
+    "activeCount_one": "{{count}} filtro ativo",
+    "activeCount_many": "{{count}} filtros ativos",
+    "activeCount_other": "{{count}} filtros ativos"
   },
   "deleteRoom": {
     "heading": "Eliminar sala",
@@ -143,5 +147,11 @@
   },
   "favorites": {
     "toggleFailed": "Não foi possível atualizar a sala favorita."
+  },
+  "completed": {
+    "tab": "Concluídas",
+    "heading": "Tarefas concluídas",
+    "subtitle": "Todas as tarefas concluídas da organização.",
+    "noAccess": "Não tem acesso às tarefas concluídas."
   }
 }

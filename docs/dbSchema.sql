@@ -3795,6 +3795,13 @@ create policy "Slet egne datalager-favoritter"
 -- 15.8). Rolle-begrænsede rum (2026-09-25): select kræver desuden
 -- can_access_task_room(room_id) eller is_task_assignee(id); insert/update
 -- kan ikke placere en opgave i et rum, man ikke har adgang til.)
+-- Afsluttede opgaver (2026-09-27): status 'Completed' kræver desuden
+-- view_completed_tasks ("Opgaver — Se afsluttede") eller admin - ELLER at
+-- man er tilmeldt (is_task_assignee), så egne afsluttede opgaver og
+-- notifikations-links virker. Privilegiet blev backfillet til alle roller
+-- med update_tasks eller delete_tasks (ikke Medlem, 15.6d). Bruges af
+-- fanen "Afsluttede" (/tasks/afsluttede) og dashboardets panel. Før var
+-- afsluttede opgaver kun UI-gated på update/delete_tasks.
 -- ---------------------------------------------------------------------
 create policy "Se opgaver i egen organisation"
   on public.tasks for select
@@ -3803,6 +3810,11 @@ create policy "Se opgaver i egen organisation"
     organisation_id = public.auth_profile_org()
     and public.has_privilege_or_admin('read_tasks')
     and (public.can_access_task_room(room_id) or public.is_task_assignee(id))
+    and (
+      status <> 'Completed'
+      or public.has_privilege_or_admin('view_completed_tasks')
+      or public.is_task_assignee(id)
+    )
   );
 
 create policy "Opret opgaver i egen organisation"

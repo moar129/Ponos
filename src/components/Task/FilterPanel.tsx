@@ -1,19 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import type { ETaskPriority, ETaskStatus } from '../../types/Task/Task';
+import type { ETaskPriority, OpenTaskStatus, TaskSortOption } from '../../types/Task/Task';
 
-export type TaskSortOption =
-  | 'newest'
-  | 'oldest'
-  | 'priority'
-  | 'deadline';
+const STATUS_OPTIONS: OpenTaskStatus[] = ['Started', 'InProgress'];
 
 interface FilterPanelProps {
   isOpen: boolean;
-  selectedStatuses: ETaskStatus[];
+  // Hver status er en kolonne; fravalgt status skjuler kolonnen.
+  selectedStatuses: OpenTaskStatus[];
   selectedPriority: ETaskPriority | 'All';
   sortBy: TaskSortOption;
-  onStatusChange: (statuses: ETaskStatus[]) => void;
+  onStatusChange: (statuses: OpenTaskStatus[]) => void;
   onPriorityChange: (priority: ETaskPriority | 'All') => void;
   onSortChange: (sort: TaskSortOption) => void;
   onReset: () => void;
@@ -33,7 +30,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   if (!isOpen) return null;
 
-  const toggleStatus = (status: ETaskStatus) => {
+  const toggleStatus = (status: OpenTaskStatus) => {
     const newStatuses = selectedStatuses.includes(status)
       ? selectedStatuses.filter((s) => s !== status)
       : [...selectedStatuses, status];
@@ -50,35 +47,26 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div>
             <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('common:status')}</h3>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes('Started')}
-                  onChange={() => toggleStatus('Started')}
-                  className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
-                />
-                {t('status.Started')}
-              </label>
-
-              <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes('InProgress')}
-                  onChange={() => toggleStatus('InProgress')}
-                  className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
-                />
-                {t('status.InProgress')}
-              </label>
-
-              <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer dark:text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes('Completed')}
-                  onChange={() => toggleStatus('Completed')}
-                  className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
-                />
-                {t('status.Completed')}
-              </label>
+              {STATUS_OPTIONS.map((status) => {
+                const checked = selectedStatuses.includes(status);
+                // Sidste valgte kan ikke fravælges - ellers ville siden være tom.
+                const isLastChecked = checked && selectedStatuses.length === 1;
+                return (
+                  <label
+                    key={status}
+                    className={`flex items-center gap-2 text-sm text-secondary dark:text-slate-400 ${isLastChecked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      disabled={isLastChecked}
+                      onChange={() => toggleStatus(status)}
+                      className="rounded border-border-gray text-accent focus:ring-accent dark:border-slate-700"
+                    />
+                    {t(`status.${status}`)}
+                  </label>
+                );
+              })}
             </div>
           </div>
 

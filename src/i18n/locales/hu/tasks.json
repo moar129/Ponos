@@ -114,14 +114,17 @@
   "filter": {
     "show": "Szűrő megjelenítése",
     "hide": "Szűrő elrejtése",
-    "searchPlaceholder": "Feladatok keresése...",
+    "searchPlaceholder": "Keresés címben, leírásban, teremben vagy személyben...",
     "all": "Összes",
     "sortNewest": "Legújabbak",
     "sortOldest": "Legrégebbiek",
     "sortPriority": "Prioritás",
     "sortDeadline": "Határidő",
     "counts": "{{available}} elérhető · {{inProgress}} folyamatban",
-    "sortBy": "Rendezés"
+    "sortBy": "Rendezés",
+    "noMatches": "Egy feladat sem felel meg a keresésnek/szűrőnek.",
+    "activeCount_one": "{{count}} aktív szűrő",
+    "activeCount_other": "{{count}} aktív szűrő"
   },
   "deleteRoom": {
     "heading": "Helyiség törlése",
@@ -142,5 +145,11 @@
   },
   "favorites": {
     "toggleFailed": "Nem sikerült frissíteni a kedvenc termet."
+  },
+  "completed": {
+    "tab": "Befejezett",
+    "heading": "Befejezett feladatok",
+    "subtitle": "A szervezet összes befejezett feladata.",
+    "noAccess": "Nincs hozzáférésed a befejezett feladatokhoz."
   }
 }

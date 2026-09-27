@@ -7,6 +7,7 @@ import { EditRoomModal } from './EditRoomModal';
 import { DeleteRoomModal } from './DeleteRoomModal';
 import { FavoriteStarButton } from '../common/FavoriteStarButton';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
+import { VIEW_COMPLETED_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi';
 import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
 import { splitFavoriteRooms } from '../../utils/splitFavoriteRooms';
 
@@ -43,7 +44,12 @@ export function RoomBar({
     const navigate = useNavigate();
     const location = useLocation();
 
+    const isAllTasksPage = location.pathname === '/tasks';
     const isMyTasksPage = location.pathname === '/tasks/mine';
+    const isCompletedPage = location.pathname === '/tasks/afsluttede';
+
+    // Fanen "Afsluttede" - RLS håndhæver det reelt (tasks-select-policyen).
+    const { hasPrivilege: canViewCompleted } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE);
 
     // Fane-knap og stjerne er søskende i en group-wrapper - en <button>
     // må ikke indeholde en anden <button>.
@@ -57,7 +63,7 @@ export function RoomBar({
             <button
                 type="button"
                 onClick={() => {
-                    if (isMyTasksPage) {
+                    if (!isAllTasksPage) {
                         const state: TasksLocationState = { roomId: room.id };
                         navigate('/tasks', { state });
                     } else {
@@ -132,7 +138,7 @@ export function RoomBar({
                             }}
                             className={`
                                 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
-                                ${!isMyTasksPage && selectedRoomId === null
+                                ${isAllTasksPage && selectedRoomId === null
                                     ? 'border-accent text-accent'
                                     : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
                                 }
@@ -159,6 +165,27 @@ export function RoomBar({
                         >
                             {t('mine.heading')}
                         </button>
+
+                        {/* AFSLUTTEDE */}
+                        {canViewCompleted && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    navigate('/tasks/afsluttede');
+                                    onSelectRoom(null);
+                                    setIsMenuOpen(false);
+                                }}
+                                className={`
+                                    whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
+                                    ${isCompletedPage
+                                        ? 'border-accent text-accent'
+                                        : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                                    }
+                                `}
+                            >
+                                {t('completed.tab')}
+                            </button>
+                        )}
 
                         {/* ROOMS */}
                         {favoriteRooms.map(renderRoomTab)}

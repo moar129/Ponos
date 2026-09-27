@@ -18,7 +18,8 @@
     "assign": "Przydzielanie",
     "approve": "Zatwierdzanie",
     "reject": "Odrzucanie",
-    "viewAll": "Widzieć wszystkie pokoje"
+    "viewAll": "Widzieć wszystkie pokoje",
+    "viewCompleted": "Widzieć zakończone"
   },
   "privilege": {
     "admin": "Pełna administracja (może wszystko)"

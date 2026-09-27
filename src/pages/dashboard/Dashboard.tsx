@@ -16,11 +16,10 @@ import {
     READ_INVITATIONS_PRIVILEGE,
     READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
     READ_ROLES_PRIVILEGE,
-    DELETE_TASKS_PRIVILEGE,
     UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     UPDATE_ORGANISATION_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
-    UPDATE_TASKS_PRIVILEGE,
+    VIEW_COMPLETED_TASKS_PRIVILEGE,
     useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
@@ -68,13 +67,11 @@ export default function Dashboard() {
         UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     ])
     const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
-    // Fase 3 trin 6, rettet 2026-09-17 efter bruger-feedback: samme check
-    // som AdministrationTab.tsx bruger til "Afsluttede opgaver"-underfanen.
-    // read_tasks ALENE giver bevidst IKKE adgang til Administration - en
-    // ren "Medlem" (kun read_tasks) skal se opgaver via det almindelige
-    // /tasks-link, ikke via administrationsdelen. Kun update/delete_tasks
-    // (reel redigerings-/sletteret) tæller her.
-    const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
+    // Samme check som AdministrationTab.tsx bruger til "Afsluttede
+    // opgaver"-underfanen. read_tasks ALENE giver bevidst IKKE adgang til
+    // Administration. 2026-09-27: eget privilegie view_completed_tasks
+    // (håndhævet i RLS) i stedet for update/delete_tasks.
+    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE)
     const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
     const canSeeAdministration =
         canSeeTaskApprovals ||

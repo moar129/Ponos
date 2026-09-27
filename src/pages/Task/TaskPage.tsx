@@ -5,24 +5,20 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
-import {
-    FilterPanel,
-    type TaskSortOption,
-} from '../../components/Task/FilterPanel.tsx';
-import type {
-    ETaskPriority,
-    ETaskStatus,
-    TasksLocationState,
-} from '../../types/Task/Task';
+import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
+import { TaskColumnEmptyState } from '../../components/Task/TaskColumnEmptyState';
+import type { TasksLocationState } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
 import { FavoriteStarButton } from '../../components/common/FavoriteStarButton';
 import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
+import { useTaskFilters } from '../../store/hooks/useTaskFilters';
+import { compareTasks, matchesTaskSearch } from '../../utils/taskFilters';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
-    useGetMyTaskIdsQuery,
+    useGetOpenTaskAssigneeNamesQuery,
 } from '../../store/apis/taskApi';
 import {
     CREATE_TASKS_PRIVILEGE,
@@ -47,7 +43,6 @@ export function TasksPage() {
     const closeOpenTask = () =>
         setSearchParams({}, { replace: true });
 
-    const [search, setSearch] = useState('');
     const location = useLocation();
     const [selectedRoomId, setSelectedRoomId] =
         useState<string | null>(
@@ -60,17 +55,19 @@ export function TasksPage() {
     const [newRoomRoleIds, setNewRoomRoleIds] = useState<string[]>([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-    const [selectedStatuses, setSelectedStatuses] =
-        useState<ETaskStatus[]>([
-            'Started',
-            'InProgress',
-        ]);
-
-    const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All');
-
-    const [sortBy, setSortBy] =
-        useState<TaskSortOption>('priority');
+    const {
+        search,
+        setSearch,
+        searchTerm,
+        selectedStatuses,
+        setSelectedStatuses,
+        selectedPriority,
+        setSelectedPriority,
+        sortBy,
+        setSortBy,
+        activeFilterCount,
+        resetFilters,
+    } = useTaskFilters();
 
     const [createRoom, { error: createRoomError }] =
         useCreateRoomMutation();
@@ -104,7 +101,8 @@ export function TasksPage() {
         error: roomsError,
     } = useGetRoomsQuery();
 
-    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
+    // Tilmeldtes navne til søgning. Fejler hentningen, søges bare uden navne.
+    const { data: assigneeNamesByTask = {} } = useGetOpenTaskAssigneeNamesQuery();
 
     const {
         favoriteIds,
@@ -136,97 +134,38 @@ export function TasksPage() {
         }
     };
 
+    const roomNameById = new Map(rooms.map((room) => [room.id, room.name]));
+
+    // Den åbne opgave (?task=/?taskId=) vises altid, uanset filtre.
     const filteredTasks = tasks.filter((task) => {
-        const searchTerm = search.trim().toLowerCase();
-
-        const taskRoom = rooms.find(
-            (room) => room.id === task.room_id
+        const matchesSearch = matchesTaskSearch(
+            task,
+            task.room_id ? roomNameById.get(task.room_id) : undefined,
+            assigneeNamesByTask[task.id],
+            searchTerm
         );
-
-        const isMineSearch =
-            searchTerm === 'dig' ||
-            searchTerm === 'mine';
-
-        const matchesSearch =
-            searchTerm === '' ||
-            task.title?.toLowerCase().includes(searchTerm) ||
-            task.description?.toLowerCase().includes(searchTerm) ||
-            taskRoom?.name.toLowerCase().includes(searchTerm) ||
-            (isMineSearch && myTaskIds.includes(task.id));
 
         const matchesRoom =
             selectedRoomId === null ||
             task.room_id === selectedRoomId;
 
         const matchesStatus =
-            selectedStatuses.includes(task.status);
+            selectedStatuses.some((status) => status === task.status);
 
         const matchesPriority =
             selectedPriority === 'All' ||
             task.priority === selectedPriority;
-
-        const matchesOpenTask =
-            task.id === openTaskId;
 
         return (
             (matchesSearch &&
                 matchesRoom &&
                 matchesStatus &&
                 matchesPriority) ||
-            matchesOpenTask
+            task.id === openTaskId
         );
     });
 
-    const priorityRank: Record<string, number> = {
-        Critical: 1,
-        High: 2,
-        Medium: 3,
-        Low: 4,
-    };
-
-    const sortTasks = (
-        a: typeof filteredTasks[number],
-        b: typeof filteredTasks[number]
-    ) => {
-        if (sortBy === 'priority') {
-            const priorityA =
-                priorityRank[a.priority ?? ''] ?? 5;
-            const priorityB =
-                priorityRank[b.priority ?? ''] ?? 5;
-            if (priorityA !== priorityB) {
-                return priorityA - priorityB;
-            }
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-            return 0;
-        }
-        if (sortBy === 'deadline') {
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-
-            return 0;
-        }
-        if (sortBy === 'newest') {
-            return (
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            );
-        }
-        if (sortBy === 'oldest') {
-            return (
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime()
-            );
-        }
-        return 0;
-    };
+    const sortTasks = compareTasks(sortBy);
 
     const availableTasks = filteredTasks
         .filter((task) => task.status === 'Started')
@@ -235,6 +174,12 @@ export function TasksPage() {
     const myTasks = filteredTasks
         .filter((task) => task.status === 'InProgress')
         .sort(sortTasks);
+
+    // Fravalgt status skjuler kolonnen - medmindre den åbne opgave ligger der.
+    const showAvailable =
+        selectedStatuses.includes('Started') || availableTasks.length > 0;
+    const showInProgress =
+        selectedStatuses.includes('InProgress') || myTasks.length > 0;
 
     const pageError =
         readableError(tasksError) ??
@@ -287,6 +232,7 @@ export function TasksPage() {
                 onSearchChange={setSearch}
                 availableCount={availableTasks.length}
                 inProgressCount={myTasks.length}
+                activeFilterCount={activeFilterCount}
             />
 
             {/* FILTER PANEL */}
@@ -298,14 +244,7 @@ export function TasksPage() {
                 onStatusChange={setSelectedStatuses}
                 onPriorityChange={setSelectedPriority}
                 onSortChange={setSortBy}
-                onReset={() => {
-                    setSelectedStatuses([
-                        'Started',
-                        'InProgress',
-                    ]);
-                    setSelectedPriority('All');
-                    setSortBy('priority');
-                }}
+                onReset={resetFilters}
             />
 
             {/* CREATE ROOM */}
@@ -418,9 +357,10 @@ export function TasksPage() {
                 </div>
 
                 {/* TASK COLUMNS */}
-                <div className="grid grid-cols-2 gap-8 items-start">
+                <div className={`grid ${showAvailable && showInProgress ? 'grid-cols-2' : 'grid-cols-1'} gap-8 items-start`}>
 
                     {/* OPGAVER TILGÆNGELIGE */}
+                    {showAvailable && (
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.availableHeading')}</h2>
@@ -447,14 +387,18 @@ export function TasksPage() {
                             ))}
 
                             {availableTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noAvailableTasks')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('page.noAvailableTasks')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
                         </div>
                     </section>
+                    )}
 
                     {/* MINE OPGAVER / I GANG */}
+                    {showInProgress && (
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.inProgressHeading')}</h2>
@@ -481,12 +425,15 @@ export function TasksPage() {
                             ))}
 
                             {myTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noTasksInProgress')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('page.noTasksInProgress')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
                         </div>
                     </section>
+                    )}
 
                 </div>
             </main>

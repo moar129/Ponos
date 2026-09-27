@@ -5,21 +5,18 @@ import { readableError } from '../../ErrorMessage';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
-import {
-    FilterPanel,
-    type TaskSortOption,
-} from '../../components/Task/FilterPanel.tsx';
+import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
+import { TaskColumnEmptyState } from '../../components/Task/TaskColumnEmptyState';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
-import type {
-    ETaskPriority,
-    ETaskStatus,
-} from '../../types/Task/Task';
+import { useTaskFilters } from '../../store/hooks/useTaskFilters';
+import { compareTasks, matchesTaskSearch } from '../../utils/taskFilters';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
     useGetMyTaskIdsQuery,
+    useGetOpenTaskAssigneeNamesQuery,
 } from '../../store/apis/taskApi';
 import {
     READ_TASKS_PRIVILEGE,
@@ -40,7 +37,6 @@ export function MyTasksPage() {
     const closeOpenTask = () =>
         setSearchParams({}, { replace: true });
 
-    const [search, setSearch] = useState('');
     const [selectedRoomId, setSelectedRoomId] =
         useState<string | null>(null);
 
@@ -50,15 +46,19 @@ export function MyTasksPage() {
     const [newRoomRoleIds, setNewRoomRoleIds] = useState<string[]>([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-    const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All');
-    const [sortBy, setSortBy] = useState<TaskSortOption>('priority');
-
-    const [selectedStatuses, setSelectedStatuses] =
-        useState<ETaskStatus[]>([
-            'Started',
-            'InProgress',
-        ]);
+    const {
+        search,
+        setSearch,
+        searchTerm,
+        selectedStatuses,
+        setSelectedStatuses,
+        selectedPriority,
+        setSelectedPriority,
+        sortBy,
+        setSortBy,
+        activeFilterCount,
+        resetFilters,
+    } = useTaskFilters();
 
     const [createRoom, { error: createRoomError }] =
         useCreateRoomMutation();
@@ -95,6 +95,9 @@ export function MyTasksPage() {
     const { data: myTaskIds = [] } =
         useGetMyTaskIdsQuery();
 
+    // Tilmeldtes navne til søgning. Fejler hentningen, søges bare uden navne.
+    const { data: assigneeNamesByTask = {} } = useGetOpenTaskAssigneeNamesQuery();
+
     const handleAddRoom = async () => {
         const roomName = newRoomName.trim();
 
@@ -113,25 +116,23 @@ export function MyTasksPage() {
         }
     };
 
+    const roomNameById = new Map(rooms.map((room) => [room.id, room.name]));
+
+    // Den åbne opgave (?task=/?taskId=) vises altid, uanset filtre.
     const filteredTasks = tasks.filter((task) => {
-        const searchTerm = search.trim().toLowerCase();
-
-        const taskRoom = rooms.find(
-            (room) => room.id === task.room_id
+        const matchesSearch = matchesTaskSearch(
+            task,
+            task.room_id ? roomNameById.get(task.room_id) : undefined,
+            assigneeNamesByTask[task.id],
+            searchTerm
         );
-
-        const matchesSearch =
-            searchTerm === '' ||
-            task.title?.toLowerCase().includes(searchTerm) ||
-            task.description?.toLowerCase().includes(searchTerm) ||
-            taskRoom?.name.toLowerCase().includes(searchTerm);
 
         const matchesRoom =
             selectedRoomId === null ||
             task.room_id === selectedRoomId;
 
         const matchesStatus =
-            selectedStatuses.includes(task.status);
+            selectedStatuses.some((status) => status === task.status);
 
         const matchesPriority =
             selectedPriority === 'All' ||
@@ -150,71 +151,21 @@ export function MyTasksPage() {
         );
     });
 
-    const priorityRank: Record<string, number> = {
-        Critical: 1,
-        High: 2,
-        Medium: 3,
-        Low: 4,
-    };
-
-    const sortTasks = (
-        a: typeof filteredTasks[number],
-        b: typeof filteredTasks[number]
-    ) => {
-        if (sortBy === 'priority') {
-            const priorityA =
-                priorityRank[a.priority ?? ''] ?? 5;
-
-            const priorityB =
-                priorityRank[b.priority ?? ''] ?? 5;
-
-            if (priorityA !== priorityB) {
-                return priorityA - priorityB;
-            }
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-            return 0;
-        }
-        if (sortBy === 'deadline') {
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-
-            return 0;
-        }
-        if (sortBy === 'newest') {
-            return (
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            );
-        }
-        if (sortBy === 'oldest') {
-            return (
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime()
-            );
-        }
-        return 0;
-    };
+    const sortTasks = compareTasks(sortBy);
 
     const myAvailableTasks = filteredTasks
-        .filter(
-            (task) =>
-                task.status === 'Started'
-        )
+        .filter((task) => task.status === 'Started')
         .sort(sortTasks);
 
     const myInProgressTasks = filteredTasks
-        .filter(
-            (task) =>
-                task.status === 'InProgress'
-        )
+        .filter((task) => task.status === 'InProgress')
         .sort(sortTasks);
+
+    // Fravalgt status skjuler kolonnen - medmindre den åbne opgave ligger der.
+    const showAvailable =
+        selectedStatuses.includes('Started') || myAvailableTasks.length > 0;
+    const showInProgress =
+        selectedStatuses.includes('InProgress') || myInProgressTasks.length > 0;
 
     const pageError =
         readableError(tasksError) ??
@@ -270,6 +221,7 @@ export function MyTasksPage() {
                 onSearchChange={setSearch}
                 availableCount={myAvailableTasks.length}
                 inProgressCount={myInProgressTasks.length}
+                activeFilterCount={activeFilterCount}
             />
 
             {/* FILTER PANEL */}
@@ -281,14 +233,7 @@ export function MyTasksPage() {
                 onStatusChange={setSelectedStatuses}
                 onPriorityChange={setSelectedPriority}
                 onSortChange={setSortBy}
-                onReset={() => {
-                    setSelectedStatuses([
-                        'Started',
-                        'InProgress',
-                    ]);
-                    setSelectedPriority('All');
-                    setSortBy('priority');
-                }}
+                onReset={resetFilters}
             />
 
             {/* CREATE ROOM */}
@@ -395,9 +340,10 @@ export function MyTasksPage() {
                 </div>
 
                 {/* TASK COLUMNS */}
-                <div className="grid grid-cols-2 gap-8 items-start">
+                <div className={`grid ${showAvailable && showInProgress ? 'grid-cols-2' : 'grid-cols-1'} gap-8 items-start`}>
 
                     {/* MINE TILGÆNGELIGE OPGAVER */}
+                    {showAvailable && (
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <div>
@@ -434,15 +380,19 @@ export function MyTasksPage() {
                             ))}
 
                             {myAvailableTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('mine.noAvailableTasks')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('mine.noAvailableTasks')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
 
                         </div>
                     </section>
+                    )}
 
                     {/* MINE OPGAVER I GANG */}
+                    {showInProgress && (
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <div>
@@ -479,13 +429,16 @@ export function MyTasksPage() {
                             ))}
 
                             {myInProgressTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('mine.noTasksInProgress')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('mine.noTasksInProgress')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
 
                         </div>
                     </section>
+                    )}
 
                 </div>
 

@@ -18,7 +18,8 @@
     "assign": "Přiřadit",
     "approve": "Schválit",
     "reject": "Zamítnout",
-    "viewAll": "Vidět všechny místnosti"
+    "viewAll": "Vidět všechny místnosti",
+    "viewCompleted": "Vidět dokončené"
   },
   "privilege": {
     "admin": "Plná správa (smí vše)"

@@ -18,7 +18,8 @@
     "assign": "Assigner",
     "approve": "Valider",
     "reject": "Refuser",
-    "viewAll": "Voir toutes les salles"
+    "viewAll": "Voir toutes les salles",
+    "viewCompleted": "Voir les terminées"
   },
   "privilege": {
     "admin": "Administration complète (peut tout faire)"

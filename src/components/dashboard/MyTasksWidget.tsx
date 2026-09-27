@@ -7,8 +7,8 @@ import { ChevronRight, ListChecks, Star } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { READ_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { FavoriteRoomsList } from './FavoriteRoomsList'
-import { PRIORITY_COLORS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
-import type { Task } from '../../types/Task/Task'
+import { PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
+import { compareTasks } from '../../utils/taskFilters'
 
 const MAX_TASKS = 5
 
@@ -25,20 +25,8 @@ function readStoredTab(): MyTasksTab {
     }
 }
 
-// Genskaber bevidst sortTasks fra TaskPage.tsx (Studerende 3's fil) i
-// stedet for at trække den ud i en delt util - undgår at røre andres
-// filer. Kan samles senere. Prioritet først (manglende = rang 5), så
-// nærmeste slutdato (manglende sidst).
-function sortByPriorityThenEndDate(a: Task, b: Task): number {
-    const priorityA = a.priority ? PRIORITY_RANK[a.priority] : 5
-    const priorityB = b.priority ? PRIORITY_RANK[b.priority] : 5
-    if (priorityA !== priorityB) return priorityA - priorityB
-
-    if (a.end_date && b.end_date) return a.end_date.localeCompare(b.end_date)
-    if (a.end_date) return -1
-    if (b.end_date) return 1
-    return 0
-}
+// Prioritet først, så nærmeste slutdato - delt med /tasks (utils/taskFilters.ts).
+const sortByPriorityThenEndDate = compareTasks('priority')
 
 
 // US-74: brugerens egne, ikke-afsluttede opgaver på Oversigt-fanen.

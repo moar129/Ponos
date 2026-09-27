@@ -114,14 +114,17 @@
   "filter": {
     "show": "Filter anzeigen",
     "hide": "Filter ausblenden",
-    "searchPlaceholder": "Aufgaben suchen...",
+    "searchPlaceholder": "Titel, Beschreibung, Raum oder Person suchen...",
     "all": "Alle",
     "sortNewest": "Neueste",
     "sortOldest": "Älteste",
     "sortPriority": "Priorität",
     "sortDeadline": "Frist",
     "counts": "{{available}} verfügbar · {{inProgress}} in Arbeit",
-    "sortBy": "Sortieren nach"
+    "sortBy": "Sortieren nach",
+    "noMatches": "Keine Aufgaben entsprechen Suche/Filter.",
+    "activeCount_one": "{{count}} aktiver Filter",
+    "activeCount_other": "{{count}} aktive Filter"
   },
   "deleteRoom": {
     "heading": "Raum löschen",
@@ -142,5 +145,11 @@
   },
   "favorites": {
     "toggleFailed": "Favoritenraum konnte nicht aktualisiert werden."
+  },
+  "completed": {
+    "tab": "Abgeschlossen",
+    "heading": "Abgeschlossene Aufgaben",
+    "subtitle": "Alle abgeschlossenen Aufgaben der Organisation.",
+    "noAccess": "Du hast keinen Zugriff auf abgeschlossene Aufgaben."
   }
 }

@@ -114,14 +114,17 @@
   "filter": {
     "show": "Visa filter",
     "hide": "Dölj filter",
-    "searchPlaceholder": "Sök uppgifter...",
+    "searchPlaceholder": "Sök i titel, beskrivning, rum eller person...",
     "all": "Alla",
     "sortNewest": "Nyaste",
     "sortOldest": "Äldsta",
     "sortPriority": "Prioritet",
     "sortDeadline": "Deadline",
     "counts": "{{available}} tillgängliga · {{inProgress}} pågår",
-    "sortBy": "Sortera efter"
+    "sortBy": "Sortera efter",
+    "noMatches": "Inga uppgifter matchar sökning/filter.",
+    "activeCount_one": "{{count}} aktivt filter",
+    "activeCount_other": "{{count}} aktiva filter"
   },
   "deleteRoom": {
     "heading": "Radera rum",
@@ -142,5 +145,11 @@
   },
   "favorites": {
     "toggleFailed": "Kunde inte uppdatera favoritrum."
+  },
+  "completed": {
+    "tab": "Avslutade",
+    "heading": "Avslutade uppgifter",
+    "subtitle": "Alla avslutade uppgifter i organisationen.",
+    "noAccess": "Du har inte åtkomst till avslutade uppgifter."
   }
 }

@@ -115,14 +115,18 @@
   "filter": {
     "show": "Mostra il filtro",
     "hide": "Nascondi il filtro",
-    "searchPlaceholder": "Cerca attività...",
+    "searchPlaceholder": "Cerca titolo, descrizione, stanza o persona...",
     "all": "Tutte",
     "sortNewest": "Più recenti",
     "sortOldest": "Meno recenti",
     "sortPriority": "Priorità",
     "sortDeadline": "Scadenza",
     "counts": "{{available}} disponibili · {{inProgress}} in corso",
-    "sortBy": "Ordina per"
+    "sortBy": "Ordina per",
+    "noMatches": "Nessuna attività corrisponde alla ricerca/ai filtri.",
+    "activeCount_one": "{{count}} filtro attivo",
+    "activeCount_many": "{{count}} filtri attivi",
+    "activeCount_other": "{{count}} filtri attivi"
   },
   "deleteRoom": {
     "heading": "Elimina sala",
@@ -143,5 +147,11 @@
   },
   "favorites": {
     "toggleFailed": "Impossibile aggiornare la stanza preferita."
+  },
+  "completed": {
+    "tab": "Completate",
+    "heading": "Attività completate",
+    "subtitle": "Tutte le attività completate dell'organizzazione.",
+    "noAccess": "Non hai accesso alle attività completate."
   }
 }

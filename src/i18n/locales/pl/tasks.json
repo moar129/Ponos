@@ -116,14 +116,19 @@
   "filter": {
     "show": "Pokaż filtr",
     "hide": "Ukryj filtr",
-    "searchPlaceholder": "Szukaj zadań...",
+    "searchPlaceholder": "Szukaj w tytule, opisie, pokoju lub osobie...",
     "all": "Wszystkie",
     "sortNewest": "Najnowsze",
     "sortOldest": "Najstarsze",
     "sortPriority": "Priorytet",
     "sortDeadline": "Termin",
     "counts": "{{available}} dostępnych · {{inProgress}} w toku",
-    "sortBy": "Sortuj według"
+    "sortBy": "Sortuj według",
+    "noMatches": "Żadne zadania nie pasują do wyszukiwania/filtrów.",
+    "activeCount_one": "{{count}} aktywny filtr",
+    "activeCount_few": "{{count}} aktywne filtry",
+    "activeCount_many": "{{count}} aktywnych filtrów",
+    "activeCount_other": "{{count}} aktywnego filtra"
   },
   "deleteRoom": {
     "heading": "Usuń pomieszczenie",
@@ -144,5 +149,11 @@
   },
   "favorites": {
     "toggleFailed": "Nie udało się zaktualizować ulubionego pokoju."
+  },
+  "completed": {
+    "tab": "Zakończone",
+    "heading": "Zakończone zadania",
+    "subtitle": "Wszystkie zakończone zadania w organizacji.",
+    "noAccess": "Nie masz dostępu do zakończonych zadań."
   }
 }

@@ -18,7 +18,8 @@
     "assign": "Tilldela",
     "approve": "Godkänn",
     "reject": "Avslå",
-    "viewAll": "Se alla rum"
+    "viewAll": "Se alla rum",
+    "viewCompleted": "Se avslutade"
   },
   "privilege": {
     "admin": "Fullständig administratör (kan allt)"

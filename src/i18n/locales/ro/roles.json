@@ -18,7 +18,8 @@
     "assign": "Atribuie",
     "approve": "Aprobă",
     "reject": "Respinge",
-    "viewAll": "Vezi toate camerele"
+    "viewAll": "Vezi toate camerele",
+    "viewCompleted": "Vezi finalizate"
   },
   "privilege": {
     "admin": "Administrare completă (poate face orice)"
