@@ -151,5 +151,13 @@
     "heading": "Voltooide taken",
     "subtitle": "Alle voltooide taken in de organisatie.",
     "noAccess": "Je hebt geen toegang tot voltooide taken."
+  },
+  "approvals": {
+    "tab": "Ter goedkeuring",
+    "heading": "Ter goedkeuring",
+    "subtitle": "Als klaar gemelde taken die wachten op goedkeuring.",
+    "noAccess": "Je hebt geen toegang tot taakgoedkeuringen.",
+    "pendingCount_one": "{{count}} wacht",
+    "pendingCount_other": "{{count}} wachten"
   }
 }

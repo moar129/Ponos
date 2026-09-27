@@ -153,5 +153,14 @@
     "heading": "Attività completate",
     "subtitle": "Tutte le attività completate dell'organizzazione.",
     "noAccess": "Non hai accesso alle attività completate."
+  },
+  "approvals": {
+    "tab": "Da approvare",
+    "heading": "Da approvare",
+    "subtitle": "Attività segnalate come completate in attesa di approvazione.",
+    "noAccess": "Non hai accesso alle approvazioni delle attività.",
+    "pendingCount_one": "{{count}} in attesa",
+    "pendingCount_many": "{{count}} in attesa",
+    "pendingCount_other": "{{count}} in attesa"
   }
 }

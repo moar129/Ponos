@@ -1982,6 +1982,14 @@ grant execute on function public.set_task_status(uuid, text) to authenticated;
 -- gemte material_outcomes (se task_requests, §11) - se
 -- apply_task_material_outcomes (§15.21b). reject_task_request rører
 -- fortsat slet ikke materialerne.
+-- 2026-09-27: alle fire godkendelses-RPC'er (også get_pending_task_requests
+-- og get_task_request_details, §15.19b) respekterer rum-adgang via
+-- can_access_task_room(t.room_id) (§15.22, kører som godkenderen): en
+-- godkender ser/behandler kun anmodninger i rum, de har adgang til (åbne
+-- rum, rolle i rummet, view_all_task_rooms/admin). Låst rum = samme fejl
+-- som ukendt anmodning. Kræver stadig ikke read_tasks. Bruges også af fanen
+-- "Til godkendelse" (/tasks/godkend). Egen færdigmelding må godkendes
+-- (bevidst, bruger-valg 2026-09-27).
 create or replace function public.approve_task_request(p_request_id uuid)
 returns void
 language plpgsql
@@ -2007,7 +2015,8 @@ begin
   select r.task_id, r.status, t.title, r.material_outcomes into v_task_id, v_status, v_title, v_material_outcomes
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2084,7 +2093,8 @@ begin
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2146,6 +2156,7 @@ begin
     join public.tasks t on t.id = r.task_id
     left join public.profiles p on p.id = r.requested_by
     where r.status = 'Pending' and t.organisation_id = v_org_id
+      and public.can_access_task_room(t.room_id)
     order by r.requested_at;
 end;
 $$;
@@ -2190,7 +2201,8 @@ begin
   select r.task_id into v_task_id
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';

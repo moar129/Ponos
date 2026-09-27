@@ -153,5 +153,14 @@
     "heading": "Tâches terminées",
     "subtitle": "Toutes les tâches terminées de l'organisation.",
     "noAccess": "Vous n'avez pas accès aux tâches terminées."
+  },
+  "approvals": {
+    "tab": "À approuver",
+    "heading": "À approuver",
+    "subtitle": "Tâches signalées terminées en attente d'approbation.",
+    "noAccess": "Vous n'avez pas accès aux approbations de tâches.",
+    "pendingCount_one": "{{count}} en attente",
+    "pendingCount_many": "{{count}} en attente",
+    "pendingCount_other": "{{count}} en attente"
   }
 }

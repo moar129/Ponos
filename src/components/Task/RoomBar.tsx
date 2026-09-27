@@ -7,7 +7,14 @@ import { EditRoomModal } from './EditRoomModal';
 import { DeleteRoomModal } from './DeleteRoomModal';
 import { FavoriteStarButton } from '../common/FavoriteStarButton';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
-import { VIEW_COMPLETED_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi';
+import {
+    APPROVE_TASK_PRIVILEGE,
+    REJECT_TASK_PRIVILEGE,
+    VIEW_COMPLETED_TASKS_PRIVILEGE,
+    useHasAnyPrivilege,
+    useHasPrivilege,
+} from '../../store/apis/privilegeApi';
+import { useGetPendingTaskRequestsQuery } from '../../store/apis/taskApi';
 import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
 import { splitFavoriteRooms } from '../../utils/splitFavoriteRooms';
 
@@ -47,6 +54,12 @@ export function RoomBar({
     const isAllTasksPage = location.pathname === '/tasks';
     const isMyTasksPage = location.pathname === '/tasks/mine';
     const isCompletedPage = location.pathname === '/tasks/afsluttede';
+    const isApprovalsPage = location.pathname === '/tasks/godkend';
+
+    // Fanen "Til godkendelse" - tallet er ventende anmodninger, som
+    // get_pending_task_requests allerede har filtreret på rum-adgang.
+    const { hasPrivilege: canReview } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE]);
+    const { data: pendingRequests = [] } = useGetPendingTaskRequestsQuery(undefined, { skip: !canReview });
 
     // Fanen "Afsluttede" - RLS håndhæver det reelt (tasks-select-policyen).
     const { hasPrivilege: canViewCompleted } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE);
@@ -165,6 +178,35 @@ export function RoomBar({
                         >
                             {t('mine.heading')}
                         </button>
+
+                        {/* TIL GODKENDELSE */}
+                        {canReview && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    navigate('/tasks/godkend');
+                                    onSelectRoom(null);
+                                    setIsMenuOpen(false);
+                                }}
+                                className={`
+                                    flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
+                                    ${isApprovalsPage
+                                        ? 'border-accent text-accent'
+                                        : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                                    }
+                                `}
+                            >
+                                {t('approvals.tab')}
+                                {pendingRequests.length > 0 && (
+                                    <span
+                                        className="rounded-full bg-accent px-1.5 text-xs font-bold text-white"
+                                        aria-label={t('approvals.pendingCount', { count: pendingRequests.length })}
+                                    >
+                                        {pendingRequests.length}
+                                    </span>
+                                )}
+                            </button>
+                        )}
 
                         {/* AFSLUTTEDE */}
                         {canViewCompleted && (

@@ -151,5 +151,13 @@
     "heading": "Befejezett feladatok",
     "subtitle": "A szervezet összes befejezett feladata.",
     "noAccess": "Nincs hozzáférésed a befejezett feladatokhoz."
+  },
+  "approvals": {
+    "tab": "Jóváhagyásra vár",
+    "heading": "Jóváhagyásra vár",
+    "subtitle": "Késznek jelentett feladatok, amelyek jóváhagyásra várnak.",
+    "noAccess": "Nincs hozzáférésed a feladatjóváhagyásokhoz.",
+    "pendingCount_one": "{{count}} vár",
+    "pendingCount_other": "{{count}} vár"
   }
 }

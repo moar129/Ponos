@@ -153,5 +153,14 @@
     "heading": "Sarcini finalizate",
     "subtitle": "Toate sarcinile finalizate din organizație.",
     "noAccess": "Nu ai acces la sarcinile finalizate."
+  },
+  "approvals": {
+    "tab": "De aprobat",
+    "heading": "De aprobat",
+    "subtitle": "Sarcini raportate ca finalizate care așteaptă aprobarea.",
+    "noAccess": "Nu ai acces la aprobările de sarcini.",
+    "pendingCount_one": "{{count}} așteaptă",
+    "pendingCount_few": "{{count}} așteaptă",
+    "pendingCount_other": "{{count}} așteaptă"
   }
 }

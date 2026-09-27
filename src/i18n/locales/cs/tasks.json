@@ -155,5 +155,15 @@
     "heading": "Dokončené úkoly",
     "subtitle": "Všechny dokončené úkoly v organizaci.",
     "noAccess": "Nemáte přístup k dokončeným úkolům."
+  },
+  "approvals": {
+    "tab": "Ke schválení",
+    "heading": "Ke schválení",
+    "subtitle": "Úkoly nahlášené jako hotové, které čekají na schválení.",
+    "noAccess": "Nemáte přístup ke schvalování úkolů.",
+    "pendingCount_one": "{{count}} čeká",
+    "pendingCount_few": "{{count}} čekají",
+    "pendingCount_many": "{{count}} čeká",
+    "pendingCount_other": "{{count}} čeká"
   }
 }

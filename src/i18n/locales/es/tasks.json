@@ -153,5 +153,14 @@
     "heading": "Tareas completadas",
     "subtitle": "Todas las tareas completadas de la organización.",
     "noAccess": "No tienes acceso a las tareas completadas."
+  },
+  "approvals": {
+    "tab": "Pendientes de aprobación",
+    "heading": "Pendientes de aprobación",
+    "subtitle": "Tareas marcadas como terminadas que esperan aprobación.",
+    "noAccess": "No tienes acceso a las aprobaciones de tareas.",
+    "pendingCount_one": "{{count}} pendiente",
+    "pendingCount_many": "{{count}} pendientes",
+    "pendingCount_other": "{{count}} pendientes"
   }
 }

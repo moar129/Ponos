@@ -151,5 +151,13 @@
     "heading": "Abgeschlossene Aufgaben",
     "subtitle": "Alle abgeschlossenen Aufgaben der Organisation.",
     "noAccess": "Du hast keinen Zugriff auf abgeschlossene Aufgaben."
+  },
+  "approvals": {
+    "tab": "Zur Freigabe",
+    "heading": "Zur Freigabe",
+    "subtitle": "Als erledigt gemeldete Aufgaben, die auf Freigabe warten.",
+    "noAccess": "Du hast keinen Zugriff auf Aufgabenfreigaben.",
+    "pendingCount_one": "{{count}} wartet",
+    "pendingCount_other": "{{count}} warten"
   }
 }

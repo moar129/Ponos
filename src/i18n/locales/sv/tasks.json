@@ -151,5 +151,13 @@
     "heading": "Avslutade uppgifter",
     "subtitle": "Alla avslutade uppgifter i organisationen.",
     "noAccess": "Du har inte åtkomst till avslutade uppgifter."
+  },
+  "approvals": {
+    "tab": "Väntar på godkännande",
+    "heading": "Väntar på godkännande",
+    "subtitle": "Uppgifter anmälda som klara som väntar på godkännande.",
+    "noAccess": "Du har inte åtkomst till uppgiftsgodkännanden.",
+    "pendingCount_one": "{{count}} väntar",
+    "pendingCount_other": "{{count}} väntar"
   }
 }

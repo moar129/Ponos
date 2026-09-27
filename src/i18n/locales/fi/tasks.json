@@ -151,5 +151,13 @@
     "heading": "Valmiit tehtävät",
     "subtitle": "Kaikki organisaation valmiit tehtävät.",
     "noAccess": "Sinulla ei ole pääsyä valmiisiin tehtäviin."
+  },
+  "approvals": {
+    "tab": "Odottaa hyväksyntää",
+    "heading": "Odottaa hyväksyntää",
+    "subtitle": "Valmiiksi ilmoitetut tehtävät, jotka odottavat hyväksyntää.",
+    "noAccess": "Sinulla ei ole pääsyä tehtävien hyväksyntöihin.",
+    "pendingCount_one": "{{count}} odottaa",
+    "pendingCount_other": "{{count}} odottaa"
   }
 }

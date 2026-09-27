@@ -155,5 +155,15 @@
     "heading": "Zakończone zadania",
     "subtitle": "Wszystkie zakończone zadania w organizacji.",
     "noAccess": "Nie masz dostępu do zakończonych zadań."
+  },
+  "approvals": {
+    "tab": "Do zatwierdzenia",
+    "heading": "Do zatwierdzenia",
+    "subtitle": "Zadania zgłoszone jako ukończone, czekające na zatwierdzenie.",
+    "noAccess": "Nie masz dostępu do zatwierdzania zadań.",
+    "pendingCount_one": "{{count}} czeka",
+    "pendingCount_few": "{{count}} czekają",
+    "pendingCount_many": "{{count}} czeka",
+    "pendingCount_other": "{{count}} czeka"
   }
 }

@@ -200,5 +200,13 @@
     "heading": "Afsluttede opgaver",
     "subtitle": "Alle afsluttede opgaver i organisationen.",
     "noAccess": "Du har ikke adgang til afsluttede opgaver."
+  },
+  "approvals": {
+    "tab": "Til godkendelse",
+    "heading": "Til godkendelse",
+    "subtitle": "Opgaver meldt færdige, der venter på godkendelse.",
+    "noAccess": "Du har ikke adgang til opgavegodkendelser.",
+    "pendingCount_one": "{{count}} venter",
+    "pendingCount_other": "{{count}} venter"
   }
 }

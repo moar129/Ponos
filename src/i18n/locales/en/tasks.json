@@ -200,5 +200,13 @@
     "heading": "Completed tasks",
     "subtitle": "All completed tasks in the organisation.",
     "noAccess": "You do not have access to completed tasks."
+  },
+  "approvals": {
+    "tab": "Awaiting approval",
+    "heading": "Awaiting approval",
+    "subtitle": "Tasks marked as done that are waiting for approval.",
+    "noAccess": "You do not have access to task approvals.",
+    "pendingCount_one": "{{count}} waiting",
+    "pendingCount_other": "{{count}} waiting"
   }
 }
