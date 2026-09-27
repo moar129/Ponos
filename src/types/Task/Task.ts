@@ -63,6 +63,8 @@ export interface RoomBarProps {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  // Personlige favoritrum - read_tasks, uafhængigt af update/delete.
+  canFavorite: boolean;
 }
 
 export interface TaskCardProps {

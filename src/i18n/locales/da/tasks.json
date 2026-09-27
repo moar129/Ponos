@@ -188,5 +188,8 @@
     "noLocation": "Uden lager",
     "noAvailableAnywhere": "Der er ingen ledige enheder på noget lager.",
     "availableAtLocation": "{{amount}} {{unit}} ledige"
+  },
+  "favorites": {
+    "toggleFailed": "Kunne ikke opdatere favoritrum."
   }
 }

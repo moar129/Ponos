@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { Lock, MoreHorizontal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { RoomBarProps, TasksLocationState } from '../../types/Task/Task';
+import type { Room, RoomBarProps, TasksLocationState } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
 import { DeleteRoomModal } from './DeleteRoomModal';
+import { FavoriteStarButton } from '../common/FavoriteStarButton';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
+import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
+import { splitFavoriteRooms } from '../../utils/splitFavoriteRooms';
 
 export function RoomBar({
     rooms,
@@ -15,6 +18,7 @@ export function RoomBar({
     canCreate,
     canUpdate,
     canDelete,
+    canFavorite,
 }: RoomBarProps) {
   const { t } = useTranslation(['tasks', 'common'])
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +28,11 @@ export function RoomBar({
     const menuRef = useRef<HTMLDivElement>(null);
 
     const { data: roles = [] } = useGetOrganisationRolesQuery();
+
+    // Favoritter gates separat på canFavorite (read_tasks), uafhængigt af
+    // canUpdate/canDelete.
+    const { favoriteIds, toggleFavorite, favoriteError } = useTaskRoomFavorites(canFavorite);
+    const { favoriteRooms, otherRooms } = splitFavoriteRooms(rooms, favoriteIds);
 
     const roleNames = (roleIds: string[]) =>
         roles
@@ -35,6 +44,56 @@ export function RoomBar({
     const location = useLocation();
 
     const isMyTasksPage = location.pathname === '/tasks/mine';
+
+    // Fane-knap og stjerne er søskende i en group-wrapper - en <button>
+    // må ikke indeholde en anden <button>.
+    const renderRoomTab = (room: Room) => (
+        <div
+            key={room.id}
+            className={`group flex items-center border-b-2 ${
+                selectedRoomId === room.id ? 'border-accent' : 'border-transparent'
+            }`}
+        >
+            <button
+                type="button"
+                onClick={() => {
+                    if (isMyTasksPage) {
+                        const state: TasksLocationState = { roomId: room.id };
+                        navigate('/tasks', { state });
+                    } else {
+                        onSelectRoom(room.id);
+                    }
+                    setIsMenuOpen(false);
+                }}
+                title={
+                    room.role_ids.length > 0
+                        ? t('rooms.restrictedTo', { roles: roleNames(room.role_ids) })
+                        : undefined
+                }
+                className={`
+                    flex items-center gap-1.5 whitespace-nowrap py-3 text-sm font-medium transition
+                    ${canFavorite ? 'pl-4 pr-1' : 'px-4'}
+                    ${selectedRoomId === room.id
+                        ? 'text-accent'
+                        : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                    }
+                `}
+            >
+                {room.role_ids.length > 0 && (
+                    <Lock size={14} aria-hidden="true" />
+                )}
+                {room.name}
+            </button>
+            {canFavorite && (
+                <span className="pr-2">
+                    <FavoriteStarButton
+                        isFavorite={favoriteIds.has(room.id)}
+                        onToggle={() => void toggleFavorite(room.id)}
+                    />
+                </span>
+            )}
+        </div>
+    );
 
     useEffect(() => {
         if (!isMenuOpen) return;
@@ -102,38 +161,16 @@ export function RoomBar({
                         </button>
 
                         {/* ROOMS */}
-                        {rooms.map((room) => (
-                            <button
-                                key={room.id}
-                                type="button"
-                                onClick={() => {
-                                    if (isMyTasksPage) {
-                                        const state: TasksLocationState = { roomId: room.id };
-                                        navigate('/tasks', { state });
-                                    } else {
-                                        onSelectRoom(room.id);
-                                    }
-                                    setIsMenuOpen(false);
-                                }}
-                                title={
-                                    room.role_ids.length > 0
-                                        ? t('rooms.restrictedTo', { roles: roleNames(room.role_ids) })
-                                        : undefined
-                                }
-                                className={`
-                                    flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition
-                                    ${selectedRoomId === room.id
-                                        ? 'border-accent text-accent'
-                                        : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
-                                    }
-                                `}
-                            >
-                                {room.role_ids.length > 0 && (
-                                    <Lock size={14} aria-hidden="true" />
-                                )}
-                                {room.name}
-                            </button>
-                        ))}
+                        {favoriteRooms.map(renderRoomTab)}
+
+                        {favoriteRooms.length > 0 && otherRooms.length > 0 && (
+                            <span
+                                className="mx-1 h-5 w-px shrink-0 bg-border-gray dark:bg-slate-700"
+                                aria-hidden="true"
+                            />
+                        )}
+
+                        {otherRooms.map(renderRoomTab)}
 
                         {/* ADD ROOM */}
                         {canCreate && (
@@ -200,6 +237,9 @@ export function RoomBar({
                         </div>
                     )}
                 </div>
+                {favoriteError && (
+                    <p className="pb-2 text-sm text-red-600 dark:text-red-400">{favoriteError}</p>
+                )}
             </div>
 
             {/* EDIT ROOM MODAL */}

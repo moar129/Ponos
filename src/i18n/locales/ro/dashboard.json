@@ -20,7 +20,19 @@
     "goToTasks": "Mergeți la sarcinile mele",
     "loading": "Se încarcă sarcinile dumneavoastră...",
     "empty": "Nu v-ați înscris încă la nicio sarcină.",
-    "endsOn": "Se încheie {{date}}"
+    "endsOn": "Se încheie {{date}}",
+    "tab": "Sarcini"
+  },
+  "favoriteRooms": {
+    "title": "Camerele mele favorite",
+    "goToTasks": "Mergi la sarcini",
+    "loading": "Se încarcă camerele favorite...",
+    "empty": "Nu ai încă camere favorite.",
+    "emptyLink": "Marchează camere cu stea în Sarcini.",
+    "openTasks_one": "{{count}} deschisă",
+    "openTasks_few": "{{count}} deschise",
+    "openTasks_other": "{{count}} deschise",
+    "tab": "Camere favorite"
   },
   "notifications": {
     "title": "Notificări",

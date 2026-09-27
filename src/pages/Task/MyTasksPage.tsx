@@ -257,6 +257,7 @@ export function MyTasksPage() {
                 canCreate={canCreate}
                 canUpdate={canUpdate}
                 canDelete={canDelete}
+                canFavorite={canRead}
             />
 
             {/* FILTER BAR */}
@@ -490,14 +491,16 @@ export function MyTasksPage() {
 
             </main>
 
-            {/* CREATE TASK */}
-            <CreateTaskModal
-                isOpen={isCreateTaskOpen}
-                onClose={() =>
-                    setIsCreateTaskOpen(false)
-                }
-                selectedRoomId={selectedRoomId}
-            />
+            {/* CREATE TASK - mountes kun når åben, så formularen altid
+                starter med det aktuelt valgte rum. */}
+            {isCreateTaskOpen && (
+                <CreateTaskModal
+                    onClose={() =>
+                        setIsCreateTaskOpen(false)
+                    }
+                    selectedRoomId={selectedRoomId}
+                />
+            )}
 
         </div>
     );

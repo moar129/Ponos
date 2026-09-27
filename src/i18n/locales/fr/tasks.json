@@ -140,5 +140,8 @@
     "intro": "Choisissez une salle et modifiez son nom et son accès.",
     "namePlaceholder": "Saisissez un nom de salle",
     "failed": "Impossible de modifier la salle. Veuillez réessayer."
+  },
+  "favorites": {
+    "toggleFailed": "Impossible de mettre à jour la salle favorite."
   }
 }

@@ -1,13 +1,29 @@
 // src/components/dashboard/MyTasksWidget.tsx
 import { readableError } from '../../ErrorMessage';
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, ListChecks } from 'lucide-react'
+import { ChevronRight, ListChecks, Star } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
+import { READ_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
+import { FavoriteRoomsList } from './FavoriteRoomsList'
 import { PRIORITY_COLORS, PRIORITY_RANK, formatDate } from '../../utils/taskDisplay'
 import type { Task } from '../../types/Task/Task'
 
 const MAX_TASKS = 5
+
+type MyTasksTab = 'tasks' | 'favorites'
+
+// Valgt fane huskes pr. browser (bekvemmelighed, ikke vigtig state).
+const TAB_STORAGE_KEY = 'ponos.dashboard.myTasksTab'
+
+function readStoredTab(): MyTasksTab {
+    try {
+        return localStorage.getItem(TAB_STORAGE_KEY) === 'favorites' ? 'favorites' : 'tasks'
+    } catch {
+        return 'tasks'
+    }
+}
 
 // Genskaber bevidst sortTasks fra TaskPage.tsx (Studerende 3's fil) i
 // stedet for at trække den ud i en delt util - undgår at røre andres
@@ -29,10 +45,29 @@ function sortByPriorityThenEndDate(a: Task, b: Task): number {
 // getTasks er filtreret på aktiv organisation, og task_assignees er
 // RLS-scopet til samme, så snittet kan aldrig indeholde andre
 // organisationers opgaver. Rækkerne navigerer til /tasks/mine?task=<id>, hvor
-// MyTasksPage åbner opgavens egen popup (TaskCard).
+// MyTasksPage åbner opgavens egen popup (TaskCard). US-77: fanen
+// "Favoritrum" (FavoriteRoomsList) vises kun med read_tasks.
 export function MyTasksWidget() {
     const { t } = useTranslation(['dashboard', 'tasks'])
     const navigate = useNavigate()
+    const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE)
+    const [storedTab, setStoredTab] = useState<MyTasksTab>(readStoredTab)
+    const tab: MyTasksTab = canReadTasks ? storedTab : 'tasks'
+
+    const selectTab = (next: MyTasksTab) => {
+        setStoredTab(next)
+        try {
+            localStorage.setItem(TAB_STORAGE_KEY, next)
+        } catch {
+            // Ingen storage (privat vindue o.l.) - fanen huskes bare ikke.
+        }
+    }
+
+    const tabClass = (value: MyTasksTab) =>
+        `px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${tab === value
+            ? 'bg-accent/10 text-accent'
+            : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+        }`
     const { data: tasks = [], isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
     const { data: myTaskIds = [], isLoading: loadingMyTaskIds, error: myTaskIdsError } = useGetMyTaskIdsQuery()
 
@@ -45,18 +80,41 @@ export function MyTasksWidget() {
 
     return (
         <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-            <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                    <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
-                    <h3 className="font-medium text-primary dark:text-slate-100">{t('myTasks.title')}</h3>
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        {tab === 'favorites' ? (
+                            <Star className="w-5 h-5 text-amber-500 dark:text-amber-400" fill="currentColor" />
+                        ) : (
+                            <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
+                        )}
+                        <h3 className="font-medium text-primary dark:text-slate-100">
+                            {tab === 'favorites' ? t('favoriteRooms.title') : t('myTasks.title')}
+                        </h3>
+                    </div>
+                    <Link
+                        to={tab === 'favorites' ? '/tasks' : '/tasks/mine'}
+                        className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0"
+                    >
+                        {tab === 'favorites' ? t('favoriteRooms.goToTasks') : t('myTasks.goToTasks')}
+                        <ChevronRight className="w-4 h-4" />
+                    </Link>
                 </div>
-                <Link to="/tasks/mine"className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
-                    {t('myTasks.goToTasks')}
-                    <ChevronRight className="w-4 h-4" />
-                </Link>
+                {canReadTasks && (
+                    <div className="flex items-center gap-1">
+                        <button type="button" onClick={() => selectTab('tasks')} className={tabClass('tasks')}>
+                            {t('myTasks.tab')}
+                        </button>
+                        <button type="button" onClick={() => selectTab('favorites')} className={tabClass('favorites')}>
+                            {t('favoriteRooms.tab')}
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {loadingTasks || loadingMyTaskIds ? (
+            {tab === 'favorites' ? (
+                <FavoriteRoomsList />
+            ) : loadingTasks || loadingMyTaskIds ? (
                 <p className="text-sm text-secondary dark:text-slate-400">{t('myTasks.loading')}</p>
             ) : error ? (
                 <p className="text-sm text-red-600 dark:text-red-400">{error}</p>

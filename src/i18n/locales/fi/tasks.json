@@ -139,5 +139,8 @@
     "intro": "Valitse huone ja muokkaa nimeä ja pääsyä.",
     "namePlaceholder": "Kirjoita tilan nimi",
     "failed": "Tilaa ei voitu muokata. Yritä uudelleen."
+  },
+  "favorites": {
+    "toggleFailed": "Suosikkihuonetta ei voitu päivittää."
   }
 }

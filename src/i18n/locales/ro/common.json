@@ -51,5 +51,9 @@
     "negative": "Numărul nu poate fi negativ.",
     "zero": "Numărul trebuie să fie mai mare decât 0.",
     "fixFields": "Corectează câmpurile numerice marcate."
+  },
+  "favorites": {
+    "add": "Adaugă la favorite",
+    "remove": "Elimină din favorite"
   }
 }

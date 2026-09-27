@@ -139,5 +139,8 @@
     "intro": "Kies een ruimte en bewerk de naam en toegang.",
     "namePlaceholder": "Schrijf een naam voor de ruimte",
     "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
+  },
+  "favorites": {
+    "toggleFailed": "Kon favoriete ruimte niet bijwerken."
   }
 }

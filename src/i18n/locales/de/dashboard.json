@@ -20,7 +20,18 @@
     "goToTasks": "Zu meinen Aufgaben",
     "loading": "Ihre Aufgaben werden geladen...",
     "empty": "Sie sind noch für keine Aufgaben angemeldet.",
-    "endsOn": "Endet am {{date}}"
+    "endsOn": "Endet am {{date}}",
+    "tab": "Aufgaben"
+  },
+  "favoriteRooms": {
+    "title": "Meine Favoritenräume",
+    "goToTasks": "Zu den Aufgaben",
+    "loading": "Favoritenräume werden geladen...",
+    "empty": "Du hast noch keine Favoritenräume.",
+    "emptyLink": "Markiere Räume unter Aufgaben mit einem Stern.",
+    "openTasks_one": "{{count}} offen",
+    "openTasks_other": "{{count}} offen",
+    "tab": "Favoritenräume"
   },
   "notifications": {
     "title": "Benachrichtigungen",

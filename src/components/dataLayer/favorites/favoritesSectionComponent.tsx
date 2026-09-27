@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronRight, Star } from 'lucide-react';
 import type { FavoriteRowProps, FavoritesSectionProps } from '../../../types/dataLayer/datalayerTypes';
-import { FavoriteStarButton } from './favoriteStarButtonComponent';
+import { FavoriteStarButton } from '../../common/FavoriteStarButton';
 
 function FavoriteRow({ entry, expandedKeys, onToggleExpand }: FavoriteRowProps) {
   const hasChildren = entry.children.length > 0;

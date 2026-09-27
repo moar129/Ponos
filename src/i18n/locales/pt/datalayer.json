@@ -192,8 +192,6 @@
   "itemCountParen": "({{count}} artigos)",
   "favorites": {
     "title": "Favoritos",
-    "add": "Adicionar aos favoritos",
-    "remove": "Remover dos favoritos",
     "toggleFailed": "Não foi possível atualizar o favorito."
   }
 }

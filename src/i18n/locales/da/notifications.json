@@ -22,6 +22,7 @@
     "task_completed": "En opgave er afsluttet",
     "task_approved": "Din opgave er godkendt",
     "task_rejected": "Færdigmelding afvist",
+    "task_favorite_room": "Ny opgave i et favoritrum",
     "news": "Ny nyhed"
   }
 }

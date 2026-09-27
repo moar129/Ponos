@@ -188,5 +188,8 @@
     "noLocation": "No location",
     "noAvailableAnywhere": "There are no available units at any location.",
     "availableAtLocation": "{{amount}} {{unit}} available"
+  },
+  "favorites": {
+    "toggleFailed": "Could not update favorite room."
   }
 }

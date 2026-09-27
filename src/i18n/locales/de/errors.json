@@ -58,7 +58,8 @@
     "createLocation": "Sie haben keine Berechtigung, den Standort zu erstellen.",
     "updateLocation": "Sie haben keine Berechtigung, den Standort zu bearbeiten.",
     "deleteLocation": "Sie haben keine Berechtigung, den Standort zu löschen.",
-    "favoriteDatalayer": "Sie haben keine Berechtigung, Favoriten in der Datenebene zu ändern."
+    "favoriteDatalayer": "Sie haben keine Berechtigung, Favoriten in der Datenebene zu ändern.",
+    "favoriteTasks": "Sie haben keine Berechtigung, Favoritenräume zu ändern."
   },
   "db": {
     "NOT_LOGGED_IN": "Sie müssen angemeldet sein.",

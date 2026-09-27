@@ -22,6 +22,7 @@
     "task_completed": "O sarcină a fost finalizată",
     "task_approved": "Sarcina dumneavoastră a fost aprobată",
     "task_rejected": "Raportarea finalizării a fost respinsă",
+    "task_favorite_room": "Sarcină nouă într-o cameră favorită",
     "news": "Știre nouă"
   }
 }

@@ -16,6 +16,8 @@ import type {
 } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
 import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
+import { FavoriteStarButton } from '../../components/common/FavoriteStarButton';
+import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
 import {
     useCreateRoomMutation,
     useGetRoomsQuery,
@@ -103,6 +105,12 @@ export function TasksPage() {
     } = useGetRoomsQuery();
 
     const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
+
+    const {
+        favoriteIds,
+        toggleFavorite,
+        favoriteError,
+    } = useTaskRoomFavorites(canRead);
 
     const selectedRoom = rooms.find(
         (room) => room.id === selectedRoomId
@@ -231,7 +239,8 @@ export function TasksPage() {
     const pageError =
         readableError(tasksError) ??
         readableError(roomsError) ??
-        readableError(createRoomError);
+        readableError(createRoomError) ??
+        favoriteError;
 
     if (
         tasksLoading ||
@@ -265,6 +274,7 @@ export function TasksPage() {
                 canCreate={canCreate}
                 canUpdate={canUpdate}
                 canDelete={canDelete}
+                canFavorite={canRead}
             />
 
             {/* FILTER BAR */}
@@ -375,9 +385,19 @@ export function TasksPage() {
                 {/* PAGE INTRO */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{selectedRoom
-                            ? t('page.roomHeading', { room: selectedRoom.name })
-                            : t('page.heading')}</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{selectedRoom
+                                ? t('page.roomHeading', { room: selectedRoom.name })
+                                : t('page.heading')}</h1>
+
+                            {selectedRoom && canRead && (
+                                <FavoriteStarButton
+                                    variant="heading"
+                                    isFavorite={favoriteIds.has(selectedRoom.id)}
+                                    onToggle={() => void toggleFavorite(selectedRoom.id)}
+                                />
+                            )}
+                        </div>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
                             {t('page.subtitle')}
@@ -471,14 +491,16 @@ export function TasksPage() {
                 </div>
             </main>
 
-            {/* CREATE TASK */}
-            <CreateTaskModal
-                isOpen={isCreateTaskOpen}
-                onClose={() =>
-                    setIsCreateTaskOpen(false)
-                }
-                selectedRoomId={selectedRoomId}
-            />
+            {/* CREATE TASK - mountes kun når åben, så formularen altid
+                starter med det aktuelt valgte rum. */}
+            {isCreateTaskOpen && (
+                <CreateTaskModal
+                    onClose={() =>
+                        setIsCreateTaskOpen(false)
+                    }
+                    selectedRoomId={selectedRoomId}
+                />
+            )}
 
         </div>
     );

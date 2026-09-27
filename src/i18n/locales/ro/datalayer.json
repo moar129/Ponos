@@ -192,8 +192,6 @@
   "itemCountParen": "({{count}} articole)",
   "favorites": {
     "title": "Favorite",
-    "add": "Adaugă la favorite",
-    "remove": "Elimină din favorite",
     "toggleFailed": "Nu s-a putut actualiza favoritul."
   }
 }

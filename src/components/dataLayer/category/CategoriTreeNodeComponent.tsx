@@ -1,7 +1,7 @@
 import type { CategoryTreeNodeProps } from '../../../types/dataLayer/datalayerTypes';
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronDown, Folder, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
-import { FavoriteStarButton } from '../favorites/favoriteStarButtonComponent';
+import { FavoriteStarButton } from '../../common/FavoriteStarButton';
 
 export function CategoryTreeNode({
   category,

@@ -50,5 +50,9 @@
     "negative": "Die Zahl darf nicht negativ sein.",
     "zero": "Die Zahl muss größer als 0 sein.",
     "fixFields": "Korrigieren Sie die markierten Zahlenfelder."
+  },
+  "favorites": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen"
   }
 }

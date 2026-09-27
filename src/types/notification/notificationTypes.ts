@@ -5,6 +5,7 @@ export type NotificationType =
   | 'task_completed'
   | 'task_approved'
   | 'task_rejected'
+  | 'task_favorite_room'
   | 'news'
 
 export interface AppNotification {

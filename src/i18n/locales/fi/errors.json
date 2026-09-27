@@ -58,7 +58,8 @@
     "createLocation": "Sinulla ei ole oikeutta luoda sijaintia.",
     "updateLocation": "Sinulla ei ole oikeutta muokata sijaintia.",
     "deleteLocation": "Sinulla ei ole oikeutta poistaa sijaintia.",
-    "favoriteDatalayer": "Sinulla ei ole oikeutta muuttaa tietokerroksen suosikkeja."
+    "favoriteDatalayer": "Sinulla ei ole oikeutta muuttaa tietokerroksen suosikkeja.",
+    "favoriteTasks": "Sinulla ei ole oikeutta muuttaa suosikkihuoneita."
   },
   "db": {
     "NOT_LOGGED_IN": "Sinun on oltava kirjautuneena sisään.",

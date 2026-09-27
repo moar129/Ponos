@@ -58,7 +58,8 @@
     "createLocation": "No tienes permiso para crear la ubicación.",
     "updateLocation": "No tienes permiso para editar la ubicación.",
     "deleteLocation": "No tienes permiso para eliminar la ubicación.",
-    "favoriteDatalayer": "No tienes permiso para cambiar los favoritos de la capa de datos."
+    "favoriteDatalayer": "No tienes permiso para cambiar los favoritos de la capa de datos.",
+    "favoriteTasks": "No tienes permiso para cambiar las salas favoritas."
   },
   "db": {
     "NOT_LOGGED_IN": "Debe iniciar sesión.",

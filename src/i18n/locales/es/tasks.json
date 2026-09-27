@@ -140,5 +140,8 @@
     "intro": "Elija una sala y edite su nombre y acceso.",
     "namePlaceholder": "Escribe el nombre de la sala",
     "failed": "No se ha podido editar la sala. Inténtalo de nuevo."
+  },
+  "favorites": {
+    "toggleFailed": "No se pudo actualizar la sala favorita."
   }
 }

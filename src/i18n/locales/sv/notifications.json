@@ -22,6 +22,7 @@
     "task_completed": "En uppgift har avslutats",
     "task_approved": "Din uppgift har godkänts",
     "task_rejected": "Slutrapportering avslagen",
+    "task_favorite_room": "Ny uppgift i ett favoritrum",
     "news": "Ny nyhet"
   }
 }

@@ -10,7 +10,8 @@ import { MyTasksWidget } from './MyTasksWidget'
 import { NotificationsWidget } from './NotificationsWidget'
 
 // US-65: "Dine opgaver" (US-74) og Notifikationer (US-72, seneste 10 med
-// Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), genveje til
+// Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), favoritrum
+// (US-77) som fane i "Dine opgaver", genveje til
 // Datalager/Opgaver/Statistik derunder, Nyheder (US-56) nederst.
 export function OverviewTab() {
     const { t } = useTranslation(['dashboard', 'nav'])

@@ -253,8 +253,6 @@
   "itemCountParen": "({{count}} items)",
   "favorites": {
     "title": "Favorites",
-    "add": "Add to favorites",
-    "remove": "Remove from favorites",
     "toggleFailed": "Could not update favorite."
   }
 }

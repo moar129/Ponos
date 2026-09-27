@@ -52,5 +52,9 @@
     "negative": "Číslo nesmí být záporné.",
     "zero": "Číslo musí být větší než 0.",
     "fixFields": "Opravte označená číselná pole."
+  },
+  "favorites": {
+    "add": "Přidat do oblíbených",
+    "remove": "Odebrat z oblíbených"
   }
 }

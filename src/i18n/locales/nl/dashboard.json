@@ -20,7 +20,18 @@
     "goToTasks": "Ga naar mijn taken",
     "loading": "Je taken worden geladen...",
     "empty": "Je bent nog voor geen enkele taak ingeschreven.",
-    "endsOn": "Eindigt op {{date}}"
+    "endsOn": "Eindigt op {{date}}",
+    "tab": "Taken"
+  },
+  "favoriteRooms": {
+    "title": "Mijn favoriete ruimtes",
+    "goToTasks": "Naar taken",
+    "loading": "Favoriete ruimtes laden...",
+    "empty": "Je hebt nog geen favoriete ruimtes.",
+    "emptyLink": "Geef ruimtes een ster onder Taken.",
+    "openTasks_one": "{{count}} open",
+    "openTasks_other": "{{count}} open",
+    "tab": "Favoriete ruimtes"
   },
   "notifications": {
     "title": "Meldingen",

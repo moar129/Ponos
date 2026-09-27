@@ -50,5 +50,9 @@
     "negative": "The number cannot be negative.",
     "zero": "The number must be greater than 0.",
     "fixFields": "Correct the highlighted number fields."
+  },
+  "favorites": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites"
   }
 }

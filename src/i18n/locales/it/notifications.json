@@ -22,6 +22,7 @@
     "task_completed": "Un'attività è stata completata",
     "task_approved": "La tua attività è stata approvata",
     "task_rejected": "Segnalazione di completamento rifiutata",
+    "task_favorite_room": "Nuova attività in una stanza preferita",
     "news": "Nuova notizia"
   }
 }

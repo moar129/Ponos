@@ -52,5 +52,9 @@
     "negative": "Liczba nie może być ujemna.",
     "zero": "Liczba musi być większa od 0.",
     "fixFields": "Popraw zaznaczone pola liczbowe."
+  },
+  "favorites": {
+    "add": "Dodaj do ulubionych",
+    "remove": "Usuń z ulubionych"
   }
 }

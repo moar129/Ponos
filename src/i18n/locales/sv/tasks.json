@@ -139,5 +139,8 @@
     "intro": "Välj ett rum och redigera namn och åtkomst.",
     "namePlaceholder": "Skriv namn på rummet",
     "failed": "Rummet kunde inte redigeras. Försök igen."
+  },
+  "favorites": {
+    "toggleFailed": "Kunde inte uppdatera favoritrum."
   }
 }

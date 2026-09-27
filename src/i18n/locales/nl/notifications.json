@@ -22,6 +22,7 @@
     "task_completed": "Een taak is afgerond",
     "task_approved": "Je taak is goedgekeurd",
     "task_rejected": "Gereedmelding afgewezen",
+    "task_favorite_room": "Nieuwe taak in een favoriete ruimte",
     "news": "Nieuw nieuwsbericht"
   }
 }

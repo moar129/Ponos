@@ -20,7 +20,18 @@
     "goToTasks": "Gå till mina uppgifter",
     "loading": "Laddar dina uppgifter...",
     "empty": "Du är ännu inte anmäld till några uppgifter.",
-    "endsOn": "Slutar {{date}}"
+    "endsOn": "Slutar {{date}}",
+    "tab": "Uppgifter"
+  },
+  "favoriteRooms": {
+    "title": "Mina favoritrum",
+    "goToTasks": "Gå till uppgifter",
+    "loading": "Laddar favoritrum...",
+    "empty": "Du har inga favoritrum ännu.",
+    "emptyLink": "Stjärnmärk rum under Uppgifter.",
+    "openTasks_one": "{{count}} öppen",
+    "openTasks_other": "{{count}} öppna",
+    "tab": "Favoritrum"
   },
   "notifications": {
     "title": "Aviseringar",

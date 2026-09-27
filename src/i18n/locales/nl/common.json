@@ -50,5 +50,9 @@
     "negative": "Het getal mag niet negatief zijn.",
     "zero": "Het getal moet groter zijn dan 0.",
     "fixFields": "Corrigeer de gemarkeerde getalvelden."
+  },
+  "favorites": {
+    "add": "Toevoegen aan favorieten",
+    "remove": "Verwijderen uit favorieten"
   }
 }

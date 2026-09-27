@@ -189,8 +189,6 @@
   "itemCountParen": "({{count}} tétel)",
   "favorites": {
     "title": "Kedvencek",
-    "add": "Hozzáadás a kedvencekhez",
-    "remove": "Eltávolítás a kedvencek közül",
     "toggleFailed": "Nem sikerült frissíteni a kedvencet."
   }
 }

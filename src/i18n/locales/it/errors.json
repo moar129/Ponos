@@ -58,7 +58,8 @@
     "createLocation": "Non hai i permessi per creare la posizione.",
     "updateLocation": "Non hai i permessi per modificare la posizione.",
     "deleteLocation": "Non hai i permessi per eliminare la posizione.",
-    "favoriteDatalayer": "Non hai i permessi per modificare i preferiti del livello dati."
+    "favoriteDatalayer": "Non hai i permessi per modificare i preferiti del livello dati.",
+    "favoriteTasks": "Non hai i permessi per modificare le stanze preferite."
   },
   "db": {
     "NOT_LOGGED_IN": "Devi aver effettuato l'accesso.",

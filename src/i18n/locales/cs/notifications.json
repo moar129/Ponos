@@ -22,6 +22,7 @@
     "task_completed": "Úkol byl dokončen",
     "task_approved": "Váš úkol byl schválen",
     "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto",
+    "task_favorite_room": "Nový úkol v oblíbené místnosti",
     "news": "Nová novinka"
   }
 }

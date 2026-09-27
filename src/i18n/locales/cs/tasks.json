@@ -141,5 +141,8 @@
     "intro": "Vyberte místnost a upravte název a přístup.",
     "namePlaceholder": "Zadejte název místnosti",
     "failed": "Místnost se nepodařilo upravit. Zkuste to znovu."
+  },
+  "favorites": {
+    "toggleFailed": "Oblíbenou místnost se nepodařilo aktualizovat."
   }
 }

@@ -139,5 +139,8 @@
     "intro": "Válasszon szobát, és szerkessze a nevét és a hozzáférést.",
     "namePlaceholder": "Írja be a helyiség nevét",
     "failed": "A helyiséget nem sikerült szerkeszteni. Próbálja újra."
+  },
+  "favorites": {
+    "toggleFailed": "Nem sikerült frissíteni a kedvenc termet."
   }
 }

@@ -20,7 +20,19 @@
     "goToTasks": "Ir para as minhas tarefas",
     "loading": "A carregar as suas tarefas...",
     "empty": "Ainda não está inscrito em nenhuma tarefa.",
-    "endsOn": "Termina a {{date}}"
+    "endsOn": "Termina a {{date}}",
+    "tab": "Tarefas"
+  },
+  "favoriteRooms": {
+    "title": "As minhas salas favoritas",
+    "goToTasks": "Ir para tarefas",
+    "loading": "A carregar salas favoritas...",
+    "empty": "Ainda não tem salas favoritas.",
+    "emptyLink": "Marque salas com estrela em Tarefas.",
+    "openTasks_one": "{{count}} aberta",
+    "openTasks_many": "{{count}} abertas",
+    "openTasks_other": "{{count}} abertas",
+    "tab": "Salas favoritas"
   },
   "notifications": {
     "title": "Notificações",

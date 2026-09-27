@@ -58,7 +58,8 @@
     "createLocation": "Vous n'avez pas le droit de créer l'emplacement.",
     "updateLocation": "Vous n'avez pas le droit de modifier l'emplacement.",
     "deleteLocation": "Vous n'avez pas le droit de supprimer l'emplacement.",
-    "favoriteDatalayer": "Vous n'avez pas le droit de modifier les favoris de la couche de données."
+    "favoriteDatalayer": "Vous n'avez pas le droit de modifier les favoris de la couche de données.",
+    "favoriteTasks": "Vous n'avez pas le droit de modifier les salles favorites."
   },
   "db": {
     "NOT_LOGGED_IN": "Vous devez être connecté.",

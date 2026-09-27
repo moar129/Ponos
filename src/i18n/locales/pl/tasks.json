@@ -141,5 +141,8 @@
     "intro": "Wybierz pokój i edytuj nazwę oraz dostęp.",
     "namePlaceholder": "Wpisz nazwę pomieszczenia",
     "failed": "Nie udało się edytować pomieszczenia. Spróbuj ponownie."
+  },
+  "favorites": {
+    "toggleFailed": "Nie udało się zaktualizować ulubionego pokoju."
   }
 }

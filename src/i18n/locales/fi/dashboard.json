@@ -20,7 +20,18 @@
     "goToTasks": "Siirry omiin tehtäviin",
     "loading": "Ladataan tehtäviäsi...",
     "empty": "Et ole vielä ilmoittautunut yhteenkään tehtävään.",
-    "endsOn": "Päättyy {{date}}"
+    "endsOn": "Päättyy {{date}}",
+    "tab": "Tehtävät"
+  },
+  "favoriteRooms": {
+    "title": "Suosikkihuoneeni",
+    "goToTasks": "Siirry tehtäviin",
+    "loading": "Ladataan suosikkihuoneita...",
+    "empty": "Sinulla ei ole vielä suosikkihuoneita.",
+    "emptyLink": "Merkitse huoneita tähdellä kohdassa Tehtävät.",
+    "openTasks_one": "{{count}} avoin",
+    "openTasks_other": "{{count}} avointa",
+    "tab": "Suosikkihuoneet"
   },
   "notifications": {
     "title": "Ilmoitukset",

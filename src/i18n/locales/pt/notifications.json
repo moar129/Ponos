@@ -22,6 +22,7 @@
     "task_completed": "Uma tarefa foi concluída",
     "task_approved": "A sua tarefa foi aprovada",
     "task_rejected": "Conclusão rejeitada",
+    "task_favorite_room": "Nova tarefa numa sala favorita",
     "news": "Nova notícia"
   }
 }

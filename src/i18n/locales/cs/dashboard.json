@@ -20,7 +20,20 @@
     "goToTasks": "Přejít na mé úkoly",
     "loading": "Načítání vašich úkolů...",
     "empty": "Zatím jste se nepřihlásili k žádnému úkolu.",
-    "endsOn": "Končí {{date}}"
+    "endsOn": "Končí {{date}}",
+    "tab": "Úkoly"
+  },
+  "favoriteRooms": {
+    "title": "Moje oblíbené místnosti",
+    "goToTasks": "Přejít na úkoly",
+    "loading": "Načítání oblíbených místností...",
+    "empty": "Zatím nemáte žádné oblíbené místnosti.",
+    "emptyLink": "Označte místnosti hvězdičkou v Úkolech.",
+    "openTasks_one": "{{count}} otevřený",
+    "openTasks_few": "{{count}} otevřené",
+    "openTasks_many": "{{count}} otevřeného",
+    "openTasks_other": "{{count}} otevřených",
+    "tab": "Oblíbené místnosti"
   },
   "notifications": {
     "title": "Oznámení",

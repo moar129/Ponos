@@ -139,5 +139,8 @@
     "intro": "Wählen Sie einen Raum und bearbeiten Sie Namen und Zugriff.",
     "namePlaceholder": "Raumnamen eingeben",
     "failed": "Der Raum konnte nicht bearbeitet werden. Bitte versuchen Sie es erneut."
+  },
+  "favorites": {
+    "toggleFailed": "Favoritenraum konnte nicht aktualisiert werden."
   }
 }

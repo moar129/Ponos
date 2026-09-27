@@ -1477,6 +1477,47 @@ Som bruger vil jeg have klare regler for, hvornår jeg kan tilmelde mig, afmelde
 - Den, der bliver tilføjet, får en notifikation (eksisterende `notify_task_assigned`); der kræves ikke accept.
 - Et klik på en opgave-notifikation (dashboard-widget, klokke, `/notifikationer`) åbner opgaven på `/tasks` med dens popup - også for afsluttede opgaver, og både for `?task=`- og `?taskId=`-links (`TaskPage.tsx`).
 
+## US-77 – Dashboard-genveje til favoritrum
+
+**Priority:** Low
+
+**Note:** Bygger på de personlige favoritrum på `/tasks` (tabel `task_room_favorites`, ad-hoc 2026-09-26). Ingen ny tabel eller SQL - kun frontend. Genbruger `useGetTaskRoomFavoritesQuery` (`taskRoomFavoriteApi.ts`), `useGetRoomsQuery` og `useGetTasksQuery` (`taskApi.ts`) samt `splitFavoriteRooms` (`utils/`).
+
+### User Story
+
+Som bruger vil jeg se mine favoritrum på dashboardet, så jeg hurtigt kan hoppe til de rum, jeg arbejder i.
+
+### Acceptance Criteria
+
+- Ny widget på dashboardets Oversigt-fane, "Mine favoritrum", synlig kun med `read_tasks` (admin altid).
+- Widgeten lister brugerens favoritrum i rummenes egen rækkefølge (`created_at`), med rum-navn og lås-ikon for rolle-begrænsede rum (som i `RoomBar`).
+- Hvert rum viser antal åbne opgaver (Started + InProgress), afledt af eksisterende opgaver - aldrig indtastet.
+- Klik på et rum åbner `/tasks` med rummet valgt (`navigate('/tasks', { state: { roomId } })`, `TasksLocationState`).
+- Rum brugeren ikke længere har adgang til (ikke returneret af `getRooms`) vises ikke.
+- Loading-, fejl- og tom-tilstand håndteres; tom-tilstand: "Ingen favoritrum - stjernemarkér rum under Opgaver" med link til `/tasks`.
+- Organisation-isolation følger af eksisterende RLS på `task_room_favorites`/`task_rooms`/`tasks`.
+
+## US-78 – Notifikation ved ny opgave i favoritrum
+
+**Priority:** Low
+
+**Note:** Bygger på `task_room_favorites` (ad-hoc 2026-09-26) og det eksisterende notifikationssystem (tabel `notifications`, triggerne `notify_task_*`, bygget af en anden studerende - afstem med dem før start). Kræver migration i `docs/migrations/`.
+
+### User Story
+
+Som bruger vil jeg få besked, når der oprettes en ny opgave i et af mine favoritrum, så jeg ikke skal holde øje med rummet manuelt.
+
+### Acceptance Criteria
+
+- Ny trigger `after insert on tasks` (fx `notify_task_created_in_favorite_room`, security definer): for en opgave med `room_id` indsættes én notifikation pr. bruger med en `task_room_favorites`-række for rummet i samme organisation.
+- Opretteren af opgaven får ingen notifikation.
+- Kun modtagere der må se rummet (`can_access_task_room` evalueret for modtageren, ikke opretteren) og har `read_tasks` (eller admin) får notifikationen.
+- Ny notifikationstype (fx `task_created_in_favorite_room`) med titel "Ny opgave i <rum>" og opgavens titel som body; oversat i alle 14 locales (`notificationDisplay.ts`).
+- Link åbner opgaven på `/tasks?taskId=<id>` (eksisterende håndtering i `TaskPage.tsx`).
+- Opgaver uden rum udløser ingen notifikation.
+- Valgfrit (afklares før start): brugerindstilling på `/bruger` til at slå favoritrum-notifikationer fra.
+- Server-side håndhævelse; ingen notifikationer på tværs af organisationer.
+
 ---
 
 # 11. Prioriteringsoversigt

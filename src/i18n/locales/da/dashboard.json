@@ -20,7 +20,18 @@
     "goToTasks": "Gå til mine opgaver",
     "loading": "Indlæser dine opgaver...",
     "empty": "Du er ikke tilmeldt nogen opgaver endnu.",
-    "endsOn": "Slut {{date}}"
+    "endsOn": "Slut {{date}}",
+    "tab": "Opgaver"
+  },
+  "favoriteRooms": {
+    "title": "Mine favoritrum",
+    "goToTasks": "Gå til opgaver",
+    "loading": "Indlæser favoritrum...",
+    "empty": "Du har ingen favoritrum endnu.",
+    "emptyLink": "Stjernemarkér rum under Opgaver.",
+    "openTasks_one": "{{count}} åben",
+    "openTasks_other": "{{count}} åbne",
+    "tab": "Favoritrum"
   },
   "notifications": {
     "title": "Notifikationer",

@@ -140,5 +140,8 @@
     "intro": "Alegeți o cameră și editați numele și accesul.",
     "namePlaceholder": "Introduceți numele încăperii",
     "failed": "Încăperea nu a putut fi editată. Încercați din nou."
+  },
+  "favorites": {
+    "toggleFailed": "Nu s-a putut actualiza camera favorită."
   }
 }

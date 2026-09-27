@@ -51,5 +51,9 @@
     "negative": "O número não pode ser negativo.",
     "zero": "O número tem de ser maior que 0.",
     "fixFields": "Corrija os campos numéricos assinalados."
+  },
+  "favorites": {
+    "add": "Adicionar aos favoritos",
+    "remove": "Remover dos favoritos"
   }
 }
