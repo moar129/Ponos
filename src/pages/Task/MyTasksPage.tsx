@@ -8,11 +8,10 @@ import { FilterBar } from '../../components/Task/FilterBar.tsx';
 import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
 import { TaskColumnEmptyState } from '../../components/Task/TaskColumnEmptyState';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
-import { RoomRolePicker } from '../../components/Task/RoomRolePicker';
+import { CreateRoomModal } from '../../components/Task/CreateRoomModal';
 import { useTaskFilters } from '../../store/hooks/useTaskFilters';
 import { compareTasks, matchesTaskSearch } from '../../utils/taskFilters';
 import {
-    useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
     useGetMyTaskIdsQuery,
@@ -42,8 +41,6 @@ export function MyTasksPage() {
 
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-    const [newRoomName, setNewRoomName] = useState('');
-    const [newRoomRoleIds, setNewRoomRoleIds] = useState<string[]>([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const {
@@ -59,9 +56,6 @@ export function MyTasksPage() {
         activeFilterCount,
         resetFilters,
     } = useTaskFilters();
-
-    const [createRoom, { error: createRoomError }] =
-        useCreateRoomMutation();
 
     const {
         hasPrivilege: canRead,
@@ -97,24 +91,6 @@ export function MyTasksPage() {
 
     // Tilmeldtes navne til søgning. Fejler hentningen, søges bare uden navne.
     const { data: assigneeNamesByTask = {} } = useGetOpenTaskAssigneeNamesQuery();
-
-    const handleAddRoom = async () => {
-        const roomName = newRoomName.trim();
-
-        if (!roomName) {
-            return;
-        }
-
-        try {
-            await createRoom({ name: roomName, roleIds: newRoomRoleIds }).unwrap();
-
-            setNewRoomName('');
-            setNewRoomRoleIds([]);
-            setIsAddRoomOpen(false);
-        } catch {
-            // handled through mutation error state
-        }
-    };
 
     const roomNameById = new Map(rooms.map((room) => [room.id, room.name]));
 
@@ -169,8 +145,7 @@ export function MyTasksPage() {
 
     const pageError =
         readableError(tasksError) ??
-        readableError(roomsError) ??
-        readableError(createRoomError);
+        readableError(roomsError);
 
     if (
         tasksLoading ||
@@ -238,71 +213,7 @@ export function MyTasksPage() {
 
             {/* CREATE ROOM */}
             {isAddRoomOpen && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4"
-                    onClick={() => {
-                        setIsAddRoomOpen(false);
-                        setNewRoomName('');
-                        setNewRoomRoleIds([]);
-                    }}
-                >
-                    <div
-                        className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
-                        onClick={(event) =>
-                            event.stopPropagation()
-                        }
-                    >
-                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">
-                            {t('page.createRoom')}
-                        </h3>
-
-                        <input
-                            type="text"
-                            value={newRoomName}
-                            onChange={(e) =>
-                                setNewRoomName(e.target.value)
-                            }
-                            placeholder={t('page.roomNamePlaceholder')}
-                            className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleAddRoom();
-                                }
-                            }}
-                            autoFocus
-                        />
-
-                        <div className="mt-4">
-                            <RoomRolePicker
-                                selectedRoleIds={newRoomRoleIds}
-                                onChange={setNewRoomRoleIds}
-                                suggestedRoleName={newRoomName}
-                            />
-                        </div>
-
-                        <div className="mt-5 flex justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsAddRoomOpen(false);
-                                    setNewRoomName('');
-                                    setNewRoomRoleIds([]);
-                                }}
-                                className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                            >
-                                {t('common:cancel')}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handleAddRoom}
-                                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-                            >
-                                {t('page.saveRoom')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <CreateRoomModal onClose={() => setIsAddRoomOpen(false)} />
             )}
 
             {/* MAIN */}

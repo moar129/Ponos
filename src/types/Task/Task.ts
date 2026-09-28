@@ -42,6 +42,10 @@ export interface RoomRolePickerProps {
   suggestedRoleName?: string; // prefilled name when creating a role from the picker
 }
 
+export interface CreateRoomModalProps {
+  onClose: () => void;
+}
+
 export interface TaskAssignee {
   user_id: string;
   assigned_by: string;
