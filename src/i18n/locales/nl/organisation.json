@@ -58,7 +58,22 @@
     "deletePermanently": "Definitief verwijderen",
     "deleted": "\"{{name}}\" is verwijderd.",
     "deletedNewActive": "\"{{name}}\" is verwijderd. Je actieve organisatie is nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" is verwijderd. Je hebt geen actieve organisatie meer."
+    "deletedNoActive": "\"{{name}}\" is verwijderd. Je hebt geen actieve organisatie meer.",
+    "colorLabel": "Kleur",
+    "colorHint": "Kies een kleur die je organisatie representeert. Deze wordt gebruikt voor knoppen, links en markeringen. Alle kleuren zijn toegestaan.",
+    "headerColorLabel": "Header-kleur",
+    "headerColorHint": "Achtergrondkleur van de bovenste balk. Leeg = standaardblauw.",
+    "footerColorLabel": "Footer-kleur",
+    "footerColorHint": "Achtergrondkleur van de onderkant van de pagina. Leeg = standaardblauw.",
+    "colorPickerAriaLabel": "Kies de kleur van de organisatie",
+    "colorReset": "Resetten",
+    "colorUseDefault": "Gebruik standaard",
+    "colorNoneSet": "Geen geselecteerd (standaard)",
+    "colorInvalid": "De kleur moet een geldige hex-code zijn, bijvoorbeeld #C7975D.",
+    "savedColors": "Opgeslagen kleuren",
+    "saveCurrentColor": "Huidige kleur opslaan",
+    "noSavedColors": "Nog geen opgeslagen kleuren.",
+    "removeSavedColor": "Opgeslagen kleur verwijderen"
   },
   "picker": {
     "searchPlaceholder": "Zoek een organisatie...",

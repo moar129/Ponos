@@ -2,31 +2,25 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import type { FormEventHandler } from 'react'
 import { Building2 } from 'lucide-react'
 import {
+    useAddSavedOrganisationColorMutation,
     useDeleteOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
+    useRemoveSavedOrganisationColorMutation,
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { DeleteOrganisationControlProps, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import { ColorSlot } from './colorSlot'
 
 // Standardfarven er husets egen accent (index.css: --color-accent) - bruges
 // som forudfyldt værdi i farvevælgeren og som fallback, når organisationen
 // ikke selv har valgt en farve (color === null).
 const DEFAULT_ORG_COLOR = '#C7975D'
+const DEFAULT_BAR_COLOR = '#071B33'
 
-// Et lille udvalg af husets egne farve-variabler (index.css) som hurtige
-// genveje i farvevælgeren - organisationen er IKKE begrænset til disse;
-// hex-feltet og <input type="color"> tillader enhver farve, da Ponos skal
-// kunne bruges af alle virksomheder, uanset deres eget brand.
-const SUGGESTED_COLORS = [
-    { value: '#C7975D', labelKey: 'admin.colorSuggestions.accent' },
-    { value: '#071B33', labelKey: 'admin.colorSuggestions.primary' },
-    { value: '#3E5574', labelKey: 'admin.colorSuggestions.secondary' },
-] as const satisfies readonly { value: string; labelKey: 'admin.colorSuggestions.accent' | 'admin.colorSuggestions.primary' | 'admin.colorSuggestions.secondary' }[];
 
 function isValidHexColor(value: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(value)
@@ -34,7 +28,7 @@ function isValidHexColor(value: string): boolean {
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
 // feltet fyldes med organisationens nuværende værdi.
-const emptyForm: UpdateOrganisationInput = { name: '', color: null }
+ const emptyForm: UpdateOrganisationInput = { name: '', color: null, headerColor: null, footerColor: null }
 
 // Rediger organisation (navn + farve) + slet organisation, samlet i ét
 // panel under dashboardets Administration-fane (US-65) - flyttet fra
@@ -56,6 +50,8 @@ export function OrganisationAdminPanel() {
     const { data: memberships } = useGetMyMembershipsQuery()
     const { hasPrivilege: canEditOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
+    const [addSavedColor] = useAddSavedOrganisationColorMutation()
+    const [removeSavedColor] = useRemoveSavedOrganisationColorMutation()
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
@@ -64,7 +60,7 @@ export function OrganisationAdminPanel() {
     const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
 
     function startEdit(current: Organisation) {
-        setForm({ name: current.name, color: current.color })
+        setForm({ name: current.name, color: current.color, headerColor: current.headerColor, footerColor: current.footerColor })
         setValidationError(null)
         setSavedMessage(false)
         setIsEditing(true)
@@ -75,30 +71,41 @@ export function OrganisationAdminPanel() {
         setValidationError(null)
     }
 
-    const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
-        e.preventDefault()
+
+    const handleSubmit = async () => {
         setSavedMessage(false)
 
-        if (!form.name.trim()) {
+        const name = form.name.trim()
+        const color = form.color ?? ''
+        const headerColor = form.headerColor ?? ''
+        const footerColor = form.footerColor ?? ''
+
+        if (!name) {
             setValidationError(t('errors:required.organisationName'))
             return
         }
-        if (form.color && !isValidHexColor(form.color)) {
-            setValidationError(t('admin.colorInvalid'))
-            return
+
+        for (const c of [color, headerColor, footerColor]) {
+            if (c && !isValidHexColor(c)) {
+                setValidationError(t('admin.colorInvalid'))
+                return
+            }
         }
+
         setValidationError(null)
 
         try {
-            await updateMyOrganisation({ name: form.name.trim(), color: form.color || null }).unwrap()
+            await updateMyOrganisation({
+                name,
+                color: color || null,
+                headerColor: headerColor || null,
+                footerColor: footerColor || null,
+            }).unwrap()
 
-            // Mutationen invaliderer 'Organisation', så visningen nedenfor
-            // henter og viser det nye navn/farve automatisk.
             setIsEditing(false)
             setSavedMessage(true)
         } catch {
-            // Fejlen vises via mutationError - vi bliver i redigerings-
-            // tilstand, så administratorens indtastning ikke går tabt.
+            // Fejlen vises via mutationError
         }
     }
 
@@ -151,7 +158,10 @@ export function OrganisationAdminPanel() {
             )}
 
             {isEditing ? (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(event) => {
+                    event.preventDefault()
+                    void handleSubmit()
+                }}>
                     <div className="mb-6">
                         <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">{t('admin.nameLabel')}</label>
                         <input
@@ -163,63 +173,36 @@ export function OrganisationAdminPanel() {
                         />
                     </div>
 
-                    {/* FARVE - helt fri farvevælger, da organisationer skal kunne
-                        bruge deres eget brand. Husets egne farver (index.css)
-                        tilbydes som hurtige forslag, ikke som en begrænsning. */}
-                    <div className="mb-6">
-                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-color">
-                            {t('admin.colorLabel')}
-                        </label>
-                        <p className="text-xs text-secondary mb-2 dark:text-slate-400">
-                            {t('admin.colorHint')}
-                        </p>
-
-                        <div className="flex items-center gap-3 mb-3">
-                            <input
-                                id="org-color"
-                                type="color"
-                                value={form.color ?? DEFAULT_ORG_COLOR}
-                                onChange={(e) => setForm({ ...form, color: e.target.value })}
-                                className="h-10 w-14 shrink-0 rounded-md border border-border-gray bg-white cursor-pointer dark:border-slate-700 dark:bg-slate-800"
-                                aria-label={t('admin.colorPickerAriaLabel')}
-                            />
-                            <input
-                                type="text"
-                                value={form.color ?? ''}
-                                onChange={(e) => setForm({ ...form, color: e.target.value || null })}
-                                placeholder={DEFAULT_ORG_COLOR}
-                                maxLength={7}
-                                className="w-32 rounded-md border border-border-gray bg-white px-3 py-2 text-sm font-mono text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                            />
-                            {form.color && (
-                                <button
-                                    type="button"
-                                    onClick={() => setForm({ ...form, color: null })}
-                                    className="text-xs text-secondary hover:text-primary hover:underline dark:text-slate-400 dark:hover:text-slate-100"
-                                >
-                                    {t('admin.colorReset')}
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                            {SUGGESTED_COLORS.map((suggestion) => (
-                                <button
-                                    key={suggestion.value}
-                                    type="button"
-                                    onClick={() => setForm({ ...form, color: suggestion.value })}
-                                    title={t(suggestion.labelKey)}
-                                    aria-label={t(suggestion.labelKey)}
-                                    className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
-                                        form.color === suggestion.value
-                                            ? 'border-primary dark:border-slate-100'
-                                            : 'border-border-gray dark:border-slate-700'
-                                    }`}
-                                    style={{ backgroundColor: suggestion.value }}
-                                />
-                            ))}
-                        </div>
-                    </div>
+                    <ColorSlot
+                        label={t('admin.colorLabel')}
+                        hint={t('admin.colorHint')}
+                        value={form.color ?? null}
+                        fallback={DEFAULT_ORG_COLOR}
+                        onChange={(color) => setForm({ ...form, color })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.color ?? DEFAULT_ORG_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
+                    <ColorSlot
+                        label={t('admin.headerColorLabel')}
+                        hint={t('admin.headerColorHint')}
+                        value={form.headerColor ?? null}
+                        fallback={DEFAULT_BAR_COLOR}
+                        onChange={(headerColor) => setForm({ ...form, headerColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.headerColor ?? DEFAULT_BAR_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
+                    <ColorSlot
+                        label={t('admin.footerColorLabel')}
+                        hint={t('admin.footerColorHint')}
+                        value={form.footerColor ?? null}
+                        fallback={DEFAULT_BAR_COLOR}
+                        onChange={(footerColor) => setForm({ ...form, footerColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.footerColor ?? DEFAULT_BAR_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
 
                     <div className="flex gap-3">
                         <button
@@ -264,6 +247,26 @@ export function OrganisationAdminPanel() {
                                     style={{ backgroundColor: displayColor }}
                                 />
                                 {organisation.color ? organisation.color : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.headerColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.headerColor ?? DEFAULT_BAR_COLOR }}
+                                />
+                                {organisation.headerColor ? organisation.headerColor : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.footerColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.footerColor ?? DEFAULT_BAR_COLOR }}
+                                />
+                                {organisation.footerColor ? organisation.footerColor : t('admin.colorNoneSet')}
                             </dd>
                         </div>
                     </dl>

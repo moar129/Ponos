@@ -58,7 +58,22 @@
     "deletePermanently": "Poista pysyvästi",
     "deleted": "\"{{name}}\" on poistettu.",
     "deletedNewActive": "\"{{name}}\" on poistettu. Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" on poistettu. Sinulla ei ole enää aktiivista organisaatiota."
+    "deletedNoActive": "\"{{name}}\" on poistettu. Sinulla ei ole enää aktiivista organisaatiota.",
+    "colorLabel": "Väri",
+    "colorHint": "Valitse organisaatiota edustava väri. Sitä käytetään painikkeissa, linkeissä ja korostuksissa. Kaikki värit ovat sallittuja.",
+    "headerColorLabel": "Otsikkoväri",
+    "headerColorHint": "Yläpalkin taustaväri. Tyhjä = vakio sininen.",
+    "footerColorLabel": "Alatunnusväri",
+    "footerColorHint": "Sivun alareunan taustaväri. Tyhjä = vakio sininen.",
+    "colorPickerAriaLabel": "Valitse organisaation väri",
+    "colorReset": "Nollaa",
+    "colorUseDefault": "Käytä oletusta",
+    "colorNoneSet": "Ei valittu (oletus)",
+    "colorInvalid": "Värin tulee olla kelvollinen hex-koodi, esim. #C7975D.",
+    "savedColors": "Tallennetut värit",
+    "saveCurrentColor": "Tallenna nykyinen väri",
+    "noSavedColors": "Ei tallennettuja värejä vielä.",
+    "removeSavedColor": "Poista tallennettu väri"
   },
   "picker": {
     "searchPlaceholder": "Hae organisaatiota...",

@@ -58,7 +58,22 @@
     "deletePermanently": "Végleges törlés",
     "deleted": "\"{{name}}\" törölve lett.",
     "deletedNewActive": "\"{{name}}\" törölve lett. Az aktív szervezete most \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" törölve lett. Már nincs aktív szervezete."
+    "deletedNoActive": "\"{{name}}\" törölve lett. Már nincs aktív szervezete.",
+    "colorLabel": "Szín",
+    "colorHint": "Válasszon egy olyan színt, amely az organisationt képviseli. A gombokhoz, hivatkozásokhoz és kiemelésekhez használatos. Minden szín engedélyezett.",
+    "headerColorLabel": "Fejléc színe",
+    "headerColorHint": "A felső sáv háttérszíne. Üres = alapértelmezett kék.",
+    "footerColorLabel": "Lábléc színe",
+    "footerColorHint": "Az oldal alján lévő háttérszín. Üres = alapértelmezett kék.",
+    "colorPickerAriaLabel": "Válassza ki a szervezet színét",
+    "colorReset": "Visszaállítás",
+    "colorUseDefault": "Alapértelmezett használata",
+    "colorNoneSet": "Nincs kiválasztva (alapértelmezett)",
+    "colorInvalid": "A színnek érvényes hex-kódnak kell lennie, például #C7975D.",
+    "savedColors": "Mentett színek",
+    "saveCurrentColor": "Aktuális szín mentése",
+    "noSavedColors": "Még nincsenek mentett színek.",
+    "removeSavedColor": "Mentett szín eltávolítása"
   },
   "picker": {
     "searchPlaceholder": "Szervezet keresése...",

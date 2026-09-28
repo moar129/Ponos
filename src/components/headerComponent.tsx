@@ -114,30 +114,30 @@ export function Header() {
   // luftig ved xl, så nav'en holder sig synlig på flere skærmstørrelser.
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-medium whitespace-nowrap transition-colors ${isActive
-      ? 'text-white border-b-2 border-white rounded-b-none'
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+      ? 'text-[var(--color-header-text)] border-b-2 border-[var(--color-header-text)] rounded-b-none'
+      : 'text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10'
     }`;
 
   // Samme klasse, men uden bund-border-aktiv-stil (giver mere mening i en stacked mobil-liste)
   const getMobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium transition-colors ${isActive
-      ? 'bg-slate-800 text-white'
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+      ? 'bg-black/15 text-[var(--color-header-text)]'
+      : 'text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10'
     }`;
 
   return (
-    <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md sticky top-0 z-40">
+    <header className="w-full bg-[var(--color-header-bg)] text-[var(--color-header-text)] border-b border-[var(--color-header-border)] shadow-md sticky top-0 z-40">
       <div className="px-3 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
         {/* Logo -> /dashboard når man er logget ind, ellers forsiden (en
             udlogget bruger ville ellers bare blive redirigeret til /login) */}
         <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity shrink-0 min-w-0">
           <img src={logo} alt="PONOS Logo" className="w-8 h-8 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
           <span className="flex items-center gap-1.5 min-w-0 truncate">
-            <span className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.08em] sm:tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100">
+            <span className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.08em] sm:tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-[var(--color-header-text)]">
               PONOS
             </span>
             {profile?.organisationName && (
-              <span className="hidden sm:inline text-sm lg:text-base font-medium tracking-normal text-slate-300 truncate">
+              <span className="hidden sm:inline text-sm lg:text-base font-medium tracking-normal text-[var(--color-header-muted)] truncate">
                 – {profile.organisationName}
               </span>
             )}
@@ -255,11 +255,11 @@ export function Header() {
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : t('user.fallbackName')}
                     </span>
-                    <span className="text-xs text-slate-300">
+                    <span className="text-xs text-[var(--color-header-muted)]">
                       {profile?.roleName ?? t('user.noRole')}
                     </span>
                   </div>
-                  <ChevronDown className={`hidden lg:block w-4 h-4 text-slate-300 transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`hidden lg:block w-4 h-4 text-[var(--color-header-muted)] transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {menuOpen && (
@@ -300,7 +300,7 @@ export function Header() {
             !isLoadingSession && (
               <Link
                 to="/signup"
-                className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-accent text-primary hover:bg-accent-hover transition-colors"
+                className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-white text-primary hover:bg-slate-100 transition-colors"
               >
                 <UserPlus className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
                 <span>{t('links.signup')}</span>
@@ -324,7 +324,7 @@ export function Header() {
             onClick={toggleTheme}
             aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
             aria-pressed={mode === 'dark'}
-            className="hidden sm:block p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+            className="hidden sm:block p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
           >
             {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -338,7 +338,7 @@ export function Header() {
               aria-haspopup="menu"
               aria-expanded={mobileNavOpen}
               aria-label={mobileNavOpen ? t('menu.close') : t('menu.open')}
-              className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+              className="lg:hidden p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
             >
               {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -350,7 +350,7 @@ export function Header() {
           Indeholder alt det, desktop-headeren viser i de to øvrige zoner -
           også "Opret konto", så knappen ikke forsvinder på mobil. */}
       {mobileNavOpen && (
-        <nav className="lg:hidden border-t border-slate-800 bg-primary px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
+        <nav className="lg:hidden border-t border-[var(--color-header-border)] bg-[var(--color-header-bg)] px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
           {isAuthenticated ? (
             <>
               <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
@@ -409,7 +409,7 @@ export function Header() {
               <Link
                 to="/signup"
                 onClick={() => setMobileNavOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-accent text-primary hover:bg-accent-hover transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-white text-primary hover:bg-slate-100 transition-colors"
               >
                 <UserPlus className="w-5 h-5 shrink-0" />
                 <span>{t('links.signup')}</span>
@@ -420,14 +420,14 @@ export function Header() {
           {/* Sprog + tema: kun her på de mindste skærme (<640px), hvor de er
               skjult fra topbaren (se note dér). Fra sm og opad vises de i
               stedet i topbaren og gentages derfor ikke her. */}
-          <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-slate-800">
+          <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-[var(--color-header-border)]">
             <LanguageSelector />
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
               aria-pressed={mode === 'dark'}
-              className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+              className="p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
             >
               {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>

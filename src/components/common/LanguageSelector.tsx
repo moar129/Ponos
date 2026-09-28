@@ -87,7 +87,7 @@ export function LanguageSelector({ variant = 'dropdown', className = '' }: Langu
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t('language.choose')}
-        className="flex items-center gap-1.5 p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+        className="flex items-center gap-1.5 p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
       >
         <Globe className="w-5 h-5 shrink-0" />
         <span className="text-xs font-semibold uppercase">{language}</span>

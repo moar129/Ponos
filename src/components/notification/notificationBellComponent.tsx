@@ -74,7 +74,7 @@ export function NotificationBellComponent() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-full transition-colors"
+        className="relative p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-full transition-colors"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={t('title')}

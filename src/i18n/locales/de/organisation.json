@@ -58,7 +58,22 @@
     "deletePermanently": "Endgültig löschen",
     "deleted": "\"{{name}}\" wurde gelöscht.",
     "deletedNewActive": "\"{{name}}\" wurde gelöscht. Ihre aktive Organisation ist jetzt \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" wurde gelöscht. Sie haben keine aktive Organisation mehr."
+    "deletedNoActive": "\"{{name}}\" wurde gelöscht. Sie haben keine aktive Organisation mehr.",
+    "colorLabel": "Farbe",
+    "colorHint": "Wählen Sie eine Farbe, die Ihre Organisation repräsentiert. Sie wird für Schaltflächen, Links und Hervorhebungen verwendet. Alle Farben sind erlaubt.",
+    "headerColorLabel": "Header-Farbe",
+    "headerColorHint": "Hintergrundfarbe der oberen Leiste. Leer = Standardblau.",
+    "footerColorLabel": "Footer-Farbe",
+    "footerColorHint": "Hintergrundfarbe des unteren Seitenbereichs. Leer = Standardblau.",
+    "colorPickerAriaLabel": "Wählen Sie die Organisationsfarbe",
+    "colorReset": "Zurücksetzen",
+    "colorUseDefault": "Standard verwenden",
+    "colorNoneSet": "Keine ausgewählt (Standard)",
+    "colorInvalid": "Die Farbe muss ein gültiger Hex-Code sein, z. B. #C7975D.",
+    "savedColors": "Gespeicherte Farben",
+    "saveCurrentColor": "Aktuelle Farbe speichern",
+    "noSavedColors": "Noch keine gespeicherten Farben.",
+    "removeSavedColor": "Gespeicherte Farbe entfernen"
   },
   "picker": {
     "searchPlaceholder": "Nach einer Organisation suchen...",

@@ -4,14 +4,18 @@
 export interface Organisation {
   id: string
   name: string
-  color: string | null   // hex, fx '#C7975D' — null = ingen valgt, falder tilbage til standard accent
+  color: string | null
+  headerColor: string | null
+  footerColor: string | null
+  savedColors: string[]
 }
 
 export interface UpdateOrganisationInput {
   name: string
   color?: string | null
+  headerColor?: string | null
+  footerColor?: string | null
 }
-
 // Felter til at oprette en ny organisation (US-58).
 export interface CreateOrganisationInput {
     name: string

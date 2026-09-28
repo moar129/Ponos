@@ -58,7 +58,22 @@
     "deletePermanently": "Trvale smazat",
     "deleted": "„{{name}}“ byla smazána.",
     "deletedNewActive": "„{{name}}“ byla smazána. Vaše aktivní organizace je nyní „{{newActive}}“.",
-    "deletedNoActive": "„{{name}}“ byla smazána. Nemáte již žádnou aktivní organizaci."
+    "deletedNoActive": "„{{name}}“ byla smazána. Nemáte již žádnou aktivní organizaci.",
+    "colorLabel": "Barva",
+    "colorHint": "Vyberte barvu, která reprezentuje vaši organizaci. Používá se pro tlačítka, odkazy a zvýraznění. Všechny barvy jsou povolené.",
+    "headerColorLabel": "Barva hlavičky",
+    "headerColorHint": "Barva pozadí horní lišty. Prázdné = výchozí modrá.",
+    "footerColorLabel": "Barva patičky",
+    "footerColorHint": "Barva pozadí spodní části stránky. Prázdné = výchozí modrá.",
+    "colorPickerAriaLabel": "Vyberte barvu organizace",
+    "colorReset": "Resetovat",
+    "colorUseDefault": "Použít výchozí",
+    "colorNoneSet": "Není vybráno (výchozí)",
+    "colorInvalid": "Barva musí být platný hex kód, např. #C7975D.",
+    "savedColors": "Uložené barvy",
+    "saveCurrentColor": "Uložit aktuální barvu",
+    "noSavedColors": "Zatím nejsou uloženy žádné barvy.",
+    "removeSavedColor": "Odebrat uloženou barvu"
   },
   "picker": {
     "searchPlaceholder": "Hledat organizaci...",
