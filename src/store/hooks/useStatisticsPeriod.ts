@@ -1,4 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+const labels: Record<StatisticsPeriodType, string> = {
+    dag: 'Dag',
+    uge: '7 dage',
+    måned: '30 dage',
+    kvartal: '91 dage',
+    år: '365 dage',
+    max: 'Alt',
+    custom: 'Brugerdefineret',
+};
 
 export type StatisticsPeriodType =
     | 'dag'
@@ -34,40 +44,15 @@ export function useStatisticsPeriod() {
     const [customStart, setCustomStart] = useState<Date | null>(null);
     const [customEnd, setCustomEnd] = useState<Date | null>(null);
 
-    const getDateWithoutTime = (date: Date) => {
+    const getDateWithoutTime = useCallback((date: Date) => {
         return new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate()
         );
-    };
+    }, []);
 
-    const getStartOfWeek = (date: Date) => {
-        const result = getDateWithoutTime(date);
-        const day = result.getDay();
-
-        const difference = day === 0 ? -6 : 1 - day;
-
-        result.setDate(result.getDate() + difference);
-
-        return result;
-    };
-
-    const getStartOfMonth = (date: Date) => {
-        return new Date(date.getFullYear(), date.getMonth(), 1);
-    };
-
-    const getStartOfQuarter = (date: Date) => {
-        const quarterMonth = Math.floor(date.getMonth() / 3) * 3;
-
-        return new Date(date.getFullYear(), quarterMonth, 1);
-    };
-
-    const getStartOfYear = (date: Date) => {
-        return new Date(date.getFullYear(), 0, 1);
-    };
-
-    const getEndOfDay = (date: Date) => {
+    const getEndOfDay = useCallback((date: Date) => {
         return new Date(
             date.getFullYear(),
             date.getMonth(),
@@ -77,123 +62,88 @@ export function useStatisticsPeriod() {
             59,
             999
         );
-    };
+    }, []);
 
-    const getEndOfPeriod = (start: Date, type: StatisticsPeriodType) => {
-        const end = new Date(start);
+    const getRollingStart = useCallback(
+        (date: Date, days: number) => {
+            const result = getDateWithoutTime(date);
+            result.setDate(result.getDate() - (days - 1));
 
-        switch (type) {
-            case 'dag':
-                return getEndOfDay(end);
+            return result;
+        },
+        [getDateWithoutTime]
+    );
 
-            case 'uge':
-                end.setDate(end.getDate() + 6);
-                return getEndOfDay(end);
+    const getPeriodDates = useCallback(
+        (
+            type: StatisticsPeriodType
+        ): { start: Date | null; end: Date | null } => {
+            const today = getDateWithoutTime(new Date());
 
-            case 'måned':
-                end.setMonth(end.getMonth() + 1, 0);
-                return getEndOfDay(end);
+            switch (type) {
+                case 'dag':
+                    return {
+                        start: today,
+                        end: getEndOfDay(today),
+                    };
 
-            case 'kvartal':
-                end.setMonth(end.getMonth() + 3, 0);
-                return getEndOfDay(end);
+                case 'uge':
+                    return {
+                        start: getRollingStart(today, 7),
+                        end: getEndOfDay(today),
+                    };
 
-            case 'år':
-                end.setFullYear(end.getFullYear() + 1, 0, 0);
-                return getEndOfDay(end);
+                case 'måned':
+                    return {
+                        start: getRollingStart(today, 30),
+                        end: getEndOfDay(today),
+                    };
 
-            case 'max':
-                return null;
+                case 'kvartal':
+                    return {
+                        start: getRollingStart(today, 91),
+                        end: getEndOfDay(today),
+                    };
 
-            case 'custom':
-                return customEnd ? getEndOfDay(customEnd) : null;
+                case 'år':
+                    return {
+                        start: getRollingStart(today, 365),
+                        end: getEndOfDay(today),
+                    };
 
-            default:
-                return null;
-        }
-    };
+                case 'max':
+                    return {
+                        start: null,
+                        end: null,
+                    };
 
-    const getPeriodDates = (
-        type: StatisticsPeriodType
-    ): { start: Date | null; end: Date | null } => {
-        const today = getDateWithoutTime(new Date());
+                case 'custom':
+                    return {
+                        start: customStart,
+                        end: customEnd
+                            ? getEndOfDay(customEnd)
+                            : null,
+                    };
 
-        switch (type) {
-            case 'dag': {
-                return {
-                    start: today,
-                    end: getEndOfDay(today),
-                };
+                default:
+                    return {
+                        start: null,
+                        end: null,
+                    };
             }
+        },
+        [
+            customStart,
+            customEnd,
+            getDateWithoutTime,
+            getEndOfDay,
+            getRollingStart,
+        ]
+    );
 
-            case 'uge': {
-                const start = getStartOfWeek(today);
-
-                return {
-                    start,
-                    end: getEndOfPeriod(start, 'uge'),
-                };
-            }
-
-            case 'måned': {
-                const start = getStartOfMonth(today);
-
-                return {
-                    start,
-                    end: getEndOfPeriod(start, 'måned'),
-                };
-            }
-
-            case 'kvartal': {
-                const start = getStartOfQuarter(today);
-
-                return {
-                    start,
-                    end: getEndOfPeriod(start, 'kvartal'),
-                };
-            }
-
-            case 'år': {
-                const start = getStartOfYear(today);
-
-                return {
-                    start,
-                    end: getEndOfPeriod(start, 'år'),
-                };
-            }
-
-            case 'max':
-                return {
-                    start: null,
-                    end: null,
-                };
-
-            case 'custom':
-                return {
-                    start: customStart,
-                    end: customEnd,
-                };
-
-            default:
-                return {
-                    start: null,
-                    end: null,
-                };
-        }
-    };
 
     const current = useMemo<StatisticsPeriod>(() => {
         const dates = getPeriodDates(periodType);
-
-        const labels: Record<StatisticsPeriodType, string> = {
-            dag: 'Dag',
-            uge: 'Uge',
-            måned: 'Måned',
-            kvartal: 'Kvartal',
-            år: 'År',
-            max: 'Max',
-            custom: 'Custom',
-        };
 
         return {
             type: periodType,
@@ -201,7 +151,7 @@ export function useStatisticsPeriod() {
             start: dates.start,
             end: dates.end,
         };
-    }, [periodType, customStart, customEnd]);
+    }, [periodType, getPeriodDates]);
 
     const all = useMemo<StatisticsPeriod[]>(() => {
         const types: StatisticsPeriodType[] = [
@@ -219,20 +169,12 @@ export function useStatisticsPeriod() {
 
             return {
                 type,
-                label: {
-                    dag: 'Dag',
-                    uge: 'Uge',
-                    måned: 'Måned',
-                    kvartal: 'Kvartal',
-                    år: 'År',
-                    max: 'Max',
-                    custom: 'Custom',
-                }[type],
+                label: labels[type],
                 start: dates.start,
                 end: dates.end,
             };
         });
-    }, [customStart, customEnd]);
+    }, [getPeriodDates]);
 
     const changePeriod = (type: StatisticsPeriodType) => {
         setPeriodType(type);
