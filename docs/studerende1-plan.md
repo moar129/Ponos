@@ -65,6 +65,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 | 27/09 | Opfølgning på opgave-/rum-chats efter bruger-forespørgsel: auto-grupper kan nu forlades (før låst med SYSTEM_GROUP_LOCKED). Ny tabel `conversation_opt_outs` husker fravalget, så `sync_task_conversation`/`sync_room_conversation` ikke melder brugeren ind igen; fravalget glemmes ved afmelding af opgaven/mistet rum-adgang. Genindtræden via Chat-knap: ny RPC `join_task_conversation` (opgavekort, vises for tilmeldt ved ≥2 tilmeldte) og `get_or_join_room_conversation` (rum-bar). Forlad-knap i chat-header for system-chats. `dbSchema.sql` §15.24. Kørt og testet af bruger. |
 
+| 28/09 | US-75-udvidelse efter bruger-forespørgsel: `TaskApprovalsPanel` (/tasks/godkend + dashboard) har søgning (titel/anmoder), rum-filter (bygget af listen, inkl. "Uden rum"), sortering (ældste/nyeste færdigmelding, prioritet, deadline, flest afvisninger; default ældste = FIFO), Nulstil og "Viser x af y". Rækken viser rum-, prioritet- og deadline-chip (rød ved overskredet). Sortering i `compareApprovalRequests` (`utils/taskFilters.ts`). `get_pending_task_requests` får room_id/room_name/priority/end_date - drop + create - kørt og testet OK af bruger 28/09, `dbSchema.sql` §15.19 opdateret, migrationsfil slettet. Nøgler i alle 14 locales. |
+
 ## Næste op
 
 **00. ~~Godkendelse: fane "Til godkendelse" + rum-adgang~~ ✅ FÆRDIG 2026-09-27** — kørt og testet, se logbog 27/09. Evt. opfølgning: notifikation til godkendere ved ny færdigmelding (fravalgt for nu).

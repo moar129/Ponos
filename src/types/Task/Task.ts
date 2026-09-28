@@ -145,7 +145,13 @@ export interface PendingTaskRequest {
   requesterName: string;
   requestedAt: string;
   rejectionCount: number; // earlier rejected completion requests on the task
+  roomId: string | null;
+  roomName: string | null;
+  priority: ETaskPriority | null;
+  endDate: string | null;
 }
+
+export type ApprovalSortOption = 'oldest' | 'newest' | 'priority' | 'deadline' | 'rejections';
 
 export type TaskRequestDecision = 'approve' | 'reject';
 

@@ -759,6 +759,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                     requester_last_name: string | null
                     requested_at: string
                     rejection_count?: number
+                    room_id: string | null
+                    room_name: string | null
+                    priority: ETaskPriority | null
+                    end_date: string | null
                 }
 
                 return {
@@ -771,6 +775,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                             `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
                         requestedAt: row.requested_at,
                         rejectionCount: row.rejection_count ?? 0,
+                        roomId: row.room_id,
+                        roomName: row.room_name,
+                        priority: row.priority,
+                        endDate: row.end_date,
                     })),
                 }
             },

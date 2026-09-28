@@ -2129,6 +2129,8 @@ $$;
 -- 2026-09-24: + rejection_count (antal tidligere afviste færdigmeldinger
 -- på opgaven, til "Afvist n gange"-mærket i listen). Returtypen ændret -
 -- blev kørt som drop + create.
+-- 2026-09-28: + room_id, room_name, priority, end_date (søg/sortering/
+-- rum-filter i godkendelseslisten). Også drop + create.
 create or replace function public.get_pending_task_requests()
 returns table (
   id uuid,
@@ -2138,7 +2140,11 @@ returns table (
   requester_first_name text,
   requester_last_name text,
   requested_at timestamptz,
-  rejection_count integer
+  rejection_count integer,
+  room_id uuid,
+  room_name text,
+  priority e_task_priority,
+  end_date timestamptz
 )
 language plpgsql
 stable
@@ -2159,9 +2165,11 @@ begin
   return query
     select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at,
       (select count(*)::integer from public.task_requests pr
-        where pr.task_id = r.task_id and pr.status = 'Rejected') as rejection_count
+        where pr.task_id = r.task_id and pr.status = 'Rejected') as rejection_count,
+      t.room_id, tr.name, t.priority, t.end_date
     from public.task_requests r
     join public.tasks t on t.id = r.task_id
+    left join public.task_rooms tr on tr.id = t.room_id
     left join public.profiles p on p.id = r.requested_by
     where r.status = 'Pending' and t.organisation_id = v_org_id
       and public.can_access_task_room(t.room_id)

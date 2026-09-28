@@ -90,7 +90,21 @@
     "rejectReasonPlaceholder": "Indiquez pourquoi la déclaration d'achèvement est refusée - le message est envoyé aux assignés.",
     "rejectedCount_one": "Refusé {{count}} fois",
     "rejectedCount_many": "Refusé {{count}} fois",
-    "rejectedCount_other": "Refusé {{count}} fois"
+    "rejectedCount_other": "Refusé {{count}} fois",
+    "searchPlaceholder": "Rechercher une tâche ou un demandeur...",
+    "allRooms": "Toutes les salles",
+    "sort": {
+      "oldest": "Demande la plus ancienne d'abord",
+      "newest": "Demande la plus récente d'abord",
+      "priority": "Priorité la plus haute d'abord",
+      "deadline": "Échéance la plus proche d'abord",
+      "rejections": "Plus de refus d'abord"
+    },
+    "resetFilters": "Réinitialiser",
+    "showing": "{{count}} sur {{total}}",
+    "noMatch": "Aucune demande ne correspond aux filtres.",
+    "deadline": "Échéance {{date}}",
+    "deadlineOverdue": "Échéance {{date}} (dépassée)"
   },
   "quickCreate": {
     "heading": "Créer un rôle",

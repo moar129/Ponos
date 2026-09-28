@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Indoklás",
     "rejectReasonPlaceholder": "Írja le, miért utasítja el a készre jelentést - az üzenetet a hozzárendeltek kapják meg.",
     "rejectedCount_one": "{{count}} alkalommal elutasítva",
-    "rejectedCount_other": "{{count}} alkalommal elutasítva"
+    "rejectedCount_other": "{{count}} alkalommal elutasítva",
+    "searchPlaceholder": "Feladat vagy bejelentő keresése...",
+    "allRooms": "Minden terem",
+    "sort": {
+      "oldest": "Legrégebbi bejelentés elöl",
+      "newest": "Legújabb bejelentés elöl",
+      "priority": "Legmagasabb prioritás elöl",
+      "deadline": "Legkorábbi határidő elöl",
+      "rejections": "Legtöbb elutasítás elöl"
+    },
+    "resetFilters": "Visszaállítás",
+    "showing": "{{count}} / {{total}}",
+    "noMatch": "Egy bejelentés sem felel meg a szűrőknek.",
+    "deadline": "Határidő: {{date}}",
+    "deadlineOverdue": "Határidő: {{date}} (lejárt)"
   },
   "quickCreate": {
     "heading": "Szerepkör létrehozása",

@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Perustelu",
     "rejectReasonPlaceholder": "Kirjoita, miksi valmisilmoitus hylätään - viesti lähetetään osallistujille.",
     "rejectedCount_one": "Hylätty {{count}} kerran",
-    "rejectedCount_other": "Hylätty {{count}} kertaa"
+    "rejectedCount_other": "Hylätty {{count}} kertaa",
+    "searchPlaceholder": "Hae tehtävää tai ilmoittajaa...",
+    "allRooms": "Kaikki huoneet",
+    "sort": {
+      "oldest": "Vanhin ilmoitus ensin",
+      "newest": "Uusin ilmoitus ensin",
+      "priority": "Korkein prioriteetti ensin",
+      "deadline": "Aikaisin määräaika ensin",
+      "rejections": "Eniten hylkäyksiä ensin"
+    },
+    "resetFilters": "Nollaa",
+    "showing": "{{count}} / {{total}}",
+    "noMatch": "Mikään ilmoitus ei vastaa suodattimia.",
+    "deadline": "Määräaika {{date}}",
+    "deadlineOverdue": "Määräaika {{date}} (ylittynyt)"
   },
   "quickCreate": {
     "heading": "Luo rooli",

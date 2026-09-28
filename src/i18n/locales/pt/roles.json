@@ -90,7 +90,21 @@
     "rejectReasonPlaceholder": "Escreva porque a conclusão é rejeitada - a mensagem é enviada aos atribuídos.",
     "rejectedCount_one": "Rejeitado {{count}} vez",
     "rejectedCount_many": "Rejeitado {{count}} vezes",
-    "rejectedCount_other": "Rejeitado {{count}} vezes"
+    "rejectedCount_other": "Rejeitado {{count}} vezes",
+    "searchPlaceholder": "Pesquisar tarefa ou requerente...",
+    "allRooms": "Todas as salas",
+    "sort": {
+      "oldest": "Pedido mais antigo primeiro",
+      "newest": "Pedido mais recente primeiro",
+      "priority": "Maior prioridade primeiro",
+      "deadline": "Prazo mais próximo primeiro",
+      "rejections": "Mais rejeições primeiro"
+    },
+    "resetFilters": "Repor",
+    "showing": "A mostrar {{count}} de {{total}}",
+    "noMatch": "Nenhum pedido corresponde aos filtros.",
+    "deadline": "Prazo {{date}}",
+    "deadlineOverdue": "Prazo {{date}} (ultrapassado)"
   },
   "quickCreate": {
     "heading": "Criar função",
