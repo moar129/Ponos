@@ -67,6 +67,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 | 28/09 | US-75-udvidelse efter bruger-forespørgsel: `TaskApprovalsPanel` (/tasks/godkend + dashboard) har søgning (titel/anmoder), rum-filter (bygget af listen, inkl. "Uden rum"), sortering (ældste/nyeste færdigmelding, prioritet, deadline, flest afvisninger; default ældste = FIFO), Nulstil og "Viser x af y". Rækken viser rum-, prioritet- og deadline-chip (rød ved overskredet). Sortering i `compareApprovalRequests` (`utils/taskFilters.ts`). `get_pending_task_requests` får room_id/room_name/priority/end_date - drop + create - kørt og testet OK af bruger 28/09, `dbSchema.sql` §15.19 opdateret, migrationsfil slettet. Nøgler i alle 14 locales. |
 
+| 28/09 | US-05-udvidelse efter bruger-forespørgsel: "Anmod om medlemskab"-pickeren (`organisationPickerComponent.tsx`) viste alle organisationer straks - skalerer ikke. Nu vises intet før ≥2 tegn (hjælpetekst "Skriv organisationens navn for at finde den."), og søgningen sker server-side: `getOrganisations` erstattet af `searchOrganisations` (`ilike` på navn, escaped wildcards, `limit(20)`, debounce 300 ms). Pickeren ejer selv søgningen; egne medlemskaber filtreres via ny prop `excludeIds`; valg nulstilles når søgeteksten ændres. `request.noneAvailable` + `picker.empty` fjernet, `picker.minChars` tilføjet i alle 14 locales. Ingen DB-ændring (samme SELECT-policy). Build/lint OK, ikke testet i browseren endnu. |
+
 ## Næste op
 
 **00. ~~Godkendelse: fane "Til godkendelse" + rum-adgang~~ ✅ FÆRDIG 2026-09-27** — kørt og testet, se logbog 27/09. Evt. opfølgning: notifikation til godkendere ved ny færdigmelding (fravalgt for nu).
@@ -104,7 +106,7 @@ US-68 + US-69 (adgangskode) er FÆRDIGE 2026-09-11 - bygget, SQL kørt, testet i
 | US-58 | Opret organisation | Critical | Done | `create_organisation`-RPC (`dbSchema.sql` §15.7-15.8) + case-insensitivt unikt navn (`organisations_name_unique`) kørt og testet i Supabase; opret-formular på `/organisation`, slået sammen med US-05's anmod-flow i samme UI (faner) |
 | US-03 | Se profil | Medium | Done | `/bruger` (ProfilePage.tsx) + profileApi.ts; header viser nu rigtigt navn/rolle |
 | US-04 | Rediger profil | Medium | Done | Rediger navn, beskrivelse, billed-URL; email/rolle/org er read-only |
-| US-05 | Anmod om medlemskab | Critical | Done | Flyttet fra egen side (`RequestMembership.tsx`/`/request-membership`, nu slettet) ind i `OrganisationPage.tsx` som en fane ved siden af "Opret organisation"; membershipApi.ts uændret |
+| US-05 | Anmod om medlemskab | Critical | Done | Flyttet fra egen side (`RequestMembership.tsx`/`/request-membership`, nu slettet) ind i `OrganisationPage.tsx` som en fane ved siden af "Opret organisation"; membershipApi.ts uændret. 28/09: org-søgning server-side, først fra 2 tegn (se logbog) |
 | US-06/07/08 | Se, acceptere og afvise medlemsanmodninger (admin) | Critical | Done | `/medlemsanmodninger` + membershipApi/privilegeApi; ny RLS-policy så admin kan se ansøgeres navn/email; adgang nu granulær via `manage_membership_requests`-privilegie (Fase 1) |
 | US-09 | Se organisation | Medium | Done | `/organisation` (OrganisationPage.tsx) + organisationApi.ts |
 | US-10 | Rediger organisation | Medium | Done | Kun `name` redigerbar (organisations-tabel har pt. kun denne kolonne); adgang nu granulær via `manage_organisation`-privilegie (Fase 1) |

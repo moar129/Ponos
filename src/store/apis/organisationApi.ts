@@ -84,17 +84,23 @@ export const organisationApi = supabaseApi.injectEndpoints({
             providesTags: ['Organisation'],
         }),
 
-        // Henter alle organisationer (US-05, "Anmod om medlemskab") - brugt
-        // af OrganisationPickerComponent til at søge/vælge en organisation
-        // at anmode om medlemskab af. Genbruger 'Organisation'-tagget, så
-        // en nyoprettet organisation (createOrganisation invaliderer det
-        // samme tag) automatisk dukker op i listen uden reload.
-        getOrganisations: builder.query<Organisation[], void>({
-            queryFn: async () => {
+        // Søger organisationer på navn (US-05, "Anmod om medlemskab") - brugt
+        // af OrganisationPickerComponent. Søgningen sker server-side med en
+        // grænse på antal resultater, så klienten aldrig henter hele
+        // organisations-tabellen, uanset hvor mange organisationer der er.
+        // Genbruger 'Organisation'-tagget, så en nyoprettet organisation
+        // (createOrganisation invaliderer det samme tag) dukker op uden reload.
+        searchOrganisations: builder.query<Organisation[], string>({
+            queryFn: async (searchTerm) => {
+                // % og _ er wildcards i ilike - escapes, så de matches bogstaveligt.
+                const escaped = searchTerm.replace(/[\\%_]/g, (char) => `\\${char}`)
+
                 const { data, error } = await supabase
                     .from('organisations')
                     .select(ORG_COLUMNS)
+                    .ilike('name', `%${escaped}%`)
                     .order('name')
+                    .limit(20)
 
                 if (error) {
                     return { error: mapDbError(error) }
@@ -440,7 +446,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
 export const {
     useGetMyOrganisationQuery,
-    useGetOrganisationsQuery,
+    useSearchOrganisationsQuery,
     useUpdateMyOrganisationMutation,
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,

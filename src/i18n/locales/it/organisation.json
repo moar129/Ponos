@@ -77,7 +77,7 @@
   },
   "picker": {
     "searchPlaceholder": "Cerca un'organizzazione...",
-    "empty": "Non ci sono organizzazioni tra cui scegliere.",
+    "minChars": "Digita il nome dell'organizzazione per trovarla.",
     "noMatch": "Nessuna organizzazione corrisponde alla tua ricerca."
   },
   "loading": "Caricamento dell'organizzazione...",
@@ -101,8 +101,7 @@
     "pending": "La tua richiesta di adesione è stata inviata ed è in attesa dell'approvazione dell'amministrazione dell'organizzazione.",
     "chooseLabel": "Scegli l'organizzazione",
     "submit": "Invia la richiesta",
-    "submitting": "Invio della richiesta...",
-    "noneAvailable": "Non ci sono altre organizzazioni a cui richiedere l'adesione."
+    "submitting": "Invio della richiesta..."
   },
   "details": {
     "administrator": "Amministratore",
