@@ -58,7 +58,18 @@
     "deletePermanently": "Delete permanently",
     "deleted": "\"{{name}}\" has been deleted.",
     "deletedNewActive": "\"{{name}}\" has been deleted. Your active organisation is now \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation."
+    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation.",
+    "colorLabel": "Colour",
+    "colorHint": "Choose a colour that represents your organisation. All colours are allowed.",
+    "colorPickerAriaLabel": "Choose the organisation colour",
+    "colorReset": "Reset",
+    "colorNoneSet": "None selected (default)",
+    "colorInvalid": "The colour must be a valid hex code, e.g. #C7975D.",
+    "colorSuggestions": {
+      "accent": "Ponos gold",
+      "primary": "Ponos navy",
+      "secondary": "Ponos blue-grey"
+    }
   },
   "picker": {
     "searchPlaceholder": "Search for an organisation...",

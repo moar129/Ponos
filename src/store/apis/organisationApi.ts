@@ -44,7 +44,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { data, error } = await supabase
                     .from('organisations')
-                    .select('id, name')
+                    .select('id, name, color')
                     .eq('id', profile.active_organisation_id)
                     .maybeSingle()
 
@@ -56,7 +56,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { data: null }
                 }
 
-                return { data: { id: data.id, name: data.name } }
+                return { data: { id: data.id, name: data.name, color: data.color } }
             },
 
             providesTags: ['Organisation'],
@@ -71,27 +71,31 @@ export const organisationApi = supabaseApi.injectEndpoints({
             queryFn: async () => {
                 const { data, error } = await supabase
                     .from('organisations')
-                    .select('id, name')
+                    .select('id, name, color')
                     .order('name')
 
                 if (error) {
                     return { error: mapDbError(error) }
                 }
 
-                return { data }
+                return { data: data.map((org) => ({ id: org.id, name: org.name, color: org.color })) }
             },
 
             providesTags: ['Organisation'],
         }),
 
-        // Opdaterer organisationens navn. RLS ('Admin kan redigere egen
-        // organisation') afviser dette server-side for ikke-admins - profil-
-        // opslaget herunder er ikke for adgangskontrol, men for at finde
-        // organisationens id (organisations-tabellen peger ikke selv tilbage
-        // på brugeren) og for at kunne give en tydelig fejl, hvis brugeren
-        // slet ikke er medlem af en organisation.
+        // Opdaterer organisationens navn og/eller farve. RLS ('Admin kan
+        // redigere egen organisation') afviser dette server-side for
+        // ikke-admins - profil-opslaget herunder er ikke for adgangskontrol,
+        // men for at finde organisationens id (organisations-tabellen peger
+        // ikke selv tilbage på brugeren) og for at kunne give en tydelig
+        // fejl, hvis brugeren slet ikke er medlem af en organisation.
+        // Farven er en fri, valgfri branding-farve (hex, fx '#C7975D') -
+        // organisationer skal ikke være låst til Ponos' egne farver, da
+        // hjemmesiden skal kunne bruges af alle virksomheder. color: null
+        // nulstiller til appens standard-accent.
         updateMyOrganisation: builder.mutation<void, UpdateOrganisationInput>({
-            queryFn: async ({ name }) => {
+            queryFn: async ({ name, color }) => {
                 const { data: userData, error: userError } = await supabase.auth.getUser()
 
                 if (userError || !userData.user) {
@@ -121,7 +125,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { error } = await supabase
                     .from('organisations')
-                    .update({ name })
+                    .update({ name, color: color ?? null })
                     .eq('id', profile.active_organisation_id)
 
                 if (error) {
@@ -133,6 +137,14 @@ export const organisationApi = supabaseApi.injectEndpoints({
                             error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
+                    // Postgres-fejlkode 23514 = check constraint violation
+                    // (organisations_color_hex_check) - farven er ikke en
+                    // gyldig hex-kode.
+                    if (error.code === '23514') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:invalidOrganisationColor' },
+                        }
+                    }
                     return { error: mapDbError(error) }
                 }
 
@@ -140,7 +152,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
             },
 
             // Får getMyOrganisation til at hente frisk data, så det
-            // opdaterede navn vises umiddelbart efter en succesfuld gemning.
+            // opdaterede navn/farve vises umiddelbart efter en succesfuld
+            // gemning.
             invalidatesTags: ['Organisation'],
         }),
 
@@ -151,7 +164,9 @@ export const organisationApi = supabaseApi.injectEndpoints({
         // kræver allerede at være admin i orgen, og trg_prevent_self_role_
         // org_change blokerer altid brugerens eget forsøg på at sætte sin
         // egen organisation_id/role_id. Funktionen validerer og fejler
-        // atomisk, så organisationen aldrig oprettes delvist.
+        // atomisk, så organisationen aldrig oprettes delvist. Farven sættes
+        // ikke ved oprettelse (null - appens standardfarve), og kan
+        // efterfølgende vælges frit via updateMyOrganisation.
         createOrganisation: builder.mutation<Organisation, CreateOrganisationInput>({
             queryFn: async ({ name }) => {
                 const trimmed = name.trim()
@@ -176,7 +191,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: { id: data.id, name: data.name } }
+                return { data: { id: data.id, name: data.name, color: data.color ?? null } }
             },
 
             // Organisation (den nye org), Profile (active_organisation_id
@@ -269,7 +284,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: data ? { id: data.id, name: data.name } : null }
+                return { data: data ? { id: data.id, name: data.name, color: data.color ?? null } : null }
             },
 
             invalidatesTags: [...USER_SCOPED_TAGS],
@@ -296,7 +311,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: data ? { id: data.id, name: data.name } : null }
+                return { data: data ? { id: data.id, name: data.name, color: data.color ?? null } : null }
             },
 
             invalidatesTags: [...USER_SCOPED_TAGS],
