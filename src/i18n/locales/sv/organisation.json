@@ -58,7 +58,22 @@
     "deletePermanently": "Radera permanent",
     "deleted": "\"{{name}}\" har raderats.",
     "deletedNewActive": "\"{{name}}\" har raderats. Din aktiva organisation är nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" har raderats. Du har inte längre någon aktiv organisation."
+    "deletedNoActive": "\"{{name}}\" har raderats. Du har inte längre någon aktiv organisation.",
+    "colorLabel": "Färg",
+    "colorHint": "Välj en färg som representerar din organisation. Den används för knappar, länkar och markeringar. Alla färger är tillåtna.",
+    "headerColorLabel": "Rubrikfärg",
+    "headerColorHint": "Bakgrundsfärg för den övre panelen. Tom = standardblå.",
+    "footerColorLabel": "Sidfotsfärg",
+    "footerColorHint": "Bakgrundsfärg för sidans nedersta del. Tom = standardblå.",
+    "colorPickerAriaLabel": "Välj organisationens färg",
+    "colorReset": "Återställ",
+    "colorUseDefault": "Använd standard",
+    "colorNoneSet": "Ingen vald (standard)",
+    "colorInvalid": "Färgen måste vara en giltig hex-kod, till exempel #C7975D.",
+    "savedColors": "Sparade färger",
+    "saveCurrentColor": "Spara aktuell färg",
+    "noSavedColors": "Inga sparade färger ännu.",
+    "removeSavedColor": "Ta bort sparad färg"
   },
   "picker": {
     "searchPlaceholder": "Sök efter en organisation...",

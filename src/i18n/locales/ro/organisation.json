@@ -58,7 +58,22 @@
     "deletePermanently": "Șterge definitiv",
     "deleted": "„{{name}}” a fost ștearsă.",
     "deletedNewActive": "„{{name}}” a fost ștearsă. Organizația dumneavoastră activă este acum „{{newActive}}”.",
-    "deletedNoActive": "„{{name}}” a fost ștearsă. Nu mai aveți nicio organizație activă."
+    "deletedNoActive": "„{{name}}” a fost ștearsă. Nu mai aveți nicio organizație activă.",
+    "colorLabel": "Culoare",
+    "colorHint": "Alegeți o culoare care să reprezinte organizația dvs. Este folosită pentru butoane, linkuri și evidențieri. Toate culorile sunt permise.",
+    "headerColorLabel": "Culoarea antetului",
+    "headerColorHint": "Culoarea de fundal a barei superioare. Goală = albastru implicit.",
+    "footerColorLabel": "Culoarea subsolului",
+    "footerColorHint": "Culoarea de fundal a părții de jos a paginii. Goală = albastru implicit.",
+    "colorPickerAriaLabel": "Alegeți culoarea organizației",
+    "colorReset": "Resetează",
+    "colorUseDefault": "Folosește implicit",
+    "colorNoneSet": "Nicio selecție (implicit)",
+    "colorInvalid": "Culoarea trebuie să fie un cod hex valid, de exemplu #C7975D.",
+    "savedColors": "Culori salvate",
+    "saveCurrentColor": "Salvează culoarea curentă",
+    "noSavedColors": "Nu există încă culori salvate.",
+    "removeSavedColor": "Elimină culoarea salvată"
   },
   "picker": {
     "searchPlaceholder": "Căutați o organizație...",

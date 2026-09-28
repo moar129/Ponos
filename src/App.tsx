@@ -22,6 +22,7 @@ import { useGetSessionQuery } from './store/apis/authApi';
 import { MessagesPage } from './pages/messages/messagePage';
 import NotificationPage from './pages/notification/notificationPage';
 import { MyTasksPage } from './pages/Task/MyTasksPage';
+import { useOrganisationTheme } from './store/hooks/orgHook';
 import { CompletedTasksPage } from './pages/Task/CompletedTasksPage';
 import { TaskApprovalsPage } from './pages/Task/TaskApprovalsPage';
 
@@ -31,6 +32,7 @@ import { TaskApprovalsPage } from './pages/Task/TaskApprovalsPage';
 const FULL_WIDTH_ROUTES = ['/', '/om-os', '/kontakt', '/hjaelp'];
 
 function App() {
+  useOrganisationTheme();
   // Holder session-queryen aktiv hele appens levetid.
   // Den aktiverer authApi's onAuthStateChange-listener,
   // så login/logout slår igennem uden sideskift eller refresh.

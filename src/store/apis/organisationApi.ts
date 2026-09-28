@@ -4,6 +4,28 @@ import { supabase } from '../../lib/supabase'
 import type { CreateOrganisationInput, MyMembership, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
 import { mapDbError } from './apiError'
 
+type OrgRow = {
+    id: string
+    name: string
+    color: string | null
+    header_color?: string | null
+    footer_color?: string | null
+    saved_colors?: string[] | null
+}
+
+function toOrganisation(row: OrgRow): Organisation {
+    return {
+        id: row.id,
+        name: row.name,
+        color: row.color ?? null,
+        headerColor: row.header_color ?? null,
+        footerColor: row.footer_color ?? null,
+        savedColors: row.saved_colors ?? [],
+    }
+}
+
+const ORG_COLUMNS = 'id, name, color, header_color, footer_color, saved_colors'
+
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Henter den indloggede brugers egen organisation. Slår først
@@ -44,7 +66,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { data, error } = await supabase
                     .from('organisations')
-                    .select('id, name')
+                    .select(ORG_COLUMNS)
                     .eq('id', profile.active_organisation_id)
                     .maybeSingle()
 
@@ -56,7 +78,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { data: null }
                 }
 
-                return { data: { id: data.id, name: data.name } }
+                return { data: toOrganisation(data) }
             },
 
             providesTags: ['Organisation'],
@@ -71,27 +93,31 @@ export const organisationApi = supabaseApi.injectEndpoints({
             queryFn: async () => {
                 const { data, error } = await supabase
                     .from('organisations')
-                    .select('id, name')
+                    .select(ORG_COLUMNS)
                     .order('name')
 
                 if (error) {
                     return { error: mapDbError(error) }
                 }
 
-                return { data }
+                return { data: (data ?? []).map(toOrganisation) }
             },
 
             providesTags: ['Organisation'],
         }),
 
-        // Opdaterer organisationens navn. RLS ('Admin kan redigere egen
-        // organisation') afviser dette server-side for ikke-admins - profil-
-        // opslaget herunder er ikke for adgangskontrol, men for at finde
-        // organisationens id (organisations-tabellen peger ikke selv tilbage
-        // på brugeren) og for at kunne give en tydelig fejl, hvis brugeren
-        // slet ikke er medlem af en organisation.
+        // Opdaterer organisationens navn og/eller farve. RLS ('Admin kan
+        // redigere egen organisation') afviser dette server-side for
+        // ikke-admins - profil-opslaget herunder er ikke for adgangskontrol,
+        // men for at finde organisationens id (organisations-tabellen peger
+        // ikke selv tilbage på brugeren) og for at kunne give en tydelig
+        // fejl, hvis brugeren slet ikke er medlem af en organisation.
+        // Farven er en fri, valgfri branding-farve (hex, fx '#C7975D') -
+        // organisationer skal ikke være låst til Ponos' egne farver, da
+        // hjemmesiden skal kunne bruges af alle virksomheder. color: null
+        // nulstiller til appens standard-accent.
         updateMyOrganisation: builder.mutation<void, UpdateOrganisationInput>({
-            queryFn: async ({ name }) => {
+            queryFn: async ({ name, color, headerColor, footerColor }) => {
                 const { data: userData, error: userError } = await supabase.auth.getUser()
 
                 if (userError || !userData.user) {
@@ -121,7 +147,12 @@ export const organisationApi = supabaseApi.injectEndpoints({
 
                 const { error } = await supabase
                     .from('organisations')
-                    .update({ name })
+                    .update({
+                        name,
+                        color: color ?? null,
+                        header_color: headerColor ?? null,
+                        footer_color: footerColor ?? null,
+                    })
                     .eq('id', profile.active_organisation_id)
 
                 if (error) {
@@ -133,6 +164,14 @@ export const organisationApi = supabaseApi.injectEndpoints({
                             error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
                         }
                     }
+                    // Postgres-fejlkode 23514 = check constraint violation
+                    // (organisations_color_hex_check) - farven er ikke en
+                    // gyldig hex-kode.
+                    if (error.code === '23514') {
+                        return {
+                            error: { status: 'CUSTOM_ERROR', error: 'errors:invalidOrganisationColor' },
+                        }
+                    }
                     return { error: mapDbError(error) }
                 }
 
@@ -140,7 +179,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
             },
 
             // Får getMyOrganisation til at hente frisk data, så det
-            // opdaterede navn vises umiddelbart efter en succesfuld gemning.
+            // opdaterede navn/farve vises umiddelbart efter en succesfuld
+            // gemning.
             invalidatesTags: ['Organisation'],
         }),
 
@@ -151,8 +191,10 @@ export const organisationApi = supabaseApi.injectEndpoints({
         // kræver allerede at være admin i orgen, og trg_prevent_self_role_
         // org_change blokerer altid brugerens eget forsøg på at sætte sin
         // egen organisation_id/role_id. Funktionen validerer og fejler
-        // atomisk, så organisationen aldrig oprettes delvist.
-        createOrganisation: builder.mutation<Organisation, CreateOrganisationInput>({
+        // atomisk, så organisationen aldrig oprettes delvist. Farven sættes
+        // ikke ved oprettelse (null - appens standardfarve), og kan
+        // efterfølgende vælges frit via updateMyOrganisation.
+        createOrganisation: builder.mutation<Organisation | null, CreateOrganisationInput>({
             queryFn: async ({ name }) => {
                 const trimmed = name.trim()
 
@@ -176,7 +218,13 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: { id: data.id, name: data.name } }
+                if (!data) {
+                    return {
+                        error: { status: 'CUSTOM_ERROR', error: 'errors:organisationLookupFailed' },
+                    }
+                }
+
+                return { data: toOrganisation(data as OrgRow) }
             },
 
             // Organisation (den nye org), Profile (active_organisation_id
@@ -269,7 +317,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: data ? { id: data.id, name: data.name } : null }
+                return { data: data ? toOrganisation(data as OrgRow) : null }
             },
 
             invalidatesTags: [...USER_SCOPED_TAGS],
@@ -296,10 +344,96 @@ export const organisationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                return { data: data ? { id: data.id, name: data.name } : null }
+                return { data: data ? toOrganisation(data as OrgRow) : null }
             },
 
             invalidatesTags: [...USER_SCOPED_TAGS],
+        }),
+
+        addSavedOrganisationColor: builder.mutation<string[], { color: string }>({
+            queryFn: async ({ color }) => {
+                const { data: userData } = await supabase.auth.getUser()
+                if (!userData.user) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequiredForOrganisation' } }
+                }
+
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('active_organisation_id')
+                    .eq('id', userData.user.id)
+                    .maybeSingle()
+                const orgId = profile?.active_organisation_id
+                if (!orgId) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' } }
+                }
+
+                const { data: org, error: readError } = await supabase
+                    .from('organisations')
+                    .select('saved_colors')
+                    .eq('id', orgId)
+                    .maybeSingle()
+                if (readError) {
+                    return { error: mapDbError(readError) }
+                }
+
+                const current: string[] = org?.saved_colors ?? []
+                const normalised = color.toUpperCase()
+                if (current.includes(normalised)) {
+                    return { data: current }
+                }
+                const next = [...current, normalised].slice(-12)
+
+                const { error } = await supabase
+                    .from('organisations')
+                    .update({ saved_colors: next })
+                    .eq('id', orgId)
+                if (error) {
+                    return { error: mapDbError(error) }
+                }
+                return { data: next }
+            },
+            invalidatesTags: ['Organisation'],
+        }),
+
+        removeSavedOrganisationColor: builder.mutation<string[], { color: string }>({
+            queryFn: async ({ color }) => {
+                const { data: userData } = await supabase.auth.getUser()
+                if (!userData.user) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequiredForOrganisation' } }
+                }
+
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('active_organisation_id')
+                    .eq('id', userData.user.id)
+                    .maybeSingle()
+                const orgId = profile?.active_organisation_id
+                if (!orgId) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' } }
+                }
+
+                const { data: org, error: readError } = await supabase
+                    .from('organisations')
+                    .select('saved_colors')
+                    .eq('id', orgId)
+                    .maybeSingle()
+                if (readError) {
+                    return { error: mapDbError(readError) }
+                }
+
+                const next = (org?.saved_colors ?? []).filter(
+                    (c: string) => c.toUpperCase() !== color.toUpperCase(),
+                )
+                const { error } = await supabase
+                    .from('organisations')
+                    .update({ saved_colors: next })
+                    .eq('id', orgId)
+                if (error) {
+                    return { error: mapDbError(error) }
+                }
+                return { data: next }
+            },
+            invalidatesTags: ['Organisation'],
         }),
     }),
 })
@@ -313,4 +447,6 @@ export const {
     useSetActiveOrganisationMutation,
     useLeaveOrganisationMutation,
     useDeleteOrganisationMutation,
+    useAddSavedOrganisationColorMutation,
+    useRemoveSavedOrganisationColorMutation,
 } = organisationApi

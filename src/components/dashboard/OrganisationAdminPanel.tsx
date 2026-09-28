@@ -2,24 +2,36 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
 import {
+    useAddSavedOrganisationColorMutation,
     useDeleteOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
+    useRemoveSavedOrganisationColorMutation,
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { DeleteOrganisationControlProps, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
+import { ColorSlot } from './colorSlot'
+
+// Standardfarven er husets egen accent (index.css: --color-accent) - bruges
+// som forudfyldt værdi i farvevælgeren og som fallback, når organisationen
+// ikke selv har valgt en farve (color === null).
+const DEFAULT_ORG_COLOR = '#C7975D'
+const DEFAULT_BAR_COLOR = '#071B33'
+
+
+function isValidHexColor(value: string): boolean {
+    return /^#[0-9A-Fa-f]{6}$/.test(value)
+}
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
 // feltet fyldes med organisationens nuværende værdi.
-const emptyForm: UpdateOrganisationInput = { name: '' }
+ const emptyForm: UpdateOrganisationInput = { name: '', color: null, headerColor: null, footerColor: null }
 
-
-// Rediger organisation (navn) + slet organisation, samlet i ét panel
-// under dashboardets Administration-fane (US-65) - flyttet fra
+// Rediger organisation (navn + farve) + slet organisation, samlet i ét
+// panel under dashboardets Administration-fane (US-65) - flyttet fra
 // OrganisationPage.tsx. Panelet kan mountes af AdministrationTab enten
 // via update_organisation-privilegiet eller admin-status alene, så begge
 // kontroller er selvstændigt gatet HERINDE, uafhængigt af hinanden:
@@ -27,12 +39,19 @@ const emptyForm: UpdateOrganisationInput = { name: '' }
 // (canEditOrganisation), "Slet organisation" kræver udelukkende
 // aktivt medlemskabs isAdmin-flag. Begge håndhæves også server-side
 // (RLS/RPC) - UI-gaten er kun for at vise de rigtige knapper.
+//
+// Farven er organisationens egen, valgfri branding-farve (US-??):
+// helt fri farvevælger (native <input type="color"> + hex-felt), da
+// virksomheder skal kunne bruge deres eget brand, med husets egne farver
+// som hurtige forslag og standardværdi.
 export function OrganisationAdminPanel() {
     const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
     const { data: memberships } = useGetMyMembershipsQuery()
     const { hasPrivilege: canEditOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
+    const [addSavedColor] = useAddSavedOrganisationColorMutation()
+    const [removeSavedColor] = useRemoveSavedOrganisationColorMutation()
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
@@ -41,7 +60,7 @@ export function OrganisationAdminPanel() {
     const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
 
     function startEdit(current: Organisation) {
-        setForm({ name: current.name })
+        setForm({ name: current.name, color: current.color, headerColor: current.headerColor, footerColor: current.footerColor })
         setValidationError(null)
         setSavedMessage(false)
         setIsEditing(true)
@@ -52,26 +71,41 @@ export function OrganisationAdminPanel() {
         setValidationError(null)
     }
 
-    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault()
+
+    const handleSubmit = async () => {
         setSavedMessage(false)
 
-        if (!form.name.trim()) {
+        const name = form.name.trim()
+        const color = form.color ?? ''
+        const headerColor = form.headerColor ?? ''
+        const footerColor = form.footerColor ?? ''
+
+        if (!name) {
             setValidationError(t('errors:required.organisationName'))
             return
         }
+
+        for (const c of [color, headerColor, footerColor]) {
+            if (c && !isValidHexColor(c)) {
+                setValidationError(t('admin.colorInvalid'))
+                return
+            }
+        }
+
         setValidationError(null)
 
         try {
-            await updateMyOrganisation({ name: form.name.trim() }).unwrap()
+            await updateMyOrganisation({
+                name,
+                color: color || null,
+                headerColor: headerColor || null,
+                footerColor: footerColor || null,
+            }).unwrap()
 
-            // Mutationen invaliderer 'Organisation', så visningen nedenfor
-            // henter og viser det nye navn automatisk.
             setIsEditing(false)
             setSavedMessage(true)
         } catch {
-            // Fejlen vises via mutationError - vi bliver i redigerings-
-            // tilstand, så administratorens indtastning ikke går tabt.
+            // Fejlen vises via mutationError
         }
     }
 
@@ -101,6 +135,7 @@ export function OrganisationAdminPanel() {
     // skal vises, uafhængigt af manage_organisation-privilegiet.
     const activeMembership = memberships?.find((m) => m.isActive) ?? null
     const saveError = readableError(mutationError)
+    const displayColor = organisation.color ?? DEFAULT_ORG_COLOR
 
     return (
         <div>
@@ -123,17 +158,51 @@ export function OrganisationAdminPanel() {
             )}
 
             {isEditing ? (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(event) => {
+                    event.preventDefault()
+                    void handleSubmit()
+                }}>
                     <div className="mb-6">
                         <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">{t('admin.nameLabel')}</label>
                         <input
                             id="org-name"
                             type="text"
                             value={form.name}
-                            onChange={(e) => setForm({ name: e.target.value })}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
                             className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     </div>
+
+                    <ColorSlot
+                        label={t('admin.colorLabel')}
+                        hint={t('admin.colorHint')}
+                        value={form.color ?? null}
+                        fallback={DEFAULT_ORG_COLOR}
+                        onChange={(color) => setForm({ ...form, color })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.color ?? DEFAULT_ORG_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
+                    <ColorSlot
+                        label={t('admin.headerColorLabel')}
+                        hint={t('admin.headerColorHint')}
+                        value={form.headerColor ?? null}
+                        fallback={DEFAULT_BAR_COLOR}
+                        onChange={(headerColor) => setForm({ ...form, headerColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.headerColor ?? DEFAULT_BAR_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
+                    <ColorSlot
+                        label={t('admin.footerColorLabel')}
+                        hint={t('admin.footerColorHint')}
+                        value={form.footerColor ?? null}
+                        fallback={DEFAULT_BAR_COLOR}
+                        onChange={(footerColor) => setForm({ ...form, footerColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.footerColor ?? DEFAULT_BAR_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
 
                     <div className="flex gap-3">
                         <button
@@ -156,8 +225,11 @@ export function OrganisationAdminPanel() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
-                            <Building2 className="w-7 h-7 text-secondary dark:text-slate-400" />
+                        <div
+                            className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: `${displayColor}1A` }}
+                        >
+                            <Building2 className="w-7 h-7" style={{ color: displayColor }} />
                         </div>
                         <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                     </div>
@@ -166,6 +238,36 @@ export function OrganisationAdminPanel() {
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.memberCount')}</dt>
                             <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.colorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: displayColor }}
+                                />
+                                {organisation.color ? organisation.color : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.headerColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.headerColor ?? DEFAULT_BAR_COLOR }}
+                                />
+                                {organisation.headerColor ? organisation.headerColor : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.footerColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.footerColor ?? DEFAULT_BAR_COLOR }}
+                                />
+                                {organisation.footerColor ? organisation.footerColor : t('admin.colorNoneSet')}
+                            </dd>
                         </div>
                     </dl>
 
@@ -191,6 +293,8 @@ export function OrganisationAdminPanel() {
         </div>
     )
 }
+
+// ... resten af filen (DeleteOrganisationControl) forbliver uændret
 
 // US-64: vises kun for administratorer af den AKTIVE organisation.
 // Sletning er permanent og fjerner ALT organisationens data samt alle

@@ -58,7 +58,22 @@
     "deletePermanently": "Delete permanently",
     "deleted": "\"{{name}}\" has been deleted.",
     "deletedNewActive": "\"{{name}}\" has been deleted. Your active organisation is now \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation."
+    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation.",
+    "colorLabel": "Colour",
+    "colorHint": "Choose a colour that represents your organisation. Used for buttons, links and highlights. All colours are allowed.",
+    "headerColorLabel": "Header colour",
+    "headerColorHint": "The background colour of the top bar. Empty = default blue.",
+    "footerColorLabel": "Footer colour",
+    "footerColorHint": "The background colour of the bottom of the page. Empty = default blue.",
+    "colorPickerAriaLabel": "Choose the organisation colour",
+    "colorReset": "Reset",
+    "colorUseDefault": "Use default",
+    "colorNoneSet": "None selected (default)",
+    "colorInvalid": "The colour must be a valid hex code, e.g. #C7975D.",
+    "savedColors": "Saved colours",
+    "saveCurrentColor": "Save this colour",
+    "noSavedColors": "No saved colours yet.",
+    "removeSavedColor": "Remove saved colour"
   },
   "picker": {
     "searchPlaceholder": "Search for an organisation...",

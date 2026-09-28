@@ -11,6 +11,14 @@
     --color-accent-hover: #B5854B;
     --color-border-gray: #C8C7C7;
     --color-bg-gray: #DCDCDC;
+    --color-header-bg: #071B33;
+    --color-header-text: #F1F5F9;
+    --color-header-muted: #CBD5E1;
+    --color-header-border: rgba(255,255,255,0.15);
+    --color-footer-bg: #071B33;
+    --color-footer-text: #F1F5F9;
+    --color-footer-muted: #CBD5E1;
+    --color-footer-border: rgba(255,255,255,0.15);
 }
 
 html {

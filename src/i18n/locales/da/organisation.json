@@ -58,7 +58,22 @@
     "deletePermanently": "Slet permanent",
     "deleted": "\"{{name}}\" er slettet.",
     "deletedNewActive": "\"{{name}}\" er slettet. Din aktive organisation er nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere."
+    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere.",
+    "colorLabel": "Farve",
+    "colorHint": "Vælg en farve der repræsenterer jeres organisation. Bruges til knapper, links og markeringer. Alle farver er tilladt.",
+    "headerColorLabel": "Header-farve",
+    "headerColorHint": "Baggrundsfarven i topbjælken. Tom = følger organisationens farve.",
+    "footerColorLabel": "Footer-farve",
+    "footerColorHint": "Baggrundsfarven i bunden af siden. Tom = følger organisationens farve.",
+    "colorPickerAriaLabel": "Vælg organisationens farve",
+    "colorReset": "Nulstil",
+    "colorUseDefault": "Brug standard",
+    "colorNoneSet": "Ingen valgt (standard)",
+    "colorInvalid": "Farven skal være en gyldig hex-kode, fx #C7975D.",
+    "savedColors": "Gemte farver",
+    "saveCurrentColor": "Gem denne farve",
+    "noSavedColors": "Ingen gemte farver endnu.",
+    "removeSavedColor": "Fjern gemt farve"
   },
   "picker": {
     "searchPlaceholder": "Søg efter organisation...",

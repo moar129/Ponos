@@ -58,7 +58,22 @@
     "deletePermanently": "Supprimer définitivement",
     "deleted": "\"{{name}}\" a été supprimée.",
     "deletedNewActive": "\"{{name}}\" a été supprimée. Votre organisation active est désormais \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" a été supprimée. Vous n'avez plus d'organisation active."
+    "deletedNoActive": "\"{{name}}\" a été supprimée. Vous n'avez plus d'organisation active.",
+    "colorLabel": "Couleur",
+    "colorHint": "Choisissez une couleur qui représente votre organisation. Elle est utilisée pour les boutons, les liens et les mises en évidence. Toutes les couleurs sont autorisées.",
+    "headerColorLabel": "Couleur de l'en-tête",
+    "headerColorHint": "Couleur de fond de la barre supérieure. Vide = bleu par défaut.",
+    "footerColorLabel": "Couleur du pied de page",
+    "footerColorHint": "Couleur de fond du bas de page. Vide = bleu par défaut.",
+    "colorPickerAriaLabel": "Choisissez la couleur de l'organisation",
+    "colorReset": "Réinitialiser",
+    "colorUseDefault": "Utiliser la valeur par défaut",
+    "colorNoneSet": "Aucune sélection (par défaut)",
+    "colorInvalid": "La couleur doit être un code hexadécimal valide, par exemple #C7975D.",
+    "savedColors": "Couleurs enregistrées",
+    "saveCurrentColor": "Enregistrer cette couleur",
+    "noSavedColors": "Aucune couleur enregistrée pour le moment.",
+    "removeSavedColor": "Supprimer la couleur enregistrée"
   },
   "picker": {
     "searchPlaceholder": "Rechercher une organisation...",

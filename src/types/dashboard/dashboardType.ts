@@ -25,3 +25,22 @@ export interface QuickLinkCardProps {
     description: string
     icon: LucideIcon
 }
+
+export interface SavedColorsPaletteProps {
+    savedColors: string[]
+    activeColor: string
+    onPick: (color: string) => void
+    onSave: () => void
+    onRemove: (color: string) => void
+}
+
+export interface ColorSlotProps {
+    label: string
+    hint: string
+    value: string | null          // null = brug fallback
+    fallback: string
+    onChange: (value: string | null) => void
+    savedColors: string[]
+    onSaveCurrent: () => void
+    onRemoveSaved: (color: string) => void
+} 

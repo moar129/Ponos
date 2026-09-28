@@ -20,19 +20,19 @@ export function Footer() {
   const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
 
   const linkClass =
-    'hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline transition-colors';
+    'hover:text-[var(--color-footer-text)] focus-visible:text-[var(--color-footer-text)] focus-visible:outline-none focus-visible:underline transition-colors';
 
   return (
-    <footer className="w-full bg-primary text-slate-300 pt-8 pb-5 px-4 sm:px-6 border-t border-slate-800">
+    <footer className="w-full bg-[var(--color-footer-bg)] text-[var(--color-footer-muted)] pt-8 pb-5 px-4 sm:px-6 border-t border-[var(--color-footer-border)]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 mb-6">
         <div className="space-y-3 min-w-0">
           <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 w-fit hover:opacity-90 transition-opacity">
             <img src={logo} alt="PONOS Logo" className="w-10 h-10 object-contain shrink-0" />
-            <span className="text-xl font-serif tracking-[0.2em] font-semibold text-slate-100">
+            <span className="text-xl font-serif tracking-[0.2em] font-semibold text-[var(--color-footer-text)]">
               PONOS
             </span>
           </Link>
-          <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
+          <p className="text-xs text-[var(--color-footer-muted)] max-w-xs leading-relaxed">
             {t('footer.tagline')}
           </p>
         </div>
@@ -46,16 +46,16 @@ export function Footer() {
             igen som to smalle halvdele, ligesom resten af footeren. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-6">
           <nav aria-label={t("footer.navigationLabel")}>
-            <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">{t('footer.navigation')}</h3>
+            <h3 className="text-xs font-semibold text-[var(--color-footer-text)] mb-3 uppercase tracking-wider">{t('footer.navigation')}</h3>
 
             {isLoadingSession ? (
-              <ul className="space-y-2 text-xs text-slate-500 animate-pulse">
-                <li className="h-3 w-16 bg-slate-800 rounded" />
-                <li className="h-3 w-20 bg-slate-800 rounded" />
-                <li className="h-3 w-14 bg-slate-800 rounded" />
+              <ul className="space-y-2 text-xs text-[var(--color-footer-muted)] animate-pulse">
+                <li className="h-3 w-16 bg-black/20 rounded" />
+                <li className="h-3 w-20 bg-black/20 rounded" />
+                <li className="h-3 w-14 bg-black/20 rounded" />
               </ul>
             ) : isAuthenticated ? (
-              <ul className="space-y-2 text-xs text-slate-300">
+              <ul className="space-y-2 text-xs text-[var(--color-footer-muted)]">
                 <li><Link to="/dashboard" className={linkClass}>{t('links.dashboard')}</Link></li>
                 {hasOrganisation && (
                   <>
@@ -68,7 +68,7 @@ export function Footer() {
                 )}
               </ul>
             ) : (
-              <ul className="space-y-2 text-xs text-slate-300">
+              <ul className="space-y-2 text-xs text-[var(--color-footer-muted)]">
                 <li><Link to="/" className={linkClass}>{t('links.home')}</Link></li>
                 <li><Link to="/login" className={linkClass}>{t('links.login')}</Link></li>
               </ul>
@@ -77,8 +77,8 @@ export function Footer() {
 
           {/* Ingen login-gate her: de tre sider er de samme uanset tilstand. */}
           <nav aria-label={t("footer.aboutLabel")}>
-            <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">{t('footer.aboutHeading')}</h3>
-            <ul className="space-y-2 text-xs text-slate-300">
+            <h3 className="text-xs font-semibold text-[var(--color-footer-text)] mb-3 uppercase tracking-wider">{t('footer.aboutHeading')}</h3>
+            <ul className="space-y-2 text-xs text-[var(--color-footer-muted)]">
               <li><Link to="/om-os" className={linkClass}>{t('footer.about')}</Link></li>
               <li><Link to="/kontakt" className={linkClass}>{t('footer.contact')}</Link></li>
               <li><Link to="/hjaelp" className={linkClass}>{t('footer.help')}</Link></li>
@@ -87,14 +87,14 @@ export function Footer() {
         </div>
 
         <div className="min-w-0">
-          <h3 className="text-xs font-semibold text-white mb-3 uppercase tracking-wider">{t('footer.contact')}</h3>
-          <ul className="space-y-2.5 text-xs text-slate-300">
+          <h3 className="text-xs font-semibold text-[var(--color-footer-text)] mb-3 uppercase tracking-wider">{t('footer.contact')}</h3>
+          <ul className="space-y-2.5 text-xs text-[var(--color-footer-muted)]">
             <li className="flex items-center gap-2 min-w-0">
-              <MapPin className="w-4 h-4 text-slate-300 shrink-0" />
-              <span className="truncate">{CONTACT_LOCATION}</span>
+              <MapPin className="w-4 h-4 text-[var(--color-footer-muted)] shrink-0" />
+              <span className="truncate text-[var(--color-footer-muted)]">{CONTACT_LOCATION}</span>
             </li>
             <li className="flex items-center gap-2 min-w-0">
-              <Mail className="w-4 h-4 text-slate-300 shrink-0" />
+              <Mail className="w-4 h-4 text-[var(--color-footer-muted)] shrink-0" />
               <a href={`mailto:${CONTACT_EMAIL}`} className={`${linkClass} truncate`}>
                 {CONTACT_EMAIL}
               </a>
@@ -103,7 +103,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-slate-800/60 pt-4 text-center text-[11px] text-slate-400">
+      <div className="border-t border-[var(--color-footer-border)] pt-4 text-center text-[11px] text-[var(--color-footer-muted)]">
         {t('footer.copyright', { year: new Date().getFullYear() })}
       </div>
     </footer>
