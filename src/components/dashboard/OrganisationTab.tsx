@@ -9,7 +9,6 @@ import {
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
-    useGetOrganisationsQuery,
     useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
@@ -92,13 +91,6 @@ export function OrganisationTab() {
 
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
-
-    // Henter listen af organisationer man kan anmode om medlemskab af, kun
-    // relevant for brugere uden egen organisation - undgår et unødvendigt
-    // kald for brugere der allerede er medlem et sted.
-    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery(undefined, {
-        skip: isLoading || !!organisation,
-    })
 
     async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -240,8 +232,6 @@ export function OrganisationTab() {
                                                 <div>
                                                     <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
                                                     <OrganisationPickerComponent
-                                                        organisations={organisations}
-                                                        isLoading={loadingOrganisations}
                                                         value={selectedOrgId}
                                                         onChange={setSelectedOrgId}
                                                     />
@@ -478,7 +468,6 @@ function RequestMembershipSection() {
     const { data: memberships } = useGetMyMembershipsQuery()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
 
-    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery()
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
 
@@ -516,8 +505,7 @@ function RequestMembershipSection() {
     // Organisationer brugeren allerede er medlem af, skal ikke tilbydes -
     // relevant her, da brugeren (i modsætning til no-org-fligen) allerede
     // kan have medlemskaber.
-    const myOrgIds = new Set((memberships ?? []).map((membership) => membership.organisationId))
-    const availableOrganisations = organisations.filter((org) => !myOrgIds.has(org.id))
+    const myOrgIds = (memberships ?? []).map((membership) => membership.organisationId)
 
     const requestErrorMessage = readableError(requestError)
 
@@ -529,28 +517,23 @@ function RequestMembershipSection() {
                 </div>
             )}
 
-            {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">{t('request.noneAvailable')}</p>
-            ) : (
-                <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
-                    <div>
-                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
-                        <OrganisationPickerComponent
-                            organisations={availableOrganisations}
-                            isLoading={loadingOrganisations}
-                            value={selectedOrgId}
-                            onChange={setSelectedOrgId}
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={requesting || !selectedOrgId}
-                        className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                    >
-                        {requesting ? t('request.submitting') : t('request.submit')}
-                    </button>
-                </form>
-            )}
+            <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
+                <div>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
+                    <OrganisationPickerComponent
+                        value={selectedOrgId}
+                        onChange={setSelectedOrgId}
+                        excludeIds={myOrgIds}
+                    />
+                </div>
+                <button
+                    type="submit"
+                    disabled={requesting || !selectedOrgId}
+                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                >
+                    {requesting ? t('request.submitting') : t('request.submit')}
+                </button>
+            </form>
         </>
     )
 }

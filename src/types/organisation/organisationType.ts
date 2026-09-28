@@ -60,11 +60,13 @@ export interface CreateOrganisationSectionProps {
 }
 
 // Props til OrganisationPickerComponent - søgbar erstatning for en almindelig
-// <select> ved "Anmod om medlemskab" (US-05), så listen forbliver brugbar
-// selvom antallet af organisationer vokser.
+// <select> ved "Anmod om medlemskab" (US-05). Pickeren søger selv
+// server-side, så den forbliver brugbar selvom antallet af organisationer
+// vokser.
 export interface OrganisationPickerComponentProps {
-    organisations: Organisation[]
-    isLoading: boolean
     value: string
     onChange: (organisationId: string) => void
+    // Organisationer der ikke skal tilbydes (fx dem brugeren allerede er
+    // medlem af).
+    excludeIds?: string[]
 }
