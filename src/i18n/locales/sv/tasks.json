@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Kunde inte hämta roller.",
     "noRoles": "Organisationen har inga roller.",
     "restrictedTo": "Endast för: {{roles}}",
-    "newRole": "Ny roll"
+    "newRole": "Ny roll",
+    "chat": "Rumschatt"
   },
   "create": {
     "heading": "Skapa uppgift",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Lägg till medarbetare",
     "created": "Skapad",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Färdiganmälan avvisad: {{reason}}"
+    "rejectedWithReason": "Färdiganmälan avvisad: {{reason}}",
+    "chat": "Chatt"
   },
   "filter": {
     "show": "Visa filter",

@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Rollen konden niet worden geladen.",
     "noRoles": "De organisatie heeft geen rollen.",
     "restrictedTo": "Alleen voor: {{roles}}",
-    "newRole": "Nieuwe rol"
+    "newRole": "Nieuwe rol",
+    "chat": "Ruimtechat"
   },
   "create": {
     "heading": "Taak aanmaken",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Medewerker toevoegen",
     "created": "Aangemaakt",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Gereedmelding afgewezen: {{reason}}"
+    "rejectedWithReason": "Gereedmelding afgewezen: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Filter tonen",

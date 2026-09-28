@@ -50,5 +50,26 @@
   "conversations": "Unterhaltungen",
   "seen": "Gelesen",
   "noConversations": "Noch keine Unterhaltungen. Finden Sie unter \"Alle Kontakte\" eine Kollegin bzw. einen Kollegen, um eine zu starten.",
-  "writeFirstTo": "Schreiben Sie die erste Nachricht an {{name}}."
+  "writeFirstTo": "Schreiben Sie die erste Nachricht an {{name}}.",
+  "system": {
+    "taskChatCreated": "Gruppe für die Aufgabe erstellt",
+    "taskCompleted": "Die Aufgabe wurde abgeschlossen",
+    "taskReopened": "Die Aufgabe wurde wieder geöffnet",
+    "roomChatCreated": "Gruppe für den Raum erstellt",
+    "roomChatClosed": "Der Raum ist nicht mehr rollenbeschränkt - der Chat ist geschlossen",
+    "roomChatReopened": "Der Raum ist wieder rollenbeschränkt - der Chat wurde wieder geöffnet"
+  },
+  "systemChat": {
+    "taskChat": "Aufgaben-Chat",
+    "roomChat": "Raum-Chat",
+    "goToTask": "Zur Aufgabe",
+    "goToRoom": "Zum Raum",
+    "completedPrompt": "Die Aufgabe ist erledigt. Möchtest du den Chat behalten?",
+    "keep": "Aktiv lassen",
+    "close": "Chat schließen",
+    "closedByMe": "Du hast den Chat geschlossen - nur Lesen.",
+    "reopen": "Wieder öffnen",
+    "roomClosed": "Der Raum ist nicht mehr rollenbeschränkt - der Chat ist schreibgeschützt.",
+    "confirmLeaveBody": "Möchtest du „{{name}}\" wirklich verlassen? Du kannst über die Chat-Schaltfläche der Aufgabe/des Raums zurückkehren."
+  }
 }

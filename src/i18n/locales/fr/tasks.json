@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Impossible de charger les rôles.",
     "noRoles": "L'organisation n'a aucun rôle.",
     "restrictedTo": "Uniquement pour : {{roles}}",
-    "newRole": "Nouveau rôle"
+    "newRole": "Nouveau rôle",
+    "chat": "Chat de salle"
   },
   "create": {
     "heading": "Créer une tâche",
@@ -110,7 +111,8 @@
     "addEmployeeShort": "+ Ajouter un collaborateur",
     "created": "Créée",
     "statusValue": "Statut : {{status}}",
-    "rejectedWithReason": "Achèvement refusé : {{reason}}"
+    "rejectedWithReason": "Achèvement refusé : {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Afficher le filtre",

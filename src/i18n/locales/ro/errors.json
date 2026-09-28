@@ -140,6 +140,14 @@
     "REJECTION_REASON_TOO_LONG": "Motivul poate avea cel mult 500 de caractere.",
     "NO_PRIV_CREATE_ROLES": "Nu aveți dreptul de a crea roluri.",
     "NO_PRIV_GRANT_PRIVILEGE": "Puteți acorda doar drepturile pe care le aveți.",
-    "ROLE_NAME_REQUIRED": "Rolul trebuie să aibă un nume."
+    "ROLE_NAME_REQUIRED": "Rolul trebuie să aibă un nume.",
+    "SYSTEM_GROUP_LOCKED": "Acest grup este gestionat automat de sarcină/cameră și nu poate fi modificat manual.",
+    "INVALID_CHAT_CHOICE": "Alegere nevalidă.",
+    "NOT_TASK_CHAT": "Această conversație nu este un chat de sarcină.",
+    "TASK_NOT_COMPLETED": "Poți alege doar după ce sarcina este finalizată.",
+    "ROOM_NOT_ACCESSIBLE": "Camera nu există sau nu ai acces la ea.",
+    "ROOM_NOT_ROLE_LOCKED": "Camera nu este restricționată pe roluri și nu are chat.",
+    "CONVERSATION_CLOSED": "Chatul este închis - doar citire.",
+    "TASK_CHAT_NOT_AVAILABLE": "Chatul sarcinii nu este disponibil pentru tine."
   }
 }

@@ -19,6 +19,7 @@ import { TaskTimeline } from './TaskTimeline';
 import { TaskItemPicker } from './TaskItemPicker';
 import { TaskMaterialsList } from './TaskMaterialsList';
 import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import { TaskChatButton } from './TaskChatButton';
 import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
 import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
 import { supabase } from '../../lib/supabase';
@@ -529,6 +530,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 )}
               </>
             )}
+
+          {/* OPGAVE-CHAT - jeg er deltager, eller tilmeldt og kan melde mig ind igen */}
+          <TaskChatButton taskId={task.id} canJoin={isAssigned && assignees.length >= 2} />
         </div>
       </div>
 

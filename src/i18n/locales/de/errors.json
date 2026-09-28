@@ -140,6 +140,14 @@
     "REJECTION_REASON_TOO_LONG": "Die Begründung darf höchstens 500 Zeichen lang sein.",
     "NO_PRIV_CREATE_ROLES": "Sie haben keine Berechtigung, Rollen zu erstellen.",
     "NO_PRIV_GRANT_PRIVILEGE": "Sie können nur Berechtigungen vergeben, die Sie selbst haben.",
-    "ROLE_NAME_REQUIRED": "Die Rolle muss einen Namen haben."
+    "ROLE_NAME_REQUIRED": "Die Rolle muss einen Namen haben.",
+    "SYSTEM_GROUP_LOCKED": "Diese Gruppe wird automatisch von der Aufgabe/dem Raum verwaltet und kann nicht manuell geändert werden.",
+    "INVALID_CHAT_CHOICE": "Ungültige Auswahl.",
+    "NOT_TASK_CHAT": "Diese Unterhaltung ist kein Aufgaben-Chat.",
+    "TASK_NOT_COMPLETED": "Du kannst erst wählen, wenn die Aufgabe abgeschlossen ist.",
+    "ROOM_NOT_ACCESSIBLE": "Der Raum existiert nicht, oder du hast keinen Zugriff darauf.",
+    "ROOM_NOT_ROLE_LOCKED": "Der Raum ist nicht rollenbeschränkt und hat keinen Chat.",
+    "CONVERSATION_CLOSED": "Der Chat ist geschlossen - nur Lesen.",
+    "TASK_CHAT_NOT_AVAILABLE": "Der Aufgaben-Chat ist für dich nicht verfügbar."
   }
 }

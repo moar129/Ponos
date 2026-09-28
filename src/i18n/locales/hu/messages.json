@@ -50,5 +50,26 @@
   "conversations": "Beszélgetések",
   "seen": "Látta",
   "noConversations": "Még nincsenek beszélgetések. Keressen kollégát az \"Összes névjegy\" alatt, és indítson egyet.",
-  "writeFirstTo": "Írja meg az első üzenetet neki: {{name}}."
+  "writeFirstTo": "Írja meg az első üzenetet neki: {{name}}.",
+  "system": {
+    "taskChatCreated": "Csoport létrehozva a feladathoz",
+    "taskCompleted": "A feladat befejeződött",
+    "taskReopened": "A feladat újra megnyílt",
+    "roomChatCreated": "Csoport létrehozva a helyiséghez",
+    "roomChatClosed": "A helyiség már nincs szerepkörhöz kötve - a csevegés lezárult",
+    "roomChatReopened": "A helyiség ismét szerepkörhöz kötött - a csevegés újra megnyílt"
+  },
+  "systemChat": {
+    "taskChat": "Feladat-csevegés",
+    "roomChat": "Helyiség-csevegés",
+    "goToTask": "Ugrás a feladathoz",
+    "goToRoom": "Ugrás a helyiséghez",
+    "completedPrompt": "A feladat kész. Meg szeretnéd tartani a csevegést?",
+    "keep": "Aktív marad",
+    "close": "Csevegés lezárása",
+    "closedByMe": "Lezártad a csevegést - csak olvasható.",
+    "reopen": "Újranyitás",
+    "roomClosed": "A helyiség már nincs szerepkörhöz kötve - a csevegés csak olvasható.",
+    "confirmLeaveBody": "Biztosan kilépsz ebből: „{{name}}\"? A feladat/terem Chat gombjával visszatérhetsz."
+  }
 }

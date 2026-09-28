@@ -15,7 +15,7 @@ import {
     useHasPrivilege,
     type RoleTemplateKey,
 } from '../../../store/apis/privilegeApi'
-import { useCreateRoleWithPrivilegesMutation, useGetOrganisationRolesQuery } from '../../../store/apis/roleApi'
+import { ADMIN_ROLE_NAME, useCreateRoleWithPrivilegesMutation, useGetOrganisationRolesQuery } from '../../../store/apis/roleApi'
 import type { QuickCreateRoleModalProps } from '../../../types/role/roleType'
 
 type TemplateChoice = RoleTemplateKey | 'copy'
@@ -35,6 +35,11 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
     const { data: roles = [] } = useGetOrganisationRolesQuery()
     const { data: orgPrivileges = [] } = useGetOrganisationPrivilegesQuery(undefined, { skip: !canReadRoles })
     const [createRole, { isLoading: creating, error: createError }] = useCreateRoleWithPrivilegesMutation()
+
+    // Admin-roller kan ikke kopieres - admin-privilegiet kan ikke gives
+    // videre, så en kopi ville bare blive "alt undtagen admin".
+    const adminRoleIds = new Set(orgPrivileges.filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
+    const copyableRoles = roles.filter((role) => role.name !== ADMIN_ROLE_NAME && !adminRoleIds.has(role.id))
 
     const isAdmin = myPrivileges.includes(ADMIN_PRIVILEGE)
     const canGrant = (name: string) => name !== ADMIN_PRIVILEGE && (isAdmin || myPrivileges.includes(name))
@@ -170,7 +175,7 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
                                         className="ml-1 flex-1 rounded-lg border border-border-gray bg-white px-2 py-1 text-sm text-primary focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                     >
                                         <option value="">{t('quickCreate.chooseRole')}</option>
-                                        {roles.map((role) => (
+                                        {copyableRoles.map((role) => (
                                             <option key={role.id} value={role.id}>
                                                 {role.name}
                                             </option>

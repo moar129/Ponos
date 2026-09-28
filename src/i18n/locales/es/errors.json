@@ -140,6 +140,14 @@
     "REJECTION_REASON_TOO_LONG": "El motivo puede tener como máximo 500 caracteres.",
     "NO_PRIV_CREATE_ROLES": "No tiene permisos para crear roles.",
     "NO_PRIV_GRANT_PRIVILEGE": "Solo puede otorgar permisos que usted mismo tiene.",
-    "ROLE_NAME_REQUIRED": "El rol debe tener un nombre."
+    "ROLE_NAME_REQUIRED": "El rol debe tener un nombre.",
+    "SYSTEM_GROUP_LOCKED": "Este grupo se gestiona automáticamente por la tarea/sala y no se puede cambiar manualmente.",
+    "INVALID_CHAT_CHOICE": "Opción no válida.",
+    "NOT_TASK_CHAT": "Esta conversación no es un chat de tarea.",
+    "TASK_NOT_COMPLETED": "Solo puedes elegir cuando la tarea esté completada.",
+    "ROOM_NOT_ACCESSIBLE": "La sala no existe o no tienes acceso a ella.",
+    "ROOM_NOT_ROLE_LOCKED": "La sala no está restringida por rol y no tiene chat.",
+    "CONVERSATION_CLOSED": "El chat está cerrado - solo lectura.",
+    "TASK_CHAT_NOT_AVAILABLE": "El chat de la tarea no está disponible para ti."
   }
 }

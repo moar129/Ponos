@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { readableError } from '../../ErrorMessage';
 import { RoomBar } from '../../components/Task/RoomBar';
+import { CreateRoomModal } from '../../components/Task/CreateRoomModal';
 import { CompletedTasksPanel } from '../../components/dashboard/CompletedTasksPanel';
 import { useGetRoomsQuery } from '../../store/apis/taskApi';
 import {
+    CREATE_TASKS_PRIVILEGE,
     DELETE_TASKS_PRIVILEGE,
     READ_TASKS_PRIVILEGE,
     UPDATE_TASKS_PRIVILEGE,
@@ -20,12 +23,15 @@ export function CompletedTasksPage() {
 
     const { hasPrivilege: canRead, isLoading: loadingRead } = useHasPrivilege(READ_TASKS_PRIVILEGE);
     const { hasPrivilege: canViewCompleted, isLoading: loadingCompleted } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE);
+    const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_TASKS_PRIVILEGE);
     const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE);
     const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE);
 
     const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = useGetRoomsQuery(undefined, {
         skip: !canRead,
     });
+
+    const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
 
     if (loadingRead || loadingCompleted || roomsLoading) {
         return (
@@ -53,12 +59,17 @@ export function CompletedTasksPage() {
                 rooms={rooms}
                 selectedRoomId={null}
                 onSelectRoom={() => {}}
-                onAddRoom={() => {}}
-                canCreate={false}
+                onAddRoom={() => setIsAddRoomOpen(true)}
+                canCreate={canCreate}
                 canUpdate={canUpdate}
                 canDelete={canDelete}
                 canFavorite={canRead}
             />
+
+            {/* CREATE ROOM */}
+            {isAddRoomOpen && (
+                <CreateRoomModal onClose={() => setIsAddRoomOpen(false)} />
+            )}
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
                 {pageError && (

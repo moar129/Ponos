@@ -90,7 +90,21 @@
     "rejectReasonPlaceholder": "Escribe por qué se rechaza la finalización - el mensaje se envía a los asignados.",
     "rejectedCount_one": "Rechazado {{count}} vez",
     "rejectedCount_many": "Rechazado {{count}} veces",
-    "rejectedCount_other": "Rechazado {{count}} veces"
+    "rejectedCount_other": "Rechazado {{count}} veces",
+    "searchPlaceholder": "Buscar tarea o solicitante...",
+    "allRooms": "Todas las salas",
+    "sort": {
+      "oldest": "Solicitud más antigua primero",
+      "newest": "Solicitud más reciente primero",
+      "priority": "Mayor prioridad primero",
+      "deadline": "Fecha límite más próxima primero",
+      "rejections": "Más rechazos primero"
+    },
+    "resetFilters": "Restablecer",
+    "showing": "Mostrando {{count}} de {{total}}",
+    "noMatch": "Ninguna solicitud coincide con los filtros.",
+    "deadline": "Fecha límite {{date}}",
+    "deadlineOverdue": "Fecha límite {{date}} (vencida)"
   },
   "quickCreate": {
     "heading": "Crear rol",

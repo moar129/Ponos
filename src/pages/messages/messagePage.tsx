@@ -28,6 +28,13 @@ export function MessagesPage() {
   const { data: members = [] } = useGetOrganisationMembersQuery();
   const { data: myProfile } = useGetMyProfileQuery();
 
+  // En opgave-chat arkiveres, når alle har valgt "Luk chat", og forsvinder
+  // så fra listen - også mens den står åben. Afledt i stedet for et effect.
+  const activeGroup =
+    selectedGroup && conversations.some((c) => c.conversationId === selectedGroup.conversationId)
+      ? selectedGroup
+      : null;
+
   const handleSelectConversation = (conversationId: string) => {
     const conversation = conversations.find((c) => c.conversationId === conversationId);
     if (!conversation) return;
@@ -161,10 +168,10 @@ export function MessagesPage() {
             currentUserId={myProfile?.id ?? ''}
             onConversationCreated={handleConversationCreated}
           />
-       ) : selectedGroup ? (
+       ) : activeGroup ? (
           <GroupConversationComponent
-            conversationId={selectedGroup.conversationId}
-            groupName={selectedGroup.displayName ?? t('unnamedGroup')}
+            conversationId={activeGroup.conversationId}
+            groupName={activeGroup.displayName ?? t('unnamedGroup')}
             currentUserId={myProfile?.id ?? ''}
             onLeft={() => {
               setSelectedGroup(null);

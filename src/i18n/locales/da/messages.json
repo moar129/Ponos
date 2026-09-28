@@ -50,5 +50,26 @@
   "conversations": "Samtaler",
   "seen": "Set",
   "noConversations": "Ingen samtaler endnu. Find en kollega under \"Alle kontakter\" for at starte en.",
-  "writeFirstTo": "Skriv den første besked til {{name}}."
+  "writeFirstTo": "Skriv den første besked til {{name}}.",
+  "system": {
+    "taskChatCreated": "Gruppe oprettet for opgaven",
+    "taskCompleted": "Opgaven er afsluttet",
+    "taskReopened": "Opgaven er genåbnet",
+    "roomChatCreated": "Gruppe oprettet for rummet",
+    "roomChatClosed": "Rummet er ikke længere rolle-låst - chatten er lukket",
+    "roomChatReopened": "Rummet er rolle-låst igen - chatten er genåbnet"
+  },
+  "systemChat": {
+    "taskChat": "Opgave-chat",
+    "roomChat": "Rum-chat",
+    "goToTask": "Gå til opgave",
+    "goToRoom": "Gå til rum",
+    "completedPrompt": "Opgaven er færdig. Vil du beholde chatten?",
+    "keep": "Hold aktiv",
+    "close": "Luk chat",
+    "closedByMe": "Du har lukket chatten - kun læsning.",
+    "reopen": "Genåbn",
+    "roomClosed": "Rummet er ikke længere rolle-låst - chatten er kun til læsning.",
+    "confirmLeaveBody": "Er du sikker på, at du vil forlade \"{{name}}\"? Du kan komme tilbage via Chat-knappen på opgaven/rummet."
+  }
 }

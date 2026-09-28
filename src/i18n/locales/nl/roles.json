@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Reden",
     "rejectReasonPlaceholder": "Schrijf waarom de gereedmelding wordt afgewezen - het bericht gaat naar de toegewezenen.",
     "rejectedCount_one": "{{count}} keer afgewezen",
-    "rejectedCount_other": "{{count}} keer afgewezen"
+    "rejectedCount_other": "{{count}} keer afgewezen",
+    "searchPlaceholder": "Zoek taak of aanvrager...",
+    "allRooms": "Alle ruimtes",
+    "sort": {
+      "oldest": "Oudste melding eerst",
+      "newest": "Nieuwste melding eerst",
+      "priority": "Hoogste prioriteit eerst",
+      "deadline": "Vroegste deadline eerst",
+      "rejections": "Meeste afwijzingen eerst"
+    },
+    "resetFilters": "Resetten",
+    "showing": "{{count}} van {{total}}",
+    "noMatch": "Geen meldingen komen overeen met de filters.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (verlopen)"
   },
   "quickCreate": {
     "heading": "Rol aanmaken",

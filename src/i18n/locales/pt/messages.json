@@ -51,5 +51,26 @@
   "conversations": "Conversas",
   "seen": "Vista",
   "noConversations": "Ainda não há conversas. Encontre um colega em \"Todos os contactos\" para iniciar uma.",
-  "writeFirstTo": "Escreva a primeira mensagem para {{name}}."
+  "writeFirstTo": "Escreva a primeira mensagem para {{name}}.",
+  "system": {
+    "taskChatCreated": "Grupo criado para a tarefa",
+    "taskCompleted": "A tarefa foi concluída",
+    "taskReopened": "A tarefa foi reaberta",
+    "roomChatCreated": "Grupo criado para a sala",
+    "roomChatClosed": "A sala já não está restrita por função - o chat está fechado",
+    "roomChatReopened": "A sala voltou a estar restrita por função - o chat foi reaberto"
+  },
+  "systemChat": {
+    "taskChat": "Chat da tarefa",
+    "roomChat": "Chat da sala",
+    "goToTask": "Ir para a tarefa",
+    "goToRoom": "Ir para a sala",
+    "completedPrompt": "A tarefa está concluída. Quer manter o chat?",
+    "keep": "Manter ativo",
+    "close": "Fechar chat",
+    "closedByMe": "Fechou o chat - só leitura.",
+    "reopen": "Reabrir",
+    "roomClosed": "A sala já não está restrita por função - o chat é só de leitura.",
+    "confirmLeaveBody": "Tem a certeza de que quer sair de \"{{name}}\"? Pode voltar através do botão Chat na tarefa/sala."
+  }
 }

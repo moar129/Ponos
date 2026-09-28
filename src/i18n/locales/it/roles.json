@@ -90,7 +90,21 @@
     "rejectReasonPlaceholder": "Scrivi perché il completamento viene rifiutato - il messaggio viene inviato agli assegnati.",
     "rejectedCount_one": "Rifiutato {{count}} volta",
     "rejectedCount_many": "Rifiutato {{count}} volte",
-    "rejectedCount_other": "Rifiutato {{count}} volte"
+    "rejectedCount_other": "Rifiutato {{count}} volte",
+    "searchPlaceholder": "Cerca attività o richiedente...",
+    "allRooms": "Tutte le stanze",
+    "sort": {
+      "oldest": "Richiesta più vecchia prima",
+      "newest": "Richiesta più recente prima",
+      "priority": "Priorità più alta prima",
+      "deadline": "Scadenza più vicina prima",
+      "rejections": "Più rifiuti prima"
+    },
+    "resetFilters": "Reimposta",
+    "showing": "{{count}} di {{total}}",
+    "noMatch": "Nessuna richiesta corrisponde ai filtri.",
+    "deadline": "Scadenza {{date}}",
+    "deadlineOverdue": "Scadenza {{date}} (scaduta)"
   },
   "quickCreate": {
     "heading": "Crea ruolo",

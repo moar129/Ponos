@@ -91,7 +91,21 @@
     "rejectedCount_one": "Zamítnuto {{count}}krát",
     "rejectedCount_few": "Zamítnuto {{count}}krát",
     "rejectedCount_many": "Zamítnuto {{count}}krát",
-    "rejectedCount_other": "Zamítnuto {{count}}krát"
+    "rejectedCount_other": "Zamítnuto {{count}}krát",
+    "searchPlaceholder": "Hledat úkol nebo žadatele...",
+    "allRooms": "Všechny místnosti",
+    "sort": {
+      "oldest": "Nejstarší hlášení první",
+      "newest": "Nejnovější hlášení první",
+      "priority": "Nejvyšší priorita první",
+      "deadline": "Nejbližší termín první",
+      "rejections": "Nejvíce zamítnutí první"
+    },
+    "resetFilters": "Obnovit",
+    "showing": "{{count}} z {{total}}",
+    "noMatch": "Filtrům neodpovídají žádná hlášení.",
+    "deadline": "Termín {{date}}",
+    "deadlineOverdue": "Termín {{date}} (prošlý)"
   },
   "quickCreate": {
     "heading": "Vytvořit roli",

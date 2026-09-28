@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Begründung",
     "rejectReasonPlaceholder": "Schreiben Sie, warum die Fertigmeldung abgelehnt wird - die Nachricht geht an die Zugewiesenen.",
     "rejectedCount_one": "{{count}}-mal abgelehnt",
-    "rejectedCount_other": "{{count}}-mal abgelehnt"
+    "rejectedCount_other": "{{count}}-mal abgelehnt",
+    "searchPlaceholder": "Aufgabe oder Antragsteller suchen...",
+    "allRooms": "Alle Räume",
+    "sort": {
+      "oldest": "Älteste Meldung zuerst",
+      "newest": "Neueste Meldung zuerst",
+      "priority": "Höchste Priorität zuerst",
+      "deadline": "Früheste Frist zuerst",
+      "rejections": "Meiste Ablehnungen zuerst"
+    },
+    "resetFilters": "Zurücksetzen",
+    "showing": "{{count}} von {{total}}",
+    "noMatch": "Keine Meldungen entsprechen den Filtern.",
+    "deadline": "Frist {{date}}",
+    "deadlineOverdue": "Frist {{date}} (überschritten)"
   },
   "quickCreate": {
     "heading": "Rolle erstellen",

@@ -4,6 +4,7 @@ import { Lock, MoreHorizontal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Room, RoomBarProps, TasksLocationState } from '../../types/Task/Task';
 import { EditRoomModal } from './EditRoomModal';
+import { RoomChatButton } from './RoomChatButton';
 import { DeleteRoomModal } from './DeleteRoomModal';
 import { FavoriteStarButton } from '../common/FavoriteStarButton';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
@@ -50,6 +51,8 @@ export function RoomBar({
 
     const navigate = useNavigate();
     const location = useLocation();
+
+    const selectedRoom = rooms.find((room) => room.id === selectedRoomId);
 
     const isAllTasksPage = location.pathname === '/tasks';
     const isMyTasksPage = location.pathname === '/tasks/mine';
@@ -254,57 +257,64 @@ export function RoomBar({
                         )}
                     </div>
 
-                    {/* MORE MENU */}
-                    {(canUpdate || canDelete) && (
-                        <div
-                            className="relative ml-auto flex-shrink-0"
-                            ref={menuRef}
-                        >
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setIsMenuOpen((open) => !open)
-                                }
-                                className="rounded-lg p-2 text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-                                aria-label={t('rooms.moreActions')}
+                    <div className="ml-auto flex flex-shrink-0 items-center gap-1">
+                        {/* RUM-CHAT - kun rolle-låste rum har en chat */}
+                        {isAllTasksPage && selectedRoom && selectedRoom.role_ids.length > 0 && (
+                            <RoomChatButton key={selectedRoom.id} roomId={selectedRoom.id} />
+                        )}
+
+                        {/* MORE MENU */}
+                        {(canUpdate || canDelete) && (
+                            <div
+                                className="relative flex-shrink-0"
+                                ref={menuRef}
                             >
-                                <MoreHorizontal size={22} />
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setIsMenuOpen((open) => !open)
+                                    }
+                                    className="rounded-lg p-2 text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                                    aria-label={t('rooms.moreActions')}
+                                >
+                                    <MoreHorizontal size={22} />
+                                </button>
 
-                            {isMenuOpen && (
-                                <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-border-gray bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                                {isMenuOpen && (
+                                    <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-lg border border-border-gray bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
 
-                                    {/* EDIT ROOM */}
-                                    {canUpdate && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setIsMenuOpen(false);
-                                                setIsEditRoomOpen(true);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
-                                        >
-                                            {t('rooms.edit')}
-                                        </button>
-                                    )}
+                                        {/* EDIT ROOM */}
+                                        {canUpdate && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsMenuOpen(false);
+                                                    setIsEditRoomOpen(true);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
+                                            >
+                                                {t('rooms.edit')}
+                                            </button>
+                                        )}
 
-                                    {/* DELETE ROOM */}
-                                    {canDelete && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setIsMenuOpen(false);
-                                                setIsDeleteRoomOpen(true);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
-                                        >
-                                            {t('rooms.deleteOne')}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                        {/* DELETE ROOM */}
+                                        {canDelete && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsMenuOpen(false);
+                                                    setIsDeleteRoomOpen(true);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                                            >
+                                                {t('rooms.deleteOne')}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {favoriteError && (
                     <p className="pb-2 text-sm text-red-600 dark:text-red-400">{favoriteError}</p>

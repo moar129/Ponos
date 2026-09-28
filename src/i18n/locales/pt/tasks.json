@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Não foi possível carregar as funções.",
     "noRoles": "A organização não tem funções.",
     "restrictedTo": "Apenas para: {{roles}}",
-    "newRole": "Nova função"
+    "newRole": "Nova função",
+    "chat": "Chat da sala"
   },
   "create": {
     "heading": "Criar tarefa",
@@ -110,7 +111,8 @@
     "addEmployeeShort": "+ Adicionar colaborador",
     "created": "Criada",
     "statusValue": "Estado: {{status}}",
-    "rejectedWithReason": "Conclusão rejeitada: {{reason}}"
+    "rejectedWithReason": "Conclusão rejeitada: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Mostrar filtro",

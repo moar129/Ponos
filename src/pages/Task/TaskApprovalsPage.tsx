@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { readableError } from '../../ErrorMessage';
 import { RoomBar } from '../../components/Task/RoomBar';
+import { CreateRoomModal } from '../../components/Task/CreateRoomModal';
 import { TaskApprovalsPanel } from '../../components/dashboard/TaskApprovalsPanel';
 import { useGetRoomsQuery } from '../../store/apis/taskApi';
 import {
     APPROVE_TASK_PRIVILEGE,
+    CREATE_TASKS_PRIVILEGE,
     DELETE_TASKS_PRIVILEGE,
     READ_TASKS_PRIVILEGE,
     REJECT_TASK_PRIVILEGE,
@@ -24,10 +27,13 @@ export function TaskApprovalsPage() {
     const { hasPrivilege: canReview, isLoading: loadingReview } =
         useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE]);
     const { hasPrivilege: canRead } = useHasPrivilege(READ_TASKS_PRIVILEGE);
+    const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_TASKS_PRIVILEGE);
     const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_TASKS_PRIVILEGE);
     const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_TASKS_PRIVILEGE);
 
     const { data: rooms = [], error: roomsError } = useGetRoomsQuery(undefined, { skip: !canRead });
+
+    const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
 
     if (loadingReview) {
         return (
@@ -56,12 +62,17 @@ export function TaskApprovalsPage() {
                     rooms={rooms}
                     selectedRoomId={null}
                     onSelectRoom={() => {}}
-                    onAddRoom={() => {}}
-                    canCreate={false}
+                    onAddRoom={() => setIsAddRoomOpen(true)}
+                    canCreate={canCreate}
                     canUpdate={canUpdate}
                     canDelete={canDelete}
                     canFavorite={canRead}
                 />
+            )}
+
+            {/* CREATE ROOM */}
+            {isAddRoomOpen && (
+                <CreateRoomModal onClose={() => setIsAddRoomOpen(false)} />
             )}
 
             <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">

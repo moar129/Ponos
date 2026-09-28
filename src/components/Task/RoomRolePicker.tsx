@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react';
-import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
+import { ADMIN_ROLE_NAME, useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
 import { CREATE_ROLES_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi';
 import { QuickCreateRoleModal } from '../dashboard/roles/QuickCreateRoleModal';
 import type { RoomRolePickerProps } from '../../types/Task/Task';
@@ -15,7 +15,13 @@ export function RoomRolePicker({
     suggestedRoleName,
 }: RoomRolePickerProps) {
   const { t } = useTranslation(['tasks'])
-    const { data: roles = [], isLoading, isError } = useGetOrganisationRolesQuery();
+    const { data: allRoles = [], isLoading, isError } = useGetOrganisationRolesQuery();
+
+    // Admin har altid adgang til alle rum (has_privilege_or_admin), så
+    // rollen skjules - medmindre den allerede er valgt, så den kan fjernes.
+    const roles = allRoles.filter(
+        (role) => role.name !== ADMIN_ROLE_NAME || selectedRoleIds.includes(role.id)
+    );
     const { hasPrivilege: canCreateRole } = useHasPrivilege(CREATE_ROLES_PRIVILEGE);
     const [isCreateRoleOpen, setIsCreateRoleOpen] = useState(false);
 

@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Rolurile nu au putut fi încărcate.",
     "noRoles": "Organizația nu are roluri.",
     "restrictedTo": "Doar pentru: {{roles}}",
-    "newRole": "Rol nou"
+    "newRole": "Rol nou",
+    "chat": "Chat cameră"
   },
   "create": {
     "heading": "Creează sarcină",
@@ -110,7 +111,8 @@
     "addEmployeeShort": "+ Adaugă un angajat",
     "created": "Creată",
     "statusValue": "Stare: {{status}}",
-    "rejectedWithReason": "Raportarea finalizării respinsă: {{reason}}"
+    "rejectedWithReason": "Raportarea finalizării respinsă: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Arată filtrul",

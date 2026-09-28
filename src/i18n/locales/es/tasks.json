@@ -59,7 +59,8 @@
     "rolesLoadFailed": "No se pudieron cargar los roles.",
     "noRoles": "La organización no tiene roles.",
     "restrictedTo": "Solo para: {{roles}}",
-    "newRole": "Nuevo rol"
+    "newRole": "Nuevo rol",
+    "chat": "Chat de sala"
   },
   "create": {
     "heading": "Crear tarea",
@@ -110,7 +111,8 @@
     "addEmployeeShort": "+ Añadir empleado",
     "created": "Creada",
     "statusValue": "Estado: {{status}}",
-    "rejectedWithReason": "Finalización rechazada: {{reason}}"
+    "rejectedWithReason": "Finalización rechazada: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Mostrar filtro",

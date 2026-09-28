@@ -470,6 +470,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { id }) => [
+                'Conversation',
                 { type: 'Task', id },
                 { type: 'Task', id: 'LIST' },
             ],
@@ -492,7 +493,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
-            invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }],
+            invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }, 'Conversation'],
         }),
 
         updateRoom: builder.mutation<Room, UpdateRoomInput>({
@@ -525,6 +526,7 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             // Rollerne styrer hvilke opgaver der er synlige (RLS).
             invalidatesTags: (_result, _error, { id }) => [
+                'Conversation',
                 { type: 'TaskRoom', id },
                 { type: 'TaskRoom', id: 'LIST' },
                 { type: 'Task', id: 'LIST' },
@@ -554,7 +556,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 if (error) return { error: mapDbError(error) as QueryError }
                 return { data: (data as Task | null) ?? null }
             },
-            invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],
+            invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }, 'Conversation'],
         }),
         getTaskAssignees: builder.query<TaskAssignee[], string>({
             queryFn: async (taskId) => {
@@ -757,6 +759,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                     requester_last_name: string | null
                     requested_at: string
                     rejection_count?: number
+                    room_id: string | null
+                    room_name: string | null
+                    priority: ETaskPriority | null
+                    end_date: string | null
                 }
 
                 return {
@@ -769,6 +775,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                             `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
                         requestedAt: row.requested_at,
                         rejectionCount: row.rejection_count ?? 0,
+                        roomId: row.room_id,
+                        roomName: row.room_name,
+                        priority: row.priority,
+                        endDate: row.end_date,
                     })),
                 }
             },
@@ -871,6 +881,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 return { data: undefined }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 { type: 'Task', id: `${taskId}-REQUESTS` },
                 { type: 'Task', id: taskId },
@@ -935,6 +946,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -982,6 +994,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -1034,6 +1047,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -1156,6 +1170,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { roomId }) => [
+                'Conversation',
                 { type: 'TaskRoom', id: roomId },
                 { type: 'TaskRoom', id: 'LIST' },
                 { type: 'Task', id: 'LIST' },
@@ -1196,6 +1211,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, taskId) => [
+                'Conversation',
                 { type: 'Task', id: taskId },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',

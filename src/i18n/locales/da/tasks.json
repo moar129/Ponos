@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Kunne ikke hente roller.",
     "noRoles": "Organisationen har ingen roller.",
     "restrictedTo": "Kun for: {{roles}}",
-    "newRole": "Ny rolle"
+    "newRole": "Ny rolle",
+    "chat": "Rum-chat"
   },
   "create": {
     "heading": "Opret Opgave",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Tilføj medarbejder",
     "created": "Oprettet",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Færdigmelding afvist: {{reason}}"
+    "rejectedWithReason": "Færdigmelding afvist: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Vis filter",

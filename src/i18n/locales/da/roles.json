@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Begrundelse",
     "rejectReasonPlaceholder": "Skriv hvorfor færdigmeldingen afvises - beskeden sendes til de tilmeldte.",
     "rejectedCount_one": "Afvist {{count}} gang",
-    "rejectedCount_other": "Afvist {{count}} gange"
+    "rejectedCount_other": "Afvist {{count}} gange",
+    "searchPlaceholder": "Søg på opgave eller anmoder...",
+    "allRooms": "Alle rum",
+    "sort": {
+      "oldest": "Ældste færdigmelding først",
+      "newest": "Nyeste færdigmelding først",
+      "priority": "Højeste prioritet først",
+      "deadline": "Tidligste deadline først",
+      "rejections": "Flest afvisninger først"
+    },
+    "resetFilters": "Nulstil",
+    "showing": "Viser {{count}} af {{total}}",
+    "noMatch": "Ingen færdigmeldinger matcher filtrene.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (overskredet)"
   },
   "quickCreate": {
     "heading": "Opret rolle",

@@ -140,6 +140,14 @@
     "REJECTION_REASON_TOO_LONG": "Perustelu saa olla enintään 500 merkkiä.",
     "NO_PRIV_CREATE_ROLES": "Sinulla ei ole oikeutta luoda rooleja.",
     "NO_PRIV_GRANT_PRIVILEGE": "Voit antaa vain oikeuksia, jotka sinulla itselläsi on.",
-    "ROLE_NAME_REQUIRED": "Roolilla on oltava nimi."
+    "ROLE_NAME_REQUIRED": "Roolilla on oltava nimi.",
+    "SYSTEM_GROUP_LOCKED": "Tätä ryhmää hallitaan automaattisesti tehtävän/huoneen kautta, eikä sitä voi muuttaa käsin.",
+    "INVALID_CHAT_CHOICE": "Virheellinen valinta.",
+    "NOT_TASK_CHAT": "Keskustelu ei ole tehtävän keskustelu.",
+    "TASK_NOT_COMPLETED": "Voit valita vasta, kun tehtävä on valmis.",
+    "ROOM_NOT_ACCESSIBLE": "Huonetta ei ole, tai sinulla ei ole siihen pääsyä.",
+    "ROOM_NOT_ROLE_LOCKED": "Huone ei ole roolirajattu, eikä sillä ole keskustelua.",
+    "CONVERSATION_CLOSED": "Keskustelu on suljettu - vain luku.",
+    "TASK_CHAT_NOT_AVAILABLE": "Tehtävän chat ei ole käytettävissäsi."
   }
 }

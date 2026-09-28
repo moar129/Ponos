@@ -50,5 +50,26 @@
   "conversations": "Keskustelut",
   "seen": "Nähty",
   "noConversations": "Ei vielä keskusteluja. Etsi kollega kohdasta \"Kaikki yhteystiedot\" aloittaaksesi.",
-  "writeFirstTo": "Kirjoita ensimmäinen viesti käyttäjälle {{name}}."
+  "writeFirstTo": "Kirjoita ensimmäinen viesti käyttäjälle {{name}}.",
+  "system": {
+    "taskChatCreated": "Ryhmä luotu tehtävälle",
+    "taskCompleted": "Tehtävä on valmis",
+    "taskReopened": "Tehtävä on avattu uudelleen",
+    "roomChatCreated": "Ryhmä luotu huoneelle",
+    "roomChatClosed": "Huone ei ole enää roolirajattu - keskustelu on suljettu",
+    "roomChatReopened": "Huone on taas roolirajattu - keskustelu on avattu uudelleen"
+  },
+  "systemChat": {
+    "taskChat": "Tehtävän keskustelu",
+    "roomChat": "Huoneen keskustelu",
+    "goToTask": "Siirry tehtävään",
+    "goToRoom": "Siirry huoneeseen",
+    "completedPrompt": "Tehtävä on valmis. Haluatko säilyttää keskustelun?",
+    "keep": "Pidä aktiivisena",
+    "close": "Sulje keskustelu",
+    "closedByMe": "Olet sulkenut keskustelun - vain luku.",
+    "reopen": "Avaa uudelleen",
+    "roomClosed": "Huone ei ole enää roolirajattu - keskustelu on vain luku -tilassa.",
+    "confirmLeaveBody": "Haluatko varmasti poistua ryhmästä \"{{name}}\"? Voit palata tehtävän/huoneen Chat-painikkeella."
+  }
 }

@@ -90,7 +90,21 @@
     "rejectReasonPlaceholder": "Scrie de ce este respinsă raportarea finalizării - mesajul se trimite celor alocați.",
     "rejectedCount_one": "Respins o dată",
     "rejectedCount_few": "Respins de {{count}} ori",
-    "rejectedCount_other": "Respins de {{count}} de ori"
+    "rejectedCount_other": "Respins de {{count}} de ori",
+    "searchPlaceholder": "Caută sarcină sau solicitant...",
+    "allRooms": "Toate camerele",
+    "sort": {
+      "oldest": "Cea mai veche cerere întâi",
+      "newest": "Cea mai nouă cerere întâi",
+      "priority": "Prioritate maximă întâi",
+      "deadline": "Cel mai apropiat termen întâi",
+      "rejections": "Cele mai multe respingeri întâi"
+    },
+    "resetFilters": "Resetează",
+    "showing": "{{count}} din {{total}}",
+    "noMatch": "Nicio cerere nu corespunde filtrelor.",
+    "deadline": "Termen {{date}}",
+    "deadlineOverdue": "Termen {{date}} (depășit)"
   },
   "quickCreate": {
     "heading": "Creează rol",

@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Could not load roles.",
     "noRoles": "The organisation has no roles.",
     "restrictedTo": "Only for: {{roles}}",
-    "newRole": "New role"
+    "newRole": "New role",
+    "chat": "Room chat"
   },
   "create": {
     "heading": "Create task",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Add employee",
     "created": "Created",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Completion rejected: {{reason}}"
+    "rejectedWithReason": "Completion rejected: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Show filter",

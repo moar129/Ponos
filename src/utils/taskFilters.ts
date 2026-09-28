@@ -1,4 +1,4 @@
-import type { Task, TaskSortOption } from '../types/Task/Task'
+import type { ApprovalSortOption, PendingTaskRequest, Task, TaskSortOption } from '../types/Task/Task'
 import { PRIORITY_RANK } from './taskDisplay'
 
 // Delt søg/sortering for /tasks, /tasks/mine og dashboardets "Dine opgaver"
@@ -47,4 +47,24 @@ export function matchesTaskSearch(
         (roomName ?? '').toLowerCase().includes(term) ||
         (assigneeNames ?? []).some((name) => name.toLowerCase().includes(term))
     )
+}
+
+// Godkendelseslisten (TaskApprovalsPanel). Uafgjort -> ældste
+// færdigmelding først, så ingen venter unødigt længe.
+const requestPriorityRank = (r: PendingTaskRequest): number => (r.priority ? PRIORITY_RANK[r.priority] : 5)
+const byRequestedAsc = (a: PendingTaskRequest, b: PendingTaskRequest): number => a.requestedAt.localeCompare(b.requestedAt)
+
+export function compareApprovalRequests(sortBy: ApprovalSortOption): (a: PendingTaskRequest, b: PendingTaskRequest) => number {
+    switch (sortBy) {
+        case 'oldest':
+            return byRequestedAsc
+        case 'newest':
+            return (a, b) => b.requestedAt.localeCompare(a.requestedAt)
+        case 'priority':
+            return (a, b) => requestPriorityRank(a) - requestPriorityRank(b) || byRequestedAsc(a, b)
+        case 'deadline':
+            return (a, b) => compareNullableAsc(a.endDate, b.endDate) || byRequestedAsc(a, b)
+        case 'rejections':
+            return (a, b) => b.rejectionCount - a.rejectionCount || byRequestedAsc(a, b)
+    }
 }

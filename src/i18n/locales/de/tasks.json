@@ -59,7 +59,8 @@
     "rolesLoadFailed": "Rollen konnten nicht geladen werden.",
     "noRoles": "Die Organisation hat keine Rollen.",
     "restrictedTo": "Nur für: {{roles}}",
-    "newRole": "Neue Rolle"
+    "newRole": "Neue Rolle",
+    "chat": "Raum-Chat"
   },
   "create": {
     "heading": "Aufgabe erstellen",
@@ -109,7 +110,8 @@
     "addEmployeeShort": "+ Mitarbeiter hinzufügen",
     "created": "Erstellt",
     "statusValue": "Status: {{status}}",
-    "rejectedWithReason": "Fertigmeldung abgelehnt: {{reason}}"
+    "rejectedWithReason": "Fertigmeldung abgelehnt: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Filter anzeigen",

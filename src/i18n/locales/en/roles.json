@@ -89,7 +89,21 @@
     "rejectReasonLabel": "Reason",
     "rejectReasonPlaceholder": "Write why the completion is rejected - the message is sent to the assignees.",
     "rejectedCount_one": "Rejected {{count}} time",
-    "rejectedCount_other": "Rejected {{count}} times"
+    "rejectedCount_other": "Rejected {{count}} times",
+    "searchPlaceholder": "Search task or requester...",
+    "allRooms": "All rooms",
+    "sort": {
+      "oldest": "Oldest request first",
+      "newest": "Newest request first",
+      "priority": "Highest priority first",
+      "deadline": "Earliest deadline first",
+      "rejections": "Most rejections first"
+    },
+    "resetFilters": "Reset",
+    "showing": "Showing {{count}} of {{total}}",
+    "noMatch": "No requests match the filters.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (overdue)"
   },
   "quickCreate": {
     "heading": "Create role",
