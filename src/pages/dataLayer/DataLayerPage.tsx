@@ -162,6 +162,15 @@ export function DataLayerPage() {
     [itemLocations, locationIdFromUrl]
   );
 
+  // Fold forælder-lageret ud én gang pr. ny valgt lokation (også ved F5/delt
+  // link), men lad brugeren kollapse det bagefter.
+  const [revealedLocationId, setRevealedLocationId] = useState<string | null>(null);
+  if (selectedLocationView && selectedLocationView.id !== revealedLocationId) {
+    setRevealedLocationId(selectedLocationView.id);
+    const parentId = selectedLocationView.parentLocationId;
+    if (parentId) setExpandedWarehouseIds((prev) => new Set([...prev, parentId]));
+  }
+
   // Lager: opret/rediger/slet - samme mønster som kategori-siden
   // (AddLocationComponent/EditLocationComponent/DeleteLocationComponent
   // er selvstændige fil-komponenter, 1:1 med Add/Edit/DeleteCategoryComponent).
@@ -943,10 +952,7 @@ export function DataLayerPage() {
                       canCreate={canCreate}
                       canUpdate={canUpdate}
                       canDelete={canDelete}
-                      isExpanded={
-                        expandedWarehouseIds.has(warehouse.id) ||
-                        selectedLocationView?.parentLocationId === warehouse.id
-                      }
+                      isExpanded={expandedWarehouseIds.has(warehouse.id)}
                       onToggleExpand={toggleExpandWarehouse}
                       favoriteIds={favoriteLocationIds}
                       canFavorite={canRead}
