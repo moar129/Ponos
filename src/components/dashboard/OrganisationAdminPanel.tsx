@@ -20,6 +20,7 @@ import { ColorSlot } from './colorSlot'
 // ikke selv har valgt en farve (color === null).
 const DEFAULT_ORG_COLOR = '#C7975D'
 const DEFAULT_BAR_COLOR = '#071B33'
+const DEFAULT_BAR_TEXT_COLOR = '#F1F5F9'
 
 
 function isValidHexColor(value: string): boolean {
@@ -28,7 +29,10 @@ function isValidHexColor(value: string): boolean {
 
 // Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
 // feltet fyldes med organisationens nuværende værdi.
- const emptyForm: UpdateOrganisationInput = { name: '', color: null, headerColor: null, footerColor: null }
+const emptyForm: UpdateOrganisationInput = {
+    name: '', color: null, headerColor: null, footerColor: null,
+    headerTextColor: null, footerTextColor: null,
+}
 
 // Rediger organisation (navn + farve) + slet organisation, samlet i ét
 // panel under dashboardets Administration-fane (US-65) - flyttet fra
@@ -60,7 +64,14 @@ export function OrganisationAdminPanel() {
     const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
 
     function startEdit(current: Organisation) {
-        setForm({ name: current.name, color: current.color, headerColor: current.headerColor, footerColor: current.footerColor })
+        setForm({
+            name: current.name,
+            color: current.color,
+            headerColor: current.headerColor,
+            footerColor: current.footerColor,
+            headerTextColor: current.headerTextColor,
+            footerTextColor: current.footerTextColor,
+        })
         setValidationError(null)
         setSavedMessage(false)
         setIsEditing(true)
@@ -79,13 +90,15 @@ export function OrganisationAdminPanel() {
         const color = form.color ?? ''
         const headerColor = form.headerColor ?? ''
         const footerColor = form.footerColor ?? ''
+        const headerTextColor = form.headerTextColor ?? ''
+        const footerTextColor = form.footerTextColor ?? ''
 
         if (!name) {
             setValidationError(t('errors:required.organisationName'))
             return
         }
 
-        for (const c of [color, headerColor, footerColor]) {
+        for (const c of [color, headerColor, footerColor, headerTextColor, footerTextColor]) {
             if (c && !isValidHexColor(c)) {
                 setValidationError(t('admin.colorInvalid'))
                 return
@@ -100,6 +113,8 @@ export function OrganisationAdminPanel() {
                 color: color || null,
                 headerColor: headerColor || null,
                 footerColor: footerColor || null,
+                headerTextColor: headerTextColor || null,
+                footerTextColor: footerTextColor || null,
             }).unwrap()
 
             setIsEditing(false)
@@ -203,6 +218,26 @@ export function OrganisationAdminPanel() {
                         onSaveCurrent={() => addSavedColor({ color: form.footerColor ?? DEFAULT_BAR_COLOR })}
                         onRemoveSaved={(c) => removeSavedColor({ color: c })}
                     />
+                    <ColorSlot
+                        label={t('admin.headerTextColorLabel')}
+                        hint={t('admin.headerTextColorHint')}
+                        value={form.headerTextColor ?? null}
+                        fallback={DEFAULT_BAR_TEXT_COLOR}
+                        onChange={(headerTextColor) => setForm({ ...form, headerTextColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.headerTextColor ?? DEFAULT_BAR_TEXT_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
+                    <ColorSlot
+                        label={t('admin.footerTextColorLabel')}
+                        hint={t('admin.footerTextColorHint')}
+                        value={form.footerTextColor ?? null}
+                        fallback={DEFAULT_BAR_TEXT_COLOR}
+                        onChange={(footerTextColor) => setForm({ ...form, footerTextColor })}
+                        savedColors={organisation.savedColors}
+                        onSaveCurrent={() => addSavedColor({ color: form.footerTextColor ?? DEFAULT_BAR_TEXT_COLOR })}
+                        onRemoveSaved={(c) => removeSavedColor({ color: c })}
+                    />
 
                     <div className="flex gap-3">
                         <button
@@ -267,6 +302,26 @@ export function OrganisationAdminPanel() {
                                     style={{ backgroundColor: organisation.footerColor ?? DEFAULT_BAR_COLOR }}
                                 />
                                 {organisation.footerColor ? organisation.footerColor : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.headerTextColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.headerTextColor ?? DEFAULT_BAR_TEXT_COLOR }}
+                                />
+                                {organisation.headerTextColor ? organisation.headerTextColor : t('admin.colorNoneSet')}
+                            </dd>
+                        </div>
+                        <div className="py-3 flex justify-between gap-4 items-center">
+                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.footerTextColorLabel')}</dt>
+                            <dd className="text-sm text-right flex items-center gap-2 justify-end">
+                                <span
+                                    className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                    style={{ backgroundColor: organisation.footerTextColor ?? DEFAULT_BAR_TEXT_COLOR }}
+                                />
+                                {organisation.footerTextColor ? organisation.footerTextColor : t('admin.colorNoneSet')}
                             </dd>
                         </div>
                     </dl>
