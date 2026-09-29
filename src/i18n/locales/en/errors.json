@@ -67,7 +67,8 @@
     "resolveTaskMaterialUnits": "You do not have permission to report material outcomes on tasks.",
     "changeTaskMaterialStatus": "You do not have permission to change the status of a material.",
     "favoriteDatalayer": "You do not have permission to change favorites in the data layer.",
-    "favoriteTasks": "You do not have permission to change favorite rooms."
+    "favoriteTasks": "You do not have permission to change favorite rooms.",
+    "deleteStatistics": "You do not have permission to delete this snapshot."
   },
   "db": {
     "NOT_LOGGED_IN": "You must be logged in.",
@@ -171,6 +172,11 @@
     "ROOM_NOT_ACCESSIBLE": "The room does not exist, or you don't have access to it.",
     "ROOM_NOT_ROLE_LOCKED": "The room is not role-restricted and has no chat.",
     "CONVERSATION_CLOSED": "The chat is closed - read only.",
-    "TASK_CHAT_NOT_AVAILABLE": "The task chat is not available to you."
+    "TASK_CHAT_NOT_AVAILABLE": "The task chat is not available to you.",
+    "NO_PRIV_READ_STATISTICS": "You do not have permission to view statistics.",
+    "NO_PRIV_CREATE_STATISTICS": "You do not have permission to save statistics.",
+    "INVALID_PERIOD": "The end date must be after the start date.",
+    "INVALID_GRANULARITY": "Invalid resolution for the statistics.",
+    "ROOM_NOT_FOUND": "The room does not exist in your organisation."
   }
 }

@@ -59,7 +59,8 @@
     "updateLocation": "Sinulla ei ole oikeutta muokata sijaintia.",
     "deleteLocation": "Sinulla ei ole oikeutta poistaa sijaintia.",
     "favoriteDatalayer": "Sinulla ei ole oikeutta muuttaa tietokerroksen suosikkeja.",
-    "favoriteTasks": "Sinulla ei ole oikeutta muuttaa suosikkihuoneita."
+    "favoriteTasks": "Sinulla ei ole oikeutta muuttaa suosikkihuoneita.",
+    "deleteStatistics": "Sinulla ei ole oikeutta poistaa tätä tilannekuvaa."
   },
   "db": {
     "NOT_LOGGED_IN": "Sinun on oltava kirjautuneena sisään.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "Huonetta ei ole, tai sinulla ei ole siihen pääsyä.",
     "ROOM_NOT_ROLE_LOCKED": "Huone ei ole roolirajattu, eikä sillä ole keskustelua.",
     "CONVERSATION_CLOSED": "Keskustelu on suljettu - vain luku.",
-    "TASK_CHAT_NOT_AVAILABLE": "Tehtävän chat ei ole käytettävissäsi."
+    "TASK_CHAT_NOT_AVAILABLE": "Tehtävän chat ei ole käytettävissäsi.",
+    "NO_PRIV_READ_STATISTICS": "Sinulla ei ole oikeutta tarkastella tilastoja.",
+    "NO_PRIV_CREATE_STATISTICS": "Sinulla ei ole oikeutta tallentaa tilastoja.",
+    "INVALID_PERIOD": "Loppupäivän on oltava alkupäivän jälkeen.",
+    "INVALID_GRANULARITY": "Virheellinen tarkkuus tilastoille.",
+    "ROOM_NOT_FOUND": "Huonetta ei ole organisaatiossasi.",
+    "CATEGORY_NOT_FOUND": "Luokkaa ei ole organisaatiossasi."
   }
 }

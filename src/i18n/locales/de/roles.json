@@ -8,7 +8,8 @@
     "news": "Neuigkeiten",
     "datalayer": "Datenebene",
     "tasks": "Aufgaben",
-    "task_approval": "Aufgabenfreigabe"
+    "task_approval": "Aufgabenfreigabe",
+    "statistics": "Statistik"
   },
   "op": {
     "create": "Erstellen",

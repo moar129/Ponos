@@ -64,7 +64,6 @@
       "invitations": "Kutsut",
       "membershipRequests": "Jäsenyyshakemukset",
       "organisation": "Organisaatio",
-
       "colors": "Värit",
       "taskApprovals": "Tehtävien hyväksynnät",
       "completedTasks": "Valmiit tehtävät"
@@ -99,12 +98,5 @@
     "resetFilters": "Tyhjennä",
     "finishedOn": "Valmistui {{date}}",
     "showing": "{{count}} / {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Sinulla ei ole vielä aktiivista organisaatiota, joten tilastoja ei ole näytettävänä.",
-    "goToOrganisation": "Siirry Organisaatioon",
-    "title": "Tilastot",
-    "description": "Tunnusluvut ja analyysit, jotka on laskettu organisaation nimikkeistä ja tehtävistä.",
-    "loading": "Ladataan..."
   }
 }

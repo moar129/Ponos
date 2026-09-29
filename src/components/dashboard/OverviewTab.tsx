@@ -3,7 +3,7 @@ import { Database, ClipboardList, Building2, BarChart3 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
-import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_STATISTICS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { QuickLinkCard } from './QuickLinkCard'
 import { NewsSlider } from './NewsSlider'
 import { MyTasksWidget } from './MyTasksWidget'
@@ -18,6 +18,7 @@ export function OverviewTab() {
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
     const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE)
     const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE)
+    const { hasPrivilege: canReadStatistics } = useHasPrivilege(READ_STATISTICS_PRIVILEGE)
 
     // En bruger uden aktiv organisation ville ellers se en tom side uden
     // forklaring - vis i stedet én venlig besked med en genvej til
@@ -63,12 +64,14 @@ export function OverviewTab() {
                         description={t('overview.tasksDescription')}
                         icon={ClipboardList}
                     />
-                    <QuickLinkCard
-                        to="/statistik"
-                        label={t('nav:links.statistics')}
-                        description={t('overview.statisticsDescription')}
-                        icon={BarChart3}
-                    />
+                    {canReadStatistics && (
+                        <QuickLinkCard
+                            to="/statistik"
+                            label={t('nav:links.statistics')}
+                            description={t('overview.statisticsDescription')}
+                            icon={BarChart3}
+                        />
+                    )}
                 </div>
             </div>
 

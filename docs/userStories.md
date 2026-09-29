@@ -1020,6 +1020,28 @@ Som bruger vil jeg kunne filtrere statistik efter relevante data, så jeg kan fo
 
 ---
 
+## US-80 – Eksportér statistik
+
+**Priority:** Low
+
+**Note:** Opfølgning på statistiksiden (docs/statistik-plan.md). Bygger på snapshot-sammenligningen (US-54) - ingen ny tabel. Tallene findes allerede i `statistics_values`.
+
+**Status: FÆRDIG 2026-09-30.** Knappen "Eksportér CSV" over snapshot-sammenligningen (fanen "Gem og sammenlign"). Ren frontend (`src/utils/statisticsCsv.ts`), deler rækkerne med tabellen via `buildSnapshotComparison`. Format: komma-separeret, punktum som decimaltegn, UTF-8 med BOM, CRLF (RFC 4180). Periode-rækker (start/slut) øverst, tidsserien ("Udvikling – …") til sidst. Kun sammenligningen eksporteres - ikke Overblik (valgt 2026-09-30).
+
+### User Story
+
+Som bruger vil jeg kunne eksportere statistik som CSV, så jeg kan bruge tallene i fx rapporter og regneark.
+
+### Acceptance Criteria
+
+- Sammenligningstabellen for valgte snapshots kan downloades som CSV (én kolonne pr. snapshot, én række pr. nøgletal).
+- Kolonne- og rækkenavne er de samme oversatte tekster som i tabellen.
+- Kræver `read_statistics` (admin altid) - eksporten indeholder kun data brugeren allerede kan se.
+- Tal formateres maskinlæsbart (punktum som decimaltegn), uafhængigt af sprog.
+- Data fra andre organisationer indgår ikke.
+
+---
+
 # 10. News / API
 
 ## US-56 – Se og administrere nyheder
@@ -1626,6 +1648,7 @@ Som bruger vil jeg kunne slå notifikationer fra og til og vælge hvilke typer j
 ## Low
 
 - US-55 – Filtrer statistik
+- US-80 – Eksportér statistik
 - US-56 – Se nyheder
 - US-57 – Hent nyheder fra ekstern API (udgået)
 

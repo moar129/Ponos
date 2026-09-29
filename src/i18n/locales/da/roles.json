@@ -8,7 +8,8 @@
     "news": "Nyheder",
     "datalayer": "Datalager",
     "tasks": "Opgaver",
-    "task_approval": "Opgavegodkendelse"
+    "task_approval": "Opgavegodkendelse",
+    "statistics": "Statistik"
   },
   "op": {
     "create": "Opret",

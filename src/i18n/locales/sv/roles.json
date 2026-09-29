@@ -8,7 +8,8 @@
     "news": "Nyheter",
     "datalayer": "Datalager",
     "tasks": "Uppgifter",
-    "task_approval": "Godkännande av uppgifter"
+    "task_approval": "Godkännande av uppgifter",
+    "statistics": "Statistik"
   },
   "op": {
     "create": "Skapa",

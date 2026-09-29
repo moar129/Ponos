@@ -59,7 +59,8 @@
     "updateLocation": "Je hebt geen rechten om de locatie te bewerken.",
     "deleteLocation": "Je hebt geen rechten om de locatie te verwijderen.",
     "favoriteDatalayer": "Je hebt geen rechten om favorieten in de datalaag te wijzigen.",
-    "favoriteTasks": "Je hebt geen rechten om favoriete ruimtes te wijzigen."
+    "favoriteTasks": "Je hebt geen rechten om favoriete ruimtes te wijzigen.",
+    "deleteStatistics": "Je hebt geen rechten om deze momentopname te verwijderen."
   },
   "db": {
     "NOT_LOGGED_IN": "U moet ingelogd zijn.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "De ruimte bestaat niet, of je hebt er geen toegang toe.",
     "ROOM_NOT_ROLE_LOCKED": "De ruimte is niet rolbeperkt en heeft geen chat.",
     "CONVERSATION_CLOSED": "De chat is gesloten - alleen lezen.",
-    "TASK_CHAT_NOT_AVAILABLE": "De taakchat is niet beschikbaar voor jou."
+    "TASK_CHAT_NOT_AVAILABLE": "De taakchat is niet beschikbaar voor jou.",
+    "NO_PRIV_READ_STATISTICS": "Je hebt geen rechten om statistieken te bekijken.",
+    "NO_PRIV_CREATE_STATISTICS": "Je hebt geen rechten om statistieken op te slaan.",
+    "INVALID_PERIOD": "De einddatum moet na de begindatum liggen.",
+    "INVALID_GRANULARITY": "Ongeldige resolutie voor de statistieken.",
+    "ROOM_NOT_FOUND": "De ruimte bestaat niet in je organisatie.",
+    "CATEGORY_NOT_FOUND": "De categorie bestaat niet in je organisatie."
   }
 }

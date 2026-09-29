@@ -8,7 +8,8 @@
     "news": "Uutiset",
     "datalayer": "Datakerros",
     "tasks": "Tehtävät",
-    "task_approval": "Tehtävien hyväksyntä"
+    "task_approval": "Tehtävien hyväksyntä",
+    "statistics": "Tilastot"
   },
   "op": {
     "create": "Luo",

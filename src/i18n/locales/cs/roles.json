@@ -8,7 +8,8 @@
     "news": "Novinky",
     "datalayer": "Datová vrstva",
     "tasks": "Úkoly",
-    "task_approval": "Schvalování úkolů"
+    "task_approval": "Schvalování úkolů",
+    "statistics": "Statistiky"
   },
   "op": {
     "create": "Vytvořit",

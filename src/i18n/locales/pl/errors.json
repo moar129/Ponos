@@ -59,7 +59,8 @@
     "updateLocation": "Nie masz uprawnień, aby edytować lokalizację.",
     "deleteLocation": "Nie masz uprawnień, aby usunąć lokalizację.",
     "favoriteDatalayer": "Nie masz uprawnień, aby zmieniać ulubione w warstwie danych.",
-    "favoriteTasks": "Nie masz uprawnień, aby zmieniać ulubione pokoje."
+    "favoriteTasks": "Nie masz uprawnień, aby zmieniać ulubione pokoje.",
+    "deleteStatistics": "Nie masz uprawnień do usunięcia tej migawki."
   },
   "db": {
     "NOT_LOGGED_IN": "Musisz być zalogowany.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "Pokój nie istnieje lub nie masz do niego dostępu.",
     "ROOM_NOT_ROLE_LOCKED": "Pokój nie jest ograniczony rolami i nie ma czatu.",
     "CONVERSATION_CLOSED": "Czat jest zamknięty - tylko do odczytu.",
-    "TASK_CHAT_NOT_AVAILABLE": "Czat zadania nie jest dla ciebie dostępny."
+    "TASK_CHAT_NOT_AVAILABLE": "Czat zadania nie jest dla ciebie dostępny.",
+    "NO_PRIV_READ_STATISTICS": "Nie masz uprawnień do przeglądania statystyk.",
+    "NO_PRIV_CREATE_STATISTICS": "Nie masz uprawnień do zapisywania statystyk.",
+    "INVALID_PERIOD": "Data końcowa musi być późniejsza niż początkowa.",
+    "INVALID_GRANULARITY": "Nieprawidłowa rozdzielczość statystyk.",
+    "ROOM_NOT_FOUND": "Pokój nie istnieje w Twojej organizacji.",
+    "CATEGORY_NOT_FOUND": "Kategoria nie istnieje w Twojej organizacji."
   }
 }

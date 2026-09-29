@@ -73,6 +73,13 @@ export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, 
 export const APPROVE_TASK_PRIVILEGE = 'approve_task'
 export const REJECT_TASK_PRIVILEGE = 'reject_task'
 
+// Statistik (US-48–54). read gater get_statistics + snapshot-læsning,
+// create/delete gemmer/sletter snapshots - se
+// docs/dbSchema.sql §15.26.
+export const READ_STATISTICS_PRIVILEGE = 'read_statistics'
+export const CREATE_STATISTICS_PRIVILEGE = 'create_statistics'
+export const DELETE_STATISTICS_PRIVILEGE = 'delete_statistics'
+
 type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'viewAll' | 'viewCompleted' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
@@ -149,6 +156,14 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
         ops: {
             approve: APPROVE_TASK_PRIVILEGE,
             reject: REJECT_TASK_PRIVILEGE,
+        },
+    },
+    {
+        domain: 'statistics',
+        ops: {
+            create: CREATE_STATISTICS_PRIVILEGE,
+            read: READ_STATISTICS_PRIVILEGE,
+            delete: DELETE_STATISTICS_PRIVILEGE,
         },
     },
 ]

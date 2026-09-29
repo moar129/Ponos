@@ -23,6 +23,7 @@ import daNews from './locales/da/news.json'
 import daMessages from './locales/da/messages.json'
 import daNotifications from './locales/da/notifications.json'
 import daErrors from './locales/da/errors.json'
+import daStatistics from './locales/da/statistics.json'
 
 export const NAMESPACES = [
   'common',
@@ -39,6 +40,7 @@ export const NAMESPACES = [
   'messages',
   'notifications',
   'errors',
+  'statistics',
 ] as const
 
 export type Namespace = (typeof NAMESPACES)[number]
@@ -58,6 +60,7 @@ export const daResources = {
   messages: daMessages,
   notifications: daNotifications,
   errors: daErrors,
+  statistics: daStatistics,
 }
 
 // Vite samler alle locale-filer på byggetidspunktet. import.meta.glob

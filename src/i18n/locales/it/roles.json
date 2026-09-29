@@ -8,7 +8,8 @@
     "news": "Notizie",
     "datalayer": "Livello dati",
     "tasks": "Attività",
-    "task_approval": "Approvazione delle attività"
+    "task_approval": "Approvazione delle attività",
+    "statistics": "Statistiche"
   },
   "op": {
     "create": "Crea",

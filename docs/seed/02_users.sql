@@ -125,5 +125,16 @@ begin
   join public.profiles p on p.email = x.local_part || '@ponos-mock.test'
   left join public.profiles inv on inv.email = x.invited_by || '@ponos-mock.test';
 
-  raise notice 'Seed 02 færdig: 27 brugere, 21 medlemskaber, 4 ansøgninger, 2 invitationer.';
+  -- Udmeldinger (statistik: udmeldte medlemmer). Uden bruger-id - de
+  -- udmeldte findes ikke længere som medlemmer. 3 frivillige forlod efter
+  -- RF25, 1 blev fjernet, 1 forlod i september 2026.
+  insert into public.membership_departures (organisation_id, left_at, reason)
+  values
+    (v_org, timestamptz '2025-07-20 12:00+02', 'left'),
+    (v_org, timestamptz '2025-08-05 12:00+02', 'left'),
+    (v_org, timestamptz '2025-08-15 12:00+02', 'left'),
+    (v_org, timestamptz '2026-02-02 10:00+01', 'removed'),
+    (v_org, timestamptz '2026-09-18 12:00+02', 'left');
+
+  raise notice 'Seed 02 færdig: 27 brugere, 21 medlemskaber, 4 ansøgninger, 2 invitationer, 5 udmeldinger.';
 end $$;

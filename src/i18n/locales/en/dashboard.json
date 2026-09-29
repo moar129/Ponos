@@ -64,7 +64,6 @@
       "invitations": "Invitations",
       "membershipRequests": "Membership requests",
       "organisation": "Organisation",
-
       "colors": "Colours",
       "taskApprovals": "Task approvals",
       "completedTasks": "Completed tasks"
@@ -99,12 +98,5 @@
     "resetFilters": "Reset",
     "finishedOn": "Finished {{date}}",
     "showing": "Showing {{count}} of {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "You do not have an active organisation yet, so there are no statistics to show.",
-    "goToOrganisation": "Go to Organisation",
-    "title": "Statistics",
-    "description": "Key figures and insight calculated from the organisation's items and tasks.",
-    "loading": "Loading..."
   }
 }

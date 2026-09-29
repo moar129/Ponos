@@ -65,7 +65,6 @@
       "invitations": "Invitații",
       "membershipRequests": "Cereri de aderare",
       "organisation": "Organizație",
-
       "colors": "Culori",
       "taskApprovals": "Aprobări de sarcini",
       "completedTasks": "Sarcini finalizate"
@@ -100,12 +99,5 @@
     "resetFilters": "Resetează",
     "finishedOn": "Finalizată {{date}}",
     "showing": "{{count}} din {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Nu aveți încă o organizație activă, deci nu există statistici de afișat.",
-    "goToOrganisation": "Mergeți la Organizație",
-    "title": "Statistici",
-    "description": "Indicatori și analize calculate din articolele și sarcinile organizației.",
-    "loading": "Se încarcă..."
   }
 }

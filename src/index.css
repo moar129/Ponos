@@ -26,6 +26,39 @@ html {
     font-size: 17px;
 }
 
+/* Statistik-grafer. Faste farver - IKKE org-farven, så graferne ser ens ud i
+   alle organisationer (besluttet 2026-09-30). Primær serie = --chart-series-1,
+   anden serie = --chart-series-2; resten er neutral blæk og hårfine linjer. Status-farverne er faste (godkendt/afventer/afvist) og
+   vises altid med ikon + tekst, aldrig farve alene. */
+:root {
+    --chart-surface: #FFFFFF;
+    --chart-neutral: #64748B;
+    --chart-grid: #E2E8F0;
+    --chart-axis: #64748B;
+    --chart-track: #F1F5F9;
+    --chart-good: #0CA30C;
+    --chart-warning: #FAB219;
+    --chart-critical: #D03B3B;
+    /* Serier i fast rækkefølge (dataviz-referencepaletten slot 1-4): 1 =
+       primær (stolper, donut, oprettede), 2 = færdige; snapshots én pr. slot. */
+    --chart-series-1: #2A78D6;
+    --chart-series-2: #EB6834;
+    --chart-series-3: #1BAF7A;
+    --chart-series-4: #EDA100;
+}
+
+[data-theme="dark"] {
+    --chart-series-1: #3987E5;
+    --chart-series-2: #D95926;
+    --chart-series-3: #199E70;
+    --chart-series-4: #C98500;
+    --chart-surface: #1E293B;
+    --chart-neutral: #94A3B8;
+    --chart-grid: #334155;
+    --chart-axis: #94A3B8;
+    --chart-track: #0F172A;
+}
+
 /* Formateret tekst fra RichTextEditor - Tailwinds preflight nulstiller
    h2/ul/ol, så de skal stilles eksplicit her (typography-pluginnet er
    ikke installeret). Samme klasse bruges på editorens skriveflade og

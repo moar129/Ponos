@@ -59,7 +59,8 @@
     "updateLocation": "Nemáte oprávnění upravit místo.",
     "deleteLocation": "Nemáte oprávnění smazat místo.",
     "favoriteDatalayer": "Nemáte oprávnění měnit oblíbené v datové vrstvě.",
-    "favoriteTasks": "Nemáte oprávnění měnit oblíbené místnosti."
+    "favoriteTasks": "Nemáte oprávnění měnit oblíbené místnosti.",
+    "deleteStatistics": "Nemáte oprávnění smazat tento snímek."
   },
   "db": {
     "NOT_LOGGED_IN": "Musíte být přihlášeni.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "Místnost neexistuje, nebo k ní nemáte přístup.",
     "ROOM_NOT_ROLE_LOCKED": "Místnost není omezena rolemi a nemá chat.",
     "CONVERSATION_CLOSED": "Chat je uzavřen - pouze ke čtení.",
-    "TASK_CHAT_NOT_AVAILABLE": "Chat úkolu pro vás není dostupný."
+    "TASK_CHAT_NOT_AVAILABLE": "Chat úkolu pro vás není dostupný.",
+    "NO_PRIV_READ_STATISTICS": "Nemáte oprávnění zobrazit statistiky.",
+    "NO_PRIV_CREATE_STATISTICS": "Nemáte oprávnění ukládat statistiky.",
+    "INVALID_PERIOD": "Koncové datum musí být po počátečním datu.",
+    "INVALID_GRANULARITY": "Neplatné rozlišení statistik.",
+    "ROOM_NOT_FOUND": "Místnost ve vaší organizaci neexistuje.",
+    "CATEGORY_NOT_FOUND": "Kategorie ve vaší organizaci neexistuje."
   }
 }

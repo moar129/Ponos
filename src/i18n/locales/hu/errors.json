@@ -59,7 +59,8 @@
     "updateLocation": "Nincs jogosultsága a helyszín szerkesztéséhez.",
     "deleteLocation": "Nincs jogosultsága a helyszín törléséhez.",
     "favoriteDatalayer": "Nincs jogosultsága az adatréteg kedvenceinek módosításához.",
-    "favoriteTasks": "Nincs jogosultsága a kedvenc termek módosításához."
+    "favoriteTasks": "Nincs jogosultsága a kedvenc termek módosításához.",
+    "deleteStatistics": "Nincs jogosultságod ennek a pillanatképnek a törléséhez."
   },
   "db": {
     "NOT_LOGGED_IN": "Be kell jelentkeznie.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "A helyiség nem létezik, vagy nincs hozzáférésed.",
     "ROOM_NOT_ROLE_LOCKED": "A helyiség nincs szerepkörhöz kötve, és nincs csevegése.",
     "CONVERSATION_CLOSED": "A csevegés lezárva - csak olvasható.",
-    "TASK_CHAT_NOT_AVAILABLE": "A feladat csevegése nem érhető el számodra."
+    "TASK_CHAT_NOT_AVAILABLE": "A feladat csevegése nem érhető el számodra.",
+    "NO_PRIV_READ_STATISTICS": "Nincs jogosultságod a statisztika megtekintéséhez.",
+    "NO_PRIV_CREATE_STATISTICS": "Nincs jogosultságod a statisztika mentéséhez.",
+    "INVALID_PERIOD": "A záró dátumnak a kezdő dátum után kell lennie.",
+    "INVALID_GRANULARITY": "Érvénytelen felbontás a statisztikához.",
+    "ROOM_NOT_FOUND": "A helyiség nem létezik a szervezetedben.",
+    "CATEGORY_NOT_FOUND": "A kategória nem létezik a szervezetedben."
   }
 }

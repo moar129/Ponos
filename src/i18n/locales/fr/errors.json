@@ -59,7 +59,8 @@
     "updateLocation": "Vous n'avez pas le droit de modifier l'emplacement.",
     "deleteLocation": "Vous n'avez pas le droit de supprimer l'emplacement.",
     "favoriteDatalayer": "Vous n'avez pas le droit de modifier les favoris de la couche de données.",
-    "favoriteTasks": "Vous n'avez pas le droit de modifier les salles favorites."
+    "favoriteTasks": "Vous n'avez pas le droit de modifier les salles favorites.",
+    "deleteStatistics": "Vous n'avez pas l'autorisation de supprimer cet instantané."
   },
   "db": {
     "NOT_LOGGED_IN": "Vous devez être connecté.",
@@ -148,6 +149,12 @@
     "ROOM_NOT_ACCESSIBLE": "La salle n'existe pas, ou vous n'y avez pas accès.",
     "ROOM_NOT_ROLE_LOCKED": "La salle n'est pas limitée par rôle et n'a pas de chat.",
     "CONVERSATION_CLOSED": "Le chat est fermé - lecture seule.",
-    "TASK_CHAT_NOT_AVAILABLE": "Le chat de la tâche n'est pas disponible pour vous."
+    "TASK_CHAT_NOT_AVAILABLE": "Le chat de la tâche n'est pas disponible pour vous.",
+    "NO_PRIV_READ_STATISTICS": "Vous n'avez pas l'autorisation de consulter les statistiques.",
+    "NO_PRIV_CREATE_STATISTICS": "Vous n'avez pas l'autorisation d'enregistrer des statistiques.",
+    "INVALID_PERIOD": "La date de fin doit être postérieure à la date de début.",
+    "INVALID_GRANULARITY": "Résolution non valide pour les statistiques.",
+    "ROOM_NOT_FOUND": "La salle n'existe pas dans votre organisation.",
+    "CATEGORY_NOT_FOUND": "La catégorie n’existe pas dans votre organisation."
   }
 }

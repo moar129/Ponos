@@ -64,7 +64,6 @@
       "invitations": "Meghívók",
       "membershipRequests": "Tagsági kérelmek",
       "organisation": "Szervezet",
-
       "colors": "Színek",
       "taskApprovals": "Feladatjóváhagyások",
       "completedTasks": "Befejezett feladatok"
@@ -99,12 +98,5 @@
     "resetFilters": "Visszaállítás",
     "finishedOn": "Befejezve: {{date}}",
     "showing": "{{count}} / {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Még nincs aktív szervezete, így nincs megjeleníthető statisztika.",
-    "goToOrganisation": "Ugrás a Szervezethez",
-    "title": "Statisztika",
-    "description": "A szervezet tételeiből és feladataiból számított mutatók és elemzések.",
-    "loading": "Betöltés..."
   }
 }
