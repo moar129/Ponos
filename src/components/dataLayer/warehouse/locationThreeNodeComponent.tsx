@@ -42,14 +42,15 @@ export function LocationTreeNode({
         onClick={() => onSelectLocation(location)}
       >
         {/*
-          min-w-[7rem] + flex-1 (i stedet for min-w-0) sikrer, at navnet
-          altid har en garanteret minimumsbredde og aldrig presses til 0px.
-          Kan handlingsknapperne (som har shrink-0) ikke være på samme
-          linje som navnet, folder flex-wrap dem ned på en ny linje i
-          stedet for at de "spiser" navnets plads - vigtigt på iPad/
-          smalle skærme, hvor knapperne altid er synlige (ikke kun ved hover).
+          min-w + flex-1 (i stedet for min-w-0) sikrer, at navnet altid har
+          en garanteret minimumsbredde og aldrig presses til 0px. Kan
+          handlingsknapperne (som har shrink-0) ikke være på samme linje
+          som navnet, folder flex-wrap dem ned på en ny linje i stedet for
+          at de "spiser" navnets plads. 10.5rem (mod 7rem i CategoryTreeNode)
+          fordi lager-rækker har 2 knapper færre (ingen op/ned) - så rækken
+          ombrydes ved samme panelbredde som kategori-rækker.
         */}
-        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] flex-1">
+        <div className="flex items-center gap-1.5 overflow-hidden min-w-[10.5rem] flex-1">
           {hasChildren ? (
             <button
               type="button"
