@@ -10,6 +10,8 @@ type OrgRow = {
     color: string | null
     header_color?: string | null
     footer_color?: string | null
+    header_text_color?: string | null
+    footer_text_color?: string | null
     saved_colors?: string[] | null
 }
 
@@ -20,11 +22,13 @@ function toOrganisation(row: OrgRow): Organisation {
         color: row.color ?? null,
         headerColor: row.header_color ?? null,
         footerColor: row.footer_color ?? null,
+        headerTextColor: row.header_text_color ?? null,
+        footerTextColor: row.footer_text_color ?? null,
         savedColors: row.saved_colors ?? [],
     }
 }
 
-const ORG_COLUMNS = 'id, name, color, header_color, footer_color, saved_colors'
+    const ORG_COLUMNS = 'id, name, color, header_color, footer_color, header_text_color, footer_text_color, saved_colors'
 
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -123,7 +127,7 @@ export const organisationApi = supabaseApi.injectEndpoints({
         // hjemmesiden skal kunne bruges af alle virksomheder. color: null
         // nulstiller til appens standard-accent.
         updateMyOrganisation: builder.mutation<void, UpdateOrganisationInput>({
-            queryFn: async ({ name, color, headerColor, footerColor }) => {
+            queryFn: async ({ name, color, headerColor, footerColor, headerTextColor, footerTextColor }) => {
                 const { data: userData, error: userError } = await supabase.auth.getUser()
 
                 if (userError || !userData.user) {
@@ -158,6 +162,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
                         color: color ?? null,
                         header_color: headerColor ?? null,
                         footer_color: footerColor ?? null,
+                        header_text_color: headerTextColor ?? null,
+                        footer_text_color: footerTextColor ?? null,
                     })
                     .eq('id', profile.active_organisation_id)
 

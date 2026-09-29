@@ -61,14 +61,24 @@ export function useOrganisationTheme() {
 
         const h = textPairFor(headerColor)
         root.style.setProperty('--color-header-bg', headerColor)
-        root.style.setProperty('--color-header-text', h.text)
-        root.style.setProperty('--color-header-muted', h.muted)
+        root.style.setProperty('--color-header-text', organisation?.headerTextColor || h.text)
+        root.style.setProperty(
+            '--color-header-muted',
+            organisation?.headerTextColor
+                ? `color-mix(in srgb, ${organisation.headerTextColor} 75%, transparent)`
+                : h.muted,
+        )
         root.style.setProperty('--color-header-border', h.border)
 
         const f = textPairFor(footerColor)
         root.style.setProperty('--color-footer-bg', footerColor)
-        root.style.setProperty('--color-footer-text', f.text)
-        root.style.setProperty('--color-footer-muted', f.muted)
+        root.style.setProperty('--color-footer-text', organisation?.footerTextColor || f.text)
+        root.style.setProperty(
+            '--color-footer-muted',
+            organisation?.footerTextColor
+                ? `color-mix(in srgb, ${organisation.footerTextColor} 75%, transparent)`
+                : f.muted,
+        )
         root.style.setProperty('--color-footer-border', f.border)
-    }, [accent, headerColor, footerColor])
+    }, [accent, headerColor, footerColor, organisation?.headerTextColor, organisation?.footerTextColor])
 }
