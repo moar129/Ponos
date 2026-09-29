@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "No tienes permiso para ver estadísticas.",
     "NO_PRIV_CREATE_STATISTICS": "No tienes permiso para guardar estadísticas.",
     "INVALID_PERIOD": "La fecha de fin debe ser posterior a la de inicio.",
-    "INVALID_GRANULARITY": "Resolución no válida para las estadísticas."
+    "INVALID_GRANULARITY": "Resolución no válida para las estadísticas.",
+    "ROOM_NOT_FOUND": "La sala no existe en tu organización."
   }
 }

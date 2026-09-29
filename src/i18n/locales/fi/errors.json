@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Sinulla ei ole oikeutta tarkastella tilastoja.",
     "NO_PRIV_CREATE_STATISTICS": "Sinulla ei ole oikeutta tallentaa tilastoja.",
     "INVALID_PERIOD": "Loppupäivän on oltava alkupäivän jälkeen.",
-    "INVALID_GRANULARITY": "Virheellinen tarkkuus tilastoille."
+    "INVALID_GRANULARITY": "Virheellinen tarkkuus tilastoille.",
+    "ROOM_NOT_FOUND": "Huonetta ei ole organisaatiossasi."
   }
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type {
     StatisticsGranularity,
     StatisticsPeriodType,
@@ -54,14 +54,28 @@ export function useStatisticsPeriod() {
     const [periodType, setPeriodType] = useState<StatisticsPeriodType>('week')
     const [customRange, setCustomRange] = useState<StatisticsDateRange | null>(null)
 
+    // "Today" as state, refreshed when the window regains focus - otherwise a
+    // page left open past midnight keeps showing yesterday's rolling period
+    // (and refetchOnFocus would refetch that stale range). Same value = no re-render.
+    const [todayTime, setTodayTime] = useState(() => startOfDay(new Date()).getTime())
+    useEffect(() => {
+        const refresh = () => setTodayTime(startOfDay(new Date()).getTime())
+        window.addEventListener('focus', refresh)
+        document.addEventListener('visibilitychange', refresh)
+        return () => {
+            window.removeEventListener('focus', refresh)
+            document.removeEventListener('visibilitychange', refresh)
+        }
+    }, [])
+
     const range = useMemo<StatisticsDateRange | null>(() => {
         if (periodType === 'max') return null
         if (periodType === 'custom') return customRange
 
-        const today = startOfDay(new Date())
+        const today = new Date(todayTime)
         const days = ROLLING_DAYS[periodType] ?? 1
         return { start: addDays(today, -(days - 1)), end: today }
-    }, [periodType, customRange])
+    }, [periodType, customRange, todayTime])
 
     const apiArgs = useMemo<StatisticsQueryArgs>(() => {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone

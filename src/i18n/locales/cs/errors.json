@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Nemáte oprávnění zobrazit statistiky.",
     "NO_PRIV_CREATE_STATISTICS": "Nemáte oprávnění ukládat statistiky.",
     "INVALID_PERIOD": "Koncové datum musí být po počátečním datu.",
-    "INVALID_GRANULARITY": "Neplatné rozlišení statistik."
+    "INVALID_GRANULARITY": "Neplatné rozlišení statistik.",
+    "ROOM_NOT_FOUND": "Místnost ve vaší organizaci neexistuje."
   }
 }

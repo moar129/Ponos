@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Nu ai permisiunea de a vedea statisticile.",
     "NO_PRIV_CREATE_STATISTICS": "Nu ai permisiunea de a salva statistici.",
     "INVALID_PERIOD": "Data de sfârșit trebuie să fie după data de început.",
-    "INVALID_GRANULARITY": "Rezoluție invalidă pentru statistici."
+    "INVALID_GRANULARITY": "Rezoluție invalidă pentru statistici.",
+    "ROOM_NOT_FOUND": "Camera nu există în organizația ta."
   }
 }

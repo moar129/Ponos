@@ -392,6 +392,32 @@ grant select on public.data_layer_item_status_counts to authenticated;
 
 
 -- ---------------------------------------------------------------------
+-- 9b DATA LAYER ITEM UNIT HISTORY (lagerhistorik, 2026-09-29)
+-- Én række pr. enhed pr. periode med samme status (valid_from/valid_to;
+-- valid_to null = aktuel). Skrives KUN af triggeren §15.21d. unit_id har
+-- bevidst ingen FK - historikken overlever at enheden slettes/forbruges.
+-- Bruges af statistikken (§15.26a: enheder pr. status ved periodens slut).
+-- data_layer_item_units er Studerende 2's domæne; her kun en tilføjelse.
+-- Ved oprettelse blev eksisterende enheder backfillet med valid_from = now().
+-- ---------------------------------------------------------------------
+create table public.data_layer_item_unit_history (
+  id               bigint generated always as identity primary key,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  unit_id          uuid not null,
+  item_id          uuid not null,
+  status           public.e_item_status not null,
+  valid_from       timestamptz not null,
+  valid_to         timestamptz,
+  constraint item_unit_history_valid_range check (valid_to is null or valid_to >= valid_from)
+);
+
+create index idx_item_unit_history_org_from
+  on public.data_layer_item_unit_history (organisation_id, valid_from);
+create index idx_item_unit_history_open
+  on public.data_layer_item_unit_history (unit_id) where valid_to is null;
+
+
+-- ---------------------------------------------------------------------
 -- 9.1 DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
 -- Personlige stjernemarkeringer på /datalager: præcis én kategori ELLER
 -- ét lager/sektion pr. række. Undergrupper gemmes ikke - frontend viser
@@ -3343,6 +3369,50 @@ $$;
 
 
 -- ---------------------------------------------------------------------
+-- 15.21d (2026-09-29): LAGERHISTORIK - trigger på data_layer_item_units
+-- Logger status-perioder i data_layer_item_unit_history (§9b) ved insert,
+-- update af status/item_id/organisation_id og delete - fanger alle flows
+-- (oprettelse, reservation, afrapportering, split, cascade-sletning).
+-- Kvantitetsændringer logges ikke (statistikken tæller enhedsrækker).
+-- ---------------------------------------------------------------------
+create or replace function public.record_item_unit_history()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+begin
+  if tg_op = 'UPDATE'
+     and new.status is not distinct from old.status
+     and new.item_id is not distinct from old.item_id
+     and new.organisation_id is not distinct from old.organisation_id then
+    return new;
+  end if;
+
+  if tg_op in ('UPDATE', 'DELETE') then
+    update public.data_layer_item_unit_history
+    set valid_to = now()
+    where unit_id = old.id and valid_to is null;
+  end if;
+
+  if tg_op in ('INSERT', 'UPDATE') then
+    insert into public.data_layer_item_unit_history (organisation_id, unit_id, item_id, status, valid_from)
+    values (new.organisation_id, new.id, new.item_id, new.status, now());
+  end if;
+
+  return coalesce(new, old);
+end;
+$$;
+
+revoke execute on function public.record_item_unit_history() from public, anon, authenticated;
+
+create trigger trg_record_item_unit_history
+  after insert or update of status, item_id, organisation_id or delete
+  on public.data_layer_item_units
+  for each row execute function public.record_item_unit_history();
+
+
+-- ---------------------------------------------------------------------
 -- 15.22 (2026-09-25): ROLLE-BEGRÆNSEDE OPGAVERUM
 -- can_access_task_room: true hvis rummet er null, kalderen har
 -- view_all_task_rooms/admin, rummet ingen roller har, eller kalderens
@@ -4863,29 +4933,122 @@ create policy "Notifikationer kun i aktiv organisation (slet)"
 -- docs/statistik-plan.md; docs/seed/FACIT.md har forventede værdier.
 -- Privilegier: read_statistics / create_statistics / delete_statistics
 -- (fri tekst i privileges, ingen backfill - kun admin som standard).
--- Policies: §16.8. Kørt og verificeret mod FACIT 2026-09-29.
+-- Policies: §16.8. Kørt og verificeret mod FACIT 2026-09-29. Udvidet
+-- 2026-09-29/30 med lagerhistorik (§9b/§15.21d), rum-filter (US-55),
+-- KPI-trend, til tiden/gennemløbstid, rum-oversigt og "lige nu" - kørt og
+-- verificeret mod FACIT 2026-09-30.
+-- ---------------------------------------------------------------------
+-- 15.26d statistics_on_time + 15.26e statistics_kpis - interne hjælpere
+-- (2026-09-30). Står før 15.26a, som bruger dem (sql-funktioner valideres
+-- ved oprettelse).
+--   statistics_on_time: finished_at <= end_date; en slutdato kl. 00:00 UTC
+--     (dato uden klokkeslæt fra opgave-formularen) gælder hele dagen.
+--   statistics_kpis: nøgletallene for [p_s, p_e), valgfrit ét rum. Kaldes
+--     for perioden og for perioden lige før af samme længde (trend).
+-- ---------------------------------------------------------------------
+create or replace function public.statistics_on_time(p_finished timestamptz, p_end timestamptz)
+returns boolean
+language sql
+immutable
+set search_path to 'public'
+as $$
+  select p_finished <= case
+    when (p_end at time zone 'UTC')::time = '00:00' then p_end + interval '1 day'
+    else p_end
+  end;
+$$;
+
+revoke execute on function public.statistics_on_time(timestamptz, timestamptz) from public, anon, authenticated;
+
+
+create or replace function public.statistics_kpis(
+  p_org uuid,
+  p_room_id uuid,
+  p_s timestamptz,
+  p_e timestamptz
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path to 'public'
+as $$
+  with t as (
+    select * from public.tasks where organisation_id = p_org and (p_room_id is null or room_id = p_room_id)
+  ),
+  relevant as (
+    select id from t
+    where (created_at >= p_s and created_at < p_e)
+       or (coalesce(start_date, created_at) < p_e
+           and (status = 'InProgress' or (status = 'Completed' and finished_at >= p_s)))
+  ),
+  active_members as (
+    select distinct ta.user_id
+    from public.task_assignees ta
+    join relevant r on r.id = ta.task_id
+    join public.memberships m on m.user_id = ta.user_id and m.organisation_id = p_org
+  ),
+  done as (
+    select
+      count(*) as n,
+      count(*) filter (where end_date is not null) as with_deadline,
+      count(*) filter (where end_date is not null and public.statistics_on_time(finished_at, end_date)) as on_time,
+      percentile_cont(0.5) within group (order by extract(epoch from finished_at - created_at)) as median_lead_seconds
+    from t
+    where status = 'Completed' and finished_at >= p_s and finished_at < p_e
+  )
+  select jsonb_build_object(
+    'created',   (select count(*) from t where created_at >= p_s and created_at < p_e),
+    'completed', d.n,
+    'active',    (select count(*) from t
+                  where coalesce(start_date, created_at) < p_e
+                    and (status = 'InProgress' or (status = 'Completed' and finished_at >= p_s))),
+    'overdue',   (select count(*) from t
+                  where status <> 'Completed' and end_date < now()
+                    and end_date >= p_s and end_date < p_e),
+    'members',   (select count(*) from public.memberships where organisation_id = p_org),
+    'membersWithTaskActivity', (select count(*) from active_members),
+    'completedWithDeadline', d.with_deadline,
+    'completedOnTime', d.on_time,
+    'onTimeRate', case when d.with_deadline > 0 then round(d.on_time::numeric * 100 / d.with_deadline, 1) end,
+    'medianLeadDays', case when d.median_lead_seconds is not null
+                           then round((d.median_lead_seconds / 86400)::numeric, 1) end
+  )
+  from done d;
+$$;
+
+revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, timestamptz) from public, anon, authenticated;
+
+
 -- ---------------------------------------------------------------------
 -- 15.26a statistics_payload - selve beregningen (intern)
 --
 -- p_start/p_end: [p_start, p_end), null = ubegrænset ("Alt").
--- p_granularity: 'hour' | 'day' | 'week' | 'month' (tidsseriens buckets).
+-- p_granularity: 'hour' | 'day' | 'week' | 'month' | 'quarter' (buckets).
 -- p_tz: IANA-tidszone (fx 'Europe/Copenhagen'), bruges til bucket-grænser.
+-- p_room_id: US-55 rum-filter (null = alle). Filtrerer alle opgave-afledte
+--   tal; lager (byStatus, byCategory) er altid hele organisationen.
 --
--- Definitioner:
---   created   = created_at i perioden
---   completed = status Completed og finished_at i perioden
---   active    = var i gang i perioden: coalesce(start_date, created_at) < slut
---               og (InProgress eller Completed med finished_at >= start).
---               Der findes intet started_at - start_date er en tilnærmelse.
---   overdue   = ikke Completed, end_date < now() og end_date i perioden
---   relevante opgaver (team) = oprettet i perioden ELLER aktive i perioden
---   members   = memberships i org'en (uafhængig af periode)
---   membersWithTaskActivity = medlemmer tildelt >= 1 relevant opgave
+-- Definitioner (se også docs/statistik-plan.md):
+--   kpis (15.26e): created = created_at i perioden; completed = Completed
+--     og finished_at i perioden; active = coalesce(start_date, created_at)
+--     < slut og (InProgress eller Completed med finished_at >= start);
+--     overdue = ikke Completed, end_date < now() og i perioden;
+--     membersWithTaskActivity = medlemmer tildelt >= 1 relevant opgave
+--     (oprettet eller aktiv i perioden); completedOnTime/-WithDeadline/
+--     onTimeRate (15.26d); medianLeadDays = median finished_at - created_at.
+--   previousKpis = kpis for perioden lige før (samme længde); null ved "Alt"
+--   taskRooms  = kpi-definitionerne pr. rum, alle org'ens rum (også 0)
 --   memberLoad = antal medlemmer pr. interval af relevante opgaver
---   approvals  = task_requests med requested_at i perioden (anmodninger,
---                ikke opgaver - en opgave kan afvises og så godkendes)
---   materials.byStatus = antal enhedsrækker pr. status, nutid (ingen
---                summering af quantity - den blander stk/kg/meter)
+--   approvals  = task_requests med requested_at i perioden
+--   attention  = "lige nu" (ikke periode): åbne forfaldne pr. prioritet,
+--                åbne uden ansvarlige (følger rum), lager-advarsler og
+--                varer uden ledige enheder (hele org)
+--   materials.byStatus = enhedsrækker pr. status ved min(slut, nu) fra
+--                lagerhistorikken §9b; null før historikkens start
+--   materials.usedByCategory = forskellige varer brugt på opgaver oprettet
+--                i perioden, pr. hovedkategori
+--   rooms      = alle org'ens rum til filteret
 --
 -- SECURITY DEFINER og derfor UDEN RLS - hver forespørgsel filtrerer selv
 -- på p_org. Må derfor ikke kunne kaldes direkte (se revoke nedenfor).
@@ -4895,7 +5058,8 @@ create or replace function public.statistics_payload(
   p_start timestamptz,
   p_end timestamptz,
   p_granularity text,
-  p_tz text
+  p_tz text,
+  p_room_id uuid default null
 )
 returns jsonb
 language plpgsql
@@ -4910,6 +5074,8 @@ declare
   v_from timestamp;
   v_to timestamp;
   v_kpis jsonb;
+  v_previous_kpis jsonb;
+  v_rooms jsonb;
   v_task_status jsonb;
   v_task_priority jsonb;
   v_task_rooms jsonb;
@@ -4917,8 +5083,12 @@ declare
   v_development jsonb := '[]'::jsonb;
   v_approvals jsonb;
   v_by_status jsonb;
+  v_status_as_of timestamptz := least(coalesce(p_end, now()), now());
+  v_history_start timestamptz;
   v_by_category jsonb;
+  v_used_by_category jsonb;
   v_top_used jsonb;
+  v_attention jsonb;
 begin
   if p_granularity not in ('hour', 'day', 'week', 'month', 'quarter') then
     raise exception 'Ugyldig granularitet: %', p_granularity using hint = 'INVALID_GRANULARITY';
@@ -4931,34 +5101,12 @@ begin
   v_step := case when p_granularity = 'quarter' then interval '3 months'
                  else ('1 ' || p_granularity)::interval end;
 
-  -- KPI'er ------------------------------------------------------------
-  with t as (
-    select * from public.tasks where organisation_id = p_org
-  ),
-  relevant as (
-    select id from t
-    where (created_at >= v_s and created_at < v_e)
-       or (coalesce(start_date, created_at) < v_e
-           and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s)))
-  ),
-  active_members as (
-    select distinct ta.user_id
-    from public.task_assignees ta
-    join relevant r on r.id = ta.task_id
-    join public.memberships m on m.user_id = ta.user_id and m.organisation_id = p_org
-  )
-  select jsonb_build_object(
-    'created',   (select count(*) from t where created_at >= v_s and created_at < v_e),
-    'completed', (select count(*) from t where status = 'Completed' and finished_at >= v_s and finished_at < v_e),
-    'active',    (select count(*) from t
-                  where coalesce(start_date, created_at) < v_e
-                    and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s))),
-    'overdue',   (select count(*) from t
-                  where status <> 'Completed' and end_date < now()
-                    and end_date >= v_s and end_date < v_e),
-    'members',   (select count(*) from public.memberships where organisation_id = p_org),
-    'membersWithTaskActivity', (select count(*) from active_members)
-  ) into v_kpis;
+  -- KPI'er (statistics_kpis) + samme længde lige før, til trend. "Alt"
+  -- har ingen forrige periode.
+  v_kpis := public.statistics_kpis(p_org, p_room_id, v_s, v_e);
+  if p_start is not null and p_end is not null then
+    v_previous_kpis := public.statistics_kpis(p_org, p_room_id, p_start - (p_end - p_start), p_start);
+  end if;
 
   -- Status for opgaver oprettet i perioden (alle enum-værdier, også 0) -
   select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
@@ -4968,6 +5116,7 @@ begin
     select status, count(*) as n
     from public.tasks
     where organisation_id = p_org and created_at >= v_s and created_at < v_e
+      and (p_room_id is null or room_id = p_room_id)
     group by status
   ) c on c.status = s.status;
 
@@ -4983,50 +5132,67 @@ begin
     select priority, count(*) as n
     from public.tasks
     where organisation_id = p_org and created_at >= v_s and created_at < v_e
+      and (p_room_id is null or room_id = p_room_id)
     group by priority
   ) c on c.priority is not distinct from p.priority
   where p.priority is not null or coalesce(c.n, 0) > 0;
 
-  -- Rum: ALLE org'ens rum, også rolle-låste og dem uden opgaver i
-  -- perioden (0 - så et snapshot viser 0 og ikke "mangler"). "Uden rum"
-  -- kun når der er opgaver uden rum.
-  select coalesce(jsonb_agg(x order by (x->>'total')::int desc, x->>'name'), '[]'::jsonb)
-  into v_task_rooms
-  from (
-    select jsonb_build_object(
-      'roomId', r.id,
-      'name', r.name,
-      'total', count(t.id),
-      'completed', count(t.id) filter (where t.status = 'Completed'),
-      'open', count(t.id) filter (where t.status <> 'Completed')
-    ) as x
+  -- Rum-oversigt: samme definitioner som KPI'erne (statistics_kpis), pr.
+  -- rum. ALLE org'ens rum, også rolle-låste og dem uden opgaver (0 - så et
+  -- snapshot viser 0 og ikke "mangler"). "Uden rum" kun når der er noget.
+  -- total = oprettede (navnet bevaret for snapshots' room:*).
+  with t as (
+    select room_id,
+      (created_at >= v_s and created_at < v_e) as is_created,
+      (status = 'Completed' and finished_at >= v_s and finished_at < v_e) as is_done,
+      (status <> 'Completed' and end_date < now() and end_date >= v_s and end_date < v_e) as is_overdue,
+      (end_date is not null) as has_deadline,
+      (end_date is not null and public.statistics_on_time(finished_at, end_date)) as on_time
+    from public.tasks
+    where organisation_id = p_org
+  ),
+  agg as (
+    select r.id as room_id, r.name,
+      count(*) filter (where t.is_created) as total,
+      count(*) filter (where t.is_done) as completed,
+      count(*) filter (where t.is_overdue) as overdue,
+      count(*) filter (where t.is_done and t.has_deadline) as with_deadline,
+      count(*) filter (where t.is_done and t.on_time) as on_time
     from public.task_rooms r
-    left join public.tasks t
-      on t.room_id = r.id
-     and t.organisation_id = p_org
-     and t.created_at >= v_s and t.created_at < v_e
+    left join t on t.room_id = r.id
     where r.organisation_id = p_org
     group by r.id, r.name
 
     union all
 
-    select jsonb_build_object(
-      'roomId', null,
-      'name', null,
-      'total', count(*),
-      'completed', count(*) filter (where status = 'Completed'),
-      'open', count(*) filter (where status <> 'Completed')
-    )
-    from public.tasks
-    where organisation_id = p_org and room_id is null
-      and created_at >= v_s and created_at < v_e
-    having count(*) > 0
-  ) rooms;
+    select null, null,
+      count(*) filter (where is_created),
+      count(*) filter (where is_done),
+      count(*) filter (where is_overdue),
+      count(*) filter (where is_done and has_deadline),
+      count(*) filter (where is_done and on_time)
+    from t
+    where room_id is null
+    having count(*) filter (where is_created or is_done or is_overdue) > 0
+  )
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'roomId', room_id,
+           'name', name,
+           'total', total,
+           'completed', completed,
+           'overdue', overdue,
+           'completedWithDeadline', with_deadline,
+           'completedOnTime', on_time,
+           'onTimeRate', case when with_deadline > 0 then round(on_time::numeric * 100 / with_deadline, 1) end
+         ) order by total desc, name), '[]'::jsonb)
+  into v_task_rooms
+  from agg;
 
   -- Anonym belastning: medlemmer pr. interval af relevante opgaver -----
   with relevant as (
     select id from public.tasks
     where organisation_id = p_org
+      and (p_room_id is null or room_id = p_room_id)
       and ((created_at >= v_s and created_at < v_e)
         or (coalesce(start_date, created_at) < v_e
             and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s))))
@@ -5057,7 +5223,7 @@ begin
     select date_trunc(p_granularity, min(least(created_at, coalesce(finished_at, created_at))) at time zone p_tz)
     into v_from
     from public.tasks
-    where organisation_id = p_org;
+    where organisation_id = p_org and (p_room_id is null or room_id = p_room_id);
 
     v_to := date_trunc(p_granularity, coalesce(p_end, now()) at time zone p_tz);
 
@@ -5078,12 +5244,14 @@ begin
       select date_trunc(p_granularity, created_at at time zone p_tz) as b, count(*) as n
       from public.tasks
       where organisation_id = p_org and created_at >= v_s and created_at < v_e
+        and (p_room_id is null or room_id = p_room_id)
       group by 1
     ) c on c.b = g.b
     left join (
       select date_trunc(p_granularity, finished_at at time zone p_tz) as b, count(*) as n
       from public.tasks
       where organisation_id = p_org and status = 'Completed'
+        and (p_room_id is null or room_id = p_room_id)
         and finished_at >= v_s and finished_at < v_e
       group by 1
     ) f on f.b = g.b;
@@ -5096,6 +5264,7 @@ begin
     join public.tasks t on t.id = tr.task_id
     where t.organisation_id = p_org
       and tr.requested_at >= v_s and tr.requested_at < v_e
+      and (p_room_id is null or t.room_id = p_room_id)
   ),
   agg as (
     select
@@ -5119,16 +5288,26 @@ begin
   ) into v_approvals
   from agg;
 
-  -- Materialer: enhedsrækker pr. status (nutid, alle statusser) --------
-  select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
-  into v_by_status
-  from unnest(enum_range(null::public.e_item_status)) with ordinality as s(status, ord)
-  left join (
-    select status, count(*) as n
-    from public.data_layer_item_units
-    where organisation_id = p_org
-    group by status
-  ) c on c.status = s.status;
+  -- Materialer: enhedsrækker pr. status VED PERIODENS SLUTNING (eller nu),
+  -- fra lagerhistorikken (§9b). Ligger tidspunktet før org'ens første
+  -- historik-række, er lageret ukendt -> null (frontend viser "–").
+  select min(valid_from) into v_history_start
+  from public.data_layer_item_unit_history
+  where organisation_id = p_org;
+
+  if v_history_start is null or v_status_as_of >= v_history_start then
+    select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
+    into v_by_status
+    from unnest(enum_range(null::public.e_item_status)) with ordinality as s(status, ord)
+    left join (
+      select status, count(*) as n
+      from public.data_layer_item_unit_history
+      where organisation_id = p_org
+        and valid_from <= v_status_as_of
+        and (valid_to is null or valid_to > v_status_as_of)
+      group by status
+    ) c on c.status = s.status;
+  end if;
 
   -- Materialer: items pr. topkategori (nutid) ---------------------------
   with recursive tree as (
@@ -5153,6 +5332,40 @@ begin
     group by root.id, root.title, root.rank
   ) x;
 
+  -- Materialer: forskellige varer brugt på opgaver oprettet i perioden,
+  -- pr. topkategori (alle topkategorier, også 0). Kan beregnes bagud -
+  -- modsat varer pr. kategori, som kun kendes nu.
+  with recursive tree as (
+    select id, id as root_id
+    from public.data_layer_categories
+    where organisation_id = p_org and parent_category_id is null
+    union all
+    select c.id, tree.root_id
+    from public.data_layer_categories c
+    join tree on c.parent_category_id = tree.id
+    where c.organisation_id = p_org
+  ),
+  used as (
+    select distinct tm.item_id
+    from public.task_materials tm
+    join public.tasks t on t.id = tm.task_id
+    where t.organisation_id = p_org
+      and t.created_at >= v_s and t.created_at < v_e
+      and (p_room_id is null or t.room_id = p_room_id)
+  )
+  select coalesce(jsonb_agg(jsonb_build_object('categoryId', x.id, 'title', x.title, 'count', x.n)
+                            order by x.n desc, x.rank, x.title), '[]'::jsonb)
+  into v_used_by_category
+  from (
+    select root.id, root.title, root.rank, count(u.item_id) as n
+    from public.data_layer_categories root
+    left join tree on tree.root_id = root.id
+    left join public.data_layer_items i on i.category_id = tree.id and i.organisation_id = p_org
+    left join used u on u.item_id = i.id
+    where root.organisation_id = p_org and root.parent_category_id is null
+    group by root.id, root.title, root.rank
+  ) x;
+
   -- Materialer: top 5 mest brugte på opgaver oprettet i perioden -------
   select coalesce(jsonb_agg(x order by (x->>'quantity')::numeric desc, x->>'name'), '[]'::jsonb)
   into v_top_used
@@ -5168,23 +5381,79 @@ begin
     join public.data_layer_items i on i.id = tm.item_id
     where t.organisation_id = p_org
       and i.organisation_id = p_org
+      and (p_room_id is null or t.room_id = p_room_id)
       and t.created_at >= v_s and t.created_at < v_e
     group by i.id, i.name, i.unit_of_measurement
     order by sum(tm.quantity) desc, i.name
     limit 5
   ) top;
 
+  -- "Lige nu" - nutid, uafhængigt af perioden. Opgave-punkter følger
+  -- rum-filteret; lager er hele organisationen. Gemmes ikke i snapshots.
+  with open_tasks as (
+    select id, priority, end_date
+    from public.tasks
+    where organisation_id = p_org and status <> 'Completed'
+      and (p_room_id is null or room_id = p_room_id)
+  ),
+  units as (
+    select item_id, status
+    from public.data_layer_item_units
+    where organisation_id = p_org
+  )
+  select jsonb_build_object(
+    'overdueByPriority', (
+      select coalesce(jsonb_agg(jsonb_build_object('priority', p.priority, 'count', coalesce(c.n, 0)) order by p.ord), '[]'::jsonb)
+      from (
+        select priority, ord from unnest(enum_range(null::public.e_task_priority)) with ordinality as e(priority, ord)
+        union all
+        select null::public.e_task_priority, 1000
+      ) p
+      left join (
+        select priority, count(*) as n from open_tasks where end_date < now() group by priority
+      ) c on c.priority is not distinct from p.priority
+      where coalesce(c.n, 0) > 0
+    ),
+    'unassigned', (
+      select count(*) from open_tasks o
+      where not exists (select 1 from public.task_assignees ta where ta.task_id = o.id)
+    ),
+    'stockAlerts', (
+      select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
+      from unnest(array['Missing', 'Damaged', 'Maintenance', 'OutOfStock', 'NeedsEmptying', 'NeedsRefilling']::public.e_item_status[])
+           with ordinality as s(status, ord)
+      left join (select status, count(*) as n from units group by status) c on c.status = s.status
+    ),
+    'itemsWithoutAvailable', (
+      select count(*) from (
+        select item_id from units group by item_id having not bool_or(status = 'Available')
+      ) x
+    )
+  ) into v_attention;
+
+  -- Alle org'ens rum til filter-dropdown (også rolle-låste - read_statistics er betroet).
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'name', name) order by name), '[]'::jsonb)
+  into v_rooms
+  from public.task_rooms
+  where organisation_id = p_org;
+
   return jsonb_build_object(
     'kpis', v_kpis,
+    'previousKpis', v_previous_kpis,
+    'rooms', v_rooms,
     'taskStatus', v_task_status,
     'taskPriority', v_task_priority,
     'taskRooms', v_task_rooms,
     'memberLoad', v_member_load,
     'taskDevelopment', v_development,
     'approvals', v_approvals,
+    'attention', v_attention,
     'materials', jsonb_build_object(
       'byStatus', v_by_status,
+      'statusAsOf', v_status_as_of,
+      'historyStart', v_history_start,
       'byCategory', v_by_category,
+      'usedByCategory', v_used_by_category,
       'topUsed', v_top_used
     )
   );
@@ -5192,18 +5461,19 @@ end;
 $$;
 
 -- Intern: omgår RLS og tager org som parameter - må aldrig kaldes fra klienten.
-
-revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text) from public, anon, authenticated;
+revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text, uuid) from public, anon, authenticated;
 
 
 -- ---------------------------------------------------------------------
 -- 15.26b get_statistics - klientens indgang (kræver read_statistics)
+-- p_room_id skal tilhøre org'en (ROOM_NOT_FOUND).
 -- ---------------------------------------------------------------------
 create or replace function public.get_statistics(
   p_start timestamptz,
   p_end timestamptz,
   p_granularity text,
-  p_tz text
+  p_tz text,
+  p_room_id uuid default null
 )
 returns jsonb
 language plpgsql
@@ -5226,12 +5496,18 @@ begin
     raise exception 'Slutdatoen skal ligge efter startdatoen.' using hint = 'INVALID_PERIOD';
   end if;
 
-  return public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz);
+  if p_room_id is not null and not exists (
+    select 1 from public.task_rooms where id = p_room_id and organisation_id = v_org
+  ) then
+    raise exception 'Rummet findes ikke i din organisation.' using hint = 'ROOM_NOT_FOUND';
+  end if;
+
+  return public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz, p_room_id);
 end;
 $$;
 
-revoke execute on function public.get_statistics(timestamptz, timestamptz, text, text) from public, anon;
-grant  execute on function public.get_statistics(timestamptz, timestamptz, text, text) to authenticated;
+revoke execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid) from public, anon;
+grant  execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid) to authenticated;
 
 
 -- ---------------------------------------------------------------------
@@ -5247,6 +5523,11 @@ grant  execute on function public.get_statistics(timestamptz, timestamptz, text,
 -- statistics_snapshots.series_granularity. Første/sidste delperiode skæres
 -- til snapshottets periode (fx Q3 = 23.-29. sep. i et 7-dages snapshot).
 -- "Alt" (null-periode) gemmes med første opgaves dato som start og nu som slut.
+-- Snapshots gælder altid hele organisationen (intet rum-filter). item_status:*
+-- gemmes kun når lagerhistorikken rækker tilbage til periodens slut;
+-- used_category:* erstatter category:* (som kun var "nu"). Rum gemmes som
+-- room:/room_completed:/room_overdue:/room_on_time_rate:; "lige nu"
+-- (attention) gemmes ikke.
 -- ---------------------------------------------------------------------
 create or replace function public.save_statistics_snapshot(
   p_start timestamptz,
@@ -5309,6 +5590,14 @@ begin
   union all select v_id, 'tasks_overdue', (v_payload->'kpis'->>'overdue')::numeric
   union all select v_id, 'members', (v_payload->'kpis'->>'members')::numeric
   union all select v_id, 'members_with_task_activity', (v_payload->'kpis'->>'membersWithTaskActivity')::numeric
+  union all select v_id, 'tasks_completed_with_deadline', (v_payload->'kpis'->>'completedWithDeadline')::numeric
+  union all select v_id, 'tasks_completed_on_time', (v_payload->'kpis'->>'completedOnTime')::numeric
+  union all
+  select v_id, 'tasks_on_time_rate', (v_payload->'kpis'->>'onTimeRate')::numeric
+  where v_payload->'kpis'->>'onTimeRate' is not null
+  union all
+  select v_id, 'tasks_median_lead_days', (v_payload->'kpis'->>'medianLeadDays')::numeric
+  where v_payload->'kpis'->>'medianLeadDays' is not null
   -- Fordelinger
   union all
   select v_id, 'task_status:' || (x->>'status'), (x->>'count')::numeric
@@ -5319,6 +5608,16 @@ begin
   union all
   select v_id, 'room:' || coalesce(x->>'name', ''), (x->>'total')::numeric
   from jsonb_array_elements(v_payload->'taskRooms') x
+  union all
+  select v_id, 'room_completed:' || coalesce(x->>'name', ''), (x->>'completed')::numeric
+  from jsonb_array_elements(v_payload->'taskRooms') x
+  union all
+  select v_id, 'room_overdue:' || coalesce(x->>'name', ''), (x->>'overdue')::numeric
+  from jsonb_array_elements(v_payload->'taskRooms') x
+  union all
+  select v_id, 'room_on_time_rate:' || coalesce(x->>'name', ''), (x->>'onTimeRate')::numeric
+  from jsonb_array_elements(v_payload->'taskRooms') x
+  where x->>'onTimeRate' is not null
   union all
   select v_id, 'member_load:' || (x->>'bucket'), (x->>'count')::numeric
   from jsonb_array_elements(v_payload->'memberLoad') x
@@ -5334,11 +5633,15 @@ begin
   where v_payload->'approvals'->>'medianHours' is not null
   -- Materialer
   union all
+  -- Lager ved periodens slutning - udelades når historikken ikke rækker
+  -- så langt tilbage (byStatus = null).
   select v_id, 'item_status:' || (x->>'status'), (x->>'count')::numeric
-  from jsonb_array_elements(v_payload->'materials'->'byStatus') x
+  from jsonb_array_elements(coalesce(nullif(v_payload->'materials'->'byStatus', 'null'::jsonb), '[]'::jsonb)) x
   union all
-  select v_id, 'category:' || (x->>'title'), (x->>'count')::numeric
-  from jsonb_array_elements(v_payload->'materials'->'byCategory') x
+  -- Brugte varer pr. kategori i perioden (erstatter category:*, som kun
+  -- var "nu" og derfor ens i alle snapshots).
+  select v_id, 'used_category:' || (x->>'title'), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'materials'->'usedByCategory') x
   union all
   select v_id, 'top_material:' || (x->>'name'), (x->>'quantity')::numeric
   from jsonb_array_elements(v_payload->'materials'->'topUsed') x;
@@ -5384,6 +5687,7 @@ alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.data_layer_item_units   enable row level security;
+alter table public.data_layer_item_unit_history enable row level security;
 alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
@@ -5800,6 +6104,20 @@ create policy "Slet egne datalager-favoritter"
     user_id = auth.uid()
     and organisation_id = public.auth_profile_org()
     and public.has_privilege_or_admin('read_datalayer')
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.6d DATA LAYER ITEM UNIT HISTORY (2026-09-29)
+-- Kun læsning, med read_datalayer eller read_statistics. Ingen skrive-
+-- policies - kun triggeren §15.21d (security definer) skriver.
+-- ---------------------------------------------------------------------
+create policy "Se lagerhistorik i egen organisation"
+  on public.data_layer_item_unit_history for select
+  to authenticated
+  using (
+    organisation_id = public.auth_profile_org()
+    and (public.has_privilege_or_admin('read_datalayer') or public.has_privilege_or_admin('read_statistics'))
   );
 
 

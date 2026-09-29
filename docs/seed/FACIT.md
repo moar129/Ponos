@@ -160,7 +160,7 @@ Linkede materialer: #48 (30 Byggehegn 3,5 m); #49 (4 LED-spot 200 W); #52 (250 A
 
 ## Statistiksiden pr. periode (get_statistics)
 
-Samme definitioner som `statistics_payload` (docs/migrations/2026-09-29-statistics.sql):
+Samme definitioner som `statistics_payload` (docs/dbSchema.sql §15.26):
 rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
 mest brugte = opgaver **oprettet** i perioden. *I gang* = `coalesce(start_date, created_at)`
 før periodens slut og (InProgress eller Completed med `finished_at` ≥ start). *Relevante*
@@ -171,6 +171,8 @@ anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
 |---|---|---|---|---|---|---|
 | Oprettede | 3 | 7 | 16 | 27 | 46 | 70 |
 | Færdige | 1 | 2 | 5 | 12 | 28 | 49 |
+| Færdige til tiden | 100 % (1 af 1) | 50 % (1 af 2) | 60 % (3 af 5) | 66.7 % (8 af 12) | 82.1 % (23 af 28) | 87.8 % (43 af 49) |
+| Median gennemløbstid (dage) | 6.1 | 14.2 | 16.3 | 17.9 | 30.8 | 37.1 |
 | I gang | 12 | 13 | 16 | 23 | 39 | 60 |
 | Forfaldne | 0 | 1 | 5 | 5 | 7 | 8 |
 | Med opgaveaktivitet | 13 | 14 | 16 | 18 | 18 | 18 |
@@ -198,6 +200,83 @@ anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
 | Anmodninger: Rejected | 0 | 1 | 3 | 4 | 6 | 6 |
 | Godkendelsesrate | – | 50 % | 40 % | 60 % | 72.7 % | 82.4 % |
 | Median behandlingstid (t) | – | 2.5 | 3 | 3 | 3 | 3 |
+| Brugte varer: Scene & Teknik | 2 | 2 | 2 | 3 | 3 | 3 |
+| Brugte varer: Hegn & Afspærring | 0 | 0 | 0 | 1 | 1 | 1 |
+| Brugte varer: Telte & Møbler | 0 | 0 | 1 | 1 | 1 | 1 |
+| Brugte varer: Sanitet | 0 | 0 | 0 | 0 | 0 | 0 |
+| Brugte varer: Affald & Genbrug | 0 | 0 | 1 | 1 | 1 | 1 |
+| Brugte varer: Sikkerhed | 0 | 0 | 2 | 2 | 2 | 2 |
+| Brugte varer: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 |
+| Brugte varer: Frivilligudstyr | 0 | 0 | 0 | 0 | 0 | 0 |
+| Enheder ved periodens slut: Available | 736 | 736 | 736 | 736 | 736 | 736 |
+| Enheder ved periodens slut: Damaged | 29 | 29 | 29 | 29 | 29 | 29 |
+| Enheder ved periodens slut: InUse | 25 | 25 | 25 | 25 | 25 | 25 |
+| Enheder ved periodens slut: Maintenance | 21 | 21 | 21 | 21 | 21 | 21 |
+| Enheder ved periodens slut: Missing | 16 | 16 | 16 | 16 | 16 | 16 |
+| Enheder ved periodens slut: NeedsEmptying | 3 | 3 | 3 | 3 | 3 | 3 |
+| Enheder ved periodens slut: NeedsRefilling | 3 | 3 | 3 | 3 | 3 | 3 |
+| Enheder ved periodens slut: OutOfStock | 1 | 1 | 1 | 1 | 1 | 1 |
+| Enheder ved periodens slut: Reserved | 3 | 3 | 3 | 3 | 3 | 3 |
+
+Enheder ved periodens slut = status på `min(periodens slut, nu)` fra lagerhistorikken. Rullende perioder
+slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fortid efter 06's historik-fixup):
+
+| Status | 31/12-2024 | 31/12-2025 |
+|---|---|---|
+| Available | 173 | 556 |
+| Damaged | 5 | 24 |
+| InUse | 0 | 3 |
+| Maintenance | 3 | 11 |
+| Missing | 3 | 11 |
+| NeedsEmptying | 0 | 3 |
+| NeedsRefilling | 2 | 3 |
+| OutOfStock | 0 | 0 |
+| Reserved | 0 | 0 |
+
+KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
+↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
+7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
+Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
+
+| Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) |
+|---|---|---|---|---|---|
+| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 |
+| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 |
+
+Til tiden = færdige med `finished_at <= end_date` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
+dagen). Gennemløbstid = median `finished_at − created_at` for færdige i perioden. Trend: Til tiden i procentpoint
+(↑ grøn), gennemløbstid ↓ grøn.
+
+Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
+
+### Rum-oversigt ("Alt")
+
+Samme definitioner som nøgletallene, pr. rum. Sorteres på siden efter forfaldne.
+
+| Rum | Oprettede | Færdige | Forfaldne | Til tiden |
+|---|---|---|---|---|
+| Planlægning | 12 | 8 | 1 | 100 % (8 af 8) |
+| Opbygning | 7 | 6 | 0 | 100 % (6 af 6) |
+| Scener & Teknik | 11 | 7 | 2 | 85.7 % (6 af 7) |
+| Affald & Genbrug | 8 | 6 | 1 | 66.7 % (4 af 6) |
+| Sanitet | 5 | 3 | 0 | 100 % (3 af 3) |
+| Sikkerhed | 8 | 5 | 1 | 100 % (5 af 5) |
+| Frivillige | 7 | 6 | 0 | 100 % (6 af 6) |
+| Nedtagning | 12 | 8 | 3 | 62.5 % (5 af 8) |
+
+### Lige nu (pr. 29/9, uafhængigt af periode)
+
+| Udsagn | Værdi |
+|---|---|
+| Forfaldne åbne opgaver | 8 (High: 2, Medium: 3, Low: 3) |
+| Åbne opgaver uden ansvarlige | 3 |
+| Enheder Missing | 16 |
+| Enheder Damaged | 29 |
+| Enheder Maintenance | 21 |
+| Enheder OutOfStock | 1 |
+| Enheder NeedsEmptying | 3 |
+| Enheder NeedsRefilling | 3 |
+| Varer uden ledige enheder | 1 (Solcreme 1 l) |
 
 Mest brugte materialer (top 5):
 

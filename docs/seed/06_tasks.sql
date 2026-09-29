@@ -355,7 +355,7 @@ begin
 
   -- #36 Opstil affalds- og pantstationer
   insert into public.tasks (organisation_id, title, description, start_date, end_date, status, room_id, priority, max_assignees, created_at, finished_at, requires_approval)
-  values (v_org, 'Opstil affalds- og pantstationer', null, '2026-06-17 07:00 Europe/Copenhagen'::timestamptz, '2026-06-25 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Affald & Genbrug'), 'Medium', null, '2026-05-11 09:00 Europe/Copenhagen'::timestamptz, '2026-06-24 15:00 Europe/Copenhagen'::timestamptz, true)
+  values (v_org, 'Opstil affalds- og pantstationer', null, '2026-06-17 07:00 Europe/Copenhagen'::timestamptz, '2026-06-20 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Affald & Genbrug'), 'Medium', null, '2026-05-11 09:00 Europe/Copenhagen'::timestamptz, '2026-06-24 15:00 Europe/Copenhagen'::timestamptz, true)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'sara.oestergaard@ponos-mock.test'), (select id from public.profiles where email = 'line.vestergaard@ponos-mock.test'), '2026-05-12 09:00 Europe/Copenhagen'::timestamptz);
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'oliver.juhl@ponos-mock.test'), (select id from public.profiles where email = 'line.vestergaard@ponos-mock.test'), '2026-05-12 09:00 Europe/Copenhagen'::timestamptz);
@@ -400,7 +400,7 @@ begin
 
   -- #42 Nedtag Orange Scene
   insert into public.tasks (organisation_id, title, description, start_date, end_date, status, room_id, priority, max_assignees, created_at, finished_at, requires_approval)
-  values (v_org, 'Nedtag Orange Scene', null, '2026-07-05 07:00 Europe/Copenhagen'::timestamptz, '2026-07-24 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Nedtagning'), 'High', null, '2026-06-29 09:00 Europe/Copenhagen'::timestamptz, '2026-07-23 16:00 Europe/Copenhagen'::timestamptz, true)
+  values (v_org, 'Nedtag Orange Scene', null, '2026-07-05 07:00 Europe/Copenhagen'::timestamptz, '2026-07-20 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Nedtagning'), 'High', null, '2026-06-29 09:00 Europe/Copenhagen'::timestamptz, '2026-07-23 16:00 Europe/Copenhagen'::timestamptz, true)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'camilla.thorsen@ponos-mock.test'), (select id from public.profiles where email = 'rasmus.kristensen@ponos-mock.test'), '2026-06-30 09:00 Europe/Copenhagen'::timestamptz);
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'mikkel.brandt@ponos-mock.test'), (select id from public.profiles where email = 'rasmus.kristensen@ponos-mock.test'), '2026-06-30 09:00 Europe/Copenhagen'::timestamptz);
@@ -427,7 +427,7 @@ begin
 
   -- #45 Lageroptælling efter RF26
   insert into public.tasks (organisation_id, title, description, start_date, end_date, status, room_id, priority, max_assignees, created_at, finished_at, requires_approval)
-  values (v_org, 'Lageroptælling efter RF26', null, '2026-07-20 08:00 Europe/Copenhagen'::timestamptz, '2026-08-14 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Nedtagning'), 'Medium', null, '2026-07-13 09:00 Europe/Copenhagen'::timestamptz, '2026-08-12 14:00 Europe/Copenhagen'::timestamptz, true)
+  values (v_org, 'Lageroptælling efter RF26', null, '2026-07-20 08:00 Europe/Copenhagen'::timestamptz, '2026-08-07 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Nedtagning'), 'Medium', null, '2026-07-13 09:00 Europe/Copenhagen'::timestamptz, '2026-08-12 14:00 Europe/Copenhagen'::timestamptz, true)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'henrik.dahl@ponos-mock.test'), (select id from public.profiles where email = 'rasmus.kristensen@ponos-mock.test'), '2026-07-14 09:00 Europe/Copenhagen'::timestamptz);
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'emma.nielsen@ponos-mock.test'), (select id from public.profiles where email = 'rasmus.kristensen@ponos-mock.test'), '2026-07-14 09:00 Europe/Copenhagen'::timestamptz);
@@ -668,7 +668,7 @@ begin
 
   -- #68 Afregning med affaldsleverandør
   insert into public.tasks (organisation_id, title, description, start_date, end_date, status, room_id, priority, max_assignees, created_at, finished_at, requires_approval)
-  values (v_org, 'Afregning med affaldsleverandør', null, '2026-09-07 08:00 Europe/Copenhagen'::timestamptz, '2026-09-25 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Affald & Genbrug'), 'Medium', null, '2026-08-28 09:00 Europe/Copenhagen'::timestamptz, '2026-09-17 13:00 Europe/Copenhagen'::timestamptz, true)
+  values (v_org, 'Afregning med affaldsleverandør', null, '2026-09-07 08:00 Europe/Copenhagen'::timestamptz, '2026-09-15 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Affald & Genbrug'), 'Medium', null, '2026-08-28 09:00 Europe/Copenhagen'::timestamptz, '2026-09-17 13:00 Europe/Copenhagen'::timestamptz, true)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'line.vestergaard@ponos-mock.test'), (select id from public.profiles where email = 'line.vestergaard@ponos-mock.test'), '2026-08-29 09:00 Europe/Copenhagen'::timestamptz);
   insert into public.task_requests (task_id, requested_by, requested_at, status, handled_by, done_at, rejection_reason)
@@ -676,7 +676,7 @@ begin
 
   -- #69 Evaluering RF26 – scener og teknik
   insert into public.tasks (organisation_id, title, description, start_date, end_date, status, room_id, priority, max_assignees, created_at, finished_at, requires_approval)
-  values (v_org, 'Evaluering RF26 – scener og teknik', null, '2026-09-07 08:00 Europe/Copenhagen'::timestamptz, '2026-09-30 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Scener & Teknik'), 'High', null, '2026-09-02 09:00 Europe/Copenhagen'::timestamptz, '2026-09-24 16:00 Europe/Copenhagen'::timestamptz, true)
+  values (v_org, 'Evaluering RF26 – scener og teknik', null, '2026-09-07 08:00 Europe/Copenhagen'::timestamptz, '2026-09-22 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Scener & Teknik'), 'High', null, '2026-09-02 09:00 Europe/Copenhagen'::timestamptz, '2026-09-24 16:00 Europe/Copenhagen'::timestamptz, true)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'camilla.thorsen@ponos-mock.test'), (select id from public.profiles where email = 'camilla.thorsen@ponos-mock.test'), '2026-09-03 09:00 Europe/Copenhagen'::timestamptz);
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'mikkel.brandt@ponos-mock.test'), (select id from public.profiles where email = 'camilla.thorsen@ponos-mock.test'), '2026-09-03 09:00 Europe/Copenhagen'::timestamptz);
@@ -688,6 +688,36 @@ begin
   values (v_org, 'Opdater kontaktliste for holdledere', null, '2026-09-28 08:00 Europe/Copenhagen'::timestamptz, '2026-10-02 16:00 Europe/Copenhagen'::timestamptz, 'Completed', (select id from public.task_rooms where organisation_id = v_org and name = 'Planlægning'), 'Low', null, '2026-09-23 09:00 Europe/Copenhagen'::timestamptz, '2026-09-29 11:00 Europe/Copenhagen'::timestamptz, false)
   returning id into v_task;
   insert into public.task_assignees (task_id, user_id, assigned_by, assigned_at) values (v_task, (select id from public.profiles where email = 'sofie.andersen@ponos-mock.test'), v_admin, '2026-09-24 09:00 Europe/Copenhagen'::timestamptz);
+
+  -- Lagerhistorik (data_layer_item_unit_history): triggeren har logget alle
+  -- enheder med tidspunktet for denne kørsel. Mockdata skal have en
+  -- realistisk fortid, så statistik for fx 2025 kan testes:
+  -- a) første række pr. enhed starter ved enhedens created_at,
+  -- b) statusskift (reserveret af en opgave) ved opgavens første
+  --    tildeling - dog tidligst enhedens oprettelse.
+  update public.data_layer_item_unit_history h
+  set valid_from = u.created_at
+  from public.data_layer_item_units u
+  where h.unit_id = u.id
+    and h.organisation_id = v_org
+    and h.id = (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = u.id);
+
+  with changed as (
+    select tmu.unit_id, greatest(min(ta.assigned_at), min(u.created_at)) as changed_at
+    from public.task_material_units tmu
+    join public.task_materials tm on tm.id = tmu.task_material_id
+    join public.tasks t on t.id = tm.task_id and t.organisation_id = v_org
+    join public.task_assignees ta on ta.task_id = tm.task_id
+    join public.data_layer_item_units u on u.id = tmu.unit_id
+    group by tmu.unit_id
+  )
+  update public.data_layer_item_unit_history h
+  set valid_from = case when h.valid_to is null then c.changed_at else h.valid_from end,
+      valid_to   = case when h.valid_to is null then null else c.changed_at end
+  from changed c
+  where h.unit_id = c.unit_id
+    and (h.valid_to is not null
+         or h.id <> (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id));
 
   raise notice 'Seed 06 færdig: 70 opgaver.';
 end $$;

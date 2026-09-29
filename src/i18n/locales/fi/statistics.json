@@ -35,7 +35,14 @@
     "completed": "Valmiit tehtävät",
     "active": "Käynnissä olevat tehtävät",
     "overdue": "Myöhässä olevat tehtävät",
-    "membersWithActivity": "Tehtäväaktiiviset jäsenet"
+    "membersWithActivity": "Tehtäväaktiiviset jäsenet",
+    "trend": "{{change}} lähtötasosta {{previous}} jaksolla {{period}}",
+    "trendSame": "Sama kuin jaksolla {{period}} ({{previous}})",
+    "onTime": "Valmistuneet ajallaan",
+    "onTimeDetail": "{{onTime}}/{{total}} joilla on päättymispäivä",
+    "onTimeNone": "Ei valmistuneita tehtäviä, joilla on päättymispäivä",
+    "leadTime": "Läpimenoaika (mediaani)",
+    "leadTimeDetail": "Luonnista valmistumiseen"
   },
   "sections": {
     "tasks": "Tehtävät",
@@ -59,12 +66,15 @@
     "none": "Ei prioriteettia"
   },
   "rooms": {
-    "title": "Tehtävät huoneittain",
-    "description": "Jakson aikana luodut tehtävät huoneittain.",
+    "title": "Huoneyhteenveto",
+    "description": "Jokaisen huoneen tunnusluvut jaksolla. Napsauta huonetta nähdäksesi kaikki sen luvut.",
     "noRoom": "Ei huonetta",
     "completed": "Valmiit",
-    "open": "Avoimet",
-    "value": "{{completed}} valmista · {{open}} avointa"
+    "created": "Luodut",
+    "overdue": "Myöhässä",
+    "onTime": "Ajallaan",
+    "onTimeValue": "{{onTime}}/{{total}}",
+    "filterTo": "Näytä tilastot: {{room}}"
   },
   "memberLoad": {
     "title": "Tehtävät jäsentä kohden",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Yksiköt tilan mukaan",
-    "statusDescription": "Kaikkien rekisteröityjen yksiköiden ja erien nykyinen tila.",
     "categoryTitle": "Nimikkeet luokittain",
     "categoryDescription": "Nimikkeiden määrä kussakin pääluokassa.",
     "topTitle": "Käytetyimmät materiaalit",
-    "topDescription": "Top 5 materiaalia, jotka on liitetty jakson aikana luotuihin tehtäviin."
+    "topDescription": "Top 5 materiaalia, jotka on liitetty jakson aikana luotuihin tehtäviin.",
+    "statusDescriptionAt": "Tila jakson lopussa ({{date}}).",
+    "noHistory": "Varastohistoria alkaa {{date}} – sitä edeltävä tila on tuntematon.",
+    "usedCategoryTitle": "Käytetyt nimikkeet luokittain",
+    "usedCategoryDescription": "Jakson aikana luotuihin tehtäviin käytettyjen eri nimikkeiden määrä pääluokittain."
   },
   "snapshots": {
     "title": "Tallennetut tilannekuvat",
     "description": "Tallenna jakson luvut ja vertaa niitä aiempiin jaksoihin.",
     "save": "Tallenna tilannekuva",
     "saveTitle": "Tallenna tilannekuva",
-    "saveDescription": "Tallentaa luvut jaksolle {{period}}. Tallennettu tilannekuva ei muutu jälkikäteen.",
     "label": "Nimi (valinnainen)",
     "labelPlaceholder": "Esim. Kausi 2026",
     "saving": "Tallennetaan...",
@@ -119,12 +131,16 @@
       "kpis": "Tunnusluvut",
       "task_status": "Tehtävien tila",
       "task_priority": "Prioriteetti",
-      "room": "Tehtävät huoneittain",
+      "room": "Luodut huoneittain",
       "member_load": "Tehtävät jäsentä kohden",
       "approvals": "Hyväksynnät",
       "item_status": "Yksiköt tilan mukaan",
       "category": "Nimikkeet luokittain",
-      "top_material": "Käytetyimmät materiaalit"
+      "top_material": "Käytetyimmät materiaalit",
+      "used_category": "Käytetyt nimikkeet luokittain",
+      "room_completed": "Valmistuneet huoneittain",
+      "room_overdue": "Myöhässä huoneittain",
+      "room_on_time_rate": "Ajallaan huoneittain (%)"
     },
     "names": {
       "tasks_created": "Luodut tehtävät",
@@ -134,7 +150,11 @@
       "members": "Jäsenet",
       "members_with_task_activity": "Tehtäväaktiiviset jäsenet",
       "approvals_rate": "Hyväksyntäaste (%)",
-      "approvals_median_hours": "Käsittelyajan mediaani (tuntia)"
+      "approvals_median_hours": "Käsittelyajan mediaani (tuntia)",
+      "tasks_completed_with_deadline": "Valmistuneet, joilla päättymispäivä",
+      "tasks_completed_on_time": "Valmistuneet ajallaan",
+      "tasks_on_time_rate": "Ajallaan (%)",
+      "tasks_median_lead_days": "Läpimenoajan mediaani (päivää)"
     },
     "granularity": "Kehitys per",
     "granularityHint": "Kuinka tarkasti kehitys ajan mittaan tallennetaan – käytetään vertailuun muihin tilannekuviin.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "Tilannekuvilla on eri tarkkuus tai ne kattavat yli vuoden, joten kehitys näytetään päivämäärittäin.",
     "weekLabel": "Viikko {{week}}",
-    "partialNote": "Päivämäärät suluissa: vain se osa osajaksosta, joka osuu tilannekuvan jaksolle, on laskettu mukaan."
+    "partialNote": "Päivämäärät suluissa: vain se osa osajaksosta, joka osuu tilannekuvan jaksolle, on laskettu mukaan.",
+    "days_one": "{{count}} päivä",
+    "days_other": "{{count}} päivää",
+    "per": {
+      "week": "viikoittain",
+      "month": "kuukausittain",
+      "quarter": "neljännesvuosittain"
+    },
+    "savedOn": "tallennettu {{date}}",
+    "maxSelected": "Enintään {{max}} tilannekuvaa kerrallaan.",
+    "lengthWarning": "Tilannekuvat kattavat eripituisia jaksoja ({{lengths}}) – luvut eivät ole suoraan vertailukelpoisia.",
+    "atSaveNote": "Tilanne tallennushetkellä – ei jakson lukuja",
+    "developmentTitle": "Kehitys",
+    "showTable": "Näytä taulukkona",
+    "hideTable": "Piilota taulukko",
+    "noSeries": "Valituilla tilannekuvilla ei ole kehitystä ajan mittaan (tallennettu ennen toiminnon käyttöönottoa).",
+    "pointsSuffix": "%-yks.",
+    "saveIntro": "Valitse tallennettava jakso – yleiskatsauksesta riippumatta. Tallennettu tilannekuva ei muutu jälkikäteen.",
+    "periodLabel": "Jakso",
+    "periodType": {
+      "year": "Kalenterivuosi",
+      "quarter": "Neljännes",
+      "month": "Kuukausi",
+      "custom": "Mukautettu",
+      "view": "Kuten yleiskatsaus"
+    },
+    "year": "Vuosi",
+    "quarterLabel": "Neljännes",
+    "monthLabel": "Kuukausi",
+    "labelAuto": "Tyhjä nimi tallennetaan muodossa ”{{name}}”.",
+    "atPeriodEndNote": "Varasto jakson lopussa",
+    "wholeOrganisationNote": "Tilannekuvat tallennetaan aina koko organisaatiolle (ilman huonesuodatinta)."
+  },
+  "tabs": {
+    "overblik": "Yleiskatsaus",
+    "snapshots": "Tallenna ja vertaa"
+  },
+  "filter": {
+    "room": "Huone",
+    "allRooms": "Kaikki huoneet",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Koko organisaatio – huonesuodatin ei vaikuta."
+  },
+  "attention": {
+    "title": "Juuri nyt",
+    "description": "Nykytila – ei seuraa valittua jaksoa.",
+    "roomNote": "Tehtävät huoneessa {{room}} · koko organisaation varasto.",
+    "allClear": "Mikään ei vaadi toimia juuri nyt.",
+    "overdueTitle": "Myöhässä olevat tehtävät",
+    "unassignedTitle": "Tehtävät ilman vastuuhenkilöä",
+    "unassignedDetail": "Avoimet tehtävät, joihin kukaan ei ole ilmoittautunut.",
+    "stockTitle": "Toimia vaativa varasto",
+    "itemsWithoutAvailable": "Nimikkeet ilman vapaita yksiköitä: {{count}}",
+    "goToTasks": "Siirry tehtäviin",
+    "goToDatalayer": "Siirry datakerrokseen"
   }
 }

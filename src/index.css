@@ -39,9 +39,19 @@ html {
     --chart-good: #0CA30C;
     --chart-warning: #FAB219;
     --chart-critical: #D03B3B;
+    /* Snapshot-sammenligning: én farve pr. snapshot, fast rækkefølge
+       (dataviz-referencepaletten slot 1-4, max 4 snapshots). */
+    --chart-series-1: #2A78D6;
+    --chart-series-2: #EB6834;
+    --chart-series-3: #1BAF7A;
+    --chart-series-4: #EDA100;
 }
 
 [data-theme="dark"] {
+    --chart-series-1: #3987E5;
+    --chart-series-2: #D95926;
+    --chart-series-3: #199E70;
+    --chart-series-4: #C98500;
     --chart-surface: #1E293B;
     --chart-neutral: #94A3B8;
     --chart-grid: #334155;

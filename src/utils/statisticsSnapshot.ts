@@ -1,6 +1,8 @@
 import { asDynamic } from '../i18n/config'
 import type {
     SnapshotGranularity,
+    SnapshotPeriodChoice,
+    SnapshotViewPeriod,
     StatisticsSnapshot,
     StatisticsValue,
     StatisticsValueGroup,
@@ -15,9 +17,13 @@ export const SNAPSHOT_GROUP_ORDER: SnapshotRowGroup[] = [
     'task_status',
     'task_priority',
     'room',
+    'room_completed',
+    'room_overdue',
+    'room_on_time_rate',
     'member_load',
     'approvals',
     'item_status',
+    'used_category',
     'category',
     'top_material',
 ]
@@ -41,6 +47,9 @@ export function valueLabel(t: unknown, group: SnapshotRowGroup, key: string): st
         case 'task_priority':
             return key ? tr(`tasks:priority.${key}`) : tr('statistics:priority.none')
         case 'room':
+        case 'room_completed':
+        case 'room_overdue':
+        case 'room_on_time_rate':
             return key || tr('statistics:rooms.noRoom')
         case 'member_load':
             return tr(`statistics:memberLoad.bucket.${key}`)
@@ -248,4 +257,145 @@ export function buildDevelopmentComparison(
     }
 
     return { mode, hasPartial: all.some((point) => point.partialRange !== null), rows }
+}
+
+// ---------------------------------------------------------------------
+// Comparison helpers (US-54)
+// ---------------------------------------------------------------------
+
+export const MAX_COMPARED_SNAPSHOTS = 4
+
+/** Groups whose rows are names (rooms, categories, items): sorted by the newest snapshot. */
+export const NAMED_GROUPS: SnapshotRowGroup[] = [
+    'room',
+    'room_completed',
+    'room_overdue',
+    'room_on_time_rate',
+    'category',
+    'used_category',
+    'top_material',
+]
+
+/**
+ * Groups that are not "figures for the period": stock status is read at the
+ * period's end (stock history); category (older snapshots only) was the
+ * state when the snapshot was saved. Value = i18n key under statistics:snapshots.
+ */
+export const GROUP_NOTES: Partial<Record<SnapshotRowGroup, 'atPeriodEndNote' | 'atSaveNote'>> = {
+    item_status: 'atPeriodEndNote',
+    category: 'atSaveNote',
+}
+
+/** Rows measured in percent: their change is shown in percentage points. */
+const PERCENT_VALUES = new Set(['approvals_rate', 'tasks_on_time_rate'])
+const PERCENT_GROUPS = ['room_on_time_rate:']
+
+/** Length of the snapshot period in whole days (period_end is exclusive). */
+export function snapshotPeriodDays(snapshot: StatisticsSnapshot): number {
+    return Math.max(1, Math.round((Date.parse(snapshot.periodEnd) - Date.parse(snapshot.periodStart)) / DAY_MS))
+}
+
+/** Oldest period first - comparisons read left to right. */
+export function sortChronologically(snapshots: StatisticsSnapshot[]): StatisticsSnapshot[] {
+    return [...snapshots].sort((a, b) => Date.parse(a.periodStart) - Date.parse(b.periodStart))
+}
+
+/** True when the selected snapshots cover noticeably different lengths (> 10 %). */
+export function hasMixedLengths(snapshots: StatisticsSnapshot[]): boolean {
+    const days = snapshots.map(snapshotPeriodDays)
+    return days.length > 1 && Math.max(...days) > Math.min(...days) * 1.1
+}
+
+/**
+ * Change against the baseline (oldest snapshot), e.g. "+19 (+83 %)".
+ * Percent rows get percentage points ("+10 pp") instead of percent of a
+ * percent. Only the absolute change when the baseline is 0.
+ */
+export function formatDelta(
+    name: string,
+    value: number,
+    baseline: number,
+    locale: string,
+    pointsSuffix: string,
+): string {
+    const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
+    const diff = value - baseline
+    if (diff === 0) return '±0'
+
+    const sign = diff > 0 ? '+' : '−'
+    const absolute = `${sign}${number.format(Math.abs(diff))}`
+
+    if (PERCENT_VALUES.has(name) || PERCENT_GROUPS.some((prefix) => name.startsWith(prefix))) return `${absolute} ${pointsSuffix}`
+    if (baseline === 0) return absolute
+    return `${absolute} (${sign}${number.format(Math.abs((diff / baseline) * 100))} %)`
+}
+
+// ---------------------------------------------------------------------
+// Period chosen in the save dialog (independent of the overview filter)
+// ---------------------------------------------------------------------
+
+/** Date -> 'YYYY-MM-DD' (local) for <input type="date">. */
+export function toDateInputValue(date: Date | null): string {
+    if (!date) return ''
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${date.getFullYear()}-${month}-${day}`
+}
+
+/** 'YYYY-MM-DD' -> local midnight. */
+export function fromDateInputValue(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number)
+    return new Date(year, month - 1, day)
+}
+
+export interface SnapshotPeriodRange {
+    /** ISO instants; end exclusive. null = unbounded ("Alt" via "som visningen"). */
+    start: string | null
+    end: string | null
+    /** null = unbounded */
+    days: number | null
+    /** Suggested snapshot name when the name field is left empty. */
+    name: string
+}
+
+/**
+ * Turns the save dialog's period choice into the RPC's [start, end) range -
+ * same convention as useStatisticsPeriod (local midnight, end = day after).
+ * Returns null for an incomplete or reversed custom range.
+ */
+export function snapshotPeriodRange(
+    choice: SnapshotPeriodChoice,
+    view: SnapshotViewPeriod,
+    locale: string,
+): SnapshotPeriodRange | null {
+    const range = (start: Date, end: Date, name: string): SnapshotPeriodRange => ({
+        start: start.toISOString(),
+        end: end.toISOString(),
+        days: Math.round((end.getTime() - start.getTime()) / DAY_MS),
+        name,
+    })
+
+    switch (choice.type) {
+        case 'year':
+            return range(new Date(choice.year, 0, 1), new Date(choice.year + 1, 0, 1), String(choice.year))
+        case 'quarter': {
+            const month = (choice.quarter - 1) * 3
+            return range(new Date(choice.year, month, 1), new Date(choice.year, month + 3, 1), `Q${choice.quarter} ${choice.year}`)
+        }
+        case 'month': {
+            const start = new Date(choice.year, choice.month, 1)
+            const name = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(start)
+            return range(start, new Date(choice.year, choice.month + 1, 1), name)
+        }
+        case 'custom': {
+            if (!choice.from || !choice.to || choice.to < choice.from) return null
+            const from = fromDateInputValue(choice.from)
+            const to = fromDateInputValue(choice.to)
+            const short = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'numeric' })
+            const name = `${short.format(from)}–${short.format(to)} ${to.getFullYear()}`
+            return range(from, new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1), name)
+        }
+        case 'view':
+            return { start: view.start, end: view.end, days: view.days, name: view.label }
+    }
 }

@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react'
+import type { DevelopmentComparison } from '../../utils/statisticsSnapshot'
 import type {
     ApprovalStatistics,
-    SnapshotGranularity,
+    SnapshotSaveRequest,
+    SnapshotViewPeriod,
+    StatisticsAttention,
+    StatisticsRoom,
     StatisticsGranularity,
     StatisticsPeriodType,
     StatisticsSnapshot,
@@ -10,11 +14,21 @@ import type {
     TaskStatusCount,
 } from './statisticsTypes'
 
+export interface KpiTrend {
+    direction: 'up' | 'down' | 'flat'
+    /** Whether this direction is good, bad or neither for this figure. */
+    tone: 'good' | 'bad' | 'neutral'
+    /** Full sentence, e.g. "↑ 40 % vs. forrige periode". */
+    text: string
+}
+
 export interface KPICardProps {
     title: string
     value?: number | string | null
-    /** Secondary line under the value, e.g. "18 med opgaveaktivitet". */
-    subtitle?: string
+    /** Small neutral line under the value, e.g. "8 af 10 med slutdato". */
+    detail?: string
+    /** Change against the previous period (US-48 trend). */
+    trend?: KpiTrend
     icon?: ReactNode
     unit?: string
     loading?: boolean
@@ -29,6 +43,8 @@ export interface ChartCardProps {
     error?: string | null
     /** Shows the shared empty state instead of the content. */
     empty?: boolean
+    /** Replaces the default empty text, e.g. why there is no data. */
+    emptyMessage?: string
 }
 
 export interface StatisticsSectionProps {
@@ -59,8 +75,16 @@ export interface TaskDistributionChartProps {
     data: TaskStatusCount[]
 }
 
-export interface TaskRoomChartProps {
+export interface RoomScorecardProps {
     data: TaskRoomCount[]
+    /** Sets the room filter; not offered for "Uden rum". */
+    onSelectRoom: (roomId: string) => void
+}
+
+export interface AttentionPanelProps {
+    data: StatisticsAttention
+    /** Set when the room filter is active (task figures follow it, stock does not). */
+    roomName: string | null
 }
 
 export interface ApprovalChartProps {
@@ -71,6 +95,15 @@ export interface StatisticsPeriodPickerProps {
     periodType: StatisticsPeriodType
     onChangePeriod: (type: Exclude<StatisticsPeriodType, 'custom'>) => void
     onOpenCustom: () => void
+    /** Extra filters shown under the period buttons (the room filter). */
+    children?: ReactNode
+}
+
+export interface StatisticsRoomFilterProps {
+    rooms: StatisticsRoom[]
+    /** null = all rooms */
+    roomId: string | null
+    onChange: (roomId: string | null) => void
 }
 
 export interface CustomPeriodModalProps {
@@ -82,25 +115,27 @@ export interface CustomPeriodModalProps {
 }
 
 export interface SnapshotPanelProps {
-    /** Current period, used when saving a new snapshot. */
-    periodStart: string | null
-    periodEnd: string | null
-    periodLabel: string
-    /** Length of the period in days; null = "Alt". Picks the default resolution. */
-    periodDays: number | null
+    /** The overview's current period, offered as "Som visningen" when saving. */
+    viewPeriod: SnapshotViewPeriod
     timeZone: string
 }
 
 export interface SaveSnapshotModalProps {
     isOpen: boolean
-    periodLabel: string
-    defaultGranularity: SnapshotGranularity
+    viewPeriod: SnapshotViewPeriod
     isSaving: boolean
     error: string | null
-    onSave: (label: string, granularity: SnapshotGranularity) => void
+    onSave: (request: SnapshotSaveRequest) => void
     onClose: () => void
 }
 
 export interface SnapshotComparisonTableProps {
+    /** Oldest first; the first one is the baseline for the change. */
     snapshots: StatisticsSnapshot[]
+}
+
+export interface SnapshotDevelopmentChartProps {
+    comparison: DevelopmentComparison
+    /** Snapshot names in column order (oldest first). */
+    names: string[]
 }

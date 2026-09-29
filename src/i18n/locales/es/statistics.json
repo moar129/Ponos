@@ -35,7 +35,14 @@
     "completed": "Tareas completadas",
     "active": "Tareas en curso",
     "overdue": "Tareas vencidas",
-    "membersWithActivity": "Miembros con actividad en tareas"
+    "membersWithActivity": "Miembros con actividad en tareas",
+    "trend": "{{change}} desde {{previous}} en el período {{period}}",
+    "trendSame": "Igual que en el período {{period}} ({{previous}})",
+    "onTime": "Completadas a tiempo",
+    "onTimeDetail": "{{onTime}} de {{total}} con fecha de fin",
+    "onTimeNone": "No hay tareas completadas con fecha de fin",
+    "leadTime": "Tiempo de ciclo (mediana)",
+    "leadTimeDetail": "De creada a completada"
   },
   "sections": {
     "tasks": "Tareas",
@@ -59,12 +66,15 @@
     "none": "Sin prioridad"
   },
   "rooms": {
-    "title": "Tareas por sala",
-    "description": "Tareas creadas en el período, por sala.",
+    "title": "Resumen por sala",
+    "description": "Las cifras clave de cada sala en el período. Haz clic en una sala para ver todas sus cifras.",
     "noRoom": "Sin sala",
     "completed": "Completadas",
-    "open": "Abiertas",
-    "value": "{{completed}} completadas · {{open}} abiertas"
+    "created": "Creadas",
+    "overdue": "Vencidas",
+    "onTime": "A tiempo",
+    "onTimeValue": "{{onTime}} de {{total}}",
+    "filterTo": "Ver estadísticas de {{room}}"
   },
   "memberLoad": {
     "title": "Tareas por miembro",
@@ -93,18 +103,20 @@
   },
   "materials": {
     "statusTitle": "Unidades por estado",
-    "statusDescription": "Estado actual de todas las unidades y lotes registrados.",
     "categoryTitle": "Artículos por categoría",
     "categoryDescription": "Número de artículos en cada categoría principal.",
     "topTitle": "Materiales más usados",
-    "topDescription": "Los 5 materiales más vinculados a tareas creadas en el período."
+    "topDescription": "Los 5 materiales más vinculados a tareas creadas en el período.",
+    "statusDescriptionAt": "Estado al final del período ({{date}}).",
+    "noHistory": "El historial de inventario empieza el {{date}}; el estado anterior se desconoce.",
+    "usedCategoryTitle": "Artículos usados por categoría",
+    "usedCategoryDescription": "Número de artículos distintos usados en tareas creadas en el período, por categoría principal."
   },
   "snapshots": {
     "title": "Instantáneas guardadas",
     "description": "Guarda las cifras del período y compáralas con períodos anteriores.",
     "save": "Guardar instantánea",
     "saveTitle": "Guardar instantánea",
-    "saveDescription": "Guarda las cifras de {{period}}. Una instantánea guardada nunca cambia después.",
     "label": "Nombre (opcional)",
     "labelPlaceholder": "P. ej. Temporada 2026",
     "saving": "Guardando...",
@@ -121,12 +133,16 @@
       "kpis": "Indicadores clave",
       "task_status": "Estado de las tareas",
       "task_priority": "Prioridad",
-      "room": "Tareas por sala",
+      "room": "Creadas por sala",
       "member_load": "Tareas por miembro",
       "approvals": "Aprobaciones",
       "item_status": "Unidades por estado",
       "category": "Artículos por categoría",
-      "top_material": "Materiales más usados"
+      "top_material": "Materiales más usados",
+      "used_category": "Artículos usados por categoría",
+      "room_completed": "Completadas por sala",
+      "room_overdue": "Vencidas por sala",
+      "room_on_time_rate": "A tiempo por sala (%)"
     },
     "names": {
       "tasks_created": "Tareas creadas",
@@ -136,7 +152,11 @@
       "members": "Miembros",
       "members_with_task_activity": "Miembros con actividad en tareas",
       "approvals_rate": "Tasa de aprobación (%)",
-      "approvals_median_hours": "Tiempo de gestión mediano (horas)"
+      "approvals_median_hours": "Tiempo de gestión mediano (horas)",
+      "tasks_completed_with_deadline": "Completadas con fecha de fin",
+      "tasks_completed_on_time": "Completadas a tiempo",
+      "tasks_on_time_rate": "A tiempo (%)",
+      "tasks_median_lead_days": "Tiempo de ciclo mediano (días)"
     },
     "granularity": "Evolución por",
     "granularityHint": "Con qué detalle se guarda la evolución en el tiempo – sirve para comparar con otras instantáneas.",
@@ -151,6 +171,61 @@
     },
     "developmentDatesNote": "Las instantáneas tienen resoluciones distintas o abarcan más de un año, así que la evolución se muestra por fecha.",
     "weekLabel": "Semana {{week}}",
-    "partialNote": "Fechas entre paréntesis: solo se cuenta la parte del subperíodo que cae dentro del período de la instantánea."
+    "partialNote": "Fechas entre paréntesis: solo se cuenta la parte del subperíodo que cae dentro del período de la instantánea.",
+    "days_one": "{{count}} día",
+    "days_many": "{{count}} días",
+    "days_other": "{{count}} días",
+    "per": {
+      "week": "por semana",
+      "month": "por mes",
+      "quarter": "por trimestre"
+    },
+    "savedOn": "guardada el {{date}}",
+    "maxSelected": "Máximo {{max}} instantáneas a la vez.",
+    "lengthWarning": "Las instantáneas abarcan períodos de distinta duración ({{lengths}}): las cifras no son directamente comparables.",
+    "atSaveNote": "Estado al guardar la instantánea, no cifras del período",
+    "developmentTitle": "Evolución",
+    "showTable": "Ver como tabla",
+    "hideTable": "Ocultar tabla",
+    "noSeries": "Las instantáneas seleccionadas no tienen evolución en el tiempo (guardadas antes de que existiera la función).",
+    "pointsSuffix": "pp",
+    "saveIntro": "Elige el período que se guardará, independientemente del resumen. Una instantánea guardada nunca cambia después.",
+    "periodLabel": "Período",
+    "periodType": {
+      "year": "Año natural",
+      "quarter": "Trimestre",
+      "month": "Mes",
+      "custom": "Personalizado",
+      "view": "Igual que el resumen"
+    },
+    "year": "Año",
+    "quarterLabel": "Trimestre",
+    "monthLabel": "Mes",
+    "labelAuto": "Un nombre vacío se guarda como «{{name}}».",
+    "atPeriodEndNote": "Inventario al final del período",
+    "wholeOrganisationNote": "Las instantáneas siempre se guardan para toda la organización (sin filtro de sala)."
+  },
+  "tabs": {
+    "overblik": "Resumen",
+    "snapshots": "Guardar y comparar"
+  },
+  "filter": {
+    "room": "Sala",
+    "allRooms": "Todas las salas",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Toda la organización: no le afecta el filtro de sala."
+  },
+  "attention": {
+    "title": "Ahora mismo",
+    "description": "Estado actual: no sigue el período seleccionado.",
+    "roomNote": "Tareas de {{room}} · inventario de toda la organización.",
+    "allClear": "Nada requiere acción ahora mismo.",
+    "overdueTitle": "Tareas vencidas",
+    "unassignedTitle": "Tareas sin responsables",
+    "unassignedDetail": "Tareas abiertas en las que nadie se ha inscrito.",
+    "stockTitle": "Inventario que requiere acción",
+    "itemsWithoutAvailable": "Artículos sin unidades disponibles: {{count}}",
+    "goToTasks": "Ir a tareas",
+    "goToDatalayer": "Ir a la capa de datos"
   }
 }

@@ -1,7 +1,7 @@
 // src/store/apis/statisticApi.ts
 //
 // Statistics (US-48–54). Everything is aggregated server-side by the
-// get_statistics RPC (docs/migrations/2026-09-29-statistics.sql): the
+// get_statistics RPC (docs/dbSchema.sql §15.26): the
 // organisation comes from auth_profile_org(), access requires
 // read_statistics, and the numbers are the same for everyone with that
 // privilege - independent of task RLS (completed tasks, role-locked rooms)
@@ -39,12 +39,13 @@ interface SnapshotRow {
 export const statisticsApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         getStatistics: builder.query<StatisticsResult, StatisticsQueryArgs>({
-            queryFn: async ({ start, end, granularity, tz }) => {
+            queryFn: async ({ start, end, granularity, tz, roomId }) => {
                 const { data, error } = await supabase.rpc('get_statistics', {
                     p_start: start,
                     p_end: end,
                     p_granularity: granularity,
                     p_tz: tz,
+                    p_room_id: roomId ?? null,
                 })
 
                 if (error) {

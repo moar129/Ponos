@@ -1,19 +1,8 @@
 import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { fromDateInputValue, toDateInputValue } from '../../utils/statisticsSnapshot'
 import type { CustomPeriodModalProps } from '../../types/statistics/statisticsComponentTypes'
-
-function toInputValue(date: Date | null): string {
-    if (!date) return ''
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${date.getFullYear()}-${month}-${day}`
-}
-
-function fromInputValue(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number)
-    return new Date(year, month - 1, day)
-}
 
 // Rendered only while open (see StatisticsPage), so the inputs start from
 // the current custom range every time.
@@ -25,8 +14,8 @@ export function CustomPeriodModal({
     onClose,
 }: CustomPeriodModalProps) {
     const { t } = useTranslation(['statistics', 'common'])
-    const [start, setStart] = useState(toInputValue(initialStart))
-    const [end, setEnd] = useState(toInputValue(initialEnd))
+    const [start, setStart] = useState(toDateInputValue(initialStart))
+    const [end, setEnd] = useState(toDateInputValue(initialEnd))
 
     if (!isOpen) return null
 
@@ -106,7 +95,7 @@ export function CustomPeriodModal({
                     <button
                         type="button"
                         disabled={!canApply}
-                        onClick={() => onApply(fromInputValue(start), fromInputValue(end))}
+                        onClick={() => onApply(fromDateInputValue(start), fromDateInputValue(end))}
                         className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent dark:text-accent-text"
                     >
                         {t('custom.apply')}

@@ -51,6 +51,11 @@ begin
   delete from public.data_layer_categories where organisation_id = v_org;
   delete from public.locations where organisation_id = v_org;
 
+  -- Lagerhistorik: triggeren har lukket rækkerne for de slettede enheder,
+  -- men de overlever sletningen (ingen FK) - fjern dem, så et nyt seed får
+  -- en ren historik.
+  delete from public.data_layer_item_unit_history where organisation_id = v_org;
+
   -- Seed-roller (kun dem fra 01 - egne roller bevares): medlemmer flyttes
   -- til Medlem af trigger, privilegier cascader.
   delete from public.roles

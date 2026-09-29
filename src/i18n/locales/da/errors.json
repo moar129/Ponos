@@ -176,6 +176,7 @@
     "NO_PRIV_READ_STATISTICS": "Du har ikke rettigheder til at se statistik.",
     "NO_PRIV_CREATE_STATISTICS": "Du har ikke rettigheder til at gemme statistik.",
     "INVALID_PERIOD": "Slutdatoen skal ligge efter startdatoen.",
-    "INVALID_GRANULARITY": "Ugyldig opløsning for statistikken."
+    "INVALID_GRANULARITY": "Ugyldig opløsning for statistikken.",
+    "ROOM_NOT_FOUND": "Rummet findes ikke i din organisation."
   }
 }

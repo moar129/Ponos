@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Nie masz uprawnień do przeglądania statystyk.",
     "NO_PRIV_CREATE_STATISTICS": "Nie masz uprawnień do zapisywania statystyk.",
     "INVALID_PERIOD": "Data końcowa musi być późniejsza niż początkowa.",
-    "INVALID_GRANULARITY": "Nieprawidłowa rozdzielczość statystyk."
+    "INVALID_GRANULARITY": "Nieprawidłowa rozdzielczość statystyk.",
+    "ROOM_NOT_FOUND": "Pokój nie istnieje w Twojej organizacji."
   }
 }

@@ -352,6 +352,8 @@ const roomApprovers = {
 const T = (nr, room, title, desc, created, start, end, st, prio, appr, finished, assignees, extra = {}) =>
   ({ nr, room, title, desc, created, start, end, st, prio, appr, finished, assignees, max: extra.max ?? null, requests: extra.requests ?? [], materials: extra.materials ?? [] })
 
+// #36, #42, #45, #68 og #69 er færdige EFTER slutdatoen (forsinkede), så "Færdige til tiden"
+// og dens trend kan testes (7 dage: 1 af 2, 30 dage: 3 af 5).
 const tasks = [
   // --- RF25-cyklus ---
   T(1, 'PLAN', 'Budget for sceneteknik RF25', 'Udarbejd budget for lyd, lys og strøm til alle scener.', '2024-10-07 09:00', '2024-10-14 08:00', '2024-11-15 16:00', 'Completed', 'High', true, '2024-11-12 14:00', ['mette.hansen', 'camilla.thorsen']),
@@ -392,16 +394,16 @@ const tasks = [
     max: 6, requests: [['Rejected', '2026-06-10 17:00', '2026-06-10 19:00', 'Hegnet ved indgang C mangler stadig.']] }),
   T(34, 'OPB', 'Rejs Orange Scene – RF26', null, '2026-04-13 09:00', '2026-05-25 07:00', '2026-06-19 16:00', 'Completed', 'Critical', true, '2026-06-18 17:00', ['camilla.thorsen', 'mikkel.brandt', 'peter.skov']),
   T(35, 'SAN', 'Placer toiletvogne og håndvask', null, '2026-05-04 09:00', '2026-06-15 07:00', '2026-06-23 16:00', 'Completed', 'Medium', false, '2026-06-22 16:00', ['line.vestergaard', 'freja.lassen']),
-  T(36, 'AFF', 'Opstil affalds- og pantstationer', null, '2026-05-11 09:00', '2026-06-17 07:00', '2026-06-25 16:00', 'Completed', 'Medium', true, '2026-06-24 15:00', ['sara.oestergaard', 'oliver.juhl']),
+  T(36, 'AFF', 'Opstil affalds- og pantstationer', null, '2026-05-11 09:00', '2026-06-17 07:00', '2026-06-20 16:00', 'Completed', 'Medium', true, '2026-06-24 15:00', ['sara.oestergaard', 'oliver.juhl']),
   T(37, 'FRI', 'Opsæt frivilligcamp RF26', null, '2026-05-18 09:00', '2026-06-08 07:00', '2026-06-19 16:00', 'Completed', 'Low', false, '2026-06-18 17:00', ['anders.moeller', 'ida.mortensen']),
   T(38, 'SIK', 'Uddel radioer til vagtholdene', null, '2026-06-01 09:00', '2026-06-26 08:00', '2026-06-27 12:00', 'Completed', 'High', false, '2026-06-26 18:00', ['kasper.winther', 'nanna.bech']),
   T(39, 'SCN', 'Lydcheck Orange Scene', null, '2026-06-08 09:00', '2026-06-26 10:00', '2026-06-27 18:00', 'Completed', 'High', true, '2026-06-27 17:00', ['mikkel.brandt']),
   T(40, 'SCN', 'Påfyld diesel i generatorer under festivalen', null, '2026-06-15 09:00', '2026-06-27 06:00', '2026-07-04 23:00', 'Completed', 'Critical', false, '2026-07-04 22:00', ['peter.skov']),
   T(41, 'AFF', 'Daglig tømning af affaldsstationer RF26', null, '2026-06-22 09:00', '2026-06-27 08:00', '2026-07-04 20:00', 'Completed', 'Medium', false, '2026-07-04 19:00', ['sara.oestergaard', 'oliver.juhl', 'mads.poulsen']),
-  T(42, 'NED', 'Nedtag Orange Scene', null, '2026-06-29 09:00', '2026-07-05 07:00', '2026-07-24 16:00', 'Completed', 'High', true, '2026-07-23 16:00', ['camilla.thorsen', 'mikkel.brandt', 'peter.skov']),
+  T(42, 'NED', 'Nedtag Orange Scene', null, '2026-06-29 09:00', '2026-07-05 07:00', '2026-07-20 16:00', 'Completed', 'High', true, '2026-07-23 16:00', ['camilla.thorsen', 'mikkel.brandt', 'peter.skov']),
   T(43, 'NED', 'Nedtag hegn og mobilhegn', null, '2026-07-01 09:00', '2026-07-06 07:00', '2026-07-17 16:00', 'Completed', 'Medium', true, '2026-07-16 15:00', ['rasmus.kristensen', 'ida.mortensen', 'oliver.juhl', 'freja.lassen']),
   T(44, 'NED', 'Returner lejede toiletvogne', null, '2026-07-06 09:00', '2026-07-07 08:00', '2026-07-14 16:00', 'Completed', 'Medium', false, '2026-07-13 12:00', ['line.vestergaard']),
-  T(45, 'NED', 'Lageroptælling efter RF26', null, '2026-07-13 09:00', '2026-07-20 08:00', '2026-08-14 16:00', 'Completed', 'Medium', true, '2026-08-12 14:00', ['henrik.dahl', 'emma.nielsen', 'jonas.holm'], {
+  T(45, 'NED', 'Lageroptælling efter RF26', null, '2026-07-13 09:00', '2026-07-20 08:00', '2026-08-07 16:00', 'Completed', 'Medium', true, '2026-08-12 14:00', ['henrik.dahl', 'emma.nielsen', 'jonas.holm'], {
     requests: [['Rejected', '2026-08-10 15:00', '2026-08-10 17:00', 'Hal 2 er ikke optalt endnu.']] }),
   T(46, 'AFF', 'Opgørelse af affaldsmængder RF26', null, '2026-07-20 09:00', '2026-07-27 08:00', '2026-08-21 16:00', 'Completed', 'Low', true, '2026-08-19 11:00', ['sara.oestergaard']),
   // --- Åbne opgaver (efterår 2026 / RF27) ---
@@ -437,8 +439,8 @@ const tasks = [
   // --- Færdige i september 2026 (så Dag/Uge/Måned har afsluttede opgaver) ---
   T(66, 'NED', 'Returner lejede telte', null, '2026-08-20 09:00', '2026-08-31 08:00', '2026-09-11 16:00', 'Completed', 'Medium', false, '2026-09-04 14:00', ['oliver.juhl', 'freja.lassen']),
   T(67, 'FRI', 'Rengør frivilligcamp efter RF26', null, '2026-08-25 09:00', '2026-09-01 08:00', '2026-09-15 16:00', 'Completed', 'Low', false, '2026-09-10 15:00', ['anders.moeller', 'mads.poulsen']),
-  T(68, 'AFF', 'Afregning med affaldsleverandør', null, '2026-08-28 09:00', '2026-09-07 08:00', '2026-09-25 16:00', 'Completed', 'Medium', true, '2026-09-17 13:00', ['line.vestergaard']),
-  T(69, 'SCN', 'Evaluering RF26 – scener og teknik', null, '2026-09-02 09:00', '2026-09-07 08:00', '2026-09-30 16:00', 'Completed', 'High', true, '2026-09-24 16:00', ['camilla.thorsen', 'mikkel.brandt']),
+  T(68, 'AFF', 'Afregning med affaldsleverandør', null, '2026-08-28 09:00', '2026-09-07 08:00', '2026-09-15 16:00', 'Completed', 'Medium', true, '2026-09-17 13:00', ['line.vestergaard']),
+  T(69, 'SCN', 'Evaluering RF26 – scener og teknik', null, '2026-09-02 09:00', '2026-09-07 08:00', '2026-09-22 16:00', 'Completed', 'High', true, '2026-09-24 16:00', ['camilla.thorsen', 'mikkel.brandt']),
   T(70, 'PLAN', 'Opdater kontaktliste for holdledere', null, '2026-09-23 09:00', '2026-09-28 08:00', '2026-10-02 16:00', 'Completed', 'Low', false, '2026-09-29 11:00', ['sofie.andersen']),
 ]
 
@@ -482,12 +484,14 @@ for (const t of tasks) {
     if (rows[0].serial) {
       const picked = rows.filter((r) => r.st === 'Available').sort((a, b) => b.serial.localeCompare(a.serial)).slice(0, amount)
       if (picked.length < amount) throw new Error(`For få enheder: ${itemName}`)
-      picked.forEach((r) => { r.st = newStatus })
+      // Lagerhistorik: Available indtil opgavens tildeling (dog tidligst enhedens oprettelse).
+      picked.forEach((r) => { r.prevSt = r.st; r.changedAt = t.assignedAt; r.st = newStatus })
     } else {
       const batch = rows.filter((r) => r.st === 'Available' && !r.ct && r.qty > amount).sort((a, b) => b.qty - a.qty)[0]
       if (!batch) throw new Error(`Ingen batch til: ${itemName}`)
       batch.qty -= amount
-      unitRows.push({ ...batch, qty: amount, st: newStatus })
+      // Split-enheden oprettes ved tildelingen (samme created_at som i 06).
+      unitRows.push({ ...batch, qty: amount, st: newStatus, created: t.assignedAt })
     }
   }
 }
@@ -593,6 +597,36 @@ ${roomRoleVals}
 
 ${taskBlocks}
 
+  -- Lagerhistorik (data_layer_item_unit_history): triggeren har logget alle
+  -- enheder med tidspunktet for denne kørsel. Mockdata skal have en
+  -- realistisk fortid, så statistik for fx 2025 kan testes:
+  -- a) første række pr. enhed starter ved enhedens created_at,
+  -- b) statusskift (reserveret af en opgave) ved opgavens første
+  --    tildeling - dog tidligst enhedens oprettelse.
+  update public.data_layer_item_unit_history h
+  set valid_from = u.created_at
+  from public.data_layer_item_units u
+  where h.unit_id = u.id
+    and h.organisation_id = v_org
+    and h.id = (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = u.id);
+
+  with changed as (
+    select tmu.unit_id, greatest(min(ta.assigned_at), min(u.created_at)) as changed_at
+    from public.task_material_units tmu
+    join public.task_materials tm on tm.id = tmu.task_material_id
+    join public.tasks t on t.id = tm.task_id and t.organisation_id = v_org
+    join public.task_assignees ta on ta.task_id = tm.task_id
+    join public.data_layer_item_units u on u.id = tmu.unit_id
+    group by tmu.unit_id
+  )
+  update public.data_layer_item_unit_history h
+  set valid_from = case when h.valid_to is null then c.changed_at else h.valid_from end,
+      valid_to   = case when h.valid_to is null then null else c.changed_at end
+  from changed c
+  where h.unit_id = c.unit_id
+    and (h.valid_to is not null
+         or h.id <> (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id));
+
   raise notice 'Seed 06 færdig: ${tasks.length} opgaver.';
 end $$;
 `
@@ -649,7 +683,7 @@ function buildFacit() {
   const pct = (a, b) => (b ? `${Math.round((a / b) * 1000) / 10} %` : '-')
 
   // --- Statistiksiden pr. periode: SAMME definitioner som get_statistics /
-  // statistics_payload (docs/migrations/2026-09-29-statistics.sql). Perioder
+  // statistics_payload (docs/dbSchema.sql §15.26). Perioder
   // er rullende og slutter i dag inkl. (Europe/Copenhagen), slut eksklusiv.
   const local = (d) => new Date(`${d}T00:00:00+02:00`)
   const periods = [
@@ -670,6 +704,37 @@ function buildFacit() {
   }
   const round1 = (x) => Math.round(x * 10) / 10
 
+  // Til tiden / gennemløbstid - samme regler som statistics_on_time og
+  // statistics_kpis (dbSchema.sql §15.26d/e): en slutdato kl.
+  // 00:00 UTC (dato uden klokkeslæt) gælder hele dagen.
+  const onTime = (t) => {
+    const end = toDate(t.end)
+    const deadline = end.getUTCHours() === 0 && end.getUTCMinutes() === 0 ? end.getTime() + 86_400_000 : end.getTime()
+    return toDate(t.finished).getTime() <= deadline
+  }
+  const quality = (done) => {
+    const withDeadline = done.filter((t) => t.end)
+    const inTime = withDeadline.filter(onTime)
+    const lead = median(done.map((t) => (toDate(t.finished) - toDate(t.created)) / 86_400_000))
+    return {
+      withDeadline: withDeadline.length,
+      onTime: inTime.length,
+      rate: withDeadline.length ? `${round1((inTime.length * 100) / withDeadline.length)} %` : '–',
+      lead: lead === null ? '–' : round1(lead),
+    }
+  }
+
+  // Lagerhistorik: enhedens status på tidspunkt A (samme regel som
+  // 06's historik-fixup: skift ved tildeling, tidligst ved oprettelse).
+  const statusAt = (r, at) => {
+    if (toDate(r.created) > at) return null
+    if (!r.changedAt) return r.st
+    const changed = Math.max(toDate(r.changedAt).getTime(), toDate(r.created).getTime())
+    return changed <= at.getTime() ? r.st : r.prevSt
+  }
+  const stockAt = (at) => count(unitRows.filter((r) => statusAt(r, at)), (r) => statusAt(r, at))
+  const topOfItem = Object.fromEntries(items.map((it) => [it[2], categories.find(([top, subs]) => top === it[0] || subs.includes(it[0]))?.[0]]))
+
   const periodStats = periods.map(([label, s, e]) => {
     const inP = (v) => v !== null && v !== undefined && toDate(v) >= s && toDate(v) < e
     const created = tasks.filter((t) => inP(t.created))
@@ -686,11 +751,15 @@ function buildFacit() {
     const used = {}
     for (const t of created) for (const [n, a] of t.materials) used[n] = (used[n] ?? 0) + a
     const top = Object.entries(used).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5)
+    const usedCategory = count(Object.keys(used), (name) => topOfItem[name])
+    const stock = stockAt(new Date(Math.min(e.getTime(), NOW.getTime())))
+    const done = tasks.filter((t) => t.st === 'Completed' && inP(t.finished))
 
     return {
       label,
       created: created.length,
-      completed: tasks.filter((t) => t.st === 'Completed' && inP(t.finished)).length,
+      completed: done.length,
+      quality: quality(done),
       active: active.length,
       overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
       withActivity: allMembers.filter((m) => loadOf(m) > 0).length,
@@ -702,9 +771,51 @@ function buildFacit() {
       rate: acc + rej ? `${round1((acc * 100) / (acc + rej))} %` : '–',
       median: med === null ? '–' : round1(med),
       top: top.length ? top.map(([n, a]) => `${a} ${n}`).join(', ') : '–',
+      usedCategory,
+      stock,
     }
   })
   const pRow = (name, fn) => [name, ...periodStats.map((p) => fn(p) ?? 0)]
+
+  // KPI-trend: samme tal for perioden lige før (samme længde) - som statistics_kpis.
+  const kpisFor = (s, e) => {
+    const inP = (v) => v !== null && v !== undefined && toDate(v) >= s && toDate(v) < e
+    const done = tasks.filter((t) => t.st === 'Completed' && inP(t.finished))
+    return {
+      created: tasks.filter((t) => inP(t.created)).length,
+      completed: done.length,
+      overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
+      quality: quality(done),
+    }
+  }
+  const trendRows = periods.filter(([label]) => label === '7 dage' || label === '30 dage').map(([label, s, e]) => {
+    const prevStart = new Date(s.getTime() - (e.getTime() - s.getTime()))
+    const now = kpisFor(s, e)
+    const before = kpisFor(prevStart, s)
+    return [label, `${now.created} / ${before.created}`, `${now.completed} / ${before.completed}`, `${now.overdue} / ${before.overdue}`,
+      `${now.quality.rate} / ${before.quality.rate}`, `${now.quality.lead} / ${before.quality.lead}`]
+  })
+
+  // Rum-oversigt ("Alt"): KPI-definitionerne pr. rum.
+  const roomScoreRows = rooms.map(([c, n]) => {
+    const inRoom = tasks.filter((t) => t.room === c)
+    const q = quality(inRoom.filter((t) => t.st === 'Completed'))
+    return [n, inRoom.length, inRoom.filter((t) => t.st === 'Completed').length,
+      inRoom.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW).length, `${q.rate} (${q.onTime} af ${q.withDeadline})`]
+  })
+
+  // "Lige nu" (uafhængigt af periode).
+  const openOverdue = tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW)
+  const overdueByPrio = count(openOverdue, (t) => t.prio)
+  const unassignedOpen = tasks.filter((t) => t.st !== 'Completed' && !t.assignees.length).length
+  const alertStatuses = ['Missing', 'Damaged', 'Maintenance', 'OutOfStock', 'NeedsEmptying', 'NeedsRefilling']
+  const unitsNow = count(unitRows, (r) => r.st)
+  const itemsWithUnits = [...new Set(unitRows.map((r) => r.item))]
+  const itemsWithoutAvailable = itemsWithUnits.filter((it) => !unitRows.some((r) => r.item === it && r.st === 'Available'))
+  // Status på et øjeblik lige før årsskiftet (= kalenderårets slutning, p_end eksklusiv).
+  const stock2024 = stockAt(new Date('2025-01-01T00:00:00+01:00')) // vintertid
+  const stock2025 = stockAt(new Date('2026-01-01T00:00:00+01:00'))
+  const stockStatuses = [...new Set([...Object.keys(stockAt(NOW)), ...Object.keys(stock2024), ...Object.keys(stock2025)])].sort()
   const topCategoryOf = (cat) => categories.find(([top, subs]) => top === cat || subs.includes(cat))?.[0]
   const itemsByTopCategory = count(items, (it) => topCategoryOf(it[0]))
 
@@ -790,7 +901,7 @@ ${table(['År', 'Oprettet', 'Færdige'], Object.keys(createdY).sort().map((y) =>
 
 ## Statistiksiden pr. periode (get_statistics)
 
-Samme definitioner som \`statistics_payload\` (docs/migrations/2026-09-29-statistics.sql):
+Samme definitioner som \`statistics_payload\` (docs/dbSchema.sql §15.26):
 rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
 mest brugte = opgaver **oprettet** i perioden. *I gang* = \`coalesce(start_date, created_at)\`
 før periodens slut og (InProgress eller Completed med \`finished_at\` ≥ start). *Relevante*
@@ -800,6 +911,8 @@ anmodninger efter \`requested_at\`. Medlemmer = ${allMembers.length} (inkl. dig)
 ${table(['Udsagn', ...periodStats.map((p) => p.label)], [
     pRow('Oprettede', (p) => p.created),
     pRow('Færdige', (p) => p.completed),
+    pRow('Færdige til tiden', (p) => `${p.quality.rate} (${p.quality.onTime} af ${p.quality.withDeadline})`),
+    pRow('Median gennemløbstid (dage)', (p) => p.quality.lead),
     pRow('I gang', (p) => p.active),
     pRow('Forfaldne', (p) => p.overdue),
     pRow('Med opgaveaktivitet', (p) => p.withActivity),
@@ -812,7 +925,42 @@ ${table(['Udsagn', ...periodStats.map((p) => p.label)], [
     pRow('Anmodninger: Rejected', (p) => p.rejected),
     pRow('Godkendelsesrate', (p) => p.rate),
     pRow('Median behandlingstid (t)', (p) => p.median),
+    ...categories.map(([top]) => pRow(`Brugte varer: ${top}`, (p) => p.usedCategory[top])),
+    ...stockStatuses.map((st) => pRow(`Enheder ved periodens slut: ${st}`, (p) => p.stock[st])),
   ])}
+
+Enheder ved periodens slut = status på \`min(periodens slut, nu)\` fra lagerhistorikken. Rullende perioder
+slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fortid efter 06's historik-fixup):
+
+${table(['Status', '31/12-2024', '31/12-2025'], stockStatuses.map((st) => [st, stock2024[st] ?? 0, stock2025[st] ?? 0]))}
+
+KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
+↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
+7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
+Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
+
+${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)'], trendRows)}
+
+Til tiden = færdige med \`finished_at <= end_date\` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
+dagen). Gennemløbstid = median \`finished_at − created_at\` for færdige i perioden. Trend: Til tiden i procentpoint
+(↑ grøn), gennemløbstid ↓ grøn.
+
+Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
+
+### Rum-oversigt ("Alt")
+
+Samme definitioner som nøgletallene, pr. rum. Sorteres på siden efter forfaldne.
+
+${table(['Rum', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden'], roomScoreRows)}
+
+### Lige nu (pr. 29/9, uafhængigt af periode)
+
+| Udsagn | Værdi |
+|---|---|
+| Forfaldne åbne opgaver | ${openOverdue.length} (${['Critical', 'High', 'Medium', 'Low'].filter((p) => overdueByPrio[p]).map((p) => `${p}: ${overdueByPrio[p]}`).join(', ')}) |
+| Åbne opgaver uden ansvarlige | ${unassignedOpen} |
+${alertStatuses.map((st) => `| Enheder ${st} | ${unitsNow[st] ?? 0} |`).join('\n')}
+| Varer uden ledige enheder | ${itemsWithoutAvailable.length}${itemsWithoutAvailable.length ? ` (${itemsWithoutAvailable.join(', ')})` : ''} |
 
 Mest brugte materialer (top 5):
 

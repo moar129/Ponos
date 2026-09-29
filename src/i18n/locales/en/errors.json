@@ -176,6 +176,7 @@
     "NO_PRIV_READ_STATISTICS": "You do not have permission to view statistics.",
     "NO_PRIV_CREATE_STATISTICS": "You do not have permission to save statistics.",
     "INVALID_PERIOD": "The end date must be after the start date.",
-    "INVALID_GRANULARITY": "Invalid resolution for the statistics."
+    "INVALID_GRANULARITY": "Invalid resolution for the statistics.",
+    "ROOM_NOT_FOUND": "The room does not exist in your organisation."
   }
 }

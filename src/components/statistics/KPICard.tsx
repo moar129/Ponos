@@ -1,9 +1,18 @@
-import type { KPICardProps } from '../../types/statistics/statisticsComponentTypes'
+import type { KPICardProps, KpiTrend } from '../../types/statistics/statisticsComponentTypes'
+
+// Good/bad only where the direction has a meaning (e.g. more overdue tasks is
+// bad); always with arrow + text, never colour alone.
+const TREND_TONE: Record<KpiTrend['tone'], string> = {
+    good: 'text-green-700 dark:text-green-400',
+    bad: 'text-red-700 dark:text-red-400',
+    neutral: 'text-secondary dark:text-slate-400',
+}
 
 export function KPICard({
     title,
     value = null,
-    subtitle,
+    detail,
+    trend,
     icon,
     unit,
     loading = false,
@@ -40,9 +49,13 @@ export function KPICard({
                         )}
                     </div>
 
-                    {subtitle && !loading && (
-                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                            {subtitle}
+                    {detail && !loading && (
+                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">{detail}</p>
+                    )}
+
+                    {trend && !loading && (
+                        <p className={`mt-1 text-xs font-medium ${TREND_TONE[trend.tone]}`}>
+                            {trend.text}
                         </p>
                     )}
                 </div>

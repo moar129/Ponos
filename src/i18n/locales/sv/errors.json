@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Du har inte behörighet att se statistik.",
     "NO_PRIV_CREATE_STATISTICS": "Du har inte behörighet att spara statistik.",
     "INVALID_PERIOD": "Slutdatumet måste vara efter startdatumet.",
-    "INVALID_GRANULARITY": "Ogiltig upplösning för statistiken."
+    "INVALID_GRANULARITY": "Ogiltig upplösning för statistiken.",
+    "ROOM_NOT_FOUND": "Rummet finns inte i din organisation."
   }
 }

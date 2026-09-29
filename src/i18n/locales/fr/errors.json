@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Vous n'avez pas l'autorisation de consulter les statistiques.",
     "NO_PRIV_CREATE_STATISTICS": "Vous n'avez pas l'autorisation d'enregistrer des statistiques.",
     "INVALID_PERIOD": "La date de fin doit être postérieure à la date de début.",
-    "INVALID_GRANULARITY": "Résolution non valide pour les statistiques."
+    "INVALID_GRANULARITY": "Résolution non valide pour les statistiques.",
+    "ROOM_NOT_FOUND": "La salle n'existe pas dans votre organisation."
   }
 }

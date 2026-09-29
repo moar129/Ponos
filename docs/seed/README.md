@@ -40,6 +40,10 @@ Email `<fornavn>.<efternavn>@ponos-mock.test` (æ→ae, ø→oe), password **`Po
 | Medlem | ahmad.rahimi |
 | *Ikke medlem* | julie.svendsen, christian.lauridsen, amalie.koch (ansøgning afventer), nikolaj.berg (afvist), victor.hald, maja.ravn (invitation afventer) |
 
+Lagerhistorik: `06_tasks.sql` flytter `data_layer_item_unit_history`-tiderne til en realistisk fortid
+(fra enhedens `created_at`, skift ved opgavens tildeling). Kræver at migrationen med lagerhistorikken er kørt
+**før** 04/06 – ellers har seedet ingen historik. Forventet lager pr. 31/12 står i FACIT.md.
+
 Statistik: Festivalledelse har `read_statistics` + `create_statistics` (gem snapshots). Frivilligkoordinator har kun `read_statistics` – og hverken `view_completed_tasks` eller `view_all_task_rooms` – så log ind som `sofie.andersen` for at tjekke, at statistikken viser samme tal som admin (den beregnes server-side). Forventede tal pr. periode står i FACIT.md.
 
 ## Ændre data

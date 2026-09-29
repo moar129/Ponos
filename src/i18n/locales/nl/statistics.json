@@ -35,7 +35,14 @@
     "completed": "Voltooide taken",
     "active": "Taken in uitvoering",
     "overdue": "Achterstallige taken",
-    "membersWithActivity": "Leden met taakactiviteit"
+    "membersWithActivity": "Leden met taakactiviteit",
+    "trend": "{{change}} t.o.v. {{previous}} in de periode {{period}}",
+    "trendSame": "Gelijk aan de periode {{period}} ({{previous}})",
+    "onTime": "Op tijd afgerond",
+    "onTimeDetail": "{{onTime}} van {{total}} met einddatum",
+    "onTimeNone": "Geen afgeronde taken met einddatum",
+    "leadTime": "Doorlooptijd (mediaan)",
+    "leadTimeDetail": "Van aangemaakt tot afgerond"
   },
   "sections": {
     "tasks": "Taken",
@@ -59,12 +66,15 @@
     "none": "Geen prioriteit"
   },
   "rooms": {
-    "title": "Taken per ruimte",
-    "description": "Taken aangemaakt in de periode, per ruimte.",
+    "title": "Ruimte-overzicht",
+    "description": "De kerncijfers van elke ruimte in de periode. Klik op een ruimte om al haar cijfers te zien.",
     "noRoom": "Zonder ruimte",
     "completed": "Voltooid",
-    "open": "Open",
-    "value": "{{completed}} voltooid · {{open}} open"
+    "created": "Aangemaakt",
+    "overdue": "Achterstallig",
+    "onTime": "Op tijd",
+    "onTimeValue": "{{onTime}} van {{total}}",
+    "filterTo": "Statistieken voor {{room}} tonen"
   },
   "memberLoad": {
     "title": "Taken per lid",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Eenheden per status",
-    "statusDescription": "Huidige status van alle geregistreerde eenheden en partijen.",
     "categoryTitle": "Artikelen per categorie",
     "categoryDescription": "Aantal artikelen in elke hoofdcategorie.",
     "topTitle": "Meest gebruikte materialen",
-    "topDescription": "Top 5 materialen gekoppeld aan taken aangemaakt in de periode."
+    "topDescription": "Top 5 materialen gekoppeld aan taken aangemaakt in de periode.",
+    "statusDescriptionAt": "Status aan het einde van de periode ({{date}}).",
+    "noHistory": "De voorraadgeschiedenis begint op {{date}} – de status daarvoor is onbekend.",
+    "usedCategoryTitle": "Gebruikte artikelen per categorie",
+    "usedCategoryDescription": "Aantal verschillende artikelen gebruikt bij taken die in de periode zijn aangemaakt, per hoofdcategorie."
   },
   "snapshots": {
     "title": "Opgeslagen momentopnamen",
     "description": "Sla de cijfers van de periode op en vergelijk ze met eerdere periodes.",
     "save": "Momentopname opslaan",
     "saveTitle": "Momentopname opslaan",
-    "saveDescription": "Slaat de cijfers voor {{period}} op. Een opgeslagen momentopname verandert daarna nooit meer.",
     "label": "Naam (optioneel)",
     "labelPlaceholder": "Bijv. Seizoen 2026",
     "saving": "Opslaan...",
@@ -119,12 +131,16 @@
       "kpis": "Kerncijfers",
       "task_status": "Taakstatus",
       "task_priority": "Prioriteit",
-      "room": "Taken per ruimte",
+      "room": "Aangemaakt per ruimte",
       "member_load": "Taken per lid",
       "approvals": "Goedkeuringen",
       "item_status": "Eenheden per status",
       "category": "Artikelen per categorie",
-      "top_material": "Meest gebruikte materialen"
+      "top_material": "Meest gebruikte materialen",
+      "used_category": "Gebruikte artikelen per categorie",
+      "room_completed": "Afgerond per ruimte",
+      "room_overdue": "Achterstallig per ruimte",
+      "room_on_time_rate": "Op tijd per ruimte (%)"
     },
     "names": {
       "tasks_created": "Aangemaakte taken",
@@ -134,7 +150,11 @@
       "members": "Leden",
       "members_with_task_activity": "Leden met taakactiviteit",
       "approvals_rate": "Goedkeuringspercentage (%)",
-      "approvals_median_hours": "Mediane behandeltijd (uren)"
+      "approvals_median_hours": "Mediane behandeltijd (uren)",
+      "tasks_completed_with_deadline": "Afgerond met einddatum",
+      "tasks_completed_on_time": "Op tijd afgerond",
+      "tasks_on_time_rate": "Op tijd (%)",
+      "tasks_median_lead_days": "Mediane doorlooptijd (dagen)"
     },
     "granularity": "Ontwikkeling per",
     "granularityHint": "Hoe fijn de ontwikkeling in de tijd wordt opgeslagen – om te vergelijken met andere momentopnamen.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "De momentopnamen hebben een verschillende resolutie of beslaan meer dan een jaar, dus de ontwikkeling wordt per datum getoond.",
     "weekLabel": "Week {{week}}",
-    "partialNote": "Datums tussen haakjes: alleen het deel van de deelperiode dat binnen de periode van de momentopname valt, telt mee."
+    "partialNote": "Datums tussen haakjes: alleen het deel van de deelperiode dat binnen de periode van de momentopname valt, telt mee.",
+    "days_one": "{{count}} dag",
+    "days_other": "{{count}} dagen",
+    "per": {
+      "week": "per week",
+      "month": "per maand",
+      "quarter": "per kwartaal"
+    },
+    "savedOn": "opgeslagen {{date}}",
+    "maxSelected": "Maximaal {{max}} momentopnamen tegelijk.",
+    "lengthWarning": "De momentopnamen beslaan verschillende periodelengtes ({{lengths}}) – de cijfers zijn niet direct vergelijkbaar.",
+    "atSaveNote": "Stand bij het opslaan – geen cijfers voor de periode",
+    "developmentTitle": "Ontwikkeling",
+    "showTable": "Toon als tabel",
+    "hideTable": "Tabel verbergen",
+    "noSeries": "De gekozen momentopnamen hebben geen ontwikkeling in de tijd (opgeslagen voordat de functie bestond).",
+    "pointsSuffix": "pp",
+    "saveIntro": "Kies de periode om op te slaan – los van het overzicht. Een opgeslagen momentopname verandert daarna nooit meer.",
+    "periodLabel": "Periode",
+    "periodType": {
+      "year": "Kalenderjaar",
+      "quarter": "Kwartaal",
+      "month": "Maand",
+      "custom": "Aangepast",
+      "view": "Zoals het overzicht"
+    },
+    "year": "Jaar",
+    "quarterLabel": "Kwartaal",
+    "monthLabel": "Maand",
+    "labelAuto": "Een lege naam wordt opgeslagen als \"{{name}}\".",
+    "atPeriodEndNote": "Voorraad aan het einde van de periode",
+    "wholeOrganisationNote": "Momentopnamen worden altijd voor de hele organisatie opgeslagen (zonder ruimtefilter)."
+  },
+  "tabs": {
+    "overblik": "Overzicht",
+    "snapshots": "Opslaan en vergelijken"
+  },
+  "filter": {
+    "room": "Ruimte",
+    "allRooms": "Alle ruimtes",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Hele organisatie – niet beïnvloed door het ruimtefilter."
+  },
+  "attention": {
+    "title": "Nu",
+    "description": "Actuele stand – volgt de gekozen periode niet.",
+    "roomNote": "Taken in {{room}} · voorraad van de hele organisatie.",
+    "allClear": "Er is nu niets dat actie vereist.",
+    "overdueTitle": "Achterstallige taken",
+    "unassignedTitle": "Taken zonder verantwoordelijken",
+    "unassignedDetail": "Open taken waarvoor niemand zich heeft aangemeld.",
+    "stockTitle": "Voorraad die actie vereist",
+    "itemsWithoutAvailable": "Artikelen zonder beschikbare eenheden: {{count}}",
+    "goToTasks": "Naar taken",
+    "goToDatalayer": "Naar datalaag"
   }
 }

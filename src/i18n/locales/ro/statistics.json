@@ -35,7 +35,14 @@
     "completed": "Sarcini finalizate",
     "active": "Sarcini în desfășurare",
     "overdue": "Sarcini întârziate",
-    "membersWithActivity": "Membri cu activitate pe sarcini"
+    "membersWithActivity": "Membri cu activitate pe sarcini",
+    "trend": "{{change}} față de {{previous}} în perioada {{period}}",
+    "trendSame": "La fel ca în perioada {{period}} ({{previous}})",
+    "onTime": "Finalizate la timp",
+    "onTimeDetail": "{{onTime}} din {{total}} cu dată de final",
+    "onTimeNone": "Nicio sarcină finalizată cu dată de final",
+    "leadTime": "Timp de execuție (mediană)",
+    "leadTimeDetail": "De la creare la finalizare"
   },
   "sections": {
     "tasks": "Sarcini",
@@ -59,12 +66,15 @@
     "none": "Fără prioritate"
   },
   "rooms": {
-    "title": "Sarcini pe cameră",
-    "description": "Sarcini create în perioadă, pe cameră.",
+    "title": "Prezentare camere",
+    "description": "Indicatorii fiecărei camere în perioadă. Dă clic pe o cameră pentru a vedea toate cifrele ei.",
     "noRoom": "Fără cameră",
     "completed": "Finalizate",
-    "open": "Deschise",
-    "value": "Finalizate: {{completed}} · deschise: {{open}}"
+    "created": "Create",
+    "overdue": "Întârziate",
+    "onTime": "La timp",
+    "onTimeValue": "{{onTime}} din {{total}}",
+    "filterTo": "Afișează statistica pentru {{room}}"
   },
   "memberLoad": {
     "title": "Sarcini pe membru",
@@ -93,18 +103,20 @@
   },
   "materials": {
     "statusTitle": "Unități după stare",
-    "statusDescription": "Starea actuală a tuturor unităților și loturilor înregistrate.",
     "categoryTitle": "Articole pe categorie",
     "categoryDescription": "Numărul de articole din fiecare categorie principală.",
     "topTitle": "Cele mai folosite materiale",
-    "topDescription": "Top 5 materiale legate de sarcini create în perioadă."
+    "topDescription": "Top 5 materiale legate de sarcini create în perioadă.",
+    "statusDescriptionAt": "Starea la sfârșitul perioadei ({{date}}).",
+    "noHistory": "Istoricul stocului începe pe {{date}} – starea de dinainte nu este cunoscută.",
+    "usedCategoryTitle": "Articole folosite pe categorie",
+    "usedCategoryDescription": "Numărul de articole diferite folosite în sarcini create în perioadă, pe categorie principală."
   },
   "snapshots": {
     "title": "Instantanee salvate",
     "description": "Salvează cifrele perioadei și compară-le cu perioadele anterioare.",
     "save": "Salvează instantaneul",
     "saveTitle": "Salvează instantaneul",
-    "saveDescription": "Salvează cifrele pentru {{period}}. Un instantaneu salvat nu se mai schimbă ulterior.",
     "label": "Nume (opțional)",
     "labelPlaceholder": "Ex. Sezonul 2026",
     "saving": "Se salvează...",
@@ -121,12 +133,16 @@
       "kpis": "Indicatori cheie",
       "task_status": "Starea sarcinilor",
       "task_priority": "Prioritate",
-      "room": "Sarcini pe cameră",
+      "room": "Create pe cameră",
       "member_load": "Sarcini pe membru",
       "approvals": "Aprobări",
       "item_status": "Unități după stare",
       "category": "Articole pe categorie",
-      "top_material": "Cele mai folosite materiale"
+      "top_material": "Cele mai folosite materiale",
+      "used_category": "Articole folosite pe categorie",
+      "room_completed": "Finalizate pe cameră",
+      "room_overdue": "Întârziate pe cameră",
+      "room_on_time_rate": "La timp pe cameră (%)"
     },
     "names": {
       "tasks_created": "Sarcini create",
@@ -136,7 +152,11 @@
       "members": "Membri",
       "members_with_task_activity": "Membri cu activitate pe sarcini",
       "approvals_rate": "Rata de aprobare (%)",
-      "approvals_median_hours": "Timp median de procesare (ore)"
+      "approvals_median_hours": "Timp median de procesare (ore)",
+      "tasks_completed_with_deadline": "Finalizate cu dată de final",
+      "tasks_completed_on_time": "Finalizate la timp",
+      "tasks_on_time_rate": "La timp (%)",
+      "tasks_median_lead_days": "Timp median de execuție (zile)"
     },
     "granularity": "Evoluție pe",
     "granularityHint": "Cât de detaliat se salvează evoluția în timp – folosit pentru comparația cu alte instantanee.",
@@ -151,6 +171,61 @@
     },
     "developmentDatesNote": "Instantaneele au rezoluții diferite sau acoperă mai mult de un an, așa că evoluția este afișată pe date.",
     "weekLabel": "Săptămâna {{week}}",
-    "partialNote": "Datele din paranteze: se numără doar partea din subperioadă care se încadrează în perioada instantaneului."
+    "partialNote": "Datele din paranteze: se numără doar partea din subperioadă care se încadrează în perioada instantaneului.",
+    "days_one": "{{count}} zi",
+    "days_few": "{{count}} zile",
+    "days_other": "{{count}} de zile",
+    "per": {
+      "week": "pe săptămână",
+      "month": "pe lună",
+      "quarter": "pe trimestru"
+    },
+    "savedOn": "salvat {{date}}",
+    "maxSelected": "Cel mult {{max}} instantanee odată.",
+    "lengthWarning": "Instantaneele acoperă perioade de lungimi diferite ({{lengths}}) – cifrele nu sunt direct comparabile.",
+    "atSaveNote": "Starea la salvarea instantaneului – nu cifre pentru perioadă",
+    "developmentTitle": "Evoluție",
+    "showTable": "Afișează ca tabel",
+    "hideTable": "Ascunde tabelul",
+    "noSeries": "Instantaneele selectate nu au evoluție în timp (salvate înainte ca funcția să existe).",
+    "pointsSuffix": "pp",
+    "saveIntro": "Alege perioada de salvat – independent de prezentarea generală. Un instantaneu salvat nu se mai schimbă ulterior.",
+    "periodLabel": "Perioadă",
+    "periodType": {
+      "year": "An calendaristic",
+      "quarter": "Trimestru",
+      "month": "Lună",
+      "custom": "Personalizat",
+      "view": "Ca prezentarea generală"
+    },
+    "year": "An",
+    "quarterLabel": "Trimestru",
+    "monthLabel": "Lună",
+    "labelAuto": "Un nume gol se salvează ca „{{name}}”.",
+    "atPeriodEndNote": "Stoc la sfârșitul perioadei",
+    "wholeOrganisationNote": "Instantaneele se salvează întotdeauna pentru întreaga organizație (fără filtru de cameră)."
+  },
+  "tabs": {
+    "overblik": "Prezentare generală",
+    "snapshots": "Salvează și compară"
+  },
+  "filter": {
+    "room": "Cameră",
+    "allRooms": "Toate camerele",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Întreaga organizație – nu este afectată de filtrul de cameră."
+  },
+  "attention": {
+    "title": "Acum",
+    "description": "Situația curentă – nu urmează perioada selectată.",
+    "roomNote": "Sarcini în {{room}} · stocul întregii organizații.",
+    "allClear": "Nimic nu necesită acțiune acum.",
+    "overdueTitle": "Sarcini întârziate",
+    "unassignedTitle": "Sarcini fără responsabili",
+    "unassignedDetail": "Sarcini deschise la care nu s-a înscris nimeni.",
+    "stockTitle": "Stoc care necesită acțiune",
+    "itemsWithoutAvailable": "Articole fără unități disponibile: {{count}}",
+    "goToTasks": "Mergi la sarcini",
+    "goToDatalayer": "Mergi la stratul de date"
   }
 }

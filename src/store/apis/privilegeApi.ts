@@ -75,7 +75,7 @@ export const REJECT_TASK_PRIVILEGE = 'reject_task'
 
 // Statistik (US-48–54). read gater get_statistics + snapshot-læsning,
 // create/delete gemmer/sletter snapshots - se
-// docs/migrations/2026-09-29-statistics.sql.
+// docs/dbSchema.sql §15.26.
 export const READ_STATISTICS_PRIVILEGE = 'read_statistics'
 export const CREATE_STATISTICS_PRIVILEGE = 'create_statistics'
 export const DELETE_STATISTICS_PRIVILEGE = 'delete_statistics'

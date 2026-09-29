@@ -35,7 +35,14 @@
     "completed": "Tâches terminées",
     "active": "Tâches en cours",
     "overdue": "Tâches en retard",
-    "membersWithActivity": "Membres avec activité sur les tâches"
+    "membersWithActivity": "Membres avec activité sur les tâches",
+    "trend": "{{change}} par rapport à {{previous}} sur la période {{period}}",
+    "trendSame": "Identique à la période {{period}} ({{previous}})",
+    "onTime": "Terminées à temps",
+    "onTimeDetail": "{{onTime}} sur {{total}} avec date de fin",
+    "onTimeNone": "Aucune tâche terminée avec date de fin",
+    "leadTime": "Délai de traitement (médiane)",
+    "leadTimeDetail": "De la création à la fin"
   },
   "sections": {
     "tasks": "Tâches",
@@ -59,12 +66,15 @@
     "none": "Sans priorité"
   },
   "rooms": {
-    "title": "Tâches par salle",
-    "description": "Tâches créées pendant la période, par salle.",
+    "title": "Vue par salle",
+    "description": "Les indicateurs de chaque salle sur la période. Cliquez sur une salle pour voir tous ses chiffres.",
     "noRoom": "Sans salle",
     "completed": "Terminées",
-    "open": "Ouvertes",
-    "value": "{{completed}} terminées · {{open}} ouvertes"
+    "created": "Créées",
+    "overdue": "En retard",
+    "onTime": "À temps",
+    "onTimeValue": "{{onTime}} sur {{total}}",
+    "filterTo": "Afficher les statistiques de {{room}}"
   },
   "memberLoad": {
     "title": "Tâches par membre",
@@ -93,18 +103,20 @@
   },
   "materials": {
     "statusTitle": "Unités par statut",
-    "statusDescription": "Statut actuel de toutes les unités et lots enregistrés.",
     "categoryTitle": "Articles par catégorie",
     "categoryDescription": "Nombre d'articles dans chaque catégorie principale.",
     "topTitle": "Matériels les plus utilisés",
-    "topDescription": "Top 5 des matériels liés aux tâches créées pendant la période."
+    "topDescription": "Top 5 des matériels liés aux tâches créées pendant la période.",
+    "statusDescriptionAt": "Statut à la fin de la période ({{date}}).",
+    "noHistory": "L'historique du stock commence le {{date}} – le statut antérieur est inconnu.",
+    "usedCategoryTitle": "Articles utilisés par catégorie",
+    "usedCategoryDescription": "Nombre d’articles différents utilisés pour les tâches créées pendant la période, par catégorie principale."
   },
   "snapshots": {
     "title": "Instantanés enregistrés",
     "description": "Enregistrez les chiffres de la période et comparez-les aux périodes précédentes.",
     "save": "Enregistrer l'instantané",
     "saveTitle": "Enregistrer l'instantané",
-    "saveDescription": "Enregistre les chiffres pour {{period}}. Un instantané enregistré ne change jamais ensuite.",
     "label": "Nom (facultatif)",
     "labelPlaceholder": "Ex. Saison 2026",
     "saving": "Enregistrement...",
@@ -121,12 +133,16 @@
       "kpis": "Indicateurs clés",
       "task_status": "Statut des tâches",
       "task_priority": "Priorité",
-      "room": "Tâches par salle",
+      "room": "Créées par salle",
       "member_load": "Tâches par membre",
       "approvals": "Validations",
       "item_status": "Unités par statut",
       "category": "Articles par catégorie",
-      "top_material": "Matériels les plus utilisés"
+      "top_material": "Matériels les plus utilisés",
+      "used_category": "Articles utilisés par catégorie",
+      "room_completed": "Terminées par salle",
+      "room_overdue": "En retard par salle",
+      "room_on_time_rate": "À temps par salle (%)"
     },
     "names": {
       "tasks_created": "Tâches créées",
@@ -136,7 +152,11 @@
       "members": "Membres",
       "members_with_task_activity": "Membres avec activité sur les tâches",
       "approvals_rate": "Taux de validation (%)",
-      "approvals_median_hours": "Délai de traitement médian (heures)"
+      "approvals_median_hours": "Délai de traitement médian (heures)",
+      "tasks_completed_with_deadline": "Terminées avec date de fin",
+      "tasks_completed_on_time": "Terminées à temps",
+      "tasks_on_time_rate": "À temps (%)",
+      "tasks_median_lead_days": "Délai médian (jours)"
     },
     "granularity": "Évolution par",
     "granularityHint": "Précision avec laquelle l'évolution est enregistrée – sert à comparer avec d'autres instantanés.",
@@ -151,6 +171,61 @@
     },
     "developmentDatesNote": "Les instantanés ont des résolutions différentes ou couvrent plus d'un an ; l'évolution est donc affichée par date.",
     "weekLabel": "Semaine {{week}}",
-    "partialNote": "Dates entre parenthèses : seule la partie de la sous-période comprise dans la période de l'instantané est comptée."
+    "partialNote": "Dates entre parenthèses : seule la partie de la sous-période comprise dans la période de l'instantané est comptée.",
+    "days_one": "{{count}} jour",
+    "days_many": "{{count}} jours",
+    "days_other": "{{count}} jours",
+    "per": {
+      "week": "par semaine",
+      "month": "par mois",
+      "quarter": "par trimestre"
+    },
+    "savedOn": "enregistré le {{date}}",
+    "maxSelected": "{{max}} instantanés au maximum à la fois.",
+    "lengthWarning": "Les instantanés couvrent des périodes de durées différentes ({{lengths}}) – les chiffres ne sont pas directement comparables.",
+    "atSaveNote": "État au moment de l'enregistrement – pas des chiffres de la période",
+    "developmentTitle": "Évolution",
+    "showTable": "Afficher en tableau",
+    "hideTable": "Masquer le tableau",
+    "noSeries": "Les instantanés sélectionnés n'ont pas d'évolution dans le temps (enregistrés avant l'existence de la fonction).",
+    "pointsSuffix": "pts",
+    "saveIntro": "Choisissez la période à enregistrer, indépendamment de l'aperçu. Un instantané enregistré ne change jamais ensuite.",
+    "periodLabel": "Période",
+    "periodType": {
+      "year": "Année civile",
+      "quarter": "Trimestre",
+      "month": "Mois",
+      "custom": "Personnalisée",
+      "view": "Comme l'aperçu"
+    },
+    "year": "Année",
+    "quarterLabel": "Trimestre",
+    "monthLabel": "Mois",
+    "labelAuto": "Un nom vide est enregistré comme « {{name}} ».",
+    "atPeriodEndNote": "Stock à la fin de la période",
+    "wholeOrganisationNote": "Les instantanés sont toujours enregistrés pour toute l'organisation (sans filtre de salle)."
+  },
+  "tabs": {
+    "overblik": "Aperçu",
+    "snapshots": "Enregistrer et comparer"
+  },
+  "filter": {
+    "room": "Salle",
+    "allRooms": "Toutes les salles",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Toute l'organisation – non concernée par le filtre de salle."
+  },
+  "attention": {
+    "title": "En ce moment",
+    "description": "Situation actuelle – ne suit pas la période choisie.",
+    "roomNote": "Tâches de {{room}} · stock de toute l’organisation.",
+    "allClear": "Rien ne nécessite d’action pour le moment.",
+    "overdueTitle": "Tâches en retard",
+    "unassignedTitle": "Tâches sans responsable",
+    "unassignedDetail": "Tâches ouvertes auxquelles personne n’est inscrit.",
+    "stockTitle": "Stock nécessitant une action",
+    "itemsWithoutAvailable": "Articles sans unité disponible : {{count}}",
+    "goToTasks": "Aller aux tâches",
+    "goToDatalayer": "Aller à la couche de données"
   }
 }

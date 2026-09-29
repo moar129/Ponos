@@ -153,6 +153,7 @@
     "NO_PRIV_READ_STATISTICS": "Je hebt geen rechten om statistieken te bekijken.",
     "NO_PRIV_CREATE_STATISTICS": "Je hebt geen rechten om statistieken op te slaan.",
     "INVALID_PERIOD": "De einddatum moet na de begindatum liggen.",
-    "INVALID_GRANULARITY": "Ongeldige resolutie voor de statistieken."
+    "INVALID_GRANULARITY": "Ongeldige resolutie voor de statistieken.",
+    "ROOM_NOT_FOUND": "De ruimte bestaat niet in je organisatie."
   }
 }

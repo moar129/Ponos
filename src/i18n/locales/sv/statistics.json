@@ -35,7 +35,14 @@
     "completed": "Slutförda uppgifter",
     "active": "Pågående uppgifter",
     "overdue": "Försenade uppgifter",
-    "membersWithActivity": "Medlemmar med uppgiftsaktivitet"
+    "membersWithActivity": "Medlemmar med uppgiftsaktivitet",
+    "trend": "{{change}} från {{previous}} under perioden {{period}}",
+    "trendSame": "Samma som under perioden {{period}} ({{previous}})",
+    "onTime": "Klara i tid",
+    "onTimeDetail": "{{onTime}} av {{total}} med slutdatum",
+    "onTimeNone": "Inga klara uppgifter med slutdatum",
+    "leadTime": "Genomloppstid (median)",
+    "leadTimeDetail": "Från skapad till klar"
   },
   "sections": {
     "tasks": "Uppgifter",
@@ -59,12 +66,15 @@
     "none": "Ingen prioritet"
   },
   "rooms": {
-    "title": "Uppgifter per rum",
-    "description": "Uppgifter skapade under perioden, per rum.",
+    "title": "Rumsöversikt",
+    "description": "Nyckeltalen för varje rum under perioden. Klicka på ett rum för att se alla dess siffror.",
     "noRoom": "Utan rum",
     "completed": "Slutförda",
-    "open": "Öppna",
-    "value": "{{completed}} slutförda · {{open}} öppna"
+    "created": "Skapade",
+    "overdue": "Försenade",
+    "onTime": "I tid",
+    "onTimeValue": "{{onTime}} av {{total}}",
+    "filterTo": "Visa statistik för {{room}}"
   },
   "memberLoad": {
     "title": "Uppgifter per medlem",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Enheter per status",
-    "statusDescription": "Aktuell status för alla registrerade enheter och partier.",
     "categoryTitle": "Artiklar per kategori",
     "categoryDescription": "Antal artiklar i varje huvudkategori just nu.",
     "topTitle": "Mest använda material",
-    "topDescription": "Topp 5 material kopplade till uppgifter skapade under perioden."
+    "topDescription": "Topp 5 material kopplade till uppgifter skapade under perioden.",
+    "statusDescriptionAt": "Status vid periodens slut ({{date}}).",
+    "noHistory": "Lagerhistoriken börjar {{date}} – statusen innan dess är okänd.",
+    "usedCategoryTitle": "Använda artiklar per kategori",
+    "usedCategoryDescription": "Antal olika artiklar som använts i uppgifter skapade under perioden, per huvudkategori."
   },
   "snapshots": {
     "title": "Sparade ögonblicksbilder",
     "description": "Spara periodens siffror och jämför dem med tidigare perioder.",
     "save": "Spara ögonblicksbild",
     "saveTitle": "Spara ögonblicksbild",
-    "saveDescription": "Sparar siffrorna för {{period}}. En sparad ögonblicksbild ändras aldrig efteråt.",
     "label": "Namn (valfritt)",
     "labelPlaceholder": "T.ex. Säsong 2026",
     "saving": "Sparar...",
@@ -119,12 +131,16 @@
       "kpis": "Nyckeltal",
       "task_status": "Uppgiftsstatus",
       "task_priority": "Prioritet",
-      "room": "Uppgifter per rum",
+      "room": "Skapade per rum",
       "member_load": "Uppgifter per medlem",
       "approvals": "Godkännanden",
       "item_status": "Enheter per status",
       "category": "Artiklar per kategori",
-      "top_material": "Mest använda material"
+      "top_material": "Mest använda material",
+      "used_category": "Använda artiklar per kategori",
+      "room_completed": "Klara per rum",
+      "room_overdue": "Försenade per rum",
+      "room_on_time_rate": "I tid per rum (%)"
     },
     "names": {
       "tasks_created": "Skapade uppgifter",
@@ -134,7 +150,11 @@
       "members": "Medlemmar",
       "members_with_task_activity": "Medlemmar med uppgiftsaktivitet",
       "approvals_rate": "Godkännandegrad (%)",
-      "approvals_median_hours": "Median handläggningstid (timmar)"
+      "approvals_median_hours": "Median handläggningstid (timmar)",
+      "tasks_completed_with_deadline": "Klara med slutdatum",
+      "tasks_completed_on_time": "Klara i tid",
+      "tasks_on_time_rate": "I tid (%)",
+      "tasks_median_lead_days": "Median genomloppstid (dagar)"
     },
     "granularity": "Utveckling per",
     "granularityHint": "Hur detaljerat utvecklingen över tid sparas – används för att jämföra med andra ögonblicksbilder.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "Ögonblicksbilderna har olika upplösning eller täcker mer än ett år, så utvecklingen visas per datum.",
     "weekLabel": "Vecka {{week}}",
-    "partialNote": "Datum inom parentes: endast den del av delperioden som ligger inom ögonblicksbildens period räknas."
+    "partialNote": "Datum inom parentes: endast den del av delperioden som ligger inom ögonblicksbildens period räknas.",
+    "days_one": "{{count}} dag",
+    "days_other": "{{count}} dagar",
+    "per": {
+      "week": "per vecka",
+      "month": "per månad",
+      "quarter": "per kvartal"
+    },
+    "savedOn": "sparad {{date}}",
+    "maxSelected": "Högst {{max}} ögonblicksbilder åt gången.",
+    "lengthWarning": "Ögonblicksbilderna täcker olika långa perioder ({{lengths}}) – siffrorna är inte direkt jämförbara.",
+    "atSaveNote": "Läget när ögonblicksbilden sparades – inte siffror för perioden",
+    "developmentTitle": "Utveckling",
+    "showTable": "Visa som tabell",
+    "hideTable": "Dölj tabell",
+    "noSeries": "De valda ögonblicksbilderna saknar utveckling över tid (sparade innan funktionen fanns).",
+    "pointsSuffix": "p.e.",
+    "saveIntro": "Välj perioden som ska sparas – oberoende av översikten. En sparad ögonblicksbild ändras aldrig efteråt.",
+    "periodLabel": "Period",
+    "periodType": {
+      "year": "Kalenderår",
+      "quarter": "Kvartal",
+      "month": "Månad",
+      "custom": "Anpassad",
+      "view": "Som översikten"
+    },
+    "year": "År",
+    "quarterLabel": "Kvartal",
+    "monthLabel": "Månad",
+    "labelAuto": "Ett tomt namn sparas som \"{{name}}\".",
+    "atPeriodEndNote": "Lager vid periodens slut",
+    "wholeOrganisationNote": "Ögonblicksbilder sparas alltid för hela organisationen (utan rumsfilter)."
+  },
+  "tabs": {
+    "overblik": "Översikt",
+    "snapshots": "Spara och jämför"
+  },
+  "filter": {
+    "room": "Rum",
+    "allRooms": "Alla rum",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Hela organisationen – påverkas inte av rumsfiltret."
+  },
+  "attention": {
+    "title": "Just nu",
+    "description": "Aktuellt läge – följer inte den valda perioden.",
+    "roomNote": "Uppgifter i {{room}} · lager för hela organisationen.",
+    "allClear": "Inget kräver åtgärd just nu.",
+    "overdueTitle": "Försenade uppgifter",
+    "unassignedTitle": "Uppgifter utan ansvariga",
+    "unassignedDetail": "Öppna uppgifter som ingen har anmält sig till.",
+    "stockTitle": "Lager som kräver åtgärd",
+    "itemsWithoutAvailable": "Artiklar utan lediga enheter: {{count}}",
+    "goToTasks": "Gå till uppgifter",
+    "goToDatalayer": "Gå till datalagret"
   }
 }

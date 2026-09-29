@@ -35,7 +35,14 @@
     "completed": "Dokončené úkoly",
     "active": "Probíhající úkoly",
     "overdue": "Úkoly po termínu",
-    "membersWithActivity": "Členové s aktivitou v úkolech"
+    "membersWithActivity": "Členové s aktivitou v úkolech",
+    "trend": "{{change}} oproti {{previous}} v období {{period}}",
+    "trendSame": "Stejně jako v období {{period}} ({{previous}})",
+    "onTime": "Dokončené včas",
+    "onTimeDetail": "{{onTime}} z {{total}} s termínem",
+    "onTimeNone": "Žádné dokončené úkoly s termínem",
+    "leadTime": "Doba zpracování (medián)",
+    "leadTimeDetail": "Od vytvoření po dokončení"
   },
   "sections": {
     "tasks": "Úkoly",
@@ -59,12 +66,15 @@
     "none": "Bez priority"
   },
   "rooms": {
-    "title": "Úkoly podle místnosti",
-    "description": "Úkoly vytvořené v období podle místnosti.",
+    "title": "Přehled místností",
+    "description": "Klíčové ukazatele každé místnosti v období. Kliknutím na místnost zobrazíte všechna její čísla.",
     "noRoom": "Bez místnosti",
     "completed": "Dokončené",
-    "open": "Otevřené",
-    "value": "Dokončené: {{completed}} · otevřené: {{open}}"
+    "created": "Vytvořené",
+    "overdue": "Po termínu",
+    "onTime": "Včas",
+    "onTimeValue": "{{onTime}} z {{total}}",
+    "filterTo": "Zobrazit statistiku pro {{room}}"
   },
   "memberLoad": {
     "title": "Úkoly na člena",
@@ -95,18 +105,20 @@
   },
   "materials": {
     "statusTitle": "Jednotky podle stavu",
-    "statusDescription": "Aktuální stav všech evidovaných jednotek a šarží.",
     "categoryTitle": "Položky podle kategorie",
     "categoryDescription": "Počet položek v každé hlavní kategorii.",
     "topTitle": "Nejpoužívanější materiály",
-    "topDescription": "Top 5 materiálů propojených s úkoly vytvořenými v období."
+    "topDescription": "Top 5 materiálů propojených s úkoly vytvořenými v období.",
+    "statusDescriptionAt": "Stav na konci období ({{date}}).",
+    "noHistory": "Historie skladu začíná {{date}} – dřívější stav není znám.",
+    "usedCategoryTitle": "Použité položky podle kategorie",
+    "usedCategoryDescription": "Počet různých položek použitých v úkolech vytvořených v období, podle hlavní kategorie."
   },
   "snapshots": {
     "title": "Uložené snímky",
     "description": "Uložte čísla za období a porovnejte je s dřívějšími obdobími.",
     "save": "Uložit snímek",
     "saveTitle": "Uložit snímek",
-    "saveDescription": "Uloží čísla za {{period}}. Uložený snímek se později nikdy nemění.",
     "label": "Název (volitelné)",
     "labelPlaceholder": "Např. Sezóna 2026",
     "saving": "Ukládání...",
@@ -123,12 +135,16 @@
       "kpis": "Klíčové ukazatele",
       "task_status": "Stav úkolů",
       "task_priority": "Priorita",
-      "room": "Úkoly podle místnosti",
+      "room": "Vytvořené podle místnosti",
       "member_load": "Úkoly na člena",
       "approvals": "Schválení",
       "item_status": "Jednotky podle stavu",
       "category": "Položky podle kategorie",
-      "top_material": "Nejpoužívanější materiály"
+      "top_material": "Nejpoužívanější materiály",
+      "used_category": "Použité položky podle kategorie",
+      "room_completed": "Dokončené podle místnosti",
+      "room_overdue": "Po termínu podle místnosti",
+      "room_on_time_rate": "Včas podle místnosti (%)"
     },
     "names": {
       "tasks_created": "Vytvořené úkoly",
@@ -138,7 +154,11 @@
       "members": "Členové",
       "members_with_task_activity": "Členové s aktivitou v úkolech",
       "approvals_rate": "Míra schválení (%)",
-      "approvals_median_hours": "Medián doby vyřízení (hodiny)"
+      "approvals_median_hours": "Medián doby vyřízení (hodiny)",
+      "tasks_completed_with_deadline": "Dokončené s termínem",
+      "tasks_completed_on_time": "Dokončené včas",
+      "tasks_on_time_rate": "Včas (%)",
+      "tasks_median_lead_days": "Medián doby zpracování (dny)"
     },
     "granularity": "Vývoj po",
     "granularityHint": "Jak podrobně se ukládá vývoj v čase – slouží k porovnání s jinými snímky.",
@@ -153,6 +173,62 @@
     },
     "developmentDatesNote": "Snímky mají různé rozlišení nebo pokrývají více než rok, proto je vývoj zobrazen podle data.",
     "weekLabel": "Týden {{week}}",
-    "partialNote": "Data v závorkách: započítána je jen ta část dílčího období, která spadá do období snímku."
+    "partialNote": "Data v závorkách: započítána je jen ta část dílčího období, která spadá do období snímku.",
+    "days_one": "{{count}} den",
+    "days_few": "{{count}} dny",
+    "days_many": "{{count}} dne",
+    "days_other": "{{count}} dní",
+    "per": {
+      "week": "po týdnech",
+      "month": "po měsících",
+      "quarter": "po čtvrtletích"
+    },
+    "savedOn": "uloženo {{date}}",
+    "maxSelected": "Najednou nejvýše {{max}} snímky.",
+    "lengthWarning": "Snímky pokrývají různě dlouhá období ({{lengths}}) – čísla nejsou přímo srovnatelná.",
+    "atSaveNote": "Stav v okamžiku uložení – nejsou to čísla za období",
+    "developmentTitle": "Vývoj",
+    "showTable": "Zobrazit jako tabulku",
+    "hideTable": "Skrýt tabulku",
+    "noSeries": "Vybrané snímky nemají vývoj v čase (uloženy dříve, než funkce existovala).",
+    "pointsSuffix": "p. b.",
+    "saveIntro": "Zvolte období k uložení – nezávisle na přehledu. Uložený snímek se později nikdy nemění.",
+    "periodLabel": "Období",
+    "periodType": {
+      "year": "Kalendářní rok",
+      "quarter": "Čtvrtletí",
+      "month": "Měsíc",
+      "custom": "Vlastní",
+      "view": "Jako přehled"
+    },
+    "year": "Rok",
+    "quarterLabel": "Čtvrtletí",
+    "monthLabel": "Měsíc",
+    "labelAuto": "Prázdný název se uloží jako „{{name}}“.",
+    "atPeriodEndNote": "Sklad na konci období",
+    "wholeOrganisationNote": "Snímky se vždy ukládají pro celou organizaci (bez filtru místnosti)."
+  },
+  "tabs": {
+    "overblik": "Přehled",
+    "snapshots": "Uložit a porovnat"
+  },
+  "filter": {
+    "room": "Místnost",
+    "allRooms": "Všechny místnosti",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Celá organizace – filtr místnosti se neuplatní."
+  },
+  "attention": {
+    "title": "Právě teď",
+    "description": "Aktuální stav – neřídí se vybraným obdobím.",
+    "roomNote": "Úkoly v {{room}} · sklad celé organizace.",
+    "allClear": "Právě teď nic nevyžaduje zásah.",
+    "overdueTitle": "Úkoly po termínu",
+    "unassignedTitle": "Úkoly bez odpovědných",
+    "unassignedDetail": "Otevřené úkoly, ke kterým se nikdo nepřihlásil.",
+    "stockTitle": "Sklad vyžadující zásah",
+    "itemsWithoutAvailable": "Položky bez volných jednotek: {{count}}",
+    "goToTasks": "Přejít na úkoly",
+    "goToDatalayer": "Přejít na datovou vrstvu"
   }
 }

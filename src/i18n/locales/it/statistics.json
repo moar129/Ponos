@@ -35,7 +35,14 @@
     "completed": "Attività completate",
     "active": "Attività in corso",
     "overdue": "Attività scadute",
-    "membersWithActivity": "Membri con attività sui compiti"
+    "membersWithActivity": "Membri con attività sui compiti",
+    "trend": "{{change}} da {{previous}} nel periodo {{period}}",
+    "trendSame": "Uguale al periodo {{period}} ({{previous}})",
+    "onTime": "Completate in tempo",
+    "onTimeDetail": "{{onTime}} su {{total}} con data di fine",
+    "onTimeNone": "Nessuna attività completata con data di fine",
+    "leadTime": "Tempo di attraversamento (mediana)",
+    "leadTimeDetail": "Dalla creazione al completamento"
   },
   "sections": {
     "tasks": "Attività",
@@ -59,12 +66,15 @@
     "none": "Nessuna priorità"
   },
   "rooms": {
-    "title": "Attività per stanza",
-    "description": "Attività create nel periodo, per stanza.",
+    "title": "Panoramica stanze",
+    "description": "Gli indicatori di ogni stanza nel periodo. Clicca su una stanza per vedere tutti i suoi dati.",
     "noRoom": "Senza stanza",
     "completed": "Completate",
-    "open": "Aperte",
-    "value": "{{completed}} completate · {{open}} aperte"
+    "created": "Create",
+    "overdue": "Scadute",
+    "onTime": "In tempo",
+    "onTimeValue": "{{onTime}} su {{total}}",
+    "filterTo": "Mostra statistiche per {{room}}"
   },
   "memberLoad": {
     "title": "Attività per membro",
@@ -93,18 +103,20 @@
   },
   "materials": {
     "statusTitle": "Unità per stato",
-    "statusDescription": "Stato attuale di tutte le unità e i lotti registrati.",
     "categoryTitle": "Articoli per categoria",
     "categoryDescription": "Numero di articoli in ogni categoria principale.",
     "topTitle": "Materiali più usati",
-    "topDescription": "I 5 materiali più collegati ad attività create nel periodo."
+    "topDescription": "I 5 materiali più collegati ad attività create nel periodo.",
+    "statusDescriptionAt": "Stato alla fine del periodo ({{date}}).",
+    "noHistory": "La cronologia del magazzino inizia il {{date}}: lo stato precedente non è noto.",
+    "usedCategoryTitle": "Articoli usati per categoria",
+    "usedCategoryDescription": "Numero di articoli diversi usati nelle attività create nel periodo, per categoria principale."
   },
   "snapshots": {
     "title": "Snapshot salvati",
     "description": "Salva i numeri del periodo e confrontali con i periodi precedenti.",
     "save": "Salva snapshot",
     "saveTitle": "Salva snapshot",
-    "saveDescription": "Salva i numeri per {{period}}. Uno snapshot salvato non cambia mai in seguito.",
     "label": "Nome (facoltativo)",
     "labelPlaceholder": "Es. Stagione 2026",
     "saving": "Salvataggio...",
@@ -121,12 +133,16 @@
       "kpis": "Indicatori chiave",
       "task_status": "Stato delle attività",
       "task_priority": "Priorità",
-      "room": "Attività per stanza",
+      "room": "Create per stanza",
       "member_load": "Attività per membro",
       "approvals": "Approvazioni",
       "item_status": "Unità per stato",
       "category": "Articoli per categoria",
-      "top_material": "Materiali più usati"
+      "top_material": "Materiali più usati",
+      "used_category": "Articoli usati per categoria",
+      "room_completed": "Completate per stanza",
+      "room_overdue": "Scadute per stanza",
+      "room_on_time_rate": "In tempo per stanza (%)"
     },
     "names": {
       "tasks_created": "Attività create",
@@ -136,7 +152,11 @@
       "members": "Membri",
       "members_with_task_activity": "Membri con attività sui compiti",
       "approvals_rate": "Tasso di approvazione (%)",
-      "approvals_median_hours": "Tempo di gestione mediano (ore)"
+      "approvals_median_hours": "Tempo di gestione mediano (ore)",
+      "tasks_completed_with_deadline": "Completate con data di fine",
+      "tasks_completed_on_time": "Completate in tempo",
+      "tasks_on_time_rate": "In tempo (%)",
+      "tasks_median_lead_days": "Tempo mediano (giorni)"
     },
     "granularity": "Andamento per",
     "granularityHint": "Con quale dettaglio viene salvato l’andamento nel tempo – serve per il confronto con altri snapshot.",
@@ -151,6 +171,61 @@
     },
     "developmentDatesNote": "Gli snapshot hanno risoluzioni diverse o coprono più di un anno, quindi l’andamento è mostrato per data.",
     "weekLabel": "Settimana {{week}}",
-    "partialNote": "Date tra parentesi: viene contata solo la parte del sottoperiodo che rientra nel periodo dello snapshot."
+    "partialNote": "Date tra parentesi: viene contata solo la parte del sottoperiodo che rientra nel periodo dello snapshot.",
+    "days_one": "{{count}} giorno",
+    "days_many": "{{count}} giorni",
+    "days_other": "{{count}} giorni",
+    "per": {
+      "week": "a settimana",
+      "month": "al mese",
+      "quarter": "a trimestre"
+    },
+    "savedOn": "salvato il {{date}}",
+    "maxSelected": "Al massimo {{max}} snapshot alla volta.",
+    "lengthWarning": "Gli snapshot coprono periodi di durata diversa ({{lengths}}): i numeri non sono direttamente confrontabili.",
+    "atSaveNote": "Stato al momento del salvataggio, non numeri del periodo",
+    "developmentTitle": "Andamento",
+    "showTable": "Mostra come tabella",
+    "hideTable": "Nascondi tabella",
+    "noSeries": "Gli snapshot selezionati non hanno un andamento nel tempo (salvati prima che la funzione esistesse).",
+    "pointsSuffix": "p.p.",
+    "saveIntro": "Scegli il periodo da salvare, indipendentemente dalla panoramica. Uno snapshot salvato non cambia mai in seguito.",
+    "periodLabel": "Periodo",
+    "periodType": {
+      "year": "Anno solare",
+      "quarter": "Trimestre",
+      "month": "Mese",
+      "custom": "Personalizzato",
+      "view": "Come la panoramica"
+    },
+    "year": "Anno",
+    "quarterLabel": "Trimestre",
+    "monthLabel": "Mese",
+    "labelAuto": "Un nome vuoto viene salvato come \"{{name}}\".",
+    "atPeriodEndNote": "Magazzino alla fine del periodo",
+    "wholeOrganisationNote": "Gli snapshot vengono sempre salvati per l'intera organizzazione (senza filtro stanza)."
+  },
+  "tabs": {
+    "overblik": "Panoramica",
+    "snapshots": "Salva e confronta"
+  },
+  "filter": {
+    "room": "Stanza",
+    "allRooms": "Tutte le stanze",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Intera organizzazione – non influenzata dal filtro stanza."
+  },
+  "attention": {
+    "title": "In questo momento",
+    "description": "Stato attuale – non segue il periodo selezionato.",
+    "roomNote": "Attività in {{room}} · magazzino dell’intera organizzazione.",
+    "allClear": "Nulla richiede interventi al momento.",
+    "overdueTitle": "Attività scadute",
+    "unassignedTitle": "Attività senza responsabili",
+    "unassignedDetail": "Attività aperte a cui nessuno si è iscritto.",
+    "stockTitle": "Magazzino che richiede interventi",
+    "itemsWithoutAvailable": "Articoli senza unità disponibili: {{count}}",
+    "goToTasks": "Vai alle attività",
+    "goToDatalayer": "Vai al livello dati"
   }
 }

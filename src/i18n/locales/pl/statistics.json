@@ -35,7 +35,14 @@
     "completed": "Ukończone zadania",
     "active": "Zadania w toku",
     "overdue": "Zaległe zadania",
-    "membersWithActivity": "Członkowie z aktywnością w zadaniach"
+    "membersWithActivity": "Członkowie z aktywnością w zadaniach",
+    "trend": "{{change}} wobec {{previous}} w okresie {{period}}",
+    "trendSame": "Tak samo jak w okresie {{period}} ({{previous}})",
+    "onTime": "Ukończone na czas",
+    "onTimeDetail": "{{onTime}} z {{total}} z terminem",
+    "onTimeNone": "Brak ukończonych zadań z terminem",
+    "leadTime": "Czas realizacji (mediana)",
+    "leadTimeDetail": "Od utworzenia do ukończenia"
   },
   "sections": {
     "tasks": "Zadania",
@@ -59,12 +66,15 @@
     "none": "Brak priorytetu"
   },
   "rooms": {
-    "title": "Zadania według pokoju",
-    "description": "Zadania utworzone w okresie, według pokoju.",
+    "title": "Przegląd pokoi",
+    "description": "Kluczowe wskaźniki każdego pokoju w okresie. Kliknij pokój, aby zobaczyć wszystkie jego dane.",
     "noRoom": "Bez pokoju",
     "completed": "Ukończone",
-    "open": "Otwarte",
-    "value": "Ukończone: {{completed}} · otwarte: {{open}}"
+    "created": "Utworzone",
+    "overdue": "Zaległe",
+    "onTime": "Na czas",
+    "onTimeValue": "{{onTime}} z {{total}}",
+    "filterTo": "Pokaż statystyki dla {{room}}"
   },
   "memberLoad": {
     "title": "Zadania na członka",
@@ -95,18 +105,20 @@
   },
   "materials": {
     "statusTitle": "Jednostki według statusu",
-    "statusDescription": "Aktualny status wszystkich zarejestrowanych jednostek i partii.",
     "categoryTitle": "Artykuły według kategorii",
     "categoryDescription": "Liczba artykułów w każdej kategorii głównej.",
     "topTitle": "Najczęściej używane materiały",
-    "topDescription": "Top 5 materiałów powiązanych z zadaniami utworzonymi w okresie."
+    "topDescription": "Top 5 materiałów powiązanych z zadaniami utworzonymi w okresie.",
+    "statusDescriptionAt": "Stan na koniec okresu ({{date}}).",
+    "noHistory": "Historia magazynu zaczyna się {{date}} – wcześniejszy stan jest nieznany.",
+    "usedCategoryTitle": "Użyte artykuły według kategorii",
+    "usedCategoryDescription": "Liczba różnych artykułów użytych w zadaniach utworzonych w okresie, według kategorii głównej."
   },
   "snapshots": {
     "title": "Zapisane migawki",
     "description": "Zapisz liczby z okresu i porównaj je z wcześniejszymi okresami.",
     "save": "Zapisz migawkę",
     "saveTitle": "Zapisz migawkę",
-    "saveDescription": "Zapisuje liczby dla: {{period}}. Zapisana migawka nigdy się później nie zmienia.",
     "label": "Nazwa (opcjonalnie)",
     "labelPlaceholder": "Np. Sezon 2026",
     "saving": "Zapisywanie...",
@@ -123,12 +135,16 @@
       "kpis": "Kluczowe wskaźniki",
       "task_status": "Status zadań",
       "task_priority": "Priorytet",
-      "room": "Zadania według pokoju",
+      "room": "Utworzone na pokój",
       "member_load": "Zadania na członka",
       "approvals": "Zatwierdzenia",
       "item_status": "Jednostki według statusu",
       "category": "Artykuły według kategorii",
-      "top_material": "Najczęściej używane materiały"
+      "top_material": "Najczęściej używane materiały",
+      "used_category": "Użyte artykuły według kategorii",
+      "room_completed": "Ukończone na pokój",
+      "room_overdue": "Zaległe na pokój",
+      "room_on_time_rate": "Na czas na pokój (%)"
     },
     "names": {
       "tasks_created": "Utworzone zadania",
@@ -138,7 +154,11 @@
       "members": "Członkowie",
       "members_with_task_activity": "Członkowie z aktywnością w zadaniach",
       "approvals_rate": "Wskaźnik zatwierdzeń (%)",
-      "approvals_median_hours": "Mediana czasu obsługi (godziny)"
+      "approvals_median_hours": "Mediana czasu obsługi (godziny)",
+      "tasks_completed_with_deadline": "Ukończone z terminem",
+      "tasks_completed_on_time": "Ukończone na czas",
+      "tasks_on_time_rate": "Na czas (%)",
+      "tasks_median_lead_days": "Mediana czasu realizacji (dni)"
     },
     "granularity": "Rozwój według",
     "granularityHint": "Jak szczegółowo zapisywany jest rozwój w czasie – służy do porównania z innymi migawkami.",
@@ -153,6 +173,62 @@
     },
     "developmentDatesNote": "Migawki mają różną rozdzielczość lub obejmują ponad rok, więc rozwój jest pokazany według dat.",
     "weekLabel": "Tydzień {{week}}",
-    "partialNote": "Daty w nawiasach: liczona jest tylko część podokresu mieszcząca się w okresie migawki."
+    "partialNote": "Daty w nawiasach: liczona jest tylko część podokresu mieszcząca się w okresie migawki.",
+    "days_one": "{{count}} dzień",
+    "days_few": "{{count}} dni",
+    "days_many": "{{count}} dni",
+    "days_other": "{{count}} dnia",
+    "per": {
+      "week": "na tydzień",
+      "month": "na miesiąc",
+      "quarter": "na kwartał"
+    },
+    "savedOn": "zapisano {{date}}",
+    "maxSelected": "Maksymalnie {{max}} migawki naraz.",
+    "lengthWarning": "Migawki obejmują okresy o różnej długości ({{lengths}}) – liczby nie są bezpośrednio porównywalne.",
+    "atSaveNote": "Stan w chwili zapisu migawki – nie liczby dla okresu",
+    "developmentTitle": "Rozwój",
+    "showTable": "Pokaż jako tabelę",
+    "hideTable": "Ukryj tabelę",
+    "noSeries": "Wybrane migawki nie mają rozwoju w czasie (zapisane przed wprowadzeniem funkcji).",
+    "pointsSuffix": "pp",
+    "saveIntro": "Wybierz okres do zapisania – niezależnie od przeglądu. Zapisana migawka nigdy się później nie zmienia.",
+    "periodLabel": "Okres",
+    "periodType": {
+      "year": "Rok kalendarzowy",
+      "quarter": "Kwartał",
+      "month": "Miesiąc",
+      "custom": "Własny",
+      "view": "Jak w przeglądzie"
+    },
+    "year": "Rok",
+    "quarterLabel": "Kwartał",
+    "monthLabel": "Miesiąc",
+    "labelAuto": "Pusta nazwa zostanie zapisana jako „{{name}}\".",
+    "atPeriodEndNote": "Magazyn na koniec okresu",
+    "wholeOrganisationNote": "Migawki są zawsze zapisywane dla całej organizacji (bez filtra pokoju)."
+  },
+  "tabs": {
+    "overblik": "Przegląd",
+    "snapshots": "Zapisz i porównaj"
+  },
+  "filter": {
+    "room": "Pokój",
+    "allRooms": "Wszystkie pokoje",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Cała organizacja – filtr pokoju nie ma wpływu."
+  },
+  "attention": {
+    "title": "Teraz",
+    "description": "Stan bieżący – nie zależy od wybranego okresu.",
+    "roomNote": "Zadania w {{room}} · magazyn całej organizacji.",
+    "allClear": "Nic nie wymaga teraz działania.",
+    "overdueTitle": "Zaległe zadania",
+    "unassignedTitle": "Zadania bez odpowiedzialnych",
+    "unassignedDetail": "Otwarte zadania, do których nikt się nie zapisał.",
+    "stockTitle": "Magazyn wymagający działania",
+    "itemsWithoutAvailable": "Pozycje bez dostępnych jednostek: {{count}}",
+    "goToTasks": "Przejdź do zadań",
+    "goToDatalayer": "Przejdź do warstwy danych"
   }
 }

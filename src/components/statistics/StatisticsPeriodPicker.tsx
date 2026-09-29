@@ -6,6 +6,7 @@ export function StatisticsPeriodPicker({
     periodType,
     onChangePeriod,
     onOpenCustom,
+    children,
 }: StatisticsPeriodPickerProps) {
     const { t } = useTranslation('statistics')
 
@@ -42,6 +43,10 @@ export function StatisticsPeriodPicker({
                     })}
                 </div>
             </div>
+
+            {children && (
+                <div className="mt-3 border-t border-border-gray pt-3 dark:border-slate-700">{children}</div>
+            )}
         </div>
     )
 }

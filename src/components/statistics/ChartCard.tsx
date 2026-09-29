@@ -9,6 +9,7 @@ export function ChartCard({
     loading = false,
     error = null,
     empty = false,
+    emptyMessage,
 }: ChartCardProps) {
     const { t } = useTranslation('statistics')
 
@@ -39,7 +40,7 @@ export function ChartCard({
                 ) : empty ? (
                     <div className="flex min-h-[220px] items-center justify-center rounded-md bg-bg-gray/40 px-4 text-center dark:bg-slate-900">
                         <p className="text-sm text-secondary dark:text-slate-400">
-                            {t('empty')}
+                            {emptyMessage ?? t('empty')}
                         </p>
                     </div>
                 ) : (

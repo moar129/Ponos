@@ -35,7 +35,14 @@
     "completed": "Erledigte Aufgaben",
     "active": "Aufgaben in Bearbeitung",
     "overdue": "Überfällige Aufgaben",
-    "membersWithActivity": "Mitglieder mit Aufgabenaktivität"
+    "membersWithActivity": "Mitglieder mit Aufgabenaktivität",
+    "trend": "{{change}} von {{previous}} im Zeitraum {{period}}",
+    "trendSame": "Gleich wie im Zeitraum {{period}} ({{previous}})",
+    "onTime": "Pünktlich erledigt",
+    "onTimeDetail": "{{onTime}} von {{total}} mit Enddatum",
+    "onTimeNone": "Keine erledigten Aufgaben mit Enddatum",
+    "leadTime": "Durchlaufzeit (Median)",
+    "leadTimeDetail": "Von erstellt bis erledigt"
   },
   "sections": {
     "tasks": "Aufgaben",
@@ -59,12 +66,15 @@
     "none": "Keine Priorität"
   },
   "rooms": {
-    "title": "Aufgaben pro Raum",
-    "description": "Im Zeitraum erstellte Aufgaben nach Raum.",
+    "title": "Raumübersicht",
+    "description": "Kennzahlen für jeden Raum im Zeitraum. Klicken Sie auf einen Raum, um alle seine Zahlen zu sehen.",
     "noRoom": "Ohne Raum",
     "completed": "Erledigt",
-    "open": "Offen",
-    "value": "{{completed}} erledigt · {{open}} offen"
+    "created": "Erstellt",
+    "overdue": "Überfällig",
+    "onTime": "Pünktlich",
+    "onTimeValue": "{{onTime}} von {{total}}",
+    "filterTo": "Statistik für {{room}} anzeigen"
   },
   "memberLoad": {
     "title": "Aufgaben pro Mitglied",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Einheiten nach Status",
-    "statusDescription": "Aktueller Status aller erfassten Einheiten und Chargen.",
     "categoryTitle": "Artikel nach Kategorie",
     "categoryDescription": "Anzahl der Artikel in jeder Hauptkategorie.",
     "topTitle": "Meistgenutzte Materialien",
-    "topDescription": "Top 5 der Materialien, die mit im Zeitraum erstellten Aufgaben verknüpft sind."
+    "topDescription": "Top 5 der Materialien, die mit im Zeitraum erstellten Aufgaben verknüpft sind.",
+    "statusDescriptionAt": "Status am Ende des Zeitraums ({{date}}).",
+    "noHistory": "Der Lagerverlauf beginnt am {{date}} – der Status davor ist unbekannt.",
+    "usedCategoryTitle": "Verwendete Artikel pro Kategorie",
+    "usedCategoryDescription": "Anzahl verschiedener Artikel, die für im Zeitraum erstellte Aufgaben verwendet wurden, pro Hauptkategorie."
   },
   "snapshots": {
     "title": "Gespeicherte Snapshots",
     "description": "Speichern Sie die Zahlen des Zeitraums und vergleichen Sie sie mit früheren Zeiträumen.",
     "save": "Snapshot speichern",
     "saveTitle": "Snapshot speichern",
-    "saveDescription": "Speichert die Zahlen für {{period}}. Ein gespeicherter Snapshot ändert sich danach nie.",
     "label": "Name (optional)",
     "labelPlaceholder": "z. B. Saison 2026",
     "saving": "Wird gespeichert...",
@@ -119,12 +131,16 @@
       "kpis": "Kennzahlen",
       "task_status": "Aufgabenstatus",
       "task_priority": "Priorität",
-      "room": "Aufgaben pro Raum",
+      "room": "Erstellt pro Raum",
       "member_load": "Aufgaben pro Mitglied",
       "approvals": "Genehmigungen",
       "item_status": "Einheiten nach Status",
       "category": "Artikel nach Kategorie",
-      "top_material": "Meistgenutzte Materialien"
+      "top_material": "Meistgenutzte Materialien",
+      "used_category": "Verwendete Artikel pro Kategorie",
+      "room_completed": "Erledigt pro Raum",
+      "room_overdue": "Überfällig pro Raum",
+      "room_on_time_rate": "Pünktlich pro Raum (%)"
     },
     "names": {
       "tasks_created": "Erstellte Aufgaben",
@@ -134,7 +150,11 @@
       "members": "Mitglieder",
       "members_with_task_activity": "Mitglieder mit Aufgabenaktivität",
       "approvals_rate": "Genehmigungsquote (%)",
-      "approvals_median_hours": "Mittlere Bearbeitungszeit (Stunden)"
+      "approvals_median_hours": "Mittlere Bearbeitungszeit (Stunden)",
+      "tasks_completed_with_deadline": "Erledigt mit Enddatum",
+      "tasks_completed_on_time": "Pünktlich erledigt",
+      "tasks_on_time_rate": "Pünktlich (%)",
+      "tasks_median_lead_days": "Median-Durchlaufzeit (Tage)"
     },
     "granularity": "Entwicklung pro",
     "granularityHint": "Wie fein die Entwicklung über die Zeit gespeichert wird – für den Vergleich mit anderen Snapshots.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "Die Snapshots haben unterschiedliche Auflösungen oder umfassen mehr als ein Jahr, daher wird die Entwicklung nach Datum angezeigt.",
     "weekLabel": "Woche {{week}}",
-    "partialNote": "Daten in Klammern: Nur der Teil des Teilzeitraums, der in den Zeitraum des Snapshots fällt, wird gezählt."
+    "partialNote": "Daten in Klammern: Nur der Teil des Teilzeitraums, der in den Zeitraum des Snapshots fällt, wird gezählt.",
+    "days_one": "{{count}} Tag",
+    "days_other": "{{count}} Tage",
+    "per": {
+      "week": "pro Woche",
+      "month": "pro Monat",
+      "quarter": "pro Quartal"
+    },
+    "savedOn": "gespeichert {{date}}",
+    "maxSelected": "Höchstens {{max}} Snapshots gleichzeitig.",
+    "lengthWarning": "Die Snapshots umfassen unterschiedlich lange Zeiträume ({{lengths}}) – die Zahlen sind nicht direkt vergleichbar.",
+    "atSaveNote": "Stand beim Speichern – keine Zahlen für den Zeitraum",
+    "developmentTitle": "Entwicklung",
+    "showTable": "Als Tabelle anzeigen",
+    "hideTable": "Tabelle ausblenden",
+    "noSeries": "Die ausgewählten Snapshots haben keine zeitliche Entwicklung (vor Einführung der Funktion gespeichert).",
+    "pointsSuffix": "Pp.",
+    "saveIntro": "Wählen Sie den zu speichernden Zeitraum – unabhängig vom Überblick. Ein gespeicherter Snapshot ändert sich danach nie.",
+    "periodLabel": "Zeitraum",
+    "periodType": {
+      "year": "Kalenderjahr",
+      "quarter": "Quartal",
+      "month": "Monat",
+      "custom": "Benutzerdefiniert",
+      "view": "Wie im Überblick"
+    },
+    "year": "Jahr",
+    "quarterLabel": "Quartal",
+    "monthLabel": "Monat",
+    "labelAuto": "Ein leerer Name wird als „{{name}}\" gespeichert.",
+    "atPeriodEndNote": "Lager am Ende des Zeitraums",
+    "wholeOrganisationNote": "Snapshots werden immer für die gesamte Organisation gespeichert (ohne Raumfilter)."
+  },
+  "tabs": {
+    "overblik": "Überblick",
+    "snapshots": "Speichern und vergleichen"
+  },
+  "filter": {
+    "room": "Raum",
+    "allRooms": "Alle Räume",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Gesamte Organisation – vom Raumfilter nicht betroffen."
+  },
+  "attention": {
+    "title": "Aktuell",
+    "description": "Aktueller Stand – folgt nicht dem gewählten Zeitraum.",
+    "roomNote": "Aufgaben in {{room}} · Lager der gesamten Organisation.",
+    "allClear": "Derzeit ist nichts zu tun.",
+    "overdueTitle": "Überfällige Aufgaben",
+    "unassignedTitle": "Aufgaben ohne Verantwortliche",
+    "unassignedDetail": "Offene Aufgaben, für die sich niemand angemeldet hat.",
+    "stockTitle": "Lager mit Handlungsbedarf",
+    "itemsWithoutAvailable": "Artikel ohne verfügbare Einheiten: {{count}}",
+    "goToTasks": "Zu den Aufgaben",
+    "goToDatalayer": "Zur Datenebene"
   }
 }

@@ -1,9 +1,12 @@
 // Types for the statistics page (US-48–54). All values are computed
-// server-side by the get_statistics RPC (docs/migrations/2026-09-29-statistics.sql)
+// server-side by the get_statistics RPC (docs/dbSchema.sql §15.26)
 // and only ever contain aggregates - never rows or member names.
 
 import type { ItemStatus } from '../dataLayer/datalayerTypes'
 import type { ETaskPriority, ETaskStatus } from '../Task/Task'
+
+/** Tabs on /statistik (?tab=). Labels live in statistics:tabs.<tab>. */
+export type StatisticsTab = 'overblik' | 'snapshots'
 
 /** Period picker options. Labels live in statistics:period.<type>. */
 export type StatisticsPeriodType = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'max' | 'custom'
@@ -19,6 +22,13 @@ export interface StatisticsQueryArgs {
     end: string | null
     granularity: StatisticsGranularity
     tz: string
+    /** US-55: only tasks in this room; stock/categories stay organisation-wide. */
+    roomId?: string | null
+}
+
+export interface StatisticsRoom {
+    id: string
+    name: string
 }
 
 export interface StatisticsKpis {
@@ -28,6 +38,14 @@ export interface StatisticsKpis {
     overdue: number
     members: number
     membersWithTaskActivity: number
+    /** Completed in the period with an end date. */
+    completedWithDeadline: number
+    /** ...of those, finished by the end date (a date-only end date counts the whole day). */
+    completedOnTime: number
+    /** completedOnTime / completedWithDeadline in percent; null without deadlines. */
+    onTimeRate: number | null
+    /** Median days from created to finished, tasks completed in the period; null when none. */
+    medianLeadDays: number | null
 }
 
 export interface TaskStatusCount {
@@ -41,13 +59,31 @@ export interface TaskPriorityCount {
     count: number
 }
 
+/** One room with the KPI definitions applied to it (room scorecard). */
 export interface TaskRoomCount {
     /** null = task has no room */
     roomId: string | null
     name: string | null
+    /** Created in the period. */
     total: number
+    /** Completed in the period. */
     completed: number
-    open: number
+    overdue: number
+    completedWithDeadline: number
+    completedOnTime: number
+    onTimeRate: number | null
+}
+
+/** "Lige nu": current state, independent of the period (never saved in snapshots). */
+export interface StatisticsAttention {
+    /** Open overdue tasks per priority, only priorities with any (follows the room filter). */
+    overdueByPriority: TaskPriorityCount[]
+    /** Open tasks nobody is assigned to (follows the room filter). */
+    unassigned: number
+    /** Unit rows per problem status right now (whole organisation). */
+    stockAlerts: ItemStatusCount[]
+    /** Items with units, none of them Available (whole organisation). */
+    itemsWithoutAvailable: number
 }
 
 export interface MemberLoadCount {
@@ -91,15 +127,28 @@ export interface TopMaterial {
 
 export interface StatisticsResult {
     kpis: StatisticsKpis
+    /** Same-length period right before; null for "Alt". */
+    previousKpis: StatisticsKpis | null
+    /** All the organisation's rooms, for the room filter. */
+    rooms: StatisticsRoom[]
     taskStatus: TaskStatusCount[]
     taskPriority: TaskPriorityCount[]
     taskRooms: TaskRoomCount[]
     memberLoad: MemberLoadCount[]
     taskDevelopment: TaskDevelopmentPoint[]
     approvals: ApprovalStatistics
+    attention: StatisticsAttention
     materials: {
-        byStatus: ItemStatusCount[]
+        /** Unit rows per status at the end of the period; null = before the stock history starts. */
+        byStatus: ItemStatusCount[] | null
+        /** The instant byStatus describes (period end, or now). */
+        statusAsOf: string
+        /** First entry in the stock history; null when the organisation has no units. */
+        historyStart: string | null
+        /** Items per main category right now. */
         byCategory: CategoryCount[]
+        /** Distinct items used on tasks created in the period, per main category. */
+        usedByCategory: CategoryCount[]
         topUsed: TopMaterial[]
     }
 }
@@ -122,16 +171,24 @@ export type StatisticsScalarName =
     | 'members_with_task_activity'
     | 'approvals_rate'
     | 'approvals_median_hours'
+    | 'tasks_completed_with_deadline'
+    | 'tasks_completed_on_time'
+    | 'tasks_on_time_rate'
+    | 'tasks_median_lead_days'
 
 export type StatisticsValueGroup =
     | 'task_status'
     | 'task_priority'
     | 'room'
+    | 'room_completed'
+    | 'room_overdue'
+    | 'room_on_time_rate'
     | 'member_load'
     | 'approvals'
     | 'item_status'
     | 'category'
     | 'top_material'
+    | 'used_category'
     | 'development'
 
 export type StatisticsValueName = StatisticsScalarName | `${StatisticsValueGroup}:${string}`
@@ -163,5 +220,37 @@ export interface SaveStatisticsSnapshotArgs {
     end: string | null
     label: string
     tz: string
+    granularity: SnapshotGranularity
+}
+
+/** Period options in the save dialog, independent of the overview filter. */
+export type SnapshotPeriodType = 'year' | 'quarter' | 'month' | 'custom' | 'view'
+
+export interface SnapshotPeriodChoice {
+    type: SnapshotPeriodType
+    year: number
+    /** 1–4 */
+    quarter: number
+    /** 0–11 */
+    month: number
+    /** 'YYYY-MM-DD', custom only */
+    from: string
+    to: string
+}
+
+/** The overview's current period, offered as "Som visningen". */
+export interface SnapshotViewPeriod {
+    start: string | null
+    end: string | null
+    /** null = "Alt" */
+    days: number | null
+    label: string
+}
+
+/** What the save dialog hands back. */
+export interface SnapshotSaveRequest {
+    start: string | null
+    end: string | null
+    label: string
     granularity: SnapshotGranularity
 }

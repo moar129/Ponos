@@ -35,7 +35,14 @@
     "completed": "Færdige opgaver",
     "active": "Opgaver i gang",
     "overdue": "Forfaldne opgaver",
-    "membersWithActivity": "Medlemmer med opgaveaktivitet"
+    "membersWithActivity": "Medlemmer med opgaveaktivitet",
+    "trend": "{{change}} fra {{previous}} i perioden {{period}}",
+    "trendSame": "Samme som i perioden {{period}} ({{previous}})",
+    "onTime": "Færdige til tiden",
+    "onTimeDetail": "{{onTime}} af {{total}} med slutdato",
+    "onTimeNone": "Ingen færdige opgaver med slutdato",
+    "leadTime": "Gennemløbstid (median)",
+    "leadTimeDetail": "Fra oprettet til færdig"
   },
   "sections": {
     "tasks": "Opgaver",
@@ -59,12 +66,15 @@
     "none": "Ingen prioritet"
   },
   "rooms": {
-    "title": "Opgaver pr. rum",
-    "description": "Opgaver oprettet i perioden, fordelt på rum.",
+    "title": "Rum-oversigt",
+    "description": "Nøgletallene for hvert rum i perioden. Klik på et rum for at se alle dets tal.",
     "noRoom": "Uden rum",
     "completed": "Færdige",
-    "open": "Åbne",
-    "value": "{{completed}} færdige · {{open}} åbne"
+    "created": "Oprettede",
+    "overdue": "Forfaldne",
+    "onTime": "Til tiden",
+    "onTimeValue": "{{onTime}} af {{total}}",
+    "filterTo": "Vis statistik for {{room}}"
   },
   "memberLoad": {
     "title": "Opgaver pr. medlem",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Enheder pr. status",
-    "statusDescription": "Nuværende status for alle registrerede enheder og partier.",
     "categoryTitle": "Varer pr. kategori",
     "categoryDescription": "Antal varer i hver hovedkategori lige nu.",
     "topTitle": "Mest brugte materialer",
-    "topDescription": "Top 5 materialer knyttet til opgaver oprettet i perioden."
+    "topDescription": "Top 5 materialer knyttet til opgaver oprettet i perioden.",
+    "statusDescriptionAt": "Status ved periodens slutning ({{date}}).",
+    "noHistory": "Lagerhistorikken starter {{date}} – status før det kendes ikke.",
+    "usedCategoryTitle": "Brugte varer pr. kategori",
+    "usedCategoryDescription": "Antal forskellige varer brugt på opgaver oprettet i perioden, pr. hovedkategori."
   },
   "snapshots": {
     "title": "Gemte snapshots",
     "description": "Gem periodens tal og sammenlign dem med tidligere perioder.",
     "save": "Gem snapshot",
     "saveTitle": "Gem snapshot",
-    "saveDescription": "Gemmer tallene for {{period}}. Et gemt snapshot ændres aldrig bagefter.",
     "label": "Navn (valgfrit)",
     "labelPlaceholder": "Fx Sæson 2026",
     "saving": "Gemmer...",
@@ -119,12 +131,16 @@
       "kpis": "Nøgletal",
       "task_status": "Opgavestatus",
       "task_priority": "Prioritet",
-      "room": "Rum",
+      "room": "Oprettede pr. rum",
       "member_load": "Opgaver pr. medlem",
       "approvals": "Godkendelser",
       "item_status": "Enheder pr. status",
       "category": "Varer pr. kategori",
-      "top_material": "Mest brugte materialer"
+      "top_material": "Mest brugte materialer",
+      "used_category": "Brugte varer pr. kategori",
+      "room_completed": "Færdige pr. rum",
+      "room_overdue": "Forfaldne pr. rum",
+      "room_on_time_rate": "Til tiden pr. rum (%)"
     },
     "names": {
       "tasks_created": "Oprettede opgaver",
@@ -134,7 +150,11 @@
       "members": "Medlemmer",
       "members_with_task_activity": "Medlemmer med opgaveaktivitet",
       "approvals_rate": "Godkendelsesrate (%)",
-      "approvals_median_hours": "Median behandlingstid (timer)"
+      "approvals_median_hours": "Median behandlingstid (timer)",
+      "tasks_completed_with_deadline": "Færdige med slutdato",
+      "tasks_completed_on_time": "Færdige til tiden",
+      "tasks_on_time_rate": "Til tiden (%)",
+      "tasks_median_lead_days": "Median gennemløbstid (dage)"
     },
     "granularity": "Udvikling pr.",
     "granularityHint": "Hvor fint udviklingen over tid gemmes – bruges til at sammenligne med andre snapshots.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "Snapshottene har forskellig opløsning eller dækker mere end ét år, så udviklingen vises med datoer.",
     "weekLabel": "Uge {{week}}",
-    "partialNote": "Datoer i parentes: kun den del af delperioden, der ligger inden for snapshottets periode, er talt med."
+    "partialNote": "Datoer i parentes: kun den del af delperioden, der ligger inden for snapshottets periode, er talt med.",
+    "days_one": "{{count}} dag",
+    "days_other": "{{count}} dage",
+    "per": {
+      "week": "pr. uge",
+      "month": "pr. måned",
+      "quarter": "pr. kvartal"
+    },
+    "savedOn": "gemt {{date}}",
+    "maxSelected": "Højst {{max}} snapshots ad gangen.",
+    "lengthWarning": "Snapshottene dækker forskellige periodelængder ({{lengths}}) – tallene er ikke direkte sammenlignelige.",
+    "atSaveNote": "Status da snapshottet blev gemt – ikke tal for perioden",
+    "developmentTitle": "Udvikling",
+    "showTable": "Vis som tabel",
+    "hideTable": "Skjul tabel",
+    "noSeries": "De valgte snapshots har ingen udvikling over tid (gemt før funktionen fandtes).",
+    "pointsSuffix": "pp",
+    "saveIntro": "Vælg perioden der skal gemmes – uafhængigt af visningen på Overblik. Et gemt snapshot ændres aldrig bagefter.",
+    "periodLabel": "Periode",
+    "periodType": {
+      "year": "Kalenderår",
+      "quarter": "Kvartal",
+      "month": "Måned",
+      "custom": "Brugerdefineret",
+      "view": "Som visningen"
+    },
+    "year": "År",
+    "quarterLabel": "Kvartal",
+    "monthLabel": "Måned",
+    "labelAuto": "Tomt navn gemmes som \"{{name}}\".",
+    "atPeriodEndNote": "Lager ved periodens slutning",
+    "wholeOrganisationNote": "Snapshots gemmes altid for hele organisationen (uden rum-filter)."
+  },
+  "tabs": {
+    "overblik": "Overblik",
+    "snapshots": "Gem og sammenlign"
+  },
+  "filter": {
+    "room": "Rum",
+    "allRooms": "Alle rum",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Hele organisationen – påvirkes ikke af rum-filteret."
+  },
+  "attention": {
+    "title": "Lige nu",
+    "description": "Aktuel status – følger ikke den valgte periode.",
+    "roomNote": "Opgaver i {{room}} · lager for hele organisationen.",
+    "allClear": "Intet kræver handling lige nu.",
+    "overdueTitle": "Forfaldne opgaver",
+    "unassignedTitle": "Opgaver uden ansvarlige",
+    "unassignedDetail": "Åbne opgaver som ingen er tilmeldt.",
+    "stockTitle": "Lager der kræver handling",
+    "itemsWithoutAvailable": "Varer uden ledige enheder: {{count}}",
+    "goToTasks": "Gå til opgaver",
+    "goToDatalayer": "Gå til datalager"
   }
 }

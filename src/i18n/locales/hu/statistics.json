@@ -35,7 +35,14 @@
     "completed": "Befejezett feladatok",
     "active": "Folyamatban lévő feladatok",
     "overdue": "Lejárt feladatok",
-    "membersWithActivity": "Feladataktivitással rendelkező tagok"
+    "membersWithActivity": "Feladataktivitással rendelkező tagok",
+    "trend": "{{change}} a(z) {{period}} időszak {{previous}} értékéhez képest",
+    "trendSame": "Ugyanannyi, mint a(z) {{period}} időszakban ({{previous}})",
+    "onTime": "Határidőre kész",
+    "onTimeDetail": "{{total}} határidős feladatból {{onTime}}",
+    "onTimeNone": "Nincs határidős, kész feladat",
+    "leadTime": "Átfutási idő (medián)",
+    "leadTimeDetail": "Létrehozástól befejezésig"
   },
   "sections": {
     "tasks": "Feladatok",
@@ -59,12 +66,15 @@
     "none": "Nincs prioritás"
   },
   "rooms": {
-    "title": "Feladatok helyiségenként",
-    "description": "Az időszakban létrehozott feladatok helyiségenként.",
+    "title": "Helyiség-áttekintés",
+    "description": "Az egyes helyiségek mutatói az időszakban. Kattints egy helyiségre az összes adatáért.",
     "noRoom": "Helyiség nélkül",
     "completed": "Befejezett",
-    "open": "Nyitott",
-    "value": "{{completed}} befejezett · {{open}} nyitott"
+    "created": "Létrehozott",
+    "overdue": "Lejárt",
+    "onTime": "Határidőre",
+    "onTimeValue": "{{total}}-ból {{onTime}}",
+    "filterTo": "{{room}} statisztikájának megjelenítése"
   },
   "memberLoad": {
     "title": "Feladatok tagonként",
@@ -91,18 +101,20 @@
   },
   "materials": {
     "statusTitle": "Egységek állapot szerint",
-    "statusDescription": "Az összes nyilvántartott egység és tétel jelenlegi állapota.",
     "categoryTitle": "Tételek kategóriánként",
     "categoryDescription": "A tételek száma minden főkategóriában.",
     "topTitle": "Leggyakrabban használt anyagok",
-    "topDescription": "Az időszakban létrehozott feladatokhoz kapcsolt top 5 anyag."
+    "topDescription": "Az időszakban létrehozott feladatokhoz kapcsolt top 5 anyag.",
+    "statusDescriptionAt": "Állapot az időszak végén ({{date}}).",
+    "noHistory": "A készlettörténet {{date}}-tól kezdődik – az azelőtti állapot ismeretlen.",
+    "usedCategoryTitle": "Felhasznált tételek kategóriánként",
+    "usedCategoryDescription": "Az időszakban létrehozott feladatokhoz felhasznált különböző tételek száma főkategóriánként."
   },
   "snapshots": {
     "title": "Mentett pillanatképek",
     "description": "Mentsd el az időszak számait, és hasonlítsd össze korábbi időszakokkal.",
     "save": "Pillanatkép mentése",
     "saveTitle": "Pillanatkép mentése",
-    "saveDescription": "Elmenti a(z) {{period}} számait. A mentett pillanatkép később soha nem változik.",
     "label": "Név (nem kötelező)",
     "labelPlaceholder": "Pl. 2026-os szezon",
     "saving": "Mentés...",
@@ -119,12 +131,16 @@
       "kpis": "Fő mutatók",
       "task_status": "Feladatállapot",
       "task_priority": "Prioritás",
-      "room": "Feladatok helyiségenként",
+      "room": "Létrehozott helyiségenként",
       "member_load": "Feladatok tagonként",
       "approvals": "Jóváhagyások",
       "item_status": "Egységek állapot szerint",
       "category": "Tételek kategóriánként",
-      "top_material": "Leggyakrabban használt anyagok"
+      "top_material": "Leggyakrabban használt anyagok",
+      "used_category": "Felhasznált tételek kategóriánként",
+      "room_completed": "Kész helyiségenként",
+      "room_overdue": "Lejárt helyiségenként",
+      "room_on_time_rate": "Határidőre helyiségenként (%)"
     },
     "names": {
       "tasks_created": "Létrehozott feladatok",
@@ -134,7 +150,11 @@
       "members": "Tagok",
       "members_with_task_activity": "Feladataktivitással rendelkező tagok",
       "approvals_rate": "Jóváhagyási arány (%)",
-      "approvals_median_hours": "Medián kezelési idő (óra)"
+      "approvals_median_hours": "Medián kezelési idő (óra)",
+      "tasks_completed_with_deadline": "Kész, határidővel",
+      "tasks_completed_on_time": "Határidőre kész",
+      "tasks_on_time_rate": "Határidőre (%)",
+      "tasks_median_lead_days": "Medián átfutási idő (nap)"
     },
     "granularity": "Alakulás bontása",
     "granularityHint": "Milyen részletesen mentse az időbeli alakulást – más pillanatképekkel való összevetéshez.",
@@ -149,6 +169,60 @@
     },
     "developmentDatesNote": "A pillanatképek felbontása eltér, vagy egy évnél hosszabb időszakot fednek le, ezért az alakulás dátum szerint jelenik meg.",
     "weekLabel": "{{week}}. hét",
-    "partialNote": "Zárójelben lévő dátumok: a részidőszaknak csak a pillanatkép időszakába eső része számít bele."
+    "partialNote": "Zárójelben lévő dátumok: a részidőszaknak csak a pillanatkép időszakába eső része számít bele.",
+    "days_one": "{{count}} nap",
+    "days_other": "{{count}} nap",
+    "per": {
+      "week": "hetente",
+      "month": "havonta",
+      "quarter": "negyedévente"
+    },
+    "savedOn": "mentve: {{date}}",
+    "maxSelected": "Egyszerre legfeljebb {{max}} pillanatkép.",
+    "lengthWarning": "A pillanatképek eltérő hosszúságú időszakokat fednek le ({{lengths}}) – a számok nem vethetők össze közvetlenül.",
+    "atSaveNote": "Állapot a mentés pillanatában – nem az időszak számai",
+    "developmentTitle": "Alakulás",
+    "showTable": "Megjelenítés táblázatként",
+    "hideTable": "Táblázat elrejtése",
+    "noSeries": "A kiválasztott pillanatképeknek nincs időbeli alakulása (a funkció előtt mentve).",
+    "pointsSuffix": "szp.",
+    "saveIntro": "Válaszd ki a mentendő időszakot – az áttekintéstől függetlenül. A mentett pillanatkép később soha nem változik.",
+    "periodLabel": "Időszak",
+    "periodType": {
+      "year": "Naptári év",
+      "quarter": "Negyedév",
+      "month": "Hónap",
+      "custom": "Egyéni",
+      "view": "Mint az áttekintés"
+    },
+    "year": "Év",
+    "quarterLabel": "Negyedév",
+    "monthLabel": "Hónap",
+    "labelAuto": "Üres név esetén „{{name}}” néven mentődik.",
+    "atPeriodEndNote": "Készlet az időszak végén",
+    "wholeOrganisationNote": "A pillanatképek mindig a teljes szervezetre mentődnek (helyiségszűrő nélkül)."
+  },
+  "tabs": {
+    "overblik": "Áttekintés",
+    "snapshots": "Mentés és összehasonlítás"
+  },
+  "filter": {
+    "room": "Helyiség",
+    "allRooms": "Minden helyiség",
+    "forRoom": "{{room}} · {{period}}",
+    "wholeOrganisation": "Teljes szervezet – a helyiségszűrő nem érinti."
+  },
+  "attention": {
+    "title": "Most",
+    "description": "Aktuális állapot – nem követi a kiválasztott időszakot.",
+    "roomNote": "Feladatok itt: {{room}} · a teljes szervezet készlete.",
+    "allClear": "Jelenleg semmi sem igényel beavatkozást.",
+    "overdueTitle": "Lejárt feladatok",
+    "unassignedTitle": "Felelős nélküli feladatok",
+    "unassignedDetail": "Nyitott feladatok, amelyekre senki sem jelentkezett.",
+    "stockTitle": "Beavatkozást igénylő készlet",
+    "itemsWithoutAvailable": "Tételek szabad egység nélkül: {{count}}",
+    "goToTasks": "Ugrás a feladatokhoz",
+    "goToDatalayer": "Ugrás az adatréteghez"
   }
 }
