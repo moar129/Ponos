@@ -4,10 +4,12 @@
 export interface Organisation {
   id: string
   name: string
-  color: string | null
-  headerColor: string | null
-  footerColor: string | null
+  color?: string | null
+  headerColor?: string | null
+  footerColor?: string | null
   savedColors: string[]
+  headerTextColor?: string | null
+  footerTextColor?: string | null
 }
 
 export interface UpdateOrganisationInput {
@@ -15,6 +17,8 @@ export interface UpdateOrganisationInput {
   color?: string | null
   headerColor?: string | null
   footerColor?: string | null
+  headerTextColor?: string | null
+  footerTextColor?: string | null
 }
 // Felter til at oprette en ny organisation (US-58).
 export interface CreateOrganisationInput {
