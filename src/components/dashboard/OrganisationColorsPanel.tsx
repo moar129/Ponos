@@ -9,25 +9,21 @@ import {
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import type { Organisation } from '../../types/organisation/organisationType'
-import { ColorSlot } from './colorSlot'
-
-// Standardfarverne er husets egne (index.css: --color-accent/--color-header-bg/
-// --color-header-text) - bruges som forudfyldt værdi i farvevælgeren og som
-// fallback, når organisationen ikke selv har valgt en farve (null).
-const DEFAULT_ORG_COLOR = '#C7975D'
-const DEFAULT_BAR_COLOR = '#071B33'
-const DEFAULT_BAR_TEXT_COLOR = '#F1F5F9'
+import type { Organisation, OrganisationColors, OrgPalette } from '../../types/organisation/organisationType'
+import { buildOrgPalette, DEFAULT_ACCENT, DEFAULT_BAR_COLOR, DEFAULT_BAR_TEXT_COLOR } from '../../utils/orgPalette'
+import { ColorSlot, ModePreview } from './colorSlot'
 
 // Rækkefølge og i18n-nøgler for de fem farver - bruges af både oversigten
 // og formularen, så de altid viser de samme felter. as const: nøglerne
 // skal være literal-typer for de typede t()-kald.
+// `rendered` picks the field's actual color out of a derived palette, for the
+// light/dark preview.
 const COLOR_FIELDS = [
-    { field: 'color', labelKey: 'admin.colorLabel', hintKey: 'admin.colorHint', fallback: DEFAULT_ORG_COLOR },
-    { field: 'headerColor', labelKey: 'admin.headerColorLabel', hintKey: 'admin.headerColorHint', fallback: DEFAULT_BAR_COLOR },
-    { field: 'headerTextColor', labelKey: 'admin.headerTextColorLabel', hintKey: 'admin.headerTextColorHint', fallback: DEFAULT_BAR_TEXT_COLOR },
-    { field: 'footerColor', labelKey: 'admin.footerColorLabel', hintKey: 'admin.footerColorHint', fallback: DEFAULT_BAR_COLOR },
-    { field: 'footerTextColor', labelKey: 'admin.footerTextColorLabel', hintKey: 'admin.footerTextColorHint', fallback: DEFAULT_BAR_TEXT_COLOR },
+    { field: 'color', labelKey: 'admin.colorLabel', hintKey: 'admin.colorHint', fallback: DEFAULT_ACCENT, rendered: (p: OrgPalette) => p.accent },
+    { field: 'headerColor', labelKey: 'admin.headerColorLabel', hintKey: 'admin.headerColorHint', fallback: DEFAULT_BAR_COLOR, rendered: (p: OrgPalette) => p.header.bg },
+    { field: 'headerTextColor', labelKey: 'admin.headerTextColorLabel', hintKey: 'admin.headerTextColorHint', fallback: DEFAULT_BAR_TEXT_COLOR, rendered: (p: OrgPalette) => p.header.text },
+    { field: 'footerColor', labelKey: 'admin.footerColorLabel', hintKey: 'admin.footerColorHint', fallback: DEFAULT_BAR_COLOR, rendered: (p: OrgPalette) => p.footer.bg },
+    { field: 'footerTextColor', labelKey: 'admin.footerTextColorLabel', hintKey: 'admin.footerTextColorHint', fallback: DEFAULT_BAR_TEXT_COLOR, rendered: (p: OrgPalette) => p.footer.text },
 ] as const
 
 type ColorField = (typeof COLOR_FIELDS)[number]['field']
@@ -39,6 +35,13 @@ const emptyForm: ColorForm = {
 
 function isValidHexColor(value: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(value)
+}
+
+// Half-typed hex values in the form are ignored (treated as default) for the preview.
+function validColors(colors: OrganisationColors): OrganisationColors {
+    return Object.fromEntries(
+        Object.entries(colors).map(([k, v]) => [k, v && isValidHexColor(v) ? v : null]),
+    )
 }
 
 // Organisationens branding-farver (accent, header, footer og deres tekst),
@@ -118,6 +121,9 @@ export function OrganisationColorsPanel() {
     }
 
     const saveError = readableError(mutationError)
+    const previewSource = isEditing ? validColors(form) : organisation
+    const lightPalette = buildOrgPalette(previewSource, 'light')
+    const darkPalette = buildOrgPalette(previewSource, 'dark')
 
     return (
         <div>
@@ -138,13 +144,14 @@ export function OrganisationColorsPanel() {
                     event.preventDefault()
                     void handleSubmit(organisation)
                 }}>
-                    {COLOR_FIELDS.map(({ field, labelKey, hintKey, fallback }) => (
+                    {COLOR_FIELDS.map(({ field, labelKey, hintKey, fallback, rendered }) => (
                         <ColorSlot
                             key={field}
                             label={t(labelKey)}
                             hint={t(hintKey)}
                             value={form[field]}
                             fallback={fallback}
+                            preview={{ light: rendered(lightPalette), dark: rendered(darkPalette) }}
                             onChange={(value) => setForm({ ...form, [field]: value })}
                             savedColors={organisation.savedColors}
                             onSaveCurrent={() => addSavedColor({ color: form[field] ?? fallback })}
@@ -156,7 +163,7 @@ export function OrganisationColorsPanel() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? t('common:saving') : t('common:save')}
                         </button>
@@ -173,15 +180,22 @@ export function OrganisationColorsPanel() {
             ) : (
                 <>
                     <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
-                        {COLOR_FIELDS.map(({ field, labelKey, fallback }) => (
+                        {COLOR_FIELDS.map(({ field, labelKey, fallback, rendered }) => (
                             <div key={field} className="py-3 flex justify-between gap-4 items-center">
                                 <dt className="text-sm text-secondary dark:text-slate-400">{t(labelKey)}</dt>
-                                <dd className="text-sm text-right flex items-center gap-2 justify-end">
-                                    <span
-                                        className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
-                                        style={{ backgroundColor: organisation[field] ?? fallback }}
+                                <dd className="text-sm text-right flex flex-col items-end gap-1">
+                                    <span className="flex items-center gap-2">
+                                        <span
+                                            className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
+                                            style={{ backgroundColor: organisation[field] ?? fallback }}
+                                        />
+                                        {organisation[field] ?? t('admin.colorNoneSet')}
+                                    </span>
+                                    <ModePreview
+                                        chosen={organisation[field] ?? fallback}
+                                        light={rendered(lightPalette)}
+                                        dark={rendered(darkPalette)}
                                     />
-                                    {organisation[field] ?? t('admin.colorNoneSet')}
                                 </dd>
                             </div>
                         ))}
@@ -192,7 +206,7 @@ export function OrganisationColorsPanel() {
                             <button
                                 type="button"
                                 onClick={() => startEdit(organisation)}
-                                className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                                className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                             >
                                 {t('admin.editColors')}
                             </button>

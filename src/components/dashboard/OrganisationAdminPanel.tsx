@@ -12,10 +12,6 @@ import {
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { DeleteOrganisationControlProps, Organisation } from '../../types/organisation/organisationType'
 
-// Husets egen accent (index.css: --color-accent) - fallback for ikonets
-// farve, når organisationen ikke selv har valgt en farve (color === null).
-const DEFAULT_ORG_COLOR = '#C7975D'
-
 // Rediger organisation (navn) + slet organisation, samlet i ét panel
 // under dashboardets Administration-fane (US-65) - flyttet fra
 // OrganisationPage.tsx. Panelet kan mountes af AdministrationTab enten
@@ -110,7 +106,6 @@ export function OrganisationAdminPanel() {
     // skal vises, uafhængigt af manage_organisation-privilegiet.
     const activeMembership = memberships?.find((m) => m.isActive) ?? null
     const saveError = readableError(mutationError)
-    const displayColor = organisation.color ?? DEFAULT_ORG_COLOR
 
     return (
         <div>
@@ -152,7 +147,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? t('common:saving') : t('common:save')}
                         </button>
@@ -169,11 +164,8 @@ export function OrganisationAdminPanel() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 mb-6">
-                        <div
-                            className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: `${displayColor}1A` }}
-                        >
-                            <Building2 className="w-7 h-7" style={{ color: displayColor }} />
+                        <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                            <Building2 className="w-7 h-7 text-accent" />
                         </div>
                         <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                     </div>
@@ -190,7 +182,7 @@ export function OrganisationAdminPanel() {
                             <button
                                 type="button"
                                 onClick={() => startEdit(organisation)}
-                                className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                                className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                             >
                                 {t('admin.edit')}
                             </button>

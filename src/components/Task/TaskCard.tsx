@@ -475,7 +475,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                         ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
                         : isAssigned
                           ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                          : 'border-accent text-accent hover:bg-accent hover:text-white'
+                          : 'border-accent text-accent hover:bg-accent hover:text-accent-text'
                       }`}
                   >
                     {canUnassignSelf
@@ -495,7 +495,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleStartTask();
                     }}
-                    className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isUpdatingStatus
                       ? t('common:updating')

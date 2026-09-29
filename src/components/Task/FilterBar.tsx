@@ -33,7 +33,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all
               ${isFilterOpen
-                ? 'border-accent bg-accent text-white'
+                ? 'border-accent bg-accent text-accent-text'
                 : 'border-border-gray text-secondary hover:border-secondary hover:text-primary dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-100'}
             `}
           >
@@ -53,7 +53,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             {isFilterOpen ? t('filter.hide') : t('filter.show')}
             {activeFilterCount > 0 && (
               <span
-                className={`rounded-full px-1.5 text-xs font-bold ${isFilterOpen ? 'bg-white text-accent' : 'bg-accent text-white'}`}
+                className={`rounded-full px-1.5 text-xs font-bold ${isFilterOpen ? 'bg-white text-accent' : 'bg-accent text-accent-text'}`}
                 aria-label={t('filter.activeCount', { count: activeFilterCount })}
               >
                 {activeFilterCount}

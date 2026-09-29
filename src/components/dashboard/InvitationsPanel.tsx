@@ -77,7 +77,7 @@ export function InvitationsPanel() {
                 <button
                     type="submit"
                     disabled={inviting || !email.trim()}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {inviting ? t('invitations.sending') : t('invitations.send')}
                 </button>

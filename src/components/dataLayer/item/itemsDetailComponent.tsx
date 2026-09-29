@@ -835,7 +835,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                       type="button"
                       onClick={handleAddUnits}
                       disabled={isAddingUnits}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-accent hover:bg-accent-hover text-white rounded-lg disabled:opacity-60"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-accent hover:bg-accent-hover text-accent-text rounded-lg disabled:opacity-60"
                     >
                       {isAddingUnits && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                       {t('itemDetail.addUnitsSubmit')}
@@ -870,7 +870,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
               type="button"
               onClick={handleSave}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {t('common:save')}

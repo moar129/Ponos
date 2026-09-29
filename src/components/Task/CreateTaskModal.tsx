@@ -398,7 +398,7 @@ export function CreateTaskModal({
                         type="button"
                         onClick={handleSubmit}
                         disabled={isSubmitting || !title.trim()}
-                        className="rounded-lg bg-accent px-4 py-2 text-white transition-colors hover:bg-accent-hover disabled:opacity-60"
+                        className="rounded-lg bg-accent px-4 py-2 text-accent-text transition-colors hover:bg-accent-hover disabled:opacity-60"
                     >
                         {isSubmitting ? t('common:saving') : t('create.heading')}
                     </button>

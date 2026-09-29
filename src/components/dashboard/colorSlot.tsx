@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import type { ColorSlotProps, SavedColorsPaletteProps } from '../../types/dashboard/dashboardType'
+import type { ColorSlotProps, ModePreviewProps, SavedColorsPaletteProps } from '../../types/dashboard/dashboardType'
 
 function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove }: SavedColorsPaletteProps) {
     const { t } = useTranslation('organisation')
@@ -52,8 +52,29 @@ function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove
     )
 }
 
+export function ModePreview({ chosen, light, dark }: ModePreviewProps) {
+    const { t } = useTranslation('organisation')
+    const adjusted = [light, dark].some((c) => c.toUpperCase() !== chosen.toUpperCase())
+    const swatch = (label: string, color: string) => (
+        <span className="flex items-center gap-1" title={color}>
+            {label}
+            <span
+                className="w-3.5 h-3.5 rounded-full border border-border-gray dark:border-slate-600"
+                style={{ backgroundColor: color }}
+            />
+        </span>
+    )
 
-export function ColorSlot({ label, hint, value, fallback, onChange, savedColors, onSaveCurrent, onRemoveSaved }: ColorSlotProps) {
+    return (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary dark:text-slate-400">
+            {swatch(t('admin.previewLight'), light)}
+            {swatch(t('admin.previewDark'), dark)}
+            {adjusted && <span className="italic">{t('admin.colorAdjusted')}</span>}
+        </div>
+    )
+}
+
+export function ColorSlot({ label, hint, value, fallback, onChange, savedColors, onSaveCurrent, onRemoveSaved, preview }: ColorSlotProps) {
     const { t } = useTranslation('organisation')
     const effective = value ?? fallback
 
@@ -86,6 +107,10 @@ export function ColorSlot({ label, hint, value, fallback, onChange, savedColors,
                         {t('admin.colorUseDefault')}
                     </button>
                 )}
+            </div>
+
+            <div className="mb-3">
+                <ModePreview chosen={effective} light={preview.light} dark={preview.dark} />
             </div>
 
             <SavedColorsPalette

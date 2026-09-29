@@ -236,7 +236,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={creating}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {creating ? t('create.submitting') : t('create.submit')}
                                                 </button>
@@ -264,7 +264,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={requesting || !selectedOrgId}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {requesting ? t('request.submitting') : t('request.submit')}
                                                 </button>
@@ -446,7 +446,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? t('myInvitations.processing') : t('myInvitations.yes')}
                     </button>
@@ -465,7 +465,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {t('myInvitations.accept')}
                     </button>
@@ -556,7 +556,7 @@ function RequestMembershipSection() {
                 <button
                     type="submit"
                     disabled={requesting || !selectedOrgId}
-                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {requesting ? t('request.submitting') : t('request.submit')}
                 </button>
@@ -619,7 +619,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creating ? t('create.submitting') : t('create.submit')}
                 </button>

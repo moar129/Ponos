@@ -14,7 +14,7 @@ export function PreferencesSection() {
   const themeButtonClass = (isActive: boolean) =>
     `flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
       isActive
-        ? 'bg-accent text-white'
+        ? 'bg-accent text-accent-text'
         : 'border border-border-gray dark:border-slate-700 text-secondary dark:text-slate-400 hover:bg-bg-gray dark:hover:bg-slate-700'
     }`
 

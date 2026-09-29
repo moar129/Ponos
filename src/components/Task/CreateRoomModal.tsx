@@ -81,7 +81,7 @@ export function CreateRoomModal({ onClose }: CreateRoomModalProps) {
                         type="button"
                         onClick={() => void handleSave()}
                         disabled={isLoading || !name.trim()}
-                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-text hover:bg-accent-hover transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isLoading ? t('common:saving') : t('page.saveRoom')}
                     </button>

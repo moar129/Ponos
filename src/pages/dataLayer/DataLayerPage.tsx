@@ -828,7 +828,7 @@ export function DataLayerPage() {
               <Filter className="w-4 h-4 shrink-0" />
               <span>{t('page.filter')}</span>
               {activeFilterCount > 0 && (
-                <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
+                <span className="ml-1 text-xs bg-accent text-accent-text rounded-full w-4 h-4 flex items-center justify-center shrink-0">
                   {activeFilterCount}
                 </span>
               )}
@@ -968,7 +968,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddModal(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>{t('page.createCategory')}</span>
@@ -979,7 +979,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddLocation(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>{t('locations.createWarehouseButton')}</span>
@@ -1061,7 +1061,7 @@ export function DataLayerPage() {
                       <button
                         type="button"
                         onClick={() => setIsAddItemsModalOpen(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{t('page.addItems')}</span>
@@ -1219,7 +1219,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddItemsModalOpen(true)}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span>{t('page.addItems')}</span>

@@ -244,7 +244,7 @@ export function ManageGroupMembersComponent({
             type="button"
             onClick={handleAdd}
             disabled={adding || selectedIds.size === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
             {t('group.addSelected')}

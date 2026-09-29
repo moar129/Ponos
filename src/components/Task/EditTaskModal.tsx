@@ -380,7 +380,7 @@ export function EditTaskModal({
                             type="button"
                             onClick={handleSubmit}
                             disabled={isLoading || !title.trim() || !canUpdate}
-                            className="rounded-lg bg-accent px-4 py-2 text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="rounded-lg bg-accent px-4 py-2 text-accent-text hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {isLoading ? t('common:saving') : t('common:save')}
                         </button>

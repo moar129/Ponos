@@ -202,7 +202,7 @@ export function RoomBar({
                                 {t('approvals.tab')}
                                 {pendingRequests.length > 0 && (
                                     <span
-                                        className="rounded-full bg-accent px-1.5 text-xs font-bold text-white"
+                                        className="rounded-full bg-accent px-1.5 text-xs font-bold text-accent-text"
                                         aria-label={t('approvals.pendingCount', { count: pendingRequests.length })}
                                     >
                                         {pendingRequests.length}

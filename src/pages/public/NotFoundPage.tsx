@@ -33,7 +33,7 @@ export default function NotFoundPage() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
                     to={session ? '/dashboard' : '/'}
-                    className="inline-flex items-center justify-center bg-accent text-white rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                    className="inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                 >
                     {session ? t('notFound.toDashboard') : t('notFound.toHome')}
                 </Link>

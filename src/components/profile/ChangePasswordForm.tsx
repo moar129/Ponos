@@ -101,7 +101,7 @@ export default function ChangePasswordForm() {
                 <button
                     type="button"
                     onClick={startEdit}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                 >
                     {t('changePassword.submit')}
                 </button>
@@ -157,7 +157,7 @@ export default function ChangePasswordForm() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {isLoading ? t('changePassword.submitting') : t('changePassword.submit')}
                 </button>

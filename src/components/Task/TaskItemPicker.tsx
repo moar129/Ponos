@@ -237,7 +237,7 @@ export function TaskItemPicker({ taskId, onStage }: TaskItemPickerProps) {
               type="button"
               onClick={handleConfirm}
               disabled={isLoading || quantityInvalid}
-              className="rounded-lg bg-accent px-4 py-2 text-sm text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
+              className="rounded-lg bg-accent px-4 py-2 text-sm text-accent-text hover:bg-accent-hover transition-colors disabled:opacity-60"
             >
               {onStage ? t('materials.addItem') : isLoading ? t('materials.reserving') : t('materials.reserve')}
             </button>

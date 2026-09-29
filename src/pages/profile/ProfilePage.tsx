@@ -198,7 +198,7 @@ export default function ProfilePage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? t('common:saving') : t('saveChanges')}
                         </button>
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                         <button
                             type="button"
                             onClick={() => startEdit(profile)}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             {t('editProfile')}
                         </button>

@@ -142,7 +142,7 @@ export function PrivilegeMatrix() {
                 <button
                     type="submit"
                     disabled={creatingRole}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creatingRole ? t('matrix.creatingRole') : t('matrix.createRole')}
                 </button>

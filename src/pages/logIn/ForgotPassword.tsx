@@ -135,7 +135,7 @@ export default function ForgotPassword() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {isLoading ? t('forgotPassword.submitting') : t('forgotPassword.submit')}
                 </button>

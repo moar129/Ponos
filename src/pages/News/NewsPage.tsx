@@ -67,7 +67,7 @@ export function NewsPage() {
                     <button
                         type="button"
                         onClick={openCreate}
-                        className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors"
+                        className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors"
                     >
                         <Plus className="w-4 h-4" />
                         {t('create')}

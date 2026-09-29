@@ -505,7 +505,7 @@ export function AddItemsComponent({
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('addItems.submit')}

@@ -290,7 +290,7 @@ function TaskApprovalRow({
                             type="button"
                             onClick={() => onConfirm(decision)}
                             disabled={submitting || missingReason}
-                            className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {submitting ? t('common:processing') : t('common:yes')}
                         </button>
@@ -311,7 +311,7 @@ function TaskApprovalRow({
                             type="button"
                             onClick={() => onSelect({ requestId: request.id, decision: 'approve' })}
                             disabled={submitting}
-                            className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             <Check className="w-4 h-4" />
                             {t('roles:approvals.approve')}

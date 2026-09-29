@@ -168,7 +168,7 @@ function NewsForm({ onClose, editingNews }: NewsFormProps) {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {isSaving ? t('common:saving') : t('common:save')}
                         </button>
