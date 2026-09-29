@@ -2,7 +2,8 @@ import type { BarListProps } from '../../types/statistics/statisticsComponentTyp
 
 // Horizontal single-hue bars for "compare magnitude" data (priority, rooms,
 // categories, item status ...). One series, so no legend - the card title
-// names it. Bars use the org accent; labels and values stay in text ink.
+// names it. Bars use the fixed chart blue (not the org colour, so charts look
+// the same in every organisation); labels and values stay in text ink.
 export function BarList({ rows, ariaLabel }: BarListProps) {
     const max = Math.max(0, ...rows.map((row) => row.value))
 
@@ -25,7 +26,7 @@ export function BarList({ rows, ariaLabel }: BarListProps) {
                         <span className="h-3 w-full">
                             {width > 0 && (
                                 <span
-                                    className="block h-full rounded-r bg-accent"
+                                    className="block h-full rounded-r bg-[var(--chart-series-1)]"
                                     style={{ width: `${Math.max(width, 1)}%` }}
                                 />
                             )}

@@ -139,14 +139,14 @@ Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**
   grøn/rød kun på Færdige/Til tiden/Gennemløbstid/Forfaldne, ellers grå; ingen overlap ved lange tal.
 - **Rum-oversigt**: tabel scroller vandret på mobil; rum-navne er links (klik = filter + scroll til top); forfaldne > 0
   rød; "–" ved rum uden færdige med slutdato.
-- **Grafer**: opgaveudvikling (linjer i org-accent + grå), donut, stolper – akser/labels læsbare i mørk; tooltips
+- **Grafer**: opgaveudvikling (blå oprettede + orange færdige), donut, stolper – akser/labels læsbare i mørk; tooltips
   har mørk baggrund i mørk tilstand.
 - **Materialer**: "Enheder pr. status" viser dato i beskrivelsen; ved filter "Hele organisationen …".
 - **Tomme tilstande**: vælg en periode uden data (fx "Dag" i en tom org) → tekst, ingen tomme akser.
 - **"Gem og sammenlign"-fanen**: chips ombrydes; metadata-linje læsbar; sammenligningstabel scroller vandret på mobil,
   ændring under tallet; foldbare grupper; graf med op til 4 farver + legend.
 - **Modaler** (brugerdefineret periode, gem snapshot, slet): passer på mobil (scroll i gem-dialogen), fokus/escape.
-- **Org-farve**: skift organisationens farve → grafer og aktive knapper følger.
+- **Org-farve**: skift organisationens farve → aktive knapper følger, graferne beholder deres faste farver.
 
 ## Senere
 

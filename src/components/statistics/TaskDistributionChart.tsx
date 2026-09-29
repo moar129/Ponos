@@ -5,11 +5,11 @@ import type { ETaskStatus } from '../../types/Task/Task'
 import type { TaskDistributionChartProps } from '../../types/statistics/statisticsComponentTypes'
 
 // The statuses are ordered (available -> in progress -> done), so they get
-// an ordinal ramp of the org accent instead of unrelated hues.
+// an ordinal ramp of the fixed chart blue instead of unrelated hues.
 const STATUS_COLORS: Record<ETaskStatus, string> = {
-    Started: 'color-mix(in srgb, var(--color-accent) 35%, var(--chart-surface))',
-    InProgress: 'color-mix(in srgb, var(--color-accent) 65%, var(--chart-surface))',
-    Completed: 'var(--color-accent)',
+    Started: 'color-mix(in srgb, var(--chart-series-1) 35%, var(--chart-surface))',
+    InProgress: 'color-mix(in srgb, var(--chart-series-1) 65%, var(--chart-surface))',
+    Completed: 'var(--chart-series-1)',
 }
 
 export function TaskDistributionChart({ data }: TaskDistributionChartProps) {

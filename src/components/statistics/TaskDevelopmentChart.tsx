@@ -12,8 +12,9 @@ import { useTranslation } from 'react-i18next'
 import type { StatisticsGranularity } from '../../types/statistics/statisticsTypes'
 import type { TaskDevelopmentChartProps } from '../../types/statistics/statisticsComponentTypes'
 
-const CREATED_COLOR = 'var(--color-accent)'
-const COMPLETED_COLOR = 'var(--chart-neutral)'
+// Fixed chart colours (not the org colour); slots 1-2 of the validated palette.
+const CREATED_COLOR = 'var(--chart-series-1)'
+const COMPLETED_COLOR = 'var(--chart-series-2)'
 
 // Buckets come from the RPC as local 'YYYY-MM-DDTHH:mm'.
 function parseBucket(bucket: string): Date {

@@ -26,9 +26,9 @@ html {
     font-size: 17px;
 }
 
-/* Statistik-grafer. Primær serie = var(--color-accent) (org-farven, allerede
-   kontrast-justeret pr. tema i orgPalette.ts); resten er neutral blæk og
-   hårfine linjer. Status-farverne er faste (godkendt/afventer/afvist) og
+/* Statistik-grafer. Faste farver - IKKE org-farven, så graferne ser ens ud i
+   alle organisationer (besluttet 2026-09-30). Primær serie = --chart-series-1,
+   anden serie = --chart-series-2; resten er neutral blæk og hårfine linjer. Status-farverne er faste (godkendt/afventer/afvist) og
    vises altid med ikon + tekst, aldrig farve alene. */
 :root {
     --chart-surface: #FFFFFF;
@@ -39,8 +39,8 @@ html {
     --chart-good: #0CA30C;
     --chart-warning: #FAB219;
     --chart-critical: #D03B3B;
-    /* Snapshot-sammenligning: én farve pr. snapshot, fast rækkefølge
-       (dataviz-referencepaletten slot 1-4, max 4 snapshots). */
+    /* Serier i fast rækkefølge (dataviz-referencepaletten slot 1-4): 1 =
+       primær (stolper, donut, oprettede), 2 = færdige; snapshots én pr. slot. */
     --chart-series-1: #2A78D6;
     --chart-series-2: #EB6834;
     --chart-series-3: #1BAF7A;
