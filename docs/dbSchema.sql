@@ -1274,8 +1274,15 @@ begin
   values (v_org.id, 'Medlem')
   returning id into v_member_role_id;
 
+  -- Medlems faste privilegie-sæt seedes her - trg_prevent_default_role_
+  -- privilege_change (15.6d) blokerer ellers insert på "Medlem". Rettet
+  -- 2026-09-29: uden flaget fejlede al oprettelse af nye organisationer.
+  perform set_config('ponos.bypass_admin_protection', 'true', true);
+
   insert into public.privileges (role_id, name)
   values (v_member_role_id, 'read_news'), (v_member_role_id, 'read_tasks');
+
+  perform set_config('ponos.bypass_admin_protection', 'false', true);
 
   insert into public.memberships (user_id, organisation_id, role_id)
   values (v_user_id, v_org.id, v_admin_role_id);

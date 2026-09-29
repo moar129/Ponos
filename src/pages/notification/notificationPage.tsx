@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
 import { NOTIFICATION_SETTINGS_ANCHOR, notificationBody, notificationTitle } from '../../utils/notificationDisplay'
-import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings } from 'lucide-react';
+import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings, Building2 } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
   useMarkNotificationReadMutation,
@@ -19,14 +19,15 @@ import { formatNumericDateTime } from '../../utils/formatDate';
 // --- Kategorisering af notifikationer ---------------------------------
 // Notifikationstyperne kommer fra e_notification-check-constrainten:
 // 'message', 'task_assigned', 'task_updated', 'task_completed',
-// 'task_approved', 'task_rejected', 'task_favorite_room', 'news'. Ukendte typer falder
-// tilbage til 'news'.
-type NotificationCategory = 'messages' | 'tasks' | 'news';
+// 'task_approved', 'task_rejected', 'task_favorite_room', 'news',
+// 'membership_invitation'. Ukendte typer falder tilbage til 'news'.
+type NotificationCategory = 'messages' | 'tasks' | 'news' | 'organisation';
 type CategoryFilter = NotificationCategory | 'all';
 
 function getNotificationCategory(type: string): NotificationCategory {
   if (type === 'message') return 'messages';
   if (type.startsWith('task_')) return 'tasks';
+  if (type === 'membership_invitation') return 'organisation';
   return 'news';
 }
 
@@ -34,9 +35,10 @@ const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
   messages: MessageSquare,
   tasks: ListChecks,
   news: Newspaper,
+  organisation: Building2,
 };
 
-const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news'];
+const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news', 'organisation'];
 
 export default function NotificationsPage() {
   const { t } = useTranslation(['notifications', 'common'])
@@ -58,7 +60,7 @@ export default function NotificationsPage() {
 
   // Antal ulæste pr. kategori - styrer prikken ud for hvert link i sidebaren
   const unreadCountByCategory = useMemo(() => {
-    const counts: Record<NotificationCategory, number> = { messages: 0, tasks: 0, news: 0 };
+    const counts: Record<NotificationCategory, number> = { messages: 0, tasks: 0, news: 0, organisation: 0 };
     for (const n of notifications) {
       if (!n.isRead) counts[getNotificationCategory(n.type)]++;
     }
@@ -66,7 +68,10 @@ export default function NotificationsPage() {
   }, [notifications]);
 
   const totalUnread =
-    unreadCountByCategory.messages + unreadCountByCategory.tasks + unreadCountByCategory.news;
+    unreadCountByCategory.messages +
+    unreadCountByCategory.tasks +
+    unreadCountByCategory.news +
+    unreadCountByCategory.organisation;
 
   const filteredNotifications = useMemo(() => {
     if (activeCategory === 'all') return notifications;

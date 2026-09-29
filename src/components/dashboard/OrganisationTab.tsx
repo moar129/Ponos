@@ -3,6 +3,7 @@ import { readableError } from '../../ErrorMessage';
 import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -70,6 +71,28 @@ export function OrganisationTab() {
 
     const [noOrgTab, setNoOrgTab] = useState<NoOrgTab>('create')
     const [orgTab, setOrgTab] = useState<OrgTab>('details')
+
+    // Deep-link fra invitations-notifikationen (?section=invitations):
+    // vinder over det lokale valg, indtil brugeren selv skifter underfane.
+    // Afledt i stedet for en effect, så det også virker, når fanen
+    // allerede er åben, og notifikationen klikkes fra klokken.
+    const [searchParams, setSearchParams] = useSearchParams()
+    const linkedToInvitations =
+        searchParams.get('section') === 'invitations' && (pendingInvitations?.length ?? 0) > 0
+
+    function clearSectionParam() {
+        if (!searchParams.has('section')) return
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev)
+            next.delete('section')
+            return next
+        }, { replace: true })
+    }
+
+    function switchNoOrgTab(tab: NoOrgTab) {
+        clearSectionParam()
+        setNoOrgTab(tab)
+    }
     // Vises på "Organisation"-underfanen lige efter man har oprettet en
     // ny organisation fra "Opret organisation"-underfanen (US-60) -
     // ryddes, når brugeren selv skifter fane igen, så den ikke bliver
@@ -77,6 +100,7 @@ export function OrganisationTab() {
     const [createdOrgName, setCreatedOrgName] = useState<string | null>(null)
 
     function switchOrgTab(tab: OrgTab) {
+        clearSectionParam()
         setCreatedOrgName(null)
         setOrgTab(tab)
     }
@@ -168,6 +192,7 @@ export function OrganisationTab() {
                                 ? [{ key: 'invitations' as NoOrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
                                 : []),
                         ]
+                        const effectiveNoOrgTab: NoOrgTab = linkedToInvitations ? 'invitations' : noOrgTab
 
                         return (
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
@@ -176,8 +201,8 @@ export function OrganisationTab() {
                                         <button
                                             key={tab.key}
                                             type="button"
-                                            onClick={() => setNoOrgTab(tab.key)}
-                                            className={orgNavItemClass(noOrgTab === tab.key)}
+                                            onClick={() => switchNoOrgTab(tab.key)}
+                                            className={orgNavItemClass(effectiveNoOrgTab === tab.key)}
                                         >
                                             <tab.icon className="w-4 h-4 shrink-0" />
                                             {tab.label}
@@ -186,11 +211,11 @@ export function OrganisationTab() {
                                 </nav>
 
                                 <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
-                                    {noOrgTab === 'memberships' ? (
+                                    {effectiveNoOrgTab === 'memberships' ? (
                                         <MyMembershipsSection />
-                                    ) : noOrgTab === 'invitations' ? (
+                                    ) : effectiveNoOrgTab === 'invitations' ? (
                                         <InvitationsSection />
-                                    ) : noOrgTab === 'create' ? (
+                                    ) : effectiveNoOrgTab === 'create' ? (
                                         <>
                                             {(createValidationError || createErrorMessage) && (
                                                 <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
@@ -270,7 +295,9 @@ export function OrganisationTab() {
             ? [{ key: 'invitations' as OrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
             : []),
     ]
-    const effectiveOrgTab: OrgTab = orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
+    const effectiveOrgTab: OrgTab = linkedToInvitations
+        ? 'invitations'
+        : orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
 
     return (
         // US-59: en bruger kan være medlem af flere organisationer -

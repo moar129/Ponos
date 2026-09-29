@@ -13,7 +13,8 @@
   "category": {
     "messages": "Messages",
     "tasks": "Tasks",
-    "news": "News"
+    "news": "News",
+    "organisation": "Organisation"
   },
   "type": {
     "message": "New message",
@@ -23,7 +24,8 @@
     "task_approved": "Your task has been approved",
     "task_rejected": "Completion rejected",
     "task_favorite_room": "New task in a favorite room",
-    "news": "New news"
+    "news": "New news",
+    "membership_invitation": "You have been invited to an organisation"
   },
   "settingsLink": "Settings"
 }

@@ -13,7 +13,8 @@
   "category": {
     "messages": "Üzenetek",
     "tasks": "Feladatok",
-    "news": "Hírek"
+    "news": "Hírek",
+    "organisation": "Szervezet"
   },
   "type": {
     "message": "Új üzenet",
@@ -23,7 +24,8 @@
     "task_approved": "A feladatát jóváhagyták",
     "task_rejected": "A befejezés bejelentését elutasították",
     "task_favorite_room": "Új feladat egy kedvenc teremben",
-    "news": "Új hír"
+    "news": "Új hír",
+    "membership_invitation": "Meghívást kaptál egy szervezetbe"
   },
   "settingsLink": "Beállítások"
 }

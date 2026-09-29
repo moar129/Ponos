@@ -13,7 +13,8 @@
   "category": {
     "messages": "Meddelanden",
     "tasks": "Uppgifter",
-    "news": "Nyheter"
+    "news": "Nyheter",
+    "organisation": "Organisation"
   },
   "type": {
     "message": "Nytt meddelande",
@@ -23,7 +24,8 @@
     "task_approved": "Din uppgift har godkänts",
     "task_rejected": "Slutrapportering avslagen",
     "task_favorite_room": "Ny uppgift i ett favoritrum",
-    "news": "Ny nyhet"
+    "news": "Ny nyhet",
+    "membership_invitation": "Du har bjudits in till en organisation"
   },
   "settingsLink": "Inställningar"
 }

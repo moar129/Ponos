@@ -124,6 +124,12 @@ export const notificationApi = supabaseApi.injectEndpoints({
                                     ])
                                 )
                             }
+
+                            // Ny invitation - "Invitationer (n)"-underfanen
+                            // på Organisation skal dukke op uden genindlæsning.
+                            if (row.type === 'membership_invitation') {
+                                dispatch(supabaseApi.util.invalidateTags(['MembershipInvitation']))
+                            }
                         }
                     )
                     // edit_message/delete_message opdaterer body på

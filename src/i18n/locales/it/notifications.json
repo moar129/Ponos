@@ -13,7 +13,8 @@
   "category": {
     "messages": "Messaggi",
     "tasks": "Attività",
-    "news": "Notizie"
+    "news": "Notizie",
+    "organisation": "Organizzazione"
   },
   "type": {
     "message": "Nuovo messaggio",
@@ -23,7 +24,8 @@
     "task_approved": "La tua attività è stata approvata",
     "task_rejected": "Segnalazione di completamento rifiutata",
     "task_favorite_room": "Nuova attività in una stanza preferita",
-    "news": "Nuova notizia"
+    "news": "Nuova notizia",
+    "membership_invitation": "Sei stato invitato in un'organizzazione"
   },
   "settingsLink": "Impostazioni"
 }

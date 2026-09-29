@@ -13,7 +13,8 @@
   "category": {
     "messages": "Berichten",
     "tasks": "Taken",
-    "news": "Nieuws"
+    "news": "Nieuws",
+    "organisation": "Organisatie"
   },
   "type": {
     "message": "Nieuw bericht",
@@ -23,7 +24,8 @@
     "task_approved": "Je taak is goedgekeurd",
     "task_rejected": "Gereedmelding afgewezen",
     "task_favorite_room": "Nieuwe taak in een favoriete ruimte",
-    "news": "Nieuw nieuwsbericht"
+    "news": "Nieuw nieuwsbericht",
+    "membership_invitation": "Je bent uitgenodigd voor een organisatie"
   },
   "settingsLink": "Instellingen"
 }

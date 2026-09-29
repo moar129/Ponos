@@ -13,7 +13,8 @@
   "category": {
     "messages": "Nachrichten",
     "tasks": "Aufgaben",
-    "news": "Neuigkeiten"
+    "news": "Neuigkeiten",
+    "organisation": "Organisation"
   },
   "type": {
     "message": "Neue Nachricht",
@@ -23,7 +24,8 @@
     "task_approved": "Ihre Aufgabe wurde freigegeben",
     "task_rejected": "Fertigmeldung abgelehnt",
     "task_favorite_room": "Neue Aufgabe in einem Favoritenraum",
-    "news": "Neue Neuigkeit"
+    "news": "Neue Neuigkeit",
+    "membership_invitation": "Sie wurden zu einer Organisation eingeladen"
   },
   "settingsLink": "Einstellungen"
 }

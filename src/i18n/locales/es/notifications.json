@@ -13,7 +13,8 @@
   "category": {
     "messages": "Mensajes",
     "tasks": "Tareas",
-    "news": "Noticias"
+    "news": "Noticias",
+    "organisation": "Organización"
   },
   "type": {
     "message": "Nuevo mensaje",
@@ -23,7 +24,8 @@
     "task_approved": "Tu tarea ha sido aprobada",
     "task_rejected": "Finalización rechazada",
     "task_favorite_room": "Nueva tarea en una sala favorita",
-    "news": "Nueva noticia"
+    "news": "Nueva noticia",
+    "membership_invitation": "Te han invitado a una organización"
   },
   "settingsLink": "Ajustes"
 }

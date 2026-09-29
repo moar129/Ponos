@@ -54,4 +54,5 @@ export const NOTIFICATION_TYPE_GROUPS: NotificationTypeGroup[] = [
         types: ['task_assigned', 'task_updated', 'task_completed', 'task_approved', 'task_rejected', 'task_favorite_room'],
     },
     { key: 'news', types: ['news'] },
+    { key: 'organisation', types: ['membership_invitation'] },
 ]
