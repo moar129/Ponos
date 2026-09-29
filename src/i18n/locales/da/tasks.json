@@ -28,7 +28,8 @@
     "saveRoom": "Gem rum",
     "loading": "Henter opgaver...",
     "noAccess": "Du har ikke adgang til at se opgaver i denne organisation.",
-    "heading": "Opgaver",
+    "heading": "Alle opgaver",
+    "roomHeading": "{{room}} Opgaver",
     "createRoom": "Opret rum",
     "availableHeading": "Opgaver tilgængelige",
     "inProgressHeading": "I gang"
@@ -51,7 +52,15 @@
     "edit": "Rediger rum",
     "deleteOne": "Slet et rum",
     "choose": "Vælg rum",
-    "noRoom": "Uden rum"
+    "noRoom": "Uden rum",
+    "rolesLabel": "Adgang for roller",
+    "rolesHint": "Ingen valgt = alle kan se rummet.",
+    "rolesLoading": "Henter roller...",
+    "rolesLoadFailed": "Kunne ikke hente roller.",
+    "noRoles": "Organisationen har ingen roller.",
+    "restrictedTo": "Kun for: {{roles}}",
+    "newRole": "Ny rolle",
+    "chat": "Rum-chat"
   },
   "create": {
     "heading": "Opret Opgave",
@@ -100,19 +109,24 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Tilføj medarbejder",
     "created": "Oprettet",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Færdigmelding afvist: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Vis filter",
     "hide": "Skjul filter",
-    "searchPlaceholder": "Søg opgaver...",
+    "searchPlaceholder": "Søg i titel, beskrivelse, rum eller person...",
     "all": "Alle",
     "sortNewest": "Nyeste",
     "sortOldest": "Ældste",
     "sortPriority": "Prioritet",
     "sortDeadline": "Deadline",
     "counts": "{{available}} tilgængelige · {{inProgress}} i gang",
-    "sortBy": "Sortér efter"
+    "sortBy": "Sortér efter",
+    "noMatches": "Ingen opgaver matcher søgning/filter.",
+    "activeCount_one": "{{count}} aktivt filter",
+    "activeCount_other": "{{count}} aktive filtre"
   },
   "deleteRoom": {
     "heading": "Slet rum",
@@ -127,7 +141,7 @@
   },
   "editRoom": {
     "heading": "Rediger rum",
-    "intro": "Vælg et rum og rediger navnet.",
+    "intro": "Vælg et rum og rediger navn og adgang.",
     "namePlaceholder": "Indtast rumnavn",
     "failed": "Kunne ikke redigere rummet. Prøv igen."
   },
@@ -179,5 +193,22 @@
     "noLocation": "Uden lager",
     "noAvailableAnywhere": "Der er ingen ledige enheder på noget lager.",
     "availableAtLocation": "{{amount}} {{unit}} ledige"
+  },
+  "favorites": {
+    "toggleFailed": "Kunne ikke opdatere favoritrum."
+  },
+  "completed": {
+    "tab": "Afsluttede",
+    "heading": "Afsluttede opgaver",
+    "subtitle": "Alle afsluttede opgaver i organisationen.",
+    "noAccess": "Du har ikke adgang til afsluttede opgaver."
+  },
+  "approvals": {
+    "tab": "Til godkendelse",
+    "heading": "Til godkendelse",
+    "subtitle": "Opgaver meldt færdige, der venter på godkendelse.",
+    "noAccess": "Du har ikke adgang til opgavegodkendelser.",
+    "pendingCount_one": "{{count}} venter",
+    "pendingCount_other": "{{count}} venter"
   }
 }

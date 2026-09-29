@@ -3,13 +3,13 @@ import { readableError } from '../../ErrorMessage';
 import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Building2, Handshake, Plus, Send, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
     useCreateOrganisationMutation,
     useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
-    useGetOrganisationsQuery,
     useLeaveOrganisationMutation,
     useSetActiveOrganisationMutation,
 } from '../../store/apis/organisationApi'
@@ -30,7 +30,7 @@ type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 // Samme vertikale sidebar-nav-stil som AdministrationTab.tsx, genbrugt
 // her for et konsistent udtryk på tværs af dashboardets faner.
 function orgNavItemClass(active: boolean): string {
-    return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
+    return `flex shrink-0 items-center gap-2 whitespace-nowrap md:whitespace-normal rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
         ? 'bg-accent/15 text-primary dark:text-slate-100'
         : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
     }`
@@ -71,6 +71,28 @@ export function OrganisationTab() {
 
     const [noOrgTab, setNoOrgTab] = useState<NoOrgTab>('create')
     const [orgTab, setOrgTab] = useState<OrgTab>('details')
+
+    // Deep-link fra invitations-notifikationen (?section=invitations):
+    // vinder over det lokale valg, indtil brugeren selv skifter underfane.
+    // Afledt i stedet for en effect, så det også virker, når fanen
+    // allerede er åben, og notifikationen klikkes fra klokken.
+    const [searchParams, setSearchParams] = useSearchParams()
+    const linkedToInvitations =
+        searchParams.get('section') === 'invitations' && (pendingInvitations?.length ?? 0) > 0
+
+    function clearSectionParam() {
+        if (!searchParams.has('section')) return
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev)
+            next.delete('section')
+            return next
+        }, { replace: true })
+    }
+
+    function switchNoOrgTab(tab: NoOrgTab) {
+        clearSectionParam()
+        setNoOrgTab(tab)
+    }
     // Vises på "Organisation"-underfanen lige efter man har oprettet en
     // ny organisation fra "Opret organisation"-underfanen (US-60) -
     // ryddes, når brugeren selv skifter fane igen, så den ikke bliver
@@ -78,6 +100,7 @@ export function OrganisationTab() {
     const [createdOrgName, setCreatedOrgName] = useState<string | null>(null)
 
     function switchOrgTab(tab: OrgTab) {
+        clearSectionParam()
         setCreatedOrgName(null)
         setOrgTab(tab)
     }
@@ -92,13 +115,6 @@ export function OrganisationTab() {
 
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
-
-    // Henter listen af organisationer man kan anmode om medlemskab af, kun
-    // relevant for brugere uden egen organisation - undgår et unødvendigt
-    // kald for brugere der allerede er medlem et sted.
-    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery(undefined, {
-        skip: isLoading || !!organisation,
-    })
 
     async function handleCreateSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -176,6 +192,7 @@ export function OrganisationTab() {
                                 ? [{ key: 'invitations' as NoOrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
                                 : []),
                         ]
+                        const effectiveNoOrgTab: NoOrgTab = linkedToInvitations ? 'invitations' : noOrgTab
 
                         return (
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
@@ -184,8 +201,8 @@ export function OrganisationTab() {
                                         <button
                                             key={tab.key}
                                             type="button"
-                                            onClick={() => setNoOrgTab(tab.key)}
-                                            className={orgNavItemClass(noOrgTab === tab.key)}
+                                            onClick={() => switchNoOrgTab(tab.key)}
+                                            className={orgNavItemClass(effectiveNoOrgTab === tab.key)}
                                         >
                                             <tab.icon className="w-4 h-4 shrink-0" />
                                             {tab.label}
@@ -194,11 +211,11 @@ export function OrganisationTab() {
                                 </nav>
 
                                 <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 min-w-0 rounded-lg border border-border-gray bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800">
-                                    {noOrgTab === 'memberships' ? (
+                                    {effectiveNoOrgTab === 'memberships' ? (
                                         <MyMembershipsSection />
-                                    ) : noOrgTab === 'invitations' ? (
+                                    ) : effectiveNoOrgTab === 'invitations' ? (
                                         <InvitationsSection />
-                                    ) : noOrgTab === 'create' ? (
+                                    ) : effectiveNoOrgTab === 'create' ? (
                                         <>
                                             {(createValidationError || createErrorMessage) && (
                                                 <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
@@ -219,7 +236,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={creating}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {creating ? t('create.submitting') : t('create.submit')}
                                                 </button>
@@ -240,8 +257,6 @@ export function OrganisationTab() {
                                                 <div>
                                                     <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
                                                     <OrganisationPickerComponent
-                                                        organisations={organisations}
-                                                        isLoading={loadingOrganisations}
                                                         value={selectedOrgId}
                                                         onChange={setSelectedOrgId}
                                                     />
@@ -249,7 +264,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={requesting || !selectedOrgId}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {requesting ? t('request.submitting') : t('request.submit')}
                                                 </button>
@@ -280,7 +295,9 @@ export function OrganisationTab() {
             ? [{ key: 'invitations' as OrgTab, label: `Invitationer (${pendingInvitations?.length})`, icon: Send }]
             : []),
     ]
-    const effectiveOrgTab: OrgTab = orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
+    const effectiveOrgTab: OrgTab = linkedToInvitations
+        ? 'invitations'
+        : orgTabDefs.some((tab) => tab.key === orgTab) ? orgTab : orgTabDefs[0].key
 
     return (
         // US-59: en bruger kan være medlem af flere organisationer -
@@ -340,7 +357,7 @@ export function OrganisationTab() {
                         <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                             <div className="py-3 flex justify-between gap-4">
                                 <dt className="text-sm text-secondary dark:text-slate-400">{t('details.memberCount')}</dt>
-                                <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                                <dd className="text-sm text-right min-w-0 break-words">{activeMembership?.memberCount ?? '—'}</dd>
                             </div>
                         </dl>
                     </>
@@ -429,7 +446,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? t('myInvitations.processing') : t('myInvitations.yes')}
                     </button>
@@ -443,12 +460,12 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                     </button>
                 </div>
             ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {t('myInvitations.accept')}
                     </button>
@@ -478,7 +495,6 @@ function RequestMembershipSection() {
     const { data: memberships } = useGetMyMembershipsQuery()
     const [requestMembership, { isLoading: requesting, error: requestError }] = useRequestMembershipMutation()
 
-    const { data: organisations = [], isLoading: loadingOrganisations } = useGetOrganisationsQuery()
     const [selectedOrgId, setSelectedOrgId] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(false)
 
@@ -516,8 +532,7 @@ function RequestMembershipSection() {
     // Organisationer brugeren allerede er medlem af, skal ikke tilbydes -
     // relevant her, da brugeren (i modsætning til no-org-fligen) allerede
     // kan have medlemskaber.
-    const myOrgIds = new Set((memberships ?? []).map((membership) => membership.organisationId))
-    const availableOrganisations = organisations.filter((org) => !myOrgIds.has(org.id))
+    const myOrgIds = (memberships ?? []).map((membership) => membership.organisationId)
 
     const requestErrorMessage = readableError(requestError)
 
@@ -529,28 +544,23 @@ function RequestMembershipSection() {
                 </div>
             )}
 
-            {!loadingOrganisations && availableOrganisations.length === 0 ? (
-                <p className="text-secondary dark:text-slate-400">{t('request.noneAvailable')}</p>
-            ) : (
-                <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
-                    <div>
-                        <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
-                        <OrganisationPickerComponent
-                            organisations={availableOrganisations}
-                            isLoading={loadingOrganisations}
-                            value={selectedOrgId}
-                            onChange={setSelectedOrgId}
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={requesting || !selectedOrgId}
-                        className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                    >
-                        {requesting ? t('request.submitting') : t('request.submit')}
-                    </button>
-                </form>
-            )}
+            <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4">
+                <div>
+                    <label className="block text-sm text-secondary mb-1 dark:text-slate-400">{t('request.chooseLabel')}</label>
+                    <OrganisationPickerComponent
+                        value={selectedOrgId}
+                        onChange={setSelectedOrgId}
+                        excludeIds={myOrgIds}
+                    />
+                </div>
+                <button
+                    type="submit"
+                    disabled={requesting || !selectedOrgId}
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                >
+                    {requesting ? t('request.submitting') : t('request.submit')}
+                </button>
+            </form>
         </>
     )
 }
@@ -609,7 +619,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creating ? t('create.submitting') : t('create.submit')}
                 </button>
@@ -714,7 +724,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                     <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? t('details.noRole')}</p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     {membership.isActive ? (
                         <span className="text-sm font-medium text-accent">{t('myOrganisations.active')}</span>
                     ) : (

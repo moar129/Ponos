@@ -39,7 +39,12 @@
     "chooseCategory": "Válasszon kategóriát a bal oldali menüben",
     "moveCategoryFailed": "A kategóriát nem sikerült áthelyezni.",
     "filterItemsAtLocationPlaceholder": "Tételek szűrése ebben a raktárban...",
-    "noItemsAtLocationYet": "Itt még nincs nyilvántartott tétel"
+    "noItemsAtLocationYet": "Itt még nincs nyilvántartott tétel",
+    "categoriesHere": "Kategóriák itt",
+    "placements": "Helyek",
+    "itemCount": "{{count}} tétel",
+    "goTo": "Ugrás ide",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Mozgatás felfelé",
@@ -181,5 +186,9 @@
   "quantityLabel": "Mennyiség:",
   "categoryIdValue": "Kategória-azonosító: {{id}}",
   "quantityValue": "Mennyiség: {{count}}",
-  "itemCountParen": "({{count}} tétel)"
+  "itemCountParen": "({{count}} tétel)",
+  "favorites": {
+    "title": "Kedvencek",
+    "toggleFailed": "Nem sikerült frissíteni a kedvencet."
+  }
 }

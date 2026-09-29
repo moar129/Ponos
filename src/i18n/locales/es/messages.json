@@ -24,6 +24,7 @@
   "allContacts": "Todos los contactos",
   "newGroup": "Nuevo grupo",
   "chooseConversation": "Elige una conversación o encuentra a un compañero en \"Todos los contactos\"",
+  "backToConversations": "Volver a las conversaciones",
   "participantCount_one": "{{count}} participante",
   "participantCount_other": "{{count}} participantes",
   "group": {
@@ -51,5 +52,26 @@
   "seen": "Visto",
   "noConversations": "Todavía no hay conversaciones. Encuentra a un compañero en \"Todos los contactos\" para iniciar una.",
   "writeFirstTo": "Escribe el primer mensaje a {{name}}.",
-  "participantCount_many": "{{count}} participantes"
+  "participantCount_many": "{{count}} participantes",
+  "system": {
+    "taskChatCreated": "Grupo creado para la tarea",
+    "taskCompleted": "La tarea se ha completado",
+    "taskReopened": "La tarea se ha reabierto",
+    "roomChatCreated": "Grupo creado para la sala",
+    "roomChatClosed": "La sala ya no está restringida por rol - el chat está cerrado",
+    "roomChatReopened": "La sala vuelve a estar restringida por rol - el chat se ha reabierto"
+  },
+  "systemChat": {
+    "taskChat": "Chat de tarea",
+    "roomChat": "Chat de sala",
+    "goToTask": "Ir a la tarea",
+    "goToRoom": "Ir a la sala",
+    "completedPrompt": "La tarea está terminada. ¿Quieres mantener el chat?",
+    "keep": "Mantener activo",
+    "close": "Cerrar chat",
+    "closedByMe": "Has cerrado el chat - solo lectura.",
+    "reopen": "Reabrir",
+    "roomClosed": "La sala ya no está restringida por rol - el chat es de solo lectura.",
+    "confirmLeaveBody": "¿Seguro que quieres salir de \"{{name}}\"? Puedes volver con el botón Chat de la tarea/sala."
+  }
 }

@@ -17,7 +17,9 @@
     "delete": "Eliminar",
     "assign": "Atribuir",
     "approve": "Aprovar",
-    "reject": "Rejeitar"
+    "reject": "Rejeitar",
+    "viewAll": "Ver todas as salas",
+    "viewCompleted": "Ver concluídas"
   },
   "privilege": {
     "admin": "Administração completa (pode fazer tudo)"
@@ -59,6 +61,67 @@
     "reportedBy": "Conclusão comunicada por",
     "approve": "Aprovar",
     "reject": "Rejeitar",
-    "reportedDoneBy": "Conclusão comunicada por {{name}}"
+    "reportedDoneBy": "Conclusão comunicada por {{name}}",
+    "details": {
+      "open": "Ver detalhes",
+      "loading": "A carregar detalhes...",
+      "loadFailed": "Não foi possível carregar os detalhes.",
+      "room": "Sala",
+      "noRoom": "Sem sala",
+      "period": "Período",
+      "noDescription": "Sem descrição.",
+      "assignees": "Atribuídos",
+      "noAssignees": "Ninguém atribuído.",
+      "materials": "Materiais",
+      "noMaterials": "Nenhum material associado.",
+      "noLocation": "Sem armazém",
+      "reserved": "Reservado",
+      "alreadyResolved": "Já reportado.",
+      "currentStatus": "Estado atual",
+      "location": "Armazém",
+      "proposedOutcome": "Resultado proposto na aprovação",
+      "missingOutcome": "Nenhum resultado indicado - a aprovação falhará até o material ser reportado.",
+      "previousRejections": "Rejeições anteriores ({{count}})",
+      "rejectedBy": "Rejeitado por {{name}} · {{date}}",
+      "reportedBy": "concluído reportado por {{name}}",
+      "noReason": "Nenhum motivo indicado."
+    },
+    "rejectReasonLabel": "Motivo",
+    "rejectReasonPlaceholder": "Escreva porque a conclusão é rejeitada - a mensagem é enviada aos atribuídos.",
+    "rejectedCount_one": "Rejeitado {{count}} vez",
+    "rejectedCount_many": "Rejeitado {{count}} vezes",
+    "rejectedCount_other": "Rejeitado {{count}} vezes",
+    "searchPlaceholder": "Pesquisar tarefa ou requerente...",
+    "allRooms": "Todas as salas",
+    "sort": {
+      "oldest": "Pedido mais antigo primeiro",
+      "newest": "Pedido mais recente primeiro",
+      "priority": "Maior prioridade primeiro",
+      "deadline": "Prazo mais próximo primeiro",
+      "rejections": "Mais rejeições primeiro"
+    },
+    "resetFilters": "Repor",
+    "showing": "A mostrar {{count}} de {{total}}",
+    "noMatch": "Nenhum pedido corresponde aos filtros.",
+    "deadline": "Prazo {{date}}",
+    "deadlineOverdue": "Prazo {{date}} (ultrapassado)"
+  },
+  "quickCreate": {
+    "heading": "Criar função",
+    "leaderSuffix": "Líder",
+    "templateLabel": "Modelo",
+    "template": {
+      "participant": "Participante",
+      "leader": "Líder",
+      "copy": "Copiar de"
+    },
+    "templateHint": {
+      "participant": "Pode ver tarefas e notícias.",
+      "leader": "Participante + criar, editar, atribuir e aprovar tarefas."
+    },
+    "chooseRole": "Escolher função",
+    "customize": "Personalizar permissões ({{selected}} selecionadas)",
+    "notOwned": "Não tem esta permissão e por isso não a pode atribuir.",
+    "assignHint": "Lembre-se de atribuir a função aos membros em Membros."
   }
 }

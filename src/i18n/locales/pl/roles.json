@@ -17,7 +17,9 @@
     "delete": "Usuwanie",
     "assign": "Przydzielanie",
     "approve": "Zatwierdzanie",
-    "reject": "Odrzucanie"
+    "reject": "Odrzucanie",
+    "viewAll": "Widzieć wszystkie pokoje",
+    "viewCompleted": "Widzieć zakończone"
   },
   "privilege": {
     "admin": "Pełna administracja (może wszystko)"
@@ -59,6 +61,68 @@
     "reportedBy": "Zakończenie zgłosił",
     "approve": "Zatwierdź",
     "reject": "Odrzuć",
-    "reportedDoneBy": "Zakończenie zgłosił {{name}}"
+    "reportedDoneBy": "Zakończenie zgłosił {{name}}",
+    "details": {
+      "open": "Zobacz szczegóły",
+      "loading": "Ładowanie szczegółów...",
+      "loadFailed": "Nie udało się wczytać szczegółów.",
+      "room": "Pomieszczenie",
+      "noRoom": "Bez pomieszczenia",
+      "period": "Okres",
+      "noDescription": "Brak opisu.",
+      "assignees": "Przypisani",
+      "noAssignees": "Nikt nie jest przypisany.",
+      "materials": "Materiały",
+      "noMaterials": "Brak powiązanych materiałów.",
+      "noLocation": "Bez magazynu",
+      "reserved": "Zarezerwowano",
+      "alreadyResolved": "Już zgłoszono.",
+      "currentStatus": "Obecny status",
+      "location": "Magazyn",
+      "proposedOutcome": "Proponowany wynik przy zatwierdzeniu",
+      "missingOutcome": "Nie podano wyniku - zatwierdzenie nie powiedzie się, dopóki materiał nie zostanie zgłoszony.",
+      "previousRejections": "Wcześniejsze odrzucenia ({{count}})",
+      "rejectedBy": "Odrzucone przez {{name}} · {{date}}",
+      "reportedBy": "ukończenie zgłosił(a) {{name}}",
+      "noReason": "Nie podano uzasadnienia."
+    },
+    "rejectReasonLabel": "Uzasadnienie",
+    "rejectReasonPlaceholder": "Napisz, dlaczego zgłoszenie ukończenia jest odrzucane - wiadomość trafi do przypisanych.",
+    "rejectedCount_one": "Odrzucono {{count}} raz",
+    "rejectedCount_few": "Odrzucono {{count}} razy",
+    "rejectedCount_many": "Odrzucono {{count}} razy",
+    "rejectedCount_other": "Odrzucono {{count}} razy",
+    "searchPlaceholder": "Szukaj zadania lub zgłaszającego...",
+    "allRooms": "Wszystkie pokoje",
+    "sort": {
+      "oldest": "Najstarsze zgłoszenie najpierw",
+      "newest": "Najnowsze zgłoszenie najpierw",
+      "priority": "Najwyższy priorytet najpierw",
+      "deadline": "Najbliższy termin najpierw",
+      "rejections": "Najwięcej odrzuceń najpierw"
+    },
+    "resetFilters": "Resetuj",
+    "showing": "{{count}} z {{total}}",
+    "noMatch": "Brak zgłoszeń pasujących do filtrów.",
+    "deadline": "Termin {{date}}",
+    "deadlineOverdue": "Termin {{date}} (przekroczony)"
+  },
+  "quickCreate": {
+    "heading": "Utwórz rolę",
+    "leaderSuffix": "Lider",
+    "templateLabel": "Szablon",
+    "template": {
+      "participant": "Uczestnik",
+      "leader": "Lider",
+      "copy": "Kopiuj z"
+    },
+    "templateHint": {
+      "participant": "Widzi zadania i aktualności.",
+      "leader": "Uczestnik + tworzenie, edycja, przydzielanie i zatwierdzanie zadań."
+    },
+    "chooseRole": "Wybierz rolę",
+    "customize": "Dostosuj uprawnienia (wybrano: {{selected}})",
+    "notOwned": "Nie masz tego uprawnienia, więc nie możesz go nadać.",
+    "assignHint": "Pamiętaj, aby przypisać rolę członkom w zakładce Członkowie."
   }
 }

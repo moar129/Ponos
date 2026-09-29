@@ -174,7 +174,7 @@ export function ResolveTaskMaterialsModal({
 
                 <div className="space-y-2">
                   {outcomes.map((outcome, index) => (
-                    <div key={index} className="flex items-center gap-2">
+                    <div key={index} className="flex flex-wrap items-center gap-2">
                       <select
                         value={outcome.status}
                         onChange={(e) => {
@@ -251,7 +251,7 @@ export function ResolveTaskMaterialsModal({
             type="button"
             onClick={handleConfirm}
             disabled={isSubmitting || !isValid || unresolved.length === 0}
-            className="rounded-lg bg-accent px-4 py-2 text-sm text-white hover:bg-accent-hover transition-colors disabled:opacity-60"
+            className="rounded-lg bg-accent px-4 py-2 text-sm text-accent-text hover:bg-accent-hover transition-colors disabled:opacity-60"
           >
             {isSubmitting ? texts.confirming : texts.confirm}
           </button>

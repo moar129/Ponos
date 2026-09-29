@@ -5,11 +5,13 @@ import type {
     ETaskPriority,
     ETaskStatus,
     PendingTaskRequest,
+    RejectTaskRequestInput,
     ReviewTaskRequestInput,
     Room,
     Task,
     TaskAssignee,
     TaskMaterial,
+    TaskRequestDetails,
 } from '../../types/Task/Task'
 
 import type { ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes'
@@ -40,12 +42,21 @@ interface UpdateTaskInput {
 
 interface CreateRoomInput {
     name: string
+    roleIds: string[]
 }
 
 interface UpdateRoomInput {
     id: string
     name: string
+    roleIds: string[]
 }
+
+type RoomRow = Omit<Room, 'role_ids'> & { task_room_roles?: { role_id: string }[] }
+
+const toRoom = ({ task_room_roles, ...room }: RoomRow): Room => ({
+    ...room,
+    role_ids: (task_room_roles ?? []).map((r) => r.role_id),
+})
 
 interface UpdateTaskStatusInput {
     id: string
@@ -70,6 +81,7 @@ interface TaskRequest {
     status: 'Pending' | 'Accepted' | 'Rejected'
     handled_by: string | null
     done_at: string | null
+    rejection_reason: string | null
 }
 
 
@@ -118,6 +130,11 @@ export const taskApi = supabaseApi.injectEndpoints({
                     ]
                     : [{ type: 'Task' as const, id: 'LIST' }],
         }),
+
+        // US-70: alle afsluttede opgaver i aktiv organisation, med rum-navn,
+        // tilmeldte (navne) og materialer (navn + mængde) samlet ind via
+        // batch-opslag - samme mønster som roleApi.ts/messageApi.ts'
+        // profil-batch-opslag, da getTasks ikke selv joiner disse relationer.
         getCompletedTasks: builder.query<CompletedTaskDetails[], void>({
             queryFn: async () => {
                 try {
@@ -195,8 +212,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             })),
                     }))
 
-                    data.sort((a, b) => (b.end_date ?? '').localeCompare(a.end_date ?? ''))
-
+                    // Sorted client-side in CompletedTasksPanel (user-selectable).
                     return { data }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
@@ -206,18 +222,74 @@ export const taskApi = supabaseApi.injectEndpoints({
             providesTags: [{ type: 'Task' as const, id: 'LIST' }],
         }),
 
+        // Navne på tilmeldte pr. åben opgave (Started/InProgress) i aktiv
+        // organisation - bruges af søgefeltet på /tasks og /tasks/mine.
+        // Samme batch-mønster som getCompletedTasks. Tilmeld/afmeld
+        // invaliderer 'MyTasks' + Task LIST, så navnene følger med.
+        getOpenTaskAssigneeNames: builder.query<Record<string, string[]>, void>({
+            queryFn: async () => {
+                try {
+                    const organisationId = await getAuthenticatedOrganisationId()
+                    const { data: tasks, error: tasksError } = await supabase
+                        .from('tasks')
+                        .select('id')
+                        .eq('organisation_id', organisationId)
+                        .in('status', ['Started', 'InProgress'])
+
+                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
+                    if (!tasks || tasks.length === 0) return { data: {} }
+
+                    const { data: assigneeRows, error: assigneesError } = await supabase
+                        .from('task_assignees')
+                        .select('task_id,user_id')
+                        .in('task_id', tasks.map((task) => task.id))
+
+                    if (assigneesError) return { error: mapDbError(assigneesError) as QueryError }
+
+                    const userIds = [...new Set((assigneeRows ?? []).map((row) => row.user_id))]
+                    if (userIds.length === 0) return { data: {} }
+
+                    const { data: profiles, error: profilesError } = await supabase
+                        .from('profiles')
+                        .select('id,first_name,last_name')
+                        .in('id', userIds)
+
+                    if (profilesError) return { error: mapDbError(profilesError) as QueryError }
+
+                    const nameById = new Map(
+                        (profiles ?? []).map((profile) => [
+                            profile.id as string,
+                            `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
+                        ])
+                    )
+
+                    const data: Record<string, string[]> = {}
+                    for (const row of assigneeRows ?? []) {
+                        const name = nameById.get(row.user_id)
+                        if (!name) continue
+                        ;(data[row.task_id] ??= []).push(name)
+                    }
+                    return { data }
+                } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'errors:generic'
+                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
+                }
+            },
+            providesTags: ['MyTasks', { type: 'Task' as const, id: 'LIST' }],
+        }),
+
         getRooms: builder.query<Room[], void>({
             queryFn: async () => {
                 try {
                     const organisationId = await getAuthenticatedOrganisationId()
                     const { data, error } = await supabase
                         .from('task_rooms')
-                        .select('*')
+                        .select('*, task_room_roles(role_id)')
                         .eq('organisation_id', organisationId)
                         .order('created_at', { ascending: true })
 
                     if (error) return { error: mapDbError(error) as QueryError }
-                    return { data: (data ?? []) as Room[] }
+                    return { data: ((data ?? []) as RoomRow[]).map(toRoom) }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
@@ -398,54 +470,46 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { id }) => [
+                'Conversation',
                 { type: 'Task', id },
                 { type: 'Task', id: 'LIST' },
             ],
         }),
 
+        // Rum + rolle-begrænsning oprettes/redigeres atomisk via RPC'er
+        // (task_room_roles har kun en select-policy).
         createRoom: builder.mutation<Room, CreateRoomInput>({
-            queryFn: async ({ name }) => {
+            queryFn: async ({ name, roleIds }) => {
                 try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data, error } = await supabase
-                        .from('task_rooms')
-                        .insert({
-                            organisation_id: organisationId,
-                            name,
-                        })
-                        .select()
-                        .single()
+                    const { data, error } = await supabase.rpc('create_task_room', {
+                        p_name: name,
+                        p_role_ids: roleIds,
+                    })
 
                     if (error) return { error: mapPermissionError(error, 'createRoom') }
-                    return { data: data as Room }
+                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
                 } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'errors:generic'
                     return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
                 }
             },
-            invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }],
+            invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }, 'Conversation'],
         }),
 
         updateRoom: builder.mutation<Room, UpdateRoomInput>({
-            queryFn: async ({ id, name }) => {
+            queryFn: async ({ id, name, roleIds }) => {
                 try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-
-                    const { data, error } = await supabase
-                        .from('task_rooms')
-                        .update({
-                            name,
-                        })
-                        .eq('id', id)
-                        .eq('organisation_id', organisationId)
-                        .select()
-                        .single()
+                    const { data, error } = await supabase.rpc('update_task_room', {
+                        p_room_id: id,
+                        p_name: name,
+                        p_role_ids: roleIds,
+                    })
 
                     if (error) {
                         return { error: mapPermissionError(error, 'updateRoom') }
                     }
 
-                    return { data: data as Room }
+                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
                 } catch (err: unknown) {
                     const message =
                         err instanceof Error
@@ -460,12 +524,25 @@ export const taskApi = supabaseApi.injectEndpoints({
                     }
                 }
             },
+            // Rollerne styrer hvilke opgaver der er synlige (RLS).
             invalidatesTags: (_result, _error, { id }) => [
+                'Conversation',
                 { type: 'TaskRoom', id },
                 { type: 'TaskRoom', id: 'LIST' },
+                { type: 'Task', id: 'LIST' },
+                'MyTasks',
             ],
         }),
-        updateTaskStatus: builder.mutation<Task, UpdateTaskStatusInput>({
+
+        // Fase 3: en rå UPDATE på tasks.status kræver nu update_tasks, hvilket
+        // ville blokere en almindelig tilmeldts selvbetjente "markér som
+        // færdig"/"genåbn". Kalder i stedet set_task_status-RPC'en
+        // (fase3-tasks-privileges.sql), som tillader ENTEN en tilmeldt bruger
+        // ELLER update_tasks/admin.
+        // Returnerer null, hvis opgaven ikke længere er synlig efter
+        // statusskiftet (Completed uden view_completed_tasks og uden at være
+        // tilmeldt) - statusskiftet er stadig lykkedes.
+        updateTaskStatus: builder.mutation<Task | null, UpdateTaskStatusInput>({
             queryFn: async ({ id, status }) => {
                 const { error: rpcError } = await supabase.rpc('set_task_status', {
                     p_task_id: id,
@@ -474,12 +551,12 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 if (rpcError) return { error: mapPermissionError(rpcError, 'setTaskStatus') }
 
-                const { data, error } = await supabase.from('tasks').select('*').eq('id', id).single()
+                const { data, error } = await supabase.from('tasks').select('*').eq('id', id).maybeSingle()
 
                 if (error) return { error: mapDbError(error) as QueryError }
-                return { data: data as Task }
+                return { data: (data as Task | null) ?? null }
             },
-            invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }],
+            invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }, 'Conversation'],
         }),
         getTaskAssignees: builder.query<TaskAssignee[], string>({
             queryFn: async (taskId) => {
@@ -519,6 +596,13 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
+
+        // materialOutcomes: den tildeltes valg af udfald pr. uafrapporteret
+        // materiale-linje (US-42), gemt som DATA på anmodningen - selve
+        // afrapporteringen (statusændring på enhederne) sker først i
+        // approve_task_request, ved godkendelse. Afvises anmodningen i
+        // stedet, forbliver materialerne urørt (Reserved/InUse) - se
+        // 2026-09-23-defer-material-resolution-to-approval.sql.
         createTaskRequest: builder.mutation<
             TaskRequest,
             { taskId: string; materialOutcomes?: { taskMaterialId: string; outcomes: { status: string; quantity: number }[] }[] }
@@ -655,6 +739,11 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
+
+        // Godkend/afvis opgave-færdigmelding. Listen og begge handlinger går
+        // via security definer-RPC'er (approve_task_request/
+        // reject_task_request/get_pending_task_requests), som selv tjekker
+        // approve_task/reject_task - 42501 mappes til en dansk fejlbesked.
         getPendingTaskRequests: builder.query<PendingTaskRequest[], void>({
             queryFn: async () => {
                 const { data, error } = await supabase.rpc('get_pending_task_requests')
@@ -669,6 +758,11 @@ export const taskApi = supabaseApi.injectEndpoints({
                     requester_first_name: string | null
                     requester_last_name: string | null
                     requested_at: string
+                    rejection_count?: number
+                    room_id: string | null
+                    room_name: string | null
+                    priority: ETaskPriority | null
+                    end_date: string | null
                 }
 
                 return {
@@ -680,9 +774,102 @@ export const taskApi = supabaseApi.injectEndpoints({
                         requesterName:
                             `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
                         requestedAt: row.requested_at,
+                        rejectionCount: row.rejection_count ?? 0,
+                        roomId: row.room_id,
+                        roomName: row.room_name,
+                        priority: row.priority,
+                        endDate: row.end_date,
                     })),
                 }
             },
+            providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
+        }),
+
+        // Detaljer for én færdigmelding (opgave, tilmeldte, materialer +
+        // foreslåede udfald), til godkenderens detalje-modal. Security
+        // definer-RPC, da en godkender ikke nødvendigvis har read_tasks.
+        getTaskRequestDetails: builder.query<TaskRequestDetails, string>({
+            queryFn: async (requestId) => {
+                const { data, error } = await supabase.rpc('get_task_request_details', { p_request_id: requestId })
+
+                if (error) return { error: mapPermissionError(error, 'readTaskApprovals') }
+
+                type StatusGroupRow = { status: ItemStatus; quantity: number }
+                type Row = {
+                    task: {
+                        id: string
+                        title: string
+                        description: string | null
+                        priority: ETaskPriority | null
+                        status: ETaskStatus
+                        start_date: string | null
+                        end_date: string | null
+                        requires_approval: boolean
+                        room_name: string | null
+                    }
+                    requester_name: string
+                    requested_at: string
+                    assignees: string[]
+                    materials: {
+                        id: string
+                        item_name: string
+                        unit_of_measurement: string | null
+                        quantity: number
+                        linked_groups: StatusGroupRow[]
+                        location_labels: string[]
+                        has_units_without_location: boolean
+                        proposed_outcomes: StatusGroupRow[] | null
+                    }[]
+                    previous_rejections?: {
+                        reason: string | null
+                        rejected_at: string | null
+                        rejected_by_name: string
+                        requester_name: string
+                        requested_at: string
+                    }[]
+                }
+
+                const row = data as Row
+                const toGroups = (groups: StatusGroupRow[]) =>
+                    groups.map((g) => ({ status: g.status, quantity: Number(g.quantity) }))
+
+                return {
+                    data: {
+                        task: {
+                            id: row.task.id,
+                            title: row.task.title,
+                            description: row.task.description,
+                            priority: row.task.priority,
+                            status: row.task.status,
+                            start_date: row.task.start_date,
+                            end_date: row.task.end_date,
+                            requires_approval: row.task.requires_approval,
+                        },
+                        roomName: row.task.room_name,
+                        requesterName: row.requester_name || 'Ukendt bruger',
+                        requestedAt: row.requested_at,
+                        assignees: row.assignees,
+                        materials: row.materials.map((m) => ({
+                            id: m.id,
+                            itemName: m.item_name,
+                            unitOfMeasurement: m.unit_of_measurement ?? '',
+                            quantity: Number(m.quantity),
+                            linkedGroups: toGroups(m.linked_groups),
+                            locationLabels: m.location_labels,
+                            hasUnitsWithoutLocation: m.has_units_without_location,
+                            proposedOutcomes: m.proposed_outcomes ? toGroups(m.proposed_outcomes) : null,
+                        })),
+                        previousRejections: (row.previous_rejections ?? []).map((r) => ({
+                            reason: r.reason,
+                            rejectedAt: r.rejected_at,
+                            rejectedByName: r.rejected_by_name || 'Ukendt bruger',
+                            requesterName: r.requester_name || 'Ukendt bruger',
+                            requestedAt: r.requested_at,
+                        })),
+                    },
+                }
+            },
+            // Samme tag som listen, så godkend/afvis også genindlæser detaljerne.
             providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
         }),
 
@@ -694,6 +881,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 return { data: undefined }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 { type: 'Task', id: 'PENDING-REQUESTS' },
                 { type: 'Task', id: `${taskId}-REQUESTS` },
                 { type: 'Task', id: taskId },
@@ -703,9 +891,11 @@ export const taskApi = supabaseApi.injectEndpoints({
             ],
         }),
 
-        rejectTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
-            queryFn: async ({ requestId }) => {
-                const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId })
+        // reason er påkrævet (håndhæves også i RPC'en) - gemmes på anmodningen
+        // og sendes med i task_rejected-notifikationen til de tilmeldte.
+        rejectTaskRequest: builder.mutation<void, RejectTaskRequestInput>({
+            queryFn: async ({ requestId, reason }) => {
+                const { error } = await supabase.rpc('reject_task_request', { p_request_id: requestId, p_reason: reason })
 
                 if (error) return { error: mapPermissionError(error, 'rejectTasks') }
                 return { data: undefined }
@@ -756,6 +946,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -803,6 +994,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -855,6 +1047,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { taskId }) => [
+                'Conversation',
                 'MyTasks',
                 { type: 'Task', id: 'LIST' },
                 {
@@ -977,6 +1170,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, { roomId }) => [
+                'Conversation',
                 { type: 'TaskRoom', id: roomId },
                 { type: 'TaskRoom', id: 'LIST' },
                 { type: 'Task', id: 'LIST' },
@@ -1017,6 +1211,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
             },
             invalidatesTags: (_result, _error, taskId) => [
+                'Conversation',
                 { type: 'Task', id: taskId },
                 { type: 'Task', id: 'LIST' },
                 'MyTasks',
@@ -1024,6 +1219,12 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Item', id: 'LIST' },
             ],
         }),
+
+        // US-42: afrapporterer det faktiske udfald af en opgaves materiale-
+        // linje ved færdiggørelse (fx "8 retur, 1 i stykker"). Kræves før
+        // set_task_status/approve_task_request tillader Completed - se
+        // assert_task_materials_resolved i docs/dbSchema.sql §15.21.
+        // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
         resolveTaskMaterialUnits: builder.mutation<
             void,
             { taskMaterialId: string; taskId: string; itemId: string; outcomes: { status: string; quantity: number }[] }
@@ -1174,12 +1375,14 @@ export const taskApi = supabaseApi.injectEndpoints({
 export const {
     useGetTasksQuery,
     useGetCompletedTasksQuery,
+    useGetOpenTaskAssigneeNamesQuery,
     useGetRoomsQuery,
     useGetOrganisationEmployeesQuery,
     useGetTaskAssigneesQuery,
     useGetTaskRequestsQuery,
     useCreateTaskRequestMutation,
     useGetPendingTaskRequestsQuery,
+    useGetTaskRequestDetailsQuery,
     useApproveTaskRequestMutation,
     useRejectTaskRequestMutation,
     useCreateTaskMutation,

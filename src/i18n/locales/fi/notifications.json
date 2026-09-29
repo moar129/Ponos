@@ -13,7 +13,8 @@
   "category": {
     "messages": "Viestit",
     "tasks": "Tehtävät",
-    "news": "Uutiset"
+    "news": "Uutiset",
+    "organisation": "Organisaatio"
   },
   "type": {
     "message": "Uusi viesti",
@@ -21,6 +22,10 @@
     "task_updated": "Tehtävää on päivitetty",
     "task_completed": "Tehtävä on saatu valmiiksi",
     "task_approved": "Tehtäväsi on hyväksytty",
-    "task_rejected": "Valmiiksi ilmoittaminen hylätty"
-  }
+    "task_rejected": "Valmiiksi ilmoittaminen hylätty",
+    "task_favorite_room": "Uusi tehtävä suosikkihuoneessa",
+    "news": "Uusi uutinen",
+    "membership_invitation": "Sinut on kutsuttu organisaatioon"
+  },
+  "settingsLink": "Asetukset"
 }

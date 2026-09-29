@@ -17,7 +17,9 @@
     "delete": "Poista",
     "assign": "Määritä",
     "approve": "Hyväksy",
-    "reject": "Hylkää"
+    "reject": "Hylkää",
+    "viewAll": "Nähdä kaikki huoneet",
+    "viewCompleted": "Nähdä valmiit"
   },
   "privilege": {
     "admin": "Täysi ylläpito (voi tehdä kaiken)"
@@ -59,6 +61,66 @@
     "reportedBy": "Valmiiksi ilmoitti",
     "approve": "Hyväksy",
     "reject": "Hylkää",
-    "reportedDoneBy": "Valmiiksi ilmoitti {{name}}"
+    "reportedDoneBy": "Valmiiksi ilmoitti {{name}}",
+    "details": {
+      "open": "Näytä tiedot",
+      "loading": "Ladataan tietoja...",
+      "loadFailed": "Tietoja ei voitu hakea.",
+      "room": "Huone",
+      "noRoom": "Ei huonetta",
+      "period": "Ajanjakso",
+      "noDescription": "Ei kuvausta.",
+      "assignees": "Osallistujat",
+      "noAssignees": "Ei osallistujia.",
+      "materials": "Materiaalit",
+      "noMaterials": "Ei liitettyjä materiaaleja.",
+      "noLocation": "Ei varastoa",
+      "reserved": "Varattu",
+      "alreadyResolved": "Jo raportoitu.",
+      "currentStatus": "Nykyinen tila",
+      "location": "Varasto",
+      "proposedOutcome": "Ehdotettu lopputulos hyväksynnässä",
+      "missingOutcome": "Lopputulosta ei annettu - hyväksyntä epäonnistuu, kunnes materiaali on raportoitu.",
+      "previousRejections": "Aiemmat hylkäykset ({{count}})",
+      "rejectedBy": "Hylännyt {{name}} · {{date}}",
+      "reportedBy": "valmiiksi ilmoittanut {{name}}",
+      "noReason": "Perustelua ei annettu."
+    },
+    "rejectReasonLabel": "Perustelu",
+    "rejectReasonPlaceholder": "Kirjoita, miksi valmisilmoitus hylätään - viesti lähetetään osallistujille.",
+    "rejectedCount_one": "Hylätty {{count}} kerran",
+    "rejectedCount_other": "Hylätty {{count}} kertaa",
+    "searchPlaceholder": "Hae tehtävää tai ilmoittajaa...",
+    "allRooms": "Kaikki huoneet",
+    "sort": {
+      "oldest": "Vanhin ilmoitus ensin",
+      "newest": "Uusin ilmoitus ensin",
+      "priority": "Korkein prioriteetti ensin",
+      "deadline": "Aikaisin määräaika ensin",
+      "rejections": "Eniten hylkäyksiä ensin"
+    },
+    "resetFilters": "Nollaa",
+    "showing": "{{count}} / {{total}}",
+    "noMatch": "Mikään ilmoitus ei vastaa suodattimia.",
+    "deadline": "Määräaika {{date}}",
+    "deadlineOverdue": "Määräaika {{date}} (ylittynyt)"
+  },
+  "quickCreate": {
+    "heading": "Luo rooli",
+    "leaderSuffix": "Johtaja",
+    "templateLabel": "Malli",
+    "template": {
+      "participant": "Osallistuja",
+      "leader": "Johtaja",
+      "copy": "Kopioi roolista"
+    },
+    "templateHint": {
+      "participant": "Näkee tehtävät ja uutiset.",
+      "leader": "Osallistuja + tehtävien luonti, muokkaus, osoitus ja hyväksyntä."
+    },
+    "chooseRole": "Valitse rooli",
+    "customize": "Mukauta oikeuksia (valittu: {{selected}})",
+    "notOwned": "Sinulla ei itselläsi ole tätä oikeutta, joten et voi antaa sitä.",
+    "assignHint": "Muista antaa rooli jäsenille kohdassa Jäsenet."
   }
 }

@@ -13,7 +13,8 @@
   "category": {
     "messages": "Beskeder",
     "tasks": "Opgaver",
-    "news": "Nyheder"
+    "news": "Nyheder",
+    "organisation": "Organisation"
   },
   "type": {
     "message": "Ny besked",
@@ -21,6 +22,10 @@
     "task_updated": "En opgave er opdateret",
     "task_completed": "En opgave er afsluttet",
     "task_approved": "Din opgave er godkendt",
-    "task_rejected": "Færdigmelding afvist"
-  }
+    "task_rejected": "Færdigmelding afvist",
+    "task_favorite_room": "Ny opgave i et favoritrum",
+    "news": "Ny nyhed",
+    "membership_invitation": "Du er inviteret til en organisation"
+  },
+  "settingsLink": "Indstillinger"
 }

@@ -49,6 +49,7 @@
     "nameLabel": "Název",
     "memberCount": "Počet členů",
     "edit": "Upravit organizaci",
+    "editColors": "Upravit barvy",
     "delete": "Smazat organizaci",
     "deleteWarning": "Tím se organizace „{{name}}“ trvale smaže a nelze to vrátit zpět.",
     "typeNameToConfirm": "Pro potvrzení napište název organizace ({{name}})",
@@ -58,11 +59,33 @@
     "deletePermanently": "Trvale smazat",
     "deleted": "„{{name}}“ byla smazána.",
     "deletedNewActive": "„{{name}}“ byla smazána. Vaše aktivní organizace je nyní „{{newActive}}“.",
-    "deletedNoActive": "„{{name}}“ byla smazána. Nemáte již žádnou aktivní organizaci."
+    "deletedNoActive": "„{{name}}“ byla smazána. Nemáte již žádnou aktivní organizaci.",
+    "colorLabel": "Barva tlačítek a odkazů",
+    "colorHint": "Barva tlačítek, odkazů, ikon a zvýraznění v celém Ponosu.",
+    "headerColorLabel": "Horní lišta – pozadí",
+    "headerColorHint": "Barva pozadí lišty nahoře s nabídkou. Prázdné = výchozí barva (tmavě modrá).",
+    "footerColorLabel": "Spodní lišta – pozadí",
+    "footerColorHint": "Barva pozadí lišty dole na stránce. Prázdné = výchozí barva (tmavě modrá).",
+    "headerTextColorLabel": "Horní lišta – text",
+    "headerTextColorHint": "Barva textu a ikon v horní liště. Prázdné = zvolí se automaticky, aby byl čitelný na pozadí.",
+    "footerTextColorLabel": "Spodní lišta – text",
+    "footerTextColorHint": "Barva textu ve spodní liště. Prázdné = zvolí se automaticky, aby byl čitelný na pozadí.",
+    "colorPickerAriaLabel": "Vyberte barvu tlačítek a odkazů",
+    "colorReset": "Resetovat",
+    "colorUseDefault": "Použít výchozí",
+    "colorNoneSet": "Není vybráno (výchozí)",
+    "previewLight": "Světlý",
+    "previewDark": "Tmavý",
+    "colorAdjusted": "Upraveno pro čitelnost",
+    "colorInvalid": "Barva musí být platný hex kód, např. #C7975D.",
+    "savedColors": "Uložené barvy",
+    "saveCurrentColor": "Uložit aktuální barvu",
+    "noSavedColors": "Zatím nejsou uloženy žádné barvy.",
+    "removeSavedColor": "Odebrat uloženou barvu"
   },
   "picker": {
     "searchPlaceholder": "Hledat organizaci...",
-    "empty": "Žádné organizace k výběru.",
+    "minChars": "Zadejte název organizace, abyste ji našli.",
     "noMatch": "Žádná organizace neodpovídá vašemu hledání."
   },
   "loading": "Načítání organizace...",
@@ -86,8 +109,7 @@
     "pending": "Vaše žádost o členství byla odeslána a čeká na schválení správou organizace.",
     "chooseLabel": "Vyberte organizaci",
     "submit": "Odeslat žádost",
-    "submitting": "Odesílání žádosti...",
-    "noneAvailable": "Nejsou k dispozici žádné další organizace, do kterých byste mohli požádat o členství."
+    "submitting": "Odesílání žádosti..."
   },
   "details": {
     "administrator": "Administrátor",

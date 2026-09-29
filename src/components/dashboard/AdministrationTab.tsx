@@ -1,7 +1,7 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Send, UserPlus, Users } from 'lucide-react'
+import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Palette, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
     APPROVE_TASK_PRIVILEGE,
@@ -14,11 +14,10 @@ import {
     READ_INVITATIONS_PRIVILEGE,
     READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
     READ_ROLES_PRIVILEGE,
-    DELETE_TASKS_PRIVILEGE,
     UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
     UPDATE_ORGANISATION_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
-    UPDATE_TASKS_PRIVILEGE,
+    VIEW_COMPLETED_TASKS_PRIVILEGE,
     useHasAnyPrivilege,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
@@ -29,6 +28,7 @@ import { MembersPanel } from './MembersPanel'
 import { InvitationsPanel } from './InvitationsPanel'
 import { MembershipRequestsPanel } from './MembershipRequestsPanel'
 import { OrganisationAdminPanel } from './OrganisationAdminPanel'
+import { OrganisationColorsPanel } from './OrganisationColorsPanel'
 import { CompletedTasksPanel } from './CompletedTasksPanel'
 import { TaskApprovalsPanel } from './TaskApprovalsPanel'
 
@@ -78,7 +78,8 @@ export function AdministrationTab() {
     // almindelige /tasks-link, ikke via Administration (rettet 2026-09-17
     // efter bruger-feedback: "se"-privilegiet alene giver ikke adgang til
     // Administration noget sted, kun rettigheder der reelt kan bruges der).
-    const { hasPrivilege: canSeeCompletedTasks } = useHasAnyPrivilege([UPDATE_TASKS_PRIVILEGE, DELETE_TASKS_PRIVILEGE])
+    // 2026-09-27: eget privilegie view_completed_tasks (håndhævet i RLS).
+    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE)
     const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
 
     const tabs: SubTabDef[] = []
@@ -93,6 +94,9 @@ export function AdministrationTab() {
     if (canManageInvitations) tabs.push({ key: 'invitations', label: t('administration.panels.invitations'), icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: t('administration.panels.membershipRequests'), icon: UserPlus })
     if (canManageOrganisation || isOrgAdmin) tabs.push({ key: 'organisation', label: t('administration.panels.organisation'), icon: Building2 })
+    // Farver kræver update_organisation - isOrgAdmin-undtagelsen ovenfor
+    // gælder kun "Slet organisation".
+    if (canManageOrganisation) tabs.push({ key: 'colors', label: t('administration.panels.colors'), icon: Palette })
     if (canSeeTaskApprovals) tabs.push({ key: 'taskApprovals', label: t('administration.panels.taskApprovals'), icon: ClipboardCheck })
     if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: t('administration.panels.completedTasks'), icon: CheckCircle2 })
 
@@ -118,7 +122,7 @@ export function AdministrationTab() {
     // bliver unødigt bredt. Mobil (under md) beholder den vandret
     // scrollende fanerække.
     const navItemClass = (tab: AdminSubTab) =>
-        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
+        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap md:whitespace-normal rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
             ? 'bg-accent/15 text-primary dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
         }`
@@ -140,6 +144,7 @@ export function AdministrationTab() {
                 {activeSubTab === 'invitations' && <InvitationsPanel />}
                 {activeSubTab === 'requests' && <MembershipRequestsPanel />}
                 {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+                {activeSubTab === 'colors' && <OrganisationColorsPanel />}
                 {activeSubTab === 'taskApprovals' && <TaskApprovalsPanel />}
                 {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
             </div>

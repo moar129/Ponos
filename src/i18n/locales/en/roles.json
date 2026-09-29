@@ -17,7 +17,9 @@
     "delete": "Delete",
     "assign": "Assign",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "viewAll": "View all rooms",
+    "viewCompleted": "View completed"
   },
   "privilege": {
     "admin": "Full administrator (can do everything)"
@@ -59,6 +61,66 @@
     "reportedBy": "Reported done by",
     "approve": "Approve",
     "reject": "Reject",
-    "reportedDoneBy": "Reported done by {{name}}"
+    "reportedDoneBy": "Reported done by {{name}}",
+    "details": {
+      "open": "View details",
+      "loading": "Loading details...",
+      "loadFailed": "Could not load details.",
+      "room": "Room",
+      "noRoom": "No room",
+      "period": "Period",
+      "noDescription": "No description.",
+      "assignees": "Assignees",
+      "noAssignees": "No assignees.",
+      "materials": "Materials",
+      "noMaterials": "No materials attached.",
+      "noLocation": "No location",
+      "reserved": "Reserved",
+      "alreadyResolved": "Already reported.",
+      "currentStatus": "Current status",
+      "location": "Location",
+      "proposedOutcome": "Proposed outcome on approval",
+      "missingOutcome": "No outcome given - approval will fail until the material is reported.",
+      "previousRejections": "Previous rejections ({{count}})",
+      "rejectedBy": "Rejected by {{name}} · {{date}}",
+      "reportedBy": "reported done by {{name}}",
+      "noReason": "No reason given."
+    },
+    "rejectReasonLabel": "Reason",
+    "rejectReasonPlaceholder": "Write why the completion is rejected - the message is sent to the assignees.",
+    "rejectedCount_one": "Rejected {{count}} time",
+    "rejectedCount_other": "Rejected {{count}} times",
+    "searchPlaceholder": "Search task or requester...",
+    "allRooms": "All rooms",
+    "sort": {
+      "oldest": "Oldest request first",
+      "newest": "Newest request first",
+      "priority": "Highest priority first",
+      "deadline": "Earliest deadline first",
+      "rejections": "Most rejections first"
+    },
+    "resetFilters": "Reset",
+    "showing": "Showing {{count}} of {{total}}",
+    "noMatch": "No requests match the filters.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (overdue)"
+  },
+  "quickCreate": {
+    "heading": "Create role",
+    "leaderSuffix": "Lead",
+    "templateLabel": "Template",
+    "template": {
+      "participant": "Participant",
+      "leader": "Lead",
+      "copy": "Copy from"
+    },
+    "templateHint": {
+      "participant": "Can see tasks and news.",
+      "leader": "Participant + create, edit, assign and approve tasks."
+    },
+    "chooseRole": "Choose role",
+    "customize": "Customise privileges ({{selected}} selected)",
+    "notOwned": "You don't have this privilege yourself, so you can't grant it.",
+    "assignHint": "Remember to assign the role to members under Members."
   }
 }

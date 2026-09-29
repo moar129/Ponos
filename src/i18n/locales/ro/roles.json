@@ -17,7 +17,9 @@
     "delete": "Șterge",
     "assign": "Atribuie",
     "approve": "Aprobă",
-    "reject": "Respinge"
+    "reject": "Respinge",
+    "viewAll": "Vezi toate camerele",
+    "viewCompleted": "Vezi finalizate"
   },
   "privilege": {
     "admin": "Administrare completă (poate face orice)"
@@ -59,6 +61,67 @@
     "reportedBy": "Raportată drept finalizată de:",
     "approve": "Aprobă",
     "reject": "Respinge",
-    "reportedDoneBy": "Raportată drept finalizată de {{name}}"
+    "reportedDoneBy": "Raportată drept finalizată de {{name}}",
+    "details": {
+      "open": "Vezi detalii",
+      "loading": "Se încarcă detaliile...",
+      "loadFailed": "Detaliile nu au putut fi încărcate.",
+      "room": "Cameră",
+      "noRoom": "Fără cameră",
+      "period": "Perioadă",
+      "noDescription": "Fără descriere.",
+      "assignees": "Alocați",
+      "noAssignees": "Nimeni alocat.",
+      "materials": "Materiale",
+      "noMaterials": "Niciun material asociat.",
+      "noLocation": "Fără depozit",
+      "reserved": "Rezervat",
+      "alreadyResolved": "Deja raportat.",
+      "currentStatus": "Stare curentă",
+      "location": "Depozit",
+      "proposedOutcome": "Rezultat propus la aprobare",
+      "missingOutcome": "Niciun rezultat indicat - aprobarea va eșua până când materialul este raportat.",
+      "previousRejections": "Respingeri anterioare ({{count}})",
+      "rejectedBy": "Respins de {{name}} · {{date}}",
+      "reportedBy": "raportat finalizat de {{name}}",
+      "noReason": "Niciun motiv indicat."
+    },
+    "rejectReasonLabel": "Motiv",
+    "rejectReasonPlaceholder": "Scrie de ce este respinsă raportarea finalizării - mesajul se trimite celor alocați.",
+    "rejectedCount_one": "Respins o dată",
+    "rejectedCount_few": "Respins de {{count}} ori",
+    "rejectedCount_other": "Respins de {{count}} de ori",
+    "searchPlaceholder": "Caută sarcină sau solicitant...",
+    "allRooms": "Toate camerele",
+    "sort": {
+      "oldest": "Cea mai veche cerere întâi",
+      "newest": "Cea mai nouă cerere întâi",
+      "priority": "Prioritate maximă întâi",
+      "deadline": "Cel mai apropiat termen întâi",
+      "rejections": "Cele mai multe respingeri întâi"
+    },
+    "resetFilters": "Resetează",
+    "showing": "{{count}} din {{total}}",
+    "noMatch": "Nicio cerere nu corespunde filtrelor.",
+    "deadline": "Termen {{date}}",
+    "deadlineOverdue": "Termen {{date}} (depășit)"
+  },
+  "quickCreate": {
+    "heading": "Creează rol",
+    "leaderSuffix": "Lider",
+    "templateLabel": "Șablon",
+    "template": {
+      "participant": "Participant",
+      "leader": "Lider",
+      "copy": "Copiază din"
+    },
+    "templateHint": {
+      "participant": "Poate vedea sarcini și știri.",
+      "leader": "Participant + creare, editare, atribuire și aprobare sarcini."
+    },
+    "chooseRole": "Alegeți rolul",
+    "customize": "Personalizați drepturile (selectate: {{selected}})",
+    "notOwned": "Nu aveți acest drept, deci nu îl puteți acorda.",
+    "assignHint": "Nu uitați să atribuiți rolul membrilor la Membri."
   }
 }

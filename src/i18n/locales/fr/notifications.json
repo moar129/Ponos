@@ -13,7 +13,8 @@
   "category": {
     "messages": "Messages",
     "tasks": "Tâches",
-    "news": "Actualités"
+    "news": "Actualités",
+    "organisation": "Organisation"
   },
   "type": {
     "message": "Nouveau message",
@@ -21,6 +22,10 @@
     "task_updated": "Une tâche a été mise à jour",
     "task_completed": "Une tâche a été terminée",
     "task_approved": "Votre tâche a été validée",
-    "task_rejected": "Déclaration de fin refusée"
-  }
+    "task_rejected": "Déclaration de fin refusée",
+    "task_favorite_room": "Nouvelle tâche dans une salle favorite",
+    "news": "Nouvelle actualité",
+    "membership_invitation": "Vous avez été invité à rejoindre une organisation"
+  },
+  "settingsLink": "Paramètres"
 }

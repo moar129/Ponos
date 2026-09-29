@@ -10,7 +10,8 @@ import { MyTasksWidget } from './MyTasksWidget'
 import { NotificationsWidget } from './NotificationsWidget'
 
 // US-65: "Dine opgaver" (US-74) og Notifikationer (US-72, seneste 10 med
-// Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), genveje til
+// Alle/Ulæst-faneskifte) øverst (mest handlingsrelevant), favoritrum
+// (US-77) som fane i "Dine opgaver", genveje til
 // Datalager/Opgaver/Statistik derunder, Nyheder (US-56) nederst.
 export function OverviewTab() {
     const { t } = useTranslation(['dashboard', 'nav'])
@@ -47,7 +48,7 @@ export function OverviewTab() {
 
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">{t('overview.shortcuts')}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4">
                     {canReadDatalayer && (
                         <QuickLinkCard
                             to="/datalager"

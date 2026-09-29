@@ -17,10 +17,22 @@
   },
   "myTasks": {
     "title": "Mis tareas",
-    "goToTasks": "Ir a las tareas",
+    "goToTasks": "Ir a mis tareas",
     "loading": "Cargando tus tareas...",
     "empty": "Todavía no te has apuntado a ninguna tarea.",
-    "endsOn": "Termina el {{date}}"
+    "endsOn": "Termina el {{date}}",
+    "tab": "Tareas"
+  },
+  "favoriteRooms": {
+    "title": "Mis salas favoritas",
+    "goToTasks": "Ir a tareas",
+    "loading": "Cargando salas favoritas...",
+    "empty": "Aún no tienes salas favoritas.",
+    "emptyLink": "Marca salas con una estrella en Tareas.",
+    "openTasks_one": "{{count}} abierta",
+    "openTasks_many": "{{count}} abiertas",
+    "openTasks_other": "{{count}} abiertas",
+    "tab": "Salas favoritas"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -53,6 +65,8 @@
       "invitations": "Invitaciones",
       "membershipRequests": "Solicitudes de membresía",
       "organisation": "Organización",
+
+      "colors": "Colores",
       "taskApprovals": "Aprobaciones de tareas",
       "completedTasks": "Tareas finalizadas"
     }
@@ -60,7 +74,7 @@
   "completedTasks": {
     "loading": "Cargando tareas finalizadas...",
     "empty": "Todavía no se ha marcado ninguna tarea como finalizada.",
-    "searchPlaceholder": "Buscar por título o descripción...",
+    "searchPlaceholder": "Buscar por título, sala o persona...",
     "allPriorities": "Todas las prioridades",
     "noMatch": "Ninguna tarea coincide con la búsqueda o el filtro.",
     "noDescription": "Sin descripción.",
@@ -74,7 +88,18 @@
     "noMaterials": "Sin materiales",
     "edit": "Editar",
     "reopen": "Reabrir",
-    "reopening": "Reabriendo..."
+    "reopening": "Reabriendo...",
+    "sortNewest": "Terminadas recientemente primero",
+    "sortOldest": "Terminadas más antiguas primero",
+    "sortDeadline": "Fecha límite más próxima primero",
+    "from": "Terminada desde",
+    "to": "hasta",
+    "presetToday": "Hoy",
+    "preset7": "7 días",
+    "preset30": "30 días",
+    "resetFilters": "Restablecer",
+    "finishedOn": "Terminada el {{date}}",
+    "showing": "{{count}} de {{total}}"
   },
   "statistics": {
     "noOrganisation": "Todavía no tienes una organización activa, así que no hay estadísticas que mostrar.",

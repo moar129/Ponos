@@ -28,7 +28,8 @@
     "saveRoom": "Guardar a sala",
     "loading": "A carregar tarefas...",
     "noAccess": "Não tem acesso às tarefas desta organização.",
-    "heading": "Tarefas",
+    "heading": "Todas as tarefas",
+    "roomHeading": "Tarefas de {{room}}",
     "createRoom": "Criar sala",
     "availableHeading": "Tarefas disponíveis",
     "inProgressHeading": "Em curso"
@@ -51,7 +52,15 @@
     "edit": "Editar sala",
     "deleteOne": "Eliminar uma sala",
     "choose": "Escolher sala",
-    "noRoom": "Sem sala"
+    "noRoom": "Sem sala",
+    "rolesLabel": "Acesso para funções",
+    "rolesHint": "Nenhuma selecionada = todos podem ver a sala.",
+    "rolesLoading": "A carregar funções...",
+    "rolesLoadFailed": "Não foi possível carregar as funções.",
+    "noRoles": "A organização não tem funções.",
+    "restrictedTo": "Apenas para: {{roles}}",
+    "newRole": "Nova função",
+    "chat": "Chat da sala"
   },
   "create": {
     "heading": "Criar tarefa",
@@ -101,19 +110,25 @@
     "statusLabel": "Estado:",
     "addEmployeeShort": "+ Adicionar colaborador",
     "created": "Criada",
-    "statusValue": "Estado: {{status}}"
+    "statusValue": "Estado: {{status}}",
+    "rejectedWithReason": "Conclusão rejeitada: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Mostrar filtro",
     "hide": "Ocultar filtro",
-    "searchPlaceholder": "Pesquisar tarefas...",
+    "searchPlaceholder": "Pesquisar título, descrição, sala ou pessoa...",
     "all": "Todas",
     "sortNewest": "Mais recentes",
     "sortOldest": "Mais antigas",
     "sortPriority": "Prioridade",
     "sortDeadline": "Prazo",
     "counts": "{{available}} disponíveis · {{inProgress}} em curso",
-    "sortBy": "Ordenar por"
+    "sortBy": "Ordenar por",
+    "noMatches": "Nenhuma tarefa corresponde à pesquisa/filtros.",
+    "activeCount_one": "{{count}} filtro ativo",
+    "activeCount_many": "{{count}} filtros ativos",
+    "activeCount_other": "{{count}} filtros ativos"
   },
   "deleteRoom": {
     "heading": "Eliminar sala",
@@ -128,8 +143,26 @@
   },
   "editRoom": {
     "heading": "Editar sala",
-    "intro": "Escolha uma sala e edite o nome.",
+    "intro": "Escolha uma sala e edite o nome e o acesso.",
     "namePlaceholder": "Escreva o nome da sala",
     "failed": "Não foi possível editar a sala. Tente novamente."
+  },
+  "favorites": {
+    "toggleFailed": "Não foi possível atualizar a sala favorita."
+  },
+  "completed": {
+    "tab": "Concluídas",
+    "heading": "Tarefas concluídas",
+    "subtitle": "Todas as tarefas concluídas da organização.",
+    "noAccess": "Não tem acesso às tarefas concluídas."
+  },
+  "approvals": {
+    "tab": "Aguardam aprovação",
+    "heading": "Aguardam aprovação",
+    "subtitle": "Tarefas dadas como concluídas que aguardam aprovação.",
+    "noAccess": "Não tem acesso às aprovações de tarefas.",
+    "pendingCount_one": "{{count}} em espera",
+    "pendingCount_many": "{{count}} em espera",
+    "pendingCount_other": "{{count}} em espera"
   }
 }

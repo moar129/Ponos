@@ -17,7 +17,9 @@
     "delete": "Slet",
     "assign": "Tildel",
     "approve": "Godkend",
-    "reject": "Afvis"
+    "reject": "Afvis",
+    "viewAll": "Se alle rum",
+    "viewCompleted": "Se afsluttede"
   },
   "privilege": {
     "admin": "Fuld administrator (kan alt)"
@@ -59,6 +61,66 @@
     "reportedBy": "Meldt færdig af",
     "approve": "Godkend",
     "reject": "Afvis",
-    "reportedDoneBy": "Meldt færdig af {{name}}"
+    "reportedDoneBy": "Meldt færdig af {{name}}",
+    "details": {
+      "open": "Se detaljer",
+      "loading": "Indlæser detaljer...",
+      "loadFailed": "Detaljerne kunne ikke hentes.",
+      "room": "Rum",
+      "noRoom": "Uden rum",
+      "period": "Periode",
+      "noDescription": "Ingen beskrivelse.",
+      "assignees": "Tilmeldte",
+      "noAssignees": "Ingen tilmeldte.",
+      "materials": "Materialer",
+      "noMaterials": "Ingen materialer tilknyttet.",
+      "noLocation": "Uden lager",
+      "reserved": "Reserveret",
+      "alreadyResolved": "Allerede afrapporteret.",
+      "currentStatus": "Nuværende status",
+      "location": "Lager",
+      "proposedOutcome": "Foreslået udfald ved godkendelse",
+      "missingOutcome": "Intet udfald angivet - godkendelse vil fejle, indtil materialet er afrapporteret.",
+      "previousRejections": "Tidligere afvisninger ({{count}})",
+      "rejectedBy": "Afvist af {{name}} · {{date}}",
+      "reportedBy": "meldt færdig af {{name}}",
+      "noReason": "Ingen begrundelse angivet."
+    },
+    "rejectReasonLabel": "Begrundelse",
+    "rejectReasonPlaceholder": "Skriv hvorfor færdigmeldingen afvises - beskeden sendes til de tilmeldte.",
+    "rejectedCount_one": "Afvist {{count}} gang",
+    "rejectedCount_other": "Afvist {{count}} gange",
+    "searchPlaceholder": "Søg på opgave eller anmoder...",
+    "allRooms": "Alle rum",
+    "sort": {
+      "oldest": "Ældste færdigmelding først",
+      "newest": "Nyeste færdigmelding først",
+      "priority": "Højeste prioritet først",
+      "deadline": "Tidligste deadline først",
+      "rejections": "Flest afvisninger først"
+    },
+    "resetFilters": "Nulstil",
+    "showing": "Viser {{count}} af {{total}}",
+    "noMatch": "Ingen færdigmeldinger matcher filtrene.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (overskredet)"
+  },
+  "quickCreate": {
+    "heading": "Opret rolle",
+    "leaderSuffix": "Leder",
+    "templateLabel": "Skabelon",
+    "template": {
+      "participant": "Deltager",
+      "leader": "Leder",
+      "copy": "Kopiér fra"
+    },
+    "templateHint": {
+      "participant": "Kan se opgaver og nyheder.",
+      "leader": "Deltager + opret, rediger, tildel og godkend opgaver."
+    },
+    "chooseRole": "Vælg rolle",
+    "customize": "Tilpas privilegier ({{selected}} valgt)",
+    "notOwned": "Du har ikke selv dette privilegie og kan derfor ikke give det.",
+    "assignHint": "Husk at tildele rollen til medlemmer under Medlemmer."
   }
 }

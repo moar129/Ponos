@@ -17,7 +17,9 @@
     "delete": "Smazat",
     "assign": "Přiřadit",
     "approve": "Schválit",
-    "reject": "Zamítnout"
+    "reject": "Zamítnout",
+    "viewAll": "Vidět všechny místnosti",
+    "viewCompleted": "Vidět dokončené"
   },
   "privilege": {
     "admin": "Plná správa (smí vše)"
@@ -59,6 +61,68 @@
     "reportedBy": "Nahlásil jako dokončené:",
     "approve": "Schválit",
     "reject": "Zamítnout",
-    "reportedDoneBy": "Jako dokončené nahlásil {{name}}"
+    "reportedDoneBy": "Jako dokončené nahlásil {{name}}",
+    "details": {
+      "open": "Zobrazit podrobnosti",
+      "loading": "Načítání podrobností...",
+      "loadFailed": "Podrobnosti se nepodařilo načíst.",
+      "room": "Místnost",
+      "noRoom": "Bez místnosti",
+      "period": "Období",
+      "noDescription": "Bez popisu.",
+      "assignees": "Přiřazení",
+      "noAssignees": "Nikdo není přiřazen.",
+      "materials": "Materiály",
+      "noMaterials": "Žádné přiřazené materiály.",
+      "noLocation": "Bez skladu",
+      "reserved": "Rezervováno",
+      "alreadyResolved": "Již nahlášeno.",
+      "currentStatus": "Aktuální stav",
+      "location": "Sklad",
+      "proposedOutcome": "Navrhovaný výsledek při schválení",
+      "missingOutcome": "Výsledek nebyl zadán - schválení selže, dokud nebude materiál nahlášen.",
+      "previousRejections": "Předchozí zamítnutí ({{count}})",
+      "rejectedBy": "Zamítl(a) {{name}} · {{date}}",
+      "reportedBy": "dokončení nahlásil(a) {{name}}",
+      "noReason": "Bez uvedeného odůvodnění."
+    },
+    "rejectReasonLabel": "Odůvodnění",
+    "rejectReasonPlaceholder": "Napište, proč je nahlášení dokončení zamítnuto - zpráva bude odeslána přiřazeným.",
+    "rejectedCount_one": "Zamítnuto {{count}}krát",
+    "rejectedCount_few": "Zamítnuto {{count}}krát",
+    "rejectedCount_many": "Zamítnuto {{count}}krát",
+    "rejectedCount_other": "Zamítnuto {{count}}krát",
+    "searchPlaceholder": "Hledat úkol nebo žadatele...",
+    "allRooms": "Všechny místnosti",
+    "sort": {
+      "oldest": "Nejstarší hlášení první",
+      "newest": "Nejnovější hlášení první",
+      "priority": "Nejvyšší priorita první",
+      "deadline": "Nejbližší termín první",
+      "rejections": "Nejvíce zamítnutí první"
+    },
+    "resetFilters": "Obnovit",
+    "showing": "{{count}} z {{total}}",
+    "noMatch": "Filtrům neodpovídají žádná hlášení.",
+    "deadline": "Termín {{date}}",
+    "deadlineOverdue": "Termín {{date}} (prošlý)"
+  },
+  "quickCreate": {
+    "heading": "Vytvořit roli",
+    "leaderSuffix": "Vedoucí",
+    "templateLabel": "Šablona",
+    "template": {
+      "participant": "Účastník",
+      "leader": "Vedoucí",
+      "copy": "Kopírovat z"
+    },
+    "templateHint": {
+      "participant": "Vidí úkoly a novinky.",
+      "leader": "Účastník + vytvářet, upravovat, přidělovat a schvalovat úkoly."
+    },
+    "chooseRole": "Vyberte roli",
+    "customize": "Upravit oprávnění (vybráno: {{selected}})",
+    "notOwned": "Toto oprávnění sami nemáte, a proto ho nemůžete udělit.",
+    "assignHint": "Nezapomeňte roli přiřadit členům v sekci Členové."
   }
 }

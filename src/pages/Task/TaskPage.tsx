@@ -1,24 +1,24 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { TaskCard } from '../../components/Task/TaskCard';
 import { RoomBar } from '../../components/Task/RoomBar';
 import { FilterBar } from '../../components/Task/FilterBar.tsx';
-import {
-    FilterPanel,
-    type TaskSortOption,
-} from '../../components/Task/FilterPanel.tsx';
-import type {
-    ETaskPriority,
-    ETaskStatus,
-} from '../../types/Task/Task';
+import { FilterPanel } from '../../components/Task/FilterPanel.tsx';
+import { TaskColumnEmptyState } from '../../components/Task/TaskColumnEmptyState';
+import { TaskColumnTabs } from '../../components/Task/TaskColumnTabs';
+import type { TaskColumnKey, TasksLocationState } from '../../types/Task/Task';
 import { CreateTaskModal } from '../../components/Task/CreateTaskModal';
+import { CreateRoomModal } from '../../components/Task/CreateRoomModal';
+import { FavoriteStarButton } from '../../components/common/FavoriteStarButton';
+import { useTaskRoomFavorites } from '../../store/hooks/useTaskRoomFavorites';
+import { useTaskFilters } from '../../store/hooks/useTaskFilters';
+import { compareTasks, matchesTaskSearch } from '../../utils/taskFilters';
 import {
-    useCreateRoomMutation,
     useGetRoomsQuery,
     useGetTasksQuery,
-    useGetMyTaskIdsQuery,
+    useGetOpenTaskAssigneeNamesQuery,
 } from '../../store/apis/taskApi';
 import {
     CREATE_TASKS_PRIVILEGE,
@@ -43,29 +43,30 @@ export function TasksPage() {
     const closeOpenTask = () =>
         setSearchParams({}, { replace: true });
 
-    const [search, setSearch] = useState('');
+    const location = useLocation();
     const [selectedRoomId, setSelectedRoomId] =
-        useState<string | null>(null);
+        useState<string | null>(
+            () => (location.state as TasksLocationState | null)?.roomId ?? null
+        );
 
     const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-    const [newRoomName, setNewRoomName] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [mobileColumn, setMobileColumn] = useState<TaskColumnKey | null>(null);
 
-    const [selectedStatuses, setSelectedStatuses] =
-        useState<ETaskStatus[]>([
-            'Started',
-            'InProgress',
-        ]);
-
-    const [selectedPriority, setSelectedPriority] =
-        useState<ETaskPriority | 'All'>('All');
-
-    const [sortBy, setSortBy] =
-        useState<TaskSortOption>('priority');
-
-    const [createRoom, { error: createRoomError }] =
-        useCreateRoomMutation();
+    const {
+        search,
+        setSearch,
+        searchTerm,
+        selectedStatuses,
+        setSelectedStatuses,
+        selectedPriority,
+        setSelectedPriority,
+        sortBy,
+        setSortBy,
+        activeFilterCount,
+        resetFilters,
+    } = useTaskFilters();
 
     const {
         hasPrivilege: canRead,
@@ -96,118 +97,53 @@ export function TasksPage() {
         error: roomsError,
     } = useGetRoomsQuery();
 
-    const { data: myTaskIds = [] } = useGetMyTaskIdsQuery();
+    // Tilmeldtes navne til søgning. Fejler hentningen, søges bare uden navne.
+    const { data: assigneeNamesByTask = {} } = useGetOpenTaskAssigneeNamesQuery();
+
+    const {
+        favoriteIds,
+        toggleFavorite,
+        favoriteError,
+    } = useTaskRoomFavorites(canRead);
+
+    const selectedRoom = rooms.find(
+        (room) => room.id === selectedRoomId
+    );
 
 
 
-    const handleAddRoom = async () => {
-        const roomName = newRoomName.trim();
+    const roomNameById = new Map(rooms.map((room) => [room.id, room.name]));
 
-        if (!roomName) {
-            return;
-        }
-
-        try {
-            await createRoom({ name: roomName }).unwrap();
-
-            setNewRoomName('');
-            setIsAddRoomOpen(false);
-        } catch {
-            // handled through mutation error state
-        }
-    };
-
+    // Den åbne opgave (?task=/?taskId=) vises altid, uanset filtre.
     const filteredTasks = tasks.filter((task) => {
-        const searchTerm = search.trim().toLowerCase();
-
-        const taskRoom = rooms.find(
-            (room) => room.id === task.room_id
+        const matchesSearch = matchesTaskSearch(
+            task,
+            task.room_id ? roomNameById.get(task.room_id) : undefined,
+            assigneeNamesByTask[task.id],
+            searchTerm
         );
-
-        const isMineSearch =
-            searchTerm === 'dig' ||
-            searchTerm === 'mine';
-
-        const matchesSearch =
-            searchTerm === '' ||
-            task.title?.toLowerCase().includes(searchTerm) ||
-            task.description?.toLowerCase().includes(searchTerm) ||
-            taskRoom?.name.toLowerCase().includes(searchTerm) ||
-            (isMineSearch && myTaskIds.includes(task.id));
 
         const matchesRoom =
             selectedRoomId === null ||
             task.room_id === selectedRoomId;
 
         const matchesStatus =
-            selectedStatuses.includes(task.status);
+            selectedStatuses.some((status) => status === task.status);
 
         const matchesPriority =
             selectedPriority === 'All' ||
             task.priority === selectedPriority;
-
-        const matchesOpenTask =
-            task.id === openTaskId;
 
         return (
             (matchesSearch &&
                 matchesRoom &&
                 matchesStatus &&
                 matchesPriority) ||
-            matchesOpenTask
+            task.id === openTaskId
         );
     });
 
-    const priorityRank: Record<string, number> = {
-        Critical: 1,
-        High: 2,
-        Medium: 3,
-        Low: 4,
-    };
-
-    const sortTasks = (
-        a: typeof filteredTasks[number],
-        b: typeof filteredTasks[number]
-    ) => {
-        if (sortBy === 'priority') {
-            const priorityA =
-                priorityRank[a.priority ?? ''] ?? 5;
-            const priorityB =
-                priorityRank[b.priority ?? ''] ?? 5;
-            if (priorityA !== priorityB) {
-                return priorityA - priorityB;
-            }
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-            return 0;
-        }
-        if (sortBy === 'deadline') {
-            if (a.end_date && b.end_date) {
-                return a.end_date.localeCompare(b.end_date);
-            }
-
-            if (a.end_date) return -1;
-            if (b.end_date) return 1;
-
-            return 0;
-        }
-        if (sortBy === 'newest') {
-            return (
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            );
-        }
-        if (sortBy === 'oldest') {
-            return (
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime()
-            );
-        }
-        return 0;
-    };
+    const sortTasks = compareTasks(sortBy);
 
     const availableTasks = filteredTasks
         .filter((task) => task.status === 'Started')
@@ -217,10 +153,27 @@ export function TasksPage() {
         .filter((task) => task.status === 'InProgress')
         .sort(sortTasks);
 
+    // Fravalgt status skjuler kolonnen - medmindre den åbne opgave ligger der.
+    const showAvailable =
+        selectedStatuses.includes('Started') || availableTasks.length > 0;
+    const showInProgress =
+        selectedStatuses.includes('InProgress') || myTasks.length > 0;
+
+    // Under lg bliver de to kolonner til faner. En åben opgave (?task=)
+    // vinder over fanevalget, så dens popup ikke ligger i en skjult fane.
+    const showColumnTabs = showAvailable && showInProgress;
+    const activeColumn: TaskColumnKey =
+        myTasks.some((task) => task.id === openTaskId) ? 'inProgress'
+        : availableTasks.some((task) => task.id === openTaskId) ? 'available'
+        : mobileColumn ?? 'available';
+    const hiddenOnMobile = (column: TaskColumnKey) =>
+        showColumnTabs && activeColumn !== column ? 'hidden lg:block' : undefined;
+    const columnHeaderClass = `${showColumnTabs ? 'hidden lg:flex' : 'flex'} items-center justify-between mb-4`;
+
     const pageError =
         readableError(tasksError) ??
         readableError(roomsError) ??
-        readableError(createRoomError);
+        favoriteError;
 
     if (
         tasksLoading ||
@@ -228,7 +181,7 @@ export function TasksPage() {
         loadingReadPrivilege
     ) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+            <div className="min-h-[50vh] flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="font-semibold">{t('page.loading')}</p>
             </div>
         );
@@ -236,14 +189,14 @@ export function TasksPage() {
 
     if (!canRead) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+            <div className="min-h-[50vh] flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="text-secondary dark:text-slate-400">{t('page.noAccess')}</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+        <div className="flex flex-col bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
 
             {/* ROOM BAR */}
             <RoomBar
@@ -254,6 +207,7 @@ export function TasksPage() {
                 canCreate={canCreate}
                 canUpdate={canUpdate}
                 canDelete={canDelete}
+                canFavorite={canRead}
             />
 
             {/* FILTER BAR */}
@@ -266,6 +220,7 @@ export function TasksPage() {
                 onSearchChange={setSearch}
                 availableCount={availableTasks.length}
                 inProgressCount={myTasks.length}
+                activeFilterCount={activeFilterCount}
             />
 
             {/* FILTER PANEL */}
@@ -277,73 +232,16 @@ export function TasksPage() {
                 onStatusChange={setSelectedStatuses}
                 onPriorityChange={setSelectedPriority}
                 onSortChange={setSortBy}
-                onReset={() => {
-                    setSelectedStatuses([
-                        'Started',
-                        'InProgress',
-                    ]);
-                    setSelectedPriority('All');
-                    setSortBy('priority');
-                }}
+                onReset={resetFilters}
             />
 
             {/* CREATE ROOM */}
             {isAddRoomOpen && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4"
-                    onClick={() => {
-                        setIsAddRoomOpen(false);
-                        setNewRoomName('');
-                    }}
-                >
-                    <div
-                        className="w-full max-w-md rounded-2xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700"
-                        onClick={(event) =>
-                            event.stopPropagation()
-                        }
-                    >
-                        <h3 className="text-xl font-bold text-primary mb-4 dark:text-slate-100">{t('page.createRoom')}</h3>
-
-                        <input
-                            type="text"
-                            value={newRoomName}
-                            onChange={(e) => setNewRoomName(e.target.value)}
-                            placeholder={t('page.roomNamePlaceholder')}
-                            className="w-full rounded-xl border border-border-gray bg-white text-primary px-3 py-2 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleAddRoom();
-                                }
-                            }}
-                            autoFocus
-                        />
-
-                        <div className="mt-5 flex justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsAddRoomOpen(false);
-                                    setNewRoomName('');
-                                }}
-                                className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-gray-300 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                            >
-                                {t('common:cancel')}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handleAddRoom}
-                                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-                            >
-                                {t('page.saveRoom')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <CreateRoomModal onClose={() => setIsAddRoomOpen(false)} />
             )}
 
             {/* MAIN */}
-            <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
+            <div className="flex-1 w-full py-4 sm:py-8 lg:px-2">
 
                 {pageError && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
@@ -352,9 +250,21 @@ export function TasksPage() {
                 )}
 
                 {/* PAGE INTRO */}
-                <div className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('page.heading')}</h1>
+                <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold break-words text-primary dark:text-slate-100">{selectedRoom
+                                ? t('page.roomHeading', { room: selectedRoom.name })
+                                : t('page.heading')}</h1>
+
+                            {selectedRoom && canRead && (
+                                <FavoriteStarButton
+                                    variant="heading"
+                                    isFavorite={favoriteIds.has(selectedRoom.id)}
+                                    onToggle={() => void toggleFavorite(selectedRoom.id)}
+                                />
+                            )}
+                        </div>
 
                         <p className="text-secondary mt-1 dark:text-slate-400">
                             {t('page.subtitle')}
@@ -367,7 +277,7 @@ export function TasksPage() {
                             onClick={() =>
                                 setIsCreateTaskOpen(true)
                             }
-                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-text hover:bg-accent-hover transition-colors"
                         >
                             {t('page.createTask')}
                         </button>
@@ -375,18 +285,30 @@ export function TasksPage() {
                 </div>
 
                 {/* TASK COLUMNS */}
-                <div className="grid grid-cols-2 gap-8 items-start">
+                {showColumnTabs && (
+                    <TaskColumnTabs
+                        active={activeColumn}
+                        onChange={setMobileColumn}
+                        availableLabel={t('page.availableHeading')}
+                        availableCount={availableTasks.length}
+                        inProgressLabel={t('page.inProgressHeading')}
+                        inProgressCount={myTasks.length}
+                    />
+                )}
+
+                <div className={`grid ${showAvailable && showInProgress ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} gap-6 lg:gap-8 items-start`}>
 
                     {/* OPGAVER TILGÆNGELIGE */}
-                    <section>
-                        <div className="flex items-center justify-between mb-4">
+                    {showAvailable && (
+                    <section className={hiddenOnMobile('available')}>
+                        <div className={columnHeaderClass}>
                             <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.availableHeading')}</h2>
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {availableTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
+                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 lg:min-h-[300px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
                             {availableTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
@@ -404,23 +326,27 @@ export function TasksPage() {
                             ))}
 
                             {availableTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noAvailableTasks')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('page.noAvailableTasks')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
                         </div>
                     </section>
+                    )}
 
                     {/* MINE OPGAVER / I GANG */}
-                    <section>
-                        <div className="flex items-center justify-between mb-4">
+                    {showInProgress && (
+                    <section className={hiddenOnMobile('inProgress')}>
+                        <div className={columnHeaderClass}>
                             <h2 className="font-bold text-lg text-primary dark:text-slate-100">{t('page.inProgressHeading')}</h2>
                             <span className="bg-bg-gray text-secondary text-xs font-bold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-400">
                                 {myTasks.length}
                             </span>
                         </div>
 
-                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 min-h-[500px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
+                        <div className="bg-bg-gray/40 border border-border-gray rounded-2xl p-4 lg:min-h-[300px] space-y-4 dark:bg-slate-800/40 dark:border-slate-700">
                             {myTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
@@ -438,24 +364,29 @@ export function TasksPage() {
                             ))}
 
                             {myTasks.length === 0 && (
-                                <p className="text-secondary text-sm py-8 text-center dark:text-slate-400">
-                                    {t('page.noTasksInProgress')}
-                                </p>
+                                <TaskColumnEmptyState
+                                    emptyText={t('page.noTasksInProgress')}
+                                    hasActiveFilters={activeFilterCount > 0}
+                                    onReset={resetFilters}
+                                />
                             )}
                         </div>
                     </section>
+                    )}
 
                 </div>
-            </main>
+            </div>
 
-            {/* CREATE TASK */}
-            <CreateTaskModal
-                isOpen={isCreateTaskOpen}
-                onClose={() =>
-                    setIsCreateTaskOpen(false)
-                }
-                selectedRoomId={selectedRoomId}
-            />
+            {/* CREATE TASK - mountes kun når åben, så formularen altid
+                starter med det aktuelt valgte rum. */}
+            {isCreateTaskOpen && (
+                <CreateTaskModal
+                    onClose={() =>
+                        setIsCreateTaskOpen(false)
+                    }
+                    selectedRoomId={selectedRoomId}
+                />
+            )}
 
         </div>
     );

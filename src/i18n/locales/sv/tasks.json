@@ -28,7 +28,8 @@
     "saveRoom": "Spara rummet",
     "loading": "Hämtar uppgifter...",
     "noAccess": "Du har inte åtkomst till uppgifterna i den här organisationen.",
-    "heading": "Uppgifter",
+    "heading": "Alla uppgifter",
+    "roomHeading": "{{room}} uppgifter",
     "createRoom": "Skapa rum",
     "availableHeading": "Tillgängliga uppgifter",
     "inProgressHeading": "Pågår"
@@ -51,7 +52,15 @@
     "edit": "Redigera rum",
     "deleteOne": "Radera ett rum",
     "choose": "Välj rum",
-    "noRoom": "Utan rum"
+    "noRoom": "Utan rum",
+    "rolesLabel": "Åtkomst för roller",
+    "rolesHint": "Inga valda = alla kan se rummet.",
+    "rolesLoading": "Hämtar roller...",
+    "rolesLoadFailed": "Kunde inte hämta roller.",
+    "noRoles": "Organisationen har inga roller.",
+    "restrictedTo": "Endast för: {{roles}}",
+    "newRole": "Ny roll",
+    "chat": "Rumschatt"
   },
   "create": {
     "heading": "Skapa uppgift",
@@ -100,19 +109,24 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Lägg till medarbetare",
     "created": "Skapad",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Färdiganmälan avvisad: {{reason}}",
+    "chat": "Chatt"
   },
   "filter": {
     "show": "Visa filter",
     "hide": "Dölj filter",
-    "searchPlaceholder": "Sök uppgifter...",
+    "searchPlaceholder": "Sök i titel, beskrivning, rum eller person...",
     "all": "Alla",
     "sortNewest": "Nyaste",
     "sortOldest": "Äldsta",
     "sortPriority": "Prioritet",
     "sortDeadline": "Deadline",
     "counts": "{{available}} tillgängliga · {{inProgress}} pågår",
-    "sortBy": "Sortera efter"
+    "sortBy": "Sortera efter",
+    "noMatches": "Inga uppgifter matchar sökning/filter.",
+    "activeCount_one": "{{count}} aktivt filter",
+    "activeCount_other": "{{count}} aktiva filter"
   },
   "deleteRoom": {
     "heading": "Radera rum",
@@ -127,8 +141,25 @@
   },
   "editRoom": {
     "heading": "Redigera rum",
-    "intro": "Välj ett rum och redigera namnet.",
+    "intro": "Välj ett rum och redigera namn och åtkomst.",
     "namePlaceholder": "Skriv namn på rummet",
     "failed": "Rummet kunde inte redigeras. Försök igen."
+  },
+  "favorites": {
+    "toggleFailed": "Kunde inte uppdatera favoritrum."
+  },
+  "completed": {
+    "tab": "Avslutade",
+    "heading": "Avslutade uppgifter",
+    "subtitle": "Alla avslutade uppgifter i organisationen.",
+    "noAccess": "Du har inte åtkomst till avslutade uppgifter."
+  },
+  "approvals": {
+    "tab": "Väntar på godkännande",
+    "heading": "Väntar på godkännande",
+    "subtitle": "Uppgifter anmälda som klara som väntar på godkännande.",
+    "noAccess": "Du har inte åtkomst till uppgiftsgodkännanden.",
+    "pendingCount_one": "{{count}} väntar",
+    "pendingCount_other": "{{count}} väntar"
   }
 }

@@ -1,10 +1,10 @@
 // pages/notifications/NotificationsPage.tsx
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationTitle } from '../../utils/notificationDisplay'
-import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper } from 'lucide-react';
+import { NOTIFICATION_SETTINGS_ANCHOR, notificationBody, notificationTitle } from '../../utils/notificationDisplay'
+import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings, Building2 } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
   useMarkNotificationReadMutation,
@@ -19,15 +19,15 @@ import { formatNumericDateTime } from '../../utils/formatDate';
 // --- Kategorisering af notifikationer ---------------------------------
 // Notifikationstyperne kommer fra e_notification-check-constrainten:
 // 'message', 'task_assigned', 'task_updated', 'task_completed',
-// 'task_approved', 'task_rejected'. Der findes endnu ikke en dedikeret
-// "news"-type i databasen, men kategorien er klar til den dag der
-// tilføjes en notifikationstype for nyheder.
-type NotificationCategory = 'messages' | 'tasks' | 'news';
+// 'task_approved', 'task_rejected', 'task_favorite_room', 'news',
+// 'membership_invitation'. Ukendte typer falder tilbage til 'news'.
+type NotificationCategory = 'messages' | 'tasks' | 'news' | 'organisation';
 type CategoryFilter = NotificationCategory | 'all';
 
 function getNotificationCategory(type: string): NotificationCategory {
   if (type === 'message') return 'messages';
   if (type.startsWith('task_')) return 'tasks';
+  if (type === 'membership_invitation') return 'organisation';
   return 'news';
 }
 
@@ -35,9 +35,10 @@ const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
   messages: MessageSquare,
   tasks: ListChecks,
   news: Newspaper,
+  organisation: Building2,
 };
 
-const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news'];
+const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news', 'organisation'];
 
 export default function NotificationsPage() {
   const { t } = useTranslation(['notifications', 'common'])
@@ -59,7 +60,7 @@ export default function NotificationsPage() {
 
   // Antal ulæste pr. kategori - styrer prikken ud for hvert link i sidebaren
   const unreadCountByCategory = useMemo(() => {
-    const counts: Record<NotificationCategory, number> = { messages: 0, tasks: 0, news: 0 };
+    const counts: Record<NotificationCategory, number> = { messages: 0, tasks: 0, news: 0, organisation: 0 };
     for (const n of notifications) {
       if (!n.isRead) counts[getNotificationCategory(n.type)]++;
     }
@@ -67,7 +68,10 @@ export default function NotificationsPage() {
   }, [notifications]);
 
   const totalUnread =
-    unreadCountByCategory.messages + unreadCountByCategory.tasks + unreadCountByCategory.news;
+    unreadCountByCategory.messages +
+    unreadCountByCategory.tasks +
+    unreadCountByCategory.news +
+    unreadCountByCategory.organisation;
 
   const filteredNotifications = useMemo(() => {
     if (activeCategory === 'all') return notifications;
@@ -142,24 +146,34 @@ export default function NotificationsPage() {
 
       {/* --- Indhold --- */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border-gray dark:border-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 sm:p-6 border-b border-border-gray dark:border-slate-700">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
             <h1 className="text-lg font-semibold text-primary dark:text-slate-100">
               {activeCategory === 'all' ? t('title') : td(`notifications:category.${activeCategory}`)}
             </h1>
           </div>
-          {activeUnreadCount > 0 && (
-            <button
-              type="button"
-              onClick={handleMarkVisibleRead}
-              disabled={isMarkingAll}
-              className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
+          <div className="flex items-center gap-4">
+            {activeUnreadCount > 0 && (
+              <button
+                type="button"
+                onClick={handleMarkVisibleRead}
+                disabled={isMarkingAll}
+                className="flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover disabled:opacity-60"
+              >
+                <CheckCheck className="w-4 h-4" />
+                {t('markAllRead')}
+              </button>
+            )}
+            {/* US-79: genvej til notifikationsindstillingerne på /bruger */}
+            <Link
+              to={`/bruger#${NOTIFICATION_SETTINGS_ANCHOR}`}
+              className="flex items-center gap-1.5 text-sm text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
             >
-              <CheckCheck className="w-4 h-4" />
-              {t('markAllRead')}
-            </button>
-          )}
+              <Settings className="w-4 h-4" />
+              {t('settingsLink')}
+            </Link>
+          </div>
         </div>
 
         {isLoading ? (
@@ -212,7 +226,7 @@ export default function NotificationsPage() {
                       </div>
                       {notification.body && (
                         <p className="text-sm text-secondary mt-1 line-clamp-2 dark:text-slate-400">
-                          {notification.body}
+                          {notificationBody(notification, td)}
                         </p>
                       )}
                       <p className="text-xs text-secondary mt-1.5 dark:text-slate-400">

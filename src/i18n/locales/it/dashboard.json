@@ -17,10 +17,22 @@
   },
   "myTasks": {
     "title": "Le mie attività",
-    "goToTasks": "Vai alle attività",
+    "goToTasks": "Vai alle mie attività",
     "loading": "Caricamento delle tue attività...",
     "empty": "Non sei ancora iscritto a nessuna attività.",
-    "endsOn": "Termina il {{date}}"
+    "endsOn": "Termina il {{date}}",
+    "tab": "Attività"
+  },
+  "favoriteRooms": {
+    "title": "Le mie stanze preferite",
+    "goToTasks": "Vai alle attività",
+    "loading": "Caricamento stanze preferite...",
+    "empty": "Non hai ancora stanze preferite.",
+    "emptyLink": "Contrassegna le stanze con una stella in Attività.",
+    "openTasks_one": "{{count}} aperta",
+    "openTasks_many": "{{count}} aperte",
+    "openTasks_other": "{{count}} aperte",
+    "tab": "Stanze preferite"
   },
   "notifications": {
     "title": "Notifiche",
@@ -53,6 +65,8 @@
       "invitations": "Inviti",
       "membershipRequests": "Richieste di adesione",
       "organisation": "Organizzazione",
+
+      "colors": "Colori",
       "taskApprovals": "Approvazioni delle attività",
       "completedTasks": "Attività completate"
     }
@@ -60,7 +74,7 @@
   "completedTasks": {
     "loading": "Caricamento delle attività completate...",
     "empty": "Nessuna attività è ancora stata contrassegnata come completata.",
-    "searchPlaceholder": "Cerca per titolo o descrizione...",
+    "searchPlaceholder": "Cerca per titolo, sala o persona...",
     "allPriorities": "Tutte le priorità",
     "noMatch": "Nessuna attività corrisponde alla ricerca o al filtro.",
     "noDescription": "Nessuna descrizione.",
@@ -74,7 +88,18 @@
     "noMaterials": "Nessun materiale",
     "edit": "Modifica",
     "reopen": "Riapri",
-    "reopening": "Riapertura..."
+    "reopening": "Riapertura...",
+    "sortNewest": "Completate di recente prima",
+    "sortOldest": "Completate meno recenti prima",
+    "sortDeadline": "Scadenza più vicina prima",
+    "from": "Completata dal",
+    "to": "al",
+    "presetToday": "Oggi",
+    "preset7": "7 giorni",
+    "preset30": "30 giorni",
+    "resetFilters": "Reimposta",
+    "finishedOn": "Completata il {{date}}",
+    "showing": "{{count}} di {{total}}"
   },
   "statistics": {
     "noOrganisation": "Non hai ancora un'organizzazione attiva, quindi non ci sono statistiche da mostrare.",

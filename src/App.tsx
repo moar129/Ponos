@@ -1,4 +1,5 @@
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Route, Routes, useLocation, useNavigationType } from 'react-router-dom'
 import { Header } from './components/headerComponent';
 import { Footer } from './components/footerComponent';
 import { DataLayerPage } from './pages/dataLayer/DataLayerPage';
@@ -22,13 +23,17 @@ import { useGetSessionQuery } from './store/apis/authApi';
 import { MessagesPage } from './pages/messages/messagePage';
 import NotificationPage from './pages/notification/notificationPage';
 import { MyTasksPage } from './pages/Task/MyTasksPage';
+import { useOrganisationTheme } from './store/hooks/orgHook';
+import { CompletedTasksPage } from './pages/Task/CompletedTasksPage';
+import { TaskApprovalsPage } from './pages/Task/TaskApprovalsPage';
 
 // Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
-// headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
+// headeren) slipper ud af <main>'ens padding og holder
 // selv deres indhold på plads med en egen max-w-7xl pr. sektion.
 const FULL_WIDTH_ROUTES = ['/', '/om-os', '/kontakt', '/hjaelp'];
 
 function App() {
+  useOrganisationTheme();
   // Holder session-queryen aktiv hele appens levetid.
   // Den aktiverer authApi's onAuthStateChange-listener,
   // så login/logout slår igennem uden sideskift eller refresh.
@@ -36,8 +41,18 @@ function App() {
 
   // Se FULL_WIDTH_ROUTES ovenfor. Alle andre ruter - inkl. 404-siden -
   // rammer den uændrede gren.
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const isFullWidth = FULL_WIDTH_ROUTES.includes(pathname);
+  const navigationType = useNavigationType();
+
+  // Nyt sideskift starter i toppen. Undtagelser: hash-links (fx
+  // /bruger#notification-settings scroller selv, se
+  // NotificationSettingsSection.tsx) og tilbage/frem (POP), hvor
+  // browseren selv genskaber positionen.
+  useEffect(() => {
+    if (hash || navigationType === 'POP') return;
+    window.scrollTo(0, 0);
+  }, [pathname, hash, navigationType]);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white dark:bg-slate-900">
@@ -46,7 +61,7 @@ function App() {
       {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}
       <PendingRequestBanner />
       {/* HOVEDINDHOLD / ROUTER */}
-      <main className={isFullWidth ? 'flex-1 w-full text-black dark:text-slate-100' : 'flex-1 max-w-8xl w-full mx-auto p-6 text-black dark:text-slate-100'}>
+      <main className={isFullWidth ? 'flex-1 w-full text-black dark:text-slate-100' : 'flex-1 w-full p-3 sm:p-6 xl:px-8 text-black dark:text-slate-100'}>
         <Routes>
           {/* tilføj flere ruter efter behov */}
           <Route path="/" element={<LandingPage />} />
@@ -66,6 +81,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/tasks/mine" element={<MyTasksPage />} />
+            <Route path="/tasks/afsluttede" element={<CompletedTasksPage />} />
+            <Route path="/tasks/godkend" element={<TaskApprovalsPage />} />
             <Route path="/statistik" element={<StatisticsPage />} />
             <Route path="/bruger" element={<ProfilePage />} />
             <Route path="/datalager" element={<DataLayerPage />} />

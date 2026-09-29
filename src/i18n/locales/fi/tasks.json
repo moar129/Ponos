@@ -28,7 +28,8 @@
     "saveRoom": "Tallenna tila",
     "loading": "Haetaan tehtäviä...",
     "noAccess": "Sinulla ei ole pääsyä tämän organisaation tehtäviin.",
-    "heading": "Tehtävät",
+    "heading": "Kaikki tehtävät",
+    "roomHeading": "{{room}}: tehtävät",
     "createRoom": "Luo tila",
     "availableHeading": "Saatavilla olevat tehtävät",
     "inProgressHeading": "Käynnissä"
@@ -51,7 +52,15 @@
     "edit": "Muokkaa tilaa",
     "deleteOne": "Poista tila",
     "choose": "Valitse tila",
-    "noRoom": "Ilman tilaa"
+    "noRoom": "Ilman tilaa",
+    "rolesLabel": "Pääsy rooleille",
+    "rolesHint": "Ei valintaa = kaikki näkevät huoneen.",
+    "rolesLoading": "Ladataan rooleja...",
+    "rolesLoadFailed": "Rooleja ei voitu ladata.",
+    "noRoles": "Organisaatiolla ei ole rooleja.",
+    "restrictedTo": "Vain: {{roles}}",
+    "newRole": "Uusi rooli",
+    "chat": "Huoneen keskustelu"
   },
   "create": {
     "heading": "Luo tehtävä",
@@ -100,19 +109,24 @@
     "statusLabel": "Tila:",
     "addEmployeeShort": "+ Lisää työntekijä",
     "created": "Luotu",
-    "statusValue": "Tila: {{status}}"
+    "statusValue": "Tila: {{status}}",
+    "rejectedWithReason": "Valmisilmoitus hylätty: {{reason}}",
+    "chat": "Keskustelu"
   },
   "filter": {
     "show": "Näytä suodatin",
     "hide": "Piilota suodatin",
-    "searchPlaceholder": "Hae tehtäviä...",
+    "searchPlaceholder": "Hae otsikosta, kuvauksesta, huoneesta tai henkilöstä...",
     "all": "Kaikki",
     "sortNewest": "Uusimmat",
     "sortOldest": "Vanhimmat",
     "sortPriority": "Prioriteetti",
     "sortDeadline": "Määräaika",
     "counts": "{{available}} saatavilla · {{inProgress}} käynnissä",
-    "sortBy": "Lajitteluperuste"
+    "sortBy": "Lajitteluperuste",
+    "noMatches": "Mikään tehtävä ei vastaa hakua/suodatinta.",
+    "activeCount_one": "{{count}} aktiivinen suodatin",
+    "activeCount_other": "{{count}} aktiivista suodatinta"
   },
   "deleteRoom": {
     "heading": "Poista tila",
@@ -127,8 +141,25 @@
   },
   "editRoom": {
     "heading": "Muokkaa tilaa",
-    "intro": "Valitse tila ja muokkaa sen nimeä.",
+    "intro": "Valitse huone ja muokkaa nimeä ja pääsyä.",
     "namePlaceholder": "Kirjoita tilan nimi",
     "failed": "Tilaa ei voitu muokata. Yritä uudelleen."
+  },
+  "favorites": {
+    "toggleFailed": "Suosikkihuonetta ei voitu päivittää."
+  },
+  "completed": {
+    "tab": "Valmiit",
+    "heading": "Valmiit tehtävät",
+    "subtitle": "Kaikki organisaation valmiit tehtävät.",
+    "noAccess": "Sinulla ei ole pääsyä valmiisiin tehtäviin."
+  },
+  "approvals": {
+    "tab": "Odottaa hyväksyntää",
+    "heading": "Odottaa hyväksyntää",
+    "subtitle": "Valmiiksi ilmoitetut tehtävät, jotka odottavat hyväksyntää.",
+    "noAccess": "Sinulla ei ole pääsyä tehtävien hyväksyntöihin.",
+    "pendingCount_one": "{{count}} odottaa",
+    "pendingCount_other": "{{count}} odottaa"
   }
 }

@@ -1,7 +1,7 @@
 // src/store/apis/roleApi.ts
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import type { AssignRoleInput, CreateRoleInput, OrganisationMember, Role, UpdateRoleInput } from '../../types/role/roleType'
+import type { AssignRoleInput, CreateRoleInput, CreateRoleWithPrivilegesInput, OrganisationMember, Role, UpdateRoleInput } from '../../types/role/roleType'
 import { mapDbError } from './apiError'
 
 // Navnet på organisationens indbyggede administrator-rolle. Sammen med
@@ -105,6 +105,41 @@ export const roleApi = supabaseApi.injectEndpoints({
             },
 
             invalidatesTags: ['Role'],
+        }),
+
+        // Opretter en rolle + dens privilegier atomisk (hurtig-oprettelse
+        // fra rum-modalen). RPC'en kræver kun create_roles, men tillader
+        // kun privilegier kalderen selv har (eskalerings-guard) - se
+        // create_role_with_privileges i dbSchema.sql.
+        createRoleWithPrivileges: builder.mutation<Role, CreateRoleWithPrivilegesInput>({
+            queryFn: async ({ name, privilegeNames }) => {
+                const trimmed = name.trim()
+
+                if (!trimmed) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
+                }
+
+                const { data, error } = await supabase.rpc('create_role_with_privileges', {
+                    p_name: trimmed,
+                    p_privilege_names: privilegeNames,
+                })
+
+                if (error) {
+                    if (error.code === '23505') {
+                        return { error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' } }
+                    }
+                    return { error: mapDbError(error) }
+                }
+
+                const role = (data as Role[] | null)?.[0]
+                if (!role) {
+                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:generic' } }
+                }
+
+                return { data: role }
+            },
+
+            invalidatesTags: ['Role', 'Privilege'],
         }),
 
         // Omdøber en rolle i administratorens organisation. RLS ("Admin
@@ -316,6 +351,7 @@ export const roleApi = supabaseApi.injectEndpoints({
 export const {
     useGetOrganisationRolesQuery,
     useCreateRoleMutation,
+    useCreateRoleWithPrivilegesMutation,
     useUpdateRoleMutation,
     useDeleteRoleMutation,
     useGetOrganisationMembersQuery,

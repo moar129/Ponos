@@ -49,6 +49,7 @@
     "nameLabel": "Név",
     "memberCount": "Tagok száma",
     "edit": "Szervezet szerkesztése",
+    "editColors": "Színek szerkesztése",
     "delete": "Szervezet törlése",
     "deleteWarning": "Ez véglegesen törli a(z) \"{{name}}\" szervezetet, és nem vonható vissza.",
     "typeNameToConfirm": "A megerősítéshez írja be a szervezet nevét ({{name}})",
@@ -58,11 +59,33 @@
     "deletePermanently": "Végleges törlés",
     "deleted": "\"{{name}}\" törölve lett.",
     "deletedNewActive": "\"{{name}}\" törölve lett. Az aktív szervezete most \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" törölve lett. Már nincs aktív szervezete."
+    "deletedNoActive": "\"{{name}}\" törölve lett. Már nincs aktív szervezete.",
+    "colorLabel": "Gomb- és hivatkozásszín",
+    "colorHint": "A gombok, hivatkozások, ikonok és kiemelések színe a Ponos egészében.",
+    "headerColorLabel": "Felső sáv – háttér",
+    "headerColorHint": "A felső, menüt tartalmazó sáv háttérszíne. Üres = alapértelmezett szín (sötétkék).",
+    "footerColorLabel": "Alsó sáv – háttér",
+    "footerColorHint": "Az oldal alján lévő sáv háttérszíne. Üres = alapértelmezett szín (sötétkék).",
+    "headerTextColorLabel": "Felső sáv – szöveg",
+    "headerTextColorHint": "A felső sáv szövegének és ikonjainak színe. Üres = automatikusan választódik, hogy olvasható legyen a háttéren.",
+    "footerTextColorLabel": "Alsó sáv – szöveg",
+    "footerTextColorHint": "Az alsó sáv szövegének színe. Üres = automatikusan választódik, hogy olvasható legyen a háttéren.",
+    "colorPickerAriaLabel": "Válassza ki a gomb- és hivatkozásszínt",
+    "colorReset": "Visszaállítás",
+    "colorUseDefault": "Alapértelmezett használata",
+    "colorNoneSet": "Nincs kiválasztva (alapértelmezett)",
+    "previewLight": "Világos",
+    "previewDark": "Sötét",
+    "colorAdjusted": "Olvashatóság miatt módosítva",
+    "colorInvalid": "A színnek érvényes hex-kódnak kell lennie, például #C7975D.",
+    "savedColors": "Mentett színek",
+    "saveCurrentColor": "Aktuális szín mentése",
+    "noSavedColors": "Még nincsenek mentett színek.",
+    "removeSavedColor": "Mentett szín eltávolítása"
   },
   "picker": {
     "searchPlaceholder": "Szervezet keresése...",
-    "empty": "Nincs választható szervezet.",
+    "minChars": "Írja be a szervezet nevét a kereséshez.",
     "noMatch": "Egyetlen szervezet sem felel meg a keresésének."
   },
   "loading": "Szervezet betöltése...",
@@ -86,8 +109,7 @@
     "pending": "A tagsági kérelmét elküldtük, és a szervezet adminisztrációjának jóváhagyására vár.",
     "chooseLabel": "Szervezet kiválasztása",
     "submit": "Kérelem küldése",
-    "submitting": "Kérelem küldése...",
-    "noneAvailable": "Nincs más szervezet, amelybe tagságot igényelhetne."
+    "submitting": "Kérelem küldése..."
   },
   "details": {
     "administrator": "Rendszergazda",

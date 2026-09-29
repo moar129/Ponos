@@ -19,6 +19,7 @@ import { TaskTimeline } from './TaskTimeline';
 import { TaskItemPicker } from './TaskItemPicker';
 import { TaskMaterialsList } from './TaskMaterialsList';
 import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
+import { TaskChatButton } from './TaskChatButton';
 import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
 import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
 import { supabase } from '../../lib/supabase';
@@ -93,6 +94,20 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
 
   const hasPendingCompletionRequest =
     currentPendingRequest !== undefined;
+
+  // Seneste anmodning (listen er sorteret nyeste først) - er den afvist,
+  // vises godkenderens begrundelse, indtil opgaven meldes færdig igen.
+  const latestRequest = taskRequests[0];
+  const rejectionReason =
+    task.status === 'InProgress' && latestRequest?.status === 'Rejected'
+      ? latestRequest.rejection_reason
+      : null;
+
+  const rejectionBox = rejectionReason && (
+    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+      <p className="break-words">{t('card.rejectedWithReason', { reason: rejectionReason })}</p>
+    </div>
+  );
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -417,7 +432,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         </div>
 
         {/* DATOER */}
-        <div className="mb-5 flex gap-8 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
+        <div className="mb-5 flex flex-wrap gap-x-8 gap-y-2 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
           <div>
             <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
               {t('card.start')}
@@ -439,6 +454,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           </div>
         </div>
 
+        {/* AFVIST-BEGRUNDELSE */}
+        {rejectionBox}
+
         {/* HANDLINGER */}
         <div className="flex flex-wrap gap-3">
           {/* TILMELD / AFMELD */}
@@ -453,18 +471,18 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleAssignment();
                     }}
-                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
                         ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
                         : isAssigned
                           ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                          : 'border-accent text-accent hover:bg-accent hover:text-white'
+                          : 'border-accent text-accent hover:bg-accent hover:text-accent-text'
                       }`}
                   >
                     {canUnassignSelf
-                      ? 'Afmeld'
+                      ? t('assignees.signOff')
                       : isAssigned
-                        ? 'Tildelt dig'
-                        : 'Tilmeld'}
+                        ? t('assignees.assignedToYou')
+                        : t('assignees.signUp')}
                   </button>
                 )}
 
@@ -477,7 +495,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleStartTask();
                     }}
-                    className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded border-2 border-accent bg-accent px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isUpdatingStatus
                       ? t('common:updating')
@@ -498,7 +516,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleCompleteTask();
                     }}
-                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
+                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
                         ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
                         : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
                       }`}
@@ -512,6 +530,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 )}
               </>
             )}
+
+          {/* OPGAVE-CHAT - jeg er deltager, eller tilmeldt og kan melde mig ind igen */}
+          <TaskChatButton taskId={task.id} canJoin={isAssigned && assignees.length >= 2} />
         </div>
       </div>
 
@@ -534,7 +555,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           }}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
+            className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
           <div className="overflow-y-auto p-6">
@@ -556,7 +577,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 </span>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 {/* REDIGER - gemme er gated af canUpdate og sletning af
                     canDelete inde i EditTaskModal, så knappen vises ved
                     hver af de to */}
@@ -627,6 +648,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                   {t('card.statusValue', { status: t(`status.${task.status}`) })}
                 </span>
               </div>
+
+              {rejectionBox && <div className="mt-3">{rejectionBox}</div>}
 
               {task.requires_approval && (
                 <div className="mt-3">
@@ -742,7 +765,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             </div>
 
             {/* DATOER */}
-            <div className="mb-6 grid grid-cols-2 gap-4">
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
                   {t('fields.startDate')}

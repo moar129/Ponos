@@ -17,10 +17,21 @@
   },
   "myTasks": {
     "title": "Saját feladatok",
-    "goToTasks": "Ugrás a feladatokhoz",
+    "goToTasks": "Ugrás a saját feladataimhoz",
     "loading": "Feladatai betöltése...",
     "empty": "Még egyetlen feladatra sem jelentkezett.",
-    "endsOn": "Vége: {{date}}"
+    "endsOn": "Vége: {{date}}",
+    "tab": "Feladatok"
+  },
+  "favoriteRooms": {
+    "title": "Kedvenc termeim",
+    "goToTasks": "Ugrás a feladatokhoz",
+    "loading": "Kedvenc termek betöltése...",
+    "empty": "Még nincsenek kedvenc termeid.",
+    "emptyLink": "Jelölj meg termeket csillaggal a Feladatok alatt.",
+    "openTasks_one": "{{count}} nyitott",
+    "openTasks_other": "{{count}} nyitott",
+    "tab": "Kedvenc termek"
   },
   "notifications": {
     "title": "Értesítések",
@@ -53,6 +64,8 @@
       "invitations": "Meghívók",
       "membershipRequests": "Tagsági kérelmek",
       "organisation": "Szervezet",
+
+      "colors": "Színek",
       "taskApprovals": "Feladatjóváhagyások",
       "completedTasks": "Befejezett feladatok"
     }
@@ -60,7 +73,7 @@
   "completedTasks": {
     "loading": "Befejezett feladatok betöltése...",
     "empty": "Még egyetlen feladatot sem jelöltek befejezettként.",
-    "searchPlaceholder": "Keresés cím vagy leírás alapján...",
+    "searchPlaceholder": "Keresés cím, helyiség vagy személy alapján...",
     "allPriorities": "Összes prioritás",
     "noMatch": "Egyetlen feladat sem felel meg a keresésnek vagy a szűrőnek.",
     "noDescription": "Nincs leírás.",
@@ -74,7 +87,18 @@
     "noMaterials": "Nincsenek anyagok",
     "edit": "Szerkesztés",
     "reopen": "Újranyitás",
-    "reopening": "Újranyitás..."
+    "reopening": "Újranyitás...",
+    "sortNewest": "Legutóbb befejezettek elöl",
+    "sortOldest": "Legrégebben befejezettek elöl",
+    "sortDeadline": "Legkorábbi határidő elöl",
+    "from": "Befejezve ettől",
+    "to": "eddig",
+    "presetToday": "Ma",
+    "preset7": "7 nap",
+    "preset30": "30 nap",
+    "resetFilters": "Visszaállítás",
+    "finishedOn": "Befejezve: {{date}}",
+    "showing": "{{count}} / {{total}}"
   },
   "statistics": {
     "noOrganisation": "Még nincs aktív szervezete, így nincs megjeleníthető statisztika.",

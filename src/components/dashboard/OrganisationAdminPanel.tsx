@@ -2,7 +2,6 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { Building2 } from 'lucide-react'
 import {
     useDeleteOrganisationMutation,
@@ -11,12 +10,7 @@ import {
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import type { DeleteOrganisationControlProps, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
-
-// Tom formular-tilstand, indtil admin trykker "Rediger organisation" og
-// feltet fyldes med organisationens nuværende værdi.
-const emptyForm: UpdateOrganisationInput = { name: '' }
-
+import type { DeleteOrganisationControlProps, Organisation } from '../../types/organisation/organisationType'
 
 // Rediger organisation (navn) + slet organisation, samlet i ét panel
 // under dashboardets Administration-fane (US-65) - flyttet fra
@@ -27,6 +21,9 @@ const emptyForm: UpdateOrganisationInput = { name: '' }
 // (canEditOrganisation), "Slet organisation" kræver udelukkende
 // aktivt medlemskabs isAdmin-flag. Begge håndhæves også server-side
 // (RLS/RPC) - UI-gaten er kun for at vise de rigtige knapper.
+//
+// Farverne ligger i deres egen underfane (OrganisationColorsPanel.tsx,
+// flyttet 2026-09-29).
 export function OrganisationAdminPanel() {
     const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
@@ -35,13 +32,13 @@ export function OrganisationAdminPanel() {
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
 
     const [isEditing, setIsEditing] = useState(false)
-    const [form, setForm] = useState<UpdateOrganisationInput>(emptyForm)
+    const [name, setName] = useState('')
     const [validationError, setValidationError] = useState<string | null>(null)
     const [savedMessage, setSavedMessage] = useState(false)
     const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
 
     function startEdit(current: Organisation) {
-        setForm({ name: current.name })
+        setName(current.name)
         setValidationError(null)
         setSavedMessage(false)
         setIsEditing(true)
@@ -52,26 +49,34 @@ export function OrganisationAdminPanel() {
         setValidationError(null)
     }
 
-    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault()
+
+    const handleSubmit = async (current: Organisation) => {
         setSavedMessage(false)
 
-        if (!form.name.trim()) {
+        const trimmedName = name.trim()
+
+        if (!trimmedName) {
             setValidationError(t('errors:required.organisationName'))
             return
         }
+
         setValidationError(null)
 
         try {
-            await updateMyOrganisation({ name: form.name.trim() }).unwrap()
+            // Mutationen skriver alle felter - farverne sendes uændret med.
+            await updateMyOrganisation({
+                name: trimmedName,
+                color: current.color ?? null,
+                headerColor: current.headerColor ?? null,
+                footerColor: current.footerColor ?? null,
+                headerTextColor: current.headerTextColor ?? null,
+                footerTextColor: current.footerTextColor ?? null,
+            }).unwrap()
 
-            // Mutationen invaliderer 'Organisation', så visningen nedenfor
-            // henter og viser det nye navn automatisk.
             setIsEditing(false)
             setSavedMessage(true)
         } catch {
-            // Fejlen vises via mutationError - vi bliver i redigerings-
-            // tilstand, så administratorens indtastning ikke går tabt.
+            // Fejlen vises via mutationError
         }
     }
 
@@ -123,14 +128,17 @@ export function OrganisationAdminPanel() {
             )}
 
             {isEditing ? (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(event) => {
+                    event.preventDefault()
+                    void handleSubmit(organisation)
+                }}>
                     <div className="mb-6">
                         <label className="block text-sm text-secondary mb-1 dark:text-slate-400" htmlFor="org-name">{t('admin.nameLabel')}</label>
                         <input
                             id="org-name"
                             type="text"
-                            value={form.name}
-                            onChange={(e) => setForm({ name: e.target.value })}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                             className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     </div>
@@ -139,7 +147,7 @@ export function OrganisationAdminPanel() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? t('common:saving') : t('common:save')}
                         </button>
@@ -156,8 +164,8 @@ export function OrganisationAdminPanel() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-bg-gray flex items-center justify-center shrink-0 dark:bg-slate-800">
-                            <Building2 className="w-7 h-7 text-secondary dark:text-slate-400" />
+                        <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                            <Building2 className="w-7 h-7 text-accent" />
                         </div>
                         <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
                     </div>
@@ -165,7 +173,7 @@ export function OrganisationAdminPanel() {
                     <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.memberCount')}</dt>
-                            <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                            <dd className="text-sm text-right min-w-0 break-words">{activeMembership?.memberCount ?? '—'}</dd>
                         </div>
                     </dl>
 
@@ -174,7 +182,7 @@ export function OrganisationAdminPanel() {
                             <button
                                 type="button"
                                 onClick={() => startEdit(organisation)}
-                                className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                                className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                             >
                                 {t('admin.edit')}
                             </button>
@@ -191,6 +199,8 @@ export function OrganisationAdminPanel() {
         </div>
     )
 }
+
+// ... resten af filen (DeleteOrganisationControl) forbliver uændret
 
 // US-64: vises kun for administratorer af den AKTIVE organisation.
 // Sletning er permanent og fjerner ALT organisationens data samt alle

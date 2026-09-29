@@ -44,7 +44,7 @@ export default function HelpPage() {
                         </p>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <HelpStep
                             step={1}
                             icon={UserPlus}
@@ -67,7 +67,7 @@ export default function HelpPage() {
 
                     <Link
                         to="/signup"
-                        className="mt-8 inline-flex items-center justify-center bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                        className="mt-8 inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                     >
                         {t('cta.signup')}
                     </Link>

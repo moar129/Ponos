@@ -13,7 +13,8 @@
   "category": {
     "messages": "Wiadomości",
     "tasks": "Zadania",
-    "news": "Aktualności"
+    "news": "Aktualności",
+    "organisation": "Organizacja"
   },
   "type": {
     "message": "Nowa wiadomość",
@@ -21,6 +22,10 @@
     "task_updated": "Zadanie zostało zaktualizowane",
     "task_completed": "Zadanie zostało zakończone",
     "task_approved": "Twoje zadanie zostało zatwierdzone",
-    "task_rejected": "Zgłoszenie zakończenia odrzucone"
-  }
+    "task_rejected": "Zgłoszenie zakończenia odrzucone",
+    "task_favorite_room": "Nowe zadanie w ulubionym pokoju",
+    "news": "Nowa aktualność",
+    "membership_invitation": "Zaproszono cię do organizacji"
+  },
+  "settingsLink": "Ustawienia"
 }

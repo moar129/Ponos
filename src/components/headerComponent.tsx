@@ -25,6 +25,7 @@ import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
 import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
 import { useTheme } from '../store/hooks/useTheme';
+import { useFitText } from '../store/hooks/useFitText';
 import { LanguageSelector } from './common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
@@ -57,7 +58,11 @@ export function Header() {
   const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
   const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE);
 
-  const { t } = useTranslation(['nav', 'common']);
+  const { t, i18n } = useTranslation(['nav', 'common']);
+
+  // "PONOS – <org>" krymper i stedet for at blive afkortet. Sproget er med,
+  // fordi nav-labels i andre sprog tager mere plads.
+  const orgNameRef = useFitText<HTMLSpanElement>([profile?.organisationName, i18n.language]);
 
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
@@ -110,38 +115,48 @@ export function Header() {
     navigate('/login');
   }
 
-  // Dynamisk styling baseret på om ruten er aktiv. Kompakt ved lg, mere
-  // luftig ved xl, så nav'en holder sig synlig på flere skærmstørrelser.
+  // Dynamisk styling baseret på om ruten er aktiv. Tre trin: kun ikoner ved lg,
+  // ikon + lille tekst ved xl, fuld størrelse ved 2xl - teksten skrumper før den forsvinder.
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-medium whitespace-nowrap transition-colors ${isActive
-      ? 'text-white border-b-2 border-white rounded-b-none'
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+    `flex items-center gap-1.5 2xl:gap-2 px-2.5 xl:px-2 2xl:px-4 py-2 2xl:py-2.5 rounded-md text-sm 2xl:text-base font-medium whitespace-nowrap transition-colors ${isActive
+      ? 'text-[var(--color-header-text)] border-b-2 border-[var(--color-header-text)] rounded-b-none'
+      : 'text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10'
     }`;
 
   // Samme klasse, men uden bund-border-aktiv-stil (giver mere mening i en stacked mobil-liste)
   const getMobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium transition-colors ${isActive
-      ? 'bg-slate-800 text-white'
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+      ? 'bg-black/15 text-[var(--color-header-text)]'
+      : 'text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10'
     }`;
 
   return (
-    <header className="w-full bg-primary text-white border-b border-slate-800 shadow-md relative z-40">
+    <header className="w-full bg-[var(--color-header-bg)] text-[var(--color-header-text)] border-b border-[var(--color-header-border)] shadow-md sticky top-0 z-40">
       <div className="px-3 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between gap-2 min-h-[64px] lg:min-h-[90px]">
         {/* Logo -> /dashboard når man er logget ind, ellers forsiden (en
             udlogget bruger ville ellers bare blive redirigeret til /login) */}
-        <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity shrink-0 min-w-0">
-          <img src={logo} alt="PONOS Logo" className="w-8 h-8 sm:w-11 sm:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 object-contain shrink-0" />
-          <span className="flex items-center gap-1.5 min-w-0 truncate">
-            <span className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.08em] sm:tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-slate-100">
-              PONOS
-            </span>
-            {profile?.organisationName && (
-              <span className="hidden sm:inline text-sm lg:text-base font-medium tracking-normal text-slate-300 truncate">
+        <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 lg:gap-3 hover:opacity-90 transition-opacity min-w-0">
+          <img src={logo} alt="PONOS Logo" className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain shrink-0" />
+          {/* Er man i en organisation, vises "PONOS – <org>" på alle bredder.
+              Org-navnet må aldrig afkortes: slipper pladsen op, gør
+              useFitText hele linjen mindre (PONOS følger med via em). */}
+          {profile?.organisationName ? (
+            <span
+              ref={orgNameRef}
+              className="flex items-baseline gap-1.5 min-w-0 overflow-hidden whitespace-nowrap text-base sm:text-lg 2xl:text-xl text-[var(--color-header-text)]"
+            >
+              <span className="shrink-0 text-[1.1em] font-serif tracking-[0.08em] lg:tracking-[0.12em] font-semibold">
+                PONOS
+              </span>
+              <span className="min-w-0 font-semibold">
                 – {profile.organisationName}
               </span>
-            )}
-          </span>
+            </span>
+          ) : (
+            <span className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-serif tracking-[0.08em] sm:tracking-[0.1em] lg:tracking-[0.18em] xl:tracking-[0.25em] font-semibold text-[var(--color-header-text)]">
+              PONOS
+            </span>
+          )}
         </Link>
 
         {/* Desktop navigation: kompakt fra lg, fuld luft fra xl. Under lg
@@ -151,14 +166,16 @@ export function Header() {
         {/* Mellem lg og xl er der ikke plads til fuld tekst på alle links
             samtidig med klokke/avatar/sprog/tema i højre side - dét var det,
             der fik teksten til at flyde ovenpå ikonerne. Derfor: kun ikoner
-            (med title som tooltip/tilgængelighed) fra lg, fuld tekst først
-            fra xl, hvor der er plads nok. shrink-0 + whitespace-nowrap på
-            navigationen sikrer desuden at den aldrig bliver klemt mindre end
-            sit indhold - kan den ikke være der, skal den ses, ikke overlappe. */}
+            (med title som tooltip/tilgængelighed) fra lg, kompakt tekst
+            (text-sm, tæt padding) fra xl og fuld størrelse fra 2xl. shrink-0
+            + whitespace-nowrap på navigationen sikrer desuden at den aldrig
+            bliver klemt mindre end sit indhold; det er logo-zonen (uden
+            shrink-0, med min-w-0), der giver sig, så org-navnet truncater i
+            stedet. */}
         {isAuthenticated ? (
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 shrink-0 whitespace-nowrap">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-2 shrink-0 whitespace-nowrap">
             <NavLink to="/dashboard" className={getNavLinkClass} title={t('links.dashboard')}>
-              <LayoutDashboard className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+              <LayoutDashboard className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
               <span className="hidden xl:inline">{t('links.dashboard')}</span>
             </NavLink>
 
@@ -166,31 +183,31 @@ export function Header() {
               <>
                 {canReadTasks && (
                   <NavLink to="/tasks" className={getNavLinkClass} title={t('links.tasks')}>
-                    <ClipboardList className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <ClipboardList className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                     <span className="hidden xl:inline">{t('links.tasks')}</span>
                   </NavLink>
                 )}
 
                 <NavLink to="/statistik" className={getNavLinkClass} title={t('links.statistics')}>
-                  <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                  <BarChart3 className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                   <span className="hidden xl:inline">{t('links.statistics')}</span>
                 </NavLink>
 
                 {canReadDatalayer && (
                   <NavLink to="/datalager" className={getNavLinkClass} title={t('links.datalayer')}>
-                    <Database className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <Database className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                     <span className="hidden xl:inline">{t('links.datalayer')}</span>
                   </NavLink>
                 )}
 
                 {canReadNews && (
                   <NavLink to="/nyheder" className={getNavLinkClass} title={t('links.news')}>
-                    <Newspaper className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                    <Newspaper className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                     <span className="hidden xl:inline">{t('links.news')}</span>
                   </NavLink>
                 )}
                 <NavLink to="/beskeder" className={getNavLinkClass} title={t('links.messages')}>
-                  <MessageSquareText className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                  <MessageSquareText className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                   <span className="hidden xl:inline">{t('links.messages')}</span>
                 </NavLink>
               </>
@@ -201,14 +218,14 @@ export function Header() {
           // ens. Forside hører kun til her - er man logget ind, hører man
           // hjemme på dashboardet, og "/" redirecter derhen alligevel.
           !isLoadingSession && (
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-2 shrink-0 whitespace-nowrap">
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-2 shrink-0 whitespace-nowrap">
               <NavLink to="/" className={getNavLinkClass} title={t('links.home')}>
-                <Home className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                <Home className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                 <span className="hidden xl:inline">{t('links.home')}</span>
               </NavLink>
 
               <NavLink to="/login" className={getNavLinkClass} title={t('links.login')}>
-                <LogIn className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
+                <LogIn className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
                 <span className="hidden xl:inline">{t('links.login')}</span>
               </NavLink>
             </nav>
@@ -227,7 +244,7 @@ export function Header() {
             være der uden at klemme eller skubbe layoutet ud i vandret
             scroll. Fra sm og opad er der plads, og de flytter tilbage op i
             topbaren. */}
-        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 xl:gap-5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 2xl:gap-5 shrink-0">
           {isAuthenticated ? (
             <>
               {/* Notifikationer er endnu ikke bygget (ingen tabel, ingen rute,
@@ -251,15 +268,15 @@ export function Header() {
                     className="w-8 h-8 xl:w-10 xl:h-10 bg-slate-200 text-slate-800"
                     textClassName="text-xs xl:text-sm"
                   />
-                  <div className="hidden 2xl:flex flex-col text-left">
+                  <div className="hidden min-[1800px]:flex flex-col text-left">
                     <span className="text-sm font-semibold leading-tight">
                       {profile ? `${profile.firstName} ${profile.lastName}` : t('user.fallbackName')}
                     </span>
-                    <span className="text-xs text-slate-300">
+                    <span className="text-xs text-[var(--color-header-muted)]">
                       {profile?.roleName ?? t('user.noRole')}
                     </span>
                   </div>
-                  <ChevronDown className={`hidden lg:block w-4 h-4 text-slate-300 transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`hidden lg:block w-4 h-4 text-[var(--color-header-muted)] transition-transform shrink-0 ${menuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {menuOpen && (
@@ -300,7 +317,7 @@ export function Header() {
             !isLoadingSession && (
               <Link
                 to="/signup"
-                className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-accent text-primary hover:bg-accent-hover transition-colors"
+                className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-4 py-2 xl:py-2.5 rounded-md text-sm xl:text-base font-semibold whitespace-nowrap bg-white text-primary hover:bg-slate-100 transition-colors"
               >
                 <UserPlus className="w-4 h-4 xl:w-5 xl:h-5 shrink-0" />
                 <span>{t('links.signup')}</span>
@@ -324,7 +341,7 @@ export function Header() {
             onClick={toggleTheme}
             aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
             aria-pressed={mode === 'dark'}
-            className="hidden sm:block p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+            className="hidden sm:block p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
           >
             {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -338,7 +355,7 @@ export function Header() {
               aria-haspopup="menu"
               aria-expanded={mobileNavOpen}
               aria-label={mobileNavOpen ? t('menu.close') : t('menu.open')}
-              className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+              className="lg:hidden p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
             >
               {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -350,7 +367,7 @@ export function Header() {
           Indeholder alt det, desktop-headeren viser i de to øvrige zoner -
           også "Opret konto", så knappen ikke forsvinder på mobil. */}
       {mobileNavOpen && (
-        <nav className="lg:hidden border-t border-slate-800 bg-primary px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
+        <nav className="lg:hidden border-t border-[var(--color-header-border)] bg-[var(--color-header-bg)] px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
           {isAuthenticated ? (
             <>
               <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
@@ -409,7 +426,7 @@ export function Header() {
               <Link
                 to="/signup"
                 onClick={() => setMobileNavOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-accent text-primary hover:bg-accent-hover transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-white text-primary hover:bg-slate-100 transition-colors"
               >
                 <UserPlus className="w-5 h-5 shrink-0" />
                 <span>{t('links.signup')}</span>
@@ -420,14 +437,14 @@ export function Header() {
           {/* Sprog + tema: kun her på de mindste skærme (<640px), hvor de er
               skjult fra topbaren (se note dér). Fra sm og opad vises de i
               stedet i topbaren og gentages derfor ikke her. */}
-          <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-slate-800">
-            <LanguageSelector />
+          <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-[var(--color-header-border)]">
+            <LanguageSelector align="left" />
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
               aria-pressed={mode === 'dark'}
-              className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+              className="p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
             >
               {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>

@@ -49,6 +49,7 @@
     "nameLabel": "Nazwa",
     "memberCount": "Liczba członków",
     "edit": "Edytuj organizację",
+    "editColors": "Edytuj kolory",
     "delete": "Usuń organizację",
     "deleteWarning": "To trwale usuwa \"{{name}}\" i nie można tego cofnąć.",
     "typeNameToConfirm": "Wpisz nazwę organizacji ({{name}}), aby potwierdzić",
@@ -58,11 +59,33 @@
     "deletePermanently": "Usuń trwale",
     "deleted": "\"{{name}}\" została usunięta.",
     "deletedNewActive": "\"{{name}}\" została usunięta. Twoją aktywną organizacją jest teraz \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" została usunięta. Nie masz już aktywnej organizacji."
+    "deletedNoActive": "\"{{name}}\" została usunięta. Nie masz już aktywnej organizacji.",
+    "colorLabel": "Kolor przycisków i linków",
+    "colorHint": "Kolor przycisków, linków, ikon i wyróżnień w całym Ponosie.",
+    "headerColorLabel": "Górny pasek – tło",
+    "headerColorHint": "Kolor tła paska u góry z menu. Puste = kolor domyślny (ciemnoniebieski).",
+    "footerColorLabel": "Dolny pasek – tło",
+    "footerColorHint": "Kolor tła paska na dole strony. Puste = kolor domyślny (ciemnoniebieski).",
+    "headerTextColorLabel": "Górny pasek – tekst",
+    "headerTextColorHint": "Kolor tekstu i ikon w górnym pasku. Puste = wybierany automatycznie, aby był czytelny na tle.",
+    "footerTextColorLabel": "Dolny pasek – tekst",
+    "footerTextColorHint": "Kolor tekstu w dolnym pasku. Puste = wybierany automatycznie, aby był czytelny na tle.",
+    "colorPickerAriaLabel": "Wybierz kolor przycisków i linków",
+    "colorReset": "Resetuj",
+    "colorUseDefault": "Użyj domyślnego",
+    "colorNoneSet": "Brak wyboru (domyślny)",
+    "previewLight": "Jasny",
+    "previewDark": "Ciemny",
+    "colorAdjusted": "Dostosowano dla czytelności",
+    "colorInvalid": "Kolor musi być poprawnym kodem hex, np. #C7975D.",
+    "savedColors": "Zapisane kolory",
+    "saveCurrentColor": "Zapisz bieżący kolor",
+    "noSavedColors": "Brak zapisanych kolorów.",
+    "removeSavedColor": "Usuń zapisany kolor"
   },
   "picker": {
     "searchPlaceholder": "Szukaj organizacji...",
-    "empty": "Nie ma organizacji do wyboru.",
+    "minChars": "Wpisz nazwę organizacji, aby ją znaleźć.",
     "noMatch": "Żadna organizacja nie pasuje do Twojego wyszukiwania."
   },
   "loading": "Ładowanie organizacji...",
@@ -86,8 +109,7 @@
     "pending": "Twój wniosek o członkostwo został wysłany i czeka na zatwierdzenie przez administrację organizacji.",
     "chooseLabel": "Wybierz organizację",
     "submit": "Wyślij wniosek",
-    "submitting": "Wysyłanie wniosku...",
-    "noneAvailable": "Nie ma innych organizacji, do których można złożyć wniosek o członkostwo."
+    "submitting": "Wysyłanie wniosku..."
   },
   "details": {
     "administrator": "Administrator",

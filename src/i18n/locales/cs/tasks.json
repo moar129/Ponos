@@ -28,7 +28,8 @@
     "saveRoom": "Uložit místnost",
     "loading": "Načítání úkolů...",
     "noAccess": "Nemáte přístup k úkolům této organizace.",
-    "heading": "Úkoly",
+    "heading": "Všechny úkoly",
+    "roomHeading": "Úkoly – {{room}}",
     "createRoom": "Vytvořit místnost",
     "availableHeading": "Dostupné úkoly",
     "inProgressHeading": "Probíhá"
@@ -51,7 +52,15 @@
     "edit": "Upravit místnost",
     "deleteOne": "Smazat místnost",
     "choose": "Vyberte místnost",
-    "noRoom": "Bez místnosti"
+    "noRoom": "Bez místnosti",
+    "rolesLabel": "Přístup pro role",
+    "rolesHint": "Nic nevybráno = místnost vidí všichni.",
+    "rolesLoading": "Načítání rolí...",
+    "rolesLoadFailed": "Role se nepodařilo načíst.",
+    "noRoles": "Organizace nemá žádné role.",
+    "restrictedTo": "Pouze pro: {{roles}}",
+    "newRole": "Nová role",
+    "chat": "Chat místnosti"
   },
   "create": {
     "heading": "Vytvořit úkol",
@@ -102,19 +111,26 @@
     "statusLabel": "Stav:",
     "addEmployeeShort": "+ Přidat pracovníka",
     "created": "Vytvořeno",
-    "statusValue": "Stav: {{status}}"
+    "statusValue": "Stav: {{status}}",
+    "rejectedWithReason": "Nahlášení dokončení zamítnuto: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Zobrazit filtr",
     "hide": "Skrýt filtr",
-    "searchPlaceholder": "Hledat úkoly...",
+    "searchPlaceholder": "Hledat v názvu, popisu, místnosti nebo osobě...",
     "all": "Vše",
     "sortNewest": "Nejnovější",
     "sortOldest": "Nejstarší",
     "sortPriority": "Priorita",
     "sortDeadline": "Termín",
     "counts": "{{available}} dostupných · {{inProgress}} probíhá",
-    "sortBy": "Řadit podle"
+    "sortBy": "Řadit podle",
+    "noMatches": "Hledání/filtru neodpovídají žádné úkoly.",
+    "activeCount_one": "{{count}} aktivní filtr",
+    "activeCount_few": "{{count}} aktivní filtry",
+    "activeCount_many": "{{count}} aktivního filtru",
+    "activeCount_other": "{{count}} aktivních filtrů"
   },
   "deleteRoom": {
     "heading": "Smazat místnost",
@@ -129,8 +145,27 @@
   },
   "editRoom": {
     "heading": "Upravit místnost",
-    "intro": "Vyberte místnost a upravte její název.",
+    "intro": "Vyberte místnost a upravte název a přístup.",
     "namePlaceholder": "Zadejte název místnosti",
     "failed": "Místnost se nepodařilo upravit. Zkuste to znovu."
+  },
+  "favorites": {
+    "toggleFailed": "Oblíbenou místnost se nepodařilo aktualizovat."
+  },
+  "completed": {
+    "tab": "Dokončené",
+    "heading": "Dokončené úkoly",
+    "subtitle": "Všechny dokončené úkoly v organizaci.",
+    "noAccess": "Nemáte přístup k dokončeným úkolům."
+  },
+  "approvals": {
+    "tab": "Ke schválení",
+    "heading": "Ke schválení",
+    "subtitle": "Úkoly nahlášené jako hotové, které čekají na schválení.",
+    "noAccess": "Nemáte přístup ke schvalování úkolů.",
+    "pendingCount_one": "{{count}} čeká",
+    "pendingCount_few": "{{count}} čekají",
+    "pendingCount_many": "{{count}} čeká",
+    "pendingCount_other": "{{count}} čeká"
   }
 }

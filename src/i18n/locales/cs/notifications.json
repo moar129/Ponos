@@ -13,7 +13,8 @@
   "category": {
     "messages": "Zprávy",
     "tasks": "Úkoly",
-    "news": "Novinky"
+    "news": "Novinky",
+    "organisation": "Organizace"
   },
   "type": {
     "message": "Nová zpráva",
@@ -21,6 +22,10 @@
     "task_updated": "Úkol byl aktualizován",
     "task_completed": "Úkol byl dokončen",
     "task_approved": "Váš úkol byl schválen",
-    "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto"
-  }
+    "task_rejected": "Vaše hlášení o dokončení bylo zamítnuto",
+    "task_favorite_room": "Nový úkol v oblíbené místnosti",
+    "news": "Nová novinka",
+    "membership_invitation": "Byli jste pozváni do organizace"
+  },
+  "settingsLink": "Nastavení"
 }

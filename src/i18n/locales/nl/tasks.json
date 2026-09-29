@@ -28,7 +28,8 @@
     "saveRoom": "Ruimte opslaan",
     "loading": "Taken worden geladen...",
     "noAccess": "Je hebt geen toegang tot de taken van deze organisatie.",
-    "heading": "Taken",
+    "heading": "Alle taken",
+    "roomHeading": "{{room}} taken",
     "createRoom": "Ruimte aanmaken",
     "availableHeading": "Beschikbare taken",
     "inProgressHeading": "Bezig"
@@ -51,7 +52,15 @@
     "edit": "Ruimte bewerken",
     "deleteOne": "Een ruimte verwijderen",
     "choose": "Kies een ruimte",
-    "noRoom": "Zonder ruimte"
+    "noRoom": "Zonder ruimte",
+    "rolesLabel": "Toegang voor rollen",
+    "rolesHint": "Niets geselecteerd = iedereen kan de ruimte zien.",
+    "rolesLoading": "Rollen laden...",
+    "rolesLoadFailed": "Rollen konden niet worden geladen.",
+    "noRoles": "De organisatie heeft geen rollen.",
+    "restrictedTo": "Alleen voor: {{roles}}",
+    "newRole": "Nieuwe rol",
+    "chat": "Ruimtechat"
   },
   "create": {
     "heading": "Taak aanmaken",
@@ -100,19 +109,24 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Medewerker toevoegen",
     "created": "Aangemaakt",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Gereedmelding afgewezen: {{reason}}",
+    "chat": "Chat"
   },
   "filter": {
     "show": "Filter tonen",
     "hide": "Filter verbergen",
-    "searchPlaceholder": "Taken zoeken...",
+    "searchPlaceholder": "Zoek op titel, beschrijving, ruimte of persoon...",
     "all": "Alle",
     "sortNewest": "Nieuwste",
     "sortOldest": "Oudste",
     "sortPriority": "Prioriteit",
     "sortDeadline": "Deadline",
     "counts": "{{available}} beschikbaar · {{inProgress}} bezig",
-    "sortBy": "Sorteren op"
+    "sortBy": "Sorteren op",
+    "noMatches": "Geen taken komen overeen met zoekopdracht/filter.",
+    "activeCount_one": "{{count}} actief filter",
+    "activeCount_other": "{{count}} actieve filters"
   },
   "deleteRoom": {
     "heading": "Ruimte verwijderen",
@@ -127,8 +141,25 @@
   },
   "editRoom": {
     "heading": "Ruimte bewerken",
-    "intro": "Kies een ruimte en bewerk de naam.",
+    "intro": "Kies een ruimte en bewerk de naam en toegang.",
     "namePlaceholder": "Schrijf een naam voor de ruimte",
     "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
+  },
+  "favorites": {
+    "toggleFailed": "Kon favoriete ruimte niet bijwerken."
+  },
+  "completed": {
+    "tab": "Voltooid",
+    "heading": "Voltooide taken",
+    "subtitle": "Alle voltooide taken in de organisatie.",
+    "noAccess": "Je hebt geen toegang tot voltooide taken."
+  },
+  "approvals": {
+    "tab": "Ter goedkeuring",
+    "heading": "Ter goedkeuring",
+    "subtitle": "Als klaar gemelde taken die wachten op goedkeuring.",
+    "noAccess": "Je hebt geen toegang tot taakgoedkeuringen.",
+    "pendingCount_one": "{{count}} wacht",
+    "pendingCount_other": "{{count}} wachten"
   }
 }

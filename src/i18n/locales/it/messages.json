@@ -24,6 +24,7 @@
   "allContacts": "Tutti i contatti",
   "newGroup": "Nuovo gruppo",
   "chooseConversation": "Scegli una conversazione, oppure trova un collega in \"Tutti i contatti\"",
+  "backToConversations": "Torna alle conversazioni",
   "participantCount_one": "{{count}} partecipante",
   "participantCount_other": "{{count}} partecipanti",
   "group": {
@@ -51,5 +52,26 @@
   "seen": "Visto",
   "noConversations": "Ancora nessuna conversazione. Trova un collega in \"Tutti i contatti\" per iniziarne una.",
   "writeFirstTo": "Scrivi il primo messaggio a {{name}}.",
-  "participantCount_many": "{{count}} partecipanti"
+  "participantCount_many": "{{count}} partecipanti",
+  "system": {
+    "taskChatCreated": "Gruppo creato per l'attività",
+    "taskCompleted": "L'attività è stata completata",
+    "taskReopened": "L'attività è stata riaperta",
+    "roomChatCreated": "Gruppo creato per la stanza",
+    "roomChatClosed": "La stanza non è più limitata per ruolo - la chat è chiusa",
+    "roomChatReopened": "La stanza è di nuovo limitata per ruolo - la chat è stata riaperta"
+  },
+  "systemChat": {
+    "taskChat": "Chat dell'attività",
+    "roomChat": "Chat della stanza",
+    "goToTask": "Vai all'attività",
+    "goToRoom": "Vai alla stanza",
+    "completedPrompt": "L'attività è completata. Vuoi mantenere la chat?",
+    "keep": "Mantieni attiva",
+    "close": "Chiudi chat",
+    "closedByMe": "Hai chiuso la chat - sola lettura.",
+    "reopen": "Riapri",
+    "roomClosed": "La stanza non è più limitata per ruolo - la chat è di sola lettura.",
+    "confirmLeaveBody": "Vuoi davvero lasciare \"{{name}}\"? Puoi tornare tramite il pulsante Chat dell'attività/stanza."
+  }
 }

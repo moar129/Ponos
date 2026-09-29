@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
-import { MessageSquareText, Plus } from 'lucide-react';
+import { ArrowLeft, MessageSquareText, Plus } from 'lucide-react';
 import { ConversationListComponent } from '../../components/messages/conversationListComponent';
 import { ContactListComponent } from '../../components/messages/contactListComponent';
 import { ConversationComponent } from '../../components/messages/conversationComponent';
@@ -27,6 +27,23 @@ export function MessagesPage() {
   const { data: conversations = [] } = useGetMyConversationsQuery();
   const { data: members = [] } = useGetOrganisationMembersQuery();
   const { data: myProfile } = useGetMyProfileQuery();
+
+  // En opgave-chat arkiveres, når alle har valgt "Luk chat", og forsvinder
+  // så fra listen - også mens den står åben. Afledt i stedet for et effect.
+  const activeGroup =
+    selectedGroup && conversations.some((c) => c.conversationId === selectedGroup.conversationId)
+      ? selectedGroup
+      : null;
+
+  // Under md er der kun plads til ét panel ad gangen: listen, eller den
+  // valgte samtale med en tilbage-knap.
+  const hasSelection = !!selectedContact || !!activeGroup;
+
+  const clearSelection = () => {
+    setSelectedContact(null);
+    setSelectedGroup(null);
+    setSelectedConversationId(null);
+  };
 
   const handleSelectConversation = (conversationId: string) => {
     const conversation = conversations.find((c) => c.conversationId === conversationId);
@@ -86,7 +103,7 @@ export function MessagesPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 h-[calc(100vh-220px)] min-h-[500px] min-w-0">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 h-[calc(100dvh-140px)] lg:h-[calc(100vh-200px)] min-h-[420px] min-w-0">
       <CreateGroupComponent
         isOpen={isCreateGroupOpen}
         onClose={() => setIsCreateGroupOpen(false)}
@@ -94,13 +111,13 @@ export function MessagesPage() {
       />
 
       {/* VENSTRE SIDE */}
-      <div className="md:col-span-4 lg:col-span-3 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden flex flex-col min-h-0 dark:bg-slate-800 dark:border-slate-700">
+      <div className={`${hasSelection ? 'hidden md:flex' : 'flex'} md:col-span-5 lg:col-span-4 2xl:col-span-3 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden flex-col min-h-0 dark:bg-slate-800 dark:border-slate-700`}>
         {/* Faner */}
         <div className="flex border-b border-border-gray shrink-0 dark:border-slate-700">
           <button
             type="button"
             onClick={() => setActiveTab('conversations')}
-            className={`flex-1 px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
+            className={`flex-1 min-w-0 truncate whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
               activeTab === 'conversations'
                 ? 'text-accent border-b-2 border-accent'
                 : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
@@ -112,7 +129,7 @@ export function MessagesPage() {
           <button
             type="button"
             onClick={() => setActiveTab('contacts')}
-            className={`flex-1 px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
+            className={`flex-1 min-w-0 truncate whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
               activeTab === 'contacts'
                 ? 'text-accent border-b-2 border-accent'
                 : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
@@ -153,7 +170,18 @@ export function MessagesPage() {
       </div>
 
       {/* SAMTALE / GRUPPE */}
-      <div className="md:col-span-8 lg:col-span-9 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden min-h-0 dark:bg-slate-800 dark:border-slate-700">
+      <div className={`${hasSelection ? 'flex' : 'hidden md:flex'} flex-col md:col-span-7 lg:col-span-8 2xl:col-span-9 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden min-h-0 dark:bg-slate-800 dark:border-slate-700`}>
+        {hasSelection && (
+          <button
+            type="button"
+            onClick={clearSelection}
+            className="md:hidden flex items-center gap-2 px-4 py-2.5 border-b border-border-gray text-sm font-medium text-secondary hover:text-primary shrink-0 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t('backToConversations')}
+          </button>
+        )}
+        <div className="flex-1 min-h-0">
         {selectedContact ? (
           <ConversationComponent
             conversationId={selectedConversationId}
@@ -161,10 +189,10 @@ export function MessagesPage() {
             currentUserId={myProfile?.id ?? ''}
             onConversationCreated={handleConversationCreated}
           />
-       ) : selectedGroup ? (
+       ) : activeGroup ? (
           <GroupConversationComponent
-            conversationId={selectedGroup.conversationId}
-            groupName={selectedGroup.displayName ?? t('unnamedGroup')}
+            conversationId={activeGroup.conversationId}
+            groupName={activeGroup.displayName ?? t('unnamedGroup')}
             currentUserId={myProfile?.id ?? ''}
             onLeft={() => {
               setSelectedGroup(null);
@@ -181,6 +209,7 @@ export function MessagesPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

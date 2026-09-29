@@ -49,6 +49,7 @@
     "nameLabel": "Name",
     "memberCount": "Number of members",
     "edit": "Edit organisation",
+    "editColors": "Edit colours",
     "delete": "Delete organisation",
     "deleteWarning": "This permanently deletes \"{{name}}\" and cannot be undone.",
     "typeNameToConfirm": "Type the organisation's name ({{name}}) to confirm",
@@ -58,11 +59,33 @@
     "deletePermanently": "Delete permanently",
     "deleted": "\"{{name}}\" has been deleted.",
     "deletedNewActive": "\"{{name}}\" has been deleted. Your active organisation is now \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation."
+    "deletedNoActive": "\"{{name}}\" has been deleted. You no longer have an active organisation.",
+    "colorLabel": "Button and link colour",
+    "colorHint": "The colour of buttons, links, icons and highlights throughout Ponos.",
+    "headerColorLabel": "Top bar – background",
+    "headerColorHint": "Background colour of the bar at the top with the menu. Empty = the default colour (dark blue).",
+    "footerColorLabel": "Bottom bar – background",
+    "footerColorHint": "Background colour of the bar at the bottom of the page. Empty = the default colour (dark blue).",
+    "headerTextColorLabel": "Top bar – text",
+    "headerTextColorHint": "Colour of text and icons in the top bar. Empty = chosen automatically so it is readable on the background.",
+    "footerTextColorLabel": "Bottom bar – text",
+    "footerTextColorHint": "Colour of the text in the bottom bar. Empty = chosen automatically so it is readable on the background.",
+    "colorPickerAriaLabel": "Choose button and link colour",
+    "colorReset": "Reset",
+    "colorUseDefault": "Use default",
+    "colorNoneSet": "None selected (default)",
+    "previewLight": "Light",
+    "previewDark": "Dark",
+    "colorAdjusted": "Adjusted for readability",
+    "colorInvalid": "The colour must be a valid hex code, e.g. #C7975D.",
+    "savedColors": "Saved colours",
+    "saveCurrentColor": "Save this colour",
+    "noSavedColors": "No saved colours yet.",
+    "removeSavedColor": "Remove saved colour"
   },
   "picker": {
     "searchPlaceholder": "Search for an organisation...",
-    "empty": "There are no organisations to choose from.",
+    "minChars": "Type the organisation's name to find it.",
     "noMatch": "No organisations match your search."
   },
   "loading": "Loading organisation...",
@@ -86,8 +109,7 @@
     "pending": "Your membership request has been sent and is awaiting approval from the organisation's administrator.",
     "chooseLabel": "Choose organisation",
     "submit": "Send request",
-    "submitting": "Sending request...",
-    "noneAvailable": "There are no other organisations to request membership of."
+    "submitting": "Sending request..."
   },
   "details": {
     "administrator": "Administrator",

@@ -11,7 +11,7 @@ const SORTED_LANGUAGES = [...LANGUAGES].sort((a, b) =>
   a.nativeName.localeCompare(b.nativeName),
 )
 
-export function LanguageSelector({ variant = 'dropdown', className = '' }: LanguageSelectorProps) {
+export function LanguageSelector({ variant = 'dropdown', align = 'right', className = '' }: LanguageSelectorProps) {
   const { t } = useTranslation()
   const { language, setLanguage } = useLanguage()
 
@@ -87,7 +87,7 @@ export function LanguageSelector({ variant = 'dropdown', className = '' }: Langu
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t('language.choose')}
-        className="flex items-center gap-1.5 p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-md transition-colors"
+        className="flex items-center gap-1.5 p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
       >
         <Globe className="w-5 h-5 shrink-0" />
         <span className="text-xs font-semibold uppercase">{language}</span>
@@ -97,7 +97,7 @@ export function LanguageSelector({ variant = 'dropdown', className = '' }: Langu
         <div
           role="listbox"
           aria-label={t('language.label')}
-          className="absolute right-0 mt-2 w-64 rounded-md bg-white dark:bg-slate-800 shadow-lg border border-border-gray dark:border-slate-700 py-1 z-50"
+          className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} mt-2 w-64 max-w-[calc(100vw-1.5rem)] rounded-md bg-white dark:bg-slate-800 shadow-lg border border-border-gray dark:border-slate-700 py-1 z-50`}
         >
           <div className="px-2 py-1.5">
             <input

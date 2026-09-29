@@ -17,10 +17,21 @@
   },
   "myTasks": {
     "title": "Mina uppgifter",
-    "goToTasks": "Gå till uppgifter",
+    "goToTasks": "Gå till mina uppgifter",
     "loading": "Laddar dina uppgifter...",
     "empty": "Du är ännu inte anmäld till några uppgifter.",
-    "endsOn": "Slutar {{date}}"
+    "endsOn": "Slutar {{date}}",
+    "tab": "Uppgifter"
+  },
+  "favoriteRooms": {
+    "title": "Mina favoritrum",
+    "goToTasks": "Gå till uppgifter",
+    "loading": "Laddar favoritrum...",
+    "empty": "Du har inga favoritrum ännu.",
+    "emptyLink": "Stjärnmärk rum under Uppgifter.",
+    "openTasks_one": "{{count}} öppen",
+    "openTasks_other": "{{count}} öppna",
+    "tab": "Favoritrum"
   },
   "notifications": {
     "title": "Aviseringar",
@@ -53,6 +64,8 @@
       "invitations": "Inbjudningar",
       "membershipRequests": "Medlemsansökningar",
       "organisation": "Organisation",
+
+      "colors": "Färger",
       "taskApprovals": "Godkännanden av uppgifter",
       "completedTasks": "Avslutade uppgifter"
     }
@@ -60,7 +73,7 @@
   "completedTasks": {
     "loading": "Laddar avslutade uppgifter...",
     "empty": "Inga uppgifter har ännu markerats som avslutade.",
-    "searchPlaceholder": "Sök på titel eller beskrivning...",
+    "searchPlaceholder": "Sök på titel, rum eller person...",
     "allPriorities": "Alla prioriteringar",
     "noMatch": "Inga uppgifter matchar sökningen eller filtret.",
     "noDescription": "Ingen beskrivning.",
@@ -74,7 +87,18 @@
     "noMaterials": "Inget material",
     "edit": "Redigera",
     "reopen": "Återöppna",
-    "reopening": "Återöppnar..."
+    "reopening": "Återöppnar...",
+    "sortNewest": "Senast avslutade först",
+    "sortOldest": "Äldst avslutade först",
+    "sortDeadline": "Tidigaste deadline först",
+    "from": "Klar från",
+    "to": "till",
+    "presetToday": "Idag",
+    "preset7": "7 dagar",
+    "preset30": "30 dagar",
+    "resetFilters": "Återställ",
+    "finishedOn": "Klar {{date}}",
+    "showing": "Visar {{count}} av {{total}}"
   },
   "statistics": {
     "noOrganisation": "Du har ännu ingen aktiv organisation, så det finns ingen statistik att visa.",

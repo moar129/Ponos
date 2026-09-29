@@ -7,6 +7,7 @@ import { ArrowLeft, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useDeleteNewsMutation, useGetNewsByIdQuery } from '../../store/apis/newsApi'
 import { DELETE_NEWS_PRIVILEGE, UPDATE_NEWS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
+import { NewsImage } from '../../components/News/NewsImage'
 import { isRichText, sanitizeRichText } from '../../lib/richText'
 import { formatDate } from '../../utils/formatDate'
 
@@ -41,7 +42,7 @@ export function NewsDetailPage() {
     const errorMessage = readableError(queryError) ?? readableError(deleteError)
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 max-w-8xl mx-auto space-y-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 max-w-4xl mx-auto space-y-6">
             <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline w-fit">
                 <ArrowLeft className="w-4 h-4" />
                 {t('backToNews')}
@@ -55,13 +56,16 @@ export function NewsDetailPage() {
                 </div>
             ) : (
                 <article className="rounded-lg border border-border-gray dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800">
-                    {news.pictureUrl && (
-                        <img src={news.pictureUrl} alt="" className="w-full max-h-96 object-cover" />
-                    )}
-                    <div className="p-6">
+                    <NewsImage
+                        key={news.pictureUrl}
+                        pictureUrl={news.pictureUrl}
+                        className="w-full max-h-96 object-cover"
+                        placeholderClassName="w-full h-56 sm:h-72"
+                    />
+                    <div className="p-4 sm:p-6">
                         <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-primary dark:text-slate-100 leading-tight">{news.title}</h1>
+                            <div className="min-w-0">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-primary dark:text-slate-100 leading-tight break-words">{news.title}</h1>
                                 <p className="text-sm text-secondary dark:text-slate-400 mt-1">{formatDate(news.publishedAt)}</p>
                             </div>
 

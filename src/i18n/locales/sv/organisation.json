@@ -49,6 +49,7 @@
     "nameLabel": "Namn",
     "memberCount": "Antal medlemmar",
     "edit": "Redigera organisation",
+    "editColors": "Redigera färger",
     "delete": "Radera organisation",
     "deleteWarning": "Detta raderar \"{{name}}\" permanent och går inte att ångra.",
     "typeNameToConfirm": "Skriv organisationens namn ({{name}}) för att bekräfta",
@@ -58,11 +59,33 @@
     "deletePermanently": "Radera permanent",
     "deleted": "\"{{name}}\" har raderats.",
     "deletedNewActive": "\"{{name}}\" har raderats. Din aktiva organisation är nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" har raderats. Du har inte längre någon aktiv organisation."
+    "deletedNoActive": "\"{{name}}\" har raderats. Du har inte längre någon aktiv organisation.",
+    "colorLabel": "Knapp- och länkfärg",
+    "colorHint": "Färgen på knappar, länkar, ikoner och markeringar i hela Ponos.",
+    "headerColorLabel": "Toppfält – bakgrund",
+    "headerColorHint": "Bakgrundsfärgen i fältet överst med menyn. Tom = standardfärgen (mörkblå).",
+    "footerColorLabel": "Bottenfält – bakgrund",
+    "footerColorHint": "Bakgrundsfärgen i fältet längst ned på sidan. Tom = standardfärgen (mörkblå).",
+    "headerTextColorLabel": "Toppfält – text",
+    "headerTextColorHint": "Färgen på text och ikoner i toppfältet. Tom = väljs automatiskt så att den går att läsa mot bakgrunden.",
+    "footerTextColorLabel": "Bottenfält – text",
+    "footerTextColorHint": "Färgen på texten i bottenfältet. Tom = väljs automatiskt så att den går att läsa mot bakgrunden.",
+    "colorPickerAriaLabel": "Välj knapp- och länkfärg",
+    "colorReset": "Återställ",
+    "colorUseDefault": "Använd standard",
+    "colorNoneSet": "Ingen vald (standard)",
+    "previewLight": "Ljus",
+    "previewDark": "Mörk",
+    "colorAdjusted": "Justerad för läsbarhet",
+    "colorInvalid": "Färgen måste vara en giltig hex-kod, till exempel #C7975D.",
+    "savedColors": "Sparade färger",
+    "saveCurrentColor": "Spara aktuell färg",
+    "noSavedColors": "Inga sparade färger ännu.",
+    "removeSavedColor": "Ta bort sparad färg"
   },
   "picker": {
     "searchPlaceholder": "Sök efter en organisation...",
-    "empty": "Det finns inga organisationer att välja mellan.",
+    "minChars": "Skriv organisationens namn för att hitta den.",
     "noMatch": "Inga organisationer matchar din sökning."
   },
   "loading": "Laddar organisation...",
@@ -86,8 +109,7 @@
     "pending": "Din medlemsansökan har skickats och väntar på godkännande från organisationens administratör.",
     "chooseLabel": "Välj organisation",
     "submit": "Skicka ansökan",
-    "submitting": "Skickar ansökan...",
-    "noneAvailable": "Det finns inga andra organisationer att ansöka om medlemskap i."
+    "submitting": "Skickar ansökan..."
   },
   "details": {
     "administrator": "Administratör",

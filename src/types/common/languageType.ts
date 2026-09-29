@@ -6,5 +6,11 @@ export interface LanguageSelectorProps {
    * plads, og hvor et søgefelt ville være overflødigt.
    */
   variant?: 'dropdown' | 'select'
+  /**
+   * Hvilken kant dropdown-panelet flugter med. 'right' i topbaren (højre
+   * side); 'left' i mobilmenuen, hvor knappen står yderst til venstre og
+   * et højrestillet panel ville løbe ud af skærmen.
+   */
+  align?: 'left' | 'right'
   className?: string
 }

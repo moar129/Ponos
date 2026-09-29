@@ -17,7 +17,9 @@
     "delete": "Radera",
     "assign": "Tilldela",
     "approve": "Godkänn",
-    "reject": "Avslå"
+    "reject": "Avslå",
+    "viewAll": "Se alla rum",
+    "viewCompleted": "Se avslutade"
   },
   "privilege": {
     "admin": "Fullständig administratör (kan allt)"
@@ -59,6 +61,66 @@
     "reportedBy": "Slutrapporterad av",
     "approve": "Godkänn",
     "reject": "Avslå",
-    "reportedDoneBy": "Slutrapporterad av {{name}}"
+    "reportedDoneBy": "Slutrapporterad av {{name}}",
+    "details": {
+      "open": "Visa detaljer",
+      "loading": "Laddar detaljer...",
+      "loadFailed": "Detaljerna kunde inte hämtas.",
+      "room": "Rum",
+      "noRoom": "Utan rum",
+      "period": "Period",
+      "noDescription": "Ingen beskrivning.",
+      "assignees": "Anmälda",
+      "noAssignees": "Inga anmälda.",
+      "materials": "Material",
+      "noMaterials": "Inget material kopplat.",
+      "noLocation": "Utan lager",
+      "reserved": "Reserverat",
+      "alreadyResolved": "Redan avrapporterat.",
+      "currentStatus": "Nuvarande status",
+      "location": "Lager",
+      "proposedOutcome": "Föreslaget utfall vid godkännande",
+      "missingOutcome": "Inget utfall angivet - godkännandet misslyckas tills materialet är avrapporterat.",
+      "previousRejections": "Tidigare avvisningar ({{count}})",
+      "rejectedBy": "Avvisad av {{name}} · {{date}}",
+      "reportedBy": "färdiganmäld av {{name}}",
+      "noReason": "Ingen motivering angiven."
+    },
+    "rejectReasonLabel": "Motivering",
+    "rejectReasonPlaceholder": "Skriv varför färdiganmälan avvisas - meddelandet skickas till de anmälda.",
+    "rejectedCount_one": "Avvisad {{count}} gång",
+    "rejectedCount_other": "Avvisad {{count}} gånger",
+    "searchPlaceholder": "Sök uppgift eller avsändare...",
+    "allRooms": "Alla rum",
+    "sort": {
+      "oldest": "Äldsta anmälan först",
+      "newest": "Nyaste anmälan först",
+      "priority": "Högsta prioritet först",
+      "deadline": "Tidigaste deadline först",
+      "rejections": "Flest avslag först"
+    },
+    "resetFilters": "Återställ",
+    "showing": "Visar {{count}} av {{total}}",
+    "noMatch": "Inga anmälningar matchar filtren.",
+    "deadline": "Deadline {{date}}",
+    "deadlineOverdue": "Deadline {{date}} (försenad)"
+  },
+  "quickCreate": {
+    "heading": "Skapa roll",
+    "leaderSuffix": "Ledare",
+    "templateLabel": "Mall",
+    "template": {
+      "participant": "Deltagare",
+      "leader": "Ledare",
+      "copy": "Kopiera från"
+    },
+    "templateHint": {
+      "participant": "Kan se uppgifter och nyheter.",
+      "leader": "Deltagare + skapa, redigera, tilldela och godkänna uppgifter."
+    },
+    "chooseRole": "Välj roll",
+    "customize": "Anpassa behörigheter ({{selected}} valda)",
+    "notOwned": "Du har inte själv denna behörighet och kan därför inte ge den.",
+    "assignHint": "Kom ihåg att tilldela rollen till medlemmar under Medlemmar."
   }
 }

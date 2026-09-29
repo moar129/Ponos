@@ -57,7 +57,9 @@
     "deleteItem": "Nie masz uprawnień, aby usunąć element.",
     "createLocation": "Nie masz uprawnień, aby utworzyć lokalizację.",
     "updateLocation": "Nie masz uprawnień, aby edytować lokalizację.",
-    "deleteLocation": "Nie masz uprawnień, aby usunąć lokalizację."
+    "deleteLocation": "Nie masz uprawnień, aby usunąć lokalizację.",
+    "favoriteDatalayer": "Nie masz uprawnień, aby zmieniać ulubione w warstwie danych.",
+    "favoriteTasks": "Nie masz uprawnień, aby zmieniać ulubione pokoje."
   },
   "db": {
     "NOT_LOGGED_IN": "Musisz być zalogowany.",
@@ -133,6 +135,19 @@
     "LOCATION_OWN_PARENT": "Lokalizacja nie może być własną sekcją.",
     "LOCATION_PARENT_NOT_FOUND": "Wybrany magazyn nie istnieje.",
     "LOCATION_SECTION_NO_CHILDREN": "Sekcja nie może sama mieć podlokalizacji.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sekcja musi należeć do tej samej organizacji co magazyn."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sekcja musi należeć do tej samej organizacji co magazyn.",
+    "REJECTION_REASON_REQUIRED": "Musisz podać uzasadnienie odrzucenia.",
+    "REJECTION_REASON_TOO_LONG": "Uzasadnienie może mieć maksymalnie 500 znaków.",
+    "NO_PRIV_CREATE_ROLES": "Nie masz uprawnień do tworzenia ról.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Możesz nadawać tylko uprawnienia, które sam posiadasz.",
+    "ROLE_NAME_REQUIRED": "Rola musi mieć nazwę.",
+    "SYSTEM_GROUP_LOCKED": "Ta grupa jest zarządzana automatycznie przez zadanie/pokój i nie można jej zmienić ręcznie.",
+    "INVALID_CHAT_CHOICE": "Nieprawidłowy wybór.",
+    "NOT_TASK_CHAT": "Ta rozmowa nie jest czatem zadania.",
+    "TASK_NOT_COMPLETED": "Możesz wybrać dopiero po ukończeniu zadania.",
+    "ROOM_NOT_ACCESSIBLE": "Pokój nie istnieje lub nie masz do niego dostępu.",
+    "ROOM_NOT_ROLE_LOCKED": "Pokój nie jest ograniczony rolami i nie ma czatu.",
+    "CONVERSATION_CLOSED": "Czat jest zamknięty - tylko do odczytu.",
+    "TASK_CHAT_NOT_AVAILABLE": "Czat zadania nie jest dla ciebie dostępny."
   }
 }

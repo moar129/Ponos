@@ -57,7 +57,9 @@
     "deleteItem": "Du har inte behörighet att radera artikeln.",
     "createLocation": "Du har inte behörighet att skapa platsen.",
     "updateLocation": "Du har inte behörighet att redigera platsen.",
-    "deleteLocation": "Du har inte behörighet att radera platsen."
+    "deleteLocation": "Du har inte behörighet att radera platsen.",
+    "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret.",
+    "favoriteTasks": "Du har inte behörighet att ändra favoritrum."
   },
   "db": {
     "NOT_LOGGED_IN": "Du måste vara inloggad.",
@@ -133,6 +135,19 @@
     "LOCATION_OWN_PARENT": "En plats kan inte vara sin egen sektion.",
     "LOCATION_PARENT_NOT_FOUND": "Det valda lagret finns inte.",
     "LOCATION_SECTION_NO_CHILDREN": "En sektion kan inte själv ha underplatser.",
-    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen måste tillhöra samma organisation som lagret."
+    "LOCATION_SECTION_ORG_MISMATCH": "Sektionen måste tillhöra samma organisation som lagret.",
+    "REJECTION_REASON_REQUIRED": "Du måste skriva en motivering för avvisningen.",
+    "REJECTION_REASON_TOO_LONG": "Motiveringen får vara högst 500 tecken.",
+    "NO_PRIV_CREATE_ROLES": "Du har inte behörighet att skapa roller.",
+    "NO_PRIV_GRANT_PRIVILEGE": "Du kan bara ge behörigheter som du själv har.",
+    "ROLE_NAME_REQUIRED": "Rollen måste ha ett namn.",
+    "SYSTEM_GROUP_LOCKED": "Gruppen hanteras automatiskt av uppgiften/rummet och kan inte ändras manuellt.",
+    "INVALID_CHAT_CHOICE": "Ogiltigt val.",
+    "NOT_TASK_CHAT": "Konversationen är inte en uppgiftschatt.",
+    "TASK_NOT_COMPLETED": "Du kan välja först när uppgiften är avslutad.",
+    "ROOM_NOT_ACCESSIBLE": "Rummet finns inte, eller så har du inte åtkomst till det.",
+    "ROOM_NOT_ROLE_LOCKED": "Rummet är inte rollbegränsat och har ingen chatt.",
+    "CONVERSATION_CLOSED": "Chatten är stängd - endast läsning.",
+    "TASK_CHAT_NOT_AVAILABLE": "Uppgiftschatten är inte tillgänglig för dig."
   }
 }

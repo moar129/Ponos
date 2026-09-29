@@ -79,8 +79,13 @@ export const notificationApi = supabaseApi.injectEndpoints({
                 const userId = userData.user?.id
                 if (!userId) return
 
+                // Unikt kanalnavn pr. cache-entry: klokken ({ limit: 8 }) og
+                // dashboard-widget'en (intet arg) er to entries på samme side,
+                // og supabase.channel() genbruger en eksisterende kanal med
+                // samme navn - så ville .on() ramme en allerede subscribed
+                // kanal og kaste. Filteret + RLS styrer stadig hvad der modtages.
                 const channel = supabase
-                    .channel(`notifications:${userId}`)
+                    .channel(`notifications:${userId}:${crypto.randomUUID()}`)
                     .on(
                         'postgres_changes',
                         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
@@ -119,6 +124,26 @@ export const notificationApi = supabaseApi.injectEndpoints({
                                     ])
                                 )
                             }
+
+                            // Ny invitation - "Invitationer (n)"-underfanen
+                            // på Organisation skal dukke op uden genindlæsning.
+                            if (row.type === 'membership_invitation') {
+                                dispatch(supabaseApi.util.invalidateTags(['MembershipInvitation']))
+                            }
+                        }
+                    )
+                    // edit_message/delete_message opdaterer body på
+                    // eksisterende besked-notifikationer - uden dette ville
+                    // den gamle tekst stå i klokken indtil genindlæsning.
+                    .on(
+                        'postgres_changes',
+                        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+                        (payload) => {
+                            const row = payload.new as { id: string; body: string | null }
+                            updateCachedData((draft) => {
+                                const notification = draft.find((n) => n.id === row.id)
+                                if (notification) notification.body = row.body
+                            })
                         }
                     )
                     .subscribe()

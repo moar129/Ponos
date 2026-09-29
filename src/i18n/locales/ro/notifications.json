@@ -13,7 +13,8 @@
   "category": {
     "messages": "Mesaje",
     "tasks": "Sarcini",
-    "news": "Știri"
+    "news": "Știri",
+    "organisation": "Organizație"
   },
   "type": {
     "message": "Mesaj nou",
@@ -21,6 +22,10 @@
     "task_updated": "O sarcină a fost actualizată",
     "task_completed": "O sarcină a fost finalizată",
     "task_approved": "Sarcina dumneavoastră a fost aprobată",
-    "task_rejected": "Raportarea finalizării a fost respinsă"
-  }
+    "task_rejected": "Raportarea finalizării a fost respinsă",
+    "task_favorite_room": "Sarcină nouă într-o cameră favorită",
+    "news": "Știre nouă",
+    "membership_invitation": "Ai fost invitat într-o organizație"
+  },
+  "settingsLink": "Setări"
 }

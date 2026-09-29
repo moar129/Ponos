@@ -58,7 +58,7 @@ export default function ContactPage() {
                                 handling ser ens ud på tværs af de offentlige sider. */}
                             <a
                                 href={`mailto:${CONTACT_EMAIL}`}
-                                className="mt-7 inline-flex items-center justify-center gap-2 bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                                className="mt-7 inline-flex items-center justify-center gap-2 bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                             >
                                 <Send className="w-4 h-4 shrink-0" />
                                 {t('contact.sendMail')}

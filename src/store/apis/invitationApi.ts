@@ -184,7 +184,9 @@ export const invitationApi = supabaseApi.injectEndpoints({
 
             // Accept kan skifte aktiv organisation/privilegier for
             // modtageren - samme bredde som createOrganisation.
-            invalidatesTags: ['MembershipInvitation', 'Organisation', 'Profile', 'Privilege', 'Membership'],
+            // 'Notification': invitations-notifikationen markeres læst af
+            // sync_membership_invitation_notification (§15.16b).
+            invalidatesTags: ['MembershipInvitation', 'Organisation', 'Profile', 'Privilege', 'Membership', 'Notification'],
         }),
     }),
 })

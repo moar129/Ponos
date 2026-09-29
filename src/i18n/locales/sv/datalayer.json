@@ -39,7 +39,12 @@
     "chooseCategory": "Välj en kategori i menyn till vänster",
     "moveCategoryFailed": "Kategorin kunde inte flyttas.",
     "filterItemsAtLocationPlaceholder": "Filtrera artiklar i det här lagret...",
-    "noItemsAtLocationYet": "Inga artiklar är registrerade här än"
+    "noItemsAtLocationYet": "Inga artiklar är registrerade här än",
+    "categoriesHere": "Kategorier här",
+    "placements": "Placeringar",
+    "itemCount": "{{count}} artiklar",
+    "goTo": "Gå till",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Flytta upp",
@@ -181,5 +186,9 @@
   "quantityLabel": "Antal:",
   "categoryIdValue": "Kategori-ID: {{id}}",
   "quantityValue": "Antal: {{count}}",
-  "itemCountParen": "({{count}} artiklar)"
+  "itemCountParen": "({{count}} artiklar)",
+  "favorites": {
+    "title": "Favoriter",
+    "toggleFailed": "Kunde inte uppdatera favorit."
+  }
 }

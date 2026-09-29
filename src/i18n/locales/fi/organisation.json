@@ -49,6 +49,7 @@
     "nameLabel": "Nimi",
     "memberCount": "Jäsenten määrä",
     "edit": "Muokkaa organisaatiota",
+    "editColors": "Muokkaa värejä",
     "delete": "Poista organisaatio",
     "deleteWarning": "Tämä poistaa organisaation \"{{name}}\" pysyvästi, eikä sitä voi perua.",
     "typeNameToConfirm": "Kirjoita organisaation nimi ({{name}}) vahvistukseksi",
@@ -58,11 +59,33 @@
     "deletePermanently": "Poista pysyvästi",
     "deleted": "\"{{name}}\" on poistettu.",
     "deletedNewActive": "\"{{name}}\" on poistettu. Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" on poistettu. Sinulla ei ole enää aktiivista organisaatiota."
+    "deletedNoActive": "\"{{name}}\" on poistettu. Sinulla ei ole enää aktiivista organisaatiota.",
+    "colorLabel": "Painikkeiden ja linkkien väri",
+    "colorHint": "Painikkeiden, linkkien, kuvakkeiden ja korostusten väri koko Ponosissa.",
+    "headerColorLabel": "Yläpalkki – tausta",
+    "headerColorHint": "Ylhäällä olevan valikkopalkin taustaväri. Tyhjä = oletusväri (tummansininen).",
+    "footerColorLabel": "Alapalkki – tausta",
+    "footerColorHint": "Sivun alaosan palkin taustaväri. Tyhjä = oletusväri (tummansininen).",
+    "headerTextColorLabel": "Yläpalkki – teksti",
+    "headerTextColorHint": "Yläpalkin tekstin ja kuvakkeiden väri. Tyhjä = valitaan automaattisesti, jotta se on luettavissa taustaa vasten.",
+    "footerTextColorLabel": "Alapalkki – teksti",
+    "footerTextColorHint": "Alapalkin tekstin väri. Tyhjä = valitaan automaattisesti, jotta se on luettavissa taustaa vasten.",
+    "colorPickerAriaLabel": "Valitse painikkeiden ja linkkien väri",
+    "colorReset": "Nollaa",
+    "colorUseDefault": "Käytä oletusta",
+    "colorNoneSet": "Ei valittu (oletus)",
+    "previewLight": "Vaalea",
+    "previewDark": "Tumma",
+    "colorAdjusted": "Säädetty luettavuuden vuoksi",
+    "colorInvalid": "Värin tulee olla kelvollinen hex-koodi, esim. #C7975D.",
+    "savedColors": "Tallennetut värit",
+    "saveCurrentColor": "Tallenna nykyinen väri",
+    "noSavedColors": "Ei tallennettuja värejä vielä.",
+    "removeSavedColor": "Poista tallennettu väri"
   },
   "picker": {
     "searchPlaceholder": "Hae organisaatiota...",
-    "empty": "Valittavia organisaatioita ei ole.",
+    "minChars": "Kirjoita organisaation nimi löytääksesi sen.",
     "noMatch": "Mikään organisaatio ei vastaa hakuasi."
   },
   "loading": "Ladataan organisaatiota...",
@@ -86,8 +109,7 @@
     "pending": "Jäsenyyshakemuksesi on lähetetty ja odottaa organisaation ylläpitäjän hyväksyntää.",
     "chooseLabel": "Valitse organisaatio",
     "submit": "Lähetä hakemus",
-    "submitting": "Lähetetään hakemusta...",
-    "noneAvailable": "Muita organisaatioita, joihin voisit hakea jäsenyyttä, ei ole."
+    "submitting": "Lähetetään hakemusta..."
   },
   "details": {
     "administrator": "Ylläpitäjä",

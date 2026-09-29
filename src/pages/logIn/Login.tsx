@@ -47,7 +47,7 @@ export default function Login() {
 
     return (
         <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-8 max-w-md w-full text-primary dark:text-slate-100">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-5 sm:p-8 max-w-md w-full text-primary dark:text-slate-100">
                 <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">{t('login.title')}</h1>
 
                 {passwordWasReset && (
@@ -90,7 +90,7 @@ export default function Login() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-accent text-white rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {loading ? t('login.submitting') : t('login.submit')}
                 </button>

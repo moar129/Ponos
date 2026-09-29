@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom';
-import { useGetCategoryTreeQuery, useUpdateCategoryMutation, useGetItemLocationsQuery } from '../../store/apis/categoryApi';
+import {
+  useGetCategoryTreeQuery,
+  useUpdateCategoryMutation,
+  useGetItemLocationsQuery,
+  useGetUnitLocationCountsQuery,
+} from '../../store/apis/categoryApi';
 import {
   CREATE_DATALAYER_PRIVILEGE,
   DELETE_DATALAYER_PRIVILEGE,
@@ -9,11 +14,28 @@ import {
   UPDATE_DATALAYER_PRIVILEGE,
   useHasPrivilege,
 } from '../../store/apis/privilegeApi';
-import type { DataLayerCat, AggregatedItem, ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes';
+import {
+  useGetDataLayerFavoritesQuery,
+  useAddDataLayerFavoriteMutation,
+  useRemoveDataLayerFavoriteMutation,
+} from '../../store/apis/dataLayerFavoriteApi';
+import type {
+  DataLayerCat,
+  DataLayerFavorite,
+  DataLayerFavoriteTarget,
+  FavoriteEntry,
+  AggregatedItem,
+  ItemLocation,
+  ItemStatus,
+  SummaryChip,
+  UnitLocationCount,
+} from '../../types/dataLayer/datalayerTypes';
 import { ALL_ITEM_STATUSES, formatItemQuantity } from '../../types/dataLayer/datalayerTypes';
 import { ItemStatusBadges } from '../../components/dataLayer/itemStatusBadgesComponent';
 import { CategoryTreeNode } from '../../components/dataLayer/category/CategoriTreeNodeComponent';
 import { LocationTreeNode } from '../../components/dataLayer/warehouse/locationThreeNodeComponent';
+import { ItemLocationTag } from '../../components/dataLayer/warehouse/itemLocationTagComponent';
+import { ItemCategoryTag } from '../../components/dataLayer/category/itemCategoryTagComponent';
 import { AddCategoryComponent } from '../../components/dataLayer/category/addCategoryComponent';
 import { AddLocationComponent } from '../../components/dataLayer/warehouse/addWarehouseComponent';
 import { AddItemsComponent } from '../../components/dataLayer/item/addItemsComponent';
@@ -29,13 +51,42 @@ import { getErrorMessage } from '../../ErrorMessage';
 import {
   getAggregatedItems,
   flattenAllItems,
-  getDescendantCategories,
   searchCategories,
   searchItemsGlobal,
 } from '../../store/slices/dataLayersSlices/aggregatedItems';
+import {
+  buildPlacementIndex,
+  getPlacements,
+  scopeItemToLocations,
+  summarizeByCategory,
+  summarizeByLocation,
+} from '../../store/slices/dataLayersSlices/itemPlacements';
+import { SummaryChips } from '../../components/dataLayer/summaryChipsComponent';
+import { FavoritesSection } from '../../components/dataLayer/favorites/favoritesSectionComponent';
+import { FavoriteStarButton } from '../../components/common/FavoriteStarButton';
 import { Search, Filter, Plus, Box, Loader2, Trash2, X as XIcon, MapPin, Boxes } from 'lucide-react';
 
 type LeftTab = 'categories' | 'locations';
+
+// Stabil reference, så placementIndex ikke genberegnes hver render mens query'en loader.
+const EMPTY_UNIT_COUNTS: UnitLocationCount[] = [];
+const EMPTY_FAVORITES: DataLayerFavorite[] = [];
+
+// Inden for en filter-sektion: OR. Mellem sektioner: AND.
+function itemMatchesFilters(item: AggregatedItem, statuses: Set<ItemStatus>, units: Set<string>): boolean {
+  // US-42: et item matcher et statusfilter, hvis blot ÉN af dets
+  // enheder/batches har den valgte status.
+  if (statuses.size > 0 && ![...statuses].some((s) => (item.statusCounts[s] ?? 0) > 0)) return false;
+  if (units.size > 0 && !units.has(item.unitOfMeasurement)) return false;
+  return true;
+}
+
+function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
+}
 
 export function DataLayerPage() {
   const { t } = useTranslation(['datalayer', 'common'])
@@ -45,9 +96,28 @@ export function DataLayerPage() {
   const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_DATALAYER_PRIVILEGE);
   const { data: itemLocations = [] } = useGetItemLocationsQuery();
+  const { data: unitLocationCounts = EMPTY_UNIT_COUNTS, error: unitCountsError } = useGetUnitLocationCountsQuery();
+  const { data: favorites = EMPTY_FAVORITES } = useGetDataLayerFavoritesQuery(undefined, { skip: !canRead });
+  const [addFavorite] = useAddDataLayerFavoriteMutation();
+  const [removeFavorite] = useRemoveDataLayerFavoriteMutation();
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdFromUrl = searchParams.get('catId');
+  const locationIdFromUrl = searchParams.get('locId');
+  const tabFromUrl = searchParams.get('tab');
+
+  // Ændrer kun de givne URL-params; resten (fx valget i den anden fane) bevares.
+  const updateParams = (patch: Record<string, string | null>) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [key, value] of Object.entries(patch)) {
+        if (value === null) next.delete(key);
+        else next.set(key, value);
+      }
+      return next;
+    });
+  };
 
   const [selectedCategory, setSelectedCategory] = useState<DataLayerCat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,13 +144,32 @@ export function DataLayerPage() {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<Set<ItemStatus>>(new Set());
-  const [selectedCategoryFilterIds, setSelectedCategoryFilterIds] = useState<Set<string>>(new Set());
+  const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
   const [localItemSearch, setLocalItemSearch] = useState('');
 
   // --- Venstrepanel: Kategorier / Lager som faner ---
-  const [leftTab, setLeftTab] = useState<LeftTab>('categories');
+  // Fane + valgt lager/sektion læses fra URL'en, så F5/tilbage/delte links virker.
+  // Lager er standard; et gammelt ?catId=-link uden tab åbner dog i Kategorier.
+  const leftTab: LeftTab =
+    tabFromUrl === 'categories' || tabFromUrl === 'locations'
+      ? tabFromUrl
+      : categoryIdFromUrl && !locationIdFromUrl
+        ? 'categories'
+        : 'locations';
   const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<Set<string>>(new Set());
-  const [selectedLocationView, setSelectedLocationView] = useState<ItemLocation | null>(null);
+  const selectedLocationView = useMemo(
+    () => (locationIdFromUrl ? itemLocations.find((l) => l.id === locationIdFromUrl) ?? null : null),
+    [itemLocations, locationIdFromUrl]
+  );
+
+  // Fold forælder-lageret ud én gang pr. ny valgt lokation (også ved F5/delt
+  // link), men lad brugeren kollapse det bagefter.
+  const [revealedLocationId, setRevealedLocationId] = useState<string | null>(null);
+  if (selectedLocationView && selectedLocationView.id !== revealedLocationId) {
+    setRevealedLocationId(selectedLocationView.id);
+    const parentId = selectedLocationView.parentLocationId;
+    if (parentId) setExpandedWarehouseIds((prev) => new Set([...prev, parentId]));
+  }
 
   // Lager: opret/rediger/slet - samme mønster som kategori-siden
   // (AddLocationComponent/EditLocationComponent/DeleteLocationComponent
@@ -184,15 +273,21 @@ export function DataLayerPage() {
 
   const resetFilters = () => {
     setSelectedStatuses(new Set());
-    setSelectedCategoryFilterIds(new Set());
+    setSelectedUnits(new Set());
+  };
+
+  // Filteret (status/enhed) nulstilles bevidst IKKE ved skift af fane,
+  // kategori eller lager - man sætter det én gang og browser så rundt.
+  const handleSwitchTab = (tab: LeftTab) => {
+    updateParams({ tab });
+    exitSelectMode();
+    setLocalItemSearch('');
   };
 
   const handleSelectCategory = (category: DataLayerCat) => {
-    setLeftTab('categories');
     setSelectedCategory(category);
-    setSearchParams({ catId: category.id });
+    updateParams({ tab: 'categories', catId: category.id });
     exitSelectMode();
-    resetFilters();
     setLocalItemSearch('');
   };
 
@@ -217,13 +312,13 @@ export function DataLayerPage() {
         setExpandedCategoryIds((prev) => new Set([...prev, ...path.map((cat) => cat.id)]));
       }
     }
-    setSearchParams({ catId: newCategoryId });
+    updateParams({ tab: 'categories', catId: newCategoryId });
   };
 
   const handleCategoriesDeleted = (deletedIds: string[]) => {
     if (selectedCategory && deletedIds.includes(selectedCategory.id)) {
       setSelectedCategory(null);
-      setSearchParams({});
+      updateParams({ catId: null });
     }
   };
 
@@ -245,23 +340,8 @@ export function DataLayerPage() {
     exitSelectMode();
   };
 
-  const toggleStatusFilter = (status: ItemStatus) => {
-    setSelectedStatuses((prev) => {
-      const next = new Set(prev);
-      if (next.has(status)) next.delete(status);
-      else next.add(status);
-      return next;
-    });
-  };
-
-  const toggleCategoryFilter = (id: string) => {
-    setSelectedCategoryFilterIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const toggleStatusFilter = (status: ItemStatus) => setSelectedStatuses((prev) => toggleInSet(prev, status));
+  const toggleUnitFilter = (unit: string) => setSelectedUnits((prev) => toggleInSet(prev, unit));
 
   // --- Lager-fane: navigations-træ + opret/rediger/slet ---
   const warehouses = useMemo(() => itemLocations.filter((l) => !l.parentLocationId), [itemLocations]);
@@ -286,14 +366,102 @@ export function DataLayerPage() {
   };
 
   const handleSelectLocationView = (location: ItemLocation) => {
-    setLeftTab('locations');
-    setSelectedLocationView(location);
+    updateParams({ tab: 'locations', locId: location.id });
     exitSelectMode();
     setLocalItemSearch('');
     if (location.parentLocationId) {
       setExpandedWarehouseIds((prev) => new Set([...prev, location.parentLocationId as string]));
     }
   };
+
+  // --- Favoritter: personlige stjernemarkeringer øverst i hver fane ---
+  const favoriteCategoryIds = useMemo(
+    () => new Set(favorites.flatMap((fav) => (fav.categoryId ? [fav.categoryId] : []))),
+    [favorites]
+  );
+  const favoriteLocationIds = useMemo(
+    () => new Set(favorites.flatMap((fav) => (fav.locationId ? [fav.locationId] : []))),
+    [favorites]
+  );
+
+  const toggleFavorite = async (target: DataLayerFavoriteTarget, isFavorite: boolean) => {
+    setFavoriteError(null);
+    try {
+      if (isFavorite) await removeFavorite(target).unwrap();
+      else await addFavorite(target).unwrap();
+    } catch (err) {
+      setFavoriteError(getErrorMessage(err, t('favorites.toggleFailed')));
+    }
+  };
+
+  const handleToggleCategoryFavorite = (id: string) =>
+    toggleFavorite({ categoryId: id }, favoriteCategoryIds.has(id));
+  const handleToggleLocationFavorite = (id: string) =>
+    toggleFavorite({ locationId: id }, favoriteLocationIds.has(id));
+
+  // Favoritter hvis mål ikke (længere) findes i træet udelades - fx mens
+  // træet loader, eller hvis kategorien lige er slettet (cascade fjerner
+  // rækken i DB, refetch følger).
+  // Vælger kategorien og folder dens forfædre ud i træet, så den kan ses dér.
+  const selectCategoryAndReveal = (category: DataLayerCat) => {
+    const path = getCategoryPath(categoryTree, category.id) ?? [];
+    setExpandedCategoryIds((prev) => new Set([...prev, ...path.slice(0, -1).map((cat) => cat.id)]));
+    handleSelectCategory(category);
+  };
+
+  // Undergrupper gemmes ikke som favoritter - de vises foldbart under
+  // favoritten, så nye underkategorier automatisk kommer med.
+  const buildCategoryChildEntries = (category: DataLayerCat, parentKey: string): FavoriteEntry[] =>
+    category.subCategories.map((sub) => {
+      const key = `${parentKey}/${sub.id}`;
+      return {
+        key,
+        label: sub.title,
+        isSelected: selectedCategory?.id === sub.id,
+        onSelect: () => selectCategoryAndReveal(sub),
+        children: buildCategoryChildEntries(sub, key),
+      };
+    });
+
+  const categoryFavoriteEntries: FavoriteEntry[] = [...favoriteCategoryIds]
+    .flatMap((id) => {
+      const path = getCategoryPath(categoryTree, id);
+      if (!path) return [];
+      const category = path[path.length - 1];
+      return [{
+        key: id,
+        label: path.map((cat) => cat.title).join(' › '),
+        isSelected: selectedCategory?.id === id,
+        onSelect: () => selectCategoryAndReveal(category),
+        onRemove: () => handleToggleCategoryFavorite(id),
+        children: buildCategoryChildEntries(category, id),
+      }];
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const locationFavoriteEntries: FavoriteEntry[] = [...favoriteLocationIds]
+    .flatMap((id) => {
+      const location = itemLocations.find((l) => l.id === id);
+      if (!location) return [];
+      const parent = location.parentLocationId
+        ? itemLocations.find((l) => l.id === location.parentLocationId)
+        : null;
+      return [{
+        key: id,
+        label: parent ? `${parent.name} › ${location.name}` : location.name,
+        isSelected: selectedLocationView?.id === id,
+        onSelect: () => handleSelectLocationView(location),
+        onRemove: () => handleToggleLocationFavorite(id),
+        children: (sectionsByWarehouseId.get(id) ?? []).map((section) => ({
+          key: `${id}/${section.id}`,
+          label: section.name,
+          isSelected: selectedLocationView?.id === section.id,
+          onSelect: () => handleSelectLocationView(section),
+          children: [],
+        })),
+      }];
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const handleOpenAddLocation = (parentId: string | null) => {
     setAddLocationParentId(parentId);
@@ -316,20 +484,19 @@ export function DataLayerPage() {
     if (parent) {
       setExpandedWarehouseIds((prev) => new Set([...prev, parent.id]));
     }
-    // Vent til den nye lokation faktisk findes i listen (efter refetch),
-    // før den vælges - ellers ville selectedLocationView pege på et id
-    // der endnu ikke er i itemLocations.
-    setSelectedLocationView({ id: newLocationId } as ItemLocation);
+    // selectedLocationView afledes af URL'en og dukker op, når refetch er færdig.
+    updateParams({ tab: 'locations', locId: newLocationId });
   };
 
   const handleLocationDeleted = (deletedId: string) => {
-    if (selectedLocationView?.id === deletedId) {
-      setSelectedLocationView(null);
+    if (locationIdFromUrl === deletedId) {
+      updateParams({ locId: null });
     }
   };
 
+  // Detaljevisningen skal vise hele item'et, ikke kun den del der ligger her.
   const handleOpenItemFromLocation = (item: AggregatedItem) => {
-    setSelectedItem(item);
+    setSelectedItem(allItemsFlat.find((i) => i.id === item.id) ?? item);
   };
 
   const handleSelectSearchCategory = (category: DataLayerCat) => {
@@ -351,9 +518,10 @@ export function DataLayerPage() {
     setSearchQuery('');
   };
 
+  const loadError = error ?? unitCountsError;
   const errorMessage =
-    error && typeof error === 'object' && 'error' in error
-      ? (error as { error: string }).error
+    loadError && typeof loadError === 'object' && 'error' in loadError
+      ? (loadError as { error: string }).error
       : null;
 
   const aggregatedItems = useMemo(() => {
@@ -364,23 +532,109 @@ export function DataLayerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, categoryTree]);
 
-  const descendantCategories = useMemo(
-    () => (selectedCategory ? getDescendantCategories(selectedCategory) : []),
-    [selectedCategory]
+  const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
+
+  // Placering er pr. enhed - et item kan ligge flere steder. Mens counts
+  // loader, falder hvert item tilbage til sin egen location_id.
+  const placementIndex = useMemo(
+    () => buildPlacementIndex(unitLocationCounts, allItemsFlat),
+    [unitLocationCounts, allItemsFlat]
   );
+
+  // Et lager viser også indholdet af alle sine sektioner; en sektion kun sit eget.
+  const selectedLocationIds = useMemo(() => {
+    const ids = new Set<string>();
+    if (!selectedLocationView) return ids;
+    ids.add(selectedLocationView.id);
+    if (!selectedLocationView.parentLocationId) {
+      for (const section of sectionsByWarehouseId.get(selectedLocationView.id) ?? []) {
+        ids.add(section.id);
+      }
+    }
+    return ids;
+  }, [selectedLocationView, sectionsByWarehouseId]);
+
+  // Antal/status i lager-visningen er kun det, der ligger på den valgte lokation.
+  const itemsAtSelectedLocation = useMemo(
+    () =>
+      allItemsFlat.flatMap((item) => {
+        const scoped = scopeItemToLocations(item, getPlacements(placementIndex, item.id), selectedLocationIds);
+        return scoped ? [scoped] : [];
+      }),
+    [allItemsFlat, placementIndex, selectedLocationIds]
+  );
+
+  const locationsById = useMemo(
+    () => new Map(itemLocations.map((loc) => [loc.id, loc])),
+    [itemLocations]
+  );
+
+  // Placeringer til række-tag; kendte lokationer før "Intet lager".
+  const placementIdsFor = (itemId: string, within?: Set<string>): (string | null)[] =>
+    getPlacements(placementIndex, itemId)
+      .map((p) => p.locationId)
+      .filter((id) => !within || (id !== null && within.has(id)))
+      .sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0));
+
+  const locationChipLabel = (location: ItemLocation): string => {
+    const parent = location.parentLocationId ? locationsById.get(location.parentLocationId) : undefined;
+    return parent ? `${parent.name} › ${location.name}` : location.name;
+  };
+
+  // Chips over listen: kategorier i lager-visningen, placeringer i kategori-visningen.
+  const categoryChips = useMemo<SummaryChip[]>(
+    () =>
+      summarizeByCategory(itemsAtSelectedLocation).map((summary) => ({
+        id: summary.categoryId,
+        label: summary.path.split(' > ').join(' › '),
+        count: summary.itemCount,
+        kind: 'category',
+        onNavigate: () => {
+          const category = findCategoryInTree(categoryTree, summary.categoryId);
+          if (category) handleSelectCategory(category);
+        },
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [itemsAtSelectedLocation, categoryTree]
+  );
+
+  const locationChips = useMemo<SummaryChip[]>(
+    () =>
+      summarizeByLocation(aggregatedItems, placementIndex)
+        .flatMap((summary): SummaryChip[] => {
+          if (summary.locationId === null) {
+            return [{ id: 'none', label: t('itemDetail.noLocation'), count: summary.itemCount, kind: 'none' }];
+          }
+          const location = locationsById.get(summary.locationId);
+          if (!location) return [];
+          return [{
+            id: location.id,
+            label: locationChipLabel(location),
+            count: summary.itemCount,
+            kind: location.parentLocationId ? 'section' : 'warehouse',
+            onNavigate: () => handleSelectLocationView(location),
+          }];
+        })
+        .sort((a, b) => (a.kind === 'none' ? 1 : 0) - (b.kind === 'none' ? 1 : 0) || a.label.localeCompare(b.label)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [aggregatedItems, placementIndex, locationsById, t]
+  );
+
+  // --- Filter: status + enhed, fælles for begge faner og bevaret på
+  // tværs af kategori/lager-skift. Kategori/lager vælges i træet til
+  // venstre, ikke i filteret. Enheder hentes fra ALLE orgens items, så en
+  // valgt enhed ikke forsvinder fra listen i en visning uden den enhed.
+  const filterUnits = useMemo(
+    () => Array.from(new Set(allItemsFlat.map((item) => item.unitOfMeasurement))).sort(),
+    [allItemsFlat]
+  );
+
+  const activeFilterCount = selectedStatuses.size + selectedUnits.size;
 
   const displayedItems = useMemo(
     () =>
       aggregatedItems.filter((item) => {
-        // US-42: et item matcher nu et statusfilter, hvis blot ÉN af dets
-        // enheder/batches har den valgte status - ikke længere en enkelt
-        // status pr. item.
-        if (
-          selectedStatuses.size > 0 &&
-          ![...selectedStatuses].some((s: ItemStatus) => (item.statusCounts[s] ?? 0) > 0)
-        )
-          return false;
-        if (selectedCategoryFilterIds.size > 0 && !selectedCategoryFilterIds.has(item.categoryId)) return false;
+        if (!itemMatchesFilters(item, selectedStatuses, selectedUnits)) return false;
 
         if (localItemSearch.trim()) {
           const q = localItemSearch.trim().toLowerCase();
@@ -394,29 +648,20 @@ export function DataLayerPage() {
 
         return true;
       }),
-    [aggregatedItems, selectedStatuses, selectedCategoryFilterIds, localItemSearch]
+    [aggregatedItems, selectedStatuses, selectedUnits, localItemSearch]
   );
 
-  const allItemsFlat = useMemo(() => flattenAllItems(categoryTree), [categoryTree]);
-
-  const itemsAtSelectedLocation = useMemo(
-    () =>
-      selectedLocationView
-        ? allItemsFlat.filter((item) => item.itemLocationId === selectedLocationView.id)
-        : [],
-    [allItemsFlat, selectedLocationView]
-  );
-
-  // Samme lokale filtrering som kategori-panelet, bare på items for den
-  // valgte lokation i stedet for den valgte kategori.
+  // Samme filtrering som kategori-panelet, bare på items for den valgte
+  // lokation i stedet for den valgte kategori.
   const displayedLocationItems = useMemo(() => {
     if (!selectedLocationView) return [];
-    if (!localItemSearch.trim()) return itemsAtSelectedLocation;
     const q = localItemSearch.trim().toLowerCase();
-    return itemsAtSelectedLocation.filter(
-      (item) => item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q)
-    );
-  }, [itemsAtSelectedLocation, selectedLocationView, localItemSearch]);
+    return itemsAtSelectedLocation.filter((item) => {
+      if (!itemMatchesFilters(item, selectedStatuses, selectedUnits)) return false;
+      if (!q) return true;
+      return item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+    });
+  }, [itemsAtSelectedLocation, selectedLocationView, selectedStatuses, selectedUnits, localItemSearch]);
 
   // "Vælg til sletning" deler samme select-state på tværs af de to faner
   // (kun én er synlig ad gangen), men kilden til de markerede items
@@ -575,28 +820,28 @@ export function DataLayerPage() {
               type="button"
               onClick={() => setIsFilterOpen((prev) => !prev)}
               className={`w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                selectedStatuses.size > 0 || selectedCategoryFilterIds.size > 0
-                  ? 'bg-accent/10 border-accent text-primary dark:text-slate-100'
+                activeFilterCount > 0
+                  ?'bg-accent/10 border-accent text-primary dark:text-slate-100'
                   : 'bg-bg-gray hover:bg-border-gray text-primary border-border-gray dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700'
               }`}
             >
               <Filter className="w-4 h-4 shrink-0" />
               <span>{t('page.filter')}</span>
-              {(selectedStatuses.size + selectedCategoryFilterIds.size) > 0 && (
-                <span className="ml-1 text-xs bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center shrink-0">
-                  {selectedStatuses.size + selectedCategoryFilterIds.size}
+              {activeFilterCount > 0 && (
+                <span className="ml-1 text-xs bg-accent text-accent-text rounded-full w-4 h-4 flex items-center justify-center shrink-0">
+                  {activeFilterCount}
                 </span>
               )}
             </button>
 
             <FilterPanelComponent
               isOpen={isFilterOpen}
-              categories={descendantCategories}
               statuses={ALL_ITEM_STATUSES}
-              selectedCategoryIds={selectedCategoryFilterIds}
               selectedStatuses={selectedStatuses}
-              onToggleCategory={toggleCategoryFilter}
               onToggleStatus={toggleStatusFilter}
+              units={filterUnits}
+              selectedUnits={selectedUnits}
+              onToggleUnit={toggleUnitFilter}
               onClear={resetFilters}
               onClose={() => setIsFilterOpen(false)}
             />
@@ -605,14 +850,25 @@ export function DataLayerPage() {
       </div>
 
       {/* Hovedlayout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
+      <div className="grid grid-cols-1 md:grid-cols-12 md:items-start gap-4 sm:gap-6">
+        <div className="md:col-span-5 lg:col-span-4 2xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           <div className="min-h-0 flex flex-col">
             {/* Fane-skifter */}
             <div className="flex items-center border-b border-border-gray mb-4 dark:border-slate-700">
               <button
                 type="button"
-                onClick={() => { setLeftTab('categories'); exitSelectMode(); setLocalItemSearch(''); }}
+                onClick={() => handleSwitchTab('locations')}
+                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                  leftTab === 'locations'
+                    ? 'text-accent border-accent'
+                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                {t('page.locations')}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchTab('categories')}
                 className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
                   leftTab === 'categories'
                     ? 'text-accent border-accent'
@@ -621,22 +877,17 @@ export function DataLayerPage() {
               >
                 {t('categories')}
               </button>
-              <button
-                type="button"
-                onClick={() => { setLeftTab('locations'); exitSelectMode(); setLocalItemSearch(''); }}
-                className={`flex-1 pb-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
-                  leftTab === 'locations'
-                    ? 'text-accent border-accent'
-                    : 'text-secondary border-transparent hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
-                }`}
-              >
-                {/* Hardcodet i stedet for t('page.locations'), da
-                    oversættelsesnøglen stadig peger på "Lagre" i
-                    sprogfilen - ret gerne værdien der i stedet, hvis I
-                    vil have den styret via i18n igen. */}
-                Lager
-              </button>
             </div>
+
+            {favoriteError && (
+              <div className="mb-3 p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+                {favoriteError}
+              </div>
+            )}
+
+            <FavoritesSection
+              entries={leftTab === 'categories' ? categoryFavoriteEntries : locationFavoriteEntries}
+            />
 
             {leftTab === 'categories' ? (
               <>
@@ -671,6 +922,9 @@ export function DataLayerPage() {
                         isMoving={isMovingCategory}
                         onMoveUp={(c) => handleMoveCategory(c, 'up')}
                         onMoveDown={(c) => handleMoveCategory(c, 'down')}
+                        favoriteIds={favoriteCategoryIds}
+                        canFavorite={canRead}
+                        onToggleFavorite={handleToggleCategoryFavorite}
                       />
                     ))}
                   </div>
@@ -700,6 +954,9 @@ export function DataLayerPage() {
                       canDelete={canDelete}
                       isExpanded={expandedWarehouseIds.has(warehouse.id)}
                       onToggleExpand={toggleExpandWarehouse}
+                      favoriteIds={favoriteLocationIds}
+                      canFavorite={canRead}
+                      onToggleFavorite={handleToggleLocationFavorite}
                     />
                   ))
                 )}
@@ -711,7 +968,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddModal(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>{t('page.createCategory')}</span>
@@ -722,7 +979,7 @@ export function DataLayerPage() {
             <button
               type="button"
               onClick={() => handleOpenAddLocation(null)}
-              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 mt-4 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>{t('locations.createWarehouseButton')}</span>
@@ -730,7 +987,7 @@ export function DataLayerPage() {
           )}
         </div>
 
-        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
+        <div className="md:col-span-7 lg:col-span-8 2xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           {leftTab === 'locations' ? (
             selectedLocationView ? (
               <div>
@@ -766,6 +1023,13 @@ export function DataLayerPage() {
     <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
       {selectedLocationView.name}
     </h1>
+    {canRead && (
+      <FavoriteStarButton
+        variant="heading"
+        isFavorite={favoriteLocationIds.has(selectedLocationView.id)}
+        onToggle={() => handleToggleLocationFavorite(selectedLocationView.id)}
+      />
+    )}
   </div>
   {selectedLocationView.address && (
     <p className="text-xs text-secondary mt-1 dark:text-slate-400">{selectedLocationView.address}</p>
@@ -797,7 +1061,7 @@ export function DataLayerPage() {
                       <button
                         type="button"
                         onClick={() => setIsAddItemsModalOpen(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{t('page.addItems')}</span>
@@ -805,6 +1069,11 @@ export function DataLayerPage() {
                     )}
                   </div>
                 </div>
+
+                <SummaryChips
+                  title={t('page.categoriesHere')}
+                  chips={categoryChips}
+                />
 
                 <div className="relative mb-4">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
@@ -831,19 +1100,19 @@ export function DataLayerPage() {
                       }`}
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span className="hidden xs:inline">{t('page.deleteSelected')}</span>
-                      <span className="xs:hidden">{t('page.deleteShort')}</span>
+                      <span className="hidden sm:inline">{t('page.deleteSelected')}</span>
+                      <span className="sm:hidden">{t('page.deleteShort')}</span>
                     </button>
                   </div>
                 )}
 
                 {itemsAtSelectedLocation.length > 0 && displayedLocationItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center text-secondary border border-dashed border-border-gray rounded-lg bg-bg-gray/30 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-                    <Search className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
+                    <Filter className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
                     <p className="text-base font-medium text-primary dark:text-slate-100">{t('page.noItemsMatch')}</p>
                     <button
                       type="button"
-                      onClick={() => setLocalItemSearch('')}
+                      onClick={() => { resetFilters(); setLocalItemSearch(''); }}
                       className="text-xs text-accent hover:text-accent-hover mt-2"
                     >
                       {t('page.clearFilters')}
@@ -868,9 +1137,16 @@ export function DataLayerPage() {
                               className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
                             />
                           )}
-                          <div className="min-w-0">
-                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                            <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">{item.sourceCategoryTitle}</p>
+                          <div className="min-w-0 flex-1">
+                            <span className="block font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                            <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
+                              <ItemLocationTag locationIds={placementIdsFor(item.id, selectedLocationIds)} locationsById={locationsById} />
+                              <span className="shrink-0">·</span>
+                              <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
+                            </div>
+                            {item.description && (
+                              <p className="text-xs text-secondary truncate mt-1 dark:text-slate-400">{item.description}</p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-sm text-secondary dark:text-slate-400">
@@ -901,9 +1177,18 @@ export function DataLayerPage() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border-gray dark:border-slate-700">
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
-                    {selectedCategory.title}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-serif text-primary font-semibold truncate dark:text-slate-100">
+                      {selectedCategory.title}
+                    </h1>
+                    {canRead && (
+                      <FavoriteStarButton
+                        variant="heading"
+                        isFavorite={favoriteCategoryIds.has(selectedCategory.id)}
+                        onToggle={() => handleToggleCategoryFavorite(selectedCategory.id)}
+                      />
+                    )}
+                  </div>
                   <p className="text-xs text-secondary mt-1 truncate dark:text-slate-400">
                     {t('categoryIdValue', { id: selectedCategory.id })}
                   </p>
@@ -934,7 +1219,7 @@ export function DataLayerPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddItemsModalOpen(true)}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span>{t('page.addItems')}</span>
@@ -942,6 +1227,11 @@ export function DataLayerPage() {
                   )}
                 </div>
               </div>
+
+              <SummaryChips
+                title={t('page.placements')}
+                chips={locationChips}
+              />
 
               <div className="relative mb-4">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary dark:text-slate-400" />
@@ -968,8 +1258,8 @@ export function DataLayerPage() {
                     }`}
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span className="hidden xs:inline">{t('page.deleteSelected')}</span>
-                    <span className="xs:hidden">{t('page.deleteShort')}</span>
+                    <span className="hidden sm:inline">{t('page.deleteSelected')}</span>
+                    <span className="sm:hidden">{t('page.deleteShort')}</span>
                   </button>
                 </div>
               )}
@@ -1005,18 +1295,16 @@ export function DataLayerPage() {
                             className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
                           />
                         )}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
-                            {item.isFromSubCategory && (
-                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-bg-gray text-secondary dark:bg-slate-700 dark:text-slate-400">
-                                {item.sourceCategoryTitle}
-                              </span>
-                            )}
+                        <div className="min-w-0 flex-1">
+                          <span className="block font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                          <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
+                            <ItemLocationTag locationIds={placementIdsFor(item.id)} locationsById={locationsById} />
+                            <span className="shrink-0">·</span>
+                            <ItemCategoryTag categoryPath={item.sourceCategoryTitle} />
                           </div>
-                          <p className="text-xs text-secondary truncate mt-0.5 dark:text-slate-400">
-                            {item.description}
-                          </p>
+                          {item.description && (
+                            <p className="text-xs text-secondary truncate mt-1 dark:text-slate-400">{item.description}</p>
+                          )}
                         </div>
                       </div>
 

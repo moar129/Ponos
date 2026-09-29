@@ -8,6 +8,9 @@ interface FilterBarProps {
   onSearchChange: (value: string) => void;
   availableCount: number;
   inProgressCount: number;
+  // Antal filtre der skjuler opgaver (søgning, prioritet, fravalgt status) -
+  // vises som badge, så det er synligt selv når panelet er lukket.
+  activeFilterCount: number;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -17,19 +20,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSearchChange,
   availableCount,
   inProgressCount,
+  activeFilterCount,
 }) => {
   const { t } = useTranslation(['tasks', 'common'])
   return (
     <div className="bg-white border-b border-border-gray dark:bg-slate-900 dark:border-slate-700">
-      <div className="max-w-[1600px] mx-auto px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="lg:px-2 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             type="button"
             onClick={onToggleFilter}
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all
               ${isFilterOpen
-                ? 'border-accent bg-accent text-white'
+                ? 'border-accent bg-accent text-accent-text'
                 : 'border-border-gray text-secondary hover:border-secondary hover:text-primary dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-100'}
             `}
           >
@@ -47,6 +51,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               />
             </svg>
             {isFilterOpen ? t('filter.hide') : t('filter.show')}
+            {activeFilterCount > 0 && (
+              <span
+                className={`rounded-full px-1.5 text-xs font-bold ${isFilterOpen ? 'bg-white text-accent' : 'bg-accent text-accent-text'}`}
+                aria-label={t('filter.activeCount', { count: activeFilterCount })}
+              >
+                {activeFilterCount}
+              </span>
+            )}
           </button>
 
           <input
@@ -54,11 +66,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={t('filter.searchPlaceholder')}
-            className="w-56 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="w-full sm:w-80 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <span className="text-sm text-secondary dark:text-slate-400">
             {t('filter.counts', { available: availableCount, inProgress: inProgressCount })}
           </span>

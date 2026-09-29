@@ -49,6 +49,7 @@
     "nameLabel": "Navn",
     "memberCount": "Antal medlemmer",
     "edit": "Rediger organisation",
+    "editColors": "Rediger farver",
     "delete": "Slet organisation",
     "deleteWarning": "Dette sletter \"{{name}}\" permanent og kan ikke fortrydes.",
     "typeNameToConfirm": "Skriv organisationens navn ({{name}}) for at bekræfte",
@@ -58,11 +59,33 @@
     "deletePermanently": "Slet permanent",
     "deleted": "\"{{name}}\" er slettet.",
     "deletedNewActive": "\"{{name}}\" er slettet. Din aktive organisation er nu \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere."
+    "deletedNoActive": "\"{{name}}\" er slettet. Du har ingen aktiv organisation længere.",
+    "colorLabel": "Knap- og linkfarve",
+    "colorHint": "Farven på knapper, links, ikoner og markeringer i hele Ponos.",
+    "headerColorLabel": "Topbjælke – baggrund",
+    "headerColorHint": "Baggrundsfarven i bjælken øverst med menuen. Tom = standardfarven (mørkeblå).",
+    "footerColorLabel": "Bundbjælke – baggrund",
+    "footerColorHint": "Baggrundsfarven i bjælken nederst på siden. Tom = standardfarven (mørkeblå).",
+    "headerTextColorLabel": "Topbjælke – tekst",
+    "headerTextColorHint": "Farven på tekst og ikoner i topbjælken. Tom = vælges automatisk, så den kan læses på baggrunden.",
+    "footerTextColorLabel": "Bundbjælke – tekst",
+    "footerTextColorHint": "Farven på teksten i bundbjælken. Tom = vælges automatisk, så den kan læses på baggrunden.",
+    "colorPickerAriaLabel": "Vælg knap- og linkfarve",
+    "colorReset": "Nulstil",
+    "colorUseDefault": "Brug standard",
+    "colorNoneSet": "Ingen valgt (standard)",
+    "previewLight": "Lys",
+    "previewDark": "Mørk",
+    "colorAdjusted": "Justeret for læsbarhed",
+    "colorInvalid": "Farven skal være en gyldig hex-kode, fx #C7975D.",
+    "savedColors": "Gemte farver",
+    "saveCurrentColor": "Gem denne farve",
+    "noSavedColors": "Ingen gemte farver endnu.",
+    "removeSavedColor": "Fjern gemt farve"
   },
   "picker": {
     "searchPlaceholder": "Søg efter organisation...",
-    "empty": "Der er ingen organisationer at vælge imellem.",
+    "minChars": "Skriv organisationens navn for at finde den.",
     "noMatch": "Ingen organisationer matcher din søgning."
   },
   "loading": "Indlæser organisation...",
@@ -86,8 +109,7 @@
     "pending": "Din medlemsanmodning er sendt og afventer godkendelse fra organisationens administrator.",
     "chooseLabel": "Vælg organisation",
     "submit": "Send anmodning",
-    "submitting": "Sender anmodning...",
-    "noneAvailable": "Der er ingen andre organisationer at anmode om medlemskab af."
+    "submitting": "Sender anmodning..."
   },
   "details": {
     "administrator": "Administrator",

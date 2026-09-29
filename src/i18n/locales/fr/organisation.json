@@ -49,6 +49,7 @@
     "nameLabel": "Nom",
     "memberCount": "Nombre de membres",
     "edit": "Modifier l'organisation",
+    "editColors": "Modifier les couleurs",
     "delete": "Supprimer l'organisation",
     "deleteWarning": "Cela supprime définitivement \"{{name}}\" et ne peut pas être annulé.",
     "typeNameToConfirm": "Saisissez le nom de l'organisation ({{name}}) pour confirmer",
@@ -58,11 +59,33 @@
     "deletePermanently": "Supprimer définitivement",
     "deleted": "\"{{name}}\" a été supprimée.",
     "deletedNewActive": "\"{{name}}\" a été supprimée. Votre organisation active est désormais \"{{newActive}}\".",
-    "deletedNoActive": "\"{{name}}\" a été supprimée. Vous n'avez plus d'organisation active."
+    "deletedNoActive": "\"{{name}}\" a été supprimée. Vous n'avez plus d'organisation active.",
+    "colorLabel": "Couleur des boutons et des liens",
+    "colorHint": "La couleur des boutons, liens, icônes et mises en évidence dans tout Ponos.",
+    "headerColorLabel": "Barre supérieure – fond",
+    "headerColorHint": "Couleur de fond de la barre du haut avec le menu. Vide = la couleur par défaut (bleu foncé).",
+    "footerColorLabel": "Barre inférieure – fond",
+    "footerColorHint": "Couleur de fond de la barre en bas de la page. Vide = la couleur par défaut (bleu foncé).",
+    "headerTextColorLabel": "Barre supérieure – texte",
+    "headerTextColorHint": "Couleur du texte et des icônes de la barre supérieure. Vide = choisie automatiquement pour rester lisible sur le fond.",
+    "footerTextColorLabel": "Barre inférieure – texte",
+    "footerTextColorHint": "Couleur du texte de la barre inférieure. Vide = choisie automatiquement pour rester lisible sur le fond.",
+    "colorPickerAriaLabel": "Choisissez la couleur des boutons et des liens",
+    "colorReset": "Réinitialiser",
+    "colorUseDefault": "Utiliser la valeur par défaut",
+    "colorNoneSet": "Aucune sélection (par défaut)",
+    "previewLight": "Clair",
+    "previewDark": "Sombre",
+    "colorAdjusted": "Ajustée pour la lisibilité",
+    "colorInvalid": "La couleur doit être un code hexadécimal valide, par exemple #C7975D.",
+    "savedColors": "Couleurs enregistrées",
+    "saveCurrentColor": "Enregistrer cette couleur",
+    "noSavedColors": "Aucune couleur enregistrée pour le moment.",
+    "removeSavedColor": "Supprimer la couleur enregistrée"
   },
   "picker": {
     "searchPlaceholder": "Rechercher une organisation...",
-    "empty": "Il n'y a aucune organisation à choisir.",
+    "minChars": "Saisissez le nom de l'organisation pour la trouver.",
     "noMatch": "Aucune organisation ne correspond à votre recherche."
   },
   "loading": "Chargement de l'organisation...",
@@ -86,8 +109,7 @@
     "pending": "Votre demande d'adhésion a été envoyée et attend la validation de l'administration de l'organisation.",
     "chooseLabel": "Choisir une organisation",
     "submit": "Envoyer la demande",
-    "submitting": "Envoi de la demande...",
-    "noneAvailable": "Il n'y a pas d'autres organisations auxquelles demander une adhésion."
+    "submitting": "Envoi de la demande..."
   },
   "details": {
     "administrator": "Administrateur",

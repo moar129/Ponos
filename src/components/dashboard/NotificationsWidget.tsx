@@ -2,7 +2,7 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationTitle } from '../../utils/notificationDisplay'
+import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Bell, ChevronRight } from 'lucide-react'
@@ -113,7 +113,7 @@ export function NotificationsWidget() {
                                     )}
                                 </div>
                                 {notification.body && (
-                                    <p className="text-sm text-secondary truncate mt-0.5 dark:text-slate-400">{notification.body}</p>
+                                    <p className="text-sm text-secondary truncate mt-0.5 dark:text-slate-400">{notificationBody(notification, td)}</p>
                                 )}
                                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{timeAgo(notification.createdAt)}</p>
                             </button>

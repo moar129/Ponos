@@ -28,7 +28,8 @@
     "saveRoom": "Zapisz pomieszczenie",
     "loading": "Ładowanie zadań...",
     "noAccess": "Nie masz dostępu do zadań tej organizacji.",
-    "heading": "Zadania",
+    "heading": "Wszystkie zadania",
+    "roomHeading": "Zadania – {{room}}",
     "createRoom": "Utwórz pomieszczenie",
     "availableHeading": "Dostępne zadania",
     "inProgressHeading": "W toku"
@@ -51,7 +52,15 @@
     "edit": "Edytuj pomieszczenie",
     "deleteOne": "Usuń pomieszczenie",
     "choose": "Wybierz pomieszczenie",
-    "noRoom": "Bez pomieszczenia"
+    "noRoom": "Bez pomieszczenia",
+    "rolesLabel": "Dostęp dla ról",
+    "rolesHint": "Brak wyboru = wszyscy widzą pokój.",
+    "rolesLoading": "Ładowanie ról...",
+    "rolesLoadFailed": "Nie udało się załadować ról.",
+    "noRoles": "Organizacja nie ma ról.",
+    "restrictedTo": "Tylko dla: {{roles}}",
+    "newRole": "Nowa rola",
+    "chat": "Czat pokoju"
   },
   "create": {
     "heading": "Utwórz zadanie",
@@ -102,19 +111,26 @@
     "statusLabel": "Status:",
     "addEmployeeShort": "+ Dodaj pracownika",
     "created": "Utworzone",
-    "statusValue": "Status: {{status}}"
+    "statusValue": "Status: {{status}}",
+    "rejectedWithReason": "Zgłoszenie ukończenia odrzucone: {{reason}}",
+    "chat": "Czat"
   },
   "filter": {
     "show": "Pokaż filtr",
     "hide": "Ukryj filtr",
-    "searchPlaceholder": "Szukaj zadań...",
+    "searchPlaceholder": "Szukaj w tytule, opisie, pokoju lub osobie...",
     "all": "Wszystkie",
     "sortNewest": "Najnowsze",
     "sortOldest": "Najstarsze",
     "sortPriority": "Priorytet",
     "sortDeadline": "Termin",
     "counts": "{{available}} dostępnych · {{inProgress}} w toku",
-    "sortBy": "Sortuj według"
+    "sortBy": "Sortuj według",
+    "noMatches": "Żadne zadania nie pasują do wyszukiwania/filtrów.",
+    "activeCount_one": "{{count}} aktywny filtr",
+    "activeCount_few": "{{count}} aktywne filtry",
+    "activeCount_many": "{{count}} aktywnych filtrów",
+    "activeCount_other": "{{count}} aktywnego filtra"
   },
   "deleteRoom": {
     "heading": "Usuń pomieszczenie",
@@ -129,8 +145,27 @@
   },
   "editRoom": {
     "heading": "Edytuj pomieszczenie",
-    "intro": "Wybierz pomieszczenie i zmień jego nazwę.",
+    "intro": "Wybierz pokój i edytuj nazwę oraz dostęp.",
     "namePlaceholder": "Wpisz nazwę pomieszczenia",
     "failed": "Nie udało się edytować pomieszczenia. Spróbuj ponownie."
+  },
+  "favorites": {
+    "toggleFailed": "Nie udało się zaktualizować ulubionego pokoju."
+  },
+  "completed": {
+    "tab": "Zakończone",
+    "heading": "Zakończone zadania",
+    "subtitle": "Wszystkie zakończone zadania w organizacji.",
+    "noAccess": "Nie masz dostępu do zakończonych zadań."
+  },
+  "approvals": {
+    "tab": "Do zatwierdzenia",
+    "heading": "Do zatwierdzenia",
+    "subtitle": "Zadania zgłoszone jako ukończone, czekające na zatwierdzenie.",
+    "noAccess": "Nie masz dostępu do zatwierdzania zadań.",
+    "pendingCount_one": "{{count}} czeka",
+    "pendingCount_few": "{{count}} czekają",
+    "pendingCount_many": "{{count}} czeka",
+    "pendingCount_other": "{{count}} czeka"
   }
 }

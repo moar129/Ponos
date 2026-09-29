@@ -1,0 +1,239 @@
+Jo. Det er faktisk bedre at få statistikmodellen fastlagt nu, før vi laver mere mockdata. Så mockdataen bliver lavet ud fra de ting, PONOS faktisk skal kunne vise, i stedet for at vi bagefter skal ændre databasen.
+
+Ud fra den statistikside og de API-typer, vi allerede har lagt op, kigger vi grundlæggende på følgende:
+
+1. Opgaver
+
+De vigtigste udsagn er:
+
+Hvor mange opgaver er oprettet?
+Hvor mange opgaver er færdige?
+Hvor mange opgaver er igangværende?
+Hvor mange opgaver er startet, men ikke færdige?
+Hvor mange opgaver er endnu ikke startet? — hvis vi senere får en sådan status.
+Hvor mange opgaver er forfaldne?
+Hvor mange opgaver er oprettet i en bestemt periode?
+Hvor mange opgaver blev færdige i en bestemt periode?
+Hvordan udvikler antallet af opgaver sig over tid?
+
+Det betyder, at tasks især skal have realistiske variationer i:
+
+status
+start_date
+end_date
+created_at
+priority
+2. Opgavefordeling
+
+Her handler det om hvad organisationens arbejde består af.
+
+Mulige udsagn:
+
+Hvor mange opgaver ligger i hver status?
+Hvor mange opgaver ligger på hver prioritet?
+Hvordan er arbejdet fordelt mellem rum/kategorier?
+Hvor mange opgaver er kritiske, høje, mellem og lave?
+
+Det er især relevant til fx:
+
+Arbejdsfordeling
+Kritiske: 3
+Høj: 8
+Medium: 14
+Lav: 5
+
+Her skal mockdataen altså ikke have alle 30 opgaver med samme prioritet.
+
+3. Medarbejdere / teamaktivitet
+
+Vi har allerede en statistiktype:
+
+StatisticsTeamActivity {
+    activeMembers: number
+    total: number
+}
+
+Det giver udsagn som:
+
+Hvor mange medarbejdere er der i organisationen?
+Hvor mange medarbejdere har været aktive i den valgte periode?
+Hvor mange opgaver har medarbejderne været involveret i?
+Hvordan er opgaverne fordelt mellem medarbejderne?
+
+Det kræver især realistiske data i:
+
+profiles
+memberships
+task_assignees
+eventuelt task_participants
+4. Godkendelser
+
+Vi har også:
+
+StatisticsApprovalStats {
+    rate: number
+    approved: number
+    rejected: number
+    pending: number
+}
+
+Det betyder, at PONOS skal kunne svare på:
+
+Hvor mange opgaver afventer godkendelse?
+Hvor mange opgaver er godkendt?
+Hvor mange opgaver er afvist?
+Hvor stor en andel af de afsluttede/godkendte opgaver blev godkendt?
+
+Det er især vigtigt fordi I allerede har:
+
+requires_approval
+
+på tasks.
+
+Og jeres flow har:
+
+Meld færdig → Afventer godkendelse → Godkendt/afvist
+
+Så mockdataen bør indeholde en blanding af opgaver med og uden godkendelse.
+
+5. Forfaldne opgaver
+
+Vi har:
+
+StatisticsOverdue {
+    count: number
+}
+
+Det skal give et meget konkret udsagn:
+
+Hvor mange opgaver er overskredet uden at være færdige?
+
+Det kræver kombinationen af:
+
+end_date
++
+status
+
+Eksempel:
+
+end_date: 2026-09-20
+status: InProgress
+
+→ forfalden.
+
+Men:
+
+end_date: 2026-09-20
+status: Completed
+
+→ ikke længere forfalden.
+
+Derfor bør mockdataen helt bevidst indeholde nogle forfaldne opgaver.
+
+6. Materialer / lager
+
+Vi har også:
+
+StatisticsMaterials {
+    available: number
+    inUse: number
+    total: number
+}
+
+Så statistikken skal potentielt kunne svare på:
+
+Hvor mange materialer/enheder har organisationen?
+Hvor mange er tilgængelige?
+Hvor mange er i brug?
+Hvor mange er samlet set?
+Hvordan fordeler lagerbeholdningen sig?
+
+Det hænger sammen med jeres eksisterende:
+
+items
+item_locations
+item_units
+
+Så hvis vi vil teste materialestatistikken ordentligt, skal mockdataen også have variation her.
+
+7. Udvikling over tid
+
+Det er en vigtig del af statistik-siden.
+
+Fx:
+
+Hvor mange opgaver blev oprettet pr. uge?
+
+eller:
+
+Hvor mange opgaver blev afsluttet pr. måned?
+
+Så mockdataen skal ikke ligge samlet på én dato.
+
+Hvis vi eksempelvis har 30 opgaver, er det bedre at have noget i stil med:
+
+Juni       5 opgaver
+Juli       7 opgaver
+August     9 opgaver
+September  9 opgaver
+
+Så et diagram faktisk har noget at vise.
+
+Perioderne
+
+Vi har allerede lagt op til:
+
+Dag
+Uge
+Måned
+Kvartal
+År
+Maks
+Brugerdefineret
+
+Det er vigtigt for mockdataen, fordi vi skal kunne se forskel på perioderne.
+
+Hvis alle mockopgaver fx er oprettet i september 2026, kan vi ikke rigtig teste:
+
+Måned → Kvartal → År → Maks
+
+på en meningsfuld måde.
+
+Det jeg ville sørge for i mockdataen
+
+Hvis vi laver et ordentligt testdatasæt til PONOS-statistikken, ville jeg sørge for at have:
+
+Statistik	Mockdata skal indeholde
+Oprettede opgaver	Mange opgaver fordelt over tid
+Færdige opgaver	En tydelig del Completed
+Igangværende	En tydelig del InProgress
+Startede	En tydelig del Started
+Forfaldne	Flere gamle, ikke-færdige opgaver
+Prioritet	Low / Medium / High / Critical
+Rum	Opgaver fordelt mellem flere rum
+Medarbejdere	Flere medarbejdere
+Ansvarlige	Opgaver fordelt mellem medarbejdere
+Godkendelse	Både uden og med approval
+Godkendt	Nogle godkendte
+Afvist	Nogle afviste
+Afventer	Nogle pending
+Materialer	Available + In use
+Tid	Data over flere måneder
+Perioder	Nok data til dag/uge/måned/kvartal/år
+Og vigtigst:
+
+Vi skal ikke lave mockdata specifikt til én bestemt organisation.
+
+Mockdataen skal bare ligge i databasen med organisationstilknytning, mens selve PONOS-logikken altid gør:
+
+logged-in user
+      ↓
+profiles.active_organisation_id
+      ↓
+organisationens data
+      ↓
+statistik
+
+Så når vi senere logger ind som en anden organisation, fungerer samme statistiklogik.
+
+Jeg ville derfor ikke lave mere kode på statistik endnu. Først bør vi sikre, at mockdataen dækker ovenstående scenarier. Derefter kan vi bygge statisticApi.ts én statistiktype ad gangen og kontrollere resultaterne mod de kendte mockdata.

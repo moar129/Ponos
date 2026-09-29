@@ -17,10 +17,23 @@
   },
   "myTasks": {
     "title": "Moje zadania",
-    "goToTasks": "Przejdź do zadań",
+    "goToTasks": "Przejdź do moich zadań",
     "loading": "Ładowanie Twoich zadań...",
     "empty": "Nie jesteś jeszcze zapisany do żadnego zadania.",
-    "endsOn": "Koniec {{date}}"
+    "endsOn": "Koniec {{date}}",
+    "tab": "Zadania"
+  },
+  "favoriteRooms": {
+    "title": "Moje ulubione pokoje",
+    "goToTasks": "Przejdź do zadań",
+    "loading": "Ładowanie ulubionych pokoi...",
+    "empty": "Nie masz jeszcze ulubionych pokoi.",
+    "emptyLink": "Oznacz pokoje gwiazdką w Zadaniach.",
+    "openTasks_one": "{{count}} otwarte",
+    "openTasks_few": "{{count}} otwarte",
+    "openTasks_many": "{{count}} otwartych",
+    "openTasks_other": "{{count}} otwartego",
+    "tab": "Ulubione pokoje"
   },
   "notifications": {
     "title": "Powiadomienia",
@@ -53,6 +66,8 @@
       "invitations": "Zaproszenia",
       "membershipRequests": "Wnioski o członkostwo",
       "organisation": "Organizacja",
+
+      "colors": "Kolory",
       "taskApprovals": "Zatwierdzanie zadań",
       "completedTasks": "Zakończone zadania"
     }
@@ -60,7 +75,7 @@
   "completedTasks": {
     "loading": "Ładowanie zakończonych zadań...",
     "empty": "Żadne zadanie nie zostało jeszcze oznaczone jako zakończone.",
-    "searchPlaceholder": "Szukaj według tytułu lub opisu...",
+    "searchPlaceholder": "Szukaj według tytułu, pomieszczenia lub osoby...",
     "allPriorities": "Wszystkie priorytety",
     "noMatch": "Żadne zadanie nie pasuje do wyszukiwania ani filtra.",
     "noDescription": "Brak opisu.",
@@ -74,7 +89,18 @@
     "noMaterials": "Brak materiałów",
     "edit": "Edytuj",
     "reopen": "Otwórz ponownie",
-    "reopening": "Ponowne otwieranie..."
+    "reopening": "Ponowne otwieranie...",
+    "sortNewest": "Ostatnio ukończone najpierw",
+    "sortOldest": "Najdawniej ukończone najpierw",
+    "sortDeadline": "Najbliższy termin najpierw",
+    "from": "Ukończono od",
+    "to": "do",
+    "presetToday": "Dziś",
+    "preset7": "7 dni",
+    "preset30": "30 dni",
+    "resetFilters": "Resetuj",
+    "finishedOn": "Ukończono {{date}}",
+    "showing": "{{count}} z {{total}}"
   },
   "statistics": {
     "noOrganisation": "Nie masz jeszcze aktywnej organizacji, więc nie ma statystyk do pokazania.",

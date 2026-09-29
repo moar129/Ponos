@@ -39,7 +39,12 @@
     "chooseCategory": "Wybierz kategorię w menu po lewej",
     "moveCategoryFailed": "Nie udało się przenieść kategorii.",
     "filterItemsAtLocationPlaceholder": "Filtruj elementy w tym magazynie...",
-    "noItemsAtLocationYet": "Tutaj nie zarejestrowano jeszcze żadnych elementów"
+    "noItemsAtLocationYet": "Tutaj nie zarejestrowano jeszcze żadnych elementów",
+    "categoriesHere": "Kategorie tutaj",
+    "placements": "Lokalizacje",
+    "itemCount": "{{count}} elementów",
+    "goTo": "Przejdź do",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Przenieś w górę",
@@ -187,5 +192,9 @@
   "quantityLabel": "Ilość:",
   "categoryIdValue": "ID kategorii: {{id}}",
   "quantityValue": "Ilość: {{count}}",
-  "itemCountParen": "({{count}} elementów)"
+  "itemCountParen": "({{count}} elementów)",
+  "favorites": {
+    "title": "Ulubione",
+    "toggleFailed": "Nie udało się zaktualizować ulubionych."
+  }
 }

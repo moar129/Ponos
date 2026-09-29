@@ -17,10 +17,22 @@
   },
   "myTasks": {
     "title": "Sarcinile mele",
-    "goToTasks": "Mergeți la sarcini",
+    "goToTasks": "Mergeți la sarcinile mele",
     "loading": "Se încarcă sarcinile dumneavoastră...",
     "empty": "Nu v-ați înscris încă la nicio sarcină.",
-    "endsOn": "Se încheie {{date}}"
+    "endsOn": "Se încheie {{date}}",
+    "tab": "Sarcini"
+  },
+  "favoriteRooms": {
+    "title": "Camerele mele favorite",
+    "goToTasks": "Mergi la sarcini",
+    "loading": "Se încarcă camerele favorite...",
+    "empty": "Nu ai încă camere favorite.",
+    "emptyLink": "Marchează camere cu stea în Sarcini.",
+    "openTasks_one": "{{count}} deschisă",
+    "openTasks_few": "{{count}} deschise",
+    "openTasks_other": "{{count}} deschise",
+    "tab": "Camere favorite"
   },
   "notifications": {
     "title": "Notificări",
@@ -53,6 +65,8 @@
       "invitations": "Invitații",
       "membershipRequests": "Cereri de aderare",
       "organisation": "Organizație",
+
+      "colors": "Culori",
       "taskApprovals": "Aprobări de sarcini",
       "completedTasks": "Sarcini finalizate"
     }
@@ -60,7 +74,7 @@
   "completedTasks": {
     "loading": "Se încarcă sarcinile finalizate...",
     "empty": "Nicio sarcină nu a fost marcată încă drept finalizată.",
-    "searchPlaceholder": "Căutați după titlu sau descriere...",
+    "searchPlaceholder": "Căutați după titlu, încăpere sau persoană...",
     "allPriorities": "Toate prioritățile",
     "noMatch": "Nicio sarcină nu corespunde căutării sau filtrului.",
     "noDescription": "Nicio descriere.",
@@ -74,7 +88,18 @@
     "noMaterials": "Niciun material",
     "edit": "Editează",
     "reopen": "Redeschide",
-    "reopening": "Se redeschide..."
+    "reopening": "Se redeschide...",
+    "sortNewest": "Finalizate recent mai întâi",
+    "sortOldest": "Cele mai vechi finalizate mai întâi",
+    "sortDeadline": "Cel mai apropiat termen mai întâi",
+    "from": "Finalizată de la",
+    "to": "până la",
+    "presetToday": "Astăzi",
+    "preset7": "7 zile",
+    "preset30": "30 de zile",
+    "resetFilters": "Resetează",
+    "finishedOn": "Finalizată {{date}}",
+    "showing": "{{count}} din {{total}}"
   },
   "statistics": {
     "noOrganisation": "Nu aveți încă o organizație activă, deci nu există statistici de afișat.",

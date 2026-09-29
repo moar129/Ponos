@@ -6,18 +6,44 @@
 -- notifications med tilhørende RLS, policies, triggers og RPC'er - intet
 -- af det er dokumenteret her.
 --
--- Konkret mangler disse ni funktioner, som findes i databasen:
+-- Konkret mangler disse funktioner, som findes i databasen:
 --   add_group_participants, create_group_conversation, delete_message,
---   edit_message, get_or_create_direct_conversation,
---   leave_group_conversation, mark_conversation_read,
+--   edit_message, leave_group_conversation, mark_conversation_read,
 --   remove_group_participant, rename_group_conversation
--- samt validate_location_parent.
+-- samt validate_location_parent. (get_or_create_direct_conversation
+-- genskrevet og dokumenteret 2026-09-29, §15.25.)
 --
 -- Det svarer til 51 af databasens 108 raise exception. De 57 der ER
 -- dokumenteret her, er opdaterede og korrekte.
 --
 -- Hører til Studerende 3 (beskeder/notifikationer) og Studerende 2
 -- (lokationer). Udestår.
+--
+-- Ændret 2026-09-25 (sletning må ikke lække indhold):
+--   - delete_message sætter også content = '' og sætter body på
+--     beskedens notifikationer til sentinel 'Denne besked er slettet'
+--     (oversættes i src/utils/notificationDisplay.ts). Match:
+--     type='message', reference_id = conversation_id, created_at =
+--     messages.created_at (triggeren kører i samme transaktion).
+--   - edit_message opdaterer også notifikationernes body (left(.., 140)).
+--   - get_my_conversations: ny kolonne last_message_deleted boolean;
+--     last_message er null for slettet besked. Grants: authenticated,
+--     service_role.
+--   - messages_content_check:
+--     CHECK (((deleted_at IS NOT NULL) OR (btrim(content) <> ''::text)))
+--     (før: CHECK ((btrim(content) <> ''::text))).
+--
+-- Ændret 2026-09-27 (opgave- og rum-chats, §15.24): conversations fik
+-- task_id/room_id/closed_at, conversation_participants fik
+-- completion_choice; edit_message, notify_new_message, gruppe-RPC'erne
+-- (add/remove/rename/leave) og get_my_conversations er genskabt i §15.24
+-- og står dér i deres nuværende, fulde form.
+-- Samme dag: ny tabel conversation_opt_outs + RPC join_task_conversation;
+-- opgave-/rum-chats kan forlades (§15.24).
+--
+-- Ændret 2026-09-29 (§15.25): samtaler, beskeder og notifikationer
+-- scopes til aktiv org - get_my_conversations-filter, DM pr. org,
+-- restriktiv RLS på conversations/messages/notifications.
 -- ---------------------------------------------------------------------
 
 
@@ -366,6 +392,28 @@ grant select on public.data_layer_item_status_counts to authenticated;
 
 
 -- ---------------------------------------------------------------------
+-- 9.1 DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Personlige stjernemarkeringer på /datalager: præcis én kategori ELLER
+-- ét lager/sektion pr. række. Undergrupper gemmes ikke - frontend viser
+-- dem foldbart under favoritten. Cascade fjerner favoritten, når målet,
+-- brugeren eller organisationen slettes.
+-- ---------------------------------------------------------------------
+create table public.data_layer_favorites (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  category_id      uuid references public.data_layer_categories(id) on delete cascade,
+  location_id      uuid references public.locations(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  constraint data_layer_favorites_one_target check (num_nonnulls(category_id, location_id) = 1),
+  constraint data_layer_favorites_user_category_key unique (user_id, category_id),
+  constraint data_layer_favorites_user_location_key unique (user_id, location_id)
+);
+
+create index idx_data_layer_favorites_user_org on public.data_layer_favorites (user_id, organisation_id);
+
+
+-- ---------------------------------------------------------------------
 -- 9.5 TASK ROOM (Studerende 3's tilføjelse)
 -- Dokumenteret her fra DB-eksport 2026-09-11 - IKKE oprettet eller
 -- ændret af Studerende 1. Tabellen stod indtil da slet ikke i denne fil,
@@ -375,22 +423,64 @@ grant select on public.data_layer_item_status_counts to authenticated;
 -- (tasks.room_id, afsnit 10). Placeret her - FØR tasks - fordi tasks'
 -- FK peger på den.
 --
--- required_role_id er Studerende 3's eget rolle-gate-koncept på
--- rum-niveau. Kolonnen findes i skemaet og i src/types/Task/Task.ts, men
--- bruges IKKE af nogen query eller UI endnu. Den overlapper konceptuelt
--- med US-63's planlagte manage_tasks-privilegie (to forskellige
--- adgangsmodeller) - se docs/migrations/us-63-tasks-write-privileges.sql,
--- spørgsmål 3.
+-- Rolle-begrænsning (2026-09-25): et rum kan begrænses til en eller
+-- flere roller via task_room_roles. Ingen rækker = åbent for alle med
+-- read_tasks. Se can_access_task_room (§15.22) og policies §16.7/16.7b.
+-- Erstattede den ubrugte enkelt-rolle-kolonne required_role_id (droppet).
 -- ---------------------------------------------------------------------
 create table public.task_rooms (
   id                uuid primary key default gen_random_uuid(),
   organisation_id   uuid not null references public.organisations(id) on delete cascade,
   name              text not null,
-  required_role_id  uuid references public.roles(id) on delete set null,
   created_at        timestamptz not null default now()
 );
 
 create index idx_task_rooms_org on public.task_rooms (organisation_id);
+
+-- Hvilke roller har adgang til et rum. Slettes en rolle, cascader den ud;
+-- står rummet derefter uden roller, bliver det åbent (bevidst accepteret).
+create table public.task_room_roles (
+  room_id  uuid not null references public.task_rooms(id) on delete cascade,
+  role_id  uuid not null references public.roles(id) on delete cascade,
+  primary key (room_id, role_id)
+);
+
+create index idx_task_room_roles_role on public.task_room_roles (role_id);
+
+
+-- ---------------------------------------------------------------------
+-- 9.5b TASK ROOM FAVORITES (ad-hoc, 2026-09-26)
+-- Personlige stjernemarkerede rum på /tasks - samme mønster som
+-- data_layer_favorites (§9.1). Toggle = insert/delete. Cascade fjerner
+-- favoritten, når rummet, brugeren eller organisationen slettes. Mister
+-- brugeren adgang til et rolle-låst rum, bliver rækken liggende, men
+-- rummet returneres ikke af task_rooms-policyen -> skjult i UI.
+-- ---------------------------------------------------------------------
+create table public.task_room_favorites (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  room_id          uuid not null references public.task_rooms(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  constraint task_room_favorites_user_room_key unique (user_id, room_id)
+);
+
+create index idx_task_room_favorites_user_org on public.task_room_favorites (user_id, organisation_id);
+
+
+-- ---------------------------------------------------------------------
+-- 9.9 NOTIFICATION PREFERENCES (US-79, 2026-09-27)
+-- Brugerens notifikationsindstillinger på /bruger: hovedkontakt (enabled)
+-- + fravalgte typer (muted_types). Én række pr. bruger, global (gælder
+-- alle organisationer). Ingen række = alt slået til. Håndhæves af
+-- triggeren skip_muted_notification på notifications (§15.20c).
+-- ---------------------------------------------------------------------
+create table public.notification_preferences (
+  user_id      uuid primary key default auth.uid() references public.profiles(id) on delete cascade,
+  enabled      boolean not null default true,
+  muted_types  text[]  not null default '{}',
+  updated_at   timestamptz not null default now()
+);
 
 
 -- ---------------------------------------------------------------------
@@ -449,6 +539,9 @@ create table public.task_participants (
 -- udføres først i approve_task_request ved godkendelse (se 15.19/15.21b).
 -- Afvises anmodningen i stedet, bruges kolonnen aldrig - materialerne
 -- forbliver urørt.
+-- rejection_reason (2026-09-24): godkenderens påkrævede begrundelse ved
+-- afvisning, sat af reject_task_request (15.19). Vises for de tilmeldte på
+-- opgavekortet, indtil opgaven meldes færdig igen.
 create table public.task_requests (
   id                 uuid primary key default gen_random_uuid(),
   task_id            uuid not null references public.tasks(id) on delete cascade,
@@ -457,7 +550,8 @@ create table public.task_requests (
   status             e_request_status not null default 'Pending',
   handled_by         uuid references public.profiles(id),
   done_at            timestamptz,
-  material_outcomes  jsonb
+  material_outcomes  jsonb,
+  rejection_reason   text
 );
 
 
@@ -1184,8 +1278,15 @@ begin
   values (v_org.id, 'Medlem')
   returning id into v_member_role_id;
 
+  -- Medlems faste privilegie-sæt seedes her - trg_prevent_default_role_
+  -- privilege_change (15.6d) blokerer ellers insert på "Medlem". Rettet
+  -- 2026-09-29: uden flaget fejlede al oprettelse af nye organisationer.
+  perform set_config('ponos.bypass_admin_protection', 'true', true);
+
   insert into public.privileges (role_id, name)
   values (v_member_role_id, 'read_news'), (v_member_role_id, 'read_tasks');
+
+  perform set_config('ponos.bypass_admin_protection', 'false', true);
 
   insert into public.memberships (user_id, organisation_id, role_id)
   values (v_user_id, v_org.id, v_admin_role_id);
@@ -1750,6 +1851,73 @@ $$;
 grant execute on function public.invite_member(text) to authenticated;
 
 
+-- ---------------------------------------------------------------------
+-- 15.16b US-67-udvidelse (2026-09-29): notifikation ved invitation.
+-- Ny invitation -> 'membership_invitation'-notifikation til den inviterede
+-- (title er fast dansk etiket, oversættes via type i frontend; body =
+-- organisationens navn; link åbner Dashboard -> Organisation ->
+-- Invitationer). Trigger frem for kode i invite_member, så enhver
+-- insert-vej dækkes. Besvaret (Accepted/Rejected) -> markeret læst;
+-- slettet (annulleret, eller org slettet) -> notifikationen slettes.
+-- skip_muted_notification (§15.20c) gælder. Kørt og testet 2026-09-29.
+-- ---------------------------------------------------------------------
+create or replace function public.notify_membership_invitation()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select
+    new.invited_user_id,
+    new.organisation_id,
+    'membership_invitation',
+    'Invitation til organisation',
+    o.name,
+    '/dashboard?tab=organisation&section=invitations',
+    new.id
+  from organisations o
+  where o.id = new.organisation_id;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_notify_membership_invitation
+  after insert on public.membership_invitations
+  for each row
+  execute function public.notify_membership_invitation();
+
+create or replace function public.sync_membership_invitation_notification()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if tg_op = 'DELETE' then
+    delete from notifications
+    where type = 'membership_invitation' and reference_id = old.id;
+    return old;
+  end if;
+
+  if new.status <> 'Pending' and old.status = 'Pending' then
+    update notifications
+      set is_read = true
+      where type = 'membership_invitation' and reference_id = new.id;
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_sync_membership_invitation_notification
+  after update of status or delete on public.membership_invitations
+  for each row
+  execute function public.sync_membership_invitation_notification();
+
+
 -- 15.17 US-68: nulstiller en glemt adgangskode UDEN mailbekræftelse.
 -- Skrives til auth.users direkte, da den der har glemt sin kode per
 -- definition ikke er logget ind og derfor ikke kan bruge GoTrues
@@ -1900,6 +2068,14 @@ grant execute on function public.set_task_status(uuid, text) to authenticated;
 -- gemte material_outcomes (se task_requests, §11) - se
 -- apply_task_material_outcomes (§15.21b). reject_task_request rører
 -- fortsat slet ikke materialerne.
+-- 2026-09-27: alle fire godkendelses-RPC'er (også get_pending_task_requests
+-- og get_task_request_details, §15.19b) respekterer rum-adgang via
+-- can_access_task_room(t.room_id) (§15.22, kører som godkenderen): en
+-- godkender ser/behandler kun anmodninger i rum, de har adgang til (åbne
+-- rum, rolle i rummet, view_all_task_rooms/admin). Låst rum = samme fejl
+-- som ukendt anmodning. Kræver stadig ikke read_tasks. Bruges også af fanen
+-- "Til godkendelse" (/tasks/godkend). Egen færdigmelding må godkendes
+-- (bevidst, bruger-valg 2026-09-27).
 create or replace function public.approve_task_request(p_request_id uuid)
 returns void
 language plpgsql
@@ -1925,7 +2101,8 @@ begin
   select r.task_id, r.status, t.title, r.material_outcomes into v_task_id, v_status, v_title, v_material_outcomes
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -1967,7 +2144,10 @@ begin
 end;
 $$;
 
-create or replace function public.reject_task_request(p_request_id uuid)
+-- 2026-09-24: påkrævet begrundelse (p_reason, maks. 500 tegn) - gemmes i
+-- task_requests.rejection_reason og sendes med i notifikationens body.
+-- Den gamle signatur reject_task_request(uuid) er droppet.
+create or replace function public.reject_task_request(p_request_id uuid, p_reason text)
 returns void
 language plpgsql
 security definer
@@ -1978,6 +2158,7 @@ declare
   v_task_id uuid;
   v_status public.e_request_status;
   v_title text;
+  v_reason text := nullif(trim(p_reason), '');
 begin
   if v_org_id is null then
     raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
@@ -1987,10 +2168,19 @@ begin
     raise exception 'Du har ikke rettigheder til at afvise opgaver.' using errcode = '42501', hint = 'NO_PRIV_REJECT_TASKS';
   end if;
 
+  if v_reason is null then
+    raise exception 'Du skal skrive en begrundelse for afvisningen.' using hint = 'REJECTION_REASON_REQUIRED';
+  end if;
+
+  if length(v_reason) > 500 then
+    raise exception 'Begrundelsen må højst være 500 tegn.' using hint = 'REJECTION_REASON_TOO_LONG';
+  end if;
+
   select r.task_id, r.status, t.title into v_task_id, v_status, v_title
   from public.task_requests r
   join public.tasks t on t.id = r.task_id
-  where r.id = p_request_id and t.organisation_id = v_org_id;
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
 
   if v_task_id is null then
     raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
@@ -2004,16 +2194,21 @@ begin
   -- heller ikke (2026-09-23) - de gemte material_outcomes bruges aldrig,
   -- enhederne forbliver Reserved/InUse, klar til en ny færdigmelding.
   update public.task_requests
-     set status = 'Rejected', handled_by = auth.uid(), done_at = now()
+     set status = 'Rejected', handled_by = auth.uid(), done_at = now(), rejection_reason = v_reason
    where id = p_request_id;
 
   insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
-  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title, '/tasks?task=' || v_task_id, v_task_id
+  select ta.user_id, v_org_id, 'task_rejected', 'Færdigmelding afvist', v_title || ': ' || v_reason, '/tasks?task=' || v_task_id, v_task_id
   from public.task_assignees ta
   where ta.task_id = v_task_id and ta.user_id <> auth.uid();
 end;
 $$;
 
+-- 2026-09-24: + rejection_count (antal tidligere afviste færdigmeldinger
+-- på opgaven, til "Afvist n gange"-mærket i listen). Returtypen ændret -
+-- blev kørt som drop + create.
+-- 2026-09-28: + room_id, room_name, priority, end_date (søg/sortering/
+-- rum-filter i godkendelseslisten). Også drop + create.
 create or replace function public.get_pending_task_requests()
 returns table (
   id uuid,
@@ -2022,7 +2217,12 @@ returns table (
   requested_by uuid,
   requester_first_name text,
   requester_last_name text,
-  requested_at timestamptz
+  requested_at timestamptz,
+  rejection_count integer,
+  room_id uuid,
+  room_name text,
+  priority e_task_priority,
+  end_date timestamptz
 )
 language plpgsql
 stable
@@ -2041,21 +2241,154 @@ begin
   end if;
 
   return query
-    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at
+    select r.id, r.task_id, t.title, r.requested_by, p.first_name, p.last_name, r.requested_at,
+      (select count(*)::integer from public.task_requests pr
+        where pr.task_id = r.task_id and pr.status = 'Rejected') as rejection_count,
+      t.room_id, tr.name, t.priority, t.end_date
     from public.task_requests r
     join public.tasks t on t.id = r.task_id
+    left join public.task_rooms tr on tr.id = t.room_id
     left join public.profiles p on p.id = r.requested_by
     where r.status = 'Pending' and t.organisation_id = v_org_id
+      and public.can_access_task_room(t.room_id)
     order by r.requested_at;
 end;
 $$;
 
 revoke execute on function public.approve_task_request(uuid) from public, anon;
-revoke execute on function public.reject_task_request(uuid) from public, anon;
+revoke execute on function public.reject_task_request(uuid, text) from public, anon;
 revoke execute on function public.get_pending_task_requests() from public, anon;
 grant execute on function public.approve_task_request(uuid) to authenticated;
-grant execute on function public.reject_task_request(uuid) to authenticated;
+grant execute on function public.reject_task_request(uuid, text) to authenticated;
 grant execute on function public.get_pending_task_requests() to authenticated;
+
+
+-- 15.19b US-75-udvidelse (2026-09-24): detaljer for én færdigmelding til
+-- godkenderens detalje-modal (TaskApprovalDetailsModal.tsx): opgave, rum,
+-- tilmeldte, materialer (reserveret mængde, nuværende status-fordeling,
+-- lokationer) + den tildeltes foreslåede udfald fra material_outcomes.
+-- Security definer, da en godkender (approve_task/reject_task) ikke
+-- nødvendigvis har read_tasks - samme begrundelse som
+-- get_pending_task_requests. Org-isoleret via tasks.organisation_id.
+-- 2026-09-24: + previous_rejections (opgavens afviste færdigmeldinger m.
+-- begrundelse, afvist af/tidspunkt, meldt færdig af), nyeste først.
+create or replace function public.get_task_request_details(p_request_id uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_org_id uuid := public.auth_profile_org();
+  v_task_id uuid;
+  v_result jsonb;
+begin
+  if v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if not (public.has_privilege_or_admin('approve_task') or public.has_privilege_or_admin('reject_task')) then
+    raise exception 'Du har ikke rettigheder til at se opgavegodkendelser.' using errcode = '42501', hint = 'NO_PRIV_READ_TASK_APPROVALS';
+  end if;
+
+  select r.task_id into v_task_id
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  where r.id = p_request_id and t.organisation_id = v_org_id
+    and public.can_access_task_room(t.room_id);
+
+  if v_task_id is null then
+    raise exception 'Anmodningen findes ikke i din organisation.' using hint = 'TASK_REQUEST_NOT_FOUND';
+  end if;
+
+  select jsonb_build_object(
+    'task', jsonb_build_object(
+      'id', t.id,
+      'title', t.title,
+      'description', t.description,
+      'priority', t.priority,
+      'status', t.status,
+      'start_date', t.start_date,
+      'end_date', t.end_date,
+      'requires_approval', t.requires_approval,
+      'room_name', tr.name
+    ),
+    'requester_name', trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')),
+    'requested_at', r.requested_at,
+    'assignees', coalesce((
+      select jsonb_agg(trim(coalesce(ap.first_name, '') || ' ' || coalesce(ap.last_name, '')) order by ap.first_name, ap.last_name)
+      from public.task_assignees ta
+      left join public.profiles ap on ap.id = ta.user_id
+      where ta.task_id = t.id
+    ), '[]'::jsonb),
+    'materials', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', tm.id,
+        'item_name', i.name,
+        'unit_of_measurement', i.unit_of_measurement,
+        'quantity', tm.quantity,
+        'linked_groups', coalesce((
+          select jsonb_agg(jsonb_build_object('status', g.status, 'quantity', g.quantity))
+          from (
+            select u.status, sum(u.quantity) as quantity
+            from public.task_material_units tmu
+            join public.data_layer_item_units u on u.id = tmu.unit_id
+            where tmu.task_material_id = tm.id
+            group by u.status
+          ) g
+        ), '[]'::jsonb),
+        'location_labels', coalesce((
+          select jsonb_agg(distinct case when pl.id is null then l.name else pl.name || ' > ' || l.name end)
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          join public.locations l on l.id = u.location_id
+          left join public.locations pl on pl.id = l.parent_location_id
+          where tmu.task_material_id = tm.id
+        ), '[]'::jsonb),
+        'has_units_without_location', exists (
+          select 1
+          from public.task_material_units tmu
+          join public.data_layer_item_units u on u.id = tmu.unit_id
+          where tmu.task_material_id = tm.id and u.location_id is null
+        ),
+        'proposed_outcomes', (
+          select mo->'outcomes'
+          from jsonb_array_elements(coalesce(r.material_outcomes, '[]'::jsonb)) mo
+          where (mo->>'taskMaterialId')::uuid = tm.id
+          limit 1
+        )
+      ) order by i.name)
+      from public.task_materials tm
+      join public.data_layer_items i on i.id = tm.item_id
+      where tm.task_id = t.id
+    ), '[]'::jsonb),
+    'previous_rejections', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'reason', pr.rejection_reason,
+        'rejected_at', pr.done_at,
+        'rejected_by_name', trim(coalesce(hp.first_name, '') || ' ' || coalesce(hp.last_name, '')),
+        'requester_name', trim(coalesce(rp.first_name, '') || ' ' || coalesce(rp.last_name, '')),
+        'requested_at', pr.requested_at
+      ) order by pr.done_at desc nulls last)
+      from public.task_requests pr
+      left join public.profiles hp on hp.id = pr.handled_by
+      left join public.profiles rp on rp.id = pr.requested_by
+      where pr.task_id = t.id and pr.status = 'Rejected'
+    ), '[]'::jsonb)
+  ) into v_result
+  from public.task_requests r
+  join public.tasks t on t.id = r.task_id
+  left join public.task_rooms tr on tr.id = t.room_id
+  left join public.profiles p on p.id = r.requested_by
+  where r.id = p_request_id;
+
+  return v_result;
+end;
+$$;
+
+revoke execute on function public.get_task_request_details(uuid) from public, anon;
+grant execute on function public.get_task_request_details(uuid) to authenticated;
 
 
 -- 15.20 US-75 (2026-09-19): notify_task_completed (notifikationsfeaturen,
@@ -2064,9 +2397,12 @@ grant execute on function public.get_pending_task_requests() to authenticated;
 -- lokale flag ponos.skip_task_completed_notify, ellers ville tilmeldte få både
 -- "godkendt" og "afsluttet". notifications-tabellen og de to øvrige
 -- notify_task_*-triggere mangler stadig i dette dokument. Tabellens
--- type-constraint tillader nu:
+-- type-constraint (notifications_type_check, type er text) tillader
+-- pr. 2026-09-29 ('membership_invitation' tilføjet, se §15.16b):
 --   check (type = any (array['message','task_assigned','task_updated',
---                            'task_completed','task_approved','task_rejected']))
+--                            'task_completed','task_approved','task_rejected',
+--                            'news','task_favorite_room',
+--                            'membership_invitation']))
 create or replace function public.notify_task_completed()
 returns trigger
 language plpgsql
@@ -2099,6 +2435,92 @@ $function$;
 
 -- create trigger trg_notify_task_completed after update of status on public.tasks
 --   for each row execute function notify_task_completed();   (findes allerede i live)
+
+
+-- ---------------------------------------------------------------------
+-- 15.20b US-78 (2026-09-27): notify_task_created_in_favorite_room
+-- Ny opgave i et rum -> notifikation 'task_favorite_room' til brugere med
+-- rummet som favorit (task_room_favorites, §9.5b), ekskl. opretteren. Kun
+-- ved insert (ikke når en opgave flyttes ind i et rum); ingen opt-out.
+-- Rettigheder tjekkes for MODTAGEREN via memberships.role_id +
+-- role_has_privilege: can_access_task_room/has_privilege_or_admin bruger
+-- auth.uid() (= opretteren i triggeren) og kan ikke genbruges.
+-- Body "Rum: Opgavetitel", link /tasks?taskId=. Kørt og testet 2026-09-27.
+-- ---------------------------------------------------------------------
+create or replace function public.notify_task_created_in_favorite_room()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select
+    f.user_id,
+    new.organisation_id,
+    'task_favorite_room',
+    'Ny opgave i et favoritrum',
+    tr.name || ': ' || new.title,
+    '/tasks?taskId=' || new.id,
+    new.id
+  from task_room_favorites f
+  join task_rooms tr on tr.id = f.room_id
+  join memberships m on m.user_id = f.user_id and m.organisation_id = new.organisation_id
+  where f.room_id = new.room_id
+    and f.organisation_id = new.organisation_id
+    and f.user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+    and m.role_id is not null
+    and (role_has_privilege(m.role_id, 'read_tasks') or role_has_privilege(m.role_id, 'admin'))
+    and (
+      role_has_privilege(m.role_id, 'admin')
+      or role_has_privilege(m.role_id, 'view_all_task_rooms')
+      or not exists (select 1 from task_room_roles trr where trr.room_id = new.room_id)
+      or exists (select 1 from task_room_roles trr where trr.room_id = new.room_id and trr.role_id = m.role_id)
+    );
+
+  return new;
+end;
+$function$;
+
+create trigger trg_notify_task_created_in_favorite_room
+  after insert on public.tasks
+  for each row
+  when (new.room_id is not null)
+  execute function public.notify_task_created_in_favorite_room();
+
+
+-- ---------------------------------------------------------------------
+-- 15.20c US-79 (2026-09-27): skip_muted_notification
+-- before insert-trigger på notifications (Rasmus' tabel - hans notify_*-
+-- triggere er ikke ændret): dropper rækken (return null), hvis modtageren
+-- har slået alt eller typen fra i notification_preferences (§9.9). Virker
+-- derfor for alle eksisterende og fremtidige notify-triggere. Slåede-fra
+-- notifikationer oprettes slet ikke. Kørt og testet 2026-09-27.
+-- ---------------------------------------------------------------------
+create or replace function public.skip_muted_notification()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if exists (
+    select 1
+    from notification_preferences p
+    where p.user_id = new.user_id
+      and (not p.enabled or new.type = any(p.muted_types))
+  ) then
+    return null;
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_skip_muted_notification
+  before insert on public.notifications
+  for each row
+  execute function public.skip_muted_notification();
 
 
 -- ---------------------------------------------------------------------
@@ -2903,6 +3325,1516 @@ end;
 $$;
 
 
+-- ---------------------------------------------------------------------
+-- 15.22 (2026-09-25): ROLLE-BEGRÆNSEDE OPGAVERUM
+-- can_access_task_room: true hvis rummet er null, kalderen har
+-- view_all_task_rooms/admin, rummet ingen roller har, eller kalderens
+-- rolle i den aktive org er blandt rummets roller. is_task_assignee:
+-- tilmeldte ser altid egne opgaver. Begge security definer, så tasks-
+-- policyen ikke rekursivt rammer task_assignees' policy (som slår op i
+-- tasks). create_task_room/update_task_room er eneste skrivevej til
+-- task_room_roles (kun select-policy, §16.7b).
+-- ---------------------------------------------------------------------
+create or replace function public.can_access_task_room(p_room_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p_room_id is null
+    or public.has_privilege_or_admin('view_all_task_rooms')
+    or not exists (select 1 from public.task_room_roles where room_id = p_room_id)
+    or exists (
+      select 1
+      from public.task_room_roles trr
+      join public.memberships m on m.role_id = trr.role_id
+      join public.profiles pr on pr.id = m.user_id and pr.active_organisation_id = m.organisation_id
+      where trr.room_id = p_room_id and pr.id = auth.uid()
+    );
+$$;
+
+create or replace function public.is_task_assignee(p_task_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.task_assignees where task_id = p_task_id and user_id = auth.uid()
+  );
+$$;
+
+grant execute on function public.can_access_task_room(uuid) to authenticated;
+grant execute on function public.is_task_assignee(uuid) to authenticated;
+
+create or replace function public.create_task_room(p_name text, p_role_ids uuid[])
+returns public.task_rooms
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org  uuid := public.auth_profile_org();
+  v_room public.task_rooms;
+begin
+  if v_org is null or not public.has_privilege_or_admin('create_tasks') then
+    raise exception 'Du har ikke rettigheder til at oprette rum.' using errcode = '42501';
+  end if;
+
+  if coalesce(trim(p_name), '') = '' then
+    raise exception 'Rummet skal have et navn.';
+  end if;
+
+  if exists (
+    select 1 from unnest(coalesce(p_role_ids, '{}')) r(id)
+    where not exists (select 1 from public.roles where id = r.id and organisation_id = v_org)
+  ) then
+    raise exception 'En eller flere roller tilhører ikke organisationen.';
+  end if;
+
+  insert into public.task_rooms (organisation_id, name)
+  values (v_org, trim(p_name))
+  returning * into v_room;
+
+  insert into public.task_room_roles (room_id, role_id)
+  select distinct v_room.id, r.id from unnest(coalesce(p_role_ids, '{}')) r(id);
+
+  -- §15.24: opret/genåbn/luk rummets chat.
+  perform public.sync_room_conversation(v_room.id);
+
+  return v_room;
+end;
+$$;
+
+create or replace function public.update_task_room(p_room_id uuid, p_name text, p_role_ids uuid[])
+returns public.task_rooms
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org  uuid := public.auth_profile_org();
+  v_room public.task_rooms;
+begin
+  if v_org is null
+    or not public.has_privilege_or_admin('update_tasks')
+    or not public.can_access_task_room(p_room_id)
+    or not exists (select 1 from public.task_rooms where id = p_room_id and organisation_id = v_org)
+  then
+    raise exception 'Du har ikke rettigheder til at redigere rummet.' using errcode = '42501';
+  end if;
+
+  if coalesce(trim(p_name), '') = '' then
+    raise exception 'Rummet skal have et navn.';
+  end if;
+
+  if exists (
+    select 1 from unnest(coalesce(p_role_ids, '{}')) r(id)
+    where not exists (select 1 from public.roles where id = r.id and organisation_id = v_org)
+  ) then
+    raise exception 'En eller flere roller tilhører ikke organisationen.';
+  end if;
+
+  update public.task_rooms set name = trim(p_name)
+  where id = p_room_id
+  returning * into v_room;
+
+  delete from public.task_room_roles where room_id = p_room_id;
+
+  insert into public.task_room_roles (room_id, role_id)
+  select distinct p_room_id, r.id from unnest(coalesce(p_role_ids, '{}')) r(id);
+
+  -- §15.24: opret/genåbn/luk rummets chat.
+  perform public.sync_room_conversation(p_room_id);
+
+  return v_room;
+end;
+$$;
+
+grant execute on function public.create_task_room(text, uuid[]) to authenticated;
+grant execute on function public.update_task_room(uuid, text, uuid[]) to authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.23 (2026-09-25): HURTIG ROLLE-OPRETTELSE MED PRIVILEGIER
+-- Bruges af QuickCreateRoleModal.tsx (opret/rediger rum). Opretter rolle
+-- + privilegier atomisk. Kræver kun create_roles - en almindelig insert i
+-- privileges kræver update_roles (§16.4). Eskalerings-guard: man kan kun
+-- give privilegier, man selv har (admin: alle), og aldrig 'admin'.
+-- Dublet-navn giver 23505 via unique (organisation_id, name).
+-- ---------------------------------------------------------------------
+create or replace function public.create_role_with_privileges(p_name text, p_privilege_names text[])
+returns table (id uuid, name text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org     uuid := public.auth_profile_org();
+  v_role_id uuid;
+  v_name    text := trim(coalesce(p_name, ''));
+  v_priv    text;
+begin
+  if v_org is null or not public.has_privilege_or_admin('create_roles') then
+    raise exception 'Du har ikke rettigheder til at oprette roller.'
+      using errcode = '42501', hint = 'NO_PRIV_CREATE_ROLES';
+  end if;
+
+  if v_name = '' then
+    raise exception 'Rollen skal have et navn.' using hint = 'ROLE_NAME_REQUIRED';
+  end if;
+
+  foreach v_priv in array coalesce(p_privilege_names, '{}') loop
+    if v_priv = 'admin' or not (public.has_privilege('admin') or public.has_privilege(v_priv)) then
+      raise exception 'Du kan kun give privilegier, du selv har.'
+        using errcode = '42501', hint = 'NO_PRIV_GRANT_PRIVILEGE';
+    end if;
+  end loop;
+
+  -- Unik (organisation_id, name) giver 23505 ved dublet - mappes i roleApi.ts.
+  insert into public.roles (organisation_id, name)
+  values (v_org, v_name)
+  returning roles.id into v_role_id;
+
+  insert into public.privileges (role_id, name)
+  select distinct v_role_id, p from unnest(coalesce(p_privilege_names, '{}')) p;
+
+  return query select v_role_id, v_name;
+end;
+$$;
+
+grant execute on function public.create_role_with_privileges(text, text[]) to authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.24 (2026-09-27): OPGAVE- OG RUM-CHATS (ad-hoc, Studerende 3's domæne)
+-- Auto-beskedgrupper: opgave med >= 2 tilmeldte, og rolle-låste rum.
+-- conversations.task_id/room_id kobler samtalen; closed_at gør hele
+-- chatten skrivebeskyttet (rum gjort åbent); completion_choice er den
+-- enkelte deltagers valg efter afsluttet opgave ('close' = kun læsning for
+-- vedkommende). Systembeskedernes tekst er faste danske sentinels, som
+-- frontend oversætter i src/utils/systemMessageDisplay.ts.
+-- Beskedtabellerne selv er stadig udokumenterede (se KENDT DRIFT øverst);
+-- her står kun det, denne ændring rørte - inkl. de fulde, nuværende
+-- definitioner af edit_message, notify_new_message, gruppe-RPC'erne og
+-- get_my_conversations. RLS-policies for samtaler/beskeder står også her,
+-- ikke i §16, fordi resten af beskedernes policies heller ikke står dér.
+-- Kørt 2026-09-27 (docs/migrations/2026-09-27-task-room-conversations.sql,
+-- inkl. et engangs-backfill for eksisterende rolle-låste rum og ikke-
+-- afsluttede opgaver med >= 2 tilmeldte).
+-- Opfølgning 2026-09-27 (2026-09-27-task-chat-archive-when-all-closed.sql):
+-- en opgave-chat arkiveres (archived_at), når ALLE deltagere har valgt
+-- 'close', og skjules i get_my_conversations; af-arkiveres når en deltager
+-- ikke har valgt 'close' (genåbnet opgave nulstiller valg, ny tilmeldt).
+-- Styres af sync_task_conversation_archive. Beskederne bevares.
+-- Opfølgning 2026-09-27 (2026-09-27-system-chat-leave.sql): opgave-/rum-
+-- chats kan forlades (leave_group_conversation); fravalget huskes i
+-- conversation_opt_outs. Genindtræden via Chat-knap (join_task_conversation /
+-- get_or_join_room_conversation). Tilføj/fjern/omdøb er stadig låst.
+-- ---------------------------------------------------------------------
+-- ---------------------------------------------------------------------
+-- 1. Kolonner
+-- ---------------------------------------------------------------------
+alter table public.conversations
+  add column task_id uuid unique references public.tasks(id) on delete cascade,
+  add column room_id uuid unique references public.task_rooms(id) on delete cascade,
+  add column closed_at timestamptz,
+  add constraint conversations_single_source_check check (num_nonnulls(task_id, room_id) <= 1),
+  add constraint conversations_system_is_group_check check ((task_id is null and room_id is null) or is_group);
+
+alter table public.conversation_participants
+  add column completion_choice text
+    constraint conversation_participants_completion_choice_check check (completion_choice in ('keep', 'close'));
+
+-- Brugere, der selv har forladt en opgave-/rum-chat. sync_task_conversation/
+-- sync_room_conversation springer dem over; fravalget slettes ved
+-- genindtræden (join_task_conversation/get_or_join_room_conversation), ved
+-- afmelding af opgaven og ved mistet rum-adgang.
+create table public.conversation_opt_outs (
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (conversation_id, user_id)
+);
+
+-- Kun security definer-funktionerne rører tabellen.
+alter table public.conversation_opt_outs enable row level security;
+
+-- ---------------------------------------------------------------------
+-- 2. Hjælpefunktioner
+-- ---------------------------------------------------------------------
+
+-- Har en given bruger (ikke nødvendigvis auth.uid()) adgang til rummet?
+-- Spejler can_access_task_room, men pr. bruger og uafhængigt af aktiv org.
+create or replace function public.member_can_access_room(p_user_id uuid, p_room_id uuid)
+returns boolean
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select exists (
+    select 1
+    from public.task_rooms r
+    join public.memberships m on m.organisation_id = r.organisation_id and m.user_id = p_user_id
+    where r.id = p_room_id
+      and m.role_id is not null
+      and (
+        public.role_has_privilege(m.role_id, 'admin')
+        or (
+          public.role_has_privilege(m.role_id, 'read_tasks')
+          and (
+            public.role_has_privilege(m.role_id, 'view_all_task_rooms')
+            or not exists (select 1 from public.task_room_roles trr where trr.room_id = r.id)
+            or exists (select 1 from public.task_room_roles trr where trr.room_id = r.id and trr.role_id = m.role_id)
+          )
+        )
+      )
+  );
+$function$;
+
+-- RLS-hjælper (læs): rum-chats kræver rum-adgang. Andre samtaler: true.
+create or replace function public.conversation_room_access_ok(p_conversation_id uuid)
+returns boolean
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select coalesce((
+    select c.room_id is null or public.can_access_task_room(c.room_id)
+    from public.conversations c
+    where c.id = p_conversation_id
+  ), true);
+$function$;
+
+-- RLS-hjælper (skriv): kalderen er deltager, chatten er ikke lukket, kalderen
+-- har ikke selv lukket den, og for rum-chats: rummet er stadig rolle-låst og
+-- kalderen har adgang.
+create or replace function public.can_write_conversation(p_conversation_id uuid)
+returns boolean
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select exists (
+    select 1
+    from public.conversations c
+    join public.conversation_participants cp
+      on cp.conversation_id = c.id and cp.user_id = auth.uid()
+    where c.id = p_conversation_id
+      and c.closed_at is null
+      and cp.completion_choice is distinct from 'close'
+      and (
+        c.room_id is null
+        or (
+          public.can_access_task_room(c.room_id)
+          and exists (select 1 from public.task_room_roles trr where trr.room_id = c.room_id)
+        )
+      )
+  );
+$function$;
+
+-- ---------------------------------------------------------------------
+-- 3. Opgave-chat
+-- ---------------------------------------------------------------------
+-- Opgave-chat er arkiveret, netop når den har deltagere og ALLE har valgt
+-- 'close'. Ingen deltagere: røres ikke (archive_empty_group_conversation).
+create or replace function public.sync_task_conversation_archive(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if not exists (
+    select 1 from public.conversation_participants where conversation_id = p_conversation_id
+  ) then
+    return;
+  end if;
+
+  if not exists (
+    select 1 from public.conversation_participants
+    where conversation_id = p_conversation_id
+      and completion_choice is distinct from 'close'
+  ) then
+    update public.conversations
+       set archived_at = coalesce(archived_at, now()),
+           archived_by = coalesce(archived_by, auth.uid())
+     where id = p_conversation_id
+       and task_id is not null;
+  else
+    update public.conversations
+       set archived_at = null, archived_by = null
+     where id = p_conversation_id
+       and task_id is not null
+       and archived_at is not null;
+  end if;
+end;
+$function$;
+
+revoke execute on function public.sync_task_conversation_archive(uuid) from public, anon, authenticated;
+
+create or replace function public.sync_task_conversation(p_task_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_task public.tasks;
+  v_conversation_id uuid;
+  v_actor uuid;
+begin
+  perform pg_advisory_xact_lock(hashtextextended('task_conversation:' || p_task_id::text, 0));
+
+  select * into v_task from public.tasks where id = p_task_id;
+  if v_task.id is null then
+    return; -- opgaven slettes (cascade) - chatten følger med via FK.
+  end if;
+
+  select id into v_conversation_id from public.conversations where task_id = p_task_id;
+
+  if v_conversation_id is null then
+    if (select count(*) from public.task_assignees where task_id = p_task_id) < 2 then
+      return;
+    end if;
+
+    v_actor := coalesce(
+      auth.uid(),
+      (select user_id from public.task_assignees where task_id = p_task_id order by assigned_at limit 1)
+    );
+
+    insert into public.conversations (organisation_id, is_group, name, created_by, task_id)
+    values (v_task.organisation_id, true, v_task.title, v_actor, p_task_id)
+    returning id into v_conversation_id;
+
+    -- Beskeden indsættes før deltagerne, så ingen får notifikation for den.
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (v_conversation_id, v_actor, 'Gruppe oprettet for opgaven', 'system');
+  end if;
+
+  -- Tilmeldte, undtagen dem der selv har forladt chatten.
+  insert into public.conversation_participants (conversation_id, user_id)
+  select v_conversation_id, ta.user_id
+  from public.task_assignees ta
+  where ta.task_id = p_task_id
+    and not exists (
+      select 1 from public.conversation_opt_outs o
+      where o.conversation_id = v_conversation_id and o.user_id = ta.user_id
+    )
+  on conflict (conversation_id, user_id) do nothing;
+
+  delete from public.conversation_participants cp
+  where cp.conversation_id = v_conversation_id
+    and not exists (
+      select 1 from public.task_assignees ta
+      where ta.task_id = p_task_id and ta.user_id = cp.user_id
+    );
+
+  -- Afmeldt opgaven: fravalget glemmes, så en ny tilmelding melder ind igen.
+  delete from public.conversation_opt_outs o
+  where o.conversation_id = v_conversation_id
+    and not exists (
+      select 1 from public.task_assignees ta
+      where ta.task_id = p_task_id and ta.user_id = o.user_id
+    );
+
+  -- Arkivering følger deltagernes valg (alle 'close' = arkiveret).
+  perform public.sync_task_conversation_archive(v_conversation_id);
+end;
+$function$;
+
+create or replace function public.sync_task_conversation_on_assignee_change()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if tg_op = 'DELETE' then
+    perform public.sync_task_conversation(old.task_id);
+  else
+    perform public.sync_task_conversation(new.task_id);
+  end if;
+  return null;
+end;
+$function$;
+
+create trigger trg_sync_task_conversation
+  after insert or delete on public.task_assignees
+  for each row execute function public.sync_task_conversation_on_assignee_change();
+
+create or replace function public.handle_task_conversation_changes()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_conversation_id uuid;
+  v_created_by uuid;
+  v_actor uuid;
+begin
+  select id, created_by into v_conversation_id, v_created_by
+  from public.conversations
+  where task_id = new.id;
+
+  if v_conversation_id is null then
+    return new;
+  end if;
+
+  v_actor := coalesce(auth.uid(), v_created_by);
+
+  if new.title is distinct from old.title then
+    update public.conversations set name = new.title where id = v_conversation_id;
+  end if;
+
+  if new.status = 'Completed' and old.status is distinct from 'Completed' then
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (v_conversation_id, v_actor, 'Opgaven er afsluttet', 'system');
+  elsif old.status = 'Completed' and new.status is distinct from 'Completed' then
+    update public.conversation_participants
+       set completion_choice = null
+     where conversation_id = v_conversation_id;
+
+    -- Valgene er nulstillet -> chatten af-arkiveres og dukker op igen.
+    perform public.sync_task_conversation_archive(v_conversation_id);
+
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (v_conversation_id, v_actor, 'Opgaven er genåbnet', 'system');
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_task_conversation_changes
+  after update of title, status on public.tasks
+  for each row execute function public.handle_task_conversation_changes();
+
+create or replace function public.set_task_chat_choice(p_conversation_id uuid, p_choice text)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_task_id uuid;
+  v_task_status public.e_task_status;
+begin
+  if auth.uid() is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if p_choice is null or p_choice not in ('keep', 'close') then
+    raise exception 'Ugyldigt valg.' using hint = 'INVALID_CHAT_CHOICE';
+  end if;
+
+  select c.task_id, t.status into v_task_id, v_task_status
+  from public.conversations c
+  left join public.tasks t on t.id = c.task_id
+  where c.id = p_conversation_id;
+
+  if v_task_id is null then
+    raise exception 'Samtalen er ikke en opgave-chat.' using hint = 'NOT_TASK_CHAT';
+  end if;
+
+  if not public.is_conversation_participant(p_conversation_id, auth.uid()) then
+    raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+  end if;
+
+  if v_task_status is distinct from 'Completed' then
+    raise exception 'Du kan først vælge, når opgaven er afsluttet.' using hint = 'TASK_NOT_COMPLETED';
+  end if;
+
+  update public.conversation_participants
+     set completion_choice = p_choice
+   where conversation_id = p_conversation_id
+     and user_id = auth.uid();
+
+  perform public.sync_task_conversation_archive(p_conversation_id);
+end;
+$function$;
+
+-- ---------------------------------------------------------------------
+-- 4. Rum-chat
+-- ---------------------------------------------------------------------
+create or replace function public.sync_room_conversation(p_room_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_room public.task_rooms;
+  v_conversation_id uuid;
+  v_closed_at timestamptz;
+  v_created_by uuid;
+  v_actor uuid;
+begin
+  perform pg_advisory_xact_lock(hashtextextended('room_conversation:' || p_room_id::text, 0));
+
+  select * into v_room from public.task_rooms where id = p_room_id;
+  if v_room.id is null then
+    return;
+  end if;
+
+  select id, closed_at, created_by into v_conversation_id, v_closed_at, v_created_by
+  from public.conversations
+  where room_id = p_room_id;
+
+  -- Åbent rum (ingen roller): ingen chat; en eksisterende bliver skrivebeskyttet.
+  if not exists (select 1 from public.task_room_roles where room_id = p_room_id) then
+    if v_conversation_id is not null and v_closed_at is null then
+      update public.conversations set closed_at = now() where id = v_conversation_id;
+
+      insert into public.messages (conversation_id, sender_id, content, message_type)
+      values (v_conversation_id, coalesce(auth.uid(), v_created_by),
+              'Rummet er ikke længere rolle-låst - chatten er lukket', 'system');
+    end if;
+    return;
+  end if;
+
+  if v_conversation_id is null then
+    v_actor := coalesce(
+      auth.uid(),
+      (select m.user_id
+       from public.memberships m
+       join public.task_room_roles trr on trr.role_id = m.role_id
+       where trr.room_id = p_room_id and m.organisation_id = v_room.organisation_id
+       order by m.created_at
+       limit 1)
+    );
+
+    if v_actor is null then
+      return; -- ingen at oprette chatten for endnu.
+    end if;
+
+    insert into public.conversations (organisation_id, is_group, name, created_by, room_id)
+    values (v_room.organisation_id, true, v_room.name, v_actor, p_room_id)
+    returning id into v_conversation_id;
+
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (v_conversation_id, v_actor, 'Gruppe oprettet for rummet', 'system');
+  else
+    v_actor := coalesce(auth.uid(), v_created_by);
+
+    if v_closed_at is not null then
+      update public.conversations set closed_at = null where id = v_conversation_id;
+
+      insert into public.messages (conversation_id, sender_id, content, message_type)
+      values (v_conversation_id, v_actor, 'Rummet er rolle-låst igen - chatten er genåbnet', 'system');
+    end if;
+
+    update public.conversations
+       set name = v_room.name
+     where id = v_conversation_id
+       and name is distinct from v_room.name;
+  end if;
+
+  -- Medlemmer med en af rummets roller, undtagen dem der selv har forladt
+  -- chatten. Admins/view_all_task_rooms tilføjes ikke automatisk, men kan
+  -- selv melde sig ind (get_or_join_room_conversation) og fjernes ikke
+  -- herunder, da de stadig har adgang.
+  insert into public.conversation_participants (conversation_id, user_id)
+  select distinct v_conversation_id, m.user_id
+  from public.memberships m
+  join public.task_room_roles trr on trr.role_id = m.role_id
+  where trr.room_id = p_room_id
+    and m.organisation_id = v_room.organisation_id
+    and (public.role_has_privilege(m.role_id, 'read_tasks') or public.role_has_privilege(m.role_id, 'admin'))
+    and not exists (
+      select 1 from public.conversation_opt_outs o
+      where o.conversation_id = v_conversation_id and o.user_id = m.user_id
+    )
+  on conflict (conversation_id, user_id) do nothing;
+
+  delete from public.conversation_participants cp
+  where cp.conversation_id = v_conversation_id
+    and not public.member_can_access_room(cp.user_id, p_room_id);
+
+  -- Mistet rum-adgang: fravalget glemmes, så ny adgang melder ind igen.
+  delete from public.conversation_opt_outs o
+  where o.conversation_id = v_conversation_id
+    and not public.member_can_access_room(o.user_id, p_room_id);
+
+  update public.conversations c
+     set archived_at = null, archived_by = null
+   where c.id = v_conversation_id
+     and c.archived_at is not null
+     and exists (select 1 from public.conversation_participants cp where cp.conversation_id = c.id);
+end;
+$function$;
+
+create or replace function public.get_or_join_room_conversation(p_room_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_org uuid := public.auth_profile_org();
+  v_conversation_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if v_org is null
+     or not public.has_privilege_or_admin('read_tasks')
+     or not exists (select 1 from public.task_rooms where id = p_room_id and organisation_id = v_org)
+     or not public.can_access_task_room(p_room_id)
+  then
+    raise exception 'Rummet findes ikke, eller du har ikke adgang til det.' using hint = 'ROOM_NOT_ACCESSIBLE';
+  end if;
+
+  if not exists (select 1 from public.task_room_roles where room_id = p_room_id) then
+    raise exception 'Rummet er ikke rolle-låst og har ingen chat.' using hint = 'ROOM_NOT_ROLE_LOCKED';
+  end if;
+
+  select id into v_conversation_id from public.conversations where room_id = p_room_id;
+
+  if v_conversation_id is null then
+    perform public.sync_room_conversation(p_room_id);
+    select id into v_conversation_id from public.conversations where room_id = p_room_id;
+  end if;
+
+  delete from public.conversation_opt_outs
+  where conversation_id = v_conversation_id
+    and user_id = auth.uid();
+
+  insert into public.conversation_participants (conversation_id, user_id)
+  values (v_conversation_id, auth.uid())
+  on conflict (conversation_id, user_id) do nothing;
+
+  update public.conversations
+     set archived_at = null, archived_by = null
+   where id = v_conversation_id and archived_at is not null;
+
+  return v_conversation_id;
+end;
+$function$;
+
+-- Tilmeldt bruger melder sig (ind) igen via Chat-knappen på opgavekortet.
+create or replace function public.join_task_conversation(p_task_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_org uuid := public.auth_profile_org();
+  v_conversation_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if v_org is null
+     or not exists (
+       select 1
+       from public.tasks t
+       join public.task_assignees ta on ta.task_id = t.id and ta.user_id = auth.uid()
+       where t.id = p_task_id and t.organisation_id = v_org
+     )
+  then
+    raise exception 'Opgave-chatten er ikke tilgængelig for dig.' using hint = 'TASK_CHAT_NOT_AVAILABLE';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('task_conversation:' || p_task_id::text, 0));
+
+  select id into v_conversation_id from public.conversations where task_id = p_task_id;
+
+  if v_conversation_id is null then
+    perform public.sync_task_conversation(p_task_id);
+    select id into v_conversation_id from public.conversations where task_id = p_task_id;
+
+    if v_conversation_id is null then
+      raise exception 'Opgave-chatten er ikke tilgængelig for dig.' using hint = 'TASK_CHAT_NOT_AVAILABLE';
+    end if;
+  end if;
+
+  delete from public.conversation_opt_outs
+  where conversation_id = v_conversation_id
+    and user_id = auth.uid();
+
+  -- Stadig deltager, men chatten er arkiveret (alle lukkede): Chat-klik
+  -- fortryder mit 'close', så den dukker op igen.
+  insert into public.conversation_participants (conversation_id, user_id)
+  values (v_conversation_id, auth.uid())
+  on conflict (conversation_id, user_id) do update
+    set completion_choice = null
+    where conversation_participants.completion_choice = 'close';
+
+  perform public.sync_task_conversation_archive(v_conversation_id);
+
+  return v_conversation_id;
+end;
+$function$;
+
+revoke execute on function public.join_task_conversation(uuid) from public, anon;
+grant execute on function public.join_task_conversation(uuid) to authenticated;
+
+-- create_task_room / update_task_room kalder sync_room_conversation - se §15.22.
+
+-- Interne funktioner (ingen egne adgangstjek) må ikke kaldes som RPC.
+revoke execute on function public.sync_task_conversation(uuid) from public, anon, authenticated;
+revoke execute on function public.sync_room_conversation(uuid) from public, anon, authenticated;
+revoke execute on function public.member_can_access_room(uuid, uuid) from public, anon, authenticated;
+revoke execute on function public.sync_task_conversation_on_assignee_change() from public, anon, authenticated;
+revoke execute on function public.handle_task_conversation_changes() from public, anon, authenticated;
+revoke execute on function public.set_task_chat_choice(uuid, text) from public, anon;
+revoke execute on function public.get_or_join_room_conversation(uuid) from public, anon;
+grant execute on function public.set_task_chat_choice(uuid, text) to authenticated;
+grant execute on function public.get_or_join_room_conversation(uuid) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- 5. RLS (restriktive - AND'es med de eksisterende permissive policies)
+-- ---------------------------------------------------------------------
+create policy "Rum-chat kræver rum-adgang (samtaler)"
+  on public.conversations
+  as restrictive
+  for select
+  to authenticated
+  using (room_id is null or public.can_access_task_room(room_id));
+
+create policy "Rum-chat kræver rum-adgang (beskeder)"
+  on public.messages
+  as restrictive
+  for select
+  to authenticated
+  using (public.conversation_room_access_ok(conversation_id));
+
+create policy "Kun skriv i åbne samtaler"
+  on public.messages
+  as restrictive
+  for insert
+  to authenticated
+  with check (public.can_write_conversation(conversation_id));
+
+-- edit_message: uændret bortset fra can_write_conversation-tjekket.
+create or replace function public.edit_message(p_message_id uuid, p_content text)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_conversation_id uuid;
+  v_sender_id uuid;
+  v_deleted_at timestamptz;
+  v_created_at timestamptz;
+  v_latest_message_id uuid;
+  v_trimmed text := btrim(p_content);
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if v_trimmed = '' then
+    raise exception 'Beskeden kan ikke være tom.' using hint = 'MESSAGE_EMPTY';
+  end if;
+
+  select conversation_id, sender_id, deleted_at, created_at
+    into v_conversation_id, v_sender_id, v_deleted_at, v_created_at
+  from public.messages
+  where id = p_message_id;
+
+  if v_conversation_id is null then
+    raise exception 'Beskeden findes ikke.' using hint = 'MESSAGE_NOT_FOUND';
+  end if;
+
+  if v_sender_id is distinct from v_caller_id then
+    raise exception 'Du kan kun redigere dine egne beskeder.' using hint = 'CAN_ONLY_EDIT_OWN_MESSAGES';
+  end if;
+
+  if v_deleted_at is not null then
+    raise exception 'Denne besked er slettet.' using hint = 'MESSAGE_DELETED';
+  end if;
+
+  if not public.can_write_conversation(v_conversation_id) then
+    raise exception 'Chatten er lukket - kun læsning.' using hint = 'CONVERSATION_CLOSED';
+  end if;
+
+  select id into v_latest_message_id
+  from public.messages
+  where conversation_id = v_conversation_id
+    and deleted_at is null
+  order by created_at desc
+  limit 1;
+
+  if v_latest_message_id is distinct from p_message_id then
+    raise exception 'Kun den seneste besked i samtalen kan redigeres.' using hint = 'ONLY_LAST_MESSAGE_EDITABLE';
+  end if;
+
+  update public.messages
+    set content = v_trimmed,
+        edited_at = now()
+    where id = p_message_id;
+
+  update public.notifications
+    set body = left(v_trimmed, 140)
+    where type = 'message'
+      and reference_id = v_conversation_id
+      and created_at = v_created_at;
+end;
+$function$;
+
+-- ---------------------------------------------------------------------
+-- 6. Notifikationer
+-- ---------------------------------------------------------------------
+create or replace function public.notify_new_message()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_sender_name text;
+  v_task_id uuid;
+  v_room_id uuid;
+begin
+  select task_id, room_id
+    into v_task_id, v_room_id
+  from conversations
+  where id = new.conversation_id;
+
+  -- System-chats: kun "Opgaven er afsluttet" giver notifikation, fordi den
+  -- beder deltagerne om at vælge Hold aktiv / Luk chat.
+  if new.message_type = 'system'
+     and (v_task_id is not null or v_room_id is not null)
+     and new.content <> 'Opgaven er afsluttet' then
+    return new;
+  end if;
+
+  select concat_ws(' ', first_name, last_name)
+    into v_sender_name
+  from profiles
+  where id = new.sender_id;
+
+  insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select
+    cp.user_id,
+    c.organisation_id,
+    'message',
+    case when c.is_group then coalesce(c.name, 'Gruppe') else coalesce(v_sender_name, 'Ny besked') end,
+    left(new.content, 140),
+    '/beskeder?conversation=' || new.conversation_id,
+    new.conversation_id
+  from conversation_participants cp
+  join conversations c on c.id = cp.conversation_id
+  where cp.conversation_id = new.conversation_id
+    and cp.user_id <> new.sender_id
+    and cp.completion_choice is distinct from 'close'
+    and (c.room_id is null or public.member_can_access_room(cp.user_id, c.room_id));
+
+  return new;
+end;
+$function$;
+
+-- ---------------------------------------------------------------------
+-- 7. Gruppe-RPC'er afviser system-chats (ellers uændrede)
+-- ---------------------------------------------------------------------
+create or replace function public.add_group_participants(p_conversation_id uuid, p_user_ids uuid[])
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_catalog
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_caller_org uuid;
+  v_conversation_org uuid;
+  v_conversation_name text;
+  v_is_group boolean;
+  v_is_system boolean;
+  v_caller_name text;
+  v_added record;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if p_conversation_id is null then
+    raise exception 'Der skal angives en samtale.' using hint = 'CONVERSATION_REQUIRED';
+  end if;
+
+  if p_user_ids is null or cardinality(p_user_ids) = 0 then
+    raise exception 'Der skal angives mindst ét medlem.' using hint = 'MEMBERS_REQUIRED';
+  end if;
+
+  select c.is_group, c.organisation_id, c.name, (c.task_id is not null or c.room_id is not null)
+    into v_is_group, v_conversation_org, v_conversation_name, v_is_system
+  from public.conversations c
+  where c.id = p_conversation_id;
+
+  if v_is_group is null then
+    raise exception 'Samtalen findes ikke.' using hint = 'CONVERSATION_NOT_FOUND';
+  end if;
+
+  if not v_is_group then
+    raise exception 'Der kan kun tilføjes medlemmer til gruppesamtaler.' using hint = 'ADD_MEMBERS_GROUP_ONLY';
+  end if;
+
+  if v_is_system then
+    raise exception 'Gruppen styres automatisk af opgaven/rummet og kan ikke ændres manuelt.' using hint = 'SYSTEM_GROUP_LOCKED';
+  end if;
+
+  select p.active_organisation_id
+    into v_caller_org
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  if v_caller_org is null or v_caller_org <> v_conversation_org then
+    raise exception 'Du har ikke adgang til denne organisation.' using hint = 'NO_ORG_ACCESS';
+  end if;
+
+  if not public.is_conversation_participant(p_conversation_id, v_caller_id) then
+    raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(p_user_ids) as u(user_id)
+    where u.user_id is null
+       or not exists (
+         select 1
+         from public.memberships m
+         where m.user_id = u.user_id
+           and m.organisation_id = v_caller_org
+       )
+  ) then
+    raise exception 'Alle nye medlemmer skal være medlem af din organisation.' using hint = 'NEW_MEMBERS_MUST_BE_IN_ORG';
+  end if;
+
+  select concat_ws(' ', p.first_name, p.last_name)
+    into v_caller_name
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  for v_added in
+    insert into public.conversation_participants (conversation_id, user_id)
+    select p_conversation_id, u.user_id
+    from (
+      select distinct user_id
+      from unnest(p_user_ids) as x(user_id)
+    ) u
+    on conflict (conversation_id, user_id) do nothing
+    returning user_id
+  loop
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    select
+      p_conversation_id,
+      v_caller_id,
+      coalesce(concat_ws(' ', p.first_name, p.last_name), 'Et medlem')
+        || ' blev tilføjet til gruppen "'
+        || coalesce(v_conversation_name, 'Ukendt gruppe')
+        || '" af '
+        || coalesce(v_caller_name, 'et medlem') || '.',
+      'system'
+    from public.profiles p
+    where p.id = v_added.user_id;
+  end loop;
+end;
+$function$;
+
+create or replace function public.remove_group_participant(p_conversation_id uuid, p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_catalog
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_caller_org uuid;
+  v_conversation_org uuid;
+  v_is_group boolean;
+  v_is_system boolean;
+  v_caller_name text;
+  v_removed_name text;
+  v_conversation_name text;
+  v_deleted_count int;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  if p_conversation_id is null then
+    raise exception 'Der skal angives en samtale.' using hint = 'CONVERSATION_REQUIRED';
+  end if;
+
+  if p_user_id is null then
+    raise exception 'Der skal angives et medlem.' using hint = 'MEMBER_REQUIRED';
+  end if;
+
+  if p_user_id = v_caller_id then
+    raise exception 'Du kan ikke fjerne dig selv fra gruppen.' using hint = 'CANNOT_REMOVE_SELF_FROM_GROUP';
+  end if;
+
+  select c.is_group, c.organisation_id, c.name, (c.task_id is not null or c.room_id is not null)
+    into v_is_group, v_conversation_org, v_conversation_name, v_is_system
+  from public.conversations c
+  where c.id = p_conversation_id;
+
+  if v_is_group is null then
+    raise exception 'Samtalen findes ikke.' using hint = 'CONVERSATION_NOT_FOUND';
+  end if;
+
+  if not v_is_group then
+    raise exception 'Der kan kun fjernes medlemmer fra gruppesamtaler.' using hint = 'REMOVE_MEMBERS_GROUP_ONLY';
+  end if;
+
+  if v_is_system then
+    raise exception 'Gruppen styres automatisk af opgaven/rummet og kan ikke ændres manuelt.' using hint = 'SYSTEM_GROUP_LOCKED';
+  end if;
+
+  select p.active_organisation_id
+    into v_caller_org
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  if v_caller_org is null or v_caller_org <> v_conversation_org then
+    raise exception 'Du har ikke adgang til denne organisation.' using hint = 'NO_ORG_ACCESS';
+  end if;
+
+  if not public.is_conversation_participant(p_conversation_id, v_caller_id) then
+    raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+  end if;
+
+  if not public.is_conversation_participant(p_conversation_id, p_user_id) then
+    raise exception 'Brugeren er ikke deltager i denne samtale.' using hint = 'USER_NOT_PARTICIPANT';
+  end if;
+
+  select concat_ws(' ', p.first_name, p.last_name)
+    into v_removed_name
+  from public.profiles p
+  where p.id = p_user_id;
+
+  select concat_ws(' ', p.first_name, p.last_name)
+    into v_caller_name
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  delete from public.conversation_participants
+  where conversation_id = p_conversation_id
+    and user_id = p_user_id;
+
+  get diagnostics v_deleted_count = row_count;
+
+  if v_deleted_count > 0 then
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (
+      p_conversation_id,
+      v_caller_id,
+      coalesce(v_removed_name, 'Et medlem')
+        || ' blev fjernet fra gruppen "'
+        || coalesce(v_conversation_name, 'Ukendt gruppe')
+        || '" af '
+        || coalesce(v_caller_name, 'et medlem') || '.',
+      'system'
+    );
+
+    insert into public.notifications (user_id, organisation_id, type, title, body, link, reference_id)
+    values (
+      p_user_id,
+      v_conversation_org,
+      'message',
+      coalesce(v_conversation_name, 'Gruppe'),
+      'Du blev fjernet fra gruppen "'
+        || coalesce(v_conversation_name, 'Ukendt gruppe')
+        || '" af '
+        || coalesce(v_caller_name, 'et medlem') || '.',
+      '/beskeder',
+      p_conversation_id
+    );
+  end if;
+end;
+$function$;
+
+create or replace function public.rename_group_conversation(p_conversation_id uuid, p_name text)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+    v_caller_id uuid := auth.uid();
+    v_is_group boolean;
+    v_is_system boolean;
+    v_old_name text;
+    v_new_name text := btrim(p_name);
+    v_caller_org uuid;
+    v_conversation_org uuid;
+begin
+    if v_caller_id is null then
+        raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+    end if;
+
+    if v_new_name is null or v_new_name = '' then
+        raise exception 'Gruppen skal have et navn.' using hint = 'GROUP_NAME_REQUIRED';
+    end if;
+
+    select is_group, name, organisation_id, (task_id is not null or room_id is not null)
+    into v_is_group, v_old_name, v_conversation_org, v_is_system
+    from conversations
+    where id = p_conversation_id;
+
+    if v_is_group is null then
+        raise exception 'Samtalen findes ikke.' using hint = 'CONVERSATION_NOT_FOUND';
+    end if;
+
+    if not v_is_group then
+        raise exception 'Der kan kun ændres navn på gruppesamtaler.' using hint = 'RENAME_GROUP_ONLY';
+    end if;
+
+    if v_is_system then
+        raise exception 'Gruppen styres automatisk af opgaven/rummet og kan ikke ændres manuelt.' using hint = 'SYSTEM_GROUP_LOCKED';
+    end if;
+
+    if not exists (
+        select 1
+        from conversation_participants
+        where conversation_id = p_conversation_id
+          and user_id = v_caller_id
+    ) then
+        raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+    end if;
+
+    select active_organisation_id
+    into v_caller_org
+    from profiles
+    where id = v_caller_id;
+
+    if v_caller_org is null or v_caller_org is distinct from v_conversation_org then
+        raise exception 'Du har ikke adgang til denne samtale.' using hint = 'NO_CONVERSATION_ACCESS';
+    end if;
+
+    if v_old_name is not distinct from v_new_name then
+        return;
+    end if;
+
+    update conversations
+    set name = v_new_name
+    where id = p_conversation_id;
+
+    insert into messages (conversation_id, sender_id, content, message_type)
+    values (
+        p_conversation_id,
+        v_caller_id,
+        'Gruppens navn blev ændret til ''' || v_new_name || '''.',
+        'system'
+    );
+end;
+$function$;
+
+create or replace function public.leave_group_conversation(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_caller_org uuid;
+  v_conversation_org uuid;
+  v_is_group boolean;
+  v_task_id uuid;
+  v_room_id uuid;
+  v_caller_name text;
+  v_deleted_count int;
+begin
+  if v_caller_id is null then
+    raise exception 'Du skal være logget ind.' using hint = 'NOT_LOGGED_IN';
+  end if;
+
+  select c.is_group, c.organisation_id, c.task_id, c.room_id
+    into v_is_group, v_conversation_org, v_task_id, v_room_id
+  from public.conversations c
+  where c.id = p_conversation_id;
+
+  if v_is_group is null then
+    raise exception 'Samtalen findes ikke.' using hint = 'CONVERSATION_NOT_FOUND';
+  end if;
+  if not v_is_group then
+    raise exception 'Du kan kun forlade gruppesamtaler.' using hint = 'LEAVE_GROUP_ONLY';
+  end if;
+
+  select p.active_organisation_id
+    into v_caller_org
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  if v_caller_org is null or v_caller_org <> v_conversation_org then
+    raise exception 'Du har ikke adgang til denne organisation.' using hint = 'NO_ORG_ACCESS';
+  end if;
+  if not public.is_conversation_participant(p_conversation_id, v_caller_id) then
+    raise exception 'Du er ikke deltager i denne samtale.' using hint = 'NOT_CONVERSATION_PARTICIPANT';
+  end if;
+
+  -- System-chat: samme lås som sync-funktionerne, og fravalget huskes, så
+  -- automatikken ikke melder mig ind igen.
+  if v_task_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('task_conversation:' || v_task_id::text, 0));
+  elsif v_room_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('room_conversation:' || v_room_id::text, 0));
+  end if;
+
+  if v_task_id is not null or v_room_id is not null then
+    insert into public.conversation_opt_outs (conversation_id, user_id)
+    values (p_conversation_id, v_caller_id)
+    on conflict (conversation_id, user_id) do nothing;
+  end if;
+
+  select concat_ws(' ', p.first_name, p.last_name)
+    into v_caller_name
+  from public.profiles p
+  where p.id = v_caller_id;
+
+  delete from public.conversation_participants
+  where conversation_id = p_conversation_id
+    and user_id = v_caller_id;
+
+  get diagnostics v_deleted_count = row_count;
+
+  if v_deleted_count > 0 then
+    insert into public.messages (conversation_id, sender_id, content, message_type)
+    values (
+      p_conversation_id,
+      v_caller_id,
+      coalesce(v_caller_name, 'Et medlem') || ' forlod gruppen.',
+      'system'
+    );
+
+    -- Resten har måske alle valgt 'close' -> arkivér.
+    if v_task_id is not null then
+      perform public.sync_task_conversation_archive(p_conversation_id);
+    end if;
+  end if;
+end;
+$function$;
+
+-- ---------------------------------------------------------------------
+-- 8. get_my_conversations (drop + create - returtypen ændres)
+-- ---------------------------------------------------------------------
+drop function public.get_my_conversations();
+
+create function public.get_my_conversations()
+returns table(
+  conversation_id uuid,
+  is_group boolean,
+  display_name text,
+  other_user_id uuid,
+  url_picture text,
+  last_message text,
+  last_message_at timestamptz,
+  last_message_deleted boolean,
+  unread boolean,
+  task_id uuid,
+  room_id uuid,
+  task_status public.e_task_status,
+  closed boolean,
+  completion_choice text
+)
+language sql
+stable security definer
+set search_path = public, pg_catalog
+as $function$
+  select
+    c.id,
+    c.is_group,
+    case
+      when c.is_group then c.name
+      else concat_ws(' ', other_profile.first_name, other_profile.last_name)
+    end,
+    case when c.is_group then null else other.user_id end,
+    case when c.is_group then null else other_profile.url_picture end,
+    case when lm.deleted_at is null then lm.content end,
+    lm.created_at,
+    coalesce(lm.deleted_at is not null, false),
+    (
+      lm.created_at is not null
+      and lm.created_at > coalesce(me.last_read_at, '-infinity'::timestamptz)
+      and lm.sender_id is distinct from auth.uid()
+    ) as unread,
+    c.task_id,
+    c.room_id,
+    t.status,
+    (
+      c.closed_at is not null
+      or me.completion_choice = 'close'
+      or (c.room_id is not null and not exists (
+        select 1 from public.task_room_roles trr where trr.room_id = c.room_id
+      ))
+    ) as closed,
+    me.completion_choice
+  from public.conversations c
+  join public.conversation_participants me
+    on me.conversation_id = c.id
+   and me.user_id = auth.uid()
+  left join public.conversation_participants other
+    on other.conversation_id = c.id
+   and other.user_id <> auth.uid()
+   and not c.is_group
+  left join public.profiles other_profile on other_profile.id = other.user_id
+  left join public.tasks t on t.id = c.task_id
+  left join lateral (
+    select m.content, m.created_at, m.sender_id, m.deleted_at
+    from public.messages m
+    where m.conversation_id = c.id
+    order by m.created_at desc
+    limit 1
+  ) lm on true
+  where auth.uid() is not null
+    -- Kun samtaler i min AKTIVE organisation (2026-09-29, §15.25).
+    and c.organisation_id = public.auth_profile_org()
+    and (c.room_id is null or public.can_access_task_room(c.room_id))
+    -- Opgave-chat arkiveret, fordi alle har valgt "Luk chat".
+    and (c.task_id is null or c.archived_at is null)
+  order by coalesce(lm.created_at, c.created_at) desc;
+$function$;
+
+revoke execute on function public.get_my_conversations() from public, anon;
+grant execute on function public.get_my_conversations() to authenticated, service_role;
+
+
+-- ---------------------------------------------------------------------
+-- 15.25 (2026-09-29): beskeder + notifikationer scopes til AKTIV org
+-- ---------------------------------------------------------------------
+-- Bug: bruger med flere medlemskaber så alle samtaler/notifikationer
+-- uanset aktiv org. get_my_conversations fik org-filter (ovenfor). DM'er
+-- findes/oprettes nu pr. aktiv org (to brugere i org A+B får to separate
+-- DM'er). Restriktiv RLS (AND'es med eksisterende permissive policies)
+-- på conversations/messages/notifications. Invitationer undtaget: deres
+-- organisation_id er den inviterende org, modtageren ikke er medlem af.
+-- Intet slettes - org B's data vises igen, når B gøres aktiv. Frontend:
+-- ingen ændring (USER_SCOPED_TAGS invaliderer ved org-skift).
+-- Kørt og testet 2026-09-29.
+create or replace function public.get_or_create_direct_conversation(p_other_user_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid := public.auth_profile_org();
+  v_conversation_id uuid;
+begin
+  if v_caller_id is null or v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if p_other_user_id is null or p_other_user_id = v_caller_id then
+    raise exception 'Du kan ikke oprette en samtale med dig selv.' using hint = 'CANNOT_MESSAGE_SELF';
+  end if;
+
+  if not exists (
+    select 1 from public.memberships m
+    where m.user_id = p_other_user_id and m.organisation_id = v_org_id
+  ) then
+    raise exception 'Denne person er ikke medlem af din organisation.' using hint = 'PERSON_NOT_IN_ORG';
+  end if;
+
+  -- Samme brugerpar + org må ikke få to DM'er ved samtidige klik.
+  perform pg_advisory_xact_lock(hashtextextended(
+    'direct_conversation:' || v_org_id::text || ':'
+      || least(v_caller_id, p_other_user_id)::text || ':'
+      || greatest(v_caller_id, p_other_user_id)::text, 0));
+
+  select c.id into v_conversation_id
+  from public.conversations c
+  where c.organisation_id = v_org_id
+    and not c.is_group
+    and c.task_id is null
+    and c.room_id is null
+    and exists (select 1 from public.conversation_participants cp
+                where cp.conversation_id = c.id and cp.user_id = v_caller_id)
+    and exists (select 1 from public.conversation_participants cp
+                where cp.conversation_id = c.id and cp.user_id = p_other_user_id)
+  order by c.created_at
+  limit 1;
+
+  if v_conversation_id is not null then
+    return v_conversation_id;
+  end if;
+
+  insert into public.conversations (organisation_id, is_group, created_by)
+  values (v_org_id, false, v_caller_id)
+  returning id into v_conversation_id;
+
+  insert into public.conversation_participants (conversation_id, user_id)
+  values (v_conversation_id, v_caller_id), (v_conversation_id, p_other_user_id);
+
+  return v_conversation_id;
+end;
+$function$;
+
+revoke execute on function public.get_or_create_direct_conversation(uuid) from public, anon;
+grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
+
+-- RLS-hjælper: samtalen hører til kalderens aktive organisation.
+create or replace function public.conversation_in_active_org(p_conversation_id uuid)
+returns boolean
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select exists (
+    select 1 from public.conversations c
+    where c.id = p_conversation_id
+      and c.organisation_id = public.auth_profile_org()
+  );
+$function$;
+
+revoke execute on function public.conversation_in_active_org(uuid) from public, anon;
+grant execute on function public.conversation_in_active_org(uuid) to authenticated;
+
+create policy "Samtaler kun i aktiv organisation"
+  on public.conversations
+  as restrictive
+  for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org());
+
+create policy "Beskeder kun i aktiv organisation (læs)"
+  on public.messages
+  as restrictive
+  for select
+  to authenticated
+  using (public.conversation_in_active_org(conversation_id));
+
+create policy "Beskeder kun i aktiv organisation (skriv)"
+  on public.messages
+  as restrictive
+  for insert
+  to authenticated
+  with check (public.conversation_in_active_org(conversation_id));
+
+-- Insert sker kun i security definer-triggere/RPC'er og røres ikke.
+create policy "Notifikationer kun i aktiv organisation (læs)"
+  on public.notifications
+  as restrictive
+  for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
+
+create policy "Notifikationer kun i aktiv organisation (opdater)"
+  on public.notifications
+  as restrictive
+  for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
+
+create policy "Notifikationer kun i aktiv organisation (slet)"
+  on public.notifications
+  as restrictive
+  for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -2918,8 +4850,12 @@ alter table public.locations               enable row level security;
 alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.data_layer_item_units   enable row level security;
+alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
+alter table public.task_room_roles         enable row level security;
+alter table public.task_room_favorites     enable row level security;
+alter table public.notification_preferences enable row level security;
 alter table public.task_assignees          enable row level security;
 alter table public.task_participants       enable row level security;
 alter table public.task_requests           enable row level security;
@@ -3292,6 +5228,48 @@ create policy "Slet item-enheder i egen organisation"
 
 
 -- ---------------------------------------------------------------------
+-- 16.6c DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
+-- Kun egne rækker i aktiv org; read_datalayer er nok (en favorit ændrer
+-- ikke data). Insert kræver desuden, at målet tilhører egen org. Ingen
+-- update-policy - toggle = insert/delete.
+-- ---------------------------------------------------------------------
+create policy "Se egne datalager-favoritter"
+  on public.data_layer_favorites for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
+
+create policy "Opret egne datalager-favoritter"
+  on public.data_layer_favorites for insert
+  to authenticated
+  with check (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+    and (category_id is null or exists (
+      select 1 from public.data_layer_categories c
+      where c.id = category_id and c.organisation_id = public.auth_profile_org()
+    ))
+    and (location_id is null or exists (
+      select 1 from public.locations l
+      where l.id = location_id and l.organisation_id = public.auth_profile_org()
+    ))
+  );
+
+create policy "Slet egne datalager-favoritter"
+  on public.data_layer_favorites for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_datalayer')
+  );
+
+
+-- ---------------------------------------------------------------------
 -- 16.7 TASKS / TASK_ASSIGNEES / TASK_PARTICIPANTS / TASK_MATERIALS
 -- (Studerende 3's domæne. Fase 3 trin 6 (2026-09-17, docs/migrations/
 -- fase3-tasks-privileges.sql): create/read/update/delete_tasks erstatter
@@ -3304,23 +5282,52 @@ create policy "Slet item-enheder i egen organisation"
 -- 2026-09-17, oprindeligt split på create_tasks/delete_tasks - se
 -- kommentaren ved task_assignees' insert/delete-policies nedenfor).
 -- "Medlem"-standardrollen (15.6b) har read_tasks som udgangspunkt (se
--- 15.8). task_rooms.required_role_id forbliver bevidst urørt/uafklaret.)
+-- 15.8). Rolle-begrænsede rum (2026-09-25): select kræver desuden
+-- can_access_task_room(room_id) eller is_task_assignee(id); insert/update
+-- kan ikke placere en opgave i et rum, man ikke har adgang til.)
+-- Afsluttede opgaver (2026-09-27): status 'Completed' kræver desuden
+-- view_completed_tasks ("Opgaver — Se afsluttede") eller admin - ELLER at
+-- man er tilmeldt (is_task_assignee), så egne afsluttede opgaver og
+-- notifikations-links virker. Privilegiet blev backfillet til alle roller
+-- med update_tasks eller delete_tasks (ikke Medlem, 15.6d). Bruges af
+-- fanen "Afsluttede" (/tasks/afsluttede) og dashboardets panel. Før var
+-- afsluttede opgaver kun UI-gated på update/delete_tasks.
 -- ---------------------------------------------------------------------
 create policy "Se opgaver i egen organisation"
   on public.tasks for select
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and (public.can_access_task_room(room_id) or public.is_task_assignee(id))
+    and (
+      status <> 'Completed'
+      or public.has_privilege_or_admin('view_completed_tasks')
+      or public.is_task_assignee(id)
+    )
+  );
 
 create policy "Opret opgaver i egen organisation"
   on public.tasks for insert
   to authenticated
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('create_tasks')
+    and public.can_access_task_room(room_id)
+  );
 
 create policy "Rediger opgaver i egen organisation"
   on public.tasks for update
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+    and public.can_access_task_room(room_id)
+  );
 
 create policy "Slet opgaver i egen organisation"
   on public.tasks for delete
@@ -3489,28 +5496,108 @@ create policy "Opret completion request for egne tasks"
 -- DB-eksport ("Users can view/create task rooms in their organisation")
 -- er droppet samtidig med at "Medlemmer kan administrere ..." blev
 -- splittet op - ellers ville RLS-policies OR'es og gøre gatingen af
--- INSERT/SELECT virkningsløs.
+-- INSERT/SELECT virkningsløs. 2026-09-25: select/update/delete kræver
+-- desuden can_access_task_room(id) (§15.22).
 -- ---------------------------------------------------------------------
 create policy "Se task rooms i egen organisation"
   on public.task_rooms for select
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_tasks'));
-
-create policy "Opret task rooms i egen organisation"
-  on public.task_rooms for insert
-  to authenticated
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('create_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and public.can_access_task_room(id)
+  );
 
 create policy "Rediger task rooms i egen organisation"
   on public.task_rooms for update
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'))
-  with check (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('update_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+    and public.can_access_task_room(id)
+  )
+  with check (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('update_tasks')
+  );
 
 create policy "Slet task rooms i egen organisation"
   on public.task_rooms for delete
   to authenticated
-  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('delete_tasks'));
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('delete_tasks')
+    and public.can_access_task_room(id)
+  );
+
+-- task_room_roles: kun select. Skrivning sker udelukkende via
+-- create_task_room/update_task_room (§15.22, security definer) eller
+-- cascade - samme mønster som task_material_units (§16.7c).
+create policy "Se task_room_roles for rum i egen organisation"
+  on public.task_room_roles for select
+  to authenticated
+  using (room_id in (select id from public.task_rooms));
+
+
+-- ---------------------------------------------------------------------
+-- 16.7d TASK_ROOM_FAVORITES (ad-hoc, 2026-09-26)
+-- Kun egne rækker i aktiv org; read_tasks er nok (en favorit ændrer ikke
+-- data). Insert kræver desuden, at rummet tilhører egen org og at
+-- brugeren må se det (can_access_task_room, §15.22). Ingen update-policy.
+-- ---------------------------------------------------------------------
+create policy "Se egne favoritrum"
+  on public.task_room_favorites for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+create policy "Opret egne favoritrum"
+  on public.task_room_favorites for insert
+  to authenticated
+  with check (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+    and exists (
+      select 1 from public.task_rooms r
+      where r.id = room_id and r.organisation_id = public.auth_profile_org()
+    )
+    and public.can_access_task_room(room_id)
+  );
+
+create policy "Slet egne favoritrum"
+  on public.task_room_favorites for delete
+  to authenticated
+  using (
+    user_id = auth.uid()
+    and organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_tasks')
+  );
+
+
+-- ---------------------------------------------------------------------
+-- 16.7e NOTIFICATION_PREFERENCES (US-79, 2026-09-27)
+-- Kun egen række; intet privilegie (personlig indstilling). Ingen
+-- delete-policy - frontend upserter.
+-- ---------------------------------------------------------------------
+create policy "Se egne notifikationsindstillinger"
+  on public.notification_preferences for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "Opret egne notifikationsindstillinger"
+  on public.notification_preferences for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "Rediger egne notifikationsindstillinger"
+  on public.notification_preferences for update
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
 
 
 -- ---------------------------------------------------------------------

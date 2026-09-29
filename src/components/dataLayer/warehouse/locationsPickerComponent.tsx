@@ -133,7 +133,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
           <button
             type="button"
             onClick={openCreateWarehouse}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-xs font-medium transition-colors shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             {t('locations.createWarehouseButton')}
@@ -181,7 +181,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
               type="button"
               onClick={handleCreate}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium disabled:opacity-60"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-xs font-medium disabled:opacity-60"
             >
               {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {t('locations.createAndSelect')}

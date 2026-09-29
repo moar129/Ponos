@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Zobrazení",
     "hint": "Jazyk a motiv se ukládají v tomto prohlížeči a platí jen pro toto zařízení."
+  },
+  "notifications": {
+    "title": "Oznámení",
+    "master": "Přijímat oznámení",
+    "hint": "Vypnutá oznámení se vůbec nevytvářejí. Již přijatá zůstávají.",
+    "loading": "Načítání nastavení...",
+    "loadFailed": "Nastavení se nepodařilo načíst.",
+    "saveFailed": "Nastavení se nepodařilo uložit."
   }
 }

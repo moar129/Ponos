@@ -39,7 +39,12 @@
     "chooseCategory": "Alegeți o categorie din meniul din stânga",
     "moveCategoryFailed": "Categoria nu a putut fi mutată.",
     "filterItemsAtLocationPlaceholder": "Filtrați articolele din acest depozit...",
-    "noItemsAtLocationYet": "Încă nu există articole înregistrate aici"
+    "noItemsAtLocationYet": "Încă nu există articole înregistrate aici",
+    "categoriesHere": "Categorii aici",
+    "placements": "Locații",
+    "itemCount": "{{count}} articole",
+    "goTo": "Mergi la",
+    "morePlacements": "+{{count}}"
   },
   "tree": {
     "moveUp": "Mută mai sus",
@@ -184,5 +189,9 @@
   "quantityLabel": "Cantitate:",
   "categoryIdValue": "ID categorie: {{id}}",
   "quantityValue": "Cantitate: {{count}}",
-  "itemCountParen": "({{count}} articole)"
+  "itemCountParen": "({{count}} articole)",
+  "favorites": {
+    "title": "Favorite",
+    "toggleFailed": "Nu s-a putut actualiza favoritul."
+  }
 }

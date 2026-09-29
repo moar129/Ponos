@@ -2,15 +2,45 @@
 // Indeholder kun det UI'en har brug for - ikke hele organisations-rækken
 // (fx ikke created_at, som ikke er relevant her).
 export interface Organisation {
-    id: string
-    name: string
+  id: string
+  name: string
+  color?: string | null
+  headerColor?: string | null
+  footerColor?: string | null
+  savedColors: string[]
+  headerTextColor?: string | null
+  footerTextColor?: string | null
 }
 
-// De felter en administrator selv må ændre. Organisations-tabellen har pt.
-// kun 'name' - udvides denne type senere, hvis der tilføjes flere
-// redigerbare felter til organisations-tabellen.
 export interface UpdateOrganisationInput {
-    name: string
+  name: string
+  color?: string | null
+  headerColor?: string | null
+  footerColor?: string | null
+  headerTextColor?: string | null
+  footerTextColor?: string | null
+}
+// The five branding colors an admin can pick (null/undefined = Ponos default).
+export type OrganisationColors = Pick<
+  Organisation,
+  'color' | 'headerColor' | 'footerColor' | 'headerTextColor' | 'footerTextColor'
+>
+
+export interface BarPalette {
+  bg: string
+  text: string
+  muted: string
+  border: string
+}
+
+// Colors actually rendered for one theme mode, derived from OrganisationColors
+// by buildOrgPalette (src/utils/orgPalette.ts) so they stay readable.
+export interface OrgPalette {
+  accent: string
+  accentHover: string
+  accentText: string
+  header: BarPalette
+  footer: BarPalette
 }
 
 // Felter til at oprette en ny organisation (US-58).
@@ -57,11 +87,13 @@ export interface CreateOrganisationSectionProps {
 }
 
 // Props til OrganisationPickerComponent - søgbar erstatning for en almindelig
-// <select> ved "Anmod om medlemskab" (US-05), så listen forbliver brugbar
-// selvom antallet af organisationer vokser.
+// <select> ved "Anmod om medlemskab" (US-05). Pickeren søger selv
+// server-side, så den forbliver brugbar selvom antallet af organisationer
+// vokser.
 export interface OrganisationPickerComponentProps {
-    organisations: Organisation[]
-    isLoading: boolean
     value: string
     onChange: (organisationId: string) => void
+    // Organisationer der ikke skal tilbydes (fx dem brugeren allerede er
+    // medlem af).
+    excludeIds?: string[]
 }

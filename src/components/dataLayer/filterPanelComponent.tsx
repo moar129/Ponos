@@ -4,14 +4,17 @@ import { asDynamic } from '../../i18n/config'
 import { ITEM_STATUS_STYLES } from '../../types/dataLayer/datalayerTypes';
 
 
+const CHECKBOX_CLASS =
+  'w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800';
+
 export function FilterPanelComponent({
   isOpen,
-  categories,
   statuses,
-  selectedCategoryIds,
   selectedStatuses,
-  onToggleCategory,
   onToggleStatus,
+  units,
+  selectedUnits,
+  onToggleUnit,
   onClear,
   onClose,
 }: FilterPanelComponentProps) {
@@ -19,7 +22,7 @@ export function FilterPanelComponent({
   const td = asDynamic(t)
   if (!isOpen) return null;
 
-  const hasActiveFilters = selectedCategoryIds.size > 0 || selectedStatuses.size > 0;
+  const hasActiveFilters = selectedStatuses.size > 0 || selectedUnits.size > 0;
 
   return (
     <>
@@ -44,7 +47,7 @@ export function FilterPanelComponent({
                   type="checkbox"
                   checked={selectedStatuses.has(status)}
                   onChange={() => onToggleStatus(status)}
-                  className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
+                  className={CHECKBOX_CLASS}
                 />
                 <span className={`px-2 py-0.5 rounded border text-sm ${ITEM_STATUS_STYLES[status]}`}>
                   {td(`datalayer:status.${status}`)}
@@ -54,19 +57,19 @@ export function FilterPanelComponent({
           </div>
         </div>
 
-        {categories.length > 1 && (
+        {units.length > 1 && (
           <div>
-            <p className="text-xs text-secondary uppercase tracking-wide mb-2 dark:text-slate-400">{t('fields.category')}</p>
-            <div className="space-y-1.5 max-h-40 overflow-y-auto">
-              {categories.map((cat) => (
-                <label key={cat.id} className="flex items-center gap-2 text-sm text-primary cursor-pointer dark:text-slate-100">
+            <p className="text-xs text-secondary uppercase tracking-wide mb-2 dark:text-slate-400">{t('fields.unitOfMeasurement')}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+              {units.map((unit) => (
+                <label key={unit} className="flex items-center gap-2 text-sm text-primary cursor-pointer dark:text-slate-100">
                   <input
                     type="checkbox"
-                    checked={selectedCategoryIds.has(cat.id)}
-                    onChange={() => onToggleCategory(cat.id)}
-                    className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
+                    checked={selectedUnits.has(unit)}
+                    onChange={() => onToggleUnit(unit)}
+                    className={CHECKBOX_CLASS}
                   />
-                  <span className="truncate">{cat.title}</span>
+                  <span>{unit}</span>
                 </label>
               ))}
             </div>

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { notificationTitle } from '../../utils/notificationDisplay'
+import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
 import { useNavigate } from 'react-router-dom';
 import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
 import {
@@ -74,14 +74,14 @@ export function NotificationBellComponent() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-full transition-colors"
+        className="relative p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-full transition-colors"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={t('title')}
       >
         <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 bg-accent text-white text-[10px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold">
+          <span className="absolute top-1 right-1 bg-accent text-accent-text text-[10px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -90,7 +90,7 @@ export function NotificationBellComponent() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
+          className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto mt-2 sm:w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray dark:border-slate-700 shrink-0">
             <h3 className="text-sm font-semibold text-primary dark:text-slate-100">{t('title')}</h3>
@@ -132,7 +132,7 @@ export function NotificationBellComponent() {
                         )}
                       </div>
                       {notification.body && (
-                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notification.body}</p>
+                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notificationBody(notification, td)}</p>
                       )}
                       <p className="text-[11px] text-secondary dark:text-slate-400 mt-1">{timeAgo(notification.createdAt)}</p>
                     </button>
@@ -140,7 +140,7 @@ export function NotificationBellComponent() {
                     <button
                       type="button"
                       onClick={(e) => handleDismiss(e, notification.id)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                       title={t('hide')}
                       aria-label={t('hide')}
                     >

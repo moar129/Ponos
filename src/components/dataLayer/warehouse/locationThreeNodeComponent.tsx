@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { LocationTreeNodeProps } from '../../../types/dataLayer/datalayerTypes';
 import { ChevronRight, ChevronDown, MapPin, Boxes, Plus, Pencil, Trash2 } from 'lucide-react';
+import { FavoriteStarButton } from '../../common/FavoriteStarButton';
 
 // Samme visuelle mønster som CategoryTreeNode.tsx (indrykning, hover-
 // synlige handlingsknapper, chevron for udfoldning, samt samme
@@ -21,15 +22,19 @@ export function LocationTreeNode({
   canDelete,
   isExpanded,
   onToggleExpand,
+  favoriteIds,
+  canFavorite,
+  onToggleFavorite,
 }: LocationTreeNodeProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const hasChildren = isWarehouse && childSections.length > 0;
   const isSelected = selectedLocationId === location.id;
+  const isFavorite = favoriteIds.has(location.id);
 
   return (
     <div className={isWarehouse ? '' : 'ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray dark:border-slate-700 my-0.5'}>
       <div
-        className={`flex flex-wrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${
+        className={`flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${
           isSelected
             ? 'bg-accent/15 text-primary font-medium dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray/60 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
@@ -37,14 +42,16 @@ export function LocationTreeNode({
         onClick={() => onSelectLocation(location)}
       >
         {/*
-          min-w-[7rem] + flex-1 (i stedet for min-w-0) sikrer, at navnet
-          altid har en garanteret minimumsbredde og aldrig presses til 0px.
-          Kan handlingsknapperne (som har shrink-0) ikke være på samme
-          linje som navnet, folder flex-wrap dem ned på en ny linje i
-          stedet for at de "spiser" navnets plads - vigtigt på iPad/
-          smalle skærme, hvor knapperne altid er synlige (ikke kun ved hover).
+          min-w + flex-1 (i stedet for min-w-0) sikrer, at navnet altid har
+          en garanteret minimumsbredde og aldrig presses til 0px. Kan
+          handlingsknapperne (som har shrink-0) ikke være på samme linje
+          som navnet, folder flex-wrap dem ned på en ny linje i stedet for
+          at de "spiser" navnets plads. 10.5rem (mod 7rem i CategoryTreeNode)
+          fordi lager-rækker har 2 knapper færre (ingen op/ned) - så rækken
+          ombrydes ved samme panelbredde som kategori-rækker. Fra lg: én linje
+          (lg:flex-nowrap + lg:min-w-0), da knapperne dér er hover-only.
         */}
-        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] flex-1">
+        <div className="flex items-center gap-1.5 overflow-hidden min-w-[10.5rem] lg:min-w-0 flex-1">
           {hasChildren ? (
             <button
               type="button"
@@ -71,52 +78,61 @@ export function LocationTreeNode({
         {/* Handlingsknapper altid synlige på touch (samme regel som
             CategoryTreeNode.tsx), skjult bag hover fra lg. ml-auto sikrer
             at de flugter til højre, både på samme linje som navnet og når
-            de er foldet ned på deres egen linje. */}
-        <div className="flex items-center shrink-0 ml-auto opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-          {canUpdate && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditLocation(location);
-              }}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors dark:hover:bg-slate-700 dark:text-slate-400"
-              title={t('common:edit')}
-              aria-label={t('common:edit')}
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
+            de er foldet ned på deres egen linje. Stjernen ligger uden for
+            hover-containeren, så en markeret favorit altid er synlig. */}
+        <div className="flex items-center shrink-0 ml-auto">
+          {canFavorite && (
+            <FavoriteStarButton
+              isFavorite={isFavorite}
+              onToggle={() => onToggleFavorite(location.id)}
+            />
           )}
+          <div className="flex items-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+            {canUpdate && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditLocation(location);
+                }}
+                className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors dark:hover:bg-slate-700 dark:text-slate-400"
+                title={t('common:edit')}
+                aria-label={t('common:edit')}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-          {isWarehouse && canCreate && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddSection(location.id);
-              }}
-              className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 dark:hover:bg-slate-700 dark:text-slate-400"
-              title={t('locations.addSection')}
-              aria-label={t('locations.addSection')}
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          )}
+            {isWarehouse && canCreate && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddSection(location.id);
+                }}
+                className="p-1.5 lg:p-1 hover:bg-border-gray rounded text-secondary transition-colors ml-0.5 dark:hover:bg-slate-700 dark:text-slate-400"
+                title={t('locations.addSection')}
+                aria-label={t('locations.addSection')}
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-          {canDelete && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteLocation(location);
-              }}
-              className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-              title={t('common:delete')}
-              aria-label={t('common:delete')}
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteLocation(location);
+                }}
+                className="p-1.5 lg:p-1 hover:bg-red-50 rounded text-secondary hover:text-red-600 transition-colors ml-0.5 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
+                title={t('common:delete')}
+                aria-label={t('common:delete')}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -138,6 +154,9 @@ export function LocationTreeNode({
               canDelete={canDelete}
               isExpanded={false}
               onToggleExpand={onToggleExpand}
+              favoriteIds={favoriteIds}
+              canFavorite={canFavorite}
+              onToggleFavorite={onToggleFavorite}
             />
           ))}
         </div>

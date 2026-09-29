@@ -26,5 +26,13 @@
   "preferences": {
     "title": "Megjelenítés",
     "hint": "A nyelv és a téma ebben a böngészőben tárolódik, és csak erre az eszközre vonatkozik."
+  },
+  "notifications": {
+    "title": "Értesítések",
+    "master": "Értesítések fogadása",
+    "hint": "A kikapcsolt értesítések egyáltalán nem jönnek létre. A már megkapottak megmaradnak.",
+    "loading": "Beállítások betöltése...",
+    "loadFailed": "Nem sikerült betölteni a beállításokat.",
+    "saveFailed": "Nem sikerült menteni a beállítást."
   }
 }

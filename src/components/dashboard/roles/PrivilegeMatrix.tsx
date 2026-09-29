@@ -142,7 +142,7 @@ export function PrivilegeMatrix() {
                 <button
                     type="submit"
                     disabled={creatingRole}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creatingRole ? t('matrix.creatingRole') : t('matrix.createRole')}
                 </button>
@@ -167,9 +167,9 @@ export function PrivilegeMatrix() {
                         varierende celleindhold (lock-ikon vs. checkbox vs.
                         omdøb-knap) fik cellerne til at stå en anelse skævt
                         i forhold til hinanden. */}
-                    <table className="table-fixed border-collapse text-sm">
+                    <table className="w-full table-fixed border-collapse text-sm">
                         <colgroup>
-                            <col className="w-56" />
+                            <col className="w-36 sm:w-56" />
                             {roles.map((role) => (
                                 <col key={role.id} className="w-36" />
                             ))}
@@ -217,20 +217,22 @@ export function PrivilegeMatrix() {
     )
 }
 
-// Domæne-overskriftsrække (sticky venstre kolonne, samme mønster som den
-// tidligere gruppering i tilføj-dropdownen) - rendres kun når gruppen har
-// en overskrift (den ugrupperede admin-række har ingen).
+// Domæne-overskriftsrække - rendres kun når gruppen har en overskrift (den
+// ugrupperede admin-række har ingen). Overskriften ligger i en sticky
+// celle med samme bredde som rækkelabels + en fyld-celle for resten; én
+// celle med colSpan over hele tabellen kan ikke klæbe ved vandret scroll.
 function RowGroup({ heading, roleCount, children }: { heading: string | null; roleCount: number; children: ReactNode }) {
     return (
         <>
             {heading && (
                 <tr>
-                    <td
-                        colSpan={roleCount + 1}
-                        className="sticky left-0 border-b border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-700 px-3 py-1 text-xs font-medium uppercase tracking-wide text-secondary dark:text-slate-400"
-                    >
+                    <td className="sticky left-0 z-10 truncate border-b border-r border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-700 px-3 py-1 text-xs font-medium uppercase tracking-wide text-secondary dark:text-slate-400">
                         {heading}
                     </td>
+                    <td
+                        colSpan={roleCount}
+                        className="border-b border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-700"
+                    />
                 </tr>
             )}
             {children}

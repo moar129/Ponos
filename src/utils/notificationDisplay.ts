@@ -1,8 +1,10 @@
 // src/utils/notificationDisplay.ts
-import type { AppNotification } from '../types/notification/notificationTypes'
+import type { AppNotification, NotificationTypeGroup } from '../types/notification/notificationTypes'
 import type { DynamicTFunction } from '../i18n/config'
+import { systemMessageText } from './systemMessageDisplay'
 
-// Overskriften på en notifikation. For alle opgave-typer er notifications.title
+// Overskriften på en notifikation. Alle typer undtagen 'message' (opgaver og
+// 'news') oversættes via notifications:type.<type>. For opgave-typerne er notifications.title
 // i databasen en fast dansk etiket der følger type-kolonnen 1:1 ('En opgave er
 // afsluttet' osv.), så den oversættes via notifications:type.<type>.
 //
@@ -24,3 +26,33 @@ export function notificationTitle(notification: AppNotification, t: DynamicTFunc
     }
     return notification.title
 }
+
+// Brødteksten. For 'message' er body beskedens indhold, men delete_message
+// overskriver den med den faste danske sentinel 'Denne besked er slettet',
+// så den gamle tekst ikke kan ses - den oversætter vi.
+export function notificationBody(notification: AppNotification, t: DynamicTFunction): string | null {
+    if (notification.type === 'message' && notification.body === 'Denne besked er slettet') {
+        return t('messages:messageDeleted')
+    }
+    // 'Opgaven er afsluttet' i en opgave-chat giver også en notifikation.
+    if (notification.type === 'message' && notification.body) {
+        return systemMessageText(notification.body, t)
+    }
+    return notification.body
+}
+
+// Notifikationstyperne grupperet som på /notifikationer - bruges af
+// indstillingerne på /bruger (US-79). Ny type i e_notification-
+// constrainten skal også tilføjes her, ellers kan den ikke slås fra.
+// Anker for afsnittet på /bruger - genvejen fra /notifikationer linker hertil.
+export const NOTIFICATION_SETTINGS_ANCHOR = 'notifikationer'
+
+export const NOTIFICATION_TYPE_GROUPS: NotificationTypeGroup[] = [
+    { key: 'messages', types: ['message'] },
+    {
+        key: 'tasks',
+        types: ['task_assigned', 'task_updated', 'task_completed', 'task_approved', 'task_rejected', 'task_favorite_room'],
+    },
+    { key: 'news', types: ['news'] },
+    { key: 'organisation', types: ['membership_invitation'] },
+]

@@ -53,6 +53,13 @@ export const DELETE_TASKS_PRIVILEGE = 'delete_tasks'
 // Tilføje/fjerne ANDRE på en opgave (ledelsesrettighed, US-76) - adskilt
 // fra update_tasks (redigere opgavens indhold).
 export const ASSIGN_TASKS_PRIVILEGE = 'assign_tasks'
+// Se alle opgaverum, også dem der er begrænset til roller man ikke har
+// (se can_access_task_room, docs/migrations/2026-09-25-task-room-roles.sql).
+export const VIEW_ALL_TASK_ROOMS_PRIVILEGE = 'view_all_task_rooms'
+// Se afsluttede opgaver (fanen "Afsluttede" + dashboardets panel).
+// Håndhæves i tasks-select-policyen; tilmeldte ser altid egne afsluttede
+// (docs/migrations/2026-09-27-view-completed-tasks.sql).
+export const VIEW_COMPLETED_TASKS_PRIVILEGE = 'view_completed_tasks'
 
 // Medlems seedede privilegier (create_organisation, 15.8) er låst fast -
 // kan hverken fjernes fra rollen eller omdøbes (se
@@ -66,7 +73,7 @@ export const PROTECTED_MEMBER_PRIVILEGE_NAMES: string[] = [READ_NEWS_PRIVILEGE, 
 export const APPROVE_TASK_PRIVILEGE = 'approve_task'
 export const REJECT_TASK_PRIVILEGE = 'reject_task'
 
-type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'approve' | 'reject'
+type PrivilegeOp = 'create' | 'read' | 'update' | 'delete' | 'assign' | 'viewAll' | 'viewCompleted' | 'approve' | 'reject'
 
 interface PrivilegeDomain {
     /** Stabil nøgle. Etiketten hentes med t('roles:domain.<domain>'). */
@@ -133,6 +140,8 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
             update: UPDATE_TASKS_PRIVILEGE,
             delete: DELETE_TASKS_PRIVILEGE,
             assign: ASSIGN_TASKS_PRIVILEGE,
+            viewAll: VIEW_ALL_TASK_ROOMS_PRIVILEGE,
+            viewCompleted: VIEW_COMPLETED_TASKS_PRIVILEGE,
         },
     },
     {
@@ -143,6 +152,25 @@ export const PRIVILEGE_DOMAINS: PrivilegeDomain[] = [
         },
     },
 ]
+
+// Skabeloner til hurtig rolle-oprettelse fra rum-modalen
+// (QuickCreateRoleModal.tsx). Deltager = Medlems låste basis, så rollens
+// medlemmer overhovedet kan se opgavesiden; Leder kan desuden styre
+// opgaverne i rummet. Kun en udgangspunkt - kan tilpasses i modalen.
+export type RoleTemplateKey = 'participant' | 'leader'
+
+export const ROLE_TEMPLATES: Record<RoleTemplateKey, string[]> = {
+    participant: [...PROTECTED_MEMBER_PRIVILEGE_NAMES],
+    leader: [
+        ...PROTECTED_MEMBER_PRIVILEGE_NAMES,
+        CREATE_TASKS_PRIVILEGE,
+        UPDATE_TASKS_PRIVILEGE,
+        ASSIGN_TASKS_PRIVILEGE,
+        VIEW_COMPLETED_TASKS_PRIVILEGE,
+        APPROVE_TASK_PRIVILEGE,
+        REJECT_TASK_PRIVILEGE,
+    ],
+}
 
 // Etiketterne til domæner og operationer ligger i roles-ordbogen
 // (roles:domain.<domain> / roles:op.<op>). Funktionerne herunder tager
