@@ -118,11 +118,6 @@ export const taskApi = supabaseApi.injectEndpoints({
                     ]
                     : [{ type: 'Task' as const, id: 'LIST' }],
         }),
-
-        // US-70: alle afsluttede opgaver i aktiv organisation, med rum-navn,
-        // tilmeldte (navne) og materialer (navn + mængde) samlet ind via
-        // batch-opslag - samme mønster som roleApi.ts/messageApi.ts'
-        // profil-batch-opslag, da getTasks ikke selv joiner disse relationer.
         getCompletedTasks: builder.query<CompletedTaskDetails[], void>({
             queryFn: async () => {
                 try {
@@ -470,12 +465,6 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'TaskRoom', id: 'LIST' },
             ],
         }),
-
-        // Fase 3: en rå UPDATE på tasks.status kræver nu update_tasks, hvilket
-        // ville blokere en almindelig tilmeldts selvbetjente "markér som
-        // færdig"/"genåbn". Kalder i stedet set_task_status-RPC'en
-        // (fase3-tasks-privileges.sql), som tillader ENTEN en tilmeldt bruger
-        // ELLER update_tasks/admin.
         updateTaskStatus: builder.mutation<Task, UpdateTaskStatusInput>({
             queryFn: async ({ id, status }) => {
                 const { error: rpcError } = await supabase.rpc('set_task_status', {
@@ -530,13 +519,6 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
-
-        // materialOutcomes: den tildeltes valg af udfald pr. uafrapporteret
-        // materiale-linje (US-42), gemt som DATA på anmodningen - selve
-        // afrapporteringen (statusændring på enhederne) sker først i
-        // approve_task_request, ved godkendelse. Afvises anmodningen i
-        // stedet, forbliver materialerne urørt (Reserved/InUse) - se
-        // 2026-09-23-defer-material-resolution-to-approval.sql.
         createTaskRequest: builder.mutation<
             TaskRequest,
             { taskId: string; materialOutcomes?: { taskMaterialId: string; outcomes: { status: string; quantity: number }[] }[] }
@@ -673,11 +655,6 @@ export const taskApi = supabaseApi.injectEndpoints({
                 },
             ],
         }),
-
-        // Godkend/afvis opgave-færdigmelding. Listen og begge handlinger går
-        // via security definer-RPC'er (approve_task_request/
-        // reject_task_request/get_pending_task_requests), som selv tjekker
-        // approve_task/reject_task - 42501 mappes til en dansk fejlbesked.
         getPendingTaskRequests: builder.query<PendingTaskRequest[], void>({
             queryFn: async () => {
                 const { data, error } = await supabase.rpc('get_pending_task_requests')
@@ -1047,12 +1024,6 @@ export const taskApi = supabaseApi.injectEndpoints({
                 { type: 'Item', id: 'LIST' },
             ],
         }),
-
-        // US-42: afrapporterer det faktiske udfald af en opgaves materiale-
-        // linje ved færdiggørelse (fx "8 retur, 1 i stykker"). Kræves før
-        // set_task_status/approve_task_request tillader Completed - se
-        // assert_task_materials_resolved i docs/dbSchema.sql §15.21.
-        // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
         resolveTaskMaterialUnits: builder.mutation<
             void,
             { taskMaterialId: string; taskId: string; itemId: string; outcomes: { status: string; quantity: number }[] }

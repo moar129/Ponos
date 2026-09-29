@@ -1,5 +1,3 @@
-// src/pages/statistik/StatisticsPage.tsx
-
 import { useState } from 'react'
 import {
     BarChart3,
@@ -14,11 +12,32 @@ import {
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
+import {
+    useGetStatisticsTasksQuery,
+    useGetOverdueQuery,
+    useGetTeamActivityQuery,
+    useGetTaskDistributionQuery,
+    useGetTaskDevelopmentQuery,
+} from '../../store/apis/statisticApi'
 import { KPICard } from '../../components/statistics/KPICard'
 import { ChartCard } from '../../components/statistics/ChartCard'
+import { TaskDistributionChart } from '../../components/statistics/TaskDistributionChart'
+import { TaskDevelopmentChart } from '../../components/statistics/TaskDevelopmentChart'
 import { StatisticsStates } from '../../components/statistics/StatisticsStates'
 import { useStatisticsPeriod } from '../../store/hooks/useStatisticsPeriod'
 import { useStatisticsDataset } from '../../store/hooks/useStatisticsDataset'
+
+function formatDateForApi(date: Date | null): string {
+    if (!date) {
+        return ''
+    }
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
 
 export default function StatisticsPage() {
     const { t } = useTranslation('dashboard')
@@ -38,6 +57,74 @@ export default function StatisticsPage() {
         selectDataset,
     } = useStatisticsDataset()
 
+    // --------------------------------------------------
+    // Valgt statistikperiode
+    // --------------------------------------------------
+
+    const statisticsPeriod = {
+        start: formatDateForApi(current.start),
+        end: formatDateForApi(current.end),
+    }
+
+    // --------------------------------------------------
+    // KPI data
+    // --------------------------------------------------
+
+    const {
+        data: taskStatistics,
+        isLoading: isTasksLoading,
+    } = useGetStatisticsTasksQuery(statisticsPeriod, {
+        refetchOnMountOrArgChange: true,
+    })
+
+    const {
+        data: overdueStatistics,
+        isLoading: isOverdueLoading,
+    } = useGetOverdueQuery(statisticsPeriod, {
+        refetchOnMountOrArgChange: true,
+    })
+
+    const {
+        data: teamActivity,
+        isLoading: isTeamActivityLoading,
+    } = useGetTeamActivityQuery(statisticsPeriod, {
+        refetchOnMountOrArgChange: true,
+    })
+
+    const {
+        data: taskDistribution,
+        isLoading: isTaskDistributionLoading,
+    } = useGetTaskDistributionQuery(statisticsPeriod, {
+        refetchOnMountOrArgChange: true,
+    })
+
+    // --------------------------------------------------
+    // Task development
+    // --------------------------------------------------
+
+    const {
+        data: taskDevelopment,
+        isLoading: isTaskDevelopmentLoading,
+        error: taskDevelopmentError,
+    } = useGetTaskDevelopmentQuery(statisticsPeriod, {
+        refetchOnMountOrArgChange: true,
+    })
+
+    // --------------------------------------------------
+    // Debug
+    // --------------------------------------------------
+
+    console.log('Task development:', taskDevelopment)
+    console.table(taskDevelopment)
+    console.log(
+        'Task development loading:',
+        isTaskDevelopmentLoading
+    )
+    console.log(
+        'Task development error:',
+        taskDevelopmentError
+    )
+
     const [isCustomOpen, setIsCustomOpen] = useState(false)
     const [customStart, setCustomStart] = useState('')
     const [customEnd, setCustomEnd] = useState('')
@@ -52,17 +139,17 @@ export default function StatisticsPage() {
 
     if (!profile?.activeOrganisationId) {
         return (
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100">
-                <div className="rounded-md border border-border-gray dark:border-slate-700 p-5 text-center">
-                    <p className="text-secondary dark:text-slate-400 mb-3">
+            <div className="rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8">
+                <div className="rounded-md border border-border-gray p-5 text-center dark:border-slate-700">
+                    <p className="mb-3 text-secondary dark:text-slate-400">
                         {t('statistics.noOrganisation')}
                     </p>
 
                     <Link
                         to="/dashboard?tab=organisation"
-                        className="inline-flex items-center gap-2 text-accent font-medium hover:underline"
+                        className="inline-flex items-center gap-2 font-medium text-accent hover:underline"
                     >
-                        <Building2 className="w-4 h-4" />
+                        <Building2 className="h-4 w-4" />
                         {t('statistics.goToOrganisation')}
                     </Link>
                 </div>
@@ -71,12 +158,12 @@ export default function StatisticsPage() {
     }
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 space-y-6">
+        <div className="space-y-6 rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8">
 
             {/* Header */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <BarChart3 className="w-6 h-6 text-secondary dark:text-slate-400" />
+                    <BarChart3 className="h-6 w-6 text-secondary dark:text-slate-400" />
 
                     <div>
                         <h1 className="text-xl font-semibold text-primary dark:text-slate-100">
@@ -91,7 +178,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* Dataset / år */}
-            <div className="rounded-lg border border-border-gray dark:border-slate-700 p-4">
+            <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
                     <div>
@@ -139,7 +226,7 @@ export default function StatisticsPage() {
             </div>
 
             {/* Period filter */}
-            <div className="rounded-lg border border-border-gray dark:border-slate-700 p-4">
+            <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
                     <div>
@@ -147,7 +234,7 @@ export default function StatisticsPage() {
                             Statistikperiode
                         </h2>
 
-                        <p className="text-xs text-secondary dark:text-slate-400 mt-1">
+                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">
                             Vælg hvor stor en periode statistikken skal vise.
                         </p>
                     </div>
@@ -304,43 +391,67 @@ export default function StatisticsPage() {
                     <KPICard
                         title="Oprettede opgaver"
                         icon={<ListTodo className="h-5 w-5" />}
+                        value={taskStatistics?.total ?? 0}
+                        loading={isTasksLoading}
                     />
 
                     <KPICard
                         title="Færdige opgaver"
                         icon={<CheckCircle2 className="h-5 w-5" />}
+                        value={taskStatistics?.completed ?? 0}
+                        loading={isTasksLoading}
                     />
 
                     <KPICard
                         title="Igangværende opgaver"
                         icon={<Clock3 className="h-5 w-5" />}
+                        value={taskStatistics?.inProgress ?? 0}
+                        loading={isTasksLoading}
                     />
 
                     <KPICard
                         title="Forfaldne opgaver"
                         icon={<TriangleAlert className="h-5 w-5" />}
+                        value={overdueStatistics?.count ?? 0}
+                        loading={isOverdueLoading}
                     />
 
                     <KPICard
                         title="Aktive medarbejdere"
                         icon={<Users className="h-5 w-5" />}
+                        value={teamActivity?.activeMembers ?? 0}
+                        loading={isTeamActivityLoading}
                     />
 
                 </div>
             </section>
 
-            {/* Chart placeholders */}
+            {/* Charts */}
             <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
                 <ChartCard
                     title="Opgaveudvikling"
                     description="Udviklingen i opgaver over den valgte periode."
-                />
+                    loading={isTaskDevelopmentLoading}
+                >
+                    {taskDevelopment && (
+                        <TaskDevelopmentChart
+                            data={taskDevelopment}
+                        />
+                    )}
+                </ChartCard>
 
                 <ChartCard
                     title="Arbejdsfordeling"
                     description="Fordelingen af arbejdet i organisationen."
-                />
+                    loading={isTaskDistributionLoading}
+                >
+                    {taskDistribution && (
+                        <TaskDistributionChart
+                            data={taskDistribution}
+                        />
+                    )}
+                </ChartCard>
 
             </section>
 
