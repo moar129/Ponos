@@ -1847,6 +1847,73 @@ $$;
 grant execute on function public.invite_member(text) to authenticated;
 
 
+-- ---------------------------------------------------------------------
+-- 15.16b US-67-udvidelse (2026-09-29): notifikation ved invitation.
+-- Ny invitation -> 'membership_invitation'-notifikation til den inviterede
+-- (title er fast dansk etiket, oversættes via type i frontend; body =
+-- organisationens navn; link åbner Dashboard -> Organisation ->
+-- Invitationer). Trigger frem for kode i invite_member, så enhver
+-- insert-vej dækkes. Besvaret (Accepted/Rejected) -> markeret læst;
+-- slettet (annulleret, eller org slettet) -> notifikationen slettes.
+-- skip_muted_notification (§15.20c) gælder. Kørt og testet 2026-09-29.
+-- ---------------------------------------------------------------------
+create or replace function public.notify_membership_invitation()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  insert into notifications (user_id, organisation_id, type, title, body, link, reference_id)
+  select
+    new.invited_user_id,
+    new.organisation_id,
+    'membership_invitation',
+    'Invitation til organisation',
+    o.name,
+    '/dashboard?tab=organisation&section=invitations',
+    new.id
+  from organisations o
+  where o.id = new.organisation_id;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_notify_membership_invitation
+  after insert on public.membership_invitations
+  for each row
+  execute function public.notify_membership_invitation();
+
+create or replace function public.sync_membership_invitation_notification()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if tg_op = 'DELETE' then
+    delete from notifications
+    where type = 'membership_invitation' and reference_id = old.id;
+    return old;
+  end if;
+
+  if new.status <> 'Pending' and old.status = 'Pending' then
+    update notifications
+      set is_read = true
+      where type = 'membership_invitation' and reference_id = new.id;
+  end if;
+
+  return new;
+end;
+$function$;
+
+create trigger trg_sync_membership_invitation_notification
+  after update of status or delete on public.membership_invitations
+  for each row
+  execute function public.sync_membership_invitation_notification();
+
+
 -- 15.17 US-68: nulstiller en glemt adgangskode UDEN mailbekræftelse.
 -- Skrives til auth.users direkte, da den der har glemt sin kode per
 -- definition ikke er logget ind og derfor ikke kan bruge GoTrues
@@ -2327,10 +2394,11 @@ grant execute on function public.get_task_request_details(uuid) to authenticated
 -- "godkendt" og "afsluttet". notifications-tabellen og de to øvrige
 -- notify_task_*-triggere mangler stadig i dette dokument. Tabellens
 -- type-constraint (notifications_type_check, type er text) tillader
--- pr. 2026-09-27 (verificeret live):
+-- pr. 2026-09-29 ('membership_invitation' tilføjet, se §15.16b):
 --   check (type = any (array['message','task_assigned','task_updated',
 --                            'task_completed','task_approved','task_rejected',
---                            'news','task_favorite_room']))
+--                            'news','task_favorite_room',
+--                            'membership_invitation']))
 create or replace function public.notify_task_completed()
 returns trigger
 language plpgsql

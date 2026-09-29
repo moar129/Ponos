@@ -71,6 +71,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 | 29/09 | Bugfix (US-58): oprettelse af NY organisation fejlede altid med "Standardrollen Medlem kan ikke tildeles nye privilegier." - `trg_prevent_default_role_privilege_change` (§15.6d, 18/09) blokerede `create_organisation`s egen seeding af Medlems read_news/read_tasks. `create_organisation` sætter nu `ponos.bypass_admin_protection` kun omkring den insert og nulstiller straks. Fundet da bruger slettede "Roskilde Festival" (engangs-SQL i editoren, samme bypass-mønster som `delete_organisation`, ingen repo-ændring) for at oprette den igen. Kørt og testet OK af bruger 29/09; `dbSchema.sql` §15.8 opdateret, migration slettet. |
 
+| 29/09 | US-67-udvidelse efter bruger-forespørgsel: inviteret bruger fik ingen notifikation. Trigger på `membership_invitations` opretter `membership_invitation`-notifikation (body = org-navn, link `/dashboard?tab=organisation&section=invitations`); besvaret -> læst, annulleret/slettet -> notifikation slettet. Ny kategori "Organisation" på `/notifikationer` (Rasmus' `notificationPage.tsx`, additivt, godkendt) og i indstillinger på `/bruger` (`NOTIFICATION_TYPE_GROUPS`). `OrganisationTab` åbner Invitationer-underfanen via `?section=invitations` (afledt, ingen effect). Realtime-INSERT invaliderer `MembershipInvitation`; `respondToInvitation` invaliderer `Notification`. i18n i 14 `notifications.json`. Build/lint ren. Kørt og testet OK af bruger 29/09; `dbSchema.sql` §15.16b + type-liste §15.20, migration slettet. |
+
 ## Næste op
 
 **00. ~~Godkendelse: fane "Til godkendelse" + rum-adgang~~ ✅ FÆRDIG 2026-09-27** — kørt og testet, se logbog 27/09. Evt. opfølgning: notifikation til godkendere ved ny færdigmelding (fravalgt for nu).
