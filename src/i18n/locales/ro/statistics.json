@@ -78,7 +78,7 @@
   },
   "memberLoad": {
     "title": "Sarcini pe membru",
-    "description": "Câți membri au primit sarcini în perioadă. Nu afișează nume.",
+    "description": "Câți membri au primit sarcini în perioadă.",
     "bucket": {
       "0": "Nicio sarcină",
       "1-3": "1–3 sarcini",

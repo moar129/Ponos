@@ -78,7 +78,7 @@
   },
   "memberLoad": {
     "title": "Tarefas por membro",
-    "description": "Quantos membros tiveram tarefas atribuídas no período. Não mostra nomes.",
+    "description": "Quantos membros tiveram tarefas atribuídas no período.",
     "bucket": {
       "0": "Sem tarefas",
       "1-3": "1–3 tarefas",

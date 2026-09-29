@@ -78,7 +78,7 @@
   },
   "memberLoad": {
     "title": "Aufgaben pro Mitglied",
-    "description": "Wie viele Mitglieder im Zeitraum Aufgaben zugewiesen bekamen. Zeigt keine Namen.",
+    "description": "Wie viele Mitglieder im Zeitraum Aufgaben zugewiesen bekamen.",
     "bucket": {
       "0": "Keine Aufgaben",
       "1-3": "1–3 Aufgaben",

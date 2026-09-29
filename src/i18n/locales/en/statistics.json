@@ -78,7 +78,7 @@
   },
   "memberLoad": {
     "title": "Tasks per member",
-    "description": "How many members were assigned tasks in the period. Shows no names.",
+    "description": "How many members were assigned tasks in the period.",
     "bucket": {
       "0": "No tasks",
       "1-3": "1–3 tasks",

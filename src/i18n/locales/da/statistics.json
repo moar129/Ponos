@@ -78,7 +78,7 @@
   },
   "memberLoad": {
     "title": "Opgaver pr. medlem",
-    "description": "Hvor mange medlemmer der har været tildelt opgaver i perioden. Viser ingen navne.",
+    "description": "Hvor mange medlemmer der har været tildelt opgaver i perioden.",
     "bucket": {
       "0": "Ingen opgaver",
       "1-3": "1–3 opgaver",
