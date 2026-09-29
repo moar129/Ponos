@@ -79,6 +79,7 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 | 29/09 | Ad-hoc: organisationsnavnet i headeren (`headerComponent.tsx`) vises nu med fed skrift og fuld header-tekstfarve og ét trin større (text-base/lg/xl; før: text-sm/base, font-medium, dæmpet farve), så det er tydeligt. |
 | 29/09 | Ad-hoc: sideskift via link starter nu i toppen af siden (`App.tsx`, `window.scrollTo(0, 0)` ved nyt `pathname`). Undtaget: hash-links (fx `/bruger#notification-settings`) og tilbage/frem, hvor browseren selv genskaber positionen. |
 | 29/09 | Ad-hoc: sideskift via link starter nu i toppen af siden (`App.tsx`, `window.scrollTo(0,0)` ved ny `pathname`). Undtaget: hash-links og tilbage/frem (browseren genskaber positionen). |
+| 29/09 | Ad-hoc bugfix (Studerende 3's beskeder/notifikationer, godkendt af bruger): bruger med flere medlemskaber så alle samtaler + notifikationer uanset aktiv org. `get_my_conversations` fik org-filter; `get_or_create_direct_conversation` genskrevet pr. aktiv org; restriktiv RLS på `conversations`/`messages`/`notifications` (invitationer undtaget). Ingen frontend-ændring. `dbSchema.sql` §15.25. Kørt og testet OK af bruger 29/09; migration slettet. |
 
 ## Næste op
 

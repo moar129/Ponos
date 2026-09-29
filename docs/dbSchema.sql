@@ -6,12 +6,12 @@
 -- notifications med tilhørende RLS, policies, triggers og RPC'er - intet
 -- af det er dokumenteret her.
 --
--- Konkret mangler disse ni funktioner, som findes i databasen:
+-- Konkret mangler disse funktioner, som findes i databasen:
 --   add_group_participants, create_group_conversation, delete_message,
---   edit_message, get_or_create_direct_conversation,
---   leave_group_conversation, mark_conversation_read,
+--   edit_message, leave_group_conversation, mark_conversation_read,
 --   remove_group_participant, rename_group_conversation
--- samt validate_location_parent.
+-- samt validate_location_parent. (get_or_create_direct_conversation
+-- genskrevet og dokumenteret 2026-09-29, §15.25.)
 --
 -- Det svarer til 51 af databasens 108 raise exception. De 57 der ER
 -- dokumenteret her, er opdaterede og korrekte.
@@ -40,6 +40,10 @@
 -- og står dér i deres nuværende, fulde form.
 -- Samme dag: ny tabel conversation_opt_outs + RPC join_task_conversation;
 -- opgave-/rum-chats kan forlades (§15.24).
+--
+-- Ændret 2026-09-29 (§15.25): samtaler, beskeder og notifikationer
+-- scopes til aktiv org - get_my_conversations-filter, DM pr. org,
+-- restriktiv RLS på conversations/messages/notifications.
 -- ---------------------------------------------------------------------
 
 
@@ -4683,6 +4687,8 @@ as $function$
     limit 1
   ) lm on true
   where auth.uid() is not null
+    -- Kun samtaler i min AKTIVE organisation (2026-09-29, §15.25).
+    and c.organisation_id = public.auth_profile_org()
     and (c.room_id is null or public.can_access_task_room(c.room_id))
     -- Opgave-chat arkiveret, fordi alle har valgt "Luk chat".
     and (c.task_id is null or c.archived_at is null)
@@ -4691,6 +4697,142 @@ $function$;
 
 revoke execute on function public.get_my_conversations() from public, anon;
 grant execute on function public.get_my_conversations() to authenticated, service_role;
+
+
+-- ---------------------------------------------------------------------
+-- 15.25 (2026-09-29): beskeder + notifikationer scopes til AKTIV org
+-- ---------------------------------------------------------------------
+-- Bug: bruger med flere medlemskaber så alle samtaler/notifikationer
+-- uanset aktiv org. get_my_conversations fik org-filter (ovenfor). DM'er
+-- findes/oprettes nu pr. aktiv org (to brugere i org A+B får to separate
+-- DM'er). Restriktiv RLS (AND'es med eksisterende permissive policies)
+-- på conversations/messages/notifications. Invitationer undtaget: deres
+-- organisation_id er den inviterende org, modtageren ikke er medlem af.
+-- Intet slettes - org B's data vises igen, når B gøres aktiv. Frontend:
+-- ingen ændring (USER_SCOPED_TAGS invaliderer ved org-skift).
+-- Kørt og testet 2026-09-29.
+create or replace function public.get_or_create_direct_conversation(p_other_user_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_caller_id uuid := auth.uid();
+  v_org_id uuid := public.auth_profile_org();
+  v_conversation_id uuid;
+begin
+  if v_caller_id is null or v_org_id is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if p_other_user_id is null or p_other_user_id = v_caller_id then
+    raise exception 'Du kan ikke oprette en samtale med dig selv.' using hint = 'CANNOT_MESSAGE_SELF';
+  end if;
+
+  if not exists (
+    select 1 from public.memberships m
+    where m.user_id = p_other_user_id and m.organisation_id = v_org_id
+  ) then
+    raise exception 'Denne person er ikke medlem af din organisation.' using hint = 'PERSON_NOT_IN_ORG';
+  end if;
+
+  -- Samme brugerpar + org må ikke få to DM'er ved samtidige klik.
+  perform pg_advisory_xact_lock(hashtextextended(
+    'direct_conversation:' || v_org_id::text || ':'
+      || least(v_caller_id, p_other_user_id)::text || ':'
+      || greatest(v_caller_id, p_other_user_id)::text, 0));
+
+  select c.id into v_conversation_id
+  from public.conversations c
+  where c.organisation_id = v_org_id
+    and not c.is_group
+    and c.task_id is null
+    and c.room_id is null
+    and exists (select 1 from public.conversation_participants cp
+                where cp.conversation_id = c.id and cp.user_id = v_caller_id)
+    and exists (select 1 from public.conversation_participants cp
+                where cp.conversation_id = c.id and cp.user_id = p_other_user_id)
+  order by c.created_at
+  limit 1;
+
+  if v_conversation_id is not null then
+    return v_conversation_id;
+  end if;
+
+  insert into public.conversations (organisation_id, is_group, created_by)
+  values (v_org_id, false, v_caller_id)
+  returning id into v_conversation_id;
+
+  insert into public.conversation_participants (conversation_id, user_id)
+  values (v_conversation_id, v_caller_id), (v_conversation_id, p_other_user_id);
+
+  return v_conversation_id;
+end;
+$function$;
+
+revoke execute on function public.get_or_create_direct_conversation(uuid) from public, anon;
+grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
+
+-- RLS-hjælper: samtalen hører til kalderens aktive organisation.
+create or replace function public.conversation_in_active_org(p_conversation_id uuid)
+returns boolean
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select exists (
+    select 1 from public.conversations c
+    where c.id = p_conversation_id
+      and c.organisation_id = public.auth_profile_org()
+  );
+$function$;
+
+revoke execute on function public.conversation_in_active_org(uuid) from public, anon;
+grant execute on function public.conversation_in_active_org(uuid) to authenticated;
+
+create policy "Samtaler kun i aktiv organisation"
+  on public.conversations
+  as restrictive
+  for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org());
+
+create policy "Beskeder kun i aktiv organisation (læs)"
+  on public.messages
+  as restrictive
+  for select
+  to authenticated
+  using (public.conversation_in_active_org(conversation_id));
+
+create policy "Beskeder kun i aktiv organisation (skriv)"
+  on public.messages
+  as restrictive
+  for insert
+  to authenticated
+  with check (public.conversation_in_active_org(conversation_id));
+
+-- Insert sker kun i security definer-triggere/RPC'er og røres ikke.
+create policy "Notifikationer kun i aktiv organisation (læs)"
+  on public.notifications
+  as restrictive
+  for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
+
+create policy "Notifikationer kun i aktiv organisation (opdater)"
+  on public.notifications
+  as restrictive
+  for update
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
+
+create policy "Notifikationer kun i aktiv organisation (slet)"
+  on public.notifications
+  as restrictive
+  for delete
+  to authenticated
+  using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
 
 
 -- =====================================================================
