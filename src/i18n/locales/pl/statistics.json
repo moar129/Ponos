@@ -117,7 +117,10 @@
     "usedCategoryDescription": "Liczba różnych artykułów użytych w zadaniach utworzonych w okresie, według kategorii głównej.",
     "locationTitle": "Jednostki według lokalizacji",
     "locationDescriptionAt": "Według magazynu (z sekcjami) na koniec okresu ({{date}}).",
-    "noLocation": "Bez lokalizacji"
+    "noLocation": "Bez lokalizacji",
+    "subcategoryTitle": "Pozycje według podkategorii w {{category}}",
+    "subcategoryDescription": "Liczba pozycji w każdej podkategorii teraz. Pozycje bezpośrednio w kategorii są pod jej nazwą.",
+    "usedSubcategoryTitle": "Użyte pozycje według podkategorii w {{category}}"
   },
   "snapshots": {
     "title": "Zapisane migawki",
@@ -213,7 +216,7 @@
     "monthLabel": "Miesiąc",
     "labelAuto": "Pusta nazwa zostanie zapisana jako „{{name}}\".",
     "atPeriodEndNote": "Magazyn na koniec okresu",
-    "wholeOrganisationNote": "Migawki są zawsze zapisywane dla całej organizacji (bez filtra pokoju).",
+    "wholeOrganisationNote": "Migawki są zawsze zapisywane dla całej organizacji (bez filtrów).",
     "csv": {
       "export": "Eksportuj CSV",
       "group": "Grupa",
@@ -232,7 +235,10 @@
     "room": "Pokój",
     "allRooms": "Wszystkie pokoje",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Cała organizacja – filtr pokoju nie ma wpływu."
+    "wholeOrganisation": "Cała organizacja – filtr pokoju nie ma wpływu.",
+    "category": "Kategoria",
+    "allCategories": "Wszystkie kategorie",
+    "categoryTasksNote": "Dane zadań nie uwzględniają filtra kategorii."
   },
   "attention": {
     "title": "Teraz",
@@ -249,7 +255,8 @@
     "membershipTitle": "Oczekujące członkostwa",
     "requests": "Wnioski: {{count}}",
     "invitations": "Zaproszenia: {{count}}",
-    "goToAdministration": "Przejdź do administracji"
+    "goToAdministration": "Przejdź do administracji",
+    "categoryNote": "Magazyn: tylko {{category}}."
   },
   "insights": {
     "title": "Podsumowanie",

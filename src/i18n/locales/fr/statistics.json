@@ -115,7 +115,10 @@
     "usedCategoryDescription": "Nombre d’articles différents utilisés pour les tâches créées pendant la période, par catégorie principale.",
     "locationTitle": "Unités par emplacement",
     "locationDescriptionAt": "Par entrepôt (sections incluses) à la fin de la période ({{date}}).",
-    "noLocation": "Sans emplacement"
+    "noLocation": "Sans emplacement",
+    "subcategoryTitle": "Articles par sous-catégorie dans {{category}}",
+    "subcategoryDescription": "Nombre d’articles dans chaque sous-catégorie actuellement. Les articles placés directement dans la catégorie figurent sous son nom.",
+    "usedSubcategoryTitle": "Articles utilisés par sous-catégorie dans {{category}}"
   },
   "snapshots": {
     "title": "Instantanés enregistrés",
@@ -210,7 +213,7 @@
     "monthLabel": "Mois",
     "labelAuto": "Un nom vide est enregistré comme « {{name}} ».",
     "atPeriodEndNote": "Stock à la fin de la période",
-    "wholeOrganisationNote": "Les instantanés sont toujours enregistrés pour toute l'organisation (sans filtre de salle).",
+    "wholeOrganisationNote": "Les instantanés sont toujours enregistrés pour toute l’organisation (sans filtres).",
     "csv": {
       "export": "Exporter en CSV",
       "group": "Groupe",
@@ -229,7 +232,10 @@
     "room": "Salle",
     "allRooms": "Toutes les salles",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Toute l'organisation – non concernée par le filtre de salle."
+    "wholeOrganisation": "Toute l'organisation – non concernée par le filtre de salle.",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "categoryTasksNote": "Les chiffres des tâches ne suivent pas le filtre de catégorie."
   },
   "attention": {
     "title": "En ce moment",
@@ -246,7 +252,8 @@
     "membershipTitle": "Adhésions en attente",
     "requests": "Demandes : {{count}}",
     "invitations": "Invitations : {{count}}",
-    "goToAdministration": "Aller à l’administration"
+    "goToAdministration": "Aller à l’administration",
+    "categoryNote": "Stock : {{category}} uniquement."
   },
   "insights": {
     "title": "Synthèse",

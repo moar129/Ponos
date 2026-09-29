@@ -5,9 +5,8 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 
 ## Næste op
 
-1. **Verificér opsummeringen** i browseren mod FACIT ("Opsummering", 7/30/91/365 dage/Alt) – ingen migration.
-2. **Giv Studerende 2 besked** (hvis ikke gjort): triggeren logger nu også flytninger (`location_id`).
-3. "Senere": kun filter på kategori tilbage (ikke planlagt).
+Intet åbent – statistikken (US-48–55, US-80, leder-overblik, lokation, medlemmer, opsummering, kategori-filter) er
+færdig, kørt og verificeret 2026-09-30.
 
 ## Arkitektur
 
@@ -77,6 +76,7 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | Medlemskab (lige nu) | `membership_requests` + `membership_invitations` med status Pending, hele org. Link til `/dashboard?tab=administration` |
 | Opsummering | højst 3 regel-baserede sætninger (ingen AI) fra payloaden, vigtigste først: forfaldne ±≥ 2 (90/60), til tiden ±≥ 10 pp (80/50), rum med flest forfaldne ≥ 2 (75), gennemløbstid ±≥ 25 % (70/40), backlog vokser/skrumper (forskel ≥ 5 og ≥ 1,5×; 65/45), rum med lavest til tiden < 70 % (≥ 3 med slutdato; 55), afviste færdigmeldinger ≥ 25 % (≥ 4 afgjort; 50), enheder ude af drift ≥ 10 % (45). Rum-regler kun uden filter; trend-regler kun med forrige periode. Uafgjort → rumnavn. Reglerne findes også i `generate.mjs` (FACIT) – hold dem i takt |
 | Varer pr. kategori | varer pr. hovedkategori nu |
+| Kategori-filter | `p_category_id` = hovedkategori (+ alle underkategorier). Filtrerer KUN materialer: enheder pr. status/lokation, top 5, lager i "Lige nu" (og dermed opsummeringens "ude af drift"). Varer/brugte varer pr. kategori viser da underkategorierne (varer direkte i hovedkategorien under dens navn). Opgaver/KPI'er uændrede (note under Nøgletal). Snapshots altid uden filtre. `CATEGORY_NOT_FOUND` hvis ikke en hovedkategori i org'en |
 | Enheder pr. lokation | antal enhedsrækker pr. lager (topniveau; sektioner via `parent_location_id` tælles med i deres lager) **ved periodens slutning** fra lagerhistorikken (`location_id` logges af triggeren). Alle lagre (også 0) + "Uden lokation" hvis nogen; "–" før historikkens start. Hele org (ikke rum-filter). Snapshots: `location:<lager>` |
 
 ## Status
@@ -99,7 +99,8 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | US-80 CSV-eksport af snapshot-sammenligning | Færdig 2026-09-30 (frontend, ingen migration) – ⏳ browser-test |
 | Enheder pr. lokation | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §9b/§15.21d/§15.26 |
 | Nye medlemmer + ventende medlemskab | Kørt + verificeret 2026-09-30, i `dbSchema.sql` §15.26 |
-| Opsummering (tekst-indsigt) | Færdig 2026-09-30 (frontend, `utils/statisticsInsights.ts`) – ⏳ browser-test mod FACIT |
+| Opsummering (tekst-indsigt) | Færdig + verificeret i browser 2026-09-30 (frontend, `utils/statisticsInsights.ts`) |
+| Kategori-filter | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §15.26a/b |
 | Browser-verifikation mod FACIT | Admin, "Alt" + snapshot: OK 2026-09-29. Medlemmer = 23 (FACIT 22) pga. ét ekstra, ikke-seedet medlem med 0 opgaver – ikke en fejl. Mangler: øvrige perioder, ikke-admin, dark mode, responsive |
 
 ## Verifikation
@@ -138,7 +139,7 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**:
 
 - **Header/faner**: "Overblik | Gem og sammenlign" scroller vandret på mobil uden at knække tekst; aktiv fane har accent-streg.
-- **Periodekort**: knapperne ombrydes pænt; rum-dropdown under en tynd linje; valgt knap læsbar i begge temaer.
+- **Periodekort**: knapperne ombrydes pænt; rum- og kategori-dropdown under en tynd linje (side om side, ombrydes på mobil); valgt knap læsbar i begge temaer.
 - **Opsummering**: øverst under periodekortet; ikon + tekst pr. sætning (rød/grøn/grå), skelet under indlæsning;
   "Ingen markante ændringer" når intet rammer en tærskel; lange sætninger ombrydes pænt på mobil.
 - **Lige nu**: 4 felter – 1 pr. række mobil, 2+2 fra md, 4 fra xl; ikon + tal + tekst; rød ved kritiske/høje
@@ -161,4 +162,4 @@ Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**
 
 ## Senere
 
-- Filter på kategori (materialer) – RPC'en kan få `p_category_id` på samme måde som `p_room_id`.
+Intet planlagt.

@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Sinulla ei ole oikeutta tallentaa tilastoja.",
     "INVALID_PERIOD": "Loppupäivän on oltava alkupäivän jälkeen.",
     "INVALID_GRANULARITY": "Virheellinen tarkkuus tilastoille.",
-    "ROOM_NOT_FOUND": "Huonetta ei ole organisaatiossasi."
+    "ROOM_NOT_FOUND": "Huonetta ei ole organisaatiossasi.",
+    "CATEGORY_NOT_FOUND": "Luokkaa ei ole organisaatiossasi."
   }
 }

@@ -39,13 +39,14 @@ interface SnapshotRow {
 export const statisticsApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         getStatistics: builder.query<StatisticsResult, StatisticsQueryArgs>({
-            queryFn: async ({ start, end, granularity, tz, roomId }) => {
+            queryFn: async ({ start, end, granularity, tz, roomId, categoryId }) => {
                 const { data, error } = await supabase.rpc('get_statistics', {
                     p_start: start,
                     p_end: end,
                     p_granularity: granularity,
                     p_tz: tz,
                     p_room_id: roomId ?? null,
+                    p_category_id: categoryId ?? null,
                 })
 
                 if (error) {

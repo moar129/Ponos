@@ -115,7 +115,10 @@
     "usedCategoryDescription": "Numărul de articole diferite folosite în sarcini create în perioadă, pe categorie principală.",
     "locationTitle": "Unități pe locație",
     "locationDescriptionAt": "Pe depozit (inclusiv secțiunile) la sfârșitul perioadei ({{date}}).",
-    "noLocation": "Fără locație"
+    "noLocation": "Fără locație",
+    "subcategoryTitle": "Articole pe subcategorie în {{category}}",
+    "subcategoryDescription": "Numărul de articole din fiecare subcategorie acum. Articolele puse direct în categorie apar sub numele ei.",
+    "usedSubcategoryTitle": "Articole folosite pe subcategorie în {{category}}"
   },
   "snapshots": {
     "title": "Instantanee salvate",
@@ -210,7 +213,7 @@
     "monthLabel": "Lună",
     "labelAuto": "Un nume gol se salvează ca „{{name}}”.",
     "atPeriodEndNote": "Stoc la sfârșitul perioadei",
-    "wholeOrganisationNote": "Instantaneele se salvează întotdeauna pentru întreaga organizație (fără filtru de cameră).",
+    "wholeOrganisationNote": "Instantaneele se salvează întotdeauna pentru întreaga organizație (fără filtre).",
     "csv": {
       "export": "Exportă CSV",
       "group": "Grup",
@@ -229,7 +232,10 @@
     "room": "Cameră",
     "allRooms": "Toate camerele",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Întreaga organizație – nu este afectată de filtrul de cameră."
+    "wholeOrganisation": "Întreaga organizație – nu este afectată de filtrul de cameră.",
+    "category": "Categorie",
+    "allCategories": "Toate categoriile",
+    "categoryTasksNote": "Cifrele sarcinilor nu urmează filtrul de categorie."
   },
   "attention": {
     "title": "Acum",
@@ -246,7 +252,8 @@
     "membershipTitle": "Calitate de membru în așteptare",
     "requests": "Cereri: {{count}}",
     "invitations": "Invitații: {{count}}",
-    "goToAdministration": "Mergi la administrare"
+    "goToAdministration": "Mergi la administrare",
+    "categoryNote": "Stoc: doar {{category}}."
   },
   "insights": {
     "title": "Rezumat",

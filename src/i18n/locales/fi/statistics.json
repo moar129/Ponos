@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Jakson aikana luotuihin tehtäviin käytettyjen eri nimikkeiden määrä pääluokittain.",
     "locationTitle": "Yksiköt sijainneittain",
     "locationDescriptionAt": "Varastoittain (osastot mukaan lukien) jakson lopussa ({{date}}).",
-    "noLocation": "Ei sijaintia"
+    "noLocation": "Ei sijaintia",
+    "subcategoryTitle": "Nimikkeet alaluokittain: {{category}}",
+    "subcategoryDescription": "Nimikkeiden määrä kussakin alaluokassa nyt. Suoraan luokassa olevat nimikkeet näkyvät sen nimellä.",
+    "usedSubcategoryTitle": "Käytetyt nimikkeet alaluokittain: {{category}}"
   },
   "snapshots": {
     "title": "Tallennetut tilannekuvat",
@@ -207,7 +210,7 @@
     "monthLabel": "Kuukausi",
     "labelAuto": "Tyhjä nimi tallennetaan muodossa ”{{name}}”.",
     "atPeriodEndNote": "Varasto jakson lopussa",
-    "wholeOrganisationNote": "Tilannekuvat tallennetaan aina koko organisaatiolle (ilman huonesuodatinta).",
+    "wholeOrganisationNote": "Tilannekuvat tallennetaan aina koko organisaatiolle (ilman suodattimia).",
     "csv": {
       "export": "Vie CSV",
       "group": "Ryhmä",
@@ -226,7 +229,10 @@
     "room": "Huone",
     "allRooms": "Kaikki huoneet",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Koko organisaatio – huonesuodatin ei vaikuta."
+    "wholeOrganisation": "Koko organisaatio – huonesuodatin ei vaikuta.",
+    "category": "Luokka",
+    "allCategories": "Kaikki luokat",
+    "categoryTasksNote": "Tehtäväluvut eivät seuraa luokkasuodatinta."
   },
   "attention": {
     "title": "Juuri nyt",
@@ -243,7 +249,8 @@
     "membershipTitle": "Odottavat jäsenyydet",
     "requests": "Hakemukset: {{count}}",
     "invitations": "Kutsut: {{count}}",
-    "goToAdministration": "Siirry hallintaan"
+    "goToAdministration": "Siirry hallintaan",
+    "categoryNote": "Varasto: vain {{category}}."
   },
   "insights": {
     "title": "Yhteenveto",

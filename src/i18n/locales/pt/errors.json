@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Não tem permissão para guardar estatísticas.",
     "INVALID_PERIOD": "A data de fim tem de ser posterior à de início.",
     "INVALID_GRANULARITY": "Resolução inválida para as estatísticas.",
-    "ROOM_NOT_FOUND": "A sala não existe na sua organização."
+    "ROOM_NOT_FOUND": "A sala não existe na sua organização.",
+    "CATEGORY_NOT_FOUND": "A categoria não existe na sua organização."
   }
 }

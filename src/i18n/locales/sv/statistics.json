@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Antal olika artiklar som använts i uppgifter skapade under perioden, per huvudkategori.",
     "locationTitle": "Enheter per plats",
     "locationDescriptionAt": "Per lager (sektioner inräknade) vid periodens slut ({{date}}).",
-    "noLocation": "Utan plats"
+    "noLocation": "Utan plats",
+    "subcategoryTitle": "Artiklar per underkategori i {{category}}",
+    "subcategoryDescription": "Antal artiklar i varje underkategori just nu. Artiklar direkt i kategorin står under dess namn.",
+    "usedSubcategoryTitle": "Använda artiklar per underkategori i {{category}}"
   },
   "snapshots": {
     "title": "Sparade ögonblicksbilder",
@@ -207,7 +210,7 @@
     "monthLabel": "Månad",
     "labelAuto": "Ett tomt namn sparas som \"{{name}}\".",
     "atPeriodEndNote": "Lager vid periodens slut",
-    "wholeOrganisationNote": "Ögonblicksbilder sparas alltid för hela organisationen (utan rumsfilter).",
+    "wholeOrganisationNote": "Ögonblicksbilder sparas alltid för hela organisationen (utan filter).",
     "csv": {
       "export": "Exportera CSV",
       "group": "Grupp",
@@ -226,7 +229,10 @@
     "room": "Rum",
     "allRooms": "Alla rum",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Hela organisationen – påverkas inte av rumsfiltret."
+    "wholeOrganisation": "Hela organisationen – påverkas inte av rumsfiltret.",
+    "category": "Kategori",
+    "allCategories": "Alla kategorier",
+    "categoryTasksNote": "Uppgiftssiffrorna följer inte kategorifiltret."
   },
   "attention": {
     "title": "Just nu",
@@ -243,7 +249,8 @@
     "membershipTitle": "Väntande medlemskap",
     "requests": "Ansökningar: {{count}}",
     "invitations": "Inbjudningar: {{count}}",
-    "goToAdministration": "Gå till administration"
+    "goToAdministration": "Gå till administration",
+    "categoryNote": "Lager: endast {{category}}."
   },
   "insights": {
     "title": "Sammanfattning",

@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Aantal verschillende artikelen gebruikt bij taken die in de periode zijn aangemaakt, per hoofdcategorie.",
     "locationTitle": "Eenheden per locatie",
     "locationDescriptionAt": "Per opslag (secties meegeteld) aan het einde van de periode ({{date}}).",
-    "noLocation": "Zonder locatie"
+    "noLocation": "Zonder locatie",
+    "subcategoryTitle": "Artikelen per subcategorie in {{category}}",
+    "subcategoryDescription": "Aantal artikelen per subcategorie op dit moment. Artikelen direct in de categorie staan onder haar naam.",
+    "usedSubcategoryTitle": "Gebruikte artikelen per subcategorie in {{category}}"
   },
   "snapshots": {
     "title": "Opgeslagen momentopnamen",
@@ -207,7 +210,7 @@
     "monthLabel": "Maand",
     "labelAuto": "Een lege naam wordt opgeslagen als \"{{name}}\".",
     "atPeriodEndNote": "Voorraad aan het einde van de periode",
-    "wholeOrganisationNote": "Momentopnamen worden altijd voor de hele organisatie opgeslagen (zonder ruimtefilter).",
+    "wholeOrganisationNote": "Momentopnamen worden altijd voor de hele organisatie opgeslagen (zonder filters).",
     "csv": {
       "export": "CSV exporteren",
       "group": "Groep",
@@ -226,7 +229,10 @@
     "room": "Ruimte",
     "allRooms": "Alle ruimtes",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Hele organisatie – niet beïnvloed door het ruimtefilter."
+    "wholeOrganisation": "Hele organisatie – niet beïnvloed door het ruimtefilter.",
+    "category": "Categorie",
+    "allCategories": "Alle categorieën",
+    "categoryTasksNote": "Taakcijfers volgen het categoriefilter niet."
   },
   "attention": {
     "title": "Nu",
@@ -243,7 +249,8 @@
     "membershipTitle": "Openstaand lidmaatschap",
     "requests": "Aanvragen: {{count}}",
     "invitations": "Uitnodigingen: {{count}}",
-    "goToAdministration": "Naar beheer"
+    "goToAdministration": "Naar beheer",
+    "categoryNote": "Voorraad: alleen {{category}}."
   },
   "insights": {
     "title": "Samenvatting",

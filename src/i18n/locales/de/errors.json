@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Sie haben keine Berechtigung, Statistiken zu speichern.",
     "INVALID_PERIOD": "Das Enddatum muss nach dem Startdatum liegen.",
     "INVALID_GRANULARITY": "Ungültige Auflösung für die Statistik.",
-    "ROOM_NOT_FOUND": "Der Raum existiert in Ihrer Organisation nicht."
+    "ROOM_NOT_FOUND": "Der Raum existiert in Ihrer Organisation nicht.",
+    "CATEGORY_NOT_FOUND": "Die Kategorie existiert in Ihrer Organisation nicht."
   }
 }

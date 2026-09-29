@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Az időszakban létrehozott feladatokhoz felhasznált különböző tételek száma főkategóriánként.",
     "locationTitle": "Egységek helyszínenként",
     "locationDescriptionAt": "Raktáranként (szekciókkal együtt) az időszak végén ({{date}}).",
-    "noLocation": "Helyszín nélkül"
+    "noLocation": "Helyszín nélkül",
+    "subcategoryTitle": "Tételek alkategóriánként: {{category}}",
+    "subcategoryDescription": "Tételek száma alkategóriánként jelenleg. A közvetlenül a kategóriában lévő tételek a kategória neve alatt szerepelnek.",
+    "usedSubcategoryTitle": "Felhasznált tételek alkategóriánként: {{category}}"
   },
   "snapshots": {
     "title": "Mentett pillanatképek",
@@ -207,7 +210,7 @@
     "monthLabel": "Hónap",
     "labelAuto": "Üres név esetén „{{name}}” néven mentődik.",
     "atPeriodEndNote": "Készlet az időszak végén",
-    "wholeOrganisationNote": "A pillanatképek mindig a teljes szervezetre mentődnek (helyiségszűrő nélkül).",
+    "wholeOrganisationNote": "A pillanatképek mindig a teljes szervezetre mentődnek (szűrők nélkül).",
     "csv": {
       "export": "CSV exportálása",
       "group": "Csoport",
@@ -226,7 +229,10 @@
     "room": "Helyiség",
     "allRooms": "Minden helyiség",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Teljes szervezet – a helyiségszűrő nem érinti."
+    "wholeOrganisation": "Teljes szervezet – a helyiségszűrő nem érinti.",
+    "category": "Kategória",
+    "allCategories": "Minden kategória",
+    "categoryTasksNote": "A feladatszámok nem követik a kategóriaszűrőt."
   },
   "attention": {
     "title": "Most",
@@ -243,7 +249,8 @@
     "membershipTitle": "Függő tagság",
     "requests": "Kérelmek: {{count}}",
     "invitations": "Meghívók: {{count}}",
-    "goToAdministration": "Ugrás az adminisztrációhoz"
+    "goToAdministration": "Ugrás az adminisztrációhoz",
+    "categoryNote": "Készlet: csak {{category}}."
   },
   "insights": {
     "title": "Összefoglaló",

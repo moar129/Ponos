@@ -816,6 +816,26 @@ function buildFacit() {
       quality: quality(done),
     }
   }
+  // Kategori-filter (stikprøve) - samme definitioner som p_category_id i statistics_payload.
+  const SAMPLE_CATEGORY = 'Scene & Teknik'
+  const [, sampleSubs] = categories.find(([top]) => top === SAMPLE_CATEGORY)
+  const inSample = (cat) => cat === SAMPLE_CATEGORY || sampleSubs.includes(cat)
+  const sampleItems = new Set(items.filter((it) => inSample(it[0])).map((it) => it[2]))
+  const sampleUnits = unitRows.filter((r) => sampleItems.has(r.item))
+  const sampleStatus = count(sampleUnits, (r) => r.st)
+  const sampleLager = count(sampleUnits, (r) => lagerOf(r.loc))
+  const sampleUsed = {}
+  for (const t of tasks) for (const [n, a] of t.materials) if (sampleItems.has(n)) sampleUsed[n] = (sampleUsed[n] ?? 0) + a
+  const sampleTop = Object.entries(sampleUsed).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5)
+  const categorySample = [
+    ['Enheder i alt (nu)', sampleUnits.length],
+    ['Enheder pr. status (nu)', Object.entries(sampleStatus).sort().map(([k, v]) => `${k} ${v}`).join(', ')],
+    ['Enheder pr. lager (nu)', Object.entries(sampleLager).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')],
+    ['Varer pr. underkategori', [...sampleSubs, SAMPLE_CATEGORY].map((c) => [c, items.filter((it) => it[0] === c).length])
+      .filter(([c, n]) => c !== SAMPLE_CATEGORY || n > 0).sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c} ${n}`).join(', ')],
+    ['Mest brugte (top 5)', sampleTop.length ? sampleTop.map(([n, a]) => `${a} ${n}`).join(', ') : '–'],
+  ]
+
   // Opsummering (tekst-indsigt): SAMME regler/tærskler/vægte som
   // src/utils/statisticsInsights.ts - hold dem i takt. Uden rum-filter.
   const insightsFor = (s, e) => {
@@ -1059,6 +1079,12 @@ Højst 3 sætninger, vigtigste først (regler i \`src/utils/statisticsInsights.t
 side (fx "30,1 dage" dér, "30.1" her).
 
 ${table(['Periode', 'Forventede sætninger'], insightRows)}
+
+### Kategori-filter (stikprøve: ${SAMPLE_CATEGORY}, "Alt")
+
+Filtrerer kun materialer; opgavetal er uændrede. Kategorikortene viser underkategorierne.
+
+${table(['Udsagn', 'Værdi'], categorySample)}
 
 Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
 

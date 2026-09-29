@@ -5,7 +5,6 @@ import type {
     SnapshotSaveRequest,
     SnapshotViewPeriod,
     StatisticsAttention,
-    StatisticsRoom,
     StatisticsGranularity,
     StatisticsPeriodType,
     StatisticsSnapshot,
@@ -101,6 +100,8 @@ export interface AttentionPanelProps {
     data: StatisticsAttention
     /** Set when the room filter is active (task figures follow it, stock does not). */
     roomName: string | null
+    /** Set when the category filter is active (stock follows it). */
+    categoryName: string | null
 }
 
 export interface ApprovalChartProps {
@@ -115,11 +116,16 @@ export interface StatisticsPeriodPickerProps {
     children?: ReactNode
 }
 
-export interface StatisticsRoomFilterProps {
-    rooms: StatisticsRoom[]
-    /** null = all rooms */
-    roomId: string | null
-    onChange: (roomId: string | null) => void
+export interface StatisticsSelectFilterProps {
+    /** Element id, links the label to the select. */
+    id: string
+    label: string
+    /** Text of the "no filter" option. */
+    allLabel: string
+    options: { id: string; label: string }[]
+    /** null = no filter */
+    value: string | null
+    onChange: (value: string | null) => void
 }
 
 export interface CustomPeriodModalProps {

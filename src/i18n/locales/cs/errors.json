@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Nemáte oprávnění ukládat statistiky.",
     "INVALID_PERIOD": "Koncové datum musí být po počátečním datu.",
     "INVALID_GRANULARITY": "Neplatné rozlišení statistik.",
-    "ROOM_NOT_FOUND": "Místnost ve vaší organizaci neexistuje."
+    "ROOM_NOT_FOUND": "Místnost ve vaší organizaci neexistuje.",
+    "CATEGORY_NOT_FOUND": "Kategorie ve vaší organizaci neexistuje."
   }
 }

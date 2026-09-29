@@ -117,7 +117,10 @@
     "usedCategoryDescription": "Počet různých položek použitých v úkolech vytvořených v období, podle hlavní kategorie.",
     "locationTitle": "Jednotky podle umístění",
     "locationDescriptionAt": "Podle skladu (včetně sekcí) na konci období ({{date}}).",
-    "noLocation": "Bez umístění"
+    "noLocation": "Bez umístění",
+    "subcategoryTitle": "Položky podle podkategorie v {{category}}",
+    "subcategoryDescription": "Počet položek v každé podkategorii nyní. Položky přímo v kategorii jsou uvedeny pod jejím názvem.",
+    "usedSubcategoryTitle": "Použité položky podle podkategorie v {{category}}"
   },
   "snapshots": {
     "title": "Uložené snímky",
@@ -213,7 +216,7 @@
     "monthLabel": "Měsíc",
     "labelAuto": "Prázdný název se uloží jako „{{name}}“.",
     "atPeriodEndNote": "Sklad na konci období",
-    "wholeOrganisationNote": "Snímky se vždy ukládají pro celou organizaci (bez filtru místnosti).",
+    "wholeOrganisationNote": "Snímky se vždy ukládají pro celou organizaci (bez filtrů).",
     "csv": {
       "export": "Exportovat CSV",
       "group": "Skupina",
@@ -232,7 +235,10 @@
     "room": "Místnost",
     "allRooms": "Všechny místnosti",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Celá organizace – filtr místnosti se neuplatní."
+    "wholeOrganisation": "Celá organizace – filtr místnosti se neuplatní.",
+    "category": "Kategorie",
+    "allCategories": "Všechny kategorie",
+    "categoryTasksNote": "Čísla úkolů se neřídí filtrem kategorie."
   },
   "attention": {
     "title": "Právě teď",
@@ -249,7 +255,8 @@
     "membershipTitle": "Čekající členství",
     "requests": "Žádosti: {{count}}",
     "invitations": "Pozvánky: {{count}}",
-    "goToAdministration": "Přejít do administrace"
+    "goToAdministration": "Přejít do administrace",
+    "categoryNote": "Sklad: pouze {{category}}."
   },
   "insights": {
     "title": "Shrnutí",

@@ -115,7 +115,10 @@
     "usedCategoryDescription": "Número de artigos diferentes usados em tarefas criadas no período, por categoria principal.",
     "locationTitle": "Unidades por localização",
     "locationDescriptionAt": "Por armazém (secções incluídas) no fim do período ({{date}}).",
-    "noLocation": "Sem localização"
+    "noLocation": "Sem localização",
+    "subcategoryTitle": "Artigos por subcategoria em {{category}}",
+    "subcategoryDescription": "Número de artigos em cada subcategoria neste momento. Os artigos colocados diretamente na categoria aparecem com o seu nome.",
+    "usedSubcategoryTitle": "Artigos usados por subcategoria em {{category}}"
   },
   "snapshots": {
     "title": "Instantâneos guardados",
@@ -210,7 +213,7 @@
     "monthLabel": "Mês",
     "labelAuto": "Um nome vazio é guardado como «{{name}}».",
     "atPeriodEndNote": "Stock no fim do período",
-    "wholeOrganisationNote": "Os instantâneos são sempre guardados para toda a organização (sem filtro de sala).",
+    "wholeOrganisationNote": "Os instantâneos são sempre guardados para toda a organização (sem filtros).",
     "csv": {
       "export": "Exportar CSV",
       "group": "Grupo",
@@ -229,7 +232,10 @@
     "room": "Sala",
     "allRooms": "Todas as salas",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Toda a organização – não é afetada pelo filtro de sala."
+    "wholeOrganisation": "Toda a organização – não é afetada pelo filtro de sala.",
+    "category": "Categoria",
+    "allCategories": "Todas as categorias",
+    "categoryTasksNote": "Os números das tarefas não seguem o filtro de categoria."
   },
   "attention": {
     "title": "Agora",
@@ -246,7 +252,8 @@
     "membershipTitle": "Adesões pendentes",
     "requests": "Pedidos: {{count}}",
     "invitations": "Convites: {{count}}",
-    "goToAdministration": "Ir para administração"
+    "goToAdministration": "Ir para administração",
+    "categoryNote": "Stock: apenas {{category}}."
   },
   "insights": {
     "title": "Resumo",

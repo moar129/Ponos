@@ -278,6 +278,18 @@ side (fx "30,1 dage" dér, "30.1" her).
 | 365 dage | Forfaldne opgaver steg fra 1 til 7.<br>Andelen færdige til tiden faldt fra 95 % til 82 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
 | Alt | Flest forfaldne opgaver i Nedtagning (3).<br>Lavest andel til tiden i Nedtagning: 63 % (5 af 8). |
 
+### Kategori-filter (stikprøve: Scene & Teknik, "Alt")
+
+Filtrerer kun materialer; opgavetal er uændrede. Kategorikortene viser underkategorierne.
+
+| Udsagn | Værdi |
+|---|---|
+| Enheder i alt (nu) | 272 |
+| Enheder pr. status (nu) | Available 237, Damaged 10, InUse 8, Maintenance 9, Missing 4, NeedsRefilling 1, Reserved 3 |
+| Enheder pr. lager (nu) | Centrallager 268, Orange Scene 4 |
+| Varer pr. underkategori | Lyd 7, Lys 6, Strøm & Kabler 6, Generatorer & Brændstof 4 |
+| Mest brugte (top 5) | 10 Stikdåse 6-vejs IP44, 4 LED-spot 200 W, 2 Kabeltromle 25 m |
+
 Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
 
 ### Rum-oversigt ("Alt")

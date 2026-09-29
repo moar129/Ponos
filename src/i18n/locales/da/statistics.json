@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Antal forskellige varer brugt på opgaver oprettet i perioden, pr. hovedkategori.",
     "locationTitle": "Enheder pr. lokation",
     "locationDescriptionAt": "Pr. lager (sektioner talt med) ved periodens slutning ({{date}}).",
-    "noLocation": "Uden lokation"
+    "noLocation": "Uden lokation",
+    "subcategoryTitle": "Varer pr. underkategori i {{category}}",
+    "subcategoryDescription": "Antal varer i hver underkategori lige nu. Varer direkte i kategorien står under kategoriens navn.",
+    "usedSubcategoryTitle": "Brugte varer pr. underkategori i {{category}}"
   },
   "snapshots": {
     "title": "Gemte snapshots",
@@ -207,7 +210,7 @@
     "monthLabel": "Måned",
     "labelAuto": "Tomt navn gemmes som \"{{name}}\".",
     "atPeriodEndNote": "Lager ved periodens slutning",
-    "wholeOrganisationNote": "Snapshots gemmes altid for hele organisationen (uden rum-filter).",
+    "wholeOrganisationNote": "Snapshots gemmes altid for hele organisationen (uden filtre).",
     "csv": {
       "export": "Eksportér CSV",
       "group": "Gruppe",
@@ -226,7 +229,10 @@
     "room": "Rum",
     "allRooms": "Alle rum",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Hele organisationen – påvirkes ikke af rum-filteret."
+    "wholeOrganisation": "Hele organisationen – påvirkes ikke af rum-filteret.",
+    "category": "Kategori",
+    "allCategories": "Alle kategorier",
+    "categoryTasksNote": "Opgavetallene følger ikke kategorifilteret."
   },
   "attention": {
     "title": "Lige nu",
@@ -243,7 +249,8 @@
     "membershipTitle": "Medlemskab der venter",
     "requests": "Anmodninger: {{count}}",
     "invitations": "Invitationer: {{count}}",
-    "goToAdministration": "Gå til administration"
+    "goToAdministration": "Gå til administration",
+    "categoryNote": "Lager: kun {{category}}."
   },
   "insights": {
     "title": "Opsummering",

@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Nincs jogosultságod a statisztika mentéséhez.",
     "INVALID_PERIOD": "A záró dátumnak a kezdő dátum után kell lennie.",
     "INVALID_GRANULARITY": "Érvénytelen felbontás a statisztikához.",
-    "ROOM_NOT_FOUND": "A helyiség nem létezik a szervezetedben."
+    "ROOM_NOT_FOUND": "A helyiség nem létezik a szervezetedben.",
+    "CATEGORY_NOT_FOUND": "A kategória nem létezik a szervezetedben."
   }
 }

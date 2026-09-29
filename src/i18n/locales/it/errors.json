@@ -154,6 +154,7 @@
     "NO_PRIV_CREATE_STATISTICS": "Non hai i permessi per salvare le statistiche.",
     "INVALID_PERIOD": "La data di fine deve essere successiva a quella di inizio.",
     "INVALID_GRANULARITY": "Risoluzione non valida per le statistiche.",
-    "ROOM_NOT_FOUND": "La stanza non esiste nella tua organizzazione."
+    "ROOM_NOT_FOUND": "La stanza non esiste nella tua organizzazione.",
+    "CATEGORY_NOT_FOUND": "La categoria non esiste nella tua organizzazione."
   }
 }

@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Number of different items used on tasks created in the period, per main category.",
     "locationTitle": "Units per location",
     "locationDescriptionAt": "Per storage site (sections included) at the end of the period ({{date}}).",
-    "noLocation": "No location"
+    "noLocation": "No location",
+    "subcategoryTitle": "Items per subcategory in {{category}}",
+    "subcategoryDescription": "Number of items in each subcategory right now. Items placed directly in the category are listed under its name.",
+    "usedSubcategoryTitle": "Used items per subcategory in {{category}}"
   },
   "snapshots": {
     "title": "Saved snapshots",
@@ -207,7 +210,7 @@
     "monthLabel": "Month",
     "labelAuto": "An empty name is saved as \"{{name}}\".",
     "atPeriodEndNote": "Stock at the end of the period",
-    "wholeOrganisationNote": "Snapshots are always saved for the whole organisation (no room filter).",
+    "wholeOrganisationNote": "Snapshots are always saved for the whole organisation (no filters).",
     "csv": {
       "export": "Export CSV",
       "group": "Group",
@@ -226,7 +229,10 @@
     "room": "Room",
     "allRooms": "All rooms",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Whole organisation – not affected by the room filter."
+    "wholeOrganisation": "Whole organisation – not affected by the room filter.",
+    "category": "Category",
+    "allCategories": "All categories",
+    "categoryTasksNote": "Task figures do not follow the category filter."
   },
   "attention": {
     "title": "Right now",
@@ -243,7 +249,8 @@
     "membershipTitle": "Pending membership",
     "requests": "Requests: {{count}}",
     "invitations": "Invitations: {{count}}",
-    "goToAdministration": "Go to administration"
+    "goToAdministration": "Go to administration",
+    "categoryNote": "Stock: {{category}} only."
   },
   "insights": {
     "title": "Summary",

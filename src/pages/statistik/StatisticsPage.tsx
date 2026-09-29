@@ -30,7 +30,7 @@ import { KPICard } from '../../components/statistics/KPICard'
 import { RoomScorecard } from '../../components/statistics/RoomScorecard'
 import { SnapshotPanel } from '../../components/statistics/SnapshotPanel'
 import { StatisticsPeriodPicker } from '../../components/statistics/StatisticsPeriodPicker'
-import { StatisticsRoomFilter } from '../../components/statistics/StatisticsRoomFilter'
+import { StatisticsSelectFilter } from '../../components/statistics/StatisticsSelectFilter'
 import { StatisticsSection } from '../../components/statistics/StatisticsSection'
 import { TaskDevelopmentChart } from '../../components/statistics/TaskDevelopmentChart'
 import { TaskDistributionChart } from '../../components/statistics/TaskDistributionChart'
@@ -54,6 +54,8 @@ export default function StatisticsPage() {
     const [isCustomOpen, setIsCustomOpen] = useState(false)
     // US-55: null = all rooms.
     const [roomId, setRoomId] = useState<string | null>(null)
+    // Main category; filters materials only, never tasks.
+    const [categoryId, setCategoryId] = useState<string | null>(null)
 
     // Same ?tab= pattern as the dashboard. Snapshots live in their own tab,
     // independent of the overview's period filter (which stays in this page,
@@ -67,7 +69,7 @@ export default function StatisticsPage() {
     // period's numbers are never shown under a new period's label.
     // refetchOnFocus: other users' changes show up when returning to the tab.
     // `data` (last result) keeps the room list while a new filter loads.
-    const { currentData: stats, data: lastStats, isFetching, error } = useGetStatisticsQuery({ ...apiArgs, roomId }, {
+    const { currentData: stats, data: lastStats, isFetching, error } = useGetStatisticsQuery({ ...apiArgs, roomId, categoryId }, {
         skip: !hasOrganisation || !canRead || activeTab !== 'overblik',
         refetchOnMountOrArgChange: true,
         refetchOnFocus: true,
@@ -140,6 +142,11 @@ export default function StatisticsPage() {
     const materials = stats?.materials
     const rooms = lastStats?.rooms ?? []
     const roomName = roomId ? rooms.find((room) => room.id === roomId)?.name ?? null : null
+    const categories = lastStats?.categories ?? []
+    const categoryName = categoryId ? categories.find((category) => category.id === categoryId)?.title ?? null : null
+    // "Sanitet · Scene & Teknik · 30 dage (…)" - the active filters before the period.
+    const filterNames = [roomName, categoryName].filter(Boolean).join(' · ')
+    const scopeLabel = filterNames ? t('filter.forRoom', { room: filterNames, period: periodLabel }) : periodLabel
 
     const decimal = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 })
     const formatPercent = (value: number) => `${decimal.format(value)} %`
@@ -243,7 +250,7 @@ export default function StatisticsPage() {
                     <h1 className="text-xl font-semibold text-primary dark:text-slate-100">{t('title')}</h1>
                     <p className="text-sm text-secondary dark:text-slate-400">
                         {activeTab === 'overblik'
-                            ? roomName ? t('filter.forRoom', { room: roomName, period: periodLabel }) : periodLabel
+                            ? scopeLabel
                             : t('subtitle')}
                     </p>
                 </div>
@@ -276,7 +283,24 @@ export default function StatisticsPage() {
                         onChangePeriod={changePeriod}
                         onOpenCustom={() => setIsCustomOpen(true)}
                     >
-                        <StatisticsRoomFilter rooms={rooms} roomId={roomId} onChange={setRoomId} />
+                        <div className="flex flex-wrap gap-x-6 gap-y-3">
+                            <StatisticsSelectFilter
+                                id="statistics-room-filter"
+                                label={t('filter.room')}
+                                allLabel={t('filter.allRooms')}
+                                options={rooms.map((room) => ({ id: room.id, label: room.name }))}
+                                value={roomId}
+                                onChange={setRoomId}
+                            />
+                            <StatisticsSelectFilter
+                                id="statistics-category-filter"
+                                label={t('filter.category')}
+                                allLabel={t('filter.allCategories')}
+                                options={categories.map((category) => ({ id: category.id, label: category.title }))}
+                                value={categoryId}
+                                onChange={setCategoryId}
+                            />
+                        </div>
                     </StatisticsPeriodPicker>
 
                     {isCustomOpen && (
@@ -301,18 +325,21 @@ export default function StatisticsPage() {
                     {!errorMessage && (
                         <InsightSummary
                             insights={stats ? buildInsights(stats, { roomFiltered: Boolean(roomId), locale: i18n.language, t }) : []}
-                            subtitle={roomName ? t('filter.forRoom', { room: roomName, period: periodLabel }) : periodLabel}
+                            subtitle={scopeLabel}
                             loading={loading}
                         />
                     )}
 
-                    {stats && <AttentionPanel data={stats.attention} roomName={roomName} />}
+                    {stats && <AttentionPanel data={stats.attention} roomName={roomName} categoryName={categoryName} />}
 
                     {/* KPI'er */}
                     <section className="space-y-3">
                         <div>
                             <h2 className="text-base font-semibold text-primary dark:text-slate-100">{t('kpi.heading')}</h2>
-                            <p className="text-sm text-secondary dark:text-slate-400">{t('kpi.description')}</p>
+                            <p className="text-sm text-secondary dark:text-slate-400">
+                                {t('kpi.description')}
+                                {categoryName && ` ${t('filter.categoryTasksNote')}`}
+                            </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-[2200px]:grid-cols-8">
@@ -443,23 +470,26 @@ export default function StatisticsPage() {
                         </ChartCard>
 
                         <ChartCard
-                            title={t('materials.categoryTitle')}
-                            description={roomId ? `${t('materials.categoryDescription')} ${t('filter.wholeOrganisation')}` : t('materials.categoryDescription')}
+                            title={categoryName ? t('materials.subcategoryTitle', { category: categoryName }) : t('materials.categoryTitle')}
+                            description={[
+                                categoryName ? t('materials.subcategoryDescription') : t('materials.categoryDescription'),
+                                roomId ? t('filter.wholeOrganisation') : '',
+                            ].filter(Boolean).join(' ')}
                             loading={loading}
                             error={errorMessage}
                             empty={stats ? categoryRows.length === 0 : false}
                         >
-                            <BarList rows={categoryRows} ariaLabel={t('materials.categoryTitle')} />
+                            <BarList rows={categoryRows} ariaLabel={categoryName ? t('materials.subcategoryTitle', { category: categoryName }) : t('materials.categoryTitle')} />
                         </ChartCard>
 
                         <ChartCard
-                            title={t('materials.usedCategoryTitle')}
+                            title={categoryName ? t('materials.usedSubcategoryTitle', { category: categoryName }) : t('materials.usedCategoryTitle')}
                             description={t('materials.usedCategoryDescription')}
                             loading={loading}
                             error={errorMessage}
                             empty={stats ? sum(usedCategoryRows.map((row) => row.value)) === 0 : false}
                         >
-                            <BarList rows={usedCategoryRows} ariaLabel={t('materials.usedCategoryTitle')} />
+                            <BarList rows={usedCategoryRows} ariaLabel={categoryName ? t('materials.usedSubcategoryTitle', { category: categoryName }) : t('materials.usedCategoryTitle')} />
                         </ChartCard>
 
                         <ChartCard

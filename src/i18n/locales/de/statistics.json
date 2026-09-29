@@ -113,7 +113,10 @@
     "usedCategoryDescription": "Anzahl verschiedener Artikel, die für im Zeitraum erstellte Aufgaben verwendet wurden, pro Hauptkategorie.",
     "locationTitle": "Einheiten pro Standort",
     "locationDescriptionAt": "Pro Lager (Bereiche eingerechnet) zum Ende des Zeitraums ({{date}}).",
-    "noLocation": "Ohne Standort"
+    "noLocation": "Ohne Standort",
+    "subcategoryTitle": "Artikel pro Unterkategorie in {{category}}",
+    "subcategoryDescription": "Anzahl Artikel je Unterkategorie aktuell. Artikel direkt in der Kategorie stehen unter ihrem Namen.",
+    "usedSubcategoryTitle": "Verwendete Artikel pro Unterkategorie in {{category}}"
   },
   "snapshots": {
     "title": "Gespeicherte Snapshots",
@@ -207,7 +210,7 @@
     "monthLabel": "Monat",
     "labelAuto": "Ein leerer Name wird als „{{name}}\" gespeichert.",
     "atPeriodEndNote": "Lager am Ende des Zeitraums",
-    "wholeOrganisationNote": "Snapshots werden immer für die gesamte Organisation gespeichert (ohne Raumfilter).",
+    "wholeOrganisationNote": "Snapshots werden immer für die gesamte Organisation gespeichert (ohne Filter).",
     "csv": {
       "export": "CSV exportieren",
       "group": "Gruppe",
@@ -226,7 +229,10 @@
     "room": "Raum",
     "allRooms": "Alle Räume",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Gesamte Organisation – vom Raumfilter nicht betroffen."
+    "wholeOrganisation": "Gesamte Organisation – vom Raumfilter nicht betroffen.",
+    "category": "Kategorie",
+    "allCategories": "Alle Kategorien",
+    "categoryTasksNote": "Die Aufgabenzahlen folgen nicht dem Kategoriefilter."
   },
   "attention": {
     "title": "Aktuell",
@@ -243,7 +249,8 @@
     "membershipTitle": "Offene Mitgliedschaften",
     "requests": "Anfragen: {{count}}",
     "invitations": "Einladungen: {{count}}",
-    "goToAdministration": "Zur Verwaltung"
+    "goToAdministration": "Zur Verwaltung",
+    "categoryNote": "Lager: nur {{category}}."
   },
   "insights": {
     "title": "Zusammenfassung",

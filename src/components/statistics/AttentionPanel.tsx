@@ -46,7 +46,7 @@ function AttentionItem({ icon, title, count, tone, details, to, linkLabel }: Att
 // "Lige nu": what needs action today, independent of the period filter.
 // Task figures follow the room filter; stock and membership are always the
 // whole organisation.
-export function AttentionPanel({ data, roomName }: AttentionPanelProps) {
+export function AttentionPanel({ data, roomName, categoryName }: AttentionPanelProps) {
     const { t } = useTranslation(['statistics', 'tasks', 'datalayer'])
 
     const overdue = data.overdueByPriority.reduce((total, row) => total + row.count, 0)
@@ -73,6 +73,7 @@ export function AttentionPanel({ data, roomName }: AttentionPanelProps) {
                 <p className="text-sm text-secondary dark:text-slate-400">
                     {t('attention.description')}
                     {roomName && ` ${t('attention.roomNote', { room: roomName })}`}
+                    {categoryName && ` ${t('attention.categoryNote', { category: categoryName })}`}
                 </p>
             </div>
 

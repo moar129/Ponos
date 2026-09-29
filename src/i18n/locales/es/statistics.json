@@ -115,7 +115,10 @@
     "usedCategoryDescription": "Número de artículos distintos usados en tareas creadas en el período, por categoría principal.",
     "locationTitle": "Unidades por ubicación",
     "locationDescriptionAt": "Por almacén (secciones incluidas) al final del período ({{date}}).",
-    "noLocation": "Sin ubicación"
+    "noLocation": "Sin ubicación",
+    "subcategoryTitle": "Artículos por subcategoría en {{category}}",
+    "subcategoryDescription": "Número de artículos en cada subcategoría ahora mismo. Los artículos colocados directamente en la categoría aparecen con su nombre.",
+    "usedSubcategoryTitle": "Artículos usados por subcategoría en {{category}}"
   },
   "snapshots": {
     "title": "Instantáneas guardadas",
@@ -210,7 +213,7 @@
     "monthLabel": "Mes",
     "labelAuto": "Un nombre vacío se guarda como «{{name}}».",
     "atPeriodEndNote": "Inventario al final del período",
-    "wholeOrganisationNote": "Las instantáneas siempre se guardan para toda la organización (sin filtro de sala).",
+    "wholeOrganisationNote": "Las instantáneas siempre se guardan para toda la organización (sin filtros).",
     "csv": {
       "export": "Exportar CSV",
       "group": "Grupo",
@@ -229,7 +232,10 @@
     "room": "Sala",
     "allRooms": "Todas las salas",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Toda la organización: no le afecta el filtro de sala."
+    "wholeOrganisation": "Toda la organización: no le afecta el filtro de sala.",
+    "category": "Categoría",
+    "allCategories": "Todas las categorías",
+    "categoryTasksNote": "Las cifras de tareas no siguen el filtro de categoría."
   },
   "attention": {
     "title": "Ahora mismo",
@@ -246,7 +252,8 @@
     "membershipTitle": "Membresías pendientes",
     "requests": "Solicitudes: {{count}}",
     "invitations": "Invitaciones: {{count}}",
-    "goToAdministration": "Ir a administración"
+    "goToAdministration": "Ir a administración",
+    "categoryNote": "Inventario: solo {{category}}."
   },
   "insights": {
     "title": "Resumen",

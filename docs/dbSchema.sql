@@ -5036,6 +5036,9 @@ revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, times
 -- p_tz: IANA-tidszone (fx 'Europe/Copenhagen'), bruges til bucket-grænser.
 -- p_room_id: US-55 rum-filter (null = alle). Filtrerer alle opgave-afledte
 --   tal; lager (byStatus, byCategory) er altid hele organisationen.
+-- p_category_id: hovedkategori-filter (null = alle), inkl. underkategorier.
+--   Filtrerer KUN materialer (byStatus, byLocation, topUsed, lager i
+--   attention); byCategory/usedByCategory viser da underkategorierne.
 --
 -- Definitioner (se også docs/statistik-plan.md):
 --   kpis (15.26e): created = created_at i perioden; completed = Completed
@@ -5061,6 +5064,7 @@ revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, times
 --   materials.usedByCategory = forskellige varer brugt på opgaver oprettet
 --                i perioden, pr. hovedkategori
 --   rooms      = alle org'ens rum til filteret
+--   categories = hovedkategorierne til kategori-filteret
 --
 -- SECURITY DEFINER og derfor UDEN RLS - hver forespørgsel filtrerer selv
 -- på p_org. Må derfor ikke kunne kaldes direkte (se revoke nedenfor).
@@ -5071,7 +5075,8 @@ create or replace function public.statistics_payload(
   p_end timestamptz,
   p_granularity text,
   p_tz text,
-  p_room_id uuid default null
+  p_room_id uuid default null,
+  p_category_id uuid default null
 )
 returns jsonb
 language plpgsql
@@ -5102,6 +5107,10 @@ declare
   v_used_by_category jsonb;
   v_top_used jsonb;
   v_attention jsonb;
+  v_categories jsonb;
+  -- Varer i kategori-filteret (hovedkategori + alle underkategorier);
+  -- null = ingen filter.
+  v_item_ids uuid[];
 begin
   if p_granularity not in ('hour', 'day', 'week', 'month', 'quarter') then
     raise exception 'Ugyldig granularitet: %', p_granularity using hint = 'INVALID_GRANULARITY';
@@ -5113,6 +5122,20 @@ begin
   -- '1 quarter' er ikke et gyldigt interval - date_trunc('quarter') er.
   v_step := case when p_granularity = 'quarter' then interval '3 months'
                  else ('1 ' || p_granularity)::interval end;
+
+  -- Kategori-filter: gælder kun materialer (varer), ikke opgaver.
+  if p_category_id is not null then
+    with recursive sub as (
+      select id from public.data_layer_categories where id = p_category_id and organisation_id = p_org
+      union all
+      select c.id from public.data_layer_categories c join sub on c.parent_category_id = sub.id
+      where c.organisation_id = p_org
+    )
+    select coalesce(array_agg(i.id), '{}'::uuid[])
+    into v_item_ids
+    from public.data_layer_items i
+    where i.organisation_id = p_org and i.category_id in (select id from sub);
+  end if;
 
   -- KPI'er (statistics_kpis) + samme længde lige før, til trend. "Alt"
   -- har ingen forrige periode.
@@ -5318,6 +5341,7 @@ begin
       where organisation_id = p_org
         and valid_from <= v_status_as_of
         and (valid_to is null or valid_to > v_status_as_of)
+        and (v_item_ids is null or item_id = any(v_item_ids))
       group by status
     ) c on c.status = s.status;
   end if;
@@ -5334,6 +5358,7 @@ begin
       where h.organisation_id = p_org
         and h.valid_from <= v_status_as_of
         and (h.valid_to is null or h.valid_to > v_status_as_of)
+        and (v_item_ids is null or h.item_id = any(v_item_ids))
     )
     select coalesce(jsonb_agg(x order by (x->>'count')::int desc, x->>'name'), '[]'::jsonb)
     into v_by_location
@@ -5355,41 +5380,78 @@ begin
     ) loc;
   end if;
 
-  -- Materialer: items pr. topkategori (nutid) ---------------------------
-  with recursive tree as (
-    select id, id as root_id
+  -- Materialer: items pr. topkategori (nutid) - med kategori-filter pr.
+  -- underkategori.
+  with recursive roots as (
+    -- Uden filter: hovedkategorierne. Med filter: den valgte kategoris
+    -- direkte underkategorier (drill-down).
+    select id, title, rank
     from public.data_layer_categories
-    where organisation_id = p_org and parent_category_id is null
+    where organisation_id = p_org
+      and ((p_category_id is null and parent_category_id is null) or parent_category_id = p_category_id)
+  ),
+  tree as (
+    select id, id as root_id from roots
     union all
     select c.id, tree.root_id
     from public.data_layer_categories c
     join tree on c.parent_category_id = tree.id
     where c.organisation_id = p_org
+  ),
+  -- Varer der ligger direkte i den valgte kategori får deres egen række
+  -- (kategoriens eget navn), kun når der er nogen.
+  buckets as (
+    select id, title, rank from roots
+    union all
+    select id, title, -1 from public.data_layer_categories where id = p_category_id
+  ),
+  membership as (
+    select id as category_id, root_id as bucket_id from tree
+    union all
+    select p_category_id, p_category_id where p_category_id is not null
   )
   select coalesce(jsonb_agg(jsonb_build_object('categoryId', x.id, 'title', x.title, 'count', x.n)
                             order by x.n desc, x.rank, x.title), '[]'::jsonb)
   into v_by_category
   from (
-    select root.id, root.title, root.rank, count(i.id) as n
-    from public.data_layer_categories root
-    left join tree on tree.root_id = root.id
-    left join public.data_layer_items i on i.category_id = tree.id and i.organisation_id = p_org
-    where root.organisation_id = p_org and root.parent_category_id is null
-    group by root.id, root.title, root.rank
+    select b.id, b.title, b.rank, count(i.id) as n
+    from buckets b
+    left join membership m on m.bucket_id = b.id
+    left join public.data_layer_items i on i.category_id = m.category_id and i.organisation_id = p_org
+    group by b.id, b.title, b.rank
+    having b.id is distinct from p_category_id or count(i.id) > 0
   ) x;
 
   -- Materialer: forskellige varer brugt på opgaver oprettet i perioden,
-  -- pr. topkategori (alle topkategorier, også 0). Kan beregnes bagud -
-  -- modsat varer pr. kategori, som kun kendes nu.
-  with recursive tree as (
-    select id, id as root_id
+  -- pr. topkategori (alle topkategorier, også 0) - med kategori-filter pr.
+  -- underkategori. Kan beregnes bagud - modsat varer pr. kategori.
+  with recursive roots as (
+    -- Uden filter: hovedkategorierne. Med filter: den valgte kategoris
+    -- direkte underkategorier (drill-down).
+    select id, title, rank
     from public.data_layer_categories
-    where organisation_id = p_org and parent_category_id is null
+    where organisation_id = p_org
+      and ((p_category_id is null and parent_category_id is null) or parent_category_id = p_category_id)
+  ),
+  tree as (
+    select id, id as root_id from roots
     union all
     select c.id, tree.root_id
     from public.data_layer_categories c
     join tree on c.parent_category_id = tree.id
     where c.organisation_id = p_org
+  ),
+  -- Varer der ligger direkte i den valgte kategori får deres egen række
+  -- (kategoriens eget navn), kun når der er nogen.
+  buckets as (
+    select id, title, rank from roots
+    union all
+    select id, title, -1 from public.data_layer_categories where id = p_category_id
+  ),
+  membership as (
+    select id as category_id, root_id as bucket_id from tree
+    union all
+    select p_category_id, p_category_id where p_category_id is not null
   ),
   used as (
     select distinct tm.item_id
@@ -5403,13 +5465,13 @@ begin
                             order by x.n desc, x.rank, x.title), '[]'::jsonb)
   into v_used_by_category
   from (
-    select root.id, root.title, root.rank, count(u.item_id) as n
-    from public.data_layer_categories root
-    left join tree on tree.root_id = root.id
-    left join public.data_layer_items i on i.category_id = tree.id and i.organisation_id = p_org
+    select b.id, b.title, b.rank, count(u.item_id) as n
+    from buckets b
+    left join membership m on m.bucket_id = b.id
+    left join public.data_layer_items i on i.category_id = m.category_id and i.organisation_id = p_org
     left join used u on u.item_id = i.id
-    where root.organisation_id = p_org and root.parent_category_id is null
-    group by root.id, root.title, root.rank
+    group by b.id, b.title, b.rank
+    having b.id is distinct from p_category_id or count(u.item_id) > 0
   ) x;
 
   -- Materialer: top 5 mest brugte på opgaver oprettet i perioden -------
@@ -5428,6 +5490,7 @@ begin
     where t.organisation_id = p_org
       and i.organisation_id = p_org
       and (p_room_id is null or t.room_id = p_room_id)
+      and (v_item_ids is null or i.id = any(v_item_ids))
       and t.created_at >= v_s and t.created_at < v_e
     group by i.id, i.name, i.unit_of_measurement
     order by sum(tm.quantity) desc, i.name
@@ -5435,7 +5498,8 @@ begin
   ) top;
 
   -- "Lige nu" - nutid, uafhængigt af perioden. Opgave-punkter følger
-  -- rum-filteret; lager er hele organisationen. Gemmes ikke i snapshots.
+  -- rum-filteret; lager følger kategori-filteret (ellers hele org'en);
+  -- medlemskab er hele org'en. Gemmes ikke i snapshots.
   with open_tasks as (
     select id, priority, end_date
     from public.tasks
@@ -5446,6 +5510,7 @@ begin
     select item_id, status
     from public.data_layer_item_units
     where organisation_id = p_org
+      and (v_item_ids is null or item_id = any(v_item_ids))
   )
   select jsonb_build_object(
     'overdueByPriority', (
@@ -5486,6 +5551,12 @@ begin
     )
   ) into v_attention;
 
+  -- Hovedkategorierne til kategori-filteret.
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'title', title) order by rank, title), '[]'::jsonb)
+  into v_categories
+  from public.data_layer_categories
+  where organisation_id = p_org and parent_category_id is null;
+
   -- Alle org'ens rum til filter-dropdown (også rolle-låste - read_statistics er betroet).
   select coalesce(jsonb_agg(jsonb_build_object('id', id, 'name', name) order by name), '[]'::jsonb)
   into v_rooms
@@ -5496,6 +5567,7 @@ begin
     'kpis', v_kpis,
     'previousKpis', v_previous_kpis,
     'rooms', v_rooms,
+    'categories', v_categories,
     'taskStatus', v_task_status,
     'taskPriority', v_task_priority,
     'taskRooms', v_task_rooms,
@@ -5517,19 +5589,21 @@ end;
 $$;
 
 -- Intern: omgår RLS og tager org som parameter - må aldrig kaldes fra klienten.
-revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text, uuid) from public, anon, authenticated;
+revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text, uuid, uuid) from public, anon, authenticated;
 
 
 -- ---------------------------------------------------------------------
 -- 15.26b get_statistics - klientens indgang (kræver read_statistics)
--- p_room_id skal tilhøre org'en (ROOM_NOT_FOUND).
+-- p_room_id skal tilhøre org'en (ROOM_NOT_FOUND); p_category_id skal være en
+-- hovedkategori i org'en (CATEGORY_NOT_FOUND).
 -- ---------------------------------------------------------------------
 create or replace function public.get_statistics(
   p_start timestamptz,
   p_end timestamptz,
   p_granularity text,
   p_tz text,
-  p_room_id uuid default null
+  p_room_id uuid default null,
+  p_category_id uuid default null
 )
 returns jsonb
 language plpgsql
@@ -5558,12 +5632,19 @@ begin
     raise exception 'Rummet findes ikke i din organisation.' using hint = 'ROOM_NOT_FOUND';
   end if;
 
-  return public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz, p_room_id);
+  if p_category_id is not null and not exists (
+    select 1 from public.data_layer_categories
+    where id = p_category_id and organisation_id = v_org and parent_category_id is null
+  ) then
+    raise exception 'Kategorien findes ikke i din organisation.' using hint = 'CATEGORY_NOT_FOUND';
+  end if;
+
+  return public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz, p_room_id, p_category_id);
 end;
 $$;
 
-revoke execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid) from public, anon;
-grant  execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid) to authenticated;
+revoke execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid, uuid) from public, anon;
+grant  execute on function public.get_statistics(timestamptz, timestamptz, text, text, uuid, uuid) to authenticated;
 
 
 -- ---------------------------------------------------------------------

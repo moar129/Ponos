@@ -115,7 +115,10 @@
     "usedCategoryDescription": "Numero di articoli diversi usati nelle attività create nel periodo, per categoria principale.",
     "locationTitle": "Unità per ubicazione",
     "locationDescriptionAt": "Per magazzino (sezioni incluse) alla fine del periodo ({{date}}).",
-    "noLocation": "Senza ubicazione"
+    "noLocation": "Senza ubicazione",
+    "subcategoryTitle": "Articoli per sottocategoria in {{category}}",
+    "subcategoryDescription": "Numero di articoli in ogni sottocategoria ora. Gli articoli inseriti direttamente nella categoria compaiono con il suo nome.",
+    "usedSubcategoryTitle": "Articoli usati per sottocategoria in {{category}}"
   },
   "snapshots": {
     "title": "Snapshot salvati",
@@ -210,7 +213,7 @@
     "monthLabel": "Mese",
     "labelAuto": "Un nome vuoto viene salvato come \"{{name}}\".",
     "atPeriodEndNote": "Magazzino alla fine del periodo",
-    "wholeOrganisationNote": "Gli snapshot vengono sempre salvati per l'intera organizzazione (senza filtro stanza).",
+    "wholeOrganisationNote": "Gli snapshot vengono sempre salvati per l’intera organizzazione (senza filtri).",
     "csv": {
       "export": "Esporta CSV",
       "group": "Gruppo",
@@ -229,7 +232,10 @@
     "room": "Stanza",
     "allRooms": "Tutte le stanze",
     "forRoom": "{{room}} · {{period}}",
-    "wholeOrganisation": "Intera organizzazione – non influenzata dal filtro stanza."
+    "wholeOrganisation": "Intera organizzazione – non influenzata dal filtro stanza.",
+    "category": "Categoria",
+    "allCategories": "Tutte le categorie",
+    "categoryTasksNote": "I dati delle attività non seguono il filtro categoria."
   },
   "attention": {
     "title": "In questo momento",
@@ -246,7 +252,8 @@
     "membershipTitle": "Iscrizioni in attesa",
     "requests": "Richieste: {{count}}",
     "invitations": "Inviti: {{count}}",
-    "goToAdministration": "Vai all’amministrazione"
+    "goToAdministration": "Vai all’amministrazione",
+    "categoryNote": "Magazzino: solo {{category}}."
   },
   "insights": {
     "title": "Riepilogo",

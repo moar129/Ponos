@@ -24,6 +24,13 @@ export interface StatisticsQueryArgs {
     tz: string
     /** US-55: only tasks in this room; stock/categories stay organisation-wide. */
     roomId?: string | null
+    /** Only materials in this main category (incl. subcategories); tasks are unaffected. */
+    categoryId?: string | null
+}
+
+export interface StatisticsCategory {
+    id: string
+    title: string
 }
 
 export interface StatisticsRoom {
@@ -143,6 +150,8 @@ export interface StatisticsResult {
     previousKpis: StatisticsKpis | null
     /** All the organisation's rooms, for the room filter. */
     rooms: StatisticsRoom[]
+    /** Main categories, for the category filter. */
+    categories: StatisticsCategory[]
     taskStatus: TaskStatusCount[]
     taskPriority: TaskPriorityCount[]
     taskRooms: TaskRoomCount[]
@@ -159,9 +168,9 @@ export interface StatisticsResult {
         statusAsOf: string
         /** First entry in the stock history; null when the organisation has no units. */
         historyStart: string | null
-        /** Items per main category right now. */
+        /** Items per main category right now (per subcategory when filtered to a category). */
         byCategory: CategoryCount[]
-        /** Distinct items used on tasks created in the period, per main category. */
+        /** Distinct items used on tasks created in the period, per main category (per subcategory when filtered). */
         usedByCategory: CategoryCount[]
         topUsed: TopMaterial[]
     }
