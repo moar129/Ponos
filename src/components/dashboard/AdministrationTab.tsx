@@ -1,7 +1,7 @@
 // src/components/dashboard/AdministrationTab.tsx
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Send, UserPlus, Users } from 'lucide-react'
+import { Building2, CheckCircle2, ClipboardCheck, KeyRound, Palette, Send, UserPlus, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
     APPROVE_TASK_PRIVILEGE,
@@ -28,6 +28,7 @@ import { MembersPanel } from './MembersPanel'
 import { InvitationsPanel } from './InvitationsPanel'
 import { MembershipRequestsPanel } from './MembershipRequestsPanel'
 import { OrganisationAdminPanel } from './OrganisationAdminPanel'
+import { OrganisationColorsPanel } from './OrganisationColorsPanel'
 import { CompletedTasksPanel } from './CompletedTasksPanel'
 import { TaskApprovalsPanel } from './TaskApprovalsPanel'
 
@@ -93,6 +94,9 @@ export function AdministrationTab() {
     if (canManageInvitations) tabs.push({ key: 'invitations', label: t('administration.panels.invitations'), icon: Send })
     if (canManageMembershipRequests) tabs.push({ key: 'requests', label: t('administration.panels.membershipRequests'), icon: UserPlus })
     if (canManageOrganisation || isOrgAdmin) tabs.push({ key: 'organisation', label: t('administration.panels.organisation'), icon: Building2 })
+    // Farver kræver update_organisation - isOrgAdmin-undtagelsen ovenfor
+    // gælder kun "Slet organisation".
+    if (canManageOrganisation) tabs.push({ key: 'colors', label: t('administration.panels.colors'), icon: Palette })
     if (canSeeTaskApprovals) tabs.push({ key: 'taskApprovals', label: t('administration.panels.taskApprovals'), icon: ClipboardCheck })
     if (canSeeCompletedTasks) tabs.push({ key: 'completedTasks', label: t('administration.panels.completedTasks'), icon: CheckCircle2 })
 
@@ -140,6 +144,7 @@ export function AdministrationTab() {
                 {activeSubTab === 'invitations' && <InvitationsPanel />}
                 {activeSubTab === 'requests' && <MembershipRequestsPanel />}
                 {activeSubTab === 'organisation' && <OrganisationAdminPanel />}
+                {activeSubTab === 'colors' && <OrganisationColorsPanel />}
                 {activeSubTab === 'taskApprovals' && <TaskApprovalsPanel />}
                 {activeSubTab === 'completedTasks' && <CompletedTasksPanel />}
             </div>

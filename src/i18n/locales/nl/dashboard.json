@@ -64,6 +64,8 @@
       "invitations": "Uitnodigingen",
       "membershipRequests": "Lidmaatschapsverzoeken",
       "organisation": "Organisatie",
+
+      "colors": "Kleuren",
       "taskApprovals": "Taakgoedkeuringen",
       "completedTasks": "Afgeronde taken"
     }

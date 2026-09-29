@@ -64,6 +64,8 @@
       "invitations": "Kutsut",
       "membershipRequests": "Jäsenyyshakemukset",
       "organisation": "Organisaatio",
+
+      "colors": "Värit",
       "taskApprovals": "Tehtävien hyväksynnät",
       "completedTasks": "Valmiit tehtävät"
     }

@@ -66,6 +66,8 @@
       "invitations": "Pozvánky",
       "membershipRequests": "Žádosti o členství",
       "organisation": "Organizace",
+
+      "colors": "Barvy",
       "taskApprovals": "Schvalování úkolů",
       "completedTasks": "Dokončené úkoly"
     }

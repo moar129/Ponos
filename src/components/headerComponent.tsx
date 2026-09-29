@@ -137,7 +137,7 @@ export function Header() {
               PONOS
             </span>
             {profile?.organisationName && (
-              <span className="hidden sm:inline text-sm lg:text-base font-medium tracking-normal text-[var(--color-header-muted)] truncate">
+              <span className="hidden sm:inline text-base lg:text-lg xl:text-xl font-bold tracking-normal text-[var(--color-header-text)] truncate">
                 – {profile.organisationName}
               </span>
             )}
