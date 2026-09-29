@@ -35,9 +35,7 @@
     "completed": "Voltooide taken",
     "active": "Taken in uitvoering",
     "overdue": "Achterstallige taken",
-    "members": "Leden",
-    "membersWithActivity_one": "{{count}} met taakactiviteit",
-    "membersWithActivity_other": "{{count}} met taakactiviteit"
+    "membersWithActivity": "Leden met taakactiviteit"
   },
   "sections": {
     "tasks": "Taken",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Leden met taakactiviteit",
       "approvals_rate": "Goedkeuringspercentage (%)",
       "approvals_median_hours": "Mediane behandeltijd (uren)"
-    }
+    },
+    "granularity": "Ontwikkeling per",
+    "granularityHint": "Hoe fijn de ontwikkeling in de tijd wordt opgeslagen – om te vergelijken met andere momentopnamen.",
+    "granularityOption": {
+      "week": "Week",
+      "month": "Maand",
+      "quarter": "Kwartaal"
+    },
+    "development": {
+      "created": "Ontwikkeling – aangemaakt",
+      "completed": "Ontwikkeling – voltooid"
+    },
+    "developmentDatesNote": "De momentopnamen hebben een verschillende resolutie of beslaan meer dan een jaar, dus de ontwikkeling wordt per datum getoond.",
+    "weekLabel": "Week {{week}}",
+    "partialNote": "Datums tussen haakjes: alleen het deel van de deelperiode dat binnen de periode van de momentopname valt, telt mee."
   }
 }

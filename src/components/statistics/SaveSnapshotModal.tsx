@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { SnapshotGranularity } from '../../types/statistics/statisticsTypes'
 import type { SaveSnapshotModalProps } from '../../types/statistics/statisticsComponentTypes'
+
+const GRANULARITIES: SnapshotGranularity[] = ['week', 'month', 'quarter']
 
 // Rendered only while open, so the label input starts empty every time.
 export function SaveSnapshotModal({
     isOpen,
     periodLabel,
+    defaultGranularity,
     isSaving,
     error,
     onSave,
@@ -14,6 +18,7 @@ export function SaveSnapshotModal({
 }: SaveSnapshotModalProps) {
     const { t } = useTranslation(['statistics', 'common'])
     const [label, setLabel] = useState('')
+    const [granularity, setGranularity] = useState<SnapshotGranularity>(defaultGranularity)
 
     if (!isOpen) return null
 
@@ -31,7 +36,7 @@ export function SaveSnapshotModal({
                 className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl dark:bg-slate-800"
                 onSubmit={(event) => {
                     event.preventDefault()
-                    onSave(label)
+                    onSave(label, granularity)
                 }}
             >
                 <div className="flex items-center gap-3">
@@ -58,6 +63,23 @@ export function SaveSnapshotModal({
                     onChange={(event) => setLabel(event.target.value)}
                     className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-sm text-primary outline-none focus:border-accent dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                 />
+
+                <label htmlFor="statistics-snapshot-granularity" className="mb-1 mt-4 block text-sm font-medium text-primary dark:text-slate-200">
+                    {t('snapshots.granularity')}
+                </label>
+                <select
+                    id="statistics-snapshot-granularity"
+                    value={granularity}
+                    onChange={(event) => setGranularity(event.target.value as SnapshotGranularity)}
+                    className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-sm text-primary outline-none focus:border-accent dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                >
+                    {GRANULARITIES.map((option) => (
+                        <option key={option} value={option}>
+                            {t(`snapshots.granularityOption.${option}`)}
+                        </option>
+                    ))}
+                </select>
+                <p className="mt-1 text-xs text-secondary dark:text-slate-400">{t('snapshots.granularityHint')}</p>
 
                 {error && (
                     <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">

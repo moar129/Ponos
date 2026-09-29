@@ -35,11 +35,7 @@
     "completed": "Dokončené úkoly",
     "active": "Probíhající úkoly",
     "overdue": "Úkoly po termínu",
-    "members": "Členové",
-    "membersWithActivity_one": "{{count}} s aktivitou v úkolech",
-    "membersWithActivity_few": "{{count}} s aktivitou v úkolech",
-    "membersWithActivity_many": "{{count}} s aktivitou v úkolech",
-    "membersWithActivity_other": "{{count}} s aktivitou v úkolech"
+    "membersWithActivity": "Členové s aktivitou v úkolech"
   },
   "sections": {
     "tasks": "Úkoly",
@@ -143,6 +139,20 @@
       "members_with_task_activity": "Členové s aktivitou v úkolech",
       "approvals_rate": "Míra schválení (%)",
       "approvals_median_hours": "Medián doby vyřízení (hodiny)"
-    }
+    },
+    "granularity": "Vývoj po",
+    "granularityHint": "Jak podrobně se ukládá vývoj v čase – slouží k porovnání s jinými snímky.",
+    "granularityOption": {
+      "week": "Týden",
+      "month": "Měsíc",
+      "quarter": "Čtvrtletí"
+    },
+    "development": {
+      "created": "Vývoj – vytvořené",
+      "completed": "Vývoj – dokončené"
+    },
+    "developmentDatesNote": "Snímky mají různé rozlišení nebo pokrývají více než rok, proto je vývoj zobrazen podle data.",
+    "weekLabel": "Týden {{week}}",
+    "partialNote": "Data v závorkách: započítána je jen ta část dílčího období, která spadá do období snímku."
   }
 }

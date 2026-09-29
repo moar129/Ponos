@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type {
     ApprovalStatistics,
+    SnapshotGranularity,
     StatisticsGranularity,
     StatisticsPeriodType,
     StatisticsSnapshot,
@@ -85,15 +86,18 @@ export interface SnapshotPanelProps {
     periodStart: string | null
     periodEnd: string | null
     periodLabel: string
+    /** Length of the period in days; null = "Alt". Picks the default resolution. */
+    periodDays: number | null
     timeZone: string
 }
 
 export interface SaveSnapshotModalProps {
     isOpen: boolean
     periodLabel: string
+    defaultGranularity: SnapshotGranularity
     isSaving: boolean
     error: string | null
-    onSave: (label: string) => void
+    onSave: (label: string, granularity: SnapshotGranularity) => void
     onClose: () => void
 }
 

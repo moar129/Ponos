@@ -35,9 +35,7 @@
     "completed": "Færdige opgaver",
     "active": "Opgaver i gang",
     "overdue": "Forfaldne opgaver",
-    "members": "Medlemmer",
-    "membersWithActivity_one": "{{count}} med opgaveaktivitet",
-    "membersWithActivity_other": "{{count}} med opgaveaktivitet"
+    "membersWithActivity": "Medlemmer med opgaveaktivitet"
   },
   "sections": {
     "tasks": "Opgaver",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Medlemmer med opgaveaktivitet",
       "approvals_rate": "Godkendelsesrate (%)",
       "approvals_median_hours": "Median behandlingstid (timer)"
-    }
+    },
+    "granularity": "Udvikling pr.",
+    "granularityHint": "Hvor fint udviklingen over tid gemmes – bruges til at sammenligne med andre snapshots.",
+    "granularityOption": {
+      "week": "Uge",
+      "month": "Måned",
+      "quarter": "Kvartal"
+    },
+    "development": {
+      "created": "Udvikling – oprettede",
+      "completed": "Udvikling – færdige"
+    },
+    "developmentDatesNote": "Snapshottene har forskellig opløsning eller dækker mere end ét år, så udviklingen vises med datoer.",
+    "weekLabel": "Uge {{week}}",
+    "partialNote": "Datoer i parentes: kun den del af delperioden, der ligger inden for snapshottets periode, er talt med."
   }
 }

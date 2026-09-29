@@ -35,10 +35,7 @@
     "completed": "Tareas completadas",
     "active": "Tareas en curso",
     "overdue": "Tareas vencidas",
-    "members": "Miembros",
-    "membersWithActivity_one": "{{count}} con actividad en tareas",
-    "membersWithActivity_many": "{{count}} con actividad en tareas",
-    "membersWithActivity_other": "{{count}} con actividad en tareas"
+    "membersWithActivity": "Miembros con actividad en tareas"
   },
   "sections": {
     "tasks": "Tareas",
@@ -140,6 +137,20 @@
       "members_with_task_activity": "Miembros con actividad en tareas",
       "approvals_rate": "Tasa de aprobación (%)",
       "approvals_median_hours": "Tiempo de gestión mediano (horas)"
-    }
+    },
+    "granularity": "Evolución por",
+    "granularityHint": "Con qué detalle se guarda la evolución en el tiempo – sirve para comparar con otras instantáneas.",
+    "granularityOption": {
+      "week": "Semana",
+      "month": "Mes",
+      "quarter": "Trimestre"
+    },
+    "development": {
+      "created": "Evolución – creadas",
+      "completed": "Evolución – completadas"
+    },
+    "developmentDatesNote": "Las instantáneas tienen resoluciones distintas o abarcan más de un año, así que la evolución se muestra por fecha.",
+    "weekLabel": "Semana {{week}}",
+    "partialNote": "Fechas entre paréntesis: solo se cuenta la parte del subperíodo que cae dentro del período de la instantánea."
   }
 }

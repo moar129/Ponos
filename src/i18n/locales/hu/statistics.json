@@ -35,9 +35,7 @@
     "completed": "Befejezett feladatok",
     "active": "Folyamatban lévő feladatok",
     "overdue": "Lejárt feladatok",
-    "members": "Tagok",
-    "membersWithActivity_one": "{{count}} feladataktivitással",
-    "membersWithActivity_other": "{{count}} feladataktivitással"
+    "membersWithActivity": "Feladataktivitással rendelkező tagok"
   },
   "sections": {
     "tasks": "Feladatok",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Feladataktivitással rendelkező tagok",
       "approvals_rate": "Jóváhagyási arány (%)",
       "approvals_median_hours": "Medián kezelési idő (óra)"
-    }
+    },
+    "granularity": "Alakulás bontása",
+    "granularityHint": "Milyen részletesen mentse az időbeli alakulást – más pillanatképekkel való összevetéshez.",
+    "granularityOption": {
+      "week": "Hét",
+      "month": "Hónap",
+      "quarter": "Negyedév"
+    },
+    "development": {
+      "created": "Alakulás – létrehozott",
+      "completed": "Alakulás – befejezett"
+    },
+    "developmentDatesNote": "A pillanatképek felbontása eltér, vagy egy évnél hosszabb időszakot fednek le, ezért az alakulás dátum szerint jelenik meg.",
+    "weekLabel": "{{week}}. hét",
+    "partialNote": "Zárójelben lévő dátumok: a részidőszaknak csak a pillanatkép időszakába eső része számít bele."
   }
 }

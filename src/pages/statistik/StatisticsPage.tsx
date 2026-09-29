@@ -179,10 +179,9 @@ export default function StatisticsPage() {
                     <KPICard title={t('kpi.active')} icon={<Clock3 className="h-5 w-5" />} value={kpis?.active} loading={loading} />
                     <KPICard title={t('kpi.overdue')} icon={<TriangleAlert className="h-5 w-5" />} value={kpis?.overdue} loading={loading} />
                     <KPICard
-                        title={t('kpi.members')}
+                        title={t('kpi.membersWithActivity')}
                         icon={<Users className="h-5 w-5" />}
-                        value={kpis?.members}
-                        subtitle={kpis ? t('kpi.membersWithActivity', { count: kpis.membersWithTaskActivity }) : undefined}
+                        value={kpis?.membersWithTaskActivity}
                         loading={loading}
                     />
                 </div>
@@ -224,7 +223,7 @@ export default function StatisticsPage() {
                     description={t('rooms.description')}
                     loading={loading}
                     error={errorMessage}
-                    empty={stats?.taskRooms.length === 0}
+                    empty={stats ? sum(stats.taskRooms.map((room) => room.total)) === 0 : false}
                 >
                     {stats && <TaskRoomChart data={stats.taskRooms} />}
                 </ChartCard>
@@ -288,6 +287,7 @@ export default function StatisticsPage() {
                 periodStart={apiArgs.start}
                 periodEnd={apiArgs.end}
                 periodLabel={periodLabel}
+                periodDays={range ? Math.round((range.end.getTime() - range.start.getTime()) / 86_400_000) + 1 : null}
                 timeZone={apiArgs.tz}
             />
         </div>

@@ -35,9 +35,7 @@
     "completed": "Completed tasks",
     "active": "Tasks in progress",
     "overdue": "Overdue tasks",
-    "members": "Members",
-    "membersWithActivity_one": "{{count}} with task activity",
-    "membersWithActivity_other": "{{count}} with task activity"
+    "membersWithActivity": "Members with task activity"
   },
   "sections": {
     "tasks": "Tasks",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Members with task activity",
       "approvals_rate": "Approval rate (%)",
       "approvals_median_hours": "Median handling time (hours)"
-    }
+    },
+    "granularity": "Development per",
+    "granularityHint": "How finely the development over time is saved – used to compare with other snapshots.",
+    "granularityOption": {
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter"
+    },
+    "development": {
+      "created": "Development – created",
+      "completed": "Development – completed"
+    },
+    "developmentDatesNote": "The snapshots have different resolutions or cover more than one year, so the development is shown by date.",
+    "weekLabel": "Week {{week}}",
+    "partialNote": "Dates in brackets: only the part of the sub-period that falls within the snapshot period is counted."
   }
 }

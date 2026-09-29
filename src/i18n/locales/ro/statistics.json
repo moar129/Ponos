@@ -35,10 +35,7 @@
     "completed": "Sarcini finalizate",
     "active": "Sarcini în desfășurare",
     "overdue": "Sarcini întârziate",
-    "members": "Membri",
-    "membersWithActivity_one": "{{count}} cu activitate pe sarcini",
-    "membersWithActivity_few": "{{count}} cu activitate pe sarcini",
-    "membersWithActivity_other": "{{count}} cu activitate pe sarcini"
+    "membersWithActivity": "Membri cu activitate pe sarcini"
   },
   "sections": {
     "tasks": "Sarcini",
@@ -140,6 +137,20 @@
       "members_with_task_activity": "Membri cu activitate pe sarcini",
       "approvals_rate": "Rata de aprobare (%)",
       "approvals_median_hours": "Timp median de procesare (ore)"
-    }
+    },
+    "granularity": "Evoluție pe",
+    "granularityHint": "Cât de detaliat se salvează evoluția în timp – folosit pentru comparația cu alte instantanee.",
+    "granularityOption": {
+      "week": "Săptămână",
+      "month": "Lună",
+      "quarter": "Trimestru"
+    },
+    "development": {
+      "created": "Evoluție – create",
+      "completed": "Evoluție – finalizate"
+    },
+    "developmentDatesNote": "Instantaneele au rezoluții diferite sau acoperă mai mult de un an, așa că evoluția este afișată pe date.",
+    "weekLabel": "Săptămâna {{week}}",
+    "partialNote": "Datele din paranteze: se numără doar partea din subperioadă care se încadrează în perioada instantaneului."
   }
 }

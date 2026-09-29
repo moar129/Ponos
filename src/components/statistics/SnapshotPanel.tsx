@@ -12,16 +12,16 @@ import {
     DELETE_STATISTICS_PRIVILEGE,
     useHasPrivilege,
 } from '../../store/apis/privilegeApi'
-import { snapshotName } from '../../utils/statisticsSnapshot'
+import { defaultSnapshotGranularity, snapshotName } from '../../utils/statisticsSnapshot'
 import { ConfirmDialogComponent } from '../dataLayer/confirmDialogComponent'
 import { SaveSnapshotModal } from './SaveSnapshotModal'
 import { SnapshotComparisonTable } from './SnapshotComparisonTable'
-import type { StatisticsSnapshot } from '../../types/statistics/statisticsTypes'
+import type { SnapshotGranularity, StatisticsSnapshot } from '../../types/statistics/statisticsTypes'
 import type { SnapshotPanelProps } from '../../types/statistics/statisticsComponentTypes'
 
 // US-52 (save) + US-54 (compare). Save and delete are gated independently;
 // the server enforces both (save_statistics_snapshot / delete policy).
-export function SnapshotPanel({ periodStart, periodEnd, periodLabel, timeZone }: SnapshotPanelProps) {
+export function SnapshotPanel({ periodStart, periodEnd, periodLabel, periodDays, timeZone }: SnapshotPanelProps) {
     const { t, i18n } = useTranslation('statistics')
     const { hasPrivilege: canCreate } = useHasPrivilege(CREATE_STATISTICS_PRIVILEGE)
     const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_STATISTICS_PRIVILEGE)
@@ -45,10 +45,10 @@ export function SnapshotPanel({ periodStart, periodEnd, periodLabel, timeZone }:
         )
     }
 
-    const handleSave = async (label: string) => {
+    const handleSave = async (label: string, granularity: SnapshotGranularity) => {
         setSaveError(null)
         try {
-            const id = await saveSnapshot({ start: periodStart, end: periodEnd, label, tz: timeZone }).unwrap()
+            const id = await saveSnapshot({ start: periodStart, end: periodEnd, label, tz: timeZone, granularity }).unwrap()
             setSelectedIds((current) => [...current, id])
             setIsSaveOpen(false)
         } catch (err) {
@@ -162,6 +162,7 @@ export function SnapshotPanel({ periodStart, periodEnd, periodLabel, timeZone }:
                 <SaveSnapshotModal
                     isOpen={isSaveOpen}
                     periodLabel={periodLabel}
+                    defaultGranularity={defaultSnapshotGranularity(periodDays)}
                     isSaving={isSaving}
                     error={saveError}
                     onSave={handleSave}

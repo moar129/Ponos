@@ -602,22 +602,31 @@ create table public.statistics_snapshots (
   period_end       timestamptz not null,
   created_at       timestamptz not null default now(),
   -- Valgfrit navn, fx "Roskilde 2026" (2026-09-29, statistik-migrationen).
-  label            text
+  label            text,
+  -- Tidsseriens opløsning (week/month/quarter), valgt ved gem. null =
+  -- snapshot gemt før 2026-09-29-clip-rooms (frontend gætter ud fra længden).
+  series_granularity text,
+  constraint statistics_snapshots_series_granularity_check
+    check (series_granularity is null or series_granularity in ('week', 'month', 'quarter'))
 );
 
 create index idx_snapshots_org on public.statistics_snapshots (organisation_id);
 
--- Rækker skrives KUN af save_statistics_snapshot (§15.26) som flade
+-- Rækker skrives KUN af save_statistics_snapshot (§15.26c) som flade
 -- "<gruppe>:<nøgle>"-navne (tasks_created, task_status:Completed,
--- room:<navn> ...). Drift: skema-eksporten 2026-09-29 viste en constraint
--- statistics_values_period_check (period_end >= period_start), så live har
--- også period_start/period_end-kolonner her, som ikke er dokumenteret og
--- ikke sættes af RPC'en (null opfylder check'en).
+-- room:<navn> ...). period_start/period_end (fundet som udokumenteret
+-- drift i skema-eksporten 2026-09-29, nu i brug): null = værdien gælder
+-- hele snapshottets periode; sat = en delperiode i snapshottets tidsserie
+-- (development:created / development:completed pr. uge/måned/kvartal,
+-- valgt af brugeren ved gem).
 create table public.statistics_values (
   id           uuid primary key default gen_random_uuid(),
   snapshot_id  uuid not null references public.statistics_snapshots(id) on delete cascade,
   name         text not null,
-  value        numeric not null
+  value        numeric not null,
+  period_start timestamptz,
+  period_end   timestamptz,
+  constraint statistics_values_period_check check (period_end >= period_start)
 );
 
 create index idx_stat_values_snapshot on public.statistics_values (snapshot_id);
@@ -4911,14 +4920,16 @@ declare
   v_by_category jsonb;
   v_top_used jsonb;
 begin
-  if p_granularity not in ('hour', 'day', 'week', 'month') then
+  if p_granularity not in ('hour', 'day', 'week', 'month', 'quarter') then
     raise exception 'Ugyldig granularitet: %', p_granularity using hint = 'INVALID_GRANULARITY';
   end if;
 
   -- Fejler med en tydelig fejl, hvis tidszonen er ugyldig.
   perform now() at time zone p_tz;
 
-  v_step := ('1 ' || p_granularity)::interval;
+  -- '1 quarter' er ikke et gyldigt interval - date_trunc('quarter') er.
+  v_step := case when p_granularity = 'quarter' then interval '3 months'
+                 else ('1 ' || p_granularity)::interval end;
 
   -- KPI'er ------------------------------------------------------------
   with t as (
@@ -4976,21 +4987,40 @@ begin
   ) c on c.priority is not distinct from p.priority
   where p.priority is not null or coalesce(c.n, 0) > 0;
 
-  -- Rum (alle rum, også rolle-låste; null = uden rum) -----------------
+  -- Rum: ALLE org'ens rum, også rolle-låste og dem uden opgaver i
+  -- perioden (0 - så et snapshot viser 0 og ikke "mangler"). "Uden rum"
+  -- kun når der er opgaver uden rum.
   select coalesce(jsonb_agg(x order by (x->>'total')::int desc, x->>'name'), '[]'::jsonb)
   into v_task_rooms
   from (
     select jsonb_build_object(
-      'roomId', t.room_id,
+      'roomId', r.id,
       'name', r.name,
-      'total', count(*),
-      'completed', count(*) filter (where t.status = 'Completed'),
-      'open', count(*) filter (where t.status <> 'Completed')
+      'total', count(t.id),
+      'completed', count(t.id) filter (where t.status = 'Completed'),
+      'open', count(t.id) filter (where t.status <> 'Completed')
     ) as x
-    from public.tasks t
-    left join public.task_rooms r on r.id = t.room_id and r.organisation_id = p_org
-    where t.organisation_id = p_org and t.created_at >= v_s and t.created_at < v_e
-    group by t.room_id, r.name
+    from public.task_rooms r
+    left join public.tasks t
+      on t.room_id = r.id
+     and t.organisation_id = p_org
+     and t.created_at >= v_s and t.created_at < v_e
+    where r.organisation_id = p_org
+    group by r.id, r.name
+
+    union all
+
+    select jsonb_build_object(
+      'roomId', null,
+      'name', null,
+      'total', count(*),
+      'completed', count(*) filter (where status = 'Completed'),
+      'open', count(*) filter (where status <> 'Completed')
+    )
+    from public.tasks
+    where organisation_id = p_org and room_id is null
+      and created_at >= v_s and created_at < v_e
+    having count(*) > 0
   ) rooms;
 
   -- Anonym belastning: medlemmer pr. interval af relevante opgaver -----
@@ -5162,6 +5192,7 @@ end;
 $$;
 
 -- Intern: omgår RLS og tager org som parameter - må aldrig kaldes fra klienten.
+
 revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text) from public, anon, authenticated;
 
 
@@ -5209,14 +5240,20 @@ grant  execute on function public.get_statistics(timestamptz, timestamptz, text,
 -- Værdierne gemmes fladt i statistics_values som "<gruppe>:<nøgle>"
 -- (fx task_status:Completed, room:Sanitet, room: = uden rum). Navne på
 -- rum/kategorier/items gemmes som de så ud nu, så et gammelt snapshot
--- ikke ændrer sig, når noget omdøbes. Tidsserien gemmes ikke.
+-- ikke ændrer sig, når noget omdøbes. Tidsserien gemmes som
+-- development:created/development:completed pr. delperiode med
+-- statistics_values.period_start/period_end; opløsningen (p_granularity:
+-- week/month/quarter) vælges af brugeren ved gem og gemmes i
+-- statistics_snapshots.series_granularity. Første/sidste delperiode skæres
+-- til snapshottets periode (fx Q3 = 23.-29. sep. i et 7-dages snapshot).
 -- "Alt" (null-periode) gemmes med første opgaves dato som start og nu som slut.
 -- ---------------------------------------------------------------------
 create or replace function public.save_statistics_snapshot(
   p_start timestamptz,
   p_end timestamptz,
   p_label text,
-  p_tz text
+  p_tz text,
+  p_granularity text default 'month'
 )
 returns uuid
 language plpgsql
@@ -5229,6 +5266,7 @@ declare
   v_start timestamptz;
   v_end timestamptz;
   v_id uuid;
+  v_step interval;
 begin
   if v_org is null then
     raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
@@ -5242,7 +5280,15 @@ begin
     raise exception 'Slutdatoen skal ligge efter startdatoen.' using hint = 'INVALID_PERIOD';
   end if;
 
-  v_payload := public.statistics_payload(v_org, p_start, p_end, 'month', p_tz);
+  -- Tidsseriens opløsning vælges af brugeren ved gem.
+  if p_granularity not in ('week', 'month', 'quarter') then
+    raise exception 'Ugyldig granularitet: %', p_granularity using hint = 'INVALID_GRANULARITY';
+  end if;
+
+  v_step := case when p_granularity = 'quarter' then interval '3 months'
+                 else ('1 ' || p_granularity)::interval end;
+
+  v_payload := public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz);
 
   v_end := coalesce(p_end, now());
   v_start := coalesce(
@@ -5251,8 +5297,8 @@ begin
     v_end
   );
 
-  insert into public.statistics_snapshots (organisation_id, period_start, period_end, label)
-  values (v_org, v_start, v_end, nullif(trim(p_label), ''))
+  insert into public.statistics_snapshots (organisation_id, period_start, period_end, label, series_granularity)
+  values (v_org, v_start, v_end, nullif(trim(p_label), ''), p_granularity)
   returning id into v_id;
 
   insert into public.statistics_values (snapshot_id, name, value)
@@ -5297,12 +5343,30 @@ begin
   select v_id, 'top_material:' || (x->>'name'), (x->>'quantity')::numeric
   from jsonb_array_elements(v_payload->'materials'->'topUsed') x;
 
+  -- Tidsserie: én række pr. delperiode og nøgletal, med delperiodens
+  -- grænser i period_start/period_end (ovenstående rækker har null =
+  -- hele snapshottets periode). Buckets er lokale tidspunkter i p_tz og
+  -- skæres til snapshottets periode, så en delvis første/sidste
+  -- delperiode (fx Q3 for 23.-29. sep.) har sine faktiske grænser.
+  insert into public.statistics_values (snapshot_id, name, value, period_start, period_end)
+  select v_id,
+         'development:' || k.metric,
+         (x->>k.metric)::numeric,
+         greatest(b.bucket_start, v_start),
+         least(b.bucket_end, v_end)
+  from jsonb_array_elements(v_payload->'taskDevelopment') x
+  cross join lateral (
+    select (x->>'bucket')::timestamp at time zone p_tz as bucket_start,
+           ((x->>'bucket')::timestamp + v_step) at time zone p_tz as bucket_end
+  ) b
+  cross join (values ('created'), ('completed')) as k(metric);
+
   return v_id;
 end;
 $$;
 
-revoke execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text) from public, anon;
-grant  execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text) to authenticated;
+revoke execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text, text) from public, anon;
+grant  execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text, text) to authenticated;
 
 
 -- =====================================================================

@@ -23,6 +23,14 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 - Snapshots (US-52/54): `save_statistics_snapshot` gemmer payloaden fladt i `statistics_values`
   som `tasks_created`, `task_status:Completed`, `room:<navn>` … Navne fryses. Ingen
   update-policy, så snapshots er uændrelige. Sletning kræver `delete_statistics`.
+- Tidsserie i snapshots: `development:created`/`development:completed` pr. delperiode med
+  `period_start`/`period_end` sat (null = hele snapshottets periode). Opløsningen (uge/måned/kvartal)
+  vælges ved gem; standard efter periodens længde (≤ 91 d uge, ≤ 366 d måned, ellers kvartal).
+  Sammenligningen justeres efter kalender (juli ud for juli på tværs af år); ved blandet opløsning
+  eller serier over mere end ét år vises datoer i stedet (`buildDevelopmentComparison`,
+  `utils/statisticsSnapshot.ts`). Første/sidste delperiode skæres til snapshottets periode og vises
+  med sine faktiske datoer i parentes; opløsningen gemmes i `statistics_snapshots.series_granularity`.
+- "Opgaver pr. rum" indeholder alle rum, også dem uden opgaver (0), så snapshots viser 0 og ikke "–".
 - Privilegier: `read_statistics` / `create_statistics` / `delete_statistics`. Ingen backfill –
   kun admin som standard.
 - RTK: `statisticApi.ts` (`getStatistics`, `getStatisticsSnapshots`, save/delete). Tags
@@ -36,8 +44,8 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | Færdige | Completed og `finished_at` i perioden |
 | I gang | `coalesce(start_date, created_at)` < slut og (InProgress eller Completed med `finished_at` ≥ start). Der findes intet `started_at` – `start_date` (planlagt) er en tilnærmelse |
 | Forfaldne | ikke Completed, `end_date` < nu og i perioden |
-| Medlemmer | `memberships` i org'en (uafhængig af periode) |
-| Med opgaveaktivitet | medlemmer tildelt ≥ 1 *relevant* opgave (oprettet eller i gang i perioden) |
+| Medlemmer | `memberships` i org'en (uafhængig af periode). Vises ikke som KPI – kun i snapshots (`members`) og som total i "Opgaver pr. medlem" |
+| Med opgaveaktivitet | medlemmer tildelt ≥ 1 *relevant* opgave (oprettet eller i gang i perioden). KPI-kortet "Medlemmer med opgaveaktivitet" (uden total). Afviger bevidst fra handoff punkt 1 (medlemstal som KPI): KPI-rækken er "tal for den valgte periode", og medlemstallet ændrer sig aldrig med perioden (besluttet 2026-09-29) |
 | Opgaver pr. medlem | anonym fordeling 0 / 1–3 / 4–6 / 7+ relevante opgaver. Ingen navne eller rangering |
 | Status / prioritet / rum / mest brugte | opgaver oprettet i perioden |
 | Godkendelser | `task_requests` med `requested_at` i perioden (anmodninger, ikke opgaver). Rate = godkendt/(godkendt+afvist). Median behandlingstid = `done_at − requested_at` |
@@ -53,6 +61,8 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | `useStatisticsPeriod` (lokal tid, eksklusiv slut, granularitet) | Færdig |
 | UI: KPI'er, udvikling (0-fyldt), status, prioritet, rum, belastning, godkendelser, materialer | Færdig |
 | Snapshots: gem, sammenlign, slet | Færdig |
+| Tidsserie i snapshots (`period_start/period_end`) | Kørt + verificeret 2026-09-29 (FACIT 7/365 dage OK) |
+| Delvise delperioder + rum med 0 (`series_granularity`) | Kørt + verificeret 2026-09-29 (uge/måned/kvartal-snapshots af "7 dage" OK) |
 | Adgang: header, mobil-nav, Oversigt-link, "ingen adgang"-side | Færdig |
 | i18n (`statistics`-namespace, 14 sprog) | Færdig. De 12 maskinoversatte sprog er ikke korrekturlæst |
 | Seed: statistik-privilegier på roller, cleanup af snapshots, FACIT pr. periode | Færdig |

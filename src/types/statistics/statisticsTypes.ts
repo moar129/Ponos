@@ -132,13 +132,20 @@ export type StatisticsValueGroup =
     | 'item_status'
     | 'category'
     | 'top_material'
+    | 'development'
 
 export type StatisticsValueName = StatisticsScalarName | `${StatisticsValueGroup}:${string}`
 
 export interface StatisticsValue {
     name: StatisticsValueName
     value: number
+    /** Sub-period of a time series row (development:*); null = the whole snapshot period. */
+    periodStart: string | null
+    periodEnd: string | null
 }
+
+/** Time series resolution chosen when a snapshot is saved. */
+export type SnapshotGranularity = 'week' | 'month' | 'quarter'
 
 export interface StatisticsSnapshot {
     id: string
@@ -146,6 +153,8 @@ export interface StatisticsSnapshot {
     periodStart: string
     periodEnd: string
     createdAt: string
+    /** Resolution of the time series; null for snapshots saved before it was stored. */
+    seriesGranularity: SnapshotGranularity | null
     values: StatisticsValue[]
 }
 
@@ -154,4 +163,5 @@ export interface SaveStatisticsSnapshotArgs {
     end: string | null
     label: string
     tz: string
+    granularity: SnapshotGranularity
 }

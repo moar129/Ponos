@@ -35,10 +35,7 @@
     "completed": "Tarefas concluídas",
     "active": "Tarefas em curso",
     "overdue": "Tarefas em atraso",
-    "members": "Membros",
-    "membersWithActivity_one": "{{count}} com atividade em tarefas",
-    "membersWithActivity_many": "{{count}} com atividade em tarefas",
-    "membersWithActivity_other": "{{count}} com atividade em tarefas"
+    "membersWithActivity": "Membros com atividade em tarefas"
   },
   "sections": {
     "tasks": "Tarefas",
@@ -140,6 +137,20 @@
       "members_with_task_activity": "Membros com atividade em tarefas",
       "approvals_rate": "Taxa de aprovação (%)",
       "approvals_median_hours": "Tempo de tratamento mediano (horas)"
-    }
+    },
+    "granularity": "Evolução por",
+    "granularityHint": "Com que detalhe a evolução ao longo do tempo é guardada – serve para comparar com outros instantâneos.",
+    "granularityOption": {
+      "week": "Semana",
+      "month": "Mês",
+      "quarter": "Trimestre"
+    },
+    "development": {
+      "created": "Evolução – criadas",
+      "completed": "Evolução – concluídas"
+    },
+    "developmentDatesNote": "Os instantâneos têm resoluções diferentes ou abrangem mais de um ano, por isso a evolução é mostrada por data.",
+    "weekLabel": "Semana {{week}}",
+    "partialNote": "Datas entre parênteses: só é contada a parte do subperíodo que cai dentro do período do instantâneo."
   }
 }

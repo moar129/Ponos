@@ -35,9 +35,7 @@
     "completed": "Valmiit tehtävät",
     "active": "Käynnissä olevat tehtävät",
     "overdue": "Myöhässä olevat tehtävät",
-    "members": "Jäsenet",
-    "membersWithActivity_one": "{{count}} tehtäväaktiivinen",
-    "membersWithActivity_other": "{{count}} tehtäväaktiivista"
+    "membersWithActivity": "Tehtäväaktiiviset jäsenet"
   },
   "sections": {
     "tasks": "Tehtävät",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Tehtäväaktiiviset jäsenet",
       "approvals_rate": "Hyväksyntäaste (%)",
       "approvals_median_hours": "Käsittelyajan mediaani (tuntia)"
-    }
+    },
+    "granularity": "Kehitys per",
+    "granularityHint": "Kuinka tarkasti kehitys ajan mittaan tallennetaan – käytetään vertailuun muihin tilannekuviin.",
+    "granularityOption": {
+      "week": "Viikko",
+      "month": "Kuukausi",
+      "quarter": "Neljännes"
+    },
+    "development": {
+      "created": "Kehitys – luodut",
+      "completed": "Kehitys – valmiit"
+    },
+    "developmentDatesNote": "Tilannekuvilla on eri tarkkuus tai ne kattavat yli vuoden, joten kehitys näytetään päivämäärittäin.",
+    "weekLabel": "Viikko {{week}}",
+    "partialNote": "Päivämäärät suluissa: vain se osa osajaksosta, joka osuu tilannekuvan jaksolle, on laskettu mukaan."
   }
 }

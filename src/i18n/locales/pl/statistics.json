@@ -35,11 +35,7 @@
     "completed": "Ukończone zadania",
     "active": "Zadania w toku",
     "overdue": "Zaległe zadania",
-    "members": "Członkowie",
-    "membersWithActivity_one": "{{count}} z aktywnością w zadaniach",
-    "membersWithActivity_few": "{{count}} z aktywnością w zadaniach",
-    "membersWithActivity_many": "{{count}} z aktywnością w zadaniach",
-    "membersWithActivity_other": "{{count}} z aktywnością w zadaniach"
+    "membersWithActivity": "Członkowie z aktywnością w zadaniach"
   },
   "sections": {
     "tasks": "Zadania",
@@ -143,6 +139,20 @@
       "members_with_task_activity": "Członkowie z aktywnością w zadaniach",
       "approvals_rate": "Wskaźnik zatwierdzeń (%)",
       "approvals_median_hours": "Mediana czasu obsługi (godziny)"
-    }
+    },
+    "granularity": "Rozwój według",
+    "granularityHint": "Jak szczegółowo zapisywany jest rozwój w czasie – służy do porównania z innymi migawkami.",
+    "granularityOption": {
+      "week": "Tydzień",
+      "month": "Miesiąc",
+      "quarter": "Kwartał"
+    },
+    "development": {
+      "created": "Rozwój – utworzone",
+      "completed": "Rozwój – ukończone"
+    },
+    "developmentDatesNote": "Migawki mają różną rozdzielczość lub obejmują ponad rok, więc rozwój jest pokazany według dat.",
+    "weekLabel": "Tydzień {{week}}",
+    "partialNote": "Daty w nawiasach: liczona jest tylko część podokresu mieszcząca się w okresie migawki."
   }
 }

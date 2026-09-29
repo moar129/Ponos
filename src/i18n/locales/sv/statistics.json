@@ -35,9 +35,7 @@
     "completed": "Slutförda uppgifter",
     "active": "Pågående uppgifter",
     "overdue": "Försenade uppgifter",
-    "members": "Medlemmar",
-    "membersWithActivity_one": "{{count}} med uppgiftsaktivitet",
-    "membersWithActivity_other": "{{count}} med uppgiftsaktivitet"
+    "membersWithActivity": "Medlemmar med uppgiftsaktivitet"
   },
   "sections": {
     "tasks": "Uppgifter",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Medlemmar med uppgiftsaktivitet",
       "approvals_rate": "Godkännandegrad (%)",
       "approvals_median_hours": "Median handläggningstid (timmar)"
-    }
+    },
+    "granularity": "Utveckling per",
+    "granularityHint": "Hur detaljerat utvecklingen över tid sparas – används för att jämföra med andra ögonblicksbilder.",
+    "granularityOption": {
+      "week": "Vecka",
+      "month": "Månad",
+      "quarter": "Kvartal"
+    },
+    "development": {
+      "created": "Utveckling – skapade",
+      "completed": "Utveckling – slutförda"
+    },
+    "developmentDatesNote": "Ögonblicksbilderna har olika upplösning eller täcker mer än ett år, så utvecklingen visas per datum.",
+    "weekLabel": "Vecka {{week}}",
+    "partialNote": "Datum inom parentes: endast den del av delperioden som ligger inom ögonblicksbildens period räknas."
   }
 }

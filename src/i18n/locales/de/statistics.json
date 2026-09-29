@@ -35,9 +35,7 @@
     "completed": "Erledigte Aufgaben",
     "active": "Aufgaben in Bearbeitung",
     "overdue": "Überfällige Aufgaben",
-    "members": "Mitglieder",
-    "membersWithActivity_one": "{{count}} mit Aufgabenaktivität",
-    "membersWithActivity_other": "{{count}} mit Aufgabenaktivität"
+    "membersWithActivity": "Mitglieder mit Aufgabenaktivität"
   },
   "sections": {
     "tasks": "Aufgaben",
@@ -137,6 +135,20 @@
       "members_with_task_activity": "Mitglieder mit Aufgabenaktivität",
       "approvals_rate": "Genehmigungsquote (%)",
       "approvals_median_hours": "Mittlere Bearbeitungszeit (Stunden)"
-    }
+    },
+    "granularity": "Entwicklung pro",
+    "granularityHint": "Wie fein die Entwicklung über die Zeit gespeichert wird – für den Vergleich mit anderen Snapshots.",
+    "granularityOption": {
+      "week": "Woche",
+      "month": "Monat",
+      "quarter": "Quartal"
+    },
+    "development": {
+      "created": "Entwicklung – erstellt",
+      "completed": "Entwicklung – erledigt"
+    },
+    "developmentDatesNote": "Die Snapshots haben unterschiedliche Auflösungen oder umfassen mehr als ein Jahr, daher wird die Entwicklung nach Datum angezeigt.",
+    "weekLabel": "Woche {{week}}",
+    "partialNote": "Daten in Klammern: Nur der Teil des Teilzeitraums, der in den Zeitraum des Snapshots fällt, wird gezählt."
   }
 }

@@ -35,10 +35,7 @@
     "completed": "Attività completate",
     "active": "Attività in corso",
     "overdue": "Attività scadute",
-    "members": "Membri",
-    "membersWithActivity_one": "{{count}} con attività sui compiti",
-    "membersWithActivity_many": "{{count}} con attività sui compiti",
-    "membersWithActivity_other": "{{count}} con attività sui compiti"
+    "membersWithActivity": "Membri con attività sui compiti"
   },
   "sections": {
     "tasks": "Attività",
@@ -140,6 +137,20 @@
       "members_with_task_activity": "Membri con attività sui compiti",
       "approvals_rate": "Tasso di approvazione (%)",
       "approvals_median_hours": "Tempo di gestione mediano (ore)"
-    }
+    },
+    "granularity": "Andamento per",
+    "granularityHint": "Con quale dettaglio viene salvato l’andamento nel tempo – serve per il confronto con altri snapshot.",
+    "granularityOption": {
+      "week": "Settimana",
+      "month": "Mese",
+      "quarter": "Trimestre"
+    },
+    "development": {
+      "created": "Andamento – create",
+      "completed": "Andamento – completate"
+    },
+    "developmentDatesNote": "Gli snapshot hanno risoluzioni diverse o coprono più di un anno, quindi l’andamento è mostrato per data.",
+    "weekLabel": "Settimana {{week}}",
+    "partialNote": "Date tra parentesi: viene contata solo la parte del sottoperiodo che rientra nel periodo dello snapshot."
   }
 }

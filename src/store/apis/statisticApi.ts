@@ -12,11 +12,19 @@ import { supabase } from '../../lib/supabase'
 import { errorCode, mapDbError } from './apiError'
 import type {
     SaveStatisticsSnapshotArgs,
+    SnapshotGranularity,
     StatisticsQueryArgs,
     StatisticsResult,
     StatisticsSnapshot,
-    StatisticsValue,
+    StatisticsValueName,
 } from '../../types/statistics/statisticsTypes'
+
+interface SnapshotValueRow {
+    name: StatisticsValueName
+    value: number
+    period_start: string | null
+    period_end: string | null
+}
 
 interface SnapshotRow {
     id: string
@@ -24,7 +32,8 @@ interface SnapshotRow {
     period_start: string
     period_end: string
     created_at: string
-    statistics_values: StatisticsValue[] | null
+    series_granularity: SnapshotGranularity | null
+    statistics_values: SnapshotValueRow[] | null
 }
 
 export const statisticsApi = supabaseApi.injectEndpoints({
@@ -52,7 +61,7 @@ export const statisticsApi = supabaseApi.injectEndpoints({
                 // RLS scopes to the active organisation and requires read_statistics.
                 const { data, error } = await supabase
                     .from('statistics_snapshots')
-                    .select('id, label, period_start, period_end, created_at, statistics_values(name, value)')
+                    .select('id, label, period_start, period_end, created_at, series_granularity, statistics_values(name, value, period_start, period_end)')
                     .order('period_start', { ascending: false })
 
                 if (error) {
@@ -66,9 +75,12 @@ export const statisticsApi = supabaseApi.injectEndpoints({
                         periodStart: row.period_start,
                         periodEnd: row.period_end,
                         createdAt: row.created_at,
+                        seriesGranularity: row.series_granularity,
                         values: (row.statistics_values ?? []).map((value) => ({
                             name: value.name,
                             value: Number(value.value),
+                            periodStart: value.period_start,
+                            periodEnd: value.period_end,
                         })),
                     })),
                 }
@@ -77,12 +89,13 @@ export const statisticsApi = supabaseApi.injectEndpoints({
         }),
 
         saveStatisticsSnapshot: builder.mutation<string, SaveStatisticsSnapshotArgs>({
-            queryFn: async ({ start, end, label, tz }) => {
+            queryFn: async ({ start, end, label, tz, granularity }) => {
                 const { data, error } = await supabase.rpc('save_statistics_snapshot', {
                     p_start: start,
                     p_end: end,
                     p_label: label,
                     p_tz: tz,
+                    p_granularity: granularity,
                 })
 
                 if (error) {
