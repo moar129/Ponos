@@ -67,7 +67,7 @@ export default function HelpPage() {
 
                     <Link
                         to="/signup"
-                        className="mt-8 inline-flex items-center justify-center bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                        className="mt-8 inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                     >
                         {t('cta.signup')}
                     </Link>

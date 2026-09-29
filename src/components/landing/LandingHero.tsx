@@ -35,7 +35,7 @@ export function LandingHero() {
                     <div className="mt-9 flex flex-col sm:flex-row gap-3">
                         <Link
                             to="/signup"
-                            className="inline-flex items-center justify-center bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                            className="inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                         >
                             {t('cta.signup')}
                         </Link>

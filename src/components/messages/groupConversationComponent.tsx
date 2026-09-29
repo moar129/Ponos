@@ -353,7 +353,7 @@ export function GroupConversationComponent({
 
                       <div
                         className={`rounded-xl px-3 py-2 ${
-                          isOwnMessage ? 'bg-accent text-primary' : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
+                          isOwnMessage ? 'bg-accent text-accent-text' : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
                         }`}
                       >
                         {msg.deletedAt ? (
@@ -425,12 +425,12 @@ export function GroupConversationComponent({
                         )}
 
                         <div className={`mt-1 flex items-center gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
+                          <p className={`text-[10px] ${isOwnMessage ? 'text-accent-text/60' : 'text-secondary dark:text-slate-400'}`}>
                             {formatDayMonthTime(msg.createdAt)}
                             {msg.editedAt && !msg.deletedAt && ` · ${t('edited')}`}
                           </p>
                           {isOwnMessage && !msg.deletedAt && (
-                            <span className="text-[10px] font-medium text-primary/70">
+                            <span className="text-[10px] font-medium text-accent-text/70">
                               {readSummary(msg.createdAt)}
                             </span>
                           )}
@@ -459,7 +459,7 @@ export function GroupConversationComponent({
               type="button"
               onClick={() => handleChoice('keep')}
               disabled={isSettingChoice}
-              className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-primary hover:bg-accent-hover disabled:opacity-50"
+              className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-text hover:bg-accent-hover disabled:opacity-50"
             >
               {t('systemChat.keep')}
             </button>
@@ -513,7 +513,7 @@ export function GroupConversationComponent({
               type="button"
               onClick={() => void handleSendMessage()}
               disabled={!message.trim() || isSending}
-              className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-text hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               aria-label={t('sendMessage')}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

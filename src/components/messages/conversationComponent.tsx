@@ -285,7 +285,7 @@ export function ConversationComponent({
                   <div
                     className={`max-w-[75%] rounded-xl px-3 py-2 ${
                       isOwnMessage
-                        ? 'bg-accent text-primary'
+                        ? 'bg-accent text-accent-text'
                         : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'
                     }`}
                   >
@@ -358,7 +358,7 @@ export function ConversationComponent({
                     )}
 
                     <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : ''}`}>
-                      <p className={`text-[10px] ${isOwnMessage ? 'text-primary/60' : 'text-secondary dark:text-slate-400'}`}>
+                      <p className={`text-[10px] ${isOwnMessage ? 'text-accent-text/60' : 'text-secondary dark:text-slate-400'}`}>
                         {formatDayMonthTime(msg.createdAt)}
                         {msg.editedAt && !msg.deletedAt && ` · ${t('edited')}`}
                       </p>
@@ -366,7 +366,7 @@ export function ConversationComponent({
                       {/* US-B12: tydelig læse-status vises kun på egne, ikke-slettede beskeder */}
                       {isOwnMessage && !msg.deletedAt && (
                         <span className={`flex items-center gap-1 text-[10px] font-medium ${
-                          isReadByOther(msg.createdAt) ? 'text-primary' : 'text-primary/50'
+                          isReadByOther(msg.createdAt) ? 'text-accent-text' : 'text-accent-text/50'
                         }`}>
                           {isReadByOther(msg.createdAt) ? (
                             <>
@@ -409,7 +409,7 @@ export function ConversationComponent({
             type="button"
             onClick={() => void handleSendMessage()}
             disabled={!message.trim() || isBusy}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-text hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label={t('sendMessage')}
           >
             {isBusy ? (

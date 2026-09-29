@@ -48,6 +48,16 @@ function textPairFor(hex: string) {
     }
 }
 
+// Text on accent backgrounds (bg-accent). Picks whichever of navy/white
+// has the higher WCAG contrast, rather than textPairFor's fixed threshold,
+// so the default gold keeps its navy text while e.g. a black accent gets white.
+function contrastTextFor(hex: string): string {
+    const lum = relativeLuminance(hex)
+    const contrastNavy = (lum + 0.05) / (relativeLuminance('#071B33') + 0.05)
+    const contrastWhite = (relativeLuminance('#F1F5F9') + 0.05) / (lum + 0.05)
+    return contrastNavy >= contrastWhite ? '#071B33' : '#F1F5F9'
+}
+
 export function useOrganisationTheme() {
     const { data: organisation } = useGetMyOrganisationQuery()
     const accent = organisation?.color || DEFAULT_ACCENT
@@ -58,6 +68,7 @@ export function useOrganisationTheme() {
         const root = document.documentElement
         root.style.setProperty('--color-accent', accent)
         root.style.setProperty('--color-accent-hover', shadeHexColor(accent, -12))
+        root.style.setProperty('--color-accent-text', contrastTextFor(accent))
 
         const h = textPairFor(headerColor)
         root.style.setProperty('--color-header-bg', headerColor)
