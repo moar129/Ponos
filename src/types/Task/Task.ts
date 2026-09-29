@@ -85,6 +85,19 @@ export interface TaskColumnEmptyStateProps {
   onReset: () => void;
 }
 
+export type TaskColumnKey = 'available' | 'inProgress';
+
+// Faner på /tasks og /tasks/mine under lg, hvor de to kolonner ikke kan stå
+// side om side - så man ikke skal rulle forbi alle tilgængelige opgaver.
+export interface TaskColumnTabsProps {
+  active: TaskColumnKey;
+  onChange: (column: TaskColumnKey) => void;
+  availableLabel: string;
+  availableCount: number;
+  inProgressLabel: string;
+  inProgressCount: number;
+}
+
 export interface TaskCardProps {
   task: Task;
   onJoin?: () => void;

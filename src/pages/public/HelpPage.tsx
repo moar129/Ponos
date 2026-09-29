@@ -44,7 +44,7 @@ export default function HelpPage() {
                         </p>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <HelpStep
                             step={1}
                             icon={UserPlus}

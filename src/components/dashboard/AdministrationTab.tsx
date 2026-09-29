@@ -122,7 +122,7 @@ export function AdministrationTab() {
     // bliver unødigt bredt. Mobil (under md) beholder den vandret
     // scrollende fanerække.
     const navItemClass = (tab: AdminSubTab) =>
-        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
+        `flex shrink-0 md:shrink-0 items-center gap-2 whitespace-nowrap md:whitespace-normal rounded-md px-3 py-2 text-sm font-medium transition-colors ${activeSubTab === tab
             ? 'bg-accent/15 text-primary dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
         }`

@@ -35,7 +35,7 @@ export function CompletedTasksPage() {
 
     if (loadingRead || loadingCompleted || roomsLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+            <div className="min-h-[50vh] flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="font-semibold">{t('page.loading')}</p>
             </div>
         );
@@ -43,7 +43,7 @@ export function CompletedTasksPage() {
 
     if (!canRead || !canViewCompleted) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+            <div className="min-h-[50vh] flex items-center justify-center bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
                 <p className="text-secondary dark:text-slate-400">{t('completed.noAccess')}</p>
             </div>
         );
@@ -52,7 +52,7 @@ export function CompletedTasksPage() {
     const pageError = readableError(roomsError);
 
     return (
-        <div className="min-h-screen flex flex-col bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
+        <div className="flex flex-col bg-white text-primary dark:bg-slate-900 dark:text-slate-100">
 
             {/* ROOM BAR - rum-klik navigerer til /tasks med rummet valgt */}
             <RoomBar
@@ -71,7 +71,7 @@ export function CompletedTasksPage() {
                 <CreateRoomModal onClose={() => setIsAddRoomOpen(false)} />
             )}
 
-            <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 py-10">
+            <div className="flex-1 w-full py-4 sm:py-8 lg:px-2">
                 {pageError && (
                     <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                         {pageError}
@@ -79,12 +79,12 @@ export function CompletedTasksPage() {
                 )}
 
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-primary dark:text-slate-100">{t('completed.heading')}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold break-words text-primary dark:text-slate-100">{t('completed.heading')}</h1>
                     <p className="text-secondary mt-1 dark:text-slate-400">{t('completed.subtitle')}</p>
                 </div>
 
                 <CompletedTasksPanel />
-            </main>
+            </div>
         </div>
     );
 }

@@ -164,7 +164,7 @@ function NewsForm({ onClose, editingNews }: NewsFormProps) {
                         <p className="text-xs text-secondary dark:text-slate-400 mt-1">{t('form.urlHint')}</p>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex flex-wrap gap-3 pt-2">
                         <button
                             type="submit"
                             disabled={isSaving}

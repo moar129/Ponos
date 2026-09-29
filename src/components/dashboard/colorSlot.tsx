@@ -40,7 +40,7 @@ function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove
                                 type="button"
                                 onClick={() => onRemove(c)}
                                 aria-label={t('admin.removeSavedColor')}
-                                className="absolute -top-1.5 -right-1.5 hidden group-hover:flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-white text-[10px] leading-none"
+                                className="absolute -top-1.5 -right-1.5 flex lg:hidden lg:group-hover:flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-white text-[10px] leading-none"
                             >
                                 ×
                             </button>

@@ -129,7 +129,7 @@ export function CreateTaskModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+            <div className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
               <div className="overflow-y-auto p-6">
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary dark:text-slate-100">
@@ -224,7 +224,7 @@ export function CreateTaskModal({
                     </div>
 
                     {/* DATOER */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* STARTDATO */}
                         <div>
                             <label

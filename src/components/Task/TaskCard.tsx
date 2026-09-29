@@ -432,7 +432,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         </div>
 
         {/* DATOER */}
-        <div className="mb-5 flex gap-8 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
+        <div className="mb-5 flex flex-wrap gap-x-8 gap-y-2 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
           <div>
             <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
               {t('card.start')}
@@ -471,7 +471,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleAssignment();
                     }}
-                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
                         ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
                         : isAssigned
                           ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
@@ -495,7 +495,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleStartTask();
                     }}
-                    className="rounded border-2 border-accent bg-accent px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded border-2 border-accent bg-accent px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isUpdatingStatus
                       ? t('common:updating')
@@ -516,7 +516,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                       e.stopPropagation();
                       handleCompleteTask();
                     }}
-                    className={`rounded border-2 px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
+                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
                         ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
                         : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
                       }`}
@@ -555,7 +555,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           }}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
+            className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
           <div className="overflow-y-auto p-6">
@@ -577,7 +577,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
                 </span>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 {/* REDIGER - gemme er gated af canUpdate og sletning af
                     canDelete inde i EditTaskModal, så knappen vises ved
                     hver af de to */}
@@ -765,7 +765,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
             </div>
 
             {/* DATOER */}
-            <div className="mb-6 grid grid-cols-2 gap-4">
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
                 <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
                   {t('fields.startDate')}

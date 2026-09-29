@@ -164,8 +164,8 @@ export function EditTaskModal({
     const deleteErrorMessage = readableError(deleteError);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-lg lg:max-w-2xl overflow-y-auto rounded-xl bg-white border border-border-gray p-6 shadow-xl dark:bg-slate-800 dark:border-slate-700">
 
                 {/* HEADER */}
                 <div className="mb-6 flex items-center justify-between">
@@ -235,7 +235,7 @@ export function EditTaskModal({
                     )}
 
                     {/* DATOER */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                         {/* STARTDATO */}
                         <div>
@@ -374,7 +374,7 @@ export function EditTaskModal({
                 </div>
 
                 {/* BUTTONS */}
-                <div className="mt-6 flex items-center justify-between">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex gap-3">
                         <button
                             type="button"

@@ -258,7 +258,7 @@ export function ConversationComponent({
                   {/* Rediger/slet-knapper: kun for egne beskeder, kun synlige på hover,
                       og skjules mens der allerede redigeres/bekræftes sletning. */}
                   {isOwnMessage && (canEdit || canDelete) && !isEditing && !isConfirmingDelete && (
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                       {canEdit && (
                         <button
                           type="button"
@@ -283,7 +283,7 @@ export function ConversationComponent({
                   )}
 
                   <div
-                    className={`max-w-[75%] rounded-xl px-3 py-2 ${
+                    className={`max-w-[85%] sm:max-w-[75%] xl:max-w-2xl rounded-xl px-3 py-2 ${
                       isOwnMessage
                         ? 'bg-accent text-accent-text'
                         : 'bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100'

@@ -183,7 +183,7 @@ export function OrganisationColorsPanel() {
                         {COLOR_FIELDS.map(({ field, labelKey, fallback, rendered }) => (
                             <div key={field} className="py-3 flex justify-between gap-4 items-center">
                                 <dt className="text-sm text-secondary dark:text-slate-400">{t(labelKey)}</dt>
-                                <dd className="text-sm text-right flex flex-col items-end gap-1">
+                                <dd className="text-sm text-right min-w-0 break-words flex flex-col items-end gap-1">
                                     <span className="flex items-center gap-2">
                                         <span
                                             className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"

@@ -43,7 +43,7 @@ export function TaskApprovalDetailsModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
             <div
-                className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="overflow-y-auto p-6">

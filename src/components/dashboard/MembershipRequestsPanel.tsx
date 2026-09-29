@@ -120,7 +120,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                     </button>
                 </div>
             ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         type="button"
                         onClick={() => onSelect({ requestId: request.id, decision: 'Accepted' })}

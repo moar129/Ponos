@@ -146,7 +146,7 @@ export default function NotificationsPage() {
 
       {/* --- Indhold --- */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border-gray dark:border-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 sm:p-6 border-b border-border-gray dark:border-slate-700">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
             <h1 className="text-lg font-semibold text-primary dark:text-slate-100">

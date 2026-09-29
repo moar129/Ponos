@@ -316,7 +316,7 @@ export function GroupConversationComponent({
                     </div>
                   )}
 
-                  <div className="max-w-[75%]">
+                  <div className="max-w-[85%] sm:max-w-[75%] xl:max-w-2xl">
                     {showSenderName && (
                       <p className="text-[11px] text-secondary mb-0.5 ml-1 dark:text-slate-400">
                         {sender ? `${sender.firstName} ${sender.lastName}` : t('unknownUser')}
@@ -327,7 +327,7 @@ export function GroupConversationComponent({
                       {/* Rediger/slet-knapper: kun for egne beskeder, kun synlige på hover,
                           og skjules mens der allerede redigeres/bekræftes sletning. */}
                       {isOwnMessage && (canEdit || canDelete) && !isEditing && !isConfirmingDelete && (
-                        <div className="flex items-center gap-1 opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/msg:opacity-100 transition-opacity">
                           {canEdit && (
                             <button
                               type="button"

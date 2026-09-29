@@ -65,7 +65,7 @@ export function NewsSlider() {
                     className="relative rounded-md overflow-hidden border border-border-gray dark:border-slate-700"
                 >
                     {/* Billedet (eller standardbilledet) er selve baggrunden. */}
-                    <Link to={`/nyheder/${current.id}`} className="block relative h-48 sm:h-56">
+                    <Link to={`/nyheder/${current.id}`} className="block relative h-48 sm:h-56 xl:h-72">
                         <NewsImage
                             key={current.pictureUrl}
                             pictureUrl={current.pictureUrl}

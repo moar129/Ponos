@@ -26,7 +26,7 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
             tabIndex={0}
             className="rounded-lg border border-border-gray dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 cursor-pointer hover:border-accent transition-colors"
         >
-            <NewsImage key={news.pictureUrl} pictureUrl={news.pictureUrl} className="w-full h-40 object-cover" />
+            <NewsImage key={news.pictureUrl} pictureUrl={news.pictureUrl} className="w-full aspect-video object-cover" />
             <div className="p-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

@@ -850,8 +850,8 @@ export function DataLayerPage() {
       </div>
 
       {/* Hovedlayout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-        <div className="md:col-span-4 lg:col-span-4 xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
+      <div className="grid grid-cols-1 md:grid-cols-12 md:items-start gap-4 sm:gap-6">
+        <div className="md:col-span-5 lg:col-span-4 2xl:col-span-3 bg-white rounded-xl border border-border-gray p-3 sm:p-4 shadow-sm flex flex-col justify-between md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           <div className="min-h-0 flex flex-col">
             {/* Fane-skifter */}
             <div className="flex items-center border-b border-border-gray mb-4 dark:border-slate-700">
@@ -987,7 +987,7 @@ export function DataLayerPage() {
           )}
         </div>
 
-        <div className="md:col-span-8 lg:col-span-8 xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
+        <div className="md:col-span-7 lg:col-span-8 2xl:col-span-9 bg-white rounded-xl border border-border-gray p-4 sm:p-6 shadow-sm md:min-h-[500px] dark:bg-slate-800 dark:border-slate-700">
           {leftTab === 'locations' ? (
             selectedLocationView ? (
               <div>
@@ -1100,8 +1100,8 @@ export function DataLayerPage() {
                       }`}
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span className="hidden xs:inline">{t('page.deleteSelected')}</span>
-                      <span className="xs:hidden">{t('page.deleteShort')}</span>
+                      <span className="hidden sm:inline">{t('page.deleteSelected')}</span>
+                      <span className="sm:hidden">{t('page.deleteShort')}</span>
                     </button>
                   </div>
                 )}
@@ -1137,8 +1137,8 @@ export function DataLayerPage() {
                               className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
                             />
                           )}
-                          <div className="min-w-0">
-                            <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="block font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
                             <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
                               <ItemLocationTag locationIds={placementIdsFor(item.id, selectedLocationIds)} locationsById={locationsById} />
                               <span className="shrink-0">·</span>
@@ -1258,8 +1258,8 @@ export function DataLayerPage() {
                     }`}
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span className="hidden xs:inline">{t('page.deleteSelected')}</span>
-                    <span className="xs:hidden">{t('page.deleteShort')}</span>
+                    <span className="hidden sm:inline">{t('page.deleteSelected')}</span>
+                    <span className="sm:hidden">{t('page.deleteShort')}</span>
                   </button>
                 </div>
               )}
@@ -1295,8 +1295,8 @@ export function DataLayerPage() {
                             className="w-4 h-4 rounded border-border-gray bg-white text-accent focus:ring-accent shrink-0 dark:border-slate-700 dark:bg-slate-800"
                           />
                         )}
-                        <div className="min-w-0">
-                          <span className="font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="block font-medium text-primary truncate dark:text-slate-100">{item.name}</span>
                           <div className="flex items-center gap-1.5 mt-1 min-w-0 text-xs text-secondary dark:text-slate-400">
                             <ItemLocationTag locationIds={placementIdsFor(item.id)} locationsById={locationsById} />
                             <span className="shrink-0">·</span>

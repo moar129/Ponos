@@ -57,7 +57,7 @@ export function NewsPage() {
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 space-y-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Newspaper className="w-6 h-6 text-secondary dark:text-slate-400" />
                     <h1 className="text-xl font-semibold text-primary dark:text-slate-100">{t('heading')}</h1>
@@ -88,7 +88,7 @@ export function NewsPage() {
             ) : !news || news.length === 0 ? (
                 <p className="text-secondary dark:text-slate-400">{t('empty')}</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                     {news.map((item) => (
                         <NewsCard
                             key={item.id}

@@ -173,7 +173,7 @@ export function OrganisationAdminPanel() {
                     <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.memberCount')}</dt>
-                            <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                            <dd className="text-sm text-right min-w-0 break-words">{activeMembership?.memberCount ?? '—'}</dd>
                         </div>
                     </dl>
 

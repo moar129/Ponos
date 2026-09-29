@@ -229,7 +229,7 @@ export function AddItemsComponent({
                 </button>
               </div>
 
-              <div className="flex gap-3 text-xs">
+              <div className="flex flex-wrap gap-3 text-xs">
                 <label className="flex items-center gap-1.5 cursor-pointer text-primary dark:text-slate-100">
                   <input
                     type="radio"

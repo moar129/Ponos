@@ -24,6 +24,7 @@
   "allContacts": "Kaikki yhteystiedot",
   "newGroup": "Uusi ryhmä",
   "chooseConversation": "Valitse keskustelu tai etsi kollega kohdasta \"Kaikki yhteystiedot\"",
+  "backToConversations": "Takaisin keskusteluihin",
   "participantCount_one": "{{count}} osallistuja",
   "participantCount_other": "{{count}} osallistujaa",
   "group": {

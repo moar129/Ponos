@@ -315,7 +315,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   };
 
   const renderUnitRow = (unit: ItemUnit) => (
-    <div key={unit.id} className="flex items-center gap-2 px-2 py-1.5 text-xs">
+    <div key={unit.id} className="flex flex-wrap items-center gap-2 px-2 py-1.5 text-xs">
       <span className="flex-1 min-w-0 text-primary dark:text-slate-100">
         {unit.serialNumber ? (
           <span className="truncate block">{unit.serialNumber}</span>
@@ -500,7 +500,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
               <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.status')}</span>
               {statusEntries.length === 0 ? (
@@ -695,7 +695,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                       {t('itemDetail.containerOption')}
                     </label>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <label className="text-xs text-secondary dark:text-slate-400">
                       {t(
                         !addIsDiscrete && addHasContents

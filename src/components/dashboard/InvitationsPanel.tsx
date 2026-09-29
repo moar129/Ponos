@@ -116,7 +116,7 @@ export function InvitationsPanel() {
                             </div>
 
                             {confirmingCancelId === invitation.id ? (
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <span className="text-sm text-secondary dark:text-slate-400">{t('invitations.areYouSure')}</span>
                                     <button
                                         type="button"

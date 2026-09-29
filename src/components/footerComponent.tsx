@@ -23,8 +23,8 @@ export function Footer() {
     'hover:text-[var(--color-footer-text)] focus-visible:text-[var(--color-footer-text)] focus-visible:outline-none focus-visible:underline transition-colors';
 
   return (
-    <footer className="w-full bg-[var(--color-footer-bg)] text-[var(--color-footer-muted)] pt-8 pb-5 px-4 sm:px-6 border-t border-[var(--color-footer-border)]">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 mb-6">
+    <footer className="w-full bg-[var(--color-footer-bg)] text-[var(--color-footer-muted)] pt-8 pb-5 px-3 sm:px-6 xl:px-8 border-t border-[var(--color-footer-border)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 mb-6">
         <div className="space-y-3 min-w-0">
           <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 w-fit hover:opacity-90 transition-opacity">
             <img src={logo} alt="PONOS Logo" className="w-10 h-10 object-contain shrink-0" />

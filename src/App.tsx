@@ -28,7 +28,7 @@ import { CompletedTasksPage } from './pages/Task/CompletedTasksPage';
 import { TaskApprovalsPage } from './pages/Task/TaskApprovalsPage';
 
 // Sider med kant-til-kant sektioner (navy bånd der flyder sammen med
-// headeren) slipper ud af <main>'ens fælles max-w-7xl-wrapper og holder
+// headeren) slipper ud af <main>'ens padding og holder
 // selv deres indhold på plads med en egen max-w-7xl pr. sektion.
 const FULL_WIDTH_ROUTES = ['/', '/om-os', '/kontakt', '/hjaelp'];
 
@@ -61,7 +61,7 @@ function App() {
       {/* BANNER: Vises kun hvis brugeren har en Pending medlemsanmodning */}
       <PendingRequestBanner />
       {/* HOVEDINDHOLD / ROUTER */}
-      <main className={isFullWidth ? 'flex-1 w-full text-black dark:text-slate-100' : 'flex-1 max-w-8xl w-full mx-auto p-6 text-black dark:text-slate-100'}>
+      <main className={isFullWidth ? 'flex-1 w-full text-black dark:text-slate-100' : 'flex-1 w-full p-3 sm:p-6 xl:px-8 text-black dark:text-slate-100'}>
         <Routes>
           {/* tilføj flere ruter efter behov */}
           <Route path="/" element={<LandingPage />} />

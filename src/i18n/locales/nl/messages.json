@@ -24,6 +24,7 @@
   "allContacts": "Alle contacten",
   "newGroup": "Nieuwe groep",
   "chooseConversation": "Kies een gesprek, of vind een collega onder \"Alle contacten\"",
+  "backToConversations": "Terug naar gesprekken",
   "participantCount_one": "{{count}} deelnemer",
   "participantCount_other": "{{count}} deelnemers",
   "group": {

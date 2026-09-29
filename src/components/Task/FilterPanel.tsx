@@ -40,8 +40,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   return (
     <div className="bg-white border-b border-border-gray shadow-sm dark:bg-slate-900 dark:border-slate-700">
-      <div className="max-w-[1600px] mx-auto px-8 py-6">
-        <div className="flex gap-12 items-start">
+      <div className="lg:px-2 py-4 sm:py-6">
+        <div className="flex flex-wrap gap-6 lg:gap-12 items-start">
 
           {/* STATUS */}
           <div>

@@ -25,8 +25,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const { t } = useTranslation(['tasks', 'common'])
   return (
     <div className="bg-white border-b border-border-gray dark:bg-slate-900 dark:border-slate-700">
-      <div className="max-w-[1600px] mx-auto px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="lg:px-2 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             type="button"
             onClick={onToggleFilter}
@@ -66,11 +66,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={t('filter.searchPlaceholder')}
-            className="w-80 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="w-full sm:w-80 rounded-lg border border-border-gray bg-white text-primary px-4 py-2 text-sm outline-none placeholder:text-secondary focus:border-accent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <span className="text-sm text-secondary dark:text-slate-400">
             {t('filter.counts', { available: availableCount, inProgress: inProgressCount })}
           </span>
