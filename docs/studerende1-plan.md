@@ -73,6 +73,8 @@ Dette er den løbende statusoversigt for de 25 user stories, som Studerende 1 er
 
 | 29/09 | US-67-udvidelse efter bruger-forespørgsel: inviteret bruger fik ingen notifikation. Trigger på `membership_invitations` opretter `membership_invitation`-notifikation (body = org-navn, link `/dashboard?tab=organisation&section=invitations`); besvaret -> læst, annulleret/slettet -> notifikation slettet. Ny kategori "Organisation" på `/notifikationer` (Rasmus' `notificationPage.tsx`, additivt, godkendt) og i indstillinger på `/bruger` (`NOTIFICATION_TYPE_GROUPS`). `OrganisationTab` åbner Invitationer-underfanen via `?section=invitations` (afledt, ingen effect). Realtime-INSERT invaliderer `MembershipInvitation`; `respondToInvitation` invaliderer `Notification`. i18n i 14 `notifications.json`. Build/lint ren. Kørt og testet OK af bruger 29/09; `dbSchema.sql` §15.16b + type-liste §15.20, migration slettet. |
 
+| 29/09 | Ad-hoc: mockdata til Roskilde Festival i `docs/seed/` (roller, 27 brugere, lokationer, datalager, nyheder, 70 opgaver over 2 år) + `FACIT.md` med forventede statistikværdier til den kommende statisticApi. 04/06/FACIT genereres af `generate.mjs`. Ikke kørt endnu. |
+
 ## Næste op
 
 **00. ~~Godkendelse: fane "Til godkendelse" + rum-adgang~~ ✅ FÆRDIG 2026-09-27** — kørt og testet, se logbog 27/09. Evt. opfølgning: notifikation til godkendere ved ny færdigmelding (fravalgt for nu).
