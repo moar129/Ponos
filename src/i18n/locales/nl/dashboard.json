@@ -64,7 +64,6 @@
       "invitations": "Uitnodigingen",
       "membershipRequests": "Lidmaatschapsverzoeken",
       "organisation": "Organisatie",
-
       "colors": "Kleuren",
       "taskApprovals": "Taakgoedkeuringen",
       "completedTasks": "Afgeronde taken"
@@ -99,12 +98,5 @@
     "resetFilters": "Wissen",
     "finishedOn": "Afgerond {{date}}",
     "showing": "{{count}} van {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Je hebt nog geen actieve organisatie, dus er zijn geen statistieken te tonen.",
-    "goToOrganisation": "Ga naar Organisatie",
-    "title": "Statistieken",
-    "description": "Kerncijfers en inzichten berekend op basis van de artikelen en taken van de organisatie.",
-    "loading": "Laden..."
   }
 }

@@ -7,125 +7,129 @@ import {
     XAxis,
     YAxis,
 } from 'recharts'
+import type { TooltipContentProps } from 'recharts'
+import { useTranslation } from 'react-i18next'
+import type { StatisticsGranularity } from '../../types/statistics/statisticsTypes'
+import type { TaskDevelopmentChartProps } from '../../types/statistics/statisticsComponentTypes'
 
-export interface TaskDevelopmentChartData {
-    date: string
-    created: number
-    completed: number
+const CREATED_COLOR = 'var(--color-accent)'
+const COMPLETED_COLOR = 'var(--chart-neutral)'
+
+// Buckets come from the RPC as local 'YYYY-MM-DDTHH:mm'.
+function parseBucket(bucket: string): Date {
+    const [date, time = '00:00'] = bucket.split('T')
+    const [year, month, day] = date.split('-').map(Number)
+    const [hour, minute] = time.split(':').map(Number)
+    return new Date(year, month - 1, day, hour, minute)
 }
 
-interface TaskDevelopmentChartProps {
-    data: TaskDevelopmentChartData[]
+const TICK_FORMAT: Record<StatisticsGranularity, Intl.DateTimeFormatOptions> = {
+    hour: { hour: '2-digit', minute: '2-digit' },
+    day: { day: 'numeric', month: 'numeric' },
+    week: { day: 'numeric', month: 'numeric' },
+    month: { month: 'short', year: '2-digit' },
 }
 
-function formatDate(date: string): string {
-    const parts = date.split('-')
-
-    if (parts.length !== 3) {
-        return date
-    }
-
-    return `${parts[2]}/${parts[1]}`
+const TOOLTIP_FORMAT: Record<StatisticsGranularity, Intl.DateTimeFormatOptions> = {
+    hour: { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+    day: { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' },
+    week: { day: 'numeric', month: 'short', year: 'numeric' },
+    month: { month: 'long', year: 'numeric' },
 }
 
-export function TaskDevelopmentChart({
-    data,
-}: TaskDevelopmentChartProps) {
-    if (data.length === 0) {
+export function TaskDevelopmentChart({ data, granularity }: TaskDevelopmentChartProps) {
+    const { t, i18n } = useTranslation('statistics')
+
+    const formatTick = (bucket: string) =>
+        new Intl.DateTimeFormat(i18n.language, TICK_FORMAT[granularity]).format(parseBucket(bucket))
+
+    const formatTooltipLabel = (bucket: string) =>
+        new Intl.DateTimeFormat(i18n.language, TOOLTIP_FORMAT[granularity]).format(parseBucket(bucket))
+
+    const seriesLabel = (key: string) =>
+        key === 'created' ? t('development.created') : t('development.completed')
+
+    const renderTooltip = ({ active, payload, label }: TooltipContentProps) => {
+        if (!active || !payload?.length) return null
+
         return (
-            <div className="flex min-h-[220px] items-center justify-center">
-                <p className="text-sm text-secondary dark:text-slate-400">
-                    Ingen opgaver i den valgte periode
+            <div className="rounded-md border border-border-gray bg-white px-3 py-2 text-sm shadow-md dark:border-slate-600 dark:bg-slate-800">
+                <p className="mb-1 font-medium text-primary dark:text-slate-100">
+                    {formatTooltipLabel(String(label))}
                 </p>
+                {payload.map((entry) => (
+                    <p key={String(entry.dataKey)} className="flex items-center gap-2 text-secondary dark:text-slate-300">
+                        <span className="h-0.5 w-3 rounded" style={{ backgroundColor: entry.color }} />
+                        {seriesLabel(String(entry.dataKey))}
+                        <span className="ml-auto pl-3 font-semibold tabular-nums text-primary dark:text-slate-100">
+                            {entry.value}
+                        </span>
+                    </p>
+                ))}
             </div>
         )
     }
 
     return (
-        <div className="min-h-[220px] w-full">
-            <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                    data={data}
-                    margin={{
-                        top: 10,
-                        right: 10,
-                        left: 0,
-                        bottom: 5,
-                    }}
-                >
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                        className="stroke-border-gray dark:stroke-slate-700"
-                    />
+        <div className="w-full">
+            <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
 
                     <XAxis
-                        dataKey="date"
-                        tickFormatter={formatDate}
-                        tick={{
-                            fontSize: 12,
-                        }}
+                        dataKey="bucket"
+                        tickFormatter={formatTick}
+                        tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
                         tickLine={false}
-                        axisLine={false}
+                        axisLine={{ stroke: 'var(--chart-grid)' }}
+                        minTickGap={16}
                     />
 
                     <YAxis
                         allowDecimals={false}
-                        tick={{
-                            fontSize: 12,
-                        }}
+                        tick={{ fontSize: 12, fill: 'var(--chart-axis)' }}
                         tickLine={false}
                         axisLine={false}
-                        width={30}
+                        width={32}
                     />
 
                     <Tooltip
-                        formatter={(value, name) => [
-                            value,
-                            name === 'created'
-                                ? 'Oprettede'
-                                : 'Færdige',
-                        ]}
-                        labelFormatter={(label) =>
-                            `Dato: ${formatDate(String(label))}`
-                        }
+                        content={renderTooltip}
+                        cursor={{ stroke: 'var(--chart-axis)', strokeWidth: 1 }}
                     />
 
                     <Line
                         type="monotone"
                         dataKey="created"
-                        name="created"
-                        stroke="#C7975D"
+                        stroke={CREATED_COLOR}
                         strokeWidth={2}
-                        dot={{ r: 3 }}
-                        activeDot={{ r: 5 }}
+                        dot={false}
+                        activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--chart-surface)' }}
                     />
 
                     <Line
                         type="monotone"
                         dataKey="completed"
-                        name="completed"
-                        stroke="#0B132A"
+                        stroke={COMPLETED_COLOR}
                         strokeWidth={2}
-                        dot={{ r: 3 }}
-                        activeDot={{ r: 5 }}
+                        dot={false}
+                        activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--chart-surface)' }}
                     />
                 </LineChart>
             </ResponsiveContainer>
 
             <div className="mt-2 flex justify-center gap-6">
-                <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#C7975D]" />
-                    <span className="text-xs text-secondary dark:text-slate-400">
-                        Oprettede
-                    </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#0B132A] dark:bg-slate-300" />
-                    <span className="text-xs text-secondary dark:text-slate-400">
-                        Færdige
-                    </span>
-                </div>
+                {(['created', 'completed'] as const).map((key) => (
+                    <div key={key} className="flex items-center gap-2">
+                        <span
+                            className="h-0.5 w-4 rounded"
+                            style={{ backgroundColor: key === 'created' ? CREATED_COLOR : COMPLETED_COLOR }}
+                        />
+                        <span className="text-xs text-secondary dark:text-slate-400">
+                            {seriesLabel(key)}
+                        </span>
+                    </div>
+                ))}
             </div>
         </div>
     )

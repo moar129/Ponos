@@ -1,0 +1,145 @@
+{
+  "title": "Statistiques",
+  "subtitle": "Indicateurs et analyses calculés à partir des tâches et de la couche de données de l'organisation.",
+  "loading": "Chargement des statistiques...",
+  "noOrganisation": "Vous n'avez pas encore d'organisation active, il n'y a donc aucune statistique à afficher.",
+  "goToOrganisation": "Aller à l'organisation",
+  "noAccess": "Vous n'avez pas accès aux statistiques. Demandez le privilège « Statistiques – Lire » à un administrateur.",
+  "loadFailed": "Les statistiques n'ont pas pu être chargées.",
+  "empty": "Aucune donnée pour la période sélectionnée.",
+  "period": {
+    "heading": "Période statistique",
+    "description": "Choisissez la période couverte par les statistiques.",
+    "day": "Jour",
+    "week": "7 jours",
+    "month": "30 jours",
+    "quarter": "91 jours",
+    "year": "365 jours",
+    "max": "Tout",
+    "custom": "Personnalisée",
+    "allTime": "Toute la période",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Période personnalisée",
+    "description": "Choisissez une date de début et de fin. Les deux jours sont inclus.",
+    "from": "Du",
+    "to": "Au",
+    "apply": "Appliquer",
+    "endBeforeStart": "La date de fin doit être identique ou postérieure à la date de début."
+  },
+  "kpi": {
+    "heading": "Indicateurs clés",
+    "description": "Chiffres essentiels pour la période sélectionnée.",
+    "created": "Tâches créées",
+    "completed": "Tâches terminées",
+    "active": "Tâches en cours",
+    "overdue": "Tâches en retard",
+    "members": "Membres",
+    "membersWithActivity_one": "{{count}} avec activité sur les tâches",
+    "membersWithActivity_many": "{{count}} avec activité sur les tâches",
+    "membersWithActivity_other": "{{count}} avec activité sur les tâches"
+  },
+  "sections": {
+    "tasks": "Tâches",
+    "team": "Équipe et validations",
+    "materials": "Matériels"
+  },
+  "development": {
+    "title": "Évolution des tâches",
+    "description": "Tâches créées et terminées au fil du temps.",
+    "created": "Créées",
+    "completed": "Terminées"
+  },
+  "status": {
+    "title": "Statut des tâches",
+    "description": "Statut des tâches créées pendant la période.",
+    "total": "Total"
+  },
+  "priority": {
+    "title": "Priorité",
+    "description": "Priorité des tâches créées pendant la période.",
+    "none": "Sans priorité"
+  },
+  "rooms": {
+    "title": "Tâches par salle",
+    "description": "Tâches créées pendant la période, par salle.",
+    "noRoom": "Sans salle",
+    "completed": "Terminées",
+    "open": "Ouvertes",
+    "value": "{{completed}} terminées · {{open}} ouvertes"
+  },
+  "memberLoad": {
+    "title": "Tâches par membre",
+    "description": "Nombre de membres ayant reçu des tâches pendant la période. Aucun nom affiché.",
+    "bucket": {
+      "0": "Aucune tâche",
+      "1-3": "1–3 tâches",
+      "4-6": "4–6 tâches",
+      "7+": "7 ou plus"
+    }
+  },
+  "approvals": {
+    "title": "Validations",
+    "description": "Déclarations de fin soumises à validation pendant la période.",
+    "pending": "En attente",
+    "accepted": "Validées",
+    "rejected": "Refusées",
+    "rate": "Taux de validation",
+    "median": "Délai de traitement médian",
+    "hours_one": "{{formatted}} heure",
+    "hours_many": "{{formatted}} heures",
+    "hours_other": "{{formatted}} heures",
+    "days_one": "{{formatted}} jour",
+    "days_many": "{{formatted}} jours",
+    "days_other": "{{formatted}} jours"
+  },
+  "materials": {
+    "statusTitle": "Unités par statut",
+    "statusDescription": "Statut actuel de toutes les unités et lots enregistrés.",
+    "categoryTitle": "Articles par catégorie",
+    "categoryDescription": "Nombre d'articles dans chaque catégorie principale.",
+    "topTitle": "Matériels les plus utilisés",
+    "topDescription": "Top 5 des matériels liés aux tâches créées pendant la période."
+  },
+  "snapshots": {
+    "title": "Instantanés enregistrés",
+    "description": "Enregistrez les chiffres de la période et comparez-les aux périodes précédentes.",
+    "save": "Enregistrer l'instantané",
+    "saveTitle": "Enregistrer l'instantané",
+    "saveDescription": "Enregistre les chiffres pour {{period}}. Un instantané enregistré ne change jamais ensuite.",
+    "label": "Nom (facultatif)",
+    "labelPlaceholder": "Ex. Saison 2026",
+    "saving": "Enregistrement...",
+    "saveFailed": "L'instantané n'a pas pu être enregistré.",
+    "loadFailed": "Les instantanés n'ont pas pu être chargés.",
+    "empty": "Aucun instantané enregistré pour le moment.",
+    "compareHint": "Sélectionnez un ou plusieurs instantanés pour comparer leurs chiffres.",
+    "metric": "Indicateur",
+    "delete": "Supprimer l'instantané",
+    "deleteTitle": "Supprimer l'instantané ?",
+    "deleteMessage": "« {{name}} » sera définitivement supprimé et ne pourra pas être restauré.",
+    "deleteFailed": "L'instantané n'a pas pu être supprimé.",
+    "groups": {
+      "kpis": "Indicateurs clés",
+      "task_status": "Statut des tâches",
+      "task_priority": "Priorité",
+      "room": "Tâches par salle",
+      "member_load": "Tâches par membre",
+      "approvals": "Validations",
+      "item_status": "Unités par statut",
+      "category": "Articles par catégorie",
+      "top_material": "Matériels les plus utilisés"
+    },
+    "names": {
+      "tasks_created": "Tâches créées",
+      "tasks_completed": "Tâches terminées",
+      "tasks_active": "Tâches en cours",
+      "tasks_overdue": "Tâches en retard",
+      "members": "Membres",
+      "members_with_task_activity": "Membres avec activité sur les tâches",
+      "approvals_rate": "Taux de validation (%)",
+      "approvals_median_hours": "Délai de traitement médian (heures)"
+    }
+  }
+}

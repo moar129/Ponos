@@ -1,0 +1,142 @@
+{
+  "title": "Tilastot",
+  "subtitle": "Tunnusluvut ja näkemykset laskettuna organisaation tehtävistä ja tietokerroksesta.",
+  "loading": "Ladataan tilastoja...",
+  "noOrganisation": "Sinulla ei ole vielä aktiivista organisaatiota, joten näytettäviä tilastoja ei ole.",
+  "goToOrganisation": "Siirry organisaatioon",
+  "noAccess": "Sinulla ei ole pääsyä tilastoihin. Pyydä ylläpitäjältä oikeus ”Tilastot – Luku”.",
+  "loadFailed": "Tilastoja ei voitu ladata.",
+  "empty": "Valitulla jaksolla ei ole tietoja.",
+  "period": {
+    "heading": "Tilastojakso",
+    "description": "Valitse, kuinka pitkää jaksoa tilastot kattavat.",
+    "day": "Päivä",
+    "week": "7 päivää",
+    "month": "30 päivää",
+    "quarter": "91 päivää",
+    "year": "365 päivää",
+    "max": "Kaikki",
+    "custom": "Mukautettu",
+    "allTime": "Koko ajalta",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Mukautettu jakso",
+    "description": "Valitse alku- ja loppupäivä. Molemmat päivät sisältyvät.",
+    "from": "Alkaen",
+    "to": "Asti",
+    "apply": "Käytä",
+    "endBeforeStart": "Loppupäivän on oltava sama kuin alkupäivä tai sen jälkeen."
+  },
+  "kpi": {
+    "heading": "Tunnusluvut",
+    "description": "Keskeiset luvut valitulta jaksolta.",
+    "created": "Luodut tehtävät",
+    "completed": "Valmiit tehtävät",
+    "active": "Käynnissä olevat tehtävät",
+    "overdue": "Myöhässä olevat tehtävät",
+    "members": "Jäsenet",
+    "membersWithActivity_one": "{{count}} tehtäväaktiivinen",
+    "membersWithActivity_other": "{{count}} tehtäväaktiivista"
+  },
+  "sections": {
+    "tasks": "Tehtävät",
+    "team": "Tiimi ja hyväksynnät",
+    "materials": "Materiaalit"
+  },
+  "development": {
+    "title": "Tehtävien kehitys",
+    "description": "Luodut ja valmiit tehtävät ajan mittaan.",
+    "created": "Luodut",
+    "completed": "Valmiit"
+  },
+  "status": {
+    "title": "Tehtävien tila",
+    "description": "Jakson aikana luotujen tehtävien tila.",
+    "total": "Yhteensä"
+  },
+  "priority": {
+    "title": "Prioriteetti",
+    "description": "Jakson aikana luotujen tehtävien prioriteetti.",
+    "none": "Ei prioriteettia"
+  },
+  "rooms": {
+    "title": "Tehtävät huoneittain",
+    "description": "Jakson aikana luodut tehtävät huoneittain.",
+    "noRoom": "Ei huonetta",
+    "completed": "Valmiit",
+    "open": "Avoimet",
+    "value": "{{completed}} valmista · {{open}} avointa"
+  },
+  "memberLoad": {
+    "title": "Tehtävät jäsentä kohden",
+    "description": "Kuinka monelle jäsenelle annettiin tehtäviä jakson aikana. Ei nimiä.",
+    "bucket": {
+      "0": "Ei tehtäviä",
+      "1-3": "1–3 tehtävää",
+      "4-6": "4–6 tehtävää",
+      "7+": "7 tai enemmän"
+    }
+  },
+  "approvals": {
+    "title": "Hyväksynnät",
+    "description": "Jakson aikana hyväksyttäväksi lähetetyt valmistumisilmoitukset.",
+    "pending": "Odottaa",
+    "accepted": "Hyväksytty",
+    "rejected": "Hylätty",
+    "rate": "Hyväksyntäaste",
+    "median": "Käsittelyajan mediaani",
+    "hours_one": "{{formatted}} tunti",
+    "hours_other": "{{formatted}} tuntia",
+    "days_one": "{{formatted}} päivä",
+    "days_other": "{{formatted}} päivää"
+  },
+  "materials": {
+    "statusTitle": "Yksiköt tilan mukaan",
+    "statusDescription": "Kaikkien rekisteröityjen yksiköiden ja erien nykyinen tila.",
+    "categoryTitle": "Nimikkeet luokittain",
+    "categoryDescription": "Nimikkeiden määrä kussakin pääluokassa.",
+    "topTitle": "Käytetyimmät materiaalit",
+    "topDescription": "Top 5 materiaalia, jotka on liitetty jakson aikana luotuihin tehtäviin."
+  },
+  "snapshots": {
+    "title": "Tallennetut tilannekuvat",
+    "description": "Tallenna jakson luvut ja vertaa niitä aiempiin jaksoihin.",
+    "save": "Tallenna tilannekuva",
+    "saveTitle": "Tallenna tilannekuva",
+    "saveDescription": "Tallentaa luvut jaksolle {{period}}. Tallennettu tilannekuva ei muutu jälkikäteen.",
+    "label": "Nimi (valinnainen)",
+    "labelPlaceholder": "Esim. Kausi 2026",
+    "saving": "Tallennetaan...",
+    "saveFailed": "Tilannekuvaa ei voitu tallentaa.",
+    "loadFailed": "Tilannekuvia ei voitu ladata.",
+    "empty": "Ei vielä tallennettuja tilannekuvia.",
+    "compareHint": "Valitse yksi tai useampi tilannekuva vertaillaksesi niiden lukuja.",
+    "metric": "Tunnusluku",
+    "delete": "Poista tilannekuva",
+    "deleteTitle": "Poistetaanko tilannekuva?",
+    "deleteMessage": "”{{name}}” poistetaan pysyvästi, eikä sitä voi palauttaa.",
+    "deleteFailed": "Tilannekuvaa ei voitu poistaa.",
+    "groups": {
+      "kpis": "Tunnusluvut",
+      "task_status": "Tehtävien tila",
+      "task_priority": "Prioriteetti",
+      "room": "Tehtävät huoneittain",
+      "member_load": "Tehtävät jäsentä kohden",
+      "approvals": "Hyväksynnät",
+      "item_status": "Yksiköt tilan mukaan",
+      "category": "Nimikkeet luokittain",
+      "top_material": "Käytetyimmät materiaalit"
+    },
+    "names": {
+      "tasks_created": "Luodut tehtävät",
+      "tasks_completed": "Valmiit tehtävät",
+      "tasks_active": "Käynnissä olevat tehtävät",
+      "tasks_overdue": "Myöhässä olevat tehtävät",
+      "members": "Jäsenet",
+      "members_with_task_activity": "Tehtäväaktiiviset jäsenet",
+      "approvals_rate": "Hyväksyntäaste (%)",
+      "approvals_median_hours": "Käsittelyajan mediaani (tuntia)"
+    }
+  }
+}

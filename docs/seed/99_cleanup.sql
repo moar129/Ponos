@@ -4,7 +4,7 @@
 --
 -- BEVARER: organisationen, Admin/Medlem og egne roller, dit eget medlemskab.
 -- SLETTER i organisationen: de 8 seed-roller samt ALLE opgaver, rum,
--- nyheder, kategorier, varer, enheder og lokationer - også data
+-- nyheder, kategorier, varer, enheder, lokationer og statistik-snapshots - også data
 -- du selv har oprettet manuelt (tabellerne skelner ikke mock fra rigtigt).
 -- Sletter desuden alle brugere med email @ponos-mock.test.
 -- Rækkefølgen skyldes fremmednøgler.
@@ -41,6 +41,9 @@ begin
   delete from public.task_rooms where organisation_id = v_org;
 
   delete from public.news where organisation_id = v_org;
+
+  -- Statistik-snapshots: cascader statistics_values.
+  delete from public.statistics_snapshots where organisation_id = v_org;
 
   -- Datalager: varer cascader enheder.
   delete from public.data_layer_favorites where organisation_id = v_org;

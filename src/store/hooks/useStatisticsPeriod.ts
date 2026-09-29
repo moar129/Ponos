@@ -1,262 +1,100 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react'
+import type {
+    StatisticsGranularity,
+    StatisticsPeriodType,
+    StatisticsQueryArgs,
+} from '../../types/statistics/statisticsTypes'
 
-const labels: Record<StatisticsPeriodType, string> = {
-    dag: 'Dag',
-    uge: '7 dage',
-    måned: '30 dage',
-    kvartal: '91 dage',
-    år: '365 dage',
-    max: 'Alt',
-    custom: 'Brugerdefineret',
-};
+export const STATISTICS_PERIOD_TYPES: StatisticsPeriodType[] = [
+    'day',
+    'week',
+    'month',
+    'quarter',
+    'year',
+    'max',
+    'custom',
+]
 
-export type StatisticsPeriodType =
-    | 'dag'
-    | 'uge'
-    | 'måned'
-    | 'kvartal'
-    | 'år'
-    | 'max'
-    | 'custom';
-
-export type StatisticsGranularity =
-    | 'time'
-    | 'dag'
-    | 'uge'
-    | 'måned';
-
-export interface StatisticsPeriod {
-    type: StatisticsPeriodType;
-    label: string;
-    start: Date | null;
-    end: Date | null;
+// Rolling periods ending today (inclusive), in days.
+const ROLLING_DAYS: Partial<Record<StatisticsPeriodType, number>> = {
+    day: 1,
+    week: 7,
+    month: 30,
+    quarter: 91,
+    year: 365,
 }
 
-interface SqlDateRange {
-    start: string;
-    end: string;
+const DAY_MS = 24 * 60 * 60 * 1000
+
+function startOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function addDays(date: Date, days: number): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+}
+
+// One source of truth for the time series resolution: 1 day -> hours,
+// up to a month -> days, up to a quarter -> weeks, otherwise months.
+function granularityFor(days: number | null): StatisticsGranularity {
+    if (days === null) return 'month'
+    if (days <= 1) return 'hour'
+    if (days <= 31) return 'day'
+    if (days <= 91) return 'week'
+    return 'month'
+}
+
+/** Inclusive calendar dates of the selected period; null for "Alt". */
+export interface StatisticsDateRange {
+    start: Date
+    end: Date
 }
 
 export function useStatisticsPeriod() {
-    const [periodType, setPeriodType] =
-        useState<StatisticsPeriodType>('uge');
+    const [periodType, setPeriodType] = useState<StatisticsPeriodType>('week')
+    const [customRange, setCustomRange] = useState<StatisticsDateRange | null>(null)
 
-    const [customStart, setCustomStart] = useState<Date | null>(null);
-    const [customEnd, setCustomEnd] = useState<Date | null>(null);
+    const range = useMemo<StatisticsDateRange | null>(() => {
+        if (periodType === 'max') return null
+        if (periodType === 'custom') return customRange
 
-    const getDateWithoutTime = useCallback((date: Date) => {
-        return new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate()
-        );
-    }, []);
+        const today = startOfDay(new Date())
+        const days = ROLLING_DAYS[periodType] ?? 1
+        return { start: addDays(today, -(days - 1)), end: today }
+    }, [periodType, customRange])
 
-    const getEndOfDay = useCallback((date: Date) => {
-        return new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            23,
-            59,
-            59,
-            999
-        );
-    }, []);
+    const apiArgs = useMemo<StatisticsQueryArgs>(() => {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    const getRollingStart = useCallback(
-        (date: Date, days: number) => {
-            const result = getDateWithoutTime(date);
-            result.setDate(result.getDate() - (days - 1));
+        if (!range) {
+            return { start: null, end: null, granularity: granularityFor(null), tz }
+        }
 
-            return result;
-        },
-        [getDateWithoutTime]
-    );
-
-    const getPeriodDates = useCallback(
-        (
-            type: StatisticsPeriodType
-        ): { start: Date | null; end: Date | null } => {
-            const today = getDateWithoutTime(new Date());
-
-            switch (type) {
-                case 'dag':
-                    return {
-                        start: today,
-                        end: getEndOfDay(today),
-                    };
-
-                case 'uge':
-                    return {
-                        start: getRollingStart(today, 7),
-                        end: getEndOfDay(today),
-                    };
-
-                case 'måned':
-                    return {
-                        start: getRollingStart(today, 30),
-                        end: getEndOfDay(today),
-                    };
-
-                case 'kvartal':
-                    return {
-                        start: getRollingStart(today, 91),
-                        end: getEndOfDay(today),
-                    };
-
-                case 'år':
-                    return {
-                        start: getRollingStart(today, 365),
-                        end: getEndOfDay(today),
-                    };
-
-                case 'max':
-                    return {
-                        start: null,
-                        end: null,
-                    };
-
-                case 'custom':
-                    return {
-                        start: customStart,
-                        end: customEnd
-                            ? getEndOfDay(customEnd)
-                            : null,
-                    };
-
-                default:
-                    return {
-                        start: null,
-                        end: null,
-                    };
-            }
-        },
-        [
-            customStart,
-            customEnd,
-            getDateWithoutTime,
-            getEndOfDay,
-            getRollingStart,
-        ]
-    );
-
-
-    const current = useMemo<StatisticsPeriod>(() => {
-        const dates = getPeriodDates(periodType);
+        // Local midnight -> ISO instant; end is exclusive (the day after).
+        const days = Math.round((range.end.getTime() - range.start.getTime()) / DAY_MS) + 1
 
         return {
-            type: periodType,
-            label: labels[periodType],
-            start: dates.start,
-            end: dates.end,
-        };
-    }, [periodType, getPeriodDates]);
+            start: range.start.toISOString(),
+            end: addDays(range.end, 1).toISOString(),
+            granularity: granularityFor(days),
+            tz,
+        }
+    }, [range])
 
-    const all = useMemo<StatisticsPeriod[]>(() => {
-        const types: StatisticsPeriodType[] = [
-            'dag',
-            'uge',
-            'måned',
-            'kvartal',
-            'år',
-            'max',
-            'custom',
-        ];
-
-        return types.map((type) => {
-            const dates = getPeriodDates(type);
-
-            return {
-                type,
-                label: labels[type],
-                start: dates.start,
-                end: dates.end,
-            };
-        });
-    }, [getPeriodDates]);
-
-    const changePeriod = (type: StatisticsPeriodType) => {
-        setPeriodType(type);
-    };
+    const changePeriod = (type: Exclude<StatisticsPeriodType, 'custom'>) => {
+        setPeriodType(type)
+    }
 
     const setCustomDates = (start: Date, end: Date) => {
-        setCustomStart(start);
-        setCustomEnd(end);
-        setPeriodType('custom');
-    };
-
-    const getSqlInterval = (): string | SqlDateRange | null => {
-        if (periodType === 'max') {
-            return null;
-        }
-
-        if (periodType === 'custom') {
-            if (!customStart || !customEnd) {
-                return null;
-            }
-
-            return {
-                start: customStart.toISOString(),
-                end: getEndOfDay(customEnd).toISOString(),
-            };
-        }
-
-        return periodType;
-    };
-
-    const getGranularity = (): StatisticsGranularity => {
-        switch (periodType) {
-            case 'dag':
-                return 'time';
-
-            case 'uge':
-            case 'måned':
-                return 'dag';
-
-            case 'kvartal':
-                return 'uge';
-
-            case 'år':
-            case 'max':
-                return 'måned';
-
-            case 'custom': {
-                if (!customStart || !customEnd) {
-                    return 'dag';
-                }
-
-                const start = getDateWithoutTime(customStart);
-                const end = getDateWithoutTime(customEnd);
-
-                const difference =
-                    end.getTime() - start.getTime();
-
-                const days =
-                    difference / (1000 * 60 * 60 * 24) + 1;
-
-                if (days <= 30) {
-                    return 'dag';
-                }
-
-                if (days <= 90) {
-                    return 'uge';
-                }
-
-                return 'måned';
-            }
-
-            default:
-                return 'dag';
-        }
-    };
+        setCustomRange({ start: startOfDay(start), end: startOfDay(end) })
+        setPeriodType('custom')
+    }
 
     return {
-        current,
-        all,
+        periodType,
+        range,
+        apiArgs,
         changePeriod,
         setCustomDates,
-        getSqlInterval,
-        getGranularity,
-    };
+    }
 }

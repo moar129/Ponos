@@ -59,7 +59,8 @@
     "updateLocation": "Du har inte behörighet att redigera platsen.",
     "deleteLocation": "Du har inte behörighet att radera platsen.",
     "favoriteDatalayer": "Du har inte behörighet att ändra favoriter i datalagret.",
-    "favoriteTasks": "Du har inte behörighet att ändra favoritrum."
+    "favoriteTasks": "Du har inte behörighet att ändra favoritrum.",
+    "deleteStatistics": "Du har inte behörighet att radera den här ögonblicksbilden."
   },
   "db": {
     "NOT_LOGGED_IN": "Du måste vara inloggad.",
@@ -148,6 +149,10 @@
     "ROOM_NOT_ACCESSIBLE": "Rummet finns inte, eller så har du inte åtkomst till det.",
     "ROOM_NOT_ROLE_LOCKED": "Rummet är inte rollbegränsat och har ingen chatt.",
     "CONVERSATION_CLOSED": "Chatten är stängd - endast läsning.",
-    "TASK_CHAT_NOT_AVAILABLE": "Uppgiftschatten är inte tillgänglig för dig."
+    "TASK_CHAT_NOT_AVAILABLE": "Uppgiftschatten är inte tillgänglig för dig.",
+    "NO_PRIV_READ_STATISTICS": "Du har inte behörighet att se statistik.",
+    "NO_PRIV_CREATE_STATISTICS": "Du har inte behörighet att spara statistik.",
+    "INVALID_PERIOD": "Slutdatumet måste vara efter startdatumet.",
+    "INVALID_GRANULARITY": "Ogiltig upplösning för statistiken."
   }
 }

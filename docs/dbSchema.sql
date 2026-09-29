@@ -600,11 +600,19 @@ create table public.statistics_snapshots (
   organisation_id  uuid not null references public.organisations(id) on delete cascade,
   period_start     timestamptz not null,
   period_end       timestamptz not null,
-  created_at       timestamptz not null default now()
+  created_at       timestamptz not null default now(),
+  -- Valgfrit navn, fx "Roskilde 2026" (2026-09-29, statistik-migrationen).
+  label            text
 );
 
 create index idx_snapshots_org on public.statistics_snapshots (organisation_id);
 
+-- Rækker skrives KUN af save_statistics_snapshot (§15.26) som flade
+-- "<gruppe>:<nøgle>"-navne (tasks_created, task_status:Completed,
+-- room:<navn> ...). Drift: skema-eksporten 2026-09-29 viste en constraint
+-- statistics_values_period_check (period_end >= period_start), så live har
+-- også period_start/period_end-kolonner her, som ikke er dokumenteret og
+-- ikke sættes af RPC'en (null opfylder check'en).
 create table public.statistics_values (
   id           uuid primary key default gen_random_uuid(),
   snapshot_id  uuid not null references public.statistics_snapshots(id) on delete cascade,
@@ -4835,6 +4843,468 @@ create policy "Notifikationer kun i aktiv organisation (slet)"
   using (organisation_id = public.auth_profile_org() or type = 'membership_invitation');
 
 
+-- ---------------------------------------------------------------------
+-- 15.26 (2026-09-29): STATISTIK (US-48–54) - server-side aggregering
+-- ---------------------------------------------------------------------
+-- Afløser klientberegningen i statisticApi.ts, som gav forkerte tal:
+-- tasks-RLS skjuler Completed-opgaver (view_completed_tasks) og rolle-
+-- låste rum, PostgREST giver højst 1000 rækker, og datofiltre brugte UTC.
+-- Alle med read_statistics ser nu samme tal. Kun aggregater returneres -
+-- ingen rækker, ingen medlemsnavne. Definitionerne er beskrevet i
+-- docs/statistik-plan.md; docs/seed/FACIT.md har forventede værdier.
+-- Privilegier: read_statistics / create_statistics / delete_statistics
+-- (fri tekst i privileges, ingen backfill - kun admin som standard).
+-- Policies: §16.8. Kørt og verificeret mod FACIT 2026-09-29.
+-- ---------------------------------------------------------------------
+-- 15.26a statistics_payload - selve beregningen (intern)
+--
+-- p_start/p_end: [p_start, p_end), null = ubegrænset ("Alt").
+-- p_granularity: 'hour' | 'day' | 'week' | 'month' (tidsseriens buckets).
+-- p_tz: IANA-tidszone (fx 'Europe/Copenhagen'), bruges til bucket-grænser.
+--
+-- Definitioner:
+--   created   = created_at i perioden
+--   completed = status Completed og finished_at i perioden
+--   active    = var i gang i perioden: coalesce(start_date, created_at) < slut
+--               og (InProgress eller Completed med finished_at >= start).
+--               Der findes intet started_at - start_date er en tilnærmelse.
+--   overdue   = ikke Completed, end_date < now() og end_date i perioden
+--   relevante opgaver (team) = oprettet i perioden ELLER aktive i perioden
+--   members   = memberships i org'en (uafhængig af periode)
+--   membersWithTaskActivity = medlemmer tildelt >= 1 relevant opgave
+--   memberLoad = antal medlemmer pr. interval af relevante opgaver
+--   approvals  = task_requests med requested_at i perioden (anmodninger,
+--                ikke opgaver - en opgave kan afvises og så godkendes)
+--   materials.byStatus = antal enhedsrækker pr. status, nutid (ingen
+--                summering af quantity - den blander stk/kg/meter)
+--
+-- SECURITY DEFINER og derfor UDEN RLS - hver forespørgsel filtrerer selv
+-- på p_org. Må derfor ikke kunne kaldes direkte (se revoke nedenfor).
+-- ---------------------------------------------------------------------
+create or replace function public.statistics_payload(
+  p_org uuid,
+  p_start timestamptz,
+  p_end timestamptz,
+  p_granularity text,
+  p_tz text
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_s timestamptz := coalesce(p_start, '-infinity'::timestamptz);
+  v_e timestamptz := coalesce(p_end, 'infinity'::timestamptz);
+  v_step interval;
+  v_from timestamp;
+  v_to timestamp;
+  v_kpis jsonb;
+  v_task_status jsonb;
+  v_task_priority jsonb;
+  v_task_rooms jsonb;
+  v_member_load jsonb;
+  v_development jsonb := '[]'::jsonb;
+  v_approvals jsonb;
+  v_by_status jsonb;
+  v_by_category jsonb;
+  v_top_used jsonb;
+begin
+  if p_granularity not in ('hour', 'day', 'week', 'month') then
+    raise exception 'Ugyldig granularitet: %', p_granularity using hint = 'INVALID_GRANULARITY';
+  end if;
+
+  -- Fejler med en tydelig fejl, hvis tidszonen er ugyldig.
+  perform now() at time zone p_tz;
+
+  v_step := ('1 ' || p_granularity)::interval;
+
+  -- KPI'er ------------------------------------------------------------
+  with t as (
+    select * from public.tasks where organisation_id = p_org
+  ),
+  relevant as (
+    select id from t
+    where (created_at >= v_s and created_at < v_e)
+       or (coalesce(start_date, created_at) < v_e
+           and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s)))
+  ),
+  active_members as (
+    select distinct ta.user_id
+    from public.task_assignees ta
+    join relevant r on r.id = ta.task_id
+    join public.memberships m on m.user_id = ta.user_id and m.organisation_id = p_org
+  )
+  select jsonb_build_object(
+    'created',   (select count(*) from t where created_at >= v_s and created_at < v_e),
+    'completed', (select count(*) from t where status = 'Completed' and finished_at >= v_s and finished_at < v_e),
+    'active',    (select count(*) from t
+                  where coalesce(start_date, created_at) < v_e
+                    and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s))),
+    'overdue',   (select count(*) from t
+                  where status <> 'Completed' and end_date < now()
+                    and end_date >= v_s and end_date < v_e),
+    'members',   (select count(*) from public.memberships where organisation_id = p_org),
+    'membersWithTaskActivity', (select count(*) from active_members)
+  ) into v_kpis;
+
+  -- Status for opgaver oprettet i perioden (alle enum-værdier, også 0) -
+  select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
+  into v_task_status
+  from unnest(enum_range(null::public.e_task_status)) with ordinality as s(status, ord)
+  left join (
+    select status, count(*) as n
+    from public.tasks
+    where organisation_id = p_org and created_at >= v_s and created_at < v_e
+    group by status
+  ) c on c.status = s.status;
+
+  -- Prioritet (null = ingen prioritet) --------------------------------
+  select coalesce(jsonb_agg(jsonb_build_object('priority', p.priority, 'count', coalesce(c.n, 0)) order by p.ord), '[]'::jsonb)
+  into v_task_priority
+  from (
+    select priority, ord from unnest(enum_range(null::public.e_task_priority)) with ordinality as e(priority, ord)
+    union all
+    select null::public.e_task_priority, 1000
+  ) p
+  left join (
+    select priority, count(*) as n
+    from public.tasks
+    where organisation_id = p_org and created_at >= v_s and created_at < v_e
+    group by priority
+  ) c on c.priority is not distinct from p.priority
+  where p.priority is not null or coalesce(c.n, 0) > 0;
+
+  -- Rum (alle rum, også rolle-låste; null = uden rum) -----------------
+  select coalesce(jsonb_agg(x order by (x->>'total')::int desc, x->>'name'), '[]'::jsonb)
+  into v_task_rooms
+  from (
+    select jsonb_build_object(
+      'roomId', t.room_id,
+      'name', r.name,
+      'total', count(*),
+      'completed', count(*) filter (where t.status = 'Completed'),
+      'open', count(*) filter (where t.status <> 'Completed')
+    ) as x
+    from public.tasks t
+    left join public.task_rooms r on r.id = t.room_id and r.organisation_id = p_org
+    where t.organisation_id = p_org and t.created_at >= v_s and t.created_at < v_e
+    group by t.room_id, r.name
+  ) rooms;
+
+  -- Anonym belastning: medlemmer pr. interval af relevante opgaver -----
+  with relevant as (
+    select id from public.tasks
+    where organisation_id = p_org
+      and ((created_at >= v_s and created_at < v_e)
+        or (coalesce(start_date, created_at) < v_e
+            and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s))))
+  ),
+  per_member as (
+    select m.user_id, count(r.id) as n
+    from public.memberships m
+    left join public.task_assignees ta on ta.user_id = m.user_id
+    left join relevant r on r.id = ta.task_id
+    where m.organisation_id = p_org
+    group by m.user_id
+  ),
+  buckets(bucket, lo, hi, ord) as (
+    values ('0', 0, 0, 1), ('1-3', 1, 3, 2), ('4-6', 4, 6, 3), ('7+', 7, null, 4)
+  )
+  select jsonb_agg(jsonb_build_object(
+           'bucket', b.bucket,
+           'count', (select count(*) from per_member pm where pm.n >= b.lo and (b.hi is null or pm.n <= b.hi))
+         ) order by b.ord)
+  into v_member_load
+  from buckets b;
+
+  -- Tidsserie (0-fyldt) -----------------------------------------------
+  if p_start is not null and p_end is not null then
+    v_from := date_trunc(p_granularity, p_start at time zone p_tz);
+    v_to   := date_trunc(p_granularity, (p_end - interval '1 microsecond') at time zone p_tz);
+  else
+    select date_trunc(p_granularity, min(least(created_at, coalesce(finished_at, created_at))) at time zone p_tz)
+    into v_from
+    from public.tasks
+    where organisation_id = p_org;
+
+    v_to := date_trunc(p_granularity, coalesce(p_end, now()) at time zone p_tz);
+
+    if p_start is not null then
+      v_from := date_trunc(p_granularity, p_start at time zone p_tz);
+    end if;
+  end if;
+
+  if v_from is not null and v_from <= v_to then
+    select coalesce(jsonb_agg(jsonb_build_object(
+             'bucket', to_char(g.b, 'YYYY-MM-DD"T"HH24:MI'),
+             'created', coalesce(c.n, 0),
+             'completed', coalesce(f.n, 0)
+           ) order by g.b), '[]'::jsonb)
+    into v_development
+    from generate_series(v_from, v_to, v_step) as g(b)
+    left join (
+      select date_trunc(p_granularity, created_at at time zone p_tz) as b, count(*) as n
+      from public.tasks
+      where organisation_id = p_org and created_at >= v_s and created_at < v_e
+      group by 1
+    ) c on c.b = g.b
+    left join (
+      select date_trunc(p_granularity, finished_at at time zone p_tz) as b, count(*) as n
+      from public.tasks
+      where organisation_id = p_org and status = 'Completed'
+        and finished_at >= v_s and finished_at < v_e
+      group by 1
+    ) f on f.b = g.b;
+  end if;
+
+  -- Godkendelser --------------------------------------------------------
+  with r as (
+    select tr.status, tr.requested_at, tr.done_at
+    from public.task_requests tr
+    join public.tasks t on t.id = tr.task_id
+    where t.organisation_id = p_org
+      and tr.requested_at >= v_s and tr.requested_at < v_e
+  ),
+  agg as (
+    select
+      count(*) filter (where status = 'Pending')  as pending,
+      count(*) filter (where status = 'Accepted') as accepted,
+      count(*) filter (where status = 'Rejected') as rejected,
+      percentile_cont(0.5) within group (order by extract(epoch from done_at - requested_at))
+        filter (where status <> 'Pending' and done_at is not null) as median_seconds
+    from r
+  )
+  select jsonb_build_object(
+    'pending', pending,
+    'accepted', accepted,
+    'rejected', rejected,
+    'rate', case when accepted + rejected > 0
+                 then round(accepted::numeric * 100 / (accepted + rejected), 1)
+            end,
+    'medianHours', case when median_seconds is not null
+                        then round((median_seconds / 3600)::numeric, 1)
+                   end
+  ) into v_approvals
+  from agg;
+
+  -- Materialer: enhedsrækker pr. status (nutid, alle statusser) --------
+  select coalesce(jsonb_agg(jsonb_build_object('status', s.status, 'count', coalesce(c.n, 0)) order by s.ord), '[]'::jsonb)
+  into v_by_status
+  from unnest(enum_range(null::public.e_item_status)) with ordinality as s(status, ord)
+  left join (
+    select status, count(*) as n
+    from public.data_layer_item_units
+    where organisation_id = p_org
+    group by status
+  ) c on c.status = s.status;
+
+  -- Materialer: items pr. topkategori (nutid) ---------------------------
+  with recursive tree as (
+    select id, id as root_id
+    from public.data_layer_categories
+    where organisation_id = p_org and parent_category_id is null
+    union all
+    select c.id, tree.root_id
+    from public.data_layer_categories c
+    join tree on c.parent_category_id = tree.id
+    where c.organisation_id = p_org
+  )
+  select coalesce(jsonb_agg(jsonb_build_object('categoryId', x.id, 'title', x.title, 'count', x.n)
+                            order by x.n desc, x.rank, x.title), '[]'::jsonb)
+  into v_by_category
+  from (
+    select root.id, root.title, root.rank, count(i.id) as n
+    from public.data_layer_categories root
+    left join tree on tree.root_id = root.id
+    left join public.data_layer_items i on i.category_id = tree.id and i.organisation_id = p_org
+    where root.organisation_id = p_org and root.parent_category_id is null
+    group by root.id, root.title, root.rank
+  ) x;
+
+  -- Materialer: top 5 mest brugte på opgaver oprettet i perioden -------
+  select coalesce(jsonb_agg(x order by (x->>'quantity')::numeric desc, x->>'name'), '[]'::jsonb)
+  into v_top_used
+  from (
+    select jsonb_build_object(
+      'itemId', i.id,
+      'name', i.name,
+      'unit', i.unit_of_measurement,
+      'quantity', sum(tm.quantity)
+    ) as x
+    from public.task_materials tm
+    join public.tasks t on t.id = tm.task_id
+    join public.data_layer_items i on i.id = tm.item_id
+    where t.organisation_id = p_org
+      and i.organisation_id = p_org
+      and t.created_at >= v_s and t.created_at < v_e
+    group by i.id, i.name, i.unit_of_measurement
+    order by sum(tm.quantity) desc, i.name
+    limit 5
+  ) top;
+
+  return jsonb_build_object(
+    'kpis', v_kpis,
+    'taskStatus', v_task_status,
+    'taskPriority', v_task_priority,
+    'taskRooms', v_task_rooms,
+    'memberLoad', v_member_load,
+    'taskDevelopment', v_development,
+    'approvals', v_approvals,
+    'materials', jsonb_build_object(
+      'byStatus', v_by_status,
+      'byCategory', v_by_category,
+      'topUsed', v_top_used
+    )
+  );
+end;
+$$;
+
+-- Intern: omgår RLS og tager org som parameter - må aldrig kaldes fra klienten.
+revoke execute on function public.statistics_payload(uuid, timestamptz, timestamptz, text, text) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.26b get_statistics - klientens indgang (kræver read_statistics)
+-- ---------------------------------------------------------------------
+create or replace function public.get_statistics(
+  p_start timestamptz,
+  p_end timestamptz,
+  p_granularity text,
+  p_tz text
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_org uuid := public.auth_profile_org();
+begin
+  if v_org is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if not public.has_privilege_or_admin('read_statistics') then
+    raise exception 'Du har ikke rettigheder til at se statistik.' using errcode = '42501', hint = 'NO_PRIV_READ_STATISTICS';
+  end if;
+
+  if p_start is not null and p_end is not null and p_end <= p_start then
+    raise exception 'Slutdatoen skal ligge efter startdatoen.' using hint = 'INVALID_PERIOD';
+  end if;
+
+  return public.statistics_payload(v_org, p_start, p_end, p_granularity, p_tz);
+end;
+$$;
+
+revoke execute on function public.get_statistics(timestamptz, timestamptz, text, text) from public, anon;
+grant  execute on function public.get_statistics(timestamptz, timestamptz, text, text) to authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.26c save_statistics_snapshot - gemmer et uændreligt snapshot (US-52)
+--
+-- Værdierne gemmes fladt i statistics_values som "<gruppe>:<nøgle>"
+-- (fx task_status:Completed, room:Sanitet, room: = uden rum). Navne på
+-- rum/kategorier/items gemmes som de så ud nu, så et gammelt snapshot
+-- ikke ændrer sig, når noget omdøbes. Tidsserien gemmes ikke.
+-- "Alt" (null-periode) gemmes med første opgaves dato som start og nu som slut.
+-- ---------------------------------------------------------------------
+create or replace function public.save_statistics_snapshot(
+  p_start timestamptz,
+  p_end timestamptz,
+  p_label text,
+  p_tz text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_org uuid := public.auth_profile_org();
+  v_payload jsonb;
+  v_start timestamptz;
+  v_end timestamptz;
+  v_id uuid;
+begin
+  if v_org is null then
+    raise exception 'Du er ikke medlem af en organisation.' using hint = 'NO_ACTIVE_ORG';
+  end if;
+
+  if not public.has_privilege_or_admin('create_statistics') then
+    raise exception 'Du har ikke rettigheder til at gemme statistik.' using errcode = '42501', hint = 'NO_PRIV_CREATE_STATISTICS';
+  end if;
+
+  if p_start is not null and p_end is not null and p_end <= p_start then
+    raise exception 'Slutdatoen skal ligge efter startdatoen.' using hint = 'INVALID_PERIOD';
+  end if;
+
+  v_payload := public.statistics_payload(v_org, p_start, p_end, 'month', p_tz);
+
+  v_end := coalesce(p_end, now());
+  v_start := coalesce(
+    p_start,
+    (select min(created_at) from public.tasks where organisation_id = v_org),
+    v_end
+  );
+
+  insert into public.statistics_snapshots (organisation_id, period_start, period_end, label)
+  values (v_org, v_start, v_end, nullif(trim(p_label), ''))
+  returning id into v_id;
+
+  insert into public.statistics_values (snapshot_id, name, value)
+  -- KPI'er
+  select v_id, 'tasks_created', (v_payload->'kpis'->>'created')::numeric
+  union all select v_id, 'tasks_completed', (v_payload->'kpis'->>'completed')::numeric
+  union all select v_id, 'tasks_active', (v_payload->'kpis'->>'active')::numeric
+  union all select v_id, 'tasks_overdue', (v_payload->'kpis'->>'overdue')::numeric
+  union all select v_id, 'members', (v_payload->'kpis'->>'members')::numeric
+  union all select v_id, 'members_with_task_activity', (v_payload->'kpis'->>'membersWithTaskActivity')::numeric
+  -- Fordelinger
+  union all
+  select v_id, 'task_status:' || (x->>'status'), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'taskStatus') x
+  union all
+  select v_id, 'task_priority:' || coalesce(x->>'priority', ''), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'taskPriority') x
+  union all
+  select v_id, 'room:' || coalesce(x->>'name', ''), (x->>'total')::numeric
+  from jsonb_array_elements(v_payload->'taskRooms') x
+  union all
+  select v_id, 'member_load:' || (x->>'bucket'), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'memberLoad') x
+  -- Godkendelser
+  union all select v_id, 'approvals:pending', (v_payload->'approvals'->>'pending')::numeric
+  union all select v_id, 'approvals:accepted', (v_payload->'approvals'->>'accepted')::numeric
+  union all select v_id, 'approvals:rejected', (v_payload->'approvals'->>'rejected')::numeric
+  union all
+  select v_id, 'approvals_rate', (v_payload->'approvals'->>'rate')::numeric
+  where v_payload->'approvals'->>'rate' is not null
+  union all
+  select v_id, 'approvals_median_hours', (v_payload->'approvals'->>'medianHours')::numeric
+  where v_payload->'approvals'->>'medianHours' is not null
+  -- Materialer
+  union all
+  select v_id, 'item_status:' || (x->>'status'), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'materials'->'byStatus') x
+  union all
+  select v_id, 'category:' || (x->>'title'), (x->>'count')::numeric
+  from jsonb_array_elements(v_payload->'materials'->'byCategory') x
+  union all
+  select v_id, 'top_material:' || (x->>'name'), (x->>'quantity')::numeric
+  from jsonb_array_elements(v_payload->'materials'->'topUsed') x;
+
+  return v_id;
+end;
+$$;
+
+revoke execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text) from public, anon;
+grant  execute on function public.save_statistics_snapshot(timestamptz, timestamptz, text, text) to authenticated;
+
+
 -- =====================================================================
 -- 16. ROW LEVEL SECURITY (organisations-baseret adgang)
 -- =====================================================================
@@ -5620,31 +6090,36 @@ create policy "Se task_material_units for opgaver i egen organisation"
 
 -- ---------------------------------------------------------------------
 -- 16.8 STATISTICS SNAPSHOTS / VALUES
--- (Studerende 3's domæne — org-scoped læsning; skrivning sker typisk
--- server-side/via funktion når snapshots genereres.)
+-- Læsning kræver read_statistics, sletning delete_statistics (values
+-- cascader). Ingen insert-policy: snapshots skrives KUN via
+-- save_statistics_snapshot (§15.26c, create_statistics). Ingen
+-- update-policy: et gemt snapshot ændres aldrig (US-52).
+-- 2026-09-29: de dublerede "Users can view own organisation statistics
+-- snapshots/values"-policies (to public, drift) og de gamle "Medlemmer kan
+-- oprette ..."-insert-policies er droppet.
 -- ---------------------------------------------------------------------
 create policy "Se statistik-snapshots i egen organisation"
   on public.statistics_snapshots for select
   to authenticated
-  using (organisation_id = public.auth_profile_org());
-
-create policy "Medlemmer kan oprette snapshots i egen organisation"
-  on public.statistics_snapshots for insert
-  to authenticated
-  with check (organisation_id = public.auth_profile_org());
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('read_statistics')
+  );
 
 create policy "Se statistik-værdier for egen organisation"
   on public.statistics_values for select
   to authenticated
   using (
     snapshot_id in (select id from public.statistics_snapshots where organisation_id = public.auth_profile_org())
+    and public.has_privilege_or_admin('read_statistics')
   );
 
-create policy "Medlemmer kan oprette statistik-værdier for egen organisation"
-  on public.statistics_values for insert
+create policy "Slet statistik-snapshots i egen organisation"
+  on public.statistics_snapshots for delete
   to authenticated
-  with check (
-    snapshot_id in (select id from public.statistics_snapshots where organisation_id = public.auth_profile_org())
+  using (
+    organisation_id = public.auth_profile_org()
+    and public.has_privilege_or_admin('delete_statistics')
   );
 
 

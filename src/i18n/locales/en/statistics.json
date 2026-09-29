@@ -1,0 +1,142 @@
+{
+  "title": "Statistics",
+  "subtitle": "Key figures and insight calculated from the organisation's tasks and data layer.",
+  "loading": "Loading statistics...",
+  "noOrganisation": "You don't have an active organisation yet, so there are no statistics to show.",
+  "goToOrganisation": "Go to Organisation",
+  "noAccess": "You do not have access to statistics. Ask an administrator for the \"Statistics – Read\" privilege.",
+  "loadFailed": "The statistics could not be loaded.",
+  "empty": "No data in the selected period.",
+  "period": {
+    "heading": "Statistics period",
+    "description": "Choose how long a period the statistics should cover.",
+    "day": "Day",
+    "week": "7 days",
+    "month": "30 days",
+    "quarter": "91 days",
+    "year": "365 days",
+    "max": "All",
+    "custom": "Custom",
+    "allTime": "All time",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Custom period",
+    "description": "Choose a start and end date. Both days are included.",
+    "from": "From",
+    "to": "To",
+    "apply": "Apply",
+    "endBeforeStart": "The end date must be the same as or after the start date."
+  },
+  "kpi": {
+    "heading": "Key figures",
+    "description": "Core numbers for the selected period.",
+    "created": "Created tasks",
+    "completed": "Completed tasks",
+    "active": "Tasks in progress",
+    "overdue": "Overdue tasks",
+    "members": "Members",
+    "membersWithActivity_one": "{{count}} with task activity",
+    "membersWithActivity_other": "{{count}} with task activity"
+  },
+  "sections": {
+    "tasks": "Tasks",
+    "team": "Team and approvals",
+    "materials": "Materials"
+  },
+  "development": {
+    "title": "Task development",
+    "description": "Created and completed tasks over time.",
+    "created": "Created",
+    "completed": "Completed"
+  },
+  "status": {
+    "title": "Task status",
+    "description": "Status of tasks created in the period.",
+    "total": "Total"
+  },
+  "priority": {
+    "title": "Priority",
+    "description": "Priority of tasks created in the period.",
+    "none": "No priority"
+  },
+  "rooms": {
+    "title": "Tasks per room",
+    "description": "Tasks created in the period, by room.",
+    "noRoom": "No room",
+    "completed": "Completed",
+    "open": "Open",
+    "value": "{{completed}} completed · {{open}} open"
+  },
+  "memberLoad": {
+    "title": "Tasks per member",
+    "description": "How many members were assigned tasks in the period. Shows no names.",
+    "bucket": {
+      "0": "No tasks",
+      "1-3": "1–3 tasks",
+      "4-6": "4–6 tasks",
+      "7+": "7 or more"
+    }
+  },
+  "approvals": {
+    "title": "Approvals",
+    "description": "Completion reports submitted for approval in the period.",
+    "pending": "Pending",
+    "accepted": "Approved",
+    "rejected": "Rejected",
+    "rate": "Approval rate",
+    "median": "Median handling time",
+    "hours_one": "{{formatted}} hour",
+    "hours_other": "{{formatted}} hours",
+    "days_one": "{{formatted}} day",
+    "days_other": "{{formatted}} days"
+  },
+  "materials": {
+    "statusTitle": "Units by status",
+    "statusDescription": "Current status of all registered units and batches.",
+    "categoryTitle": "Items by category",
+    "categoryDescription": "Number of items in each main category right now.",
+    "topTitle": "Most used materials",
+    "topDescription": "Top 5 materials linked to tasks created in the period."
+  },
+  "snapshots": {
+    "title": "Saved snapshots",
+    "description": "Save the period's figures and compare them with earlier periods.",
+    "save": "Save snapshot",
+    "saveTitle": "Save snapshot",
+    "saveDescription": "Saves the figures for {{period}}. A saved snapshot never changes afterwards.",
+    "label": "Name (optional)",
+    "labelPlaceholder": "E.g. Season 2026",
+    "saving": "Saving...",
+    "saveFailed": "The snapshot could not be saved.",
+    "loadFailed": "Snapshots could not be loaded.",
+    "empty": "No saved snapshots yet.",
+    "compareHint": "Select one or more snapshots to compare their figures.",
+    "metric": "Metric",
+    "delete": "Delete snapshot",
+    "deleteTitle": "Delete snapshot?",
+    "deleteMessage": "\"{{name}}\" will be permanently deleted and cannot be restored.",
+    "deleteFailed": "The snapshot could not be deleted.",
+    "groups": {
+      "kpis": "Key figures",
+      "task_status": "Task status",
+      "task_priority": "Priority",
+      "room": "Tasks per room",
+      "member_load": "Tasks per member",
+      "approvals": "Approvals",
+      "item_status": "Units by status",
+      "category": "Items by category",
+      "top_material": "Most used materials"
+    },
+    "names": {
+      "tasks_created": "Created tasks",
+      "tasks_completed": "Completed tasks",
+      "tasks_active": "Tasks in progress",
+      "tasks_overdue": "Overdue tasks",
+      "members": "Members",
+      "members_with_task_activity": "Members with task activity",
+      "approvals_rate": "Approval rate (%)",
+      "approvals_median_hours": "Median handling time (hours)"
+    }
+  }
+}

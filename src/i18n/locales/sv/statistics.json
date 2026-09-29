@@ -1,0 +1,142 @@
+{
+  "title": "Statistik",
+  "subtitle": "Nyckeltal och insikter beräknade från organisationens uppgifter och datalager.",
+  "loading": "Laddar statistik...",
+  "noOrganisation": "Du har ingen aktiv organisation ännu, så det finns ingen statistik att visa.",
+  "goToOrganisation": "Gå till Organisation",
+  "noAccess": "Du har inte åtkomst till statistik. Be en administratör om behörigheten \"Statistik – Läsa\".",
+  "loadFailed": "Statistiken kunde inte laddas.",
+  "empty": "Inga data i den valda perioden.",
+  "period": {
+    "heading": "Statistikperiod",
+    "description": "Välj hur lång period statistiken ska visa.",
+    "day": "Dag",
+    "week": "7 dagar",
+    "month": "30 dagar",
+    "quarter": "91 dagar",
+    "year": "365 dagar",
+    "max": "Allt",
+    "custom": "Anpassad",
+    "allTime": "Hela perioden",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Anpassad period",
+    "description": "Välj start- och slutdatum. Båda dagarna ingår.",
+    "from": "Från",
+    "to": "Till",
+    "apply": "Använd",
+    "endBeforeStart": "Slutdatumet måste vara samma dag som eller efter startdatumet."
+  },
+  "kpi": {
+    "heading": "Nyckeltal",
+    "description": "Centrala siffror för den valda perioden.",
+    "created": "Skapade uppgifter",
+    "completed": "Slutförda uppgifter",
+    "active": "Pågående uppgifter",
+    "overdue": "Försenade uppgifter",
+    "members": "Medlemmar",
+    "membersWithActivity_one": "{{count}} med uppgiftsaktivitet",
+    "membersWithActivity_other": "{{count}} med uppgiftsaktivitet"
+  },
+  "sections": {
+    "tasks": "Uppgifter",
+    "team": "Team och godkännanden",
+    "materials": "Material"
+  },
+  "development": {
+    "title": "Uppgiftsutveckling",
+    "description": "Skapade och slutförda uppgifter över tid.",
+    "created": "Skapade",
+    "completed": "Slutförda"
+  },
+  "status": {
+    "title": "Uppgiftsstatus",
+    "description": "Status för uppgifter skapade under perioden.",
+    "total": "Totalt"
+  },
+  "priority": {
+    "title": "Prioritet",
+    "description": "Prioritet för uppgifter skapade under perioden.",
+    "none": "Ingen prioritet"
+  },
+  "rooms": {
+    "title": "Uppgifter per rum",
+    "description": "Uppgifter skapade under perioden, per rum.",
+    "noRoom": "Utan rum",
+    "completed": "Slutförda",
+    "open": "Öppna",
+    "value": "{{completed}} slutförda · {{open}} öppna"
+  },
+  "memberLoad": {
+    "title": "Uppgifter per medlem",
+    "description": "Hur många medlemmar som tilldelats uppgifter under perioden. Visar inga namn.",
+    "bucket": {
+      "0": "Inga uppgifter",
+      "1-3": "1–3 uppgifter",
+      "4-6": "4–6 uppgifter",
+      "7+": "7 eller fler"
+    }
+  },
+  "approvals": {
+    "title": "Godkännanden",
+    "description": "Klarmarkeringar som skickats för godkännande under perioden.",
+    "pending": "Väntar",
+    "accepted": "Godkänd",
+    "rejected": "Avvisad",
+    "rate": "Godkännandegrad",
+    "median": "Median handläggningstid",
+    "hours_one": "{{formatted}} timme",
+    "hours_other": "{{formatted}} timmar",
+    "days_one": "{{formatted}} dag",
+    "days_other": "{{formatted}} dagar"
+  },
+  "materials": {
+    "statusTitle": "Enheter per status",
+    "statusDescription": "Aktuell status för alla registrerade enheter och partier.",
+    "categoryTitle": "Artiklar per kategori",
+    "categoryDescription": "Antal artiklar i varje huvudkategori just nu.",
+    "topTitle": "Mest använda material",
+    "topDescription": "Topp 5 material kopplade till uppgifter skapade under perioden."
+  },
+  "snapshots": {
+    "title": "Sparade ögonblicksbilder",
+    "description": "Spara periodens siffror och jämför dem med tidigare perioder.",
+    "save": "Spara ögonblicksbild",
+    "saveTitle": "Spara ögonblicksbild",
+    "saveDescription": "Sparar siffrorna för {{period}}. En sparad ögonblicksbild ändras aldrig efteråt.",
+    "label": "Namn (valfritt)",
+    "labelPlaceholder": "T.ex. Säsong 2026",
+    "saving": "Sparar...",
+    "saveFailed": "Ögonblicksbilden kunde inte sparas.",
+    "loadFailed": "Ögonblicksbilder kunde inte laddas.",
+    "empty": "Inga sparade ögonblicksbilder ännu.",
+    "compareHint": "Välj en eller flera ögonblicksbilder för att jämföra deras siffror.",
+    "metric": "Nyckeltal",
+    "delete": "Radera ögonblicksbild",
+    "deleteTitle": "Radera ögonblicksbild?",
+    "deleteMessage": "\"{{name}}\" raderas permanent och kan inte återställas.",
+    "deleteFailed": "Ögonblicksbilden kunde inte raderas.",
+    "groups": {
+      "kpis": "Nyckeltal",
+      "task_status": "Uppgiftsstatus",
+      "task_priority": "Prioritet",
+      "room": "Uppgifter per rum",
+      "member_load": "Uppgifter per medlem",
+      "approvals": "Godkännanden",
+      "item_status": "Enheter per status",
+      "category": "Artiklar per kategori",
+      "top_material": "Mest använda material"
+    },
+    "names": {
+      "tasks_created": "Skapade uppgifter",
+      "tasks_completed": "Slutförda uppgifter",
+      "tasks_active": "Pågående uppgifter",
+      "tasks_overdue": "Försenade uppgifter",
+      "members": "Medlemmar",
+      "members_with_task_activity": "Medlemmar med uppgiftsaktivitet",
+      "approvals_rate": "Godkännandegrad (%)",
+      "approvals_median_hours": "Median handläggningstid (timmar)"
+    }
+  }
+}

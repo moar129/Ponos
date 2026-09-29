@@ -28,6 +28,8 @@ export const supabaseApi = createApi({
         'Message',   
         'Notification',
         'NotificationPreference',
+        'Statistics',
+        'StatisticsSnapshot',
     ],
     endpoints: () => ({}),
 })
@@ -64,4 +66,6 @@ export const USER_SCOPED_TAGS = [
     'Message', 
     'Notification',
     'NotificationPreference',
+    'Statistics',
+    'StatisticsSnapshot',
 ] as const

@@ -59,7 +59,8 @@
     "updateLocation": "Sie haben keine Berechtigung, den Standort zu bearbeiten.",
     "deleteLocation": "Sie haben keine Berechtigung, den Standort zu löschen.",
     "favoriteDatalayer": "Sie haben keine Berechtigung, Favoriten in der Datenebene zu ändern.",
-    "favoriteTasks": "Sie haben keine Berechtigung, Favoritenräume zu ändern."
+    "favoriteTasks": "Sie haben keine Berechtigung, Favoritenräume zu ändern.",
+    "deleteStatistics": "Sie haben keine Berechtigung, diesen Snapshot zu löschen."
   },
   "db": {
     "NOT_LOGGED_IN": "Sie müssen angemeldet sein.",
@@ -148,6 +149,10 @@
     "ROOM_NOT_ACCESSIBLE": "Der Raum existiert nicht, oder du hast keinen Zugriff darauf.",
     "ROOM_NOT_ROLE_LOCKED": "Der Raum ist nicht rollenbeschränkt und hat keinen Chat.",
     "CONVERSATION_CLOSED": "Der Chat ist geschlossen - nur Lesen.",
-    "TASK_CHAT_NOT_AVAILABLE": "Der Aufgaben-Chat ist für dich nicht verfügbar."
+    "TASK_CHAT_NOT_AVAILABLE": "Der Aufgaben-Chat ist für dich nicht verfügbar.",
+    "NO_PRIV_READ_STATISTICS": "Sie haben keine Berechtigung, Statistiken anzusehen.",
+    "NO_PRIV_CREATE_STATISTICS": "Sie haben keine Berechtigung, Statistiken zu speichern.",
+    "INVALID_PERIOD": "Das Enddatum muss nach dem Startdatum liegen.",
+    "INVALID_GRANULARITY": "Ungültige Auflösung für die Statistik."
   }
 }

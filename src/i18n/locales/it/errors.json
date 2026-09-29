@@ -59,7 +59,8 @@
     "updateLocation": "Non hai i permessi per modificare la posizione.",
     "deleteLocation": "Non hai i permessi per eliminare la posizione.",
     "favoriteDatalayer": "Non hai i permessi per modificare i preferiti del livello dati.",
-    "favoriteTasks": "Non hai i permessi per modificare le stanze preferite."
+    "favoriteTasks": "Non hai i permessi per modificare le stanze preferite.",
+    "deleteStatistics": "Non hai i permessi per eliminare questo snapshot."
   },
   "db": {
     "NOT_LOGGED_IN": "Devi aver effettuato l'accesso.",
@@ -148,6 +149,10 @@
     "ROOM_NOT_ACCESSIBLE": "La stanza non esiste o non hai accesso.",
     "ROOM_NOT_ROLE_LOCKED": "La stanza non è limitata per ruolo e non ha una chat.",
     "CONVERSATION_CLOSED": "La chat è chiusa - sola lettura.",
-    "TASK_CHAT_NOT_AVAILABLE": "La chat dell'attività non è disponibile per te."
+    "TASK_CHAT_NOT_AVAILABLE": "La chat dell'attività non è disponibile per te.",
+    "NO_PRIV_READ_STATISTICS": "Non hai i permessi per visualizzare le statistiche.",
+    "NO_PRIV_CREATE_STATISTICS": "Non hai i permessi per salvare le statistiche.",
+    "INVALID_PERIOD": "La data di fine deve essere successiva a quella di inizio.",
+    "INVALID_GRANULARITY": "Risoluzione non valida per le statistiche."
   }
 }

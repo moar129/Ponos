@@ -1,0 +1,142 @@
+{
+  "title": "Statisztika",
+  "subtitle": "A szervezet feladataiból és adatrétegéből számított mutatók és elemzések.",
+  "loading": "Statisztika betöltése...",
+  "noOrganisation": "Még nincs aktív szervezeted, így nincs megjeleníthető statisztika.",
+  "goToOrganisation": "Ugrás a Szervezethez",
+  "noAccess": "Nincs hozzáférésed a statisztikához. Kérd a „Statisztika – Olvasás” jogosultságot egy adminisztrátortól.",
+  "loadFailed": "A statisztikát nem sikerült betölteni.",
+  "empty": "Nincs adat a kiválasztott időszakban.",
+  "period": {
+    "heading": "Statisztikai időszak",
+    "description": "Válaszd ki, milyen időszakot fedjen le a statisztika.",
+    "day": "Nap",
+    "week": "7 nap",
+    "month": "30 nap",
+    "quarter": "91 nap",
+    "year": "365 nap",
+    "max": "Összes",
+    "custom": "Egyéni",
+    "allTime": "Teljes időszak",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Egyéni időszak",
+    "description": "Válassz kezdő és záró dátumot. Mindkét nap beleszámít.",
+    "from": "Ettől",
+    "to": "Eddig",
+    "apply": "Alkalmaz",
+    "endBeforeStart": "A záró dátum nem lehet korábbi a kezdő dátumnál."
+  },
+  "kpi": {
+    "heading": "Fő mutatók",
+    "description": "A kiválasztott időszak legfontosabb számai.",
+    "created": "Létrehozott feladatok",
+    "completed": "Befejezett feladatok",
+    "active": "Folyamatban lévő feladatok",
+    "overdue": "Lejárt feladatok",
+    "members": "Tagok",
+    "membersWithActivity_one": "{{count}} feladataktivitással",
+    "membersWithActivity_other": "{{count}} feladataktivitással"
+  },
+  "sections": {
+    "tasks": "Feladatok",
+    "team": "Csapat és jóváhagyások",
+    "materials": "Anyagok"
+  },
+  "development": {
+    "title": "Feladatok alakulása",
+    "description": "Létrehozott és befejezett feladatok az idő függvényében.",
+    "created": "Létrehozott",
+    "completed": "Befejezett"
+  },
+  "status": {
+    "title": "Feladatállapot",
+    "description": "Az időszakban létrehozott feladatok állapota.",
+    "total": "Összesen"
+  },
+  "priority": {
+    "title": "Prioritás",
+    "description": "Az időszakban létrehozott feladatok prioritása.",
+    "none": "Nincs prioritás"
+  },
+  "rooms": {
+    "title": "Feladatok helyiségenként",
+    "description": "Az időszakban létrehozott feladatok helyiségenként.",
+    "noRoom": "Helyiség nélkül",
+    "completed": "Befejezett",
+    "open": "Nyitott",
+    "value": "{{completed}} befejezett · {{open}} nyitott"
+  },
+  "memberLoad": {
+    "title": "Feladatok tagonként",
+    "description": "Hány tag kapott feladatot az időszakban. Neveket nem mutat.",
+    "bucket": {
+      "0": "Nincs feladat",
+      "1-3": "1–3 feladat",
+      "4-6": "4–6 feladat",
+      "7+": "7 vagy több"
+    }
+  },
+  "approvals": {
+    "title": "Jóváhagyások",
+    "description": "Az időszakban jóváhagyásra küldött készrejelentések.",
+    "pending": "Függőben",
+    "accepted": "Jóváhagyva",
+    "rejected": "Elutasítva",
+    "rate": "Jóváhagyási arány",
+    "median": "Medián kezelési idő",
+    "hours_one": "{{formatted}} óra",
+    "hours_other": "{{formatted}} óra",
+    "days_one": "{{formatted}} nap",
+    "days_other": "{{formatted}} nap"
+  },
+  "materials": {
+    "statusTitle": "Egységek állapot szerint",
+    "statusDescription": "Az összes nyilvántartott egység és tétel jelenlegi állapota.",
+    "categoryTitle": "Tételek kategóriánként",
+    "categoryDescription": "A tételek száma minden főkategóriában.",
+    "topTitle": "Leggyakrabban használt anyagok",
+    "topDescription": "Az időszakban létrehozott feladatokhoz kapcsolt top 5 anyag."
+  },
+  "snapshots": {
+    "title": "Mentett pillanatképek",
+    "description": "Mentsd el az időszak számait, és hasonlítsd össze korábbi időszakokkal.",
+    "save": "Pillanatkép mentése",
+    "saveTitle": "Pillanatkép mentése",
+    "saveDescription": "Elmenti a(z) {{period}} számait. A mentett pillanatkép később soha nem változik.",
+    "label": "Név (nem kötelező)",
+    "labelPlaceholder": "Pl. 2026-os szezon",
+    "saving": "Mentés...",
+    "saveFailed": "A pillanatképet nem sikerült menteni.",
+    "loadFailed": "A pillanatképeket nem sikerült betölteni.",
+    "empty": "Még nincs mentett pillanatkép.",
+    "compareHint": "Válassz egy vagy több pillanatképet a számaik összehasonlításához.",
+    "metric": "Mutató",
+    "delete": "Pillanatkép törlése",
+    "deleteTitle": "Törlöd a pillanatképet?",
+    "deleteMessage": "„{{name}}” véglegesen törlődik, és nem állítható vissza.",
+    "deleteFailed": "A pillanatképet nem sikerült törölni.",
+    "groups": {
+      "kpis": "Fő mutatók",
+      "task_status": "Feladatállapot",
+      "task_priority": "Prioritás",
+      "room": "Feladatok helyiségenként",
+      "member_load": "Feladatok tagonként",
+      "approvals": "Jóváhagyások",
+      "item_status": "Egységek állapot szerint",
+      "category": "Tételek kategóriánként",
+      "top_material": "Leggyakrabban használt anyagok"
+    },
+    "names": {
+      "tasks_created": "Létrehozott feladatok",
+      "tasks_completed": "Befejezett feladatok",
+      "tasks_active": "Folyamatban lévő feladatok",
+      "tasks_overdue": "Lejárt feladatok",
+      "members": "Tagok",
+      "members_with_task_activity": "Feladataktivitással rendelkező tagok",
+      "approvals_rate": "Jóváhagyási arány (%)",
+      "approvals_median_hours": "Medián kezelési idő (óra)"
+    }
+  }
+}

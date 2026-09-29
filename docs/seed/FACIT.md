@@ -158,6 +158,71 @@ Linkede materialer: #48 (30 Byggehegn 3,5 m); #49 (4 LED-spot 200 W); #52 (250 A
 | 2025 | 23 | 21 |
 | 2026 | 42 | 26 |
 
+## Statistiksiden pr. periode (get_statistics)
+
+Samme definitioner som `statistics_payload` (docs/migrations/2026-09-29-statistics.sql):
+rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
+mest brugte = opgaver **oprettet** i perioden. *I gang* = `coalesce(start_date, created_at)`
+før periodens slut og (InProgress eller Completed med `finished_at` ≥ start). *Relevante*
+(teamaktivitet/belastning) = oprettet eller i gang i perioden. Godkendelser tæller
+anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
+
+| Udsagn | Dag | 7 dage | 30 dage | 91 dage | 365 dage | Alt |
+|---|---|---|---|---|---|---|
+| Oprettede | 3 | 7 | 16 | 27 | 46 | 70 |
+| Færdige | 1 | 2 | 5 | 12 | 28 | 49 |
+| I gang | 12 | 13 | 16 | 23 | 39 | 60 |
+| Forfaldne | 0 | 1 | 5 | 5 | 7 | 8 |
+| Med opgaveaktivitet | 13 | 14 | 16 | 18 | 18 | 18 |
+| Status: Started | 3 | 6 | 8 | 9 | 10 | 10 |
+| Status: InProgress | 0 | 0 | 6 | 9 | 9 | 11 |
+| Status: Completed | 0 | 1 | 2 | 9 | 27 | 49 |
+| Prioritet: Critical | 0 | 0 | 1 | 1 | 4 | 7 |
+| Prioritet: High | 0 | 1 | 4 | 5 | 11 | 19 |
+| Prioritet: Medium | 2 | 3 | 7 | 14 | 20 | 29 |
+| Prioritet: Low | 1 | 3 | 4 | 7 | 11 | 15 |
+| Rum: Planlægning | 0 | 2 | 4 | 4 | 7 | 12 |
+| Rum: Opbygning | 0 | 1 | 1 | 1 | 4 | 7 |
+| Rum: Scener & Teknik | 1 | 1 | 3 | 4 | 8 | 11 |
+| Rum: Affald & Genbrug | 1 | 1 | 2 | 4 | 6 | 8 |
+| Rum: Sanitet | 1 | 1 | 2 | 2 | 3 | 5 |
+| Rum: Sikkerhed | 0 | 1 | 2 | 3 | 5 | 8 |
+| Rum: Frivillige | 0 | 0 | 1 | 2 | 5 | 7 |
+| Rum: Nedtagning | 0 | 0 | 1 | 7 | 8 | 12 |
+| Belastning 0 | 9 | 8 | 6 | 4 | 4 | 4 |
+| Belastning 1-3 | 13 | 14 | 16 | 15 | 6 | 1 |
+| Belastning 4-6 | 0 | 0 | 0 | 3 | 11 | 8 |
+| Belastning 7+ | 0 | 0 | 0 | 0 | 1 | 9 |
+| Anmodninger: Pending | 0 | 4 | 5 | 5 | 5 | 5 |
+| Anmodninger: Accepted | 0 | 1 | 2 | 6 | 16 | 28 |
+| Anmodninger: Rejected | 0 | 1 | 3 | 4 | 6 | 6 |
+| Godkendelsesrate | – | 50 % | 40 % | 60 % | 72.7 % | 82.4 % |
+| Median behandlingstid (t) | – | 2.5 | 3 | 3 | 3 | 3 |
+
+Mest brugte materialer (top 5):
+
+| Periode | Materialer |
+|---|---|
+| Dag | 10 Stikdåse 6-vejs IP44, 2 Kabeltromle 25 m |
+| 7 dage | 10 Stikdåse 6-vejs IP44, 2 Kabeltromle 25 m |
+| 30 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio, 6 Brandslukker 6 kg pulver |
+| 91 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
+| 365 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
+| Alt | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
+
+Varer pr. hovedkategori (nu, uafhængig af periode):
+
+| Kategori | Varer |
+|---|---|
+| Scene & Teknik | 23 |
+| Hegn & Afspærring | 10 |
+| Telte & Møbler | 9 |
+| Sanitet | 6 |
+| Affald & Genbrug | 8 |
+| Sikkerhed | 11 |
+| Forbrugsvarer | 12 |
+| Frivilligudstyr | 11 |
+
 ## Kontrol-queries (kør som postgres i SQL Editor)
 
 ```sql
@@ -173,4 +238,8 @@ select status, count(*), sum(case when contents_total is not null then 1 else qu
   from data_layer_item_units where organisation_id = '<org>' group by 1;
 select to_char(created_at at time zone 'Europe/Copenhagen', 'YYYY-MM') m, count(*)
   from tasks where organisation_id = '<org>' group by 1 order by 1;
+
+-- Hele statistik-payloaden som siden ser den (fx "30 dage"):
+select public.statistics_payload('<org>', '2026-08-31 00:00 Europe/Copenhagen',
+  '2026-09-30 00:00 Europe/Copenhagen', 'day', 'Europe/Copenhagen');
 ```

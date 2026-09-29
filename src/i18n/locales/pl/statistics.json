@@ -1,0 +1,148 @@
+{
+  "title": "Statystyki",
+  "subtitle": "Wskaźniki i analizy obliczone na podstawie zadań i warstwy danych organizacji.",
+  "loading": "Ładowanie statystyk...",
+  "noOrganisation": "Nie masz jeszcze aktywnej organizacji, więc nie ma statystyk do wyświetlenia.",
+  "goToOrganisation": "Przejdź do organizacji",
+  "noAccess": "Nie masz dostępu do statystyk. Poproś administratora o uprawnienie „Statystyki – Odczyt\".",
+  "loadFailed": "Nie udało się załadować statystyk.",
+  "empty": "Brak danych w wybranym okresie.",
+  "period": {
+    "heading": "Okres statystyk",
+    "description": "Wybierz, jaki okres mają obejmować statystyki.",
+    "day": "Dzień",
+    "week": "7 dni",
+    "month": "30 dni",
+    "quarter": "91 dni",
+    "year": "365 dni",
+    "max": "Wszystko",
+    "custom": "Własny",
+    "allTime": "Cały okres",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Własny okres",
+    "description": "Wybierz datę początkową i końcową. Oba dni są uwzględnione.",
+    "from": "Od",
+    "to": "Do",
+    "apply": "Zastosuj",
+    "endBeforeStart": "Data końcowa musi być taka sama jak data początkowa lub późniejsza."
+  },
+  "kpi": {
+    "heading": "Kluczowe wskaźniki",
+    "description": "Najważniejsze liczby dla wybranego okresu.",
+    "created": "Utworzone zadania",
+    "completed": "Ukończone zadania",
+    "active": "Zadania w toku",
+    "overdue": "Zaległe zadania",
+    "members": "Członkowie",
+    "membersWithActivity_one": "{{count}} z aktywnością w zadaniach",
+    "membersWithActivity_few": "{{count}} z aktywnością w zadaniach",
+    "membersWithActivity_many": "{{count}} z aktywnością w zadaniach",
+    "membersWithActivity_other": "{{count}} z aktywnością w zadaniach"
+  },
+  "sections": {
+    "tasks": "Zadania",
+    "team": "Zespół i zatwierdzenia",
+    "materials": "Materiały"
+  },
+  "development": {
+    "title": "Rozwój zadań",
+    "description": "Utworzone i ukończone zadania w czasie.",
+    "created": "Utworzone",
+    "completed": "Ukończone"
+  },
+  "status": {
+    "title": "Status zadań",
+    "description": "Status zadań utworzonych w okresie.",
+    "total": "Razem"
+  },
+  "priority": {
+    "title": "Priorytet",
+    "description": "Priorytet zadań utworzonych w okresie.",
+    "none": "Brak priorytetu"
+  },
+  "rooms": {
+    "title": "Zadania według pokoju",
+    "description": "Zadania utworzone w okresie, według pokoju.",
+    "noRoom": "Bez pokoju",
+    "completed": "Ukończone",
+    "open": "Otwarte",
+    "value": "Ukończone: {{completed}} · otwarte: {{open}}"
+  },
+  "memberLoad": {
+    "title": "Zadania na członka",
+    "description": "Ilu członkom przydzielono zadania w okresie. Bez nazwisk.",
+    "bucket": {
+      "0": "Brak zadań",
+      "1-3": "1–3 zadania",
+      "4-6": "4–6 zadań",
+      "7+": "7 lub więcej"
+    }
+  },
+  "approvals": {
+    "title": "Zatwierdzenia",
+    "description": "Zgłoszenia ukończenia wysłane do zatwierdzenia w okresie.",
+    "pending": "Oczekujące",
+    "accepted": "Zatwierdzone",
+    "rejected": "Odrzucone",
+    "rate": "Wskaźnik zatwierdzeń",
+    "median": "Mediana czasu obsługi",
+    "hours_one": "{{formatted}} godzina",
+    "hours_few": "{{formatted}} godziny",
+    "hours_many": "{{formatted}} godzin",
+    "hours_other": "{{formatted}} godziny",
+    "days_one": "{{formatted}} dzień",
+    "days_few": "{{formatted}} dni",
+    "days_many": "{{formatted}} dni",
+    "days_other": "{{formatted}} dnia"
+  },
+  "materials": {
+    "statusTitle": "Jednostki według statusu",
+    "statusDescription": "Aktualny status wszystkich zarejestrowanych jednostek i partii.",
+    "categoryTitle": "Artykuły według kategorii",
+    "categoryDescription": "Liczba artykułów w każdej kategorii głównej.",
+    "topTitle": "Najczęściej używane materiały",
+    "topDescription": "Top 5 materiałów powiązanych z zadaniami utworzonymi w okresie."
+  },
+  "snapshots": {
+    "title": "Zapisane migawki",
+    "description": "Zapisz liczby z okresu i porównaj je z wcześniejszymi okresami.",
+    "save": "Zapisz migawkę",
+    "saveTitle": "Zapisz migawkę",
+    "saveDescription": "Zapisuje liczby dla: {{period}}. Zapisana migawka nigdy się później nie zmienia.",
+    "label": "Nazwa (opcjonalnie)",
+    "labelPlaceholder": "Np. Sezon 2026",
+    "saving": "Zapisywanie...",
+    "saveFailed": "Nie udało się zapisać migawki.",
+    "loadFailed": "Nie udało się załadować migawek.",
+    "empty": "Brak zapisanych migawek.",
+    "compareHint": "Wybierz jedną lub więcej migawek, aby porównać ich liczby.",
+    "metric": "Wskaźnik",
+    "delete": "Usuń migawkę",
+    "deleteTitle": "Usunąć migawkę?",
+    "deleteMessage": "„{{name}}\" zostanie trwale usunięta i nie będzie można jej przywrócić.",
+    "deleteFailed": "Nie udało się usunąć migawki.",
+    "groups": {
+      "kpis": "Kluczowe wskaźniki",
+      "task_status": "Status zadań",
+      "task_priority": "Priorytet",
+      "room": "Zadania według pokoju",
+      "member_load": "Zadania na członka",
+      "approvals": "Zatwierdzenia",
+      "item_status": "Jednostki według statusu",
+      "category": "Artykuły według kategorii",
+      "top_material": "Najczęściej używane materiały"
+    },
+    "names": {
+      "tasks_created": "Utworzone zadania",
+      "tasks_completed": "Ukończone zadania",
+      "tasks_active": "Zadania w toku",
+      "tasks_overdue": "Zaległe zadania",
+      "members": "Członkowie",
+      "members_with_task_activity": "Członkowie z aktywnością w zadaniach",
+      "approvals_rate": "Wskaźnik zatwierdzeń (%)",
+      "approvals_median_hours": "Mediana czasu obsługi (godziny)"
+    }
+  }
+}

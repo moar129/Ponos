@@ -1,0 +1,142 @@
+{
+  "title": "Statistik",
+  "subtitle": "Nøgletal og indsigt beregnet ud fra organisationens opgaver og datalager.",
+  "loading": "Indlæser statistik...",
+  "noOrganisation": "Du har ingen aktiv organisation endnu, så der er ingen statistik at vise.",
+  "goToOrganisation": "Gå til Organisation",
+  "noAccess": "Du har ikke adgang til statistik. Bed en administrator om privilegiet \"Statistik – Se\".",
+  "loadFailed": "Statistikken kunne ikke indlæses.",
+  "empty": "Ingen data i den valgte periode.",
+  "period": {
+    "heading": "Statistikperiode",
+    "description": "Vælg hvor stor en periode statistikken skal vise.",
+    "day": "Dag",
+    "week": "7 dage",
+    "month": "30 dage",
+    "quarter": "91 dage",
+    "year": "365 dage",
+    "max": "Alt",
+    "custom": "Brugerdefineret",
+    "allTime": "Hele perioden",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Brugerdefineret periode",
+    "description": "Vælg start- og slutdato. Begge dage er med.",
+    "from": "Fra",
+    "to": "Til",
+    "apply": "Anvend",
+    "endBeforeStart": "Slutdatoen skal være samme dag som eller efter startdatoen."
+  },
+  "kpi": {
+    "heading": "Nøgletal",
+    "description": "Centrale tal for den valgte periode.",
+    "created": "Oprettede opgaver",
+    "completed": "Færdige opgaver",
+    "active": "Opgaver i gang",
+    "overdue": "Forfaldne opgaver",
+    "members": "Medlemmer",
+    "membersWithActivity_one": "{{count}} med opgaveaktivitet",
+    "membersWithActivity_other": "{{count}} med opgaveaktivitet"
+  },
+  "sections": {
+    "tasks": "Opgaver",
+    "team": "Team og godkendelser",
+    "materials": "Materialer"
+  },
+  "development": {
+    "title": "Opgaveudvikling",
+    "description": "Oprettede og færdige opgaver over tid.",
+    "created": "Oprettede",
+    "completed": "Færdige"
+  },
+  "status": {
+    "title": "Opgavestatus",
+    "description": "Status for opgaver oprettet i perioden.",
+    "total": "I alt"
+  },
+  "priority": {
+    "title": "Prioritet",
+    "description": "Prioritet for opgaver oprettet i perioden.",
+    "none": "Ingen prioritet"
+  },
+  "rooms": {
+    "title": "Opgaver pr. rum",
+    "description": "Opgaver oprettet i perioden, fordelt på rum.",
+    "noRoom": "Uden rum",
+    "completed": "Færdige",
+    "open": "Åbne",
+    "value": "{{completed}} færdige · {{open}} åbne"
+  },
+  "memberLoad": {
+    "title": "Opgaver pr. medlem",
+    "description": "Hvor mange medlemmer der har været tildelt opgaver i perioden. Viser ingen navne.",
+    "bucket": {
+      "0": "Ingen opgaver",
+      "1-3": "1–3 opgaver",
+      "4-6": "4–6 opgaver",
+      "7+": "7 eller flere"
+    }
+  },
+  "approvals": {
+    "title": "Godkendelser",
+    "description": "Færdigmeldinger sendt til godkendelse i perioden.",
+    "pending": "Afventer",
+    "accepted": "Godkendt",
+    "rejected": "Afvist",
+    "rate": "Godkendelsesrate",
+    "median": "Median behandlingstid",
+    "hours_one": "{{formatted}} time",
+    "hours_other": "{{formatted}} timer",
+    "days_one": "{{formatted}} dag",
+    "days_other": "{{formatted}} dage"
+  },
+  "materials": {
+    "statusTitle": "Enheder pr. status",
+    "statusDescription": "Nuværende status for alle registrerede enheder og partier.",
+    "categoryTitle": "Varer pr. kategori",
+    "categoryDescription": "Antal varer i hver hovedkategori lige nu.",
+    "topTitle": "Mest brugte materialer",
+    "topDescription": "Top 5 materialer knyttet til opgaver oprettet i perioden."
+  },
+  "snapshots": {
+    "title": "Gemte snapshots",
+    "description": "Gem periodens tal og sammenlign dem med tidligere perioder.",
+    "save": "Gem snapshot",
+    "saveTitle": "Gem snapshot",
+    "saveDescription": "Gemmer tallene for {{period}}. Et gemt snapshot ændres aldrig bagefter.",
+    "label": "Navn (valgfrit)",
+    "labelPlaceholder": "Fx Sæson 2026",
+    "saving": "Gemmer...",
+    "saveFailed": "Snapshottet kunne ikke gemmes.",
+    "loadFailed": "Snapshots kunne ikke indlæses.",
+    "empty": "Ingen gemte snapshots endnu.",
+    "compareHint": "Vælg et eller flere snapshots for at sammenligne deres tal.",
+    "metric": "Nøgletal",
+    "delete": "Slet snapshot",
+    "deleteTitle": "Slet snapshot?",
+    "deleteMessage": "\"{{name}}\" slettes permanent og kan ikke gendannes.",
+    "deleteFailed": "Snapshottet kunne ikke slettes.",
+    "groups": {
+      "kpis": "Nøgletal",
+      "task_status": "Opgavestatus",
+      "task_priority": "Prioritet",
+      "room": "Rum",
+      "member_load": "Opgaver pr. medlem",
+      "approvals": "Godkendelser",
+      "item_status": "Enheder pr. status",
+      "category": "Varer pr. kategori",
+      "top_material": "Mest brugte materialer"
+    },
+    "names": {
+      "tasks_created": "Oprettede opgaver",
+      "tasks_completed": "Færdige opgaver",
+      "tasks_active": "Opgaver i gang",
+      "tasks_overdue": "Forfaldne opgaver",
+      "members": "Medlemmer",
+      "members_with_task_activity": "Medlemmer med opgaveaktivitet",
+      "approvals_rate": "Godkendelsesrate (%)",
+      "approvals_median_hours": "Median behandlingstid (timer)"
+    }
+  }
+}

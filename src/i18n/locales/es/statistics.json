@@ -1,0 +1,145 @@
+{
+  "title": "Estadísticas",
+  "subtitle": "Indicadores y análisis calculados a partir de las tareas y la capa de datos de la organización.",
+  "loading": "Cargando estadísticas...",
+  "noOrganisation": "Aún no tienes una organización activa, así que no hay estadísticas que mostrar.",
+  "goToOrganisation": "Ir a Organización",
+  "noAccess": "No tienes acceso a las estadísticas. Pide a un administrador el privilegio «Estadísticas – Ver».",
+  "loadFailed": "No se pudieron cargar las estadísticas.",
+  "empty": "No hay datos en el período seleccionado.",
+  "period": {
+    "heading": "Período estadístico",
+    "description": "Elige qué período deben cubrir las estadísticas.",
+    "day": "Día",
+    "week": "7 días",
+    "month": "30 días",
+    "quarter": "91 días",
+    "year": "365 días",
+    "max": "Todo",
+    "custom": "Personalizado",
+    "allTime": "Todo el período",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Período personalizado",
+    "description": "Elige fecha de inicio y de fin. Ambos días se incluyen.",
+    "from": "Desde",
+    "to": "Hasta",
+    "apply": "Aplicar",
+    "endBeforeStart": "La fecha de fin debe ser igual o posterior a la de inicio."
+  },
+  "kpi": {
+    "heading": "Indicadores clave",
+    "description": "Cifras principales del período seleccionado.",
+    "created": "Tareas creadas",
+    "completed": "Tareas completadas",
+    "active": "Tareas en curso",
+    "overdue": "Tareas vencidas",
+    "members": "Miembros",
+    "membersWithActivity_one": "{{count}} con actividad en tareas",
+    "membersWithActivity_many": "{{count}} con actividad en tareas",
+    "membersWithActivity_other": "{{count}} con actividad en tareas"
+  },
+  "sections": {
+    "tasks": "Tareas",
+    "team": "Equipo y aprobaciones",
+    "materials": "Materiales"
+  },
+  "development": {
+    "title": "Evolución de tareas",
+    "description": "Tareas creadas y completadas a lo largo del tiempo.",
+    "created": "Creadas",
+    "completed": "Completadas"
+  },
+  "status": {
+    "title": "Estado de las tareas",
+    "description": "Estado de las tareas creadas en el período.",
+    "total": "Total"
+  },
+  "priority": {
+    "title": "Prioridad",
+    "description": "Prioridad de las tareas creadas en el período.",
+    "none": "Sin prioridad"
+  },
+  "rooms": {
+    "title": "Tareas por sala",
+    "description": "Tareas creadas en el período, por sala.",
+    "noRoom": "Sin sala",
+    "completed": "Completadas",
+    "open": "Abiertas",
+    "value": "{{completed}} completadas · {{open}} abiertas"
+  },
+  "memberLoad": {
+    "title": "Tareas por miembro",
+    "description": "Cuántos miembros tuvieron tareas asignadas en el período. No muestra nombres.",
+    "bucket": {
+      "0": "Sin tareas",
+      "1-3": "1–3 tareas",
+      "4-6": "4–6 tareas",
+      "7+": "7 o más"
+    }
+  },
+  "approvals": {
+    "title": "Aprobaciones",
+    "description": "Avisos de finalización enviados para aprobación en el período.",
+    "pending": "Pendiente",
+    "accepted": "Aprobada",
+    "rejected": "Rechazada",
+    "rate": "Tasa de aprobación",
+    "median": "Tiempo de gestión mediano",
+    "hours_one": "{{formatted}} hora",
+    "hours_many": "{{formatted}} horas",
+    "hours_other": "{{formatted}} horas",
+    "days_one": "{{formatted}} día",
+    "days_many": "{{formatted}} días",
+    "days_other": "{{formatted}} días"
+  },
+  "materials": {
+    "statusTitle": "Unidades por estado",
+    "statusDescription": "Estado actual de todas las unidades y lotes registrados.",
+    "categoryTitle": "Artículos por categoría",
+    "categoryDescription": "Número de artículos en cada categoría principal.",
+    "topTitle": "Materiales más usados",
+    "topDescription": "Los 5 materiales más vinculados a tareas creadas en el período."
+  },
+  "snapshots": {
+    "title": "Instantáneas guardadas",
+    "description": "Guarda las cifras del período y compáralas con períodos anteriores.",
+    "save": "Guardar instantánea",
+    "saveTitle": "Guardar instantánea",
+    "saveDescription": "Guarda las cifras de {{period}}. Una instantánea guardada nunca cambia después.",
+    "label": "Nombre (opcional)",
+    "labelPlaceholder": "P. ej. Temporada 2026",
+    "saving": "Guardando...",
+    "saveFailed": "No se pudo guardar la instantánea.",
+    "loadFailed": "No se pudieron cargar las instantáneas.",
+    "empty": "Todavía no hay instantáneas guardadas.",
+    "compareHint": "Selecciona una o varias instantáneas para comparar sus cifras.",
+    "metric": "Indicador",
+    "delete": "Eliminar instantánea",
+    "deleteTitle": "¿Eliminar instantánea?",
+    "deleteMessage": "«{{name}}» se eliminará definitivamente y no se podrá recuperar.",
+    "deleteFailed": "No se pudo eliminar la instantánea.",
+    "groups": {
+      "kpis": "Indicadores clave",
+      "task_status": "Estado de las tareas",
+      "task_priority": "Prioridad",
+      "room": "Tareas por sala",
+      "member_load": "Tareas por miembro",
+      "approvals": "Aprobaciones",
+      "item_status": "Unidades por estado",
+      "category": "Artículos por categoría",
+      "top_material": "Materiales más usados"
+    },
+    "names": {
+      "tasks_created": "Tareas creadas",
+      "tasks_completed": "Tareas completadas",
+      "tasks_active": "Tareas en curso",
+      "tasks_overdue": "Tareas vencidas",
+      "members": "Miembros",
+      "members_with_task_activity": "Miembros con actividad en tareas",
+      "approvals_rate": "Tasa de aprobación (%)",
+      "approvals_median_hours": "Tiempo de gestión mediano (horas)"
+    }
+  }
+}

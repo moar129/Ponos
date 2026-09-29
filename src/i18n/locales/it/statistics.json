@@ -1,0 +1,145 @@
+{
+  "title": "Statistiche",
+  "subtitle": "Indicatori e analisi calcolati dalle attività e dal livello dati dell'organizzazione.",
+  "loading": "Caricamento statistiche...",
+  "noOrganisation": "Non hai ancora un’organizzazione attiva, quindi non ci sono statistiche da mostrare.",
+  "goToOrganisation": "Vai a Organizzazione",
+  "noAccess": "Non hai accesso alle statistiche. Chiedi a un amministratore il privilegio \"Statistiche – Visualizza\".",
+  "loadFailed": "Impossibile caricare le statistiche.",
+  "empty": "Nessun dato nel periodo selezionato.",
+  "period": {
+    "heading": "Periodo statistico",
+    "description": "Scegli quale periodo devono coprire le statistiche.",
+    "day": "Giorno",
+    "week": "7 giorni",
+    "month": "30 giorni",
+    "quarter": "91 giorni",
+    "year": "365 giorni",
+    "max": "Tutto",
+    "custom": "Personalizzato",
+    "allTime": "Intero periodo",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Periodo personalizzato",
+    "description": "Scegli data di inizio e di fine. Entrambi i giorni sono inclusi.",
+    "from": "Dal",
+    "to": "Al",
+    "apply": "Applica",
+    "endBeforeStart": "La data di fine deve essere uguale o successiva a quella di inizio."
+  },
+  "kpi": {
+    "heading": "Indicatori chiave",
+    "description": "Numeri principali per il periodo selezionato.",
+    "created": "Attività create",
+    "completed": "Attività completate",
+    "active": "Attività in corso",
+    "overdue": "Attività scadute",
+    "members": "Membri",
+    "membersWithActivity_one": "{{count}} con attività sui compiti",
+    "membersWithActivity_many": "{{count}} con attività sui compiti",
+    "membersWithActivity_other": "{{count}} con attività sui compiti"
+  },
+  "sections": {
+    "tasks": "Attività",
+    "team": "Team e approvazioni",
+    "materials": "Materiali"
+  },
+  "development": {
+    "title": "Andamento delle attività",
+    "description": "Attività create e completate nel tempo.",
+    "created": "Create",
+    "completed": "Completate"
+  },
+  "status": {
+    "title": "Stato delle attività",
+    "description": "Stato delle attività create nel periodo.",
+    "total": "Totale"
+  },
+  "priority": {
+    "title": "Priorità",
+    "description": "Priorità delle attività create nel periodo.",
+    "none": "Nessuna priorità"
+  },
+  "rooms": {
+    "title": "Attività per stanza",
+    "description": "Attività create nel periodo, per stanza.",
+    "noRoom": "Senza stanza",
+    "completed": "Completate",
+    "open": "Aperte",
+    "value": "{{completed}} completate · {{open}} aperte"
+  },
+  "memberLoad": {
+    "title": "Attività per membro",
+    "description": "Quanti membri hanno avuto attività assegnate nel periodo. Nessun nome mostrato.",
+    "bucket": {
+      "0": "Nessuna attività",
+      "1-3": "1–3 attività",
+      "4-6": "4–6 attività",
+      "7+": "7 o più"
+    }
+  },
+  "approvals": {
+    "title": "Approvazioni",
+    "description": "Segnalazioni di completamento inviate per approvazione nel periodo.",
+    "pending": "In attesa",
+    "accepted": "Approvate",
+    "rejected": "Rifiutate",
+    "rate": "Tasso di approvazione",
+    "median": "Tempo di gestione mediano",
+    "hours_one": "{{formatted}} ora",
+    "hours_many": "{{formatted}} ore",
+    "hours_other": "{{formatted}} ore",
+    "days_one": "{{formatted}} giorno",
+    "days_many": "{{formatted}} giorni",
+    "days_other": "{{formatted}} giorni"
+  },
+  "materials": {
+    "statusTitle": "Unità per stato",
+    "statusDescription": "Stato attuale di tutte le unità e i lotti registrati.",
+    "categoryTitle": "Articoli per categoria",
+    "categoryDescription": "Numero di articoli in ogni categoria principale.",
+    "topTitle": "Materiali più usati",
+    "topDescription": "I 5 materiali più collegati ad attività create nel periodo."
+  },
+  "snapshots": {
+    "title": "Snapshot salvati",
+    "description": "Salva i numeri del periodo e confrontali con i periodi precedenti.",
+    "save": "Salva snapshot",
+    "saveTitle": "Salva snapshot",
+    "saveDescription": "Salva i numeri per {{period}}. Uno snapshot salvato non cambia mai in seguito.",
+    "label": "Nome (facoltativo)",
+    "labelPlaceholder": "Es. Stagione 2026",
+    "saving": "Salvataggio...",
+    "saveFailed": "Impossibile salvare lo snapshot.",
+    "loadFailed": "Impossibile caricare gli snapshot.",
+    "empty": "Nessuno snapshot salvato.",
+    "compareHint": "Seleziona uno o più snapshot per confrontarne i numeri.",
+    "metric": "Indicatore",
+    "delete": "Elimina snapshot",
+    "deleteTitle": "Eliminare lo snapshot?",
+    "deleteMessage": "\"{{name}}\" verrà eliminato definitivamente e non potrà essere ripristinato.",
+    "deleteFailed": "Impossibile eliminare lo snapshot.",
+    "groups": {
+      "kpis": "Indicatori chiave",
+      "task_status": "Stato delle attività",
+      "task_priority": "Priorità",
+      "room": "Attività per stanza",
+      "member_load": "Attività per membro",
+      "approvals": "Approvazioni",
+      "item_status": "Unità per stato",
+      "category": "Articoli per categoria",
+      "top_material": "Materiali più usati"
+    },
+    "names": {
+      "tasks_created": "Attività create",
+      "tasks_completed": "Attività completate",
+      "tasks_active": "Attività in corso",
+      "tasks_overdue": "Attività scadute",
+      "members": "Membri",
+      "members_with_task_activity": "Membri con attività sui compiti",
+      "approvals_rate": "Tasso di approvazione (%)",
+      "approvals_median_hours": "Tempo di gestione mediano (ore)"
+    }
+  }
+}

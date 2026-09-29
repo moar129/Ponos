@@ -34,14 +34,18 @@ begin
         'create_invitations', 'read_invitations',
         'create_news', 'read_news', 'update_news', 'delete_news',
         'read_datalayer',
-        'read_tasks', 'approve_task', 'reject_task', 'view_all_task_rooms', 'view_completed_tasks'
+        'read_tasks', 'approve_task', 'reject_task', 'view_all_task_rooms', 'view_completed_tasks',
+        'read_statistics', 'create_statistics'
       ]),
       ('Frivilligkoordinator', array[
         'read_membership_requests', 'update_membership_requests',
         'create_invitations', 'read_invitations', 'delete_invitations',
         'delete_members',
         'read_news', 'create_news',
-        'create_tasks', 'read_tasks', 'assign_tasks'
+        'create_tasks', 'read_tasks', 'assign_tasks',
+        -- read_statistics UDEN view_completed_tasks/view_all_task_rooms: tester
+        -- at statistikken er server-aggregeret (samme tal som admin).
+        'read_statistics'
       ]),
       ('Lagerchef', array[
         'create_datalayer', 'read_datalayer', 'update_datalayer', 'delete_datalayer',

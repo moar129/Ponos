@@ -1,0 +1,142 @@
+{
+  "title": "Statistieken",
+  "subtitle": "Kerncijfers en inzicht berekend uit de taken en datalaag van de organisatie.",
+  "loading": "Statistieken laden...",
+  "noOrganisation": "Je hebt nog geen actieve organisatie, dus er zijn geen statistieken om te tonen.",
+  "goToOrganisation": "Naar Organisatie",
+  "noAccess": "Je hebt geen toegang tot statistieken. Vraag een beheerder om het privilege \"Statistieken – Lezen\".",
+  "loadFailed": "De statistieken konden niet worden geladen.",
+  "empty": "Geen gegevens in de gekozen periode.",
+  "period": {
+    "heading": "Statistiekperiode",
+    "description": "Kies welke periode de statistieken moeten beslaan.",
+    "day": "Dag",
+    "week": "7 dagen",
+    "month": "30 dagen",
+    "quarter": "91 dagen",
+    "year": "365 dagen",
+    "max": "Alles",
+    "custom": "Aangepast",
+    "allTime": "Hele periode",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Aangepaste periode",
+    "description": "Kies een begin- en einddatum. Beide dagen tellen mee.",
+    "from": "Van",
+    "to": "Tot",
+    "apply": "Toepassen",
+    "endBeforeStart": "De einddatum moet gelijk zijn aan of na de begindatum liggen."
+  },
+  "kpi": {
+    "heading": "Kerncijfers",
+    "description": "Belangrijkste cijfers voor de gekozen periode.",
+    "created": "Aangemaakte taken",
+    "completed": "Voltooide taken",
+    "active": "Taken in uitvoering",
+    "overdue": "Achterstallige taken",
+    "members": "Leden",
+    "membersWithActivity_one": "{{count}} met taakactiviteit",
+    "membersWithActivity_other": "{{count}} met taakactiviteit"
+  },
+  "sections": {
+    "tasks": "Taken",
+    "team": "Team en goedkeuringen",
+    "materials": "Materialen"
+  },
+  "development": {
+    "title": "Taakontwikkeling",
+    "description": "Aangemaakte en voltooide taken in de tijd.",
+    "created": "Aangemaakt",
+    "completed": "Voltooid"
+  },
+  "status": {
+    "title": "Taakstatus",
+    "description": "Status van taken aangemaakt in de periode.",
+    "total": "Totaal"
+  },
+  "priority": {
+    "title": "Prioriteit",
+    "description": "Prioriteit van taken aangemaakt in de periode.",
+    "none": "Geen prioriteit"
+  },
+  "rooms": {
+    "title": "Taken per ruimte",
+    "description": "Taken aangemaakt in de periode, per ruimte.",
+    "noRoom": "Zonder ruimte",
+    "completed": "Voltooid",
+    "open": "Open",
+    "value": "{{completed}} voltooid · {{open}} open"
+  },
+  "memberLoad": {
+    "title": "Taken per lid",
+    "description": "Hoeveel leden in de periode taken toegewezen kregen. Toont geen namen.",
+    "bucket": {
+      "0": "Geen taken",
+      "1-3": "1–3 taken",
+      "4-6": "4–6 taken",
+      "7+": "7 of meer"
+    }
+  },
+  "approvals": {
+    "title": "Goedkeuringen",
+    "description": "Gereedmeldingen die in de periode ter goedkeuring zijn ingediend.",
+    "pending": "In afwachting",
+    "accepted": "Goedgekeurd",
+    "rejected": "Afgewezen",
+    "rate": "Goedkeuringspercentage",
+    "median": "Mediane behandeltijd",
+    "hours_one": "{{formatted}} uur",
+    "hours_other": "{{formatted}} uur",
+    "days_one": "{{formatted}} dag",
+    "days_other": "{{formatted}} dagen"
+  },
+  "materials": {
+    "statusTitle": "Eenheden per status",
+    "statusDescription": "Huidige status van alle geregistreerde eenheden en partijen.",
+    "categoryTitle": "Artikelen per categorie",
+    "categoryDescription": "Aantal artikelen in elke hoofdcategorie.",
+    "topTitle": "Meest gebruikte materialen",
+    "topDescription": "Top 5 materialen gekoppeld aan taken aangemaakt in de periode."
+  },
+  "snapshots": {
+    "title": "Opgeslagen momentopnamen",
+    "description": "Sla de cijfers van de periode op en vergelijk ze met eerdere periodes.",
+    "save": "Momentopname opslaan",
+    "saveTitle": "Momentopname opslaan",
+    "saveDescription": "Slaat de cijfers voor {{period}} op. Een opgeslagen momentopname verandert daarna nooit meer.",
+    "label": "Naam (optioneel)",
+    "labelPlaceholder": "Bijv. Seizoen 2026",
+    "saving": "Opslaan...",
+    "saveFailed": "De momentopname kon niet worden opgeslagen.",
+    "loadFailed": "Momentopnamen konden niet worden geladen.",
+    "empty": "Nog geen opgeslagen momentopnamen.",
+    "compareHint": "Kies een of meer momentopnamen om hun cijfers te vergelijken.",
+    "metric": "Kengetal",
+    "delete": "Momentopname verwijderen",
+    "deleteTitle": "Momentopname verwijderen?",
+    "deleteMessage": "\"{{name}}\" wordt permanent verwijderd en kan niet worden hersteld.",
+    "deleteFailed": "De momentopname kon niet worden verwijderd.",
+    "groups": {
+      "kpis": "Kerncijfers",
+      "task_status": "Taakstatus",
+      "task_priority": "Prioriteit",
+      "room": "Taken per ruimte",
+      "member_load": "Taken per lid",
+      "approvals": "Goedkeuringen",
+      "item_status": "Eenheden per status",
+      "category": "Artikelen per categorie",
+      "top_material": "Meest gebruikte materialen"
+    },
+    "names": {
+      "tasks_created": "Aangemaakte taken",
+      "tasks_completed": "Voltooide taken",
+      "tasks_active": "Taken in uitvoering",
+      "tasks_overdue": "Achterstallige taken",
+      "members": "Leden",
+      "members_with_task_activity": "Leden met taakactiviteit",
+      "approvals_rate": "Goedkeuringspercentage (%)",
+      "approvals_median_hours": "Mediane behandeltijd (uren)"
+    }
+  }
+}

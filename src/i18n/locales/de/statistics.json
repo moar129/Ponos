@@ -1,0 +1,142 @@
+{
+  "title": "Statistik",
+  "subtitle": "Kennzahlen und Einblicke aus den Aufgaben und der Datenebene der Organisation.",
+  "loading": "Statistik wird geladen...",
+  "noOrganisation": "Sie haben noch keine aktive Organisation, daher gibt es keine Statistik.",
+  "goToOrganisation": "Zur Organisation",
+  "noAccess": "Sie haben keinen Zugriff auf die Statistik. Bitten Sie einen Administrator um das Privileg „Statistik – Lesen\".",
+  "loadFailed": "Die Statistik konnte nicht geladen werden.",
+  "empty": "Keine Daten im gewählten Zeitraum.",
+  "period": {
+    "heading": "Statistikzeitraum",
+    "description": "Wählen Sie, welchen Zeitraum die Statistik abdecken soll.",
+    "day": "Tag",
+    "week": "7 Tage",
+    "month": "30 Tage",
+    "quarter": "91 Tage",
+    "year": "365 Tage",
+    "max": "Alle",
+    "custom": "Benutzerdefiniert",
+    "allTime": "Gesamter Zeitraum",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Benutzerdefinierter Zeitraum",
+    "description": "Wählen Sie Start- und Enddatum. Beide Tage sind enthalten.",
+    "from": "Von",
+    "to": "Bis",
+    "apply": "Anwenden",
+    "endBeforeStart": "Das Enddatum muss am oder nach dem Startdatum liegen."
+  },
+  "kpi": {
+    "heading": "Kennzahlen",
+    "description": "Zentrale Zahlen für den gewählten Zeitraum.",
+    "created": "Erstellte Aufgaben",
+    "completed": "Erledigte Aufgaben",
+    "active": "Aufgaben in Bearbeitung",
+    "overdue": "Überfällige Aufgaben",
+    "members": "Mitglieder",
+    "membersWithActivity_one": "{{count}} mit Aufgabenaktivität",
+    "membersWithActivity_other": "{{count}} mit Aufgabenaktivität"
+  },
+  "sections": {
+    "tasks": "Aufgaben",
+    "team": "Team und Genehmigungen",
+    "materials": "Materialien"
+  },
+  "development": {
+    "title": "Aufgabenentwicklung",
+    "description": "Erstellte und erledigte Aufgaben im Zeitverlauf.",
+    "created": "Erstellt",
+    "completed": "Erledigt"
+  },
+  "status": {
+    "title": "Aufgabenstatus",
+    "description": "Status der im Zeitraum erstellten Aufgaben.",
+    "total": "Gesamt"
+  },
+  "priority": {
+    "title": "Priorität",
+    "description": "Priorität der im Zeitraum erstellten Aufgaben.",
+    "none": "Keine Priorität"
+  },
+  "rooms": {
+    "title": "Aufgaben pro Raum",
+    "description": "Im Zeitraum erstellte Aufgaben nach Raum.",
+    "noRoom": "Ohne Raum",
+    "completed": "Erledigt",
+    "open": "Offen",
+    "value": "{{completed}} erledigt · {{open}} offen"
+  },
+  "memberLoad": {
+    "title": "Aufgaben pro Mitglied",
+    "description": "Wie viele Mitglieder im Zeitraum Aufgaben zugewiesen bekamen. Zeigt keine Namen.",
+    "bucket": {
+      "0": "Keine Aufgaben",
+      "1-3": "1–3 Aufgaben",
+      "4-6": "4–6 Aufgaben",
+      "7+": "7 oder mehr"
+    }
+  },
+  "approvals": {
+    "title": "Genehmigungen",
+    "description": "Im Zeitraum zur Genehmigung eingereichte Fertigmeldungen.",
+    "pending": "Ausstehend",
+    "accepted": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "rate": "Genehmigungsquote",
+    "median": "Mittlere Bearbeitungszeit",
+    "hours_one": "{{formatted}} Stunde",
+    "hours_other": "{{formatted}} Stunden",
+    "days_one": "{{formatted}} Tag",
+    "days_other": "{{formatted}} Tage"
+  },
+  "materials": {
+    "statusTitle": "Einheiten nach Status",
+    "statusDescription": "Aktueller Status aller erfassten Einheiten und Chargen.",
+    "categoryTitle": "Artikel nach Kategorie",
+    "categoryDescription": "Anzahl der Artikel in jeder Hauptkategorie.",
+    "topTitle": "Meistgenutzte Materialien",
+    "topDescription": "Top 5 der Materialien, die mit im Zeitraum erstellten Aufgaben verknüpft sind."
+  },
+  "snapshots": {
+    "title": "Gespeicherte Snapshots",
+    "description": "Speichern Sie die Zahlen des Zeitraums und vergleichen Sie sie mit früheren Zeiträumen.",
+    "save": "Snapshot speichern",
+    "saveTitle": "Snapshot speichern",
+    "saveDescription": "Speichert die Zahlen für {{period}}. Ein gespeicherter Snapshot ändert sich danach nie.",
+    "label": "Name (optional)",
+    "labelPlaceholder": "z. B. Saison 2026",
+    "saving": "Wird gespeichert...",
+    "saveFailed": "Der Snapshot konnte nicht gespeichert werden.",
+    "loadFailed": "Snapshots konnten nicht geladen werden.",
+    "empty": "Noch keine gespeicherten Snapshots.",
+    "compareHint": "Wählen Sie einen oder mehrere Snapshots, um ihre Zahlen zu vergleichen.",
+    "metric": "Kennzahl",
+    "delete": "Snapshot löschen",
+    "deleteTitle": "Snapshot löschen?",
+    "deleteMessage": "„{{name}}\" wird dauerhaft gelöscht und kann nicht wiederhergestellt werden.",
+    "deleteFailed": "Der Snapshot konnte nicht gelöscht werden.",
+    "groups": {
+      "kpis": "Kennzahlen",
+      "task_status": "Aufgabenstatus",
+      "task_priority": "Priorität",
+      "room": "Aufgaben pro Raum",
+      "member_load": "Aufgaben pro Mitglied",
+      "approvals": "Genehmigungen",
+      "item_status": "Einheiten nach Status",
+      "category": "Artikel nach Kategorie",
+      "top_material": "Meistgenutzte Materialien"
+    },
+    "names": {
+      "tasks_created": "Erstellte Aufgaben",
+      "tasks_completed": "Erledigte Aufgaben",
+      "tasks_active": "Aufgaben in Bearbeitung",
+      "tasks_overdue": "Überfällige Aufgaben",
+      "members": "Mitglieder",
+      "members_with_task_activity": "Mitglieder mit Aufgabenaktivität",
+      "approvals_rate": "Genehmigungsquote (%)",
+      "approvals_median_hours": "Mittlere Bearbeitungszeit (Stunden)"
+    }
+  }
+}

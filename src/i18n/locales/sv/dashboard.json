@@ -64,7 +64,6 @@
       "invitations": "Inbjudningar",
       "membershipRequests": "Medlemsansökningar",
       "organisation": "Organisation",
-
       "colors": "Färger",
       "taskApprovals": "Godkännanden av uppgifter",
       "completedTasks": "Avslutade uppgifter"
@@ -99,12 +98,5 @@
     "resetFilters": "Återställ",
     "finishedOn": "Klar {{date}}",
     "showing": "Visar {{count}} av {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Du har ännu ingen aktiv organisation, så det finns ingen statistik att visa.",
-    "goToOrganisation": "Gå till Organisation",
-    "title": "Statistik",
-    "description": "Nyckeltal och insikter beräknade utifrån organisationens artiklar och uppgifter.",
-    "loading": "Laddar..."
   }
 }

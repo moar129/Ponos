@@ -40,6 +40,8 @@ Email `<fornavn>.<efternavn>@ponos-mock.test` (æ→ae, ø→oe), password **`Po
 | Medlem | ahmad.rahimi |
 | *Ikke medlem* | julie.svendsen, christian.lauridsen, amalie.koch (ansøgning afventer), nikolaj.berg (afvist), victor.hald, maja.ravn (invitation afventer) |
 
+Statistik: Festivalledelse har `read_statistics` + `create_statistics` (gem snapshots). Frivilligkoordinator har kun `read_statistics` – og hverken `view_completed_tasks` eller `view_all_task_rooms` – så log ind som `sofie.andersen` for at tjekke, at statistikken viser samme tal som admin (den beregnes server-side). Forventede tal pr. periode står i FACIT.md.
+
 ## Ændre data
 
 `04_datalayer.sql`, `06_tasks.sql` og `FACIT.md` genereres fra `generate.mjs`, så facit

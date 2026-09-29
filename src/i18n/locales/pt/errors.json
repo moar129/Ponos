@@ -59,7 +59,8 @@
     "updateLocation": "Não tem permissão para editar a localização.",
     "deleteLocation": "Não tem permissão para eliminar a localização.",
     "favoriteDatalayer": "Não tem permissão para alterar os favoritos da camada de dados.",
-    "favoriteTasks": "Não tem permissão para alterar as salas favoritas."
+    "favoriteTasks": "Não tem permissão para alterar as salas favoritas.",
+    "deleteStatistics": "Não tem permissão para eliminar este instantâneo."
   },
   "db": {
     "NOT_LOGGED_IN": "Tem de ter sessão iniciada.",
@@ -148,6 +149,10 @@
     "ROOM_NOT_ACCESSIBLE": "A sala não existe ou não tem acesso a ela.",
     "ROOM_NOT_ROLE_LOCKED": "A sala não está restrita por função e não tem chat.",
     "CONVERSATION_CLOSED": "O chat está fechado - só leitura.",
-    "TASK_CHAT_NOT_AVAILABLE": "O chat da tarefa não está disponível para si."
+    "TASK_CHAT_NOT_AVAILABLE": "O chat da tarefa não está disponível para si.",
+    "NO_PRIV_READ_STATISTICS": "Não tem permissão para ver estatísticas.",
+    "NO_PRIV_CREATE_STATISTICS": "Não tem permissão para guardar estatísticas.",
+    "INVALID_PERIOD": "A data de fim tem de ser posterior à de início.",
+    "INVALID_GRANULARITY": "Resolução inválida para as estatísticas."
   }
 }

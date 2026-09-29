@@ -8,7 +8,8 @@
     "news": "Hírek",
     "datalayer": "Adatréteg",
     "tasks": "Feladatok",
-    "task_approval": "Feladatjóváhagyás"
+    "task_approval": "Feladatjóváhagyás",
+    "statistics": "Statisztika"
   },
   "op": {
     "create": "Létrehozás",

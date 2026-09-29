@@ -8,7 +8,8 @@
     "news": "News",
     "datalayer": "Data layer",
     "tasks": "Tasks",
-    "task_approval": "Task approval"
+    "task_approval": "Task approval",
+    "statistics": "Statistics"
   },
   "op": {
     "create": "Create",

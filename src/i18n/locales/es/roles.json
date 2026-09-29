@@ -8,7 +8,8 @@
     "news": "Noticias",
     "datalayer": "Capa de datos",
     "tasks": "Tareas",
-    "task_approval": "Aprobación de tareas"
+    "task_approval": "Aprobación de tareas",
+    "statistics": "Estadísticas"
   },
   "op": {
     "create": "Crear",

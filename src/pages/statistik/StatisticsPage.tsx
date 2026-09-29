@@ -2,462 +2,294 @@ import { useState } from 'react'
 import {
     BarChart3,
     Building2,
-    CalendarDays,
     CheckCircle2,
     Clock3,
     ListTodo,
+    Lock,
     TriangleAlert,
     Users,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { getErrorMessage } from '../../ErrorMessage'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
-import {
-    useGetStatisticsTasksQuery,
-    useGetOverdueQuery,
-    useGetTeamActivityQuery,
-    useGetTaskDistributionQuery,
-    useGetTaskDevelopmentQuery,
-} from '../../store/apis/statisticApi'
-import { KPICard } from '../../components/statistics/KPICard'
-import { ChartCard } from '../../components/statistics/ChartCard'
-import { TaskDistributionChart } from '../../components/statistics/TaskDistributionChart'
-import { TaskDevelopmentChart } from '../../components/statistics/TaskDevelopmentChart'
-import { StatisticsStates } from '../../components/statistics/StatisticsStates'
+import { READ_STATISTICS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
+import { useGetStatisticsQuery } from '../../store/apis/statisticApi'
 import { useStatisticsPeriod } from '../../store/hooks/useStatisticsPeriod'
-import { useStatisticsDataset } from '../../store/hooks/useStatisticsDataset'
+import { ApprovalChart } from '../../components/statistics/ApprovalChart'
+import { BarList } from '../../components/statistics/BarList'
+import { ChartCard } from '../../components/statistics/ChartCard'
+import { CustomPeriodModal } from '../../components/statistics/CustomPeriodModal'
+import { KPICard } from '../../components/statistics/KPICard'
+import { SnapshotPanel } from '../../components/statistics/SnapshotPanel'
+import { StatisticsPeriodPicker } from '../../components/statistics/StatisticsPeriodPicker'
+import { StatisticsSection } from '../../components/statistics/StatisticsSection'
+import { TaskDevelopmentChart } from '../../components/statistics/TaskDevelopmentChart'
+import { TaskDistributionChart } from '../../components/statistics/TaskDistributionChart'
+import { TaskRoomChart } from '../../components/statistics/TaskRoomChart'
 
-function formatDateForApi(date: Date | null): string {
-    if (!date) {
-        return ''
-    }
-
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-
-    return `${year}-${month}-${day}`
-}
+const CARD = 'rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8'
 
 export default function StatisticsPage() {
-    const { t } = useTranslation('dashboard')
-    const { data: profile, isLoading } = useGetMyProfileQuery()
-
-    const {
-        current,
-        all,
-        changePeriod,
-        setCustomDates,
-    } = useStatisticsPeriod()
-
-    const {
-        datasets,
-        selectedDataset,
-        selectedDatasetId,
-        selectDataset,
-    } = useStatisticsDataset()
-
-    // --------------------------------------------------
-    // Valgt statistikperiode
-    // --------------------------------------------------
-
-    const statisticsPeriod = {
-        start: formatDateForApi(current.start),
-        end: formatDateForApi(current.end),
-    }
-
-    // --------------------------------------------------
-    // KPI data
-    // --------------------------------------------------
-
-    const {
-        data: taskStatistics,
-        isLoading: isTasksLoading,
-    } = useGetStatisticsTasksQuery(statisticsPeriod, {
-        refetchOnMountOrArgChange: true,
-    })
-
-    const {
-        data: overdueStatistics,
-        isLoading: isOverdueLoading,
-    } = useGetOverdueQuery(statisticsPeriod, {
-        refetchOnMountOrArgChange: true,
-    })
-
-    const {
-        data: teamActivity,
-        isLoading: isTeamActivityLoading,
-    } = useGetTeamActivityQuery(statisticsPeriod, {
-        refetchOnMountOrArgChange: true,
-    })
-
-    const {
-        data: taskDistribution,
-        isLoading: isTaskDistributionLoading,
-    } = useGetTaskDistributionQuery(statisticsPeriod, {
-        refetchOnMountOrArgChange: true,
-    })
-
-    // --------------------------------------------------
-    // Task development
-    // --------------------------------------------------
-
-    const {
-        data: taskDevelopment,
-        isLoading: isTaskDevelopmentLoading,
-        error: taskDevelopmentError,
-    } = useGetTaskDevelopmentQuery(statisticsPeriod, {
-        refetchOnMountOrArgChange: true,
-    })
-
-    // --------------------------------------------------
-    // Debug
-    // --------------------------------------------------
-
-    console.log('Task development:', taskDevelopment)
-    console.table(taskDevelopment)
-    console.log(
-        'Task development loading:',
-        isTaskDevelopmentLoading
-    )
-    console.log(
-        'Task development error:',
-        taskDevelopmentError
-    )
-
+    const { t, i18n } = useTranslation(['statistics', 'tasks', 'datalayer'])
+    const { data: profile, isLoading: isProfileLoading } = useGetMyProfileQuery()
+    const { hasPrivilege: canRead, isLoading: isPrivilegeLoading } = useHasPrivilege(READ_STATISTICS_PRIVILEGE)
+    const { periodType, range, apiArgs, changePeriod, setCustomDates } = useStatisticsPeriod()
     const [isCustomOpen, setIsCustomOpen] = useState(false)
-    const [customStart, setCustomStart] = useState('')
-    const [customEnd, setCustomEnd] = useState('')
 
-    if (isLoading) {
-        return (
-            <p className="text-secondary dark:text-slate-400">
-                {t('statistics.loading')}
-            </p>
-        )
+    const hasOrganisation = Boolean(profile?.activeOrganisationId)
+
+    // currentData is undefined while a new period is fetched, so an old
+    // period's numbers are never shown under a new period's label.
+    const { currentData: stats, isFetching, error } = useGetStatisticsQuery(apiArgs, {
+        skip: !hasOrganisation || !canRead,
+        refetchOnMountOrArgChange: true,
+    })
+
+    if (isProfileLoading || (hasOrganisation && isPrivilegeLoading)) {
+        return <p className="text-secondary dark:text-slate-400">{t('loading')}</p>
     }
 
-    if (!profile?.activeOrganisationId) {
+    if (!hasOrganisation) {
         return (
-            <div className="rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8">
+            <div className={CARD}>
                 <div className="rounded-md border border-border-gray p-5 text-center dark:border-slate-700">
-                    <p className="mb-3 text-secondary dark:text-slate-400">
-                        {t('statistics.noOrganisation')}
-                    </p>
-
+                    <p className="mb-3 text-secondary dark:text-slate-400">{t('noOrganisation')}</p>
                     <Link
                         to="/dashboard?tab=organisation"
                         className="inline-flex items-center gap-2 font-medium text-accent hover:underline"
                     >
                         <Building2 className="h-4 w-4" />
-                        {t('statistics.goToOrganisation')}
+                        {t('goToOrganisation')}
                     </Link>
                 </div>
             </div>
         )
     }
 
+    if (!canRead) {
+        return (
+            <div className={CARD}>
+                <div className="flex items-center justify-center gap-2 rounded-md border border-border-gray p-5 text-center dark:border-slate-700">
+                    <Lock className="h-4 w-4 shrink-0 text-secondary dark:text-slate-400" />
+                    <p className="text-secondary dark:text-slate-400">{t('noAccess')}</p>
+                </div>
+            </div>
+        )
+    }
+
+    const loading = isFetching && !stats
+    const errorMessage = error ? getErrorMessage(error, t('loadFailed')) : null
+
+    const dateFormat = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })
+    const rangeLabel = range
+        ? range.start.getTime() === range.end.getTime()
+            ? dateFormat.format(range.start)
+            : t('period.range', { start: dateFormat.format(range.start), end: dateFormat.format(range.end) })
+        : t('period.allTime')
+    const periodLabel = periodType === 'custom' ? rangeLabel : `${t(`period.${periodType}`)} (${rangeLabel})`
+
+    const kpis = stats?.kpis
+    const materials = stats?.materials
+
+    const sum = (values: number[]) => values.reduce((total, value) => total + value, 0)
+
+    const priorityRows = [...(stats?.taskPriority ?? [])]
+        .reverse()
+        .sort((a, b) => Number(a.priority === null) - Number(b.priority === null))
+        .map((row) => ({
+            key: row.priority ?? 'none',
+            label: row.priority ? t(`tasks:priority.${row.priority}`) : t('priority.none'),
+            value: row.count,
+        }))
+
+    const memberLoadRows = (stats?.memberLoad ?? []).map((row) => ({
+        key: row.bucket,
+        label: t(`memberLoad.bucket.${row.bucket}`),
+        value: row.count,
+    }))
+
+    const materialStatusRows = (materials?.byStatus ?? [])
+        .filter((row) => row.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .map((row) => ({ key: row.status, label: t(`datalayer:status.${row.status}`), value: row.count }))
+
+    const categoryRows = (materials?.byCategory ?? []).map((row) => ({
+        key: row.categoryId,
+        label: row.title,
+        value: row.count,
+    }))
+
+    const topMaterialRows = (materials?.topUsed ?? []).map((row) => ({
+        key: row.itemId,
+        label: row.name,
+        value: row.quantity,
+        valueLabel: `${row.quantity.toLocaleString(i18n.language)} ${row.unit}`,
+    }))
+
+    const approvals = stats?.approvals
+    const approvalTotal = approvals ? approvals.accepted + approvals.pending + approvals.rejected : 0
+
     return (
-        <div className="space-y-6 rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8">
-
+        <div className={`space-y-8 ${CARD}`}>
             {/* Header */}
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <BarChart3 className="h-6 w-6 text-secondary dark:text-slate-400" />
-
-                    <div>
-                        <h1 className="text-xl font-semibold text-primary dark:text-slate-100">
-                            {t('statistics.title')}
-                        </h1>
-
-                        <p className="text-sm text-secondary dark:text-slate-400">
-                            Statistik for {current.label.toLowerCase()}
-                        </p>
-                    </div>
+            <div className="flex items-center gap-3">
+                <BarChart3 className="h-6 w-6 shrink-0 text-secondary dark:text-slate-400" />
+                <div className="min-w-0">
+                    <h1 className="text-xl font-semibold text-primary dark:text-slate-100">{t('title')}</h1>
+                    <p className="text-sm text-secondary dark:text-slate-400">{periodLabel}</p>
                 </div>
             </div>
 
-            {/* Dataset / år */}
-            <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <StatisticsPeriodPicker
+                periodType={periodType}
+                onChangePeriod={changePeriod}
+                onOpenCustom={() => setIsCustomOpen(true)}
+            />
 
-                    <div>
-                        <h2 className="text-sm font-semibold text-primary dark:text-slate-100">
-                            År
-                        </h2>
-
-                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                            Vælg hvilket statistiksæt der skal vises.
-                        </p>
-                    </div>
-
-                    <select
-                        value={selectedDatasetId ?? ''}
-                        onChange={(event) => {
-                            if (event.target.value) {
-                                selectDataset(event.target.value)
-                            }
-                        }}
-                        disabled={datasets.length === 0}
-                        className="rounded-md border border-border-gray bg-white px-3 py-2 text-sm text-primary outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                    >
-                        <option value="">
-                            {datasets.length === 0
-                                ? 'Ingen datasæt tilgængelige'
-                                : 'Vælg år'}
-                        </option>
-
-                        {datasets.map((dataset) => (
-                            <option
-                                key={dataset.id}
-                                value={dataset.id}
-                            >
-                                {dataset.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {selectedDataset && (
-                    <p className="mt-3 text-xs text-secondary dark:text-slate-400">
-                        Valgt datasæt: {selectedDataset.label}
-                    </p>
-                )}
-            </div>
-
-            {/* Period filter */}
-            <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                    <div>
-                        <h2 className="text-sm font-semibold text-primary dark:text-slate-100">
-                            Statistikperiode
-                        </h2>
-
-                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                            Vælg hvor stor en periode statistikken skal vise.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                        {all.map((period) => (
-                            <button
-                                key={period.type}
-                                type="button"
-                                onClick={() => {
-                                    if (period.type === 'custom') {
-                                        setIsCustomOpen(true)
-                                        return
-                                    }
-
-                                    changePeriod(period.type)
-                                }}
-                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${current.type === period.type
-                                    ? 'bg-primary text-white'
-                                    : 'bg-bg-gray text-secondary hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-                                    }`}
-                            >
-                                {period.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Custom period modal */}
             {isCustomOpen && (
-                <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
-                    onMouseDown={(event) => {
-                        if (event.target === event.currentTarget) {
-                            setIsCustomOpen(false)
-                        }
+                <CustomPeriodModal
+                    isOpen={isCustomOpen}
+                    initialStart={periodType === 'custom' ? range?.start ?? null : null}
+                    initialEnd={periodType === 'custom' ? range?.end ?? null : null}
+                    onApply={(start, end) => {
+                        setCustomDates(start, end)
+                        setIsCustomOpen(false)
                     }}
-                >
-                    <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl dark:bg-slate-800">
-
-                        <div className="flex items-center gap-3">
-                            <CalendarDays className="h-5 w-5 text-secondary dark:text-slate-400" />
-
-                            <div>
-                                <h2 className="font-semibold text-primary dark:text-slate-100">
-                                    Brugerdefineret periode
-                                </h2>
-
-                                <p className="text-sm text-secondary dark:text-slate-400">
-                                    Vælg start- og slutdato.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-                            {/* Startdato */}
-                            <div>
-                                <label
-                                    htmlFor="statistics-custom-start"
-                                    className="mb-1 block text-sm font-medium text-primary dark:text-slate-200"
-                                >
-                                    Fra
-                                </label>
-
-                                <input
-                                    id="statistics-custom-start"
-                                    type="date"
-                                    value={customStart}
-                                    onChange={(event) =>
-                                        setCustomStart(event.target.value)
-                                    }
-                                    className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-sm text-primary outline-none focus:border-accent dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                                />
-                            </div>
-
-                            {/* Slutdato */}
-                            <div>
-                                <label
-                                    htmlFor="statistics-custom-end"
-                                    className="mb-1 block text-sm font-medium text-primary dark:text-slate-200"
-                                >
-                                    Til
-                                </label>
-
-                                <input
-                                    id="statistics-custom-end"
-                                    type="date"
-                                    value={customEnd}
-                                    min={customStart || undefined}
-                                    onChange={(event) =>
-                                        setCustomEnd(event.target.value)
-                                    }
-                                    className="w-full rounded-md border border-border-gray bg-white px-3 py-2 text-sm text-primary outline-none focus:border-accent dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mt-5 flex justify-end gap-2">
-
-                            {/* Annuller */}
-                            <button
-                                type="button"
-                                onClick={() => setIsCustomOpen(false)}
-                                className="rounded-md px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray dark:text-slate-300 dark:hover:bg-slate-700"
-                            >
-                                Annuller
-                            </button>
-
-                            {/* Anvend */}
-                            <button
-                                type="button"
-                                disabled={!customStart || !customEnd}
-                                onClick={() => {
-                                    const start = new Date(
-                                        `${customStart}T00:00:00`
-                                    )
-
-                                    const end = new Date(
-                                        `${customEnd}T00:00:00`
-                                    )
-
-                                    if (end < start) {
-                                        return
-                                    }
-
-                                    setCustomDates(start, end)
-                                    setIsCustomOpen(false)
-                                }}
-                                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Anvend
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    onClose={() => setIsCustomOpen(false)}
+                />
             )}
 
-            {/* KPI cards */}
-            <section>
-                <div className="mb-3">
-                    <h2 className="text-base font-semibold text-primary dark:text-slate-100">
-                        Nøgletal
-                    </h2>
+            {errorMessage && (
+                <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
+                    {errorMessage}
+                </p>
+            )}
 
-                    <p className="text-sm text-secondary dark:text-slate-400">
-                        Centrale tal for den valgte periode.
-                    </p>
+            {/* KPI'er */}
+            <section className="space-y-3">
+                <div>
+                    <h2 className="text-base font-semibold text-primary dark:text-slate-100">{t('kpi.heading')}</h2>
+                    <p className="text-sm text-secondary dark:text-slate-400">{t('kpi.description')}</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+                    <KPICard title={t('kpi.created')} icon={<ListTodo className="h-5 w-5" />} value={kpis?.created} loading={loading} />
+                    <KPICard title={t('kpi.completed')} icon={<CheckCircle2 className="h-5 w-5" />} value={kpis?.completed} loading={loading} />
+                    <KPICard title={t('kpi.active')} icon={<Clock3 className="h-5 w-5" />} value={kpis?.active} loading={loading} />
+                    <KPICard title={t('kpi.overdue')} icon={<TriangleAlert className="h-5 w-5" />} value={kpis?.overdue} loading={loading} />
                     <KPICard
-                        title="Oprettede opgaver"
-                        icon={<ListTodo className="h-5 w-5" />}
-                        value={taskStatistics?.total ?? 0}
-                        loading={isTasksLoading}
-                    />
-
-                    <KPICard
-                        title="Færdige opgaver"
-                        icon={<CheckCircle2 className="h-5 w-5" />}
-                        value={taskStatistics?.completed ?? 0}
-                        loading={isTasksLoading}
-                    />
-
-                    <KPICard
-                        title="Igangværende opgaver"
-                        icon={<Clock3 className="h-5 w-5" />}
-                        value={taskStatistics?.inProgress ?? 0}
-                        loading={isTasksLoading}
-                    />
-
-                    <KPICard
-                        title="Forfaldne opgaver"
-                        icon={<TriangleAlert className="h-5 w-5" />}
-                        value={overdueStatistics?.count ?? 0}
-                        loading={isOverdueLoading}
-                    />
-
-                    <KPICard
-                        title="Aktive medarbejdere"
+                        title={t('kpi.members')}
                         icon={<Users className="h-5 w-5" />}
-                        value={teamActivity?.activeMembers ?? 0}
-                        loading={isTeamActivityLoading}
+                        value={kpis?.members}
+                        subtitle={kpis ? t('kpi.membersWithActivity', { count: kpis.membersWithTaskActivity }) : undefined}
+                        loading={loading}
                     />
-
                 </div>
             </section>
 
-            {/* Charts */}
-            <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-
+            <StatisticsSection title={t('sections.tasks')}>
                 <ChartCard
-                    title="Opgaveudvikling"
-                    description="Udviklingen i opgaver over den valgte periode."
-                    loading={isTaskDevelopmentLoading}
+                    title={t('development.title')}
+                    description={t('development.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats?.taskDevelopment.every((point) => point.created === 0 && point.completed === 0)}
                 >
-                    {taskDevelopment && (
-                        <TaskDevelopmentChart
-                            data={taskDevelopment}
-                        />
-                    )}
+                    {stats && <TaskDevelopmentChart data={stats.taskDevelopment} granularity={apiArgs.granularity} />}
                 </ChartCard>
 
                 <ChartCard
-                    title="Arbejdsfordeling"
-                    description="Fordelingen af arbejdet i organisationen."
-                    loading={isTaskDistributionLoading}
+                    title={t('status.title')}
+                    description={t('status.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? sum(stats.taskStatus.map((row) => row.count)) === 0 : false}
                 >
-                    {taskDistribution && (
-                        <TaskDistributionChart
-                            data={taskDistribution}
-                        />
-                    )}
+                    {stats && <TaskDistributionChart data={stats.taskStatus} />}
                 </ChartCard>
 
-            </section>
+                <ChartCard
+                    title={t('priority.title')}
+                    description={t('priority.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? sum(priorityRows.map((row) => row.value)) === 0 : false}
+                >
+                    <BarList rows={priorityRows} ariaLabel={t('priority.title')} />
+                </ChartCard>
 
-            {/* Data state */}
-            <StatisticsStates />
+                <ChartCard
+                    title={t('rooms.title')}
+                    description={t('rooms.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats?.taskRooms.length === 0}
+                >
+                    {stats && <TaskRoomChart data={stats.taskRooms} />}
+                </ChartCard>
+            </StatisticsSection>
 
+            <StatisticsSection title={t('sections.team')}>
+                <ChartCard
+                    title={t('memberLoad.title')}
+                    description={t('memberLoad.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={kpis?.members === 0}
+                >
+                    <BarList rows={memberLoadRows} ariaLabel={t('memberLoad.title')} />
+                </ChartCard>
+
+                <ChartCard
+                    title={t('approvals.title')}
+                    description={t('approvals.description')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? approvalTotal === 0 : false}
+                >
+                    {approvals && <ApprovalChart data={approvals} />}
+                </ChartCard>
+            </StatisticsSection>
+
+            <StatisticsSection title={t('sections.materials')}>
+                <ChartCard
+                    title={t('materials.statusTitle')}
+                    description={t('materials.statusDescription')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? materialStatusRows.length === 0 : false}
+                >
+                    <BarList rows={materialStatusRows} ariaLabel={t('materials.statusTitle')} />
+                </ChartCard>
+
+                <ChartCard
+                    title={t('materials.categoryTitle')}
+                    description={t('materials.categoryDescription')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? categoryRows.length === 0 : false}
+                >
+                    <BarList rows={categoryRows} ariaLabel={t('materials.categoryTitle')} />
+                </ChartCard>
+
+                <ChartCard
+                    title={t('materials.topTitle')}
+                    description={t('materials.topDescription')}
+                    loading={loading}
+                    error={errorMessage}
+                    empty={stats ? topMaterialRows.length === 0 : false}
+                >
+                    <BarList rows={topMaterialRows} ariaLabel={t('materials.topTitle')} />
+                </ChartCard>
+            </StatisticsSection>
+
+            <SnapshotPanel
+                periodStart={apiArgs.start}
+                periodEnd={apiArgs.end}
+                periodLabel={periodLabel}
+                timeZone={apiArgs.tz}
+            />
         </div>
     )
 }

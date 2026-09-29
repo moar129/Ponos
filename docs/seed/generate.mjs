@@ -648,6 +648,66 @@ function buildFacit() {
 
   const pct = (a, b) => (b ? `${Math.round((a / b) * 1000) / 10} %` : '-')
 
+  // --- Statistiksiden pr. periode: SAMME definitioner som get_statistics /
+  // statistics_payload (docs/migrations/2026-09-29-statistics.sql). Perioder
+  // er rullende og slutter i dag inkl. (Europe/Copenhagen), slut eksklusiv.
+  const local = (d) => new Date(`${d}T00:00:00+02:00`)
+  const periods = [
+    ['Dag', local('2026-09-29'), local('2026-09-30')],
+    ['7 dage', local('2026-09-23'), local('2026-09-30')],
+    ['30 dage', local('2026-08-31'), local('2026-09-30')],
+    ['91 dage', local('2026-06-30'), local('2026-09-30')],
+    ['365 dage', local('2025-09-30'), local('2026-09-30')],
+    ['Alt', new Date(-8.64e15), new Date(8.64e15)],
+  ]
+  const allMembers = [...members, 'admin']
+  const loadBuckets = [['0', 0, 0], ['1-3', 1, 3], ['4-6', 4, 6], ['7+', 7, Infinity]]
+  const median = (xs) => {
+    if (!xs.length) return null
+    const s = [...xs].sort((a, b) => a - b)
+    const pos = (s.length - 1) / 2
+    return s[Math.floor(pos)] + (s[Math.ceil(pos)] - s[Math.floor(pos)]) * (pos - Math.floor(pos))
+  }
+  const round1 = (x) => Math.round(x * 10) / 10
+
+  const periodStats = periods.map(([label, s, e]) => {
+    const inP = (v) => v !== null && v !== undefined && toDate(v) >= s && toDate(v) < e
+    const created = tasks.filter((t) => inP(t.created))
+    const active = tasks.filter((t) => toDate(t.start ?? t.created) < e
+      && (t.st === 'InProgress' || (t.st === 'Completed' && toDate(t.finished) >= s)))
+    const relevant = new Set([...created, ...active])
+    const loadOf = (m) => [...relevant].filter((t) => t.assignees.includes(m)).length
+    const periodReqs = tasks.flatMap((t) => t.allRequests).filter((r) => inP(r.at))
+    const rc = count(periodReqs, (r) => r.st)
+    const acc = rc.Accepted ?? 0
+    const rej = rc.Rejected ?? 0
+    const med = median(periodReqs.filter((r) => r.st !== 'Pending' && r.done)
+      .map((r) => (toDate(r.done) - toDate(r.at)) / 3600_000))
+    const used = {}
+    for (const t of created) for (const [n, a] of t.materials) used[n] = (used[n] ?? 0) + a
+    const top = Object.entries(used).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5)
+
+    return {
+      label,
+      created: created.length,
+      completed: tasks.filter((t) => t.st === 'Completed' && inP(t.finished)).length,
+      active: active.length,
+      overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
+      withActivity: allMembers.filter((m) => loadOf(m) > 0).length,
+      status: count(created, (t) => t.st),
+      prio: count(created, (t) => t.prio),
+      rooms: count(created, (t) => roomName[t.room]),
+      load: Object.fromEntries(loadBuckets.map(([b, lo, hi]) => [b, allMembers.filter((m) => loadOf(m) >= lo && loadOf(m) <= hi).length])),
+      pending: rc.Pending ?? 0, accepted: acc, rejected: rej,
+      rate: acc + rej ? `${round1((acc * 100) / (acc + rej))} %` : '–',
+      median: med === null ? '–' : round1(med),
+      top: top.length ? top.map(([n, a]) => `${a} ${n}`).join(', ') : '–',
+    }
+  })
+  const pRow = (name, fn) => [name, ...periodStats.map((p) => fn(p) ?? 0)]
+  const topCategoryOf = (cat) => categories.find(([top, subs]) => top === cat || subs.includes(cat))?.[0]
+  const itemsByTopCategory = count(items, (it) => topCategoryOf(it[0]))
+
   return `# Facit for mockdata (Roskilde Festival)
 
 GENERERET af \`docs/seed/generate.mjs\`. Tallene gælder pr. **2026-09-29** (forfaldne og
@@ -728,6 +788,40 @@ ${table(['Kvartal', 'Oprettet', 'Færdige'], quarters.map((k) => [k, createdQ[k]
 
 ${table(['År', 'Oprettet', 'Færdige'], Object.keys(createdY).sort().map((y) => [y, createdY[y] ?? 0, finishedY[y] ?? 0]))}
 
+## Statistiksiden pr. periode (get_statistics)
+
+Samme definitioner som \`statistics_payload\` (docs/migrations/2026-09-29-statistics.sql):
+rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
+mest brugte = opgaver **oprettet** i perioden. *I gang* = \`coalesce(start_date, created_at)\`
+før periodens slut og (InProgress eller Completed med \`finished_at\` ≥ start). *Relevante*
+(teamaktivitet/belastning) = oprettet eller i gang i perioden. Godkendelser tæller
+anmodninger efter \`requested_at\`. Medlemmer = ${allMembers.length} (inkl. dig) i alle perioder.
+
+${table(['Udsagn', ...periodStats.map((p) => p.label)], [
+    pRow('Oprettede', (p) => p.created),
+    pRow('Færdige', (p) => p.completed),
+    pRow('I gang', (p) => p.active),
+    pRow('Forfaldne', (p) => p.overdue),
+    pRow('Med opgaveaktivitet', (p) => p.withActivity),
+    ...['Started', 'InProgress', 'Completed'].map((st) => pRow(`Status: ${st}`, (p) => p.status[st])),
+    ...['Critical', 'High', 'Medium', 'Low'].map((pr) => pRow(`Prioritet: ${pr}`, (p) => p.prio[pr])),
+    ...rooms.map(([, n]) => pRow(`Rum: ${n}`, (p) => p.rooms[n])),
+    ...loadBuckets.map(([b]) => pRow(`Belastning ${b}`, (p) => p.load[b])),
+    pRow('Anmodninger: Pending', (p) => p.pending),
+    pRow('Anmodninger: Accepted', (p) => p.accepted),
+    pRow('Anmodninger: Rejected', (p) => p.rejected),
+    pRow('Godkendelsesrate', (p) => p.rate),
+    pRow('Median behandlingstid (t)', (p) => p.median),
+  ])}
+
+Mest brugte materialer (top 5):
+
+${table(['Periode', 'Materialer'], periodStats.map((p) => [p.label, p.top]))}
+
+Varer pr. hovedkategori (nu, uafhængig af periode):
+
+${table(['Kategori', 'Varer'], categories.map(([top]) => [top, itemsByTopCategory[top] ?? 0]))}
+
 ## Kontrol-queries (kør som postgres i SQL Editor)
 
 \`\`\`sql
@@ -743,6 +837,10 @@ select status, count(*), sum(case when contents_total is not null then 1 else qu
   from data_layer_item_units where organisation_id = '<org>' group by 1;
 select to_char(created_at at time zone 'Europe/Copenhagen', 'YYYY-MM') m, count(*)
   from tasks where organisation_id = '<org>' group by 1 order by 1;
+
+-- Hele statistik-payloaden som siden ser den (fx "30 dage"):
+select public.statistics_payload('<org>', '2026-08-31 00:00 Europe/Copenhagen',
+  '2026-09-30 00:00 Europe/Copenhagen', 'day', 'Europe/Copenhagen');
 \`\`\`
 `
 }

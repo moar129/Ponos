@@ -22,7 +22,7 @@ import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { Avatar } from './common/Avatar';
 import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
-import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
+import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_STATISTICS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
 import { useTheme } from '../store/hooks/useTheme';
 import { useFitText } from '../store/hooks/useFitText';
@@ -52,11 +52,11 @@ export function Header() {
   const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
 
   // Fase 3: Datalager-/Nyheder-/Opgave-linkene kræver hhv. read_datalayer,
-  // read_news og read_tasks (eller admin) - Statistik under hasOrganisation
-  // er ikke ændret.
+  // read_news og read_tasks (eller admin); Statistik kræver read_statistics.
   const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
   const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
   const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE);
+  const { hasPrivilege: canReadStatistics } = useHasPrivilege(READ_STATISTICS_PRIVILEGE);
 
   const { t, i18n } = useTranslation(['nav', 'common']);
 
@@ -188,10 +188,12 @@ export function Header() {
                   </NavLink>
                 )}
 
-                <NavLink to="/statistik" className={getNavLinkClass} title={t('links.statistics')}>
-                  <BarChart3 className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                  <span className="hidden xl:inline">{t('links.statistics')}</span>
-                </NavLink>
+                {canReadStatistics && (
+                  <NavLink to="/statistik" className={getNavLinkClass} title={t('links.statistics')}>
+                    <BarChart3 className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
+                    <span className="hidden xl:inline">{t('links.statistics')}</span>
+                  </NavLink>
+                )}
 
                 {canReadDatalayer && (
                   <NavLink to="/datalager" className={getNavLinkClass} title={t('links.datalayer')}>
@@ -384,10 +386,12 @@ export function Header() {
                     </NavLink>
                   )}
 
-                  <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <BarChart3 className="w-5 h-5 shrink-0" />
-                    <span>{t('links.statistics')}</span>
-                  </NavLink>
+                  {canReadStatistics && (
+                    <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+                      <BarChart3 className="w-5 h-5 shrink-0" />
+                      <span>{t('links.statistics')}</span>
+                    </NavLink>
+                  )}
 
                   {canReadDatalayer && (
                     <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>

@@ -26,6 +26,29 @@ html {
     font-size: 17px;
 }
 
+/* Statistik-grafer. Primær serie = var(--color-accent) (org-farven, allerede
+   kontrast-justeret pr. tema i orgPalette.ts); resten er neutral blæk og
+   hårfine linjer. Status-farverne er faste (godkendt/afventer/afvist) og
+   vises altid med ikon + tekst, aldrig farve alene. */
+:root {
+    --chart-surface: #FFFFFF;
+    --chart-neutral: #64748B;
+    --chart-grid: #E2E8F0;
+    --chart-axis: #64748B;
+    --chart-track: #F1F5F9;
+    --chart-good: #0CA30C;
+    --chart-warning: #FAB219;
+    --chart-critical: #D03B3B;
+}
+
+[data-theme="dark"] {
+    --chart-surface: #1E293B;
+    --chart-neutral: #94A3B8;
+    --chart-grid: #334155;
+    --chart-axis: #94A3B8;
+    --chart-track: #0F172A;
+}
+
 /* Formateret tekst fra RichTextEditor - Tailwinds preflight nulstiller
    h2/ul/ol, så de skal stilles eksplicit her (typography-pluginnet er
    ikke installeret). Samme klasse bruges på editorens skriveflade og

@@ -67,7 +67,8 @@
     "resolveTaskMaterialUnits": "Du har ikke rettigheder til at afrapportere materialer på opgaver.",
     "changeTaskMaterialStatus": "Du har ikke rettigheder til at ændre status på et materiale.",
     "favoriteDatalayer": "Du har ikke rettigheder til at ændre favoritter i datalageret.",
-    "favoriteTasks": "Du har ikke rettigheder til at ændre favoritrum."
+    "favoriteTasks": "Du har ikke rettigheder til at ændre favoritrum.",
+    "deleteStatistics": "Du har ikke rettigheder til at slette dette snapshot."
   },
   "db": {
     "NOT_LOGGED_IN": "Du skal være logget ind.",
@@ -171,6 +172,10 @@
     "ROOM_NOT_ACCESSIBLE": "Rummet findes ikke, eller du har ikke adgang til det.",
     "ROOM_NOT_ROLE_LOCKED": "Rummet er ikke rolle-låst og har ingen chat.",
     "CONVERSATION_CLOSED": "Chatten er lukket - kun læsning.",
-    "TASK_CHAT_NOT_AVAILABLE": "Opgave-chatten er ikke tilgængelig for dig."
+    "TASK_CHAT_NOT_AVAILABLE": "Opgave-chatten er ikke tilgængelig for dig.",
+    "NO_PRIV_READ_STATISTICS": "Du har ikke rettigheder til at se statistik.",
+    "NO_PRIV_CREATE_STATISTICS": "Du har ikke rettigheder til at gemme statistik.",
+    "INVALID_PERIOD": "Slutdatoen skal ligge efter startdatoen.",
+    "INVALID_GRANULARITY": "Ugyldig opløsning for statistikken."
   }
 }

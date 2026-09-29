@@ -1,0 +1,148 @@
+{
+  "title": "Statistiky",
+  "subtitle": "Ukazatele a přehledy vypočtené z úkolů a datové vrstvy organizace.",
+  "loading": "Načítání statistik...",
+  "noOrganisation": "Zatím nemáte aktivní organizaci, takže nejsou žádné statistiky k zobrazení.",
+  "goToOrganisation": "Přejít na organizaci",
+  "noAccess": "Nemáte přístup ke statistikám. Požádejte správce o oprávnění „Statistiky – Čtení“.",
+  "loadFailed": "Statistiky se nepodařilo načíst.",
+  "empty": "Ve zvoleném období nejsou žádná data.",
+  "period": {
+    "heading": "Období statistik",
+    "description": "Zvolte, jaké období mají statistiky pokrývat.",
+    "day": "Den",
+    "week": "7 dní",
+    "month": "30 dní",
+    "quarter": "91 dní",
+    "year": "365 dní",
+    "max": "Vše",
+    "custom": "Vlastní",
+    "allTime": "Celé období",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Vlastní období",
+    "description": "Zvolte počáteční a koncové datum. Oba dny jsou zahrnuty.",
+    "from": "Od",
+    "to": "Do",
+    "apply": "Použít",
+    "endBeforeStart": "Koncové datum musí být stejné jako počáteční nebo pozdější."
+  },
+  "kpi": {
+    "heading": "Klíčové ukazatele",
+    "description": "Hlavní čísla za zvolené období.",
+    "created": "Vytvořené úkoly",
+    "completed": "Dokončené úkoly",
+    "active": "Probíhající úkoly",
+    "overdue": "Úkoly po termínu",
+    "members": "Členové",
+    "membersWithActivity_one": "{{count}} s aktivitou v úkolech",
+    "membersWithActivity_few": "{{count}} s aktivitou v úkolech",
+    "membersWithActivity_many": "{{count}} s aktivitou v úkolech",
+    "membersWithActivity_other": "{{count}} s aktivitou v úkolech"
+  },
+  "sections": {
+    "tasks": "Úkoly",
+    "team": "Tým a schválení",
+    "materials": "Materiály"
+  },
+  "development": {
+    "title": "Vývoj úkolů",
+    "description": "Vytvořené a dokončené úkoly v čase.",
+    "created": "Vytvořené",
+    "completed": "Dokončené"
+  },
+  "status": {
+    "title": "Stav úkolů",
+    "description": "Stav úkolů vytvořených v období.",
+    "total": "Celkem"
+  },
+  "priority": {
+    "title": "Priorita",
+    "description": "Priorita úkolů vytvořených v období.",
+    "none": "Bez priority"
+  },
+  "rooms": {
+    "title": "Úkoly podle místnosti",
+    "description": "Úkoly vytvořené v období podle místnosti.",
+    "noRoom": "Bez místnosti",
+    "completed": "Dokončené",
+    "open": "Otevřené",
+    "value": "Dokončené: {{completed}} · otevřené: {{open}}"
+  },
+  "memberLoad": {
+    "title": "Úkoly na člena",
+    "description": "Kolika členům byly v období přiděleny úkoly. Nezobrazuje jména.",
+    "bucket": {
+      "0": "Žádné úkoly",
+      "1-3": "1–3 úkoly",
+      "4-6": "4–6 úkolů",
+      "7+": "7 a více"
+    }
+  },
+  "approvals": {
+    "title": "Schválení",
+    "description": "Hlášení o dokončení odeslaná ke schválení v období.",
+    "pending": "Čeká",
+    "accepted": "Schváleno",
+    "rejected": "Zamítnuto",
+    "rate": "Míra schválení",
+    "median": "Medián doby vyřízení",
+    "hours_one": "{{formatted}} hodina",
+    "hours_few": "{{formatted}} hodiny",
+    "hours_many": "{{formatted}} hodiny",
+    "hours_other": "{{formatted}} hodin",
+    "days_one": "{{formatted}} den",
+    "days_few": "{{formatted}} dny",
+    "days_many": "{{formatted}} dne",
+    "days_other": "{{formatted}} dní"
+  },
+  "materials": {
+    "statusTitle": "Jednotky podle stavu",
+    "statusDescription": "Aktuální stav všech evidovaných jednotek a šarží.",
+    "categoryTitle": "Položky podle kategorie",
+    "categoryDescription": "Počet položek v každé hlavní kategorii.",
+    "topTitle": "Nejpoužívanější materiály",
+    "topDescription": "Top 5 materiálů propojených s úkoly vytvořenými v období."
+  },
+  "snapshots": {
+    "title": "Uložené snímky",
+    "description": "Uložte čísla za období a porovnejte je s dřívějšími obdobími.",
+    "save": "Uložit snímek",
+    "saveTitle": "Uložit snímek",
+    "saveDescription": "Uloží čísla za {{period}}. Uložený snímek se později nikdy nemění.",
+    "label": "Název (volitelné)",
+    "labelPlaceholder": "Např. Sezóna 2026",
+    "saving": "Ukládání...",
+    "saveFailed": "Snímek se nepodařilo uložit.",
+    "loadFailed": "Snímky se nepodařilo načíst.",
+    "empty": "Zatím žádné uložené snímky.",
+    "compareHint": "Vyberte jeden nebo více snímků a porovnejte jejich čísla.",
+    "metric": "Ukazatel",
+    "delete": "Smazat snímek",
+    "deleteTitle": "Smazat snímek?",
+    "deleteMessage": "„{{name}}“ bude trvale smazán a nelze jej obnovit.",
+    "deleteFailed": "Snímek se nepodařilo smazat.",
+    "groups": {
+      "kpis": "Klíčové ukazatele",
+      "task_status": "Stav úkolů",
+      "task_priority": "Priorita",
+      "room": "Úkoly podle místnosti",
+      "member_load": "Úkoly na člena",
+      "approvals": "Schválení",
+      "item_status": "Jednotky podle stavu",
+      "category": "Položky podle kategorie",
+      "top_material": "Nejpoužívanější materiály"
+    },
+    "names": {
+      "tasks_created": "Vytvořené úkoly",
+      "tasks_completed": "Dokončené úkoly",
+      "tasks_active": "Probíhající úkoly",
+      "tasks_overdue": "Úkoly po termínu",
+      "members": "Členové",
+      "members_with_task_activity": "Členové s aktivitou v úkolech",
+      "approvals_rate": "Míra schválení (%)",
+      "approvals_median_hours": "Medián doby vyřízení (hodiny)"
+    }
+  }
+}

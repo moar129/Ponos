@@ -59,7 +59,8 @@
     "updateLocation": "Nu aveți dreptul de a edita locația.",
     "deleteLocation": "Nu aveți dreptul de a șterge locația.",
     "favoriteDatalayer": "Nu aveți dreptul de a modifica favoritele din stratul de date.",
-    "favoriteTasks": "Nu aveți dreptul de a modifica camerele favorite."
+    "favoriteTasks": "Nu aveți dreptul de a modifica camerele favorite.",
+    "deleteStatistics": "Nu ai permisiunea de a șterge acest instantaneu."
   },
   "db": {
     "NOT_LOGGED_IN": "Trebuie să fiți autentificat.",
@@ -148,6 +149,10 @@
     "ROOM_NOT_ACCESSIBLE": "Camera nu există sau nu ai acces la ea.",
     "ROOM_NOT_ROLE_LOCKED": "Camera nu este restricționată pe roluri și nu are chat.",
     "CONVERSATION_CLOSED": "Chatul este închis - doar citire.",
-    "TASK_CHAT_NOT_AVAILABLE": "Chatul sarcinii nu este disponibil pentru tine."
+    "TASK_CHAT_NOT_AVAILABLE": "Chatul sarcinii nu este disponibil pentru tine.",
+    "NO_PRIV_READ_STATISTICS": "Nu ai permisiunea de a vedea statisticile.",
+    "NO_PRIV_CREATE_STATISTICS": "Nu ai permisiunea de a salva statistici.",
+    "INVALID_PERIOD": "Data de sfârșit trebuie să fie după data de început.",
+    "INVALID_GRANULARITY": "Rezoluție invalidă pentru statistici."
   }
 }

@@ -64,7 +64,6 @@
       "invitations": "Invitationer",
       "membershipRequests": "Medlemsanmodninger",
       "organisation": "Organisation",
-
       "colors": "Farver",
       "taskApprovals": "Opgavegodkendelser",
       "completedTasks": "Afsluttede opgaver"
@@ -99,12 +98,5 @@
     "resetFilters": "Nulstil",
     "finishedOn": "Færdig {{date}}",
     "showing": "Viser {{count}} af {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Du har ingen aktiv organisation endnu, så der er ingen statistik at vise.",
-    "goToOrganisation": "Gå til Organisation",
-    "title": "Statistik",
-    "description": "Nøgletal og indsigt beregnet ud fra organisationens items og opgaver.",
-    "loading": "Indlæser..."
   }
 }

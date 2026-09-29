@@ -1,0 +1,145 @@
+{
+  "title": "Statistici",
+  "subtitle": "Indicatori și analize calculate din sarcinile și stratul de date al organizației.",
+  "loading": "Se încarcă statisticile...",
+  "noOrganisation": "Nu ai încă o organizație activă, deci nu există statistici de afișat.",
+  "goToOrganisation": "Mergi la Organizație",
+  "noAccess": "Nu ai acces la statistici. Cere unui administrator privilegiul „Statistici – Citire”.",
+  "loadFailed": "Statisticile nu au putut fi încărcate.",
+  "empty": "Nu există date în perioada selectată.",
+  "period": {
+    "heading": "Perioada statisticilor",
+    "description": "Alege ce perioadă să acopere statisticile.",
+    "day": "Zi",
+    "week": "7 zile",
+    "month": "30 de zile",
+    "quarter": "91 de zile",
+    "year": "365 de zile",
+    "max": "Tot",
+    "custom": "Personalizat",
+    "allTime": "Toată perioada",
+    "range": "{{start}} – {{end}}"
+  },
+  "custom": {
+    "title": "Perioadă personalizată",
+    "description": "Alege data de început și de sfârșit. Ambele zile sunt incluse.",
+    "from": "De la",
+    "to": "Până la",
+    "apply": "Aplică",
+    "endBeforeStart": "Data de sfârșit trebuie să fie aceeași sau după data de început."
+  },
+  "kpi": {
+    "heading": "Indicatori cheie",
+    "description": "Cifrele principale pentru perioada selectată.",
+    "created": "Sarcini create",
+    "completed": "Sarcini finalizate",
+    "active": "Sarcini în desfășurare",
+    "overdue": "Sarcini întârziate",
+    "members": "Membri",
+    "membersWithActivity_one": "{{count}} cu activitate pe sarcini",
+    "membersWithActivity_few": "{{count}} cu activitate pe sarcini",
+    "membersWithActivity_other": "{{count}} cu activitate pe sarcini"
+  },
+  "sections": {
+    "tasks": "Sarcini",
+    "team": "Echipă și aprobări",
+    "materials": "Materiale"
+  },
+  "development": {
+    "title": "Evoluția sarcinilor",
+    "description": "Sarcini create și finalizate în timp.",
+    "created": "Create",
+    "completed": "Finalizate"
+  },
+  "status": {
+    "title": "Starea sarcinilor",
+    "description": "Starea sarcinilor create în perioadă.",
+    "total": "Total"
+  },
+  "priority": {
+    "title": "Prioritate",
+    "description": "Prioritatea sarcinilor create în perioadă.",
+    "none": "Fără prioritate"
+  },
+  "rooms": {
+    "title": "Sarcini pe cameră",
+    "description": "Sarcini create în perioadă, pe cameră.",
+    "noRoom": "Fără cameră",
+    "completed": "Finalizate",
+    "open": "Deschise",
+    "value": "Finalizate: {{completed}} · deschise: {{open}}"
+  },
+  "memberLoad": {
+    "title": "Sarcini pe membru",
+    "description": "Câți membri au primit sarcini în perioadă. Nu afișează nume.",
+    "bucket": {
+      "0": "Nicio sarcină",
+      "1-3": "1–3 sarcini",
+      "4-6": "4–6 sarcini",
+      "7+": "7 sau mai multe"
+    }
+  },
+  "approvals": {
+    "title": "Aprobări",
+    "description": "Anunțuri de finalizare trimise spre aprobare în perioadă.",
+    "pending": "În așteptare",
+    "accepted": "Aprobată",
+    "rejected": "Respinsă",
+    "rate": "Rata de aprobare",
+    "median": "Timp median de procesare",
+    "hours_one": "{{formatted}} oră",
+    "hours_few": "{{formatted}} ore",
+    "hours_other": "{{formatted}} de ore",
+    "days_one": "{{formatted}} zi",
+    "days_few": "{{formatted}} zile",
+    "days_other": "{{formatted}} de zile"
+  },
+  "materials": {
+    "statusTitle": "Unități după stare",
+    "statusDescription": "Starea actuală a tuturor unităților și loturilor înregistrate.",
+    "categoryTitle": "Articole pe categorie",
+    "categoryDescription": "Numărul de articole din fiecare categorie principală.",
+    "topTitle": "Cele mai folosite materiale",
+    "topDescription": "Top 5 materiale legate de sarcini create în perioadă."
+  },
+  "snapshots": {
+    "title": "Instantanee salvate",
+    "description": "Salvează cifrele perioadei și compară-le cu perioadele anterioare.",
+    "save": "Salvează instantaneul",
+    "saveTitle": "Salvează instantaneul",
+    "saveDescription": "Salvează cifrele pentru {{period}}. Un instantaneu salvat nu se mai schimbă ulterior.",
+    "label": "Nume (opțional)",
+    "labelPlaceholder": "Ex. Sezonul 2026",
+    "saving": "Se salvează...",
+    "saveFailed": "Instantaneul nu a putut fi salvat.",
+    "loadFailed": "Instantaneele nu au putut fi încărcate.",
+    "empty": "Încă nu există instantanee salvate.",
+    "compareHint": "Selectează unul sau mai multe instantanee pentru a le compara cifrele.",
+    "metric": "Indicator",
+    "delete": "Șterge instantaneul",
+    "deleteTitle": "Ștergi instantaneul?",
+    "deleteMessage": "„{{name}}” va fi șters definitiv și nu poate fi restaurat.",
+    "deleteFailed": "Instantaneul nu a putut fi șters.",
+    "groups": {
+      "kpis": "Indicatori cheie",
+      "task_status": "Starea sarcinilor",
+      "task_priority": "Prioritate",
+      "room": "Sarcini pe cameră",
+      "member_load": "Sarcini pe membru",
+      "approvals": "Aprobări",
+      "item_status": "Unități după stare",
+      "category": "Articole pe categorie",
+      "top_material": "Cele mai folosite materiale"
+    },
+    "names": {
+      "tasks_created": "Sarcini create",
+      "tasks_completed": "Sarcini finalizate",
+      "tasks_active": "Sarcini în desfășurare",
+      "tasks_overdue": "Sarcini întârziate",
+      "members": "Membri",
+      "members_with_task_activity": "Membri cu activitate pe sarcini",
+      "approvals_rate": "Rata de aprobare (%)",
+      "approvals_median_hours": "Timp median de procesare (ore)"
+    }
+  }
+}

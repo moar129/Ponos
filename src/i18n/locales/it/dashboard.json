@@ -65,7 +65,6 @@
       "invitations": "Inviti",
       "membershipRequests": "Richieste di adesione",
       "organisation": "Organizzazione",
-
       "colors": "Colori",
       "taskApprovals": "Approvazioni delle attività",
       "completedTasks": "Attività completate"
@@ -100,12 +99,5 @@
     "resetFilters": "Reimposta",
     "finishedOn": "Completata il {{date}}",
     "showing": "{{count}} di {{total}}"
-  },
-  "statistics": {
-    "noOrganisation": "Non hai ancora un'organizzazione attiva, quindi non ci sono statistiche da mostrare.",
-    "goToOrganisation": "Vai a Organizzazione",
-    "title": "Statistiche",
-    "description": "Indicatori e analisi calcolati dagli articoli e dalle attività dell'organizzazione.",
-    "loading": "Caricamento..."
   }
 }

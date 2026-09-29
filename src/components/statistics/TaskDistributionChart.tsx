@@ -1,98 +1,80 @@
-import {
-    Cell,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-} from 'recharts'
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import type { TooltipContentProps } from 'recharts'
+import { useTranslation } from 'react-i18next'
+import type { ETaskStatus } from '../../types/Task/Task'
+import type { TaskDistributionChartProps } from '../../types/statistics/statisticsComponentTypes'
 
-export interface TaskDistributionChartData {
-    name: string
-    value: number
+// The statuses are ordered (available -> in progress -> done), so they get
+// an ordinal ramp of the org accent instead of unrelated hues.
+const STATUS_COLORS: Record<ETaskStatus, string> = {
+    Started: 'color-mix(in srgb, var(--color-accent) 35%, var(--chart-surface))',
+    InProgress: 'color-mix(in srgb, var(--color-accent) 65%, var(--chart-surface))',
+    Completed: 'var(--color-accent)',
 }
 
-interface TaskDistributionChartProps {
-    data: TaskDistributionChartData[]
-}
+export function TaskDistributionChart({ data }: TaskDistributionChartProps) {
+    const { t } = useTranslation(['statistics', 'tasks'])
+    const total = data.reduce((sum, item) => sum + item.count, 0)
 
-const chartColors = ['#94A3B8', '#C7975D', '#0B132A']
+    const rows = data.map((item) => ({
+        status: item.status,
+        name: t(`tasks:status.${item.status}`),
+        value: item.count,
+    }))
 
-export function TaskDistributionChart({
-    data,
-}: TaskDistributionChartProps) {
-    const total = data.reduce((sum, item) => sum + item.value, 0)
+    const renderTooltip = ({ active, payload }: TooltipContentProps) => {
+        if (!active || !payload?.length) return null
+        const entry = payload[0]
 
-    if (total === 0) {
         return (
-            <div className="flex min-h-[220px] items-center justify-center">
-                <p className="text-sm text-secondary dark:text-slate-400">
-                    Ingen opgaver i den valgte periode
-                </p>
+            <div className="rounded-md border border-border-gray bg-white px-3 py-2 text-sm shadow-md dark:border-slate-600 dark:bg-slate-800">
+                <span className="text-secondary dark:text-slate-300">{entry.name}</span>
+                <span className="ml-3 font-semibold tabular-nums text-primary dark:text-slate-100">{entry.value}</span>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-[220px] items-center gap-6">
-            <div className="h-[220px] min-w-0 flex-1">
+        <div className="flex min-h-[220px] flex-col items-center gap-6 sm:flex-row">
+            <div className="h-[220px] w-full min-w-0 flex-1">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
-                            data={data}
+                            data={rows}
                             dataKey="value"
                             nameKey="name"
                             cx="50%"
                             cy="50%"
-                            innerRadius={55}
-                            outerRadius={80}
-                            paddingAngle={2}
+                            innerRadius={60}
+                            outerRadius={85}
+                            stroke="var(--chart-surface)"
+                            strokeWidth={2}
                         >
-                            {data.map((entry, index) => (
-                                <Cell
-                                    key={`cell-${entry.name}`}
-                                    fill={
-                                        chartColors[
-                                            index % chartColors.length
-                                        ]
-                                    }
-                                />
+                            {rows.map((row) => (
+                                <Cell key={row.status} fill={STATUS_COLORS[row.status]} />
                             ))}
                         </Pie>
 
-                        <Tooltip
-                            formatter={(value) => [
-                                value,
-                                'Opgaver',
-                            ]}
-                        />
+                        <Tooltip content={renderTooltip} />
                     </PieChart>
                 </ResponsiveContainer>
             </div>
 
-            <div className="w-36 shrink-0 space-y-3">
-                {data.map((item, index) => (
-                    <div
-                        key={item.name}
-                        className="flex items-center justify-between gap-3"
-                    >
+            <div className="w-full shrink-0 space-y-3 sm:w-40">
+                {rows.map((row) => (
+                    <div key={row.status} className="flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-2">
                             <span
                                 className="h-3 w-3 shrink-0 rounded-full"
-                                style={{
-                                    backgroundColor:
-                                        chartColors[
-                                            index % chartColors.length
-                                        ],
-                                }}
+                                style={{ backgroundColor: STATUS_COLORS[row.status] }}
                             />
-
                             <span className="truncate text-sm text-secondary dark:text-slate-300">
-                                {item.name}
+                                {row.name}
                             </span>
                         </div>
 
-                        <span className="text-sm font-semibold text-primary dark:text-slate-100">
-                            {item.value}
+                        <span className="text-sm font-semibold tabular-nums text-primary dark:text-slate-100">
+                            {row.value}
                         </span>
                     </div>
                 ))}
@@ -100,10 +82,9 @@ export function TaskDistributionChart({
                 <div className="border-t border-border-gray pt-3 dark:border-slate-700">
                     <div className="flex items-center justify-between">
                         <span className="text-sm text-secondary dark:text-slate-400">
-                            I alt
+                            {t('status.total')}
                         </span>
-
-                        <span className="text-sm font-semibold text-primary dark:text-slate-100">
+                        <span className="text-sm font-semibold tabular-nums text-primary dark:text-slate-100">
                             {total}
                         </span>
                     </div>
