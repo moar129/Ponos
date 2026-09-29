@@ -24,6 +24,7 @@
   "allContacts": "Toate contactele",
   "newGroup": "Grup nou",
   "chooseConversation": "Alegeți o conversație sau găsiți un coleg la „Toate contactele”",
+  "backToConversations": "Înapoi la conversații",
   "participantCount_one": "{{count}} participant",
   "participantCount_few": "{{count}} participanți",
   "participantCount_other": "{{count}} de participanți",

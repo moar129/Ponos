@@ -42,7 +42,7 @@ export function NewsDetailPage() {
     const errorMessage = readableError(queryError) ?? readableError(deleteError)
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 max-w-8xl mx-auto space-y-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 max-w-4xl mx-auto space-y-6">
             <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline w-fit">
                 <ArrowLeft className="w-4 h-4" />
                 {t('backToNews')}
@@ -62,10 +62,10 @@ export function NewsDetailPage() {
                         className="w-full max-h-96 object-cover"
                         placeholderClassName="w-full h-56 sm:h-72"
                     />
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                         <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-primary dark:text-slate-100 leading-tight">{news.title}</h1>
+                            <div className="min-w-0">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-primary dark:text-slate-100 leading-tight break-words">{news.title}</h1>
                                 <p className="text-sm text-secondary dark:text-slate-400 mt-1">{formatDate(news.publishedAt)}</p>
                             </div>
 

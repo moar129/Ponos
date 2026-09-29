@@ -34,7 +34,7 @@ export function LocationTreeNode({
   return (
     <div className={isWarehouse ? '' : 'ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray dark:border-slate-700 my-0.5'}>
       <div
-        className={`flex flex-wrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${
+        className={`flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${
           isSelected
             ? 'bg-accent/15 text-primary font-medium dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray/60 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
@@ -42,14 +42,16 @@ export function LocationTreeNode({
         onClick={() => onSelectLocation(location)}
       >
         {/*
-          min-w-[7rem] + flex-1 (i stedet for min-w-0) sikrer, at navnet
-          altid har en garanteret minimumsbredde og aldrig presses til 0px.
-          Kan handlingsknapperne (som har shrink-0) ikke være på samme
-          linje som navnet, folder flex-wrap dem ned på en ny linje i
-          stedet for at de "spiser" navnets plads - vigtigt på iPad/
-          smalle skærme, hvor knapperne altid er synlige (ikke kun ved hover).
+          min-w + flex-1 (i stedet for min-w-0) sikrer, at navnet altid har
+          en garanteret minimumsbredde og aldrig presses til 0px. Kan
+          handlingsknapperne (som har shrink-0) ikke være på samme linje
+          som navnet, folder flex-wrap dem ned på en ny linje i stedet for
+          at de "spiser" navnets plads. 10.5rem (mod 7rem i CategoryTreeNode)
+          fordi lager-rækker har 2 knapper færre (ingen op/ned) - så rækken
+          ombrydes ved samme panelbredde som kategori-rækker. Fra lg: én linje
+          (lg:flex-nowrap + lg:min-w-0), da knapperne dér er hover-only.
         */}
-        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] flex-1">
+        <div className="flex items-center gap-1.5 overflow-hidden min-w-[10.5rem] lg:min-w-0 flex-1">
           {hasChildren ? (
             <button
               type="button"

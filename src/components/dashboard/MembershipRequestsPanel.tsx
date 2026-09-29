@@ -106,7 +106,7 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? t('requests.processing') : t('requests.yes')}
                     </button>
@@ -120,12 +120,12 @@ function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, 
                     </button>
                 </div>
             ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         type="button"
                         onClick={() => onSelect({ requestId: request.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         <Check className="w-4 h-4" />
                         {t('requests.accept')}

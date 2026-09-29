@@ -64,6 +64,8 @@
       "invitations": "Invitations",
       "membershipRequests": "Membership requests",
       "organisation": "Organisation",
+
+      "colors": "Colours",
       "taskApprovals": "Task approvals",
       "completedTasks": "Completed tasks"
     }

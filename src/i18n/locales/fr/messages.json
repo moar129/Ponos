@@ -24,6 +24,7 @@
   "allContacts": "Tous les contacts",
   "newGroup": "Nouveau groupe",
   "chooseConversation": "Choisissez une conversation, ou trouvez un collègue sous \"Tous les contacts\"",
+  "backToConversations": "Retour aux conversations",
   "participantCount_one": "{{count}} participant",
   "participantCount_other": "{{count}} participants",
   "group": {

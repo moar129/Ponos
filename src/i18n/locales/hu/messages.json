@@ -24,6 +24,7 @@
   "allContacts": "Összes névjegy",
   "newGroup": "Új csoport",
   "chooseConversation": "Válasszon beszélgetést, vagy keressen kollégát az \"Összes névjegy\" alatt",
+  "backToConversations": "Vissza a beszélgetésekhez",
   "participantCount_one": "{{count}} résztvevő",
   "participantCount_other": "{{count}} résztvevő",
   "group": {

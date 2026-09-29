@@ -11,17 +11,19 @@ export function LandingHero() {
 
     return (
         <section className="relative bg-primary overflow-hidden">
-            {/* Rent dekorativt: skjult for skærmlæsere, og pointer-events-none
-                så det aldrig stjæler klik fra knapperne. */}
-            <img
-                src={compass}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none select-none absolute -right-20 -bottom-24 w-[28rem] opacity-10 hidden md:block"
-            />
-
             <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-28">
-                <div className="max-w-3xl">
+                {/* Rent dekorativt: skjult for skærmlæsere, og pointer-events-none
+                    så det aldrig stjæler klik fra knapperne. Placeret i
+                    indholds-containeren, så det følger teksten på ultrawide
+                    i stedet for at klæbe til skærmkanten. */}
+                <img
+                    src={compass}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none select-none absolute -right-20 -bottom-24 w-[28rem] opacity-10 hidden md:block"
+                />
+
+                <div className="relative max-w-3xl">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-semibold tracking-wide text-slate-100 leading-tight">
                         {t('hero.line1')} <br className="hidden sm:block" />{' '}
                         {t('hero.line2')}<br className="hidden sm:block" />{' '}
@@ -35,7 +37,7 @@ export function LandingHero() {
                     <div className="mt-9 flex flex-col sm:flex-row gap-3">
                         <Link
                             to="/signup"
-                            className="inline-flex items-center justify-center bg-accent text-primary rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
+                            className="inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
                         >
                             {t('cta.signup')}
                         </Link>

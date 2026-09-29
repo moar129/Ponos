@@ -142,7 +142,7 @@ export function PrivilegeMatrix() {
                 <button
                     type="submit"
                     disabled={creatingRole}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creatingRole ? t('matrix.creatingRole') : t('matrix.createRole')}
                 </button>
@@ -167,9 +167,9 @@ export function PrivilegeMatrix() {
                         varierende celleindhold (lock-ikon vs. checkbox vs.
                         omdøb-knap) fik cellerne til at stå en anelse skævt
                         i forhold til hinanden. */}
-                    <table className="table-fixed border-collapse text-sm">
+                    <table className="w-full table-fixed border-collapse text-sm">
                         <colgroup>
-                            <col className="w-56" />
+                            <col className="w-36 sm:w-56" />
                             {roles.map((role) => (
                                 <col key={role.id} className="w-36" />
                             ))}

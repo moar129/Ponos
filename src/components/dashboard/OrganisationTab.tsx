@@ -30,7 +30,7 @@ type NoOrgTab = 'create' | 'request' | 'memberships' | 'invitations'
 // Samme vertikale sidebar-nav-stil som AdministrationTab.tsx, genbrugt
 // her for et konsistent udtryk på tværs af dashboardets faner.
 function orgNavItemClass(active: boolean): string {
-    return `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
+    return `flex shrink-0 items-center gap-2 whitespace-nowrap md:whitespace-normal rounded-md px-3 py-2 text-sm font-medium transition-colors ${active
         ? 'bg-accent/15 text-primary dark:text-slate-100'
         : 'text-secondary hover:bg-bg-gray hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100'
     }`
@@ -236,7 +236,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={creating}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {creating ? t('create.submitting') : t('create.submit')}
                                                 </button>
@@ -264,7 +264,7 @@ export function OrganisationTab() {
                                                 <button
                                                     type="submit"
                                                     disabled={requesting || !selectedOrgId}
-                                                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                                 >
                                                     {requesting ? t('request.submitting') : t('request.submit')}
                                                 </button>
@@ -357,7 +357,7 @@ export function OrganisationTab() {
                         <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
                             <div className="py-3 flex justify-between gap-4">
                                 <dt className="text-sm text-secondary dark:text-slate-400">{t('details.memberCount')}</dt>
-                                <dd className="text-sm text-right">{activeMembership?.memberCount ?? '—'}</dd>
+                                <dd className="text-sm text-right min-w-0 break-words">{activeMembership?.memberCount ?? '—'}</dd>
                             </div>
                         </dl>
                     </>
@@ -446,7 +446,7 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                         type="button"
                         onClick={() => onConfirm(decision)}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {submitting ? t('myInvitations.processing') : t('myInvitations.yes')}
                     </button>
@@ -460,12 +460,12 @@ function InvitationRow({ invitation, pendingDecision, submitting, onSelect, onCa
                     </button>
                 </div>
             ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         type="button"
                         onClick={() => onSelect({ invitationId: invitation.id, decision: 'Accepted' })}
                         disabled={submitting}
-                        className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                     >
                         {t('myInvitations.accept')}
                     </button>
@@ -556,7 +556,7 @@ function RequestMembershipSection() {
                 <button
                     type="submit"
                     disabled={requesting || !selectedOrgId}
-                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {requesting ? t('request.submitting') : t('request.submit')}
                 </button>
@@ -619,7 +619,7 @@ function CreateOrganisationSection({ onCreated }: CreateOrganisationSectionProps
                 <button
                     type="submit"
                     disabled={creating}
-                    className="self-start bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="self-start bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {creating ? t('create.submitting') : t('create.submit')}
                 </button>
@@ -724,7 +724,7 @@ function MembershipRow({ membership, onLeft }: MembershipRowProps) {
                     <p className="text-sm text-secondary dark:text-slate-400">{membership.roleName ?? t('details.noRole')}</p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     {membership.isActive ? (
                         <span className="text-sm font-medium text-accent">{t('myOrganisations.active')}</span>
                     ) : (

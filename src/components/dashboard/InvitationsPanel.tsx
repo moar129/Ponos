@@ -77,7 +77,7 @@ export function InvitationsPanel() {
                 <button
                     type="submit"
                     disabled={inviting || !email.trim()}
-                    className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                    className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
                     {inviting ? t('invitations.sending') : t('invitations.send')}
                 </button>
@@ -116,7 +116,7 @@ export function InvitationsPanel() {
                             </div>
 
                             {confirmingCancelId === invitation.id ? (
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <span className="text-sm text-secondary dark:text-slate-400">{t('invitations.areYouSure')}</span>
                                     <button
                                         type="button"

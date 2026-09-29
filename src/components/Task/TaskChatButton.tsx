@@ -46,7 +46,7 @@ export function TaskChatButton({ taskId, canJoin }: TaskChatButtonProps) {
           void handleClick();
         }}
         disabled={isLoading}
-        className="relative flex items-center gap-2 rounded border-2 border-border-gray px-6 py-2 text-xs font-bold uppercase tracking-widest text-secondary transition-all hover:border-accent hover:text-accent disabled:opacity-50 dark:border-slate-700 dark:text-slate-400"
+        className="relative flex items-center gap-2 rounded border-2 border-border-gray px-4 sm:px-6 py-2 text-xs font-bold uppercase tracking-widest text-secondary transition-all hover:border-accent hover:text-accent disabled:opacity-50 dark:border-slate-700 dark:text-slate-400"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareText className="h-4 w-4" />}
         {t('card.chat')}

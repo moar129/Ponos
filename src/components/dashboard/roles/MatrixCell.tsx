@@ -197,7 +197,7 @@ export function MatrixCell({
                     }}
                     aria-label={t('matrix.renamePrivilege')}
                     title={t('matrix.renamePrivilegeFor', { role: role.name })}
-                    className="absolute left-full ml-1 opacity-0 group-hover/cell:opacity-100 p-0.5 text-secondary hover:text-primary transition-opacity dark:text-slate-400"
+                    className="absolute left-full ml-1 opacity-100 lg:opacity-0 lg:group-hover/cell:opacity-100 p-0.5 text-secondary hover:text-primary transition-opacity dark:text-slate-400"
                 >
                     <Pencil className="w-3 h-3" />
                 </button>

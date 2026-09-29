@@ -111,7 +111,7 @@ export default function ProfilePage() {
     const saveError = readableError(mutationError)
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100">
             {/* Overskrift med profilbillede/ikon og navn */}
             <div className="flex items-center gap-4 mb-6">
                 <Avatar
@@ -198,7 +198,7 @@ export default function ProfilePage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {saving ? t('common:saving') : t('saveChanges')}
                         </button>
@@ -217,19 +217,19 @@ export default function ProfilePage() {
                     <dl className="divide-y divide-border-gray dark:divide-slate-700 border-t border-border-gray dark:border-slate-700">
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.firstName')}</dt>
-                            <dd className="text-sm text-right">{profile.firstName}</dd>
+                            <dd className="text-sm text-right min-w-0 break-words">{profile.firstName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.lastName')}</dt>
-                            <dd className="text-sm text-right">{profile.lastName}</dd>
+                            <dd className="text-sm text-right min-w-0 break-words">{profile.lastName}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.email')}</dt>
-                            <dd className="text-sm text-right">{profile.email}</dd>
+                            <dd className="text-sm text-right min-w-0 break-words">{profile.email}</dd>
                         </div>
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.organisation')}</dt>
-                            <dd className="text-sm text-right">
+                            <dd className="text-sm text-right min-w-0 break-words">
                                 {profile.organisationName ?? t('empty.organisation')}
                             </dd>
                         </div>
@@ -237,14 +237,14 @@ export default function ProfilePage() {
                         {profile.activeOrganisationId && (
                             <div className="py-3 flex justify-between gap-4">
                                 <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.role')}</dt>
-                                <dd className="text-sm text-right">
+                                <dd className="text-sm text-right min-w-0 break-words">
                                     {profile.roleName ?? t('empty.role')}
                                 </dd>
                             </div>
                         )}
                         <div className="py-3 flex justify-between gap-4">
                             <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.description')}</dt>
-                            <dd className="text-sm text-right">
+                            <dd className="text-sm text-right min-w-0 break-words">
                                 {profile.description ?? t('empty.description')}
                             </dd>
                         </div>
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                         <button
                             type="button"
                             onClick={() => startEdit(profile)}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors"
                         >
                             {t('editProfile')}
                         </button>

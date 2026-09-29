@@ -43,7 +43,7 @@ export function TaskApprovalDetailsModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
             <div
-                className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="overflow-y-auto p-6">
@@ -200,7 +200,7 @@ export function TaskApprovalDetailsModal({
                                 type="button"
                                 onClick={() => onConfirm(decision)}
                                 disabled={submitting || missingReason}
-                                className="bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                             >
                                 {submitting ? t('common:processing') : t('common:yes')}
                             </button>
@@ -220,7 +220,7 @@ export function TaskApprovalDetailsModal({
                                     type="button"
                                     onClick={() => onSelect({ requestId: request.id, decision: 'approve' })}
                                     disabled={submitting}
-                                    className="flex items-center gap-2 bg-accent text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                                    className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                                 >
                                     <Check className="w-4 h-4" />
                                     {t('roles:approvals.approve')}

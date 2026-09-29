@@ -33,7 +33,7 @@ export function CategoryTreeNode({
   return (
     <div className="ml-1 sm:ml-2 pl-1 sm:pl-2 border-l border-border-gray my-0.5 dark:border-slate-700">
       <div
-        className={`flex flex-wrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
+        className={`flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-1 p-1.5 rounded-md cursor-pointer transition-colors group ${isSelected
             ? 'bg-accent/15 text-primary font-medium dark:text-slate-100'
             : 'text-secondary hover:bg-bg-gray/60 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
           }`}
@@ -46,8 +46,10 @@ export function CategoryTreeNode({
           linje som navnet, folder flex-wrap dem ned på en ny linje i
           stedet for at de "spiser" navnets plads - vigtigt på iPad/
           smalle skærme, hvor knapperne altid er synlige (ikke kun ved hover).
+          Fra lg er knapperne hover-only (usynlige men pladskrævende), så dér
+          holdes rækken på én linje (lg:flex-nowrap) og navnet truncater.
         */}
-        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] flex-1">
+        <div className="flex items-center gap-1.5 overflow-hidden min-w-[7rem] lg:min-w-0 flex-1">
           {hasSubCategories ? (
             <button
               type="button"

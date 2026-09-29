@@ -164,11 +164,11 @@ function NewsForm({ onClose, editingNews }: NewsFormProps) {
                         <p className="text-xs text-secondary dark:text-slate-400 mt-1">{t('form.urlHint')}</p>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex flex-wrap gap-3 pt-2">
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="bg-accent text-white rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+                            className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                         >
                             {isSaving ? t('common:saving') : t('common:save')}
                         </button>

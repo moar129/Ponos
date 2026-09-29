@@ -48,7 +48,7 @@ export function OverviewTab() {
 
             <div>
                 <h2 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">{t('overview.shortcuts')}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4">
                     {canReadDatalayer && (
                         <QuickLinkCard
                             to="/datalager"

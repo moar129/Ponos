@@ -24,6 +24,7 @@
   "allContacts": "Alle kontakter",
   "newGroup": "Ny gruppe",
   "chooseConversation": "Vælg en samtale, eller find en kollega under \"Alle kontakter\"",
+  "backToConversations": "Tilbage til samtaler",
   "participantCount_one": "{{count}} deltager",
   "participantCount_other": "{{count}} deltagere",
   "group": {

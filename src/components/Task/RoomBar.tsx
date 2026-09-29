@@ -138,11 +138,11 @@ export function RoomBar({
 
     return (
         <div className="w-full bg-white dark:bg-slate-900">
-            <div className="mx-auto max-w-[1600px] px-8">
+            <div className="lg:px-2">
                 <div className="flex items-center gap-1">
 
                     {/* TABS / ROOMS */}
-                    <div className="flex items-center gap-1 overflow-x-auto">
+                    <div className="flex min-w-0 items-center gap-1 overflow-x-auto no-scrollbar">
 
                         {/* ALLE */}
                         <button
@@ -202,7 +202,7 @@ export function RoomBar({
                                 {t('approvals.tab')}
                                 {pendingRequests.length > 0 && (
                                     <span
-                                        className="rounded-full bg-accent px-1.5 text-xs font-bold text-white"
+                                        className="rounded-full bg-accent px-1.5 text-xs font-bold text-accent-text"
                                         aria-label={t('approvals.pendingCount', { count: pendingRequests.length })}
                                     >
                                         {pendingRequests.length}

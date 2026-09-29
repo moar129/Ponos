@@ -20,6 +20,29 @@ export interface UpdateOrganisationInput {
   headerTextColor?: string | null
   footerTextColor?: string | null
 }
+// The five branding colors an admin can pick (null/undefined = Ponos default).
+export type OrganisationColors = Pick<
+  Organisation,
+  'color' | 'headerColor' | 'footerColor' | 'headerTextColor' | 'footerTextColor'
+>
+
+export interface BarPalette {
+  bg: string
+  text: string
+  muted: string
+  border: string
+}
+
+// Colors actually rendered for one theme mode, derived from OrganisationColors
+// by buildOrgPalette (src/utils/orgPalette.ts) so they stay readable.
+export interface OrgPalette {
+  accent: string
+  accentHover: string
+  accentText: string
+  header: BarPalette
+  footer: BarPalette
+}
+
 // Felter til at oprette en ny organisation (US-58).
 export interface CreateOrganisationInput {
     name: string

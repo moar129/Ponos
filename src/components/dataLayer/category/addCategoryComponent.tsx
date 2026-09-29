@@ -112,7 +112,7 @@ export function AddCategoryComponent({
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-accent-text text-sm font-medium transition-colors"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {t('addCategory.submit')}

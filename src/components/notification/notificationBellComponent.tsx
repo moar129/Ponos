@@ -81,7 +81,7 @@ export function NotificationBellComponent() {
       >
         <Bell className="w-5 h-5 xl:w-6 xl:h-6" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 bg-accent text-white text-[10px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold">
+          <span className="absolute top-1 right-1 bg-accent text-accent-text text-[10px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -90,7 +90,7 @@ export function NotificationBellComponent() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
+          className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto mt-2 sm:w-80 max-h-96 rounded-lg bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 shadow-xl z-50 overflow-hidden flex flex-col"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-gray dark:border-slate-700 shrink-0">
             <h3 className="text-sm font-semibold text-primary dark:text-slate-100">{t('title')}</h3>
@@ -140,7 +140,7 @@ export function NotificationBellComponent() {
                     <button
                       type="button"
                       onClick={(e) => handleDismiss(e, notification.id)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-red-500/20 text-secondary hover:text-red-500 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                       title={t('hide')}
                       aria-label={t('hide')}
                     >

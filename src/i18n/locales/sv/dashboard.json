@@ -64,6 +64,8 @@
       "invitations": "Inbjudningar",
       "membershipRequests": "Medlemsansökningar",
       "organisation": "Organisation",
+
+      "colors": "Färger",
       "taskApprovals": "Godkännanden av uppgifter",
       "completedTasks": "Avslutade uppgifter"
     }

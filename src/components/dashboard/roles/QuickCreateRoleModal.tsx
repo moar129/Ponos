@@ -255,7 +255,7 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
                         type="button"
                         onClick={handleCreate}
                         disabled={creating || !name.trim() || (template === 'copy' && !copyRoleId && customSelection === null)}
-                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-text transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {creating ? t('matrix.creatingRole') : t('matrix.createRole')}
                     </button>

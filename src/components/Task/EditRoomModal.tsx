@@ -143,7 +143,7 @@ export function EditRoomModal({
                             !selectedRoomId ||
                             !roomName.trim()
                         }
-                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-text transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isLoading ? t('common:saving') : t('common:save')}
                     </button>

@@ -64,6 +64,8 @@
       "invitations": "Invitationer",
       "membershipRequests": "Medlemsanmodninger",
       "organisation": "Organisation",
+
+      "colors": "Farver",
       "taskApprovals": "Opgavegodkendelser",
       "completedTasks": "Afsluttede opgaver"
     }
