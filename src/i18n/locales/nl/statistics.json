@@ -44,7 +44,9 @@
     "leadTime": "Doorlooptijd (mediaan)",
     "leadTimeDetail": "Van aangemaakt tot afgerond",
     "newMembers": "Nieuwe leden",
-    "membersTotal": "Leden in totaal: {{total}}"
+    "membersTotal": "Leden in totaal: {{total}}",
+    "leadTimeSplit": "Wachttijd {{wait}} · bezig {{work}}",
+    "membersLeft": "Vertrokken: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Taken",
@@ -55,7 +57,8 @@
     "title": "Taakontwikkeling",
     "description": "Aangemaakte en voltooide taken in de tijd.",
     "created": "Aangemaakt",
-    "completed": "Voltooid"
+    "completed": "Voltooid",
+    "period": "Periode"
   },
   "status": {
     "title": "Taakstatus",
@@ -149,7 +152,9 @@
       "room_completed": "Afgerond per ruimte",
       "room_overdue": "Achterstallig per ruimte",
       "room_on_time_rate": "Op tijd per ruimte (%)",
-      "location": "Eenheden per locatie"
+      "location": "Eenheden per locatie",
+      "loss": "Verlies en verbruik",
+      "loss_category": "Verlies en schade per categorie"
     },
     "names": {
       "tasks_created": "Aangemaakte taken",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Op tijd afgerond",
       "tasks_on_time_rate": "Op tijd (%)",
       "tasks_median_lead_days": "Mediane doorlooptijd (dagen)",
-      "members_new": "Nieuwe leden"
+      "members_new": "Nieuwe leden",
+      "members_left": "Vertrokken leden",
+      "tasks_median_wait_days": "Mediane wachttijd voor start (dagen)",
+      "tasks_median_work_days": "Mediane tijd bezig (dagen)"
     },
     "granularity": "Ontwikkeling per",
     "granularityHint": "Hoe fijn de ontwikkeling in de tijd wordt opgeslagen – om te vergelijken met andere momentopnamen.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "Er zijn {{completed}} taken afgerond tegenover {{created}} nieuwe – de achterstand krimpt.",
     "lowestOnTime": "Laagste aandeel op tijd in {{room}}: {{rate}} ({{onTime}} van {{total}}).",
     "rejections": "{{rejected}} van {{total}} gereedmeldingen zijn afgewezen.",
-    "outOfService": "{{rate}} van de eenheden was aan het einde van de periode buiten gebruik ({{units}})."
+    "outOfService": "{{rate}} van de eenheden was aan het einde van de periode buiten gebruik ({{units}}).",
+    "lossUp": "Verlies en schade stegen van {{from}} naar {{to}} eenheden.",
+    "lossDown": "Verlies en schade daalden van {{from}} naar {{to}} eenheden.",
+    "netMembersDown": "Meer leden vertrokken dan er bijkwamen (netto {{net}})."
+  },
+  "loss": {
+    "title": "Verlies en schade",
+    "description": "Eenheden die in de periode als vermist of beschadigd zijn gemeld.",
+    "consumed": "Verbruikt (op) in de periode: {{units}}",
+    "byCategory": "Verlies en schade per categorie",
+    "bySubcategory": "Verlies en schade per subcategorie in {{category}}"
   }
 }

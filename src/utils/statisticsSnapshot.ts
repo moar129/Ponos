@@ -24,6 +24,8 @@ export const SNAPSHOT_GROUP_ORDER: SnapshotRowGroup[] = [
     'approvals',
     'item_status',
     'location',
+    'loss',
+    'loss_category',
     'used_category',
     'category',
     'top_material',
@@ -60,6 +62,8 @@ export function valueLabel(t: unknown, group: SnapshotRowGroup, key: string): st
             return tr(`datalayer:status.${key}`)
         case 'location':
             return key || tr('statistics:materials.noLocation')
+        case 'loss':
+            return tr(`datalayer:status.${key}`)
         default:
             return key
     }
@@ -275,6 +279,7 @@ export const NAMED_GROUPS: SnapshotRowGroup[] = [
     'room_overdue',
     'room_on_time_rate',
     'location',
+    'loss_category',
     'category',
     'used_category',
     'top_material',

@@ -5,6 +5,14 @@ export type KpiGoodDirection = 'up' | 'down' | null
 
 const ARROWS: Record<KpiTrend['direction'], string> = { up: '↑', down: '↓', flat: '→' }
 
+// Good/bad only where the direction has a meaning (e.g. more overdue tasks is
+// bad); always with arrow + text, never colour alone.
+export const TREND_TONE: Record<KpiTrend['tone'], string> = {
+    good: 'text-green-700 dark:text-green-400',
+    bad: 'text-red-700 dark:text-red-400',
+    neutral: 'text-secondary dark:text-slate-400',
+}
+
 /**
  * Trend of a KPI against the previous period of the same length.
  * `sentence` wraps the change, e.g. (change) => t('kpi.trend', { change }).

@@ -44,7 +44,9 @@
     "leadTime": "Timp de execuție (mediană)",
     "leadTimeDetail": "De la creare la finalizare",
     "newMembers": "Membri noi",
-    "membersTotal": "Membri în total: {{total}}"
+    "membersTotal": "Membri în total: {{total}}",
+    "leadTimeSplit": "Așteptare {{wait}} · în curs {{work}}",
+    "membersLeft": "Plecați: {{left}} · net {{net}}"
   },
   "sections": {
     "tasks": "Sarcini",
@@ -55,7 +57,8 @@
     "title": "Evoluția sarcinilor",
     "description": "Sarcini create și finalizate în timp.",
     "created": "Create",
-    "completed": "Finalizate"
+    "completed": "Finalizate",
+    "period": "Perioadă"
   },
   "status": {
     "title": "Starea sarcinilor",
@@ -151,7 +154,9 @@
       "room_completed": "Finalizate pe cameră",
       "room_overdue": "Întârziate pe cameră",
       "room_on_time_rate": "La timp pe cameră (%)",
-      "location": "Unități pe locație"
+      "location": "Unități pe locație",
+      "loss": "Pierderi și consum",
+      "loss_category": "Pierderi și daune pe categorie"
     },
     "names": {
       "tasks_created": "Sarcini create",
@@ -166,7 +171,10 @@
       "tasks_completed_on_time": "Finalizate la timp",
       "tasks_on_time_rate": "La timp (%)",
       "tasks_median_lead_days": "Timp median de execuție (zile)",
-      "members_new": "Membri noi"
+      "members_new": "Membri noi",
+      "members_left": "Membri plecați",
+      "tasks_median_wait_days": "Așteptare mediană înainte de start (zile)",
+      "tasks_median_work_days": "Timp median în curs (zile)"
     },
     "granularity": "Evoluție pe",
     "granularityHint": "Cât de detaliat se salvează evoluția în timp – folosit pentru comparația cu alte instantanee.",
@@ -271,6 +279,16 @@
     "backlogShrinks": "Au fost finalizate {{completed}} sarcini față de {{created}} noi – restanțele scad.",
     "lowestOnTime": "Cea mai mică proporție la timp în {{room}}: {{rate}} ({{onTime}} din {{total}}).",
     "rejections": "{{rejected}} din {{total}} raportări de finalizare au fost respinse.",
-    "outOfService": "{{rate}} din unități erau scoase din uz la sfârșitul perioadei ({{units}})."
+    "outOfService": "{{rate}} din unități erau scoase din uz la sfârșitul perioadei ({{units}}).",
+    "lossUp": "Pierderile și daunele au crescut de la {{from}} la {{to}} unități.",
+    "lossDown": "Pierderile și daunele au scăzut de la {{from}} la {{to}} unități.",
+    "netMembersDown": "Au plecat mai mulți membri decât au venit (net {{net}})."
+  },
+  "loss": {
+    "title": "Pierderi și daune",
+    "description": "Unități raportate ca lipsă sau deteriorate în perioadă.",
+    "consumed": "Consumat (epuizat) în perioadă: {{units}}",
+    "byCategory": "Pierderi și daune pe categorie",
+    "bySubcategory": "Pierderi și daune pe subcategorie în {{category}}"
   }
 }

@@ -44,7 +44,9 @@
     "leadTime": "Gennemløbstid (median)",
     "leadTimeDetail": "Fra oprettet til færdig",
     "newMembers": "Nye medlemmer",
-    "membersTotal": "Medlemmer i alt: {{total}}"
+    "membersTotal": "Medlemmer i alt: {{total}}",
+    "leadTimeSplit": "Ventetid {{wait}} · i gang {{work}}",
+    "membersLeft": "Udmeldte: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Opgaver",
@@ -55,7 +57,8 @@
     "title": "Opgaveudvikling",
     "description": "Oprettede og færdige opgaver over tid.",
     "created": "Oprettede",
-    "completed": "Færdige"
+    "completed": "Færdige",
+    "period": "Periode"
   },
   "status": {
     "title": "Opgavestatus",
@@ -149,7 +152,9 @@
       "room_completed": "Færdige pr. rum",
       "room_overdue": "Forfaldne pr. rum",
       "room_on_time_rate": "Til tiden pr. rum (%)",
-      "location": "Enheder pr. lokation"
+      "location": "Enheder pr. lokation",
+      "loss": "Tab og forbrug",
+      "loss_category": "Tab og skader pr. kategori"
     },
     "names": {
       "tasks_created": "Oprettede opgaver",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Færdige til tiden",
       "tasks_on_time_rate": "Til tiden (%)",
       "tasks_median_lead_days": "Median gennemløbstid (dage)",
-      "members_new": "Nye medlemmer"
+      "members_new": "Nye medlemmer",
+      "members_left": "Udmeldte medlemmer",
+      "tasks_median_wait_days": "Median ventetid før start (dage)",
+      "tasks_median_work_days": "Median tid i gang (dage)"
     },
     "granularity": "Udvikling pr.",
     "granularityHint": "Hvor fint udviklingen over tid gemmes – bruges til at sammenligne med andre snapshots.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "Der blev færdiggjort {{completed}} opgaver mod {{created}} nye – backloggen skrumper.",
     "lowestOnTime": "Lavest andel til tiden i {{room}}: {{rate}} ({{onTime}} af {{total}}).",
     "rejections": "{{rejected}} af {{total}} færdigmeldinger blev afvist.",
-    "outOfService": "{{rate}} af enhederne var ude af drift ved periodens slutning ({{units}})."
+    "outOfService": "{{rate}} af enhederne var ude af drift ved periodens slutning ({{units}}).",
+    "lossUp": "Tab og skader steg fra {{from}} til {{to}} enheder.",
+    "lossDown": "Tab og skader faldt fra {{from}} til {{to}} enheder.",
+    "netMembersDown": "Flere meldte sig ud end ind (netto {{net}})."
+  },
+  "loss": {
+    "title": "Tab og skader",
+    "description": "Enheder der blev meldt mangler eller beskadiget i perioden.",
+    "consumed": "Forbrugt (brugt op) i perioden: {{units}}",
+    "byCategory": "Tab og skader pr. kategori",
+    "bySubcategory": "Tab og skader pr. underkategori i {{category}}"
   }
 }

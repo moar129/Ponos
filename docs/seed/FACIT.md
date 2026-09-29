@@ -177,6 +177,20 @@ anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
 | Forfaldne | 0 | 1 | 5 | 5 | 7 | 8 |
 | Med opgaveaktivitet | 13 | 14 | 16 | 18 | 18 | 18 |
 | Nye medlemmer (mock) | 0 | 0 | 1 | 1 | 2 | 21 |
+| Udmeldte | 0 | 0 | 1 | 1 | 2 | 5 |
+| Ventetid før start (median dage) | 5 | 5 | 7 | 6.4 | 12.9 | 13 |
+| Tid i gang (median dage) | 1.1 | 9.2 | 9.3 | 9.8 | 13.9 | 17.3 |
+| Tab og skader (Mangler + Beskadiget) | 0 | 0 | 0 | 17 | 17 | 45 |
+|   heraf Mangler / Beskadiget | 0 / 0 | 0 / 0 | 0 / 0 | 6 / 11 | 6 / 11 | 16 / 29 |
+| Forbrugt (Brugt op) | 0 | 0 | 0 | 0 | 0 | 0 |
+| Tab og skader: Scene & Teknik | 0 | 0 | 0 | 5 | 5 | 14 |
+| Tab og skader: Hegn & Afspærring | 0 | 0 | 0 | 3 | 3 | 5 |
+| Tab og skader: Telte & Møbler | 0 | 0 | 0 | 0 | 0 | 4 |
+| Tab og skader: Sanitet | 0 | 0 | 0 | 0 | 0 | 1 |
+| Tab og skader: Affald & Genbrug | 0 | 0 | 0 | 1 | 1 | 1 |
+| Tab og skader: Sikkerhed | 0 | 0 | 0 | 1 | 1 | 12 |
+| Tab og skader: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 |
+| Tab og skader: Frivilligudstyr | 0 | 0 | 0 | 7 | 7 | 8 |
 | Status: Started | 3 | 6 | 8 | 9 | 10 | 10 |
 | Status: InProgress | 0 | 0 | 6 | 9 | 9 | 11 |
 | Status: Completed | 0 | 1 | 2 | 9 | 27 | 49 |
@@ -224,11 +238,11 @@ slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fo
 
 | Status | 31/12-2024 | 31/12-2025 |
 |---|---|---|
-| Available | 173 | 556 |
-| Damaged | 5 | 24 |
+| Available | 181 | 563 |
+| Damaged | 0 | 18 |
 | InUse | 0 | 3 |
 | Maintenance | 3 | 11 |
-| Missing | 3 | 11 |
+| Missing | 0 | 10 |
 | NeedsEmptying | 0 | 3 |
 | NeedsRefilling | 2 | 3 |
 | OutOfStock | 0 | 0 |
@@ -254,14 +268,17 @@ KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16
 7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
 Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
 
-| Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) | Nye medlemmer |
-|---|---|---|---|---|---|---|
-| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 | 0 / 0 |
-| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 | 1 / 0 |
+| Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) | Nye medlemmer | Udmeldte | Tab og skader |
+|---|---|---|---|---|---|---|---|---|
+| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 | 0 / 0 | 0 / 1 | 0 / 0 |
+| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 | 1 / 0 | 1 / 0 | 0 / 0 |
 
 Til tiden = færdige med `finished_at <= end_date` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
 dagen). Gennemløbstid = median `finished_at − created_at` for færdige i perioden. Trend: Til tiden i procentpoint
 (↑ grøn), gennemløbstid ↓ grøn.
+Tab og skader = enheder der GÅR IND i Mangler/Beskadiget i perioden (seedet: dagen efter RF25/RF26); forbrugt =
+Brugt op (seedet: ved oprettelsen). Udmeldte = `membership_departures` (5 i seedet). Ventetid/tid i gang fra
+opgave-statushistorikken (første InProgress). "I gang" = en InProgress-periode overlapper perioden.
 Nye medlemmer = `memberships.created_at` i perioden, neutral trend. Tallene tæller kun seed-brugerne - dit eget
 og andre ikke-seedede medlemskaber kommer oveni, hvis de er oprettet i perioden ("Alt" = alle medlemmer).
 

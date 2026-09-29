@@ -44,7 +44,9 @@
     "leadTime": "Doba zpracování (medián)",
     "leadTimeDetail": "Od vytvoření po dokončení",
     "newMembers": "Noví členové",
-    "membersTotal": "Členů celkem: {{total}}"
+    "membersTotal": "Členů celkem: {{total}}",
+    "leadTimeSplit": "Čekání {{wait}} · probíhá {{work}}",
+    "membersLeft": "Odešlo: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Úkoly",
@@ -55,7 +57,8 @@
     "title": "Vývoj úkolů",
     "description": "Vytvořené a dokončené úkoly v čase.",
     "created": "Vytvořené",
-    "completed": "Dokončené"
+    "completed": "Dokončené",
+    "period": "Období"
   },
   "status": {
     "title": "Stav úkolů",
@@ -153,7 +156,9 @@
       "room_completed": "Dokončené podle místnosti",
       "room_overdue": "Po termínu podle místnosti",
       "room_on_time_rate": "Včas podle místnosti (%)",
-      "location": "Jednotky podle umístění"
+      "location": "Jednotky podle umístění",
+      "loss": "Ztráty a spotřeba",
+      "loss_category": "Ztráty a poškození podle kategorie"
     },
     "names": {
       "tasks_created": "Vytvořené úkoly",
@@ -168,7 +173,10 @@
       "tasks_completed_on_time": "Dokončené včas",
       "tasks_on_time_rate": "Včas (%)",
       "tasks_median_lead_days": "Medián doby zpracování (dny)",
-      "members_new": "Noví členové"
+      "members_new": "Noví členové",
+      "members_left": "Odešlí členové",
+      "tasks_median_wait_days": "Medián čekání před zahájením (dny)",
+      "tasks_median_work_days": "Medián doby v průběhu (dny)"
     },
     "granularity": "Vývoj po",
     "granularityHint": "Jak podrobně se ukládá vývoj v čase – slouží k porovnání s jinými snímky.",
@@ -274,6 +282,16 @@
     "backlogShrinks": "Dokončeno {{completed}} úkolů oproti {{created}} novým – nevyřízené ubývají.",
     "lowestOnTime": "Nejnižší podíl včas v {{room}}: {{rate}} ({{onTime}} z {{total}}).",
     "rejections": "Zamítnuto {{rejected}} z {{total}} hlášení o dokončení.",
-    "outOfService": "{{rate}} jednotek bylo na konci období mimo provoz ({{units}})."
+    "outOfService": "{{rate}} jednotek bylo na konci období mimo provoz ({{units}}).",
+    "lossUp": "Ztráty a poškození vzrostly z {{from}} na {{to}} jednotek.",
+    "lossDown": "Ztráty a poškození klesly z {{from}} na {{to}} jednotek.",
+    "netMembersDown": "Více členů odešlo, než přibylo (netto {{net}})."
+  },
+  "loss": {
+    "title": "Ztráty a poškození",
+    "description": "Jednotky nahlášené jako chybějící nebo poškozené v období.",
+    "consumed": "Spotřebováno v období: {{units}}",
+    "byCategory": "Ztráty a poškození podle kategorie",
+    "bySubcategory": "Ztráty a poškození podle podkategorie v {{category}}"
   }
 }

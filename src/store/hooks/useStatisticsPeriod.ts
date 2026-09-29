@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type {
     StatisticsGranularity,
     StatisticsPeriodType,
@@ -24,6 +25,19 @@ const ROLLING_DAYS: Partial<Record<StatisticsPeriodType, number>> = {
     year: 365,
 }
 
+// The period in the address (?periode=30d&fra=…&til=…), so a shared link
+// opens the same view. Danish values, like ?tab=overblik.
+const PERIOD_PARAM: Record<StatisticsPeriodType, string> = {
+    day: 'dag',
+    week: '7d',
+    month: '30d',
+    quarter: '91d',
+    year: '365d',
+    max: 'alt',
+    custom: 'egen',
+}
+const DEFAULT_PERIOD: StatisticsPeriodType = 'week'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 
 function startOfDay(date: Date): Date {
@@ -32,6 +46,18 @@ function startOfDay(date: Date): Date {
 
 function addDays(date: Date, days: number): Date {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+}
+
+/** 'YYYY-MM-DD' (local) <-> Date; null for anything that is not a real date. */
+function formatParamDate(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function parseParamDate(value: string | null): Date | null {
+    const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+    if (!match) return null
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+    return formatParamDate(date) === value ? date : null
 }
 
 // One source of truth for the time series resolution: 1 day -> hours,
@@ -51,8 +77,19 @@ export interface StatisticsDateRange {
 }
 
 export function useStatisticsPeriod() {
-    const [periodType, setPeriodType] = useState<StatisticsPeriodType>('week')
-    const [customRange, setCustomRange] = useState<StatisticsDateRange | null>(null)
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const requested = Object.entries(PERIOD_PARAM).find(([, param]) => param === searchParams.get('periode'))?.[0] as
+        | StatisticsPeriodType
+        | undefined
+    const customStart = parseParamDate(searchParams.get('fra'))
+    const customEnd = parseParamDate(searchParams.get('til'))
+    const customValid = Boolean(customStart && customEnd && customStart <= customEnd)
+    // Unknown values (or a custom period without valid dates) fall back to the default.
+    const periodType: StatisticsPeriodType =
+        !requested || (requested === 'custom' && !customValid) ? DEFAULT_PERIOD : requested
+    const customStartTime = customStart?.getTime() ?? null
+    const customEndTime = customEnd?.getTime() ?? null
 
     // "Today" as state, refreshed when the window regains focus - otherwise a
     // page left open past midnight keeps showing yesterday's rolling period
@@ -70,12 +107,14 @@ export function useStatisticsPeriod() {
 
     const range = useMemo<StatisticsDateRange | null>(() => {
         if (periodType === 'max') return null
-        if (periodType === 'custom') return customRange
+        if (periodType === 'custom' && customStartTime !== null && customEndTime !== null) {
+            return { start: new Date(customStartTime), end: new Date(customEndTime) }
+        }
 
         const today = new Date(todayTime)
         const days = ROLLING_DAYS[periodType] ?? 1
         return { start: addDays(today, -(days - 1)), end: today }
-    }, [periodType, customRange, todayTime])
+    }, [periodType, customStartTime, customEndTime, todayTime])
 
     const apiArgs = useMemo<StatisticsQueryArgs>(() => {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -95,13 +134,29 @@ export function useStatisticsPeriod() {
         }
     }, [range])
 
+    // Replace (not push) so the back button leaves the page instead of
+    // stepping through every filter click. Other params (tab, rum …) stay.
+    const updateParams = (patch: Record<string, string | null>) => {
+        setSearchParams((current) => {
+            const next = new URLSearchParams(current)
+            for (const [key, value] of Object.entries(patch)) {
+                if (value === null) next.delete(key)
+                else next.set(key, value)
+            }
+            return next
+        }, { replace: true })
+    }
+
     const changePeriod = (type: Exclude<StatisticsPeriodType, 'custom'>) => {
-        setPeriodType(type)
+        updateParams({ periode: type === DEFAULT_PERIOD ? null : PERIOD_PARAM[type], fra: null, til: null })
     }
 
     const setCustomDates = (start: Date, end: Date) => {
-        setCustomRange({ start: startOfDay(start), end: startOfDay(end) })
-        setPeriodType('custom')
+        updateParams({
+            periode: PERIOD_PARAM.custom,
+            fra: formatParamDate(startOfDay(start)),
+            til: formatParamDate(startOfDay(end)),
+        })
     }
 
     return {
@@ -110,5 +165,8 @@ export function useStatisticsPeriod() {
         apiArgs,
         changePeriod,
         setCustomDates,
+        /** Reads/writes one of the page's own filter params (rum, kategori). */
+        filterParam: (key: 'rum' | 'kategori') => searchParams.get(key),
+        setFilterParam: (key: 'rum' | 'kategori', value: string | null) => updateParams({ [key]: value }),
     }
 }

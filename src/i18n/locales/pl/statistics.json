@@ -44,7 +44,9 @@
     "leadTime": "Czas realizacji (mediana)",
     "leadTimeDetail": "Od utworzenia do ukończenia",
     "newMembers": "Nowi członkowie",
-    "membersTotal": "Członkowie łącznie: {{total}}"
+    "membersTotal": "Członkowie łącznie: {{total}}",
+    "leadTimeSplit": "Oczekiwanie {{wait}} · w toku {{work}}",
+    "membersLeft": "Odeszli: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Zadania",
@@ -55,7 +57,8 @@
     "title": "Rozwój zadań",
     "description": "Utworzone i ukończone zadania w czasie.",
     "created": "Utworzone",
-    "completed": "Ukończone"
+    "completed": "Ukończone",
+    "period": "Okres"
   },
   "status": {
     "title": "Status zadań",
@@ -153,7 +156,9 @@
       "room_completed": "Ukończone na pokój",
       "room_overdue": "Zaległe na pokój",
       "room_on_time_rate": "Na czas na pokój (%)",
-      "location": "Jednostki według lokalizacji"
+      "location": "Jednostki według lokalizacji",
+      "loss": "Straty i zużycie",
+      "loss_category": "Straty i uszkodzenia według kategorii"
     },
     "names": {
       "tasks_created": "Utworzone zadania",
@@ -168,7 +173,10 @@
       "tasks_completed_on_time": "Ukończone na czas",
       "tasks_on_time_rate": "Na czas (%)",
       "tasks_median_lead_days": "Mediana czasu realizacji (dni)",
-      "members_new": "Nowi członkowie"
+      "members_new": "Nowi członkowie",
+      "members_left": "Członkowie, którzy odeszli",
+      "tasks_median_wait_days": "Mediana oczekiwania przed startem (dni)",
+      "tasks_median_work_days": "Mediana czasu w toku (dni)"
     },
     "granularity": "Rozwój według",
     "granularityHint": "Jak szczegółowo zapisywany jest rozwój w czasie – służy do porównania z innymi migawkami.",
@@ -274,6 +282,16 @@
     "backlogShrinks": "Ukończono {{completed}} zadań wobec {{created}} nowych – zaległości maleją.",
     "lowestOnTime": "Najniższy odsetek na czas w {{room}}: {{rate}} ({{onTime}} z {{total}}).",
     "rejections": "Odrzucono {{rejected}} z {{total}} zgłoszeń ukończenia.",
-    "outOfService": "{{rate}} jednostek było wyłączonych z użytku na koniec okresu ({{units}})."
+    "outOfService": "{{rate}} jednostek było wyłączonych z użytku na koniec okresu ({{units}}).",
+    "lossUp": "Straty i uszkodzenia wzrosły z {{from}} do {{to}} jednostek.",
+    "lossDown": "Straty i uszkodzenia spadły z {{from}} do {{to}} jednostek.",
+    "netMembersDown": "Więcej członków odeszło, niż dołączyło (netto {{net}})."
+  },
+  "loss": {
+    "title": "Straty i uszkodzenia",
+    "description": "Jednostki zgłoszone jako zaginione lub uszkodzone w okresie.",
+    "consumed": "Zużyte w okresie: {{units}}",
+    "byCategory": "Straty i uszkodzenia według kategorii",
+    "bySubcategory": "Straty i uszkodzenia według podkategorii w {{category}}"
   }
 }

@@ -46,6 +46,8 @@ export interface StatisticsKpis {
     members: number
     /** Memberships created in the period (current members; not room-filtered). */
     newMembers: number
+    /** Members who left or were removed in the period (membership_departures). */
+    membersLeft: number
     membersWithTaskActivity: number
     /** Completed in the period with an end date. */
     completedWithDeadline: number
@@ -55,6 +57,9 @@ export interface StatisticsKpis {
     onTimeRate: number | null
     /** Median days from created to finished, tasks completed in the period; null when none. */
     medianLeadDays: number | null
+    /** Of those: median days waiting before the first InProgress, and days from there to finished. */
+    medianWaitDays: number | null
+    medianWorkDays: number | null
 }
 
 export interface TaskStatusCount {
@@ -137,6 +142,13 @@ export interface CategoryCount {
     count: number
 }
 
+/** Units that went INTO these statuses in the period (stock history). */
+export interface LossCounts {
+    missing: number
+    damaged: number
+    consumed: number
+}
+
 export interface TopMaterial {
     itemId: string
     name: string
@@ -173,6 +185,10 @@ export interface StatisticsResult {
         /** Distinct items used on tasks created in the period, per main category (per subcategory when filtered). */
         usedByCategory: CategoryCount[]
         topUsed: TopMaterial[]
+        /** Loss/damage + consumption in the period; null = before the stock history starts. */
+        loss: (LossCounts & { byCategory: CategoryCount[] }) | null
+        /** Same for the previous period of the same length; null for "Alt". */
+        previousLoss: LossCounts | null
     }
 }
 
@@ -193,6 +209,9 @@ export type StatisticsScalarName =
     | 'members'
     | 'members_with_task_activity'
     | 'members_new'
+    | 'members_left'
+    | 'tasks_median_wait_days'
+    | 'tasks_median_work_days'
     | 'approvals_rate'
     | 'approvals_median_hours'
     | 'tasks_completed_with_deadline'
@@ -211,6 +230,8 @@ export type StatisticsValueGroup =
     | 'approvals'
     | 'item_status'
     | 'location'
+    | 'loss'
+    | 'loss_category'
     | 'category'
     | 'top_material'
     | 'used_category'

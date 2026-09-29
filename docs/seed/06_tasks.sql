@@ -719,5 +719,57 @@ begin
     and (h.valid_to is not null
          or h.id <> (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id));
 
+  -- c) Tab/skader: enheder der i dag er Missing/Damaged og aldrig har
+  --    skiftet status (kun oprettelses-rækken) var Available indtil dagen
+  --    efter festivalen - RF25 (6/7-2025) eller RF26 (5/7-2026). Oprettet
+  --    efter RF26: registreret sådan (ingen fortid).
+  with lost as (
+    select h.id,
+      case when h.valid_from < timestamptz '2025-07-06 10:00+02' then timestamptz '2025-07-06 10:00+02'
+           when h.valid_from < timestamptz '2026-07-05 10:00+02' then timestamptz '2026-07-05 10:00+02' end as lost_at
+    from public.data_layer_item_unit_history h
+    where h.organisation_id = v_org
+      and h.status in ('Missing', 'Damaged')
+      and h.valid_to is null
+      and not exists (select 1 from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id and h2.id <> h.id)
+  ),
+  available_before as (
+    insert into public.data_layer_item_unit_history (organisation_id, unit_id, item_id, status, location_id, valid_from, valid_to)
+    select h.organisation_id, h.unit_id, h.item_id, 'Available'::public.e_item_status, h.location_id, h.valid_from, l.lost_at
+    from lost l
+    join public.data_layer_item_unit_history h on h.id = l.id
+    where l.lost_at is not null
+  )
+  update public.data_layer_item_unit_history h
+  set valid_from = l.lost_at
+  from lost l
+  where h.id = l.id and l.lost_at is not null;
+
+  -- d) Opgave-statushistorik: triggeren har logget alle opgaver "nu".
+  --    Samme tilnærmelse som migrationens backfill (Started fra created_at,
+  --    InProgress fra start_date, Completed fra finished_at).
+  delete from public.task_status_history where organisation_id = v_org;
+  with base as (
+    select t.id, t.organisation_id, t.status, t.created_at,
+      coalesce(t.finished_at, t.created_at) as done_at,
+      greatest(t.created_at, least(coalesce(t.start_date, t.created_at), coalesce(t.finished_at, now()))) as ip_from
+    from public.tasks t
+    where t.organisation_id = v_org
+  )
+  insert into public.task_status_history (organisation_id, task_id, status, valid_from, valid_to)
+  select organisation_id, id, 'Started'::public.e_task_status, created_at,
+         case when status = 'Started' then null else ip_from end
+  from base
+  where status = 'Started' or ip_from > created_at
+  union all
+  select organisation_id, id, 'InProgress'::public.e_task_status, ip_from,
+         case when status = 'Completed' then greatest(done_at, ip_from) end
+  from base
+  where status = 'InProgress' or (status = 'Completed' and done_at > ip_from)
+  union all
+  select organisation_id, id, 'Completed'::public.e_task_status, greatest(done_at, ip_from), null
+  from base
+  where status = 'Completed';
+
   raise notice 'Seed 06 færdig: 70 opgaver.';
 end $$;

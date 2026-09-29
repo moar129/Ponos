@@ -101,6 +101,25 @@ export function buildInsights(
         add('rejections', 50, 'bad', t('statistics:insights.rejections', { rejected: stats.approvals.rejected, total: decided }))
     }
 
+    // 8b. Loss and damage (Missing + Damaged) against the previous period.
+    const loss = stats.materials.loss
+    const previousLoss = stats.materials.previousLoss
+    if (loss && previousLoss) {
+        const lossNow = loss.missing + loss.damaged
+        const lossBefore = previousLoss.missing + previousLoss.damaged
+        if (Math.abs(lossNow - lossBefore) >= 3) {
+            const up = lossNow > lossBefore
+            add('loss', up ? 72 : 42, up ? 'bad' : 'good',
+                t(up ? 'statistics:insights.lossUp' : 'statistics:insights.lossDown', { from: lossBefore, to: lossNow }))
+        }
+    }
+
+    // 8c. More members left than joined.
+    const net = now.newMembers - now.membersLeft
+    if (net < 0) {
+        add('netMembers', 52, 'bad', t('statistics:insights.netMembersDown', { net: `−${Math.abs(net)}` }))
+    }
+
     // 8. Units out of service at the end of the period.
     const stock = stats.materials.byStatus
     if (stock) {

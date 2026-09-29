@@ -27,6 +27,7 @@ import { ChartCard } from '../../components/statistics/ChartCard'
 import { CustomPeriodModal } from '../../components/statistics/CustomPeriodModal'
 import { InsightSummary } from '../../components/statistics/InsightSummary'
 import { KPICard } from '../../components/statistics/KPICard'
+import { LossCard } from '../../components/statistics/LossCard'
 import { RoomScorecard } from '../../components/statistics/RoomScorecard'
 import { SnapshotPanel } from '../../components/statistics/SnapshotPanel'
 import { StatisticsPeriodPicker } from '../../components/statistics/StatisticsPeriodPicker'
@@ -50,12 +51,15 @@ export default function StatisticsPage() {
     const { t, i18n } = useTranslation(['statistics', 'tasks', 'datalayer'])
     const { data: profile, isLoading: isProfileLoading } = useGetMyProfileQuery()
     const { hasPrivilege: canRead, isLoading: isPrivilegeLoading } = useHasPrivilege(READ_STATISTICS_PRIVILEGE)
-    const { periodType, range, apiArgs, changePeriod, setCustomDates } = useStatisticsPeriod()
+    const { periodType, range, apiArgs, changePeriod, setCustomDates, filterParam, setFilterParam } = useStatisticsPeriod()
     const [isCustomOpen, setIsCustomOpen] = useState(false)
-    // US-55: null = all rooms.
-    const [roomId, setRoomId] = useState<string | null>(null)
-    // Main category; filters materials only, never tasks.
-    const [categoryId, setCategoryId] = useState<string | null>(null)
+    // Filters live in the address (?rum=…&kategori=…) like the period, so a
+    // shared link opens the same view. null = no filter. Rum: US-55;
+    // kategori filters materials only, never tasks.
+    const roomId = filterParam('rum')
+    const categoryId = filterParam('kategori')
+    const setRoomId = (id: string | null) => setFilterParam('rum', id)
+    const setCategoryId = (id: string | null) => setFilterParam('kategori', id)
 
     // Same ?tab= pattern as the dashboard. Snapshots live in their own tab,
     // independent of the overview's period filter (which stays in this page,
@@ -185,6 +189,8 @@ export default function StatisticsPage() {
     }
 
     const sum = (values: number[]) => values.reduce((total, value) => total + value, 0)
+    // "+3", "−2", "±0" - net change of a count.
+    const signed = (value: number) => `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value)}`
 
     const priorityRows = [...(stats?.taskPriority ?? [])]
         .reverse()
@@ -264,7 +270,11 @@ export default function StatisticsPage() {
                         type="button"
                         role="tab"
                         aria-selected={activeTab === tab.key}
-                        onClick={() => setSearchParams({ tab: tab.key })}
+                        onClick={() => setSearchParams((current) => {
+                            const next = new URLSearchParams(current)
+                            next.set('tab', tab.key)
+                            return next
+                        })}
                         className={`-mb-px flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors sm:px-4 ${activeTab === tab.key
                             ? 'border-accent text-accent'
                             : 'border-transparent text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
@@ -359,7 +369,10 @@ export default function StatisticsPage() {
                                 title={t('kpi.leadTime')}
                                 icon={<Timer className="h-5 w-5" />}
                                 value={kpis?.medianLeadDays === null || kpis?.medianLeadDays === undefined ? null : formatDays(kpis.medianLeadDays)}
-                                detail={t('kpi.leadTimeDetail')}
+                                detail={kpis?.medianWaitDays !== null && kpis?.medianWaitDays !== undefined
+                                    && kpis.medianWorkDays !== null
+                                    ? t('kpi.leadTimeSplit', { wait: formatDays(kpis.medianWaitDays), work: formatDays(kpis.medianWorkDays) })
+                                    : t('kpi.leadTimeDetail')}
                                 trend={trendFor('medianLeadDays', 'down', formatDays)}
                                 loading={loading}
                             />
@@ -378,9 +391,10 @@ export default function StatisticsPage() {
                                 icon={<UserPlus className="h-5 w-5" />}
                                 value={kpis?.newMembers}
                                 detail={kpis && [
-                                    t('kpi.membersTotal', { total: kpis.members }),
+                                    t('kpi.membersLeft', { left: kpis.membersLeft, net: signed(kpis.newMembers - kpis.membersLeft) }),
                                     roomId ? t('filter.wholeOrganisation') : '',
                                 ].filter(Boolean).join(' ')}
+                                hint={kpis && t('kpi.membersTotal', { total: kpis.members })}
                                 trend={trendFor('newMembers', null)}
                                 loading={loading}
                             />
@@ -515,6 +529,29 @@ export default function StatisticsPage() {
                                 emptyMessage={statusUnknown ? t('materials.noHistory', { date: historyStart }) : undefined}
                             >
                                 <BarList rows={locationRows} ariaLabel={t('materials.locationTitle')} />
+                            </ChartCard>
+                        </div>
+
+                        <div className="min-w-0 xl:col-span-2">
+                            <ChartCard
+                                title={t('loss.title')}
+                                description={[
+                                    t('loss.description'),
+                                    roomId ? t('filter.wholeOrganisation') : '',
+                                ].filter(Boolean).join(' ')}
+                                loading={loading}
+                                error={errorMessage}
+                                empty={Boolean(materials && materials.loss === null)}
+                                emptyMessage={statusUnknown || (materials && materials.loss === null) ? t('materials.noHistory', { date: historyStart }) : undefined}
+                            >
+                                {materials?.loss && (
+                                    <LossCard
+                                        loss={materials.loss}
+                                        previousLoss={materials.previousLoss}
+                                        previousPeriod={previousRangeShort}
+                                        categoryName={categoryName}
+                                    />
+                                )}
                             </ChartCard>
                         </div>
                     </StatisticsSection>

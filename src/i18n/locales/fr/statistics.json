@@ -44,7 +44,9 @@
     "leadTime": "Délai de traitement (médiane)",
     "leadTimeDetail": "De la création à la fin",
     "newMembers": "Nouveaux membres",
-    "membersTotal": "Membres au total : {{total}}"
+    "membersTotal": "Membres au total : {{total}}",
+    "leadTimeSplit": "Attente {{wait}} · en cours {{work}}",
+    "membersLeft": "Départs : {{left}} · net {{net}}"
   },
   "sections": {
     "tasks": "Tâches",
@@ -55,7 +57,8 @@
     "title": "Évolution des tâches",
     "description": "Tâches créées et terminées au fil du temps.",
     "created": "Créées",
-    "completed": "Terminées"
+    "completed": "Terminées",
+    "period": "Période"
   },
   "status": {
     "title": "Statut des tâches",
@@ -151,7 +154,9 @@
       "room_completed": "Terminées par salle",
       "room_overdue": "En retard par salle",
       "room_on_time_rate": "À temps par salle (%)",
-      "location": "Unités par emplacement"
+      "location": "Unités par emplacement",
+      "loss": "Pertes et consommation",
+      "loss_category": "Pertes et dommages par catégorie"
     },
     "names": {
       "tasks_created": "Tâches créées",
@@ -166,7 +171,10 @@
       "tasks_completed_on_time": "Terminées à temps",
       "tasks_on_time_rate": "À temps (%)",
       "tasks_median_lead_days": "Délai médian (jours)",
-      "members_new": "Nouveaux membres"
+      "members_new": "Nouveaux membres",
+      "members_left": "Membres partis",
+      "tasks_median_wait_days": "Attente médiane avant début (jours)",
+      "tasks_median_work_days": "Durée médiane en cours (jours)"
     },
     "granularity": "Évolution par",
     "granularityHint": "Précision avec laquelle l'évolution est enregistrée – sert à comparer avec d'autres instantanés.",
@@ -271,6 +279,16 @@
     "backlogShrinks": "{{completed}} tâches ont été terminées pour {{created}} nouvelles – le retard se résorbe.",
     "lowestOnTime": "Part à temps la plus basse dans {{room}} : {{rate}} ({{onTime}} sur {{total}}).",
     "rejections": "{{rejected}} déclarations de fin sur {{total}} ont été refusées.",
-    "outOfService": "{{rate}} des unités étaient hors service à la fin de la période ({{units}})."
+    "outOfService": "{{rate}} des unités étaient hors service à la fin de la période ({{units}}).",
+    "lossUp": "Les pertes et dommages sont passés de {{from}} à {{to}} unités.",
+    "lossDown": "Les pertes et dommages sont descendus de {{from}} à {{to}} unités.",
+    "netMembersDown": "Plus de départs que d’arrivées (net {{net}})."
+  },
+  "loss": {
+    "title": "Pertes et dommages",
+    "description": "Unités déclarées manquantes ou endommagées sur la période.",
+    "consumed": "Consommé (épuisé) sur la période : {{units}}",
+    "byCategory": "Pertes et dommages par catégorie",
+    "bySubcategory": "Pertes et dommages par sous-catégorie dans {{category}}"
   }
 }

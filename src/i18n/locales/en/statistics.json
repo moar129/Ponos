@@ -44,7 +44,9 @@
     "leadTime": "Lead time (median)",
     "leadTimeDetail": "From created to completed",
     "newMembers": "New members",
-    "membersTotal": "Members in total: {{total}}"
+    "membersTotal": "Members in total: {{total}}",
+    "leadTimeSplit": "Waiting {{wait}} · in progress {{work}}",
+    "membersLeft": "Left: {{left}} · net {{net}}"
   },
   "sections": {
     "tasks": "Tasks",
@@ -55,7 +57,8 @@
     "title": "Task development",
     "description": "Created and completed tasks over time.",
     "created": "Created",
-    "completed": "Completed"
+    "completed": "Completed",
+    "period": "Period"
   },
   "status": {
     "title": "Task status",
@@ -149,7 +152,9 @@
       "room_completed": "Completed per room",
       "room_overdue": "Overdue per room",
       "room_on_time_rate": "On time per room (%)",
-      "location": "Units per location"
+      "location": "Units per location",
+      "loss": "Loss and consumption",
+      "loss_category": "Loss and damage per category"
     },
     "names": {
       "tasks_created": "Created tasks",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Completed on time",
       "tasks_on_time_rate": "On time (%)",
       "tasks_median_lead_days": "Median lead time (days)",
-      "members_new": "New members"
+      "members_new": "New members",
+      "members_left": "Members who left",
+      "tasks_median_wait_days": "Median waiting time before start (days)",
+      "tasks_median_work_days": "Median time in progress (days)"
     },
     "granularity": "Development per",
     "granularityHint": "How finely the development over time is saved – used to compare with other snapshots.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "{{completed}} tasks were completed against {{created}} new – the backlog is shrinking.",
     "lowestOnTime": "Lowest share on time in {{room}}: {{rate}} ({{onTime}} of {{total}}).",
     "rejections": "{{rejected}} of {{total}} completion reports were rejected.",
-    "outOfService": "{{rate}} of the units were out of service at the end of the period ({{units}})."
+    "outOfService": "{{rate}} of the units were out of service at the end of the period ({{units}}).",
+    "lossUp": "Loss and damage rose from {{from}} to {{to}} units.",
+    "lossDown": "Loss and damage fell from {{from}} to {{to}} units.",
+    "netMembersDown": "More members left than joined (net {{net}})."
+  },
+  "loss": {
+    "title": "Loss and damage",
+    "description": "Units reported missing or damaged in the period.",
+    "consumed": "Consumed (used up) in the period: {{units}}",
+    "byCategory": "Loss and damage per category",
+    "bySubcategory": "Loss and damage per subcategory in {{category}}"
   }
 }

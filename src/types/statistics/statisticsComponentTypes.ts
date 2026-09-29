@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import type { DevelopmentComparison } from '../../utils/statisticsSnapshot'
 import type {
     ApprovalStatistics,
+    CategoryCount,
+    LossCounts,
     SnapshotSaveRequest,
     SnapshotViewPeriod,
     StatisticsAttention,
@@ -26,6 +28,8 @@ export interface KPICardProps {
     value?: number | string | null
     /** Small neutral line under the value, e.g. "8 af 10 med slutdato". */
     detail?: string
+    /** Tooltip on the card, e.g. the total behind the figure. */
+    hint?: string
     /** Change against the previous period (US-48 trend). */
     trend?: KpiTrend
     icon?: ReactNode
@@ -94,6 +98,15 @@ export interface InsightSummaryProps {
     /** Period (and room) the sentences describe. */
     subtitle: string
     loading: boolean
+}
+
+export interface LossCardProps {
+    loss: LossCounts & { byCategory: CategoryCount[] }
+    previousLoss: LossCounts | null
+    /** Compact previous period, e.g. "1.–30. aug.". */
+    previousPeriod: string
+    /** Set when filtered to a category (the bars are then subcategories). */
+    categoryName: string | null
 }
 
 export interface AttentionPanelProps {

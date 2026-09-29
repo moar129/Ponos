@@ -44,7 +44,9 @@
     "leadTime": "Läpimenoaika (mediaani)",
     "leadTimeDetail": "Luonnista valmistumiseen",
     "newMembers": "Uudet jäsenet",
-    "membersTotal": "Jäseniä yhteensä: {{total}}"
+    "membersTotal": "Jäseniä yhteensä: {{total}}",
+    "leadTimeSplit": "Odotus {{wait}} · käynnissä {{work}}",
+    "membersLeft": "Lähteneet: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Tehtävät",
@@ -55,7 +57,8 @@
     "title": "Tehtävien kehitys",
     "description": "Luodut ja valmiit tehtävät ajan mittaan.",
     "created": "Luodut",
-    "completed": "Valmiit"
+    "completed": "Valmiit",
+    "period": "Jakso"
   },
   "status": {
     "title": "Tehtävien tila",
@@ -149,7 +152,9 @@
       "room_completed": "Valmistuneet huoneittain",
       "room_overdue": "Myöhässä huoneittain",
       "room_on_time_rate": "Ajallaan huoneittain (%)",
-      "location": "Yksiköt sijainneittain"
+      "location": "Yksiköt sijainneittain",
+      "loss": "Hävikki ja kulutus",
+      "loss_category": "Hävikki ja vauriot luokittain"
     },
     "names": {
       "tasks_created": "Luodut tehtävät",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Valmistuneet ajallaan",
       "tasks_on_time_rate": "Ajallaan (%)",
       "tasks_median_lead_days": "Läpimenoajan mediaani (päivää)",
-      "members_new": "Uudet jäsenet"
+      "members_new": "Uudet jäsenet",
+      "members_left": "Lähteneet jäsenet",
+      "tasks_median_wait_days": "Odotusajan mediaani ennen aloitusta (päivää)",
+      "tasks_median_work_days": "Käynnissäoloajan mediaani (päivää)"
     },
     "granularity": "Kehitys per",
     "granularityHint": "Kuinka tarkasti kehitys ajan mittaan tallennetaan – käytetään vertailuun muihin tilannekuviin.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "Tehtäviä valmistui {{completed}} ja uusia tuli {{created}} – ruuhka pienenee.",
     "lowestOnTime": "Alhaisin ajallaan-osuus: {{room}}: {{rate}} ({{onTime}}/{{total}}).",
     "rejections": "{{total}} valmistumisilmoituksesta hylättiin {{rejected}}.",
-    "outOfService": "{{rate}} yksiköistä oli poissa käytöstä jakson lopussa ({{units}})."
+    "outOfService": "{{rate}} yksiköistä oli poissa käytöstä jakson lopussa ({{units}}).",
+    "lossUp": "Hävikki ja vauriot kasvoivat {{from}} → {{to}} yksikköä.",
+    "lossDown": "Hävikki ja vauriot vähenivät {{from}} → {{to}} yksikköä.",
+    "netMembersDown": "Useampi jäsen lähti kuin liittyi (netto {{net}})."
+  },
+  "loss": {
+    "title": "Hävikki ja vauriot",
+    "description": "Yksiköt, jotka ilmoitettiin kadonneiksi tai vaurioituneiksi jaksolla.",
+    "consumed": "Kulutettu jaksolla: {{units}}",
+    "byCategory": "Hävikki ja vauriot luokittain",
+    "bySubcategory": "Hävikki ja vauriot alaluokittain: {{category}}"
   }
 }

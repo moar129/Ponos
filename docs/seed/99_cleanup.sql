@@ -4,7 +4,8 @@
 --
 -- BEVARER: organisationen, Admin/Medlem og egne roller, dit eget medlemskab.
 -- SLETTER i organisationen: de 8 seed-roller samt ALLE opgaver, rum,
--- nyheder, kategorier, varer, enheder, lokationer og statistik-snapshots - også data
+-- nyheder, kategorier, varer, enheder, lokationer, statistik-snapshots, lager- og
+-- opgavehistorik og udmeldinger - også data
 -- du selv har oprettet manuelt (tabellerne skelner ikke mock fra rigtigt).
 -- Sletter desuden alle brugere med email @ponos-mock.test.
 -- Rækkefølgen skyldes fremmednøgler.
@@ -65,6 +66,12 @@ begin
 
   -- Mock-brugere: cascader profiler, medlemskaber, ansøgninger og invitationer.
   delete from auth.users where email like '%@ponos-mock.test';
+
+  -- Historik der overlever sletningerne (ingen FK til opgave/bruger):
+  -- opgave-statushistorik og udmeldinger (også dem trigger'en lige har
+  -- lavet for de slettede mock-medlemskaber).
+  delete from public.task_status_history where organisation_id = v_org;
+  delete from public.membership_departures where organisation_id = v_org;
 
   raise notice 'Mockdata slettet for Roskilde Festival.';
 end $$;

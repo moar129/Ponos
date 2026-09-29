@@ -420,6 +420,45 @@ create index idx_item_unit_history_open
 
 
 -- ---------------------------------------------------------------------
+-- 9c TASK STATUS HISTORY (opgave-statushistorik, 2026-09-30)
+-- Én række pr. opgave pr. periode med samme status (valid_to null =
+-- aktuel). Skrives KUN af triggeren §15.21e. task_id uden FK - historikken
+-- overlever at opgaven slettes. Statistik: "I gang", ventetid, tid i gang
+-- (§15.26). tasks er Studerende 3's tabel - tilføjelsen er godkendt af dem.
+-- Ved oprettelse backfillet med den tidligere tilnærmelse (Started fra
+-- created_at, InProgress fra start_date, Completed fra finished_at).
+-- ---------------------------------------------------------------------
+create table public.task_status_history (
+  id               bigint generated always as identity primary key,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  task_id          uuid not null,
+  status           public.e_task_status not null,
+  valid_from       timestamptz not null,
+  valid_to         timestamptz,
+  constraint task_status_history_valid_range check (valid_to is null or valid_to >= valid_from)
+);
+
+create index idx_task_status_history_task on public.task_status_history (task_id, status);
+create index idx_task_status_history_org on public.task_status_history (organisation_id, valid_from);
+
+
+-- ---------------------------------------------------------------------
+-- 9d MEMBERSHIP DEPARTURES (udmeldinger, 2026-09-30)
+-- Én række pr. udmelding - bevidst UDEN bruger-id. Skrives KUN af triggeren
+-- §15.21f. reason: left (brugeren selv), removed (en anden), deleted (ingen
+-- bruger, fx SQL). Statistik: udmeldte medlemmer (§15.26e).
+-- ---------------------------------------------------------------------
+create table public.membership_departures (
+  id               bigint generated always as identity primary key,
+  organisation_id  uuid not null references public.organisations(id) on delete cascade,
+  left_at          timestamptz not null default now(),
+  reason           text not null check (reason in ('left', 'removed', 'deleted'))
+);
+
+create index idx_membership_departures_org on public.membership_departures (organisation_id, left_at);
+
+
+-- ---------------------------------------------------------------------
 -- 9.1 DATA LAYER FAVORITES (ad-hoc, 2026-09-25)
 -- Personlige stjernemarkeringer på /datalager: præcis én kategori ELLER
 -- ét lager/sektion pr. række. Undergrupper gemmes ikke - frontend viser
@@ -3417,6 +3456,84 @@ create trigger trg_record_item_unit_history
 
 
 -- ---------------------------------------------------------------------
+-- 15.21e (2026-09-30): OPGAVE-STATUSHISTORIK - trigger på tasks
+-- Logger status-perioder i task_status_history (§9c) ved insert, update af
+-- status/organisation_id og delete.
+-- ---------------------------------------------------------------------
+create or replace function public.record_task_status_history()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+begin
+  if tg_op = 'UPDATE'
+     and new.status is not distinct from old.status
+     and new.organisation_id is not distinct from old.organisation_id then
+    return new;
+  end if;
+
+  if tg_op in ('UPDATE', 'DELETE') then
+    update public.task_status_history
+    set valid_to = now()
+    where task_id = old.id and valid_to is null;
+  end if;
+
+  if tg_op in ('INSERT', 'UPDATE') then
+    insert into public.task_status_history (organisation_id, task_id, status, valid_from)
+    values (new.organisation_id, new.id, new.status, now());
+  end if;
+
+  return coalesce(new, old);
+end;
+$$;
+
+revoke execute on function public.record_task_status_history() from public, anon, authenticated;
+
+create trigger trg_record_task_status_history
+  after insert or update of status, organisation_id or delete
+  on public.tasks
+  for each row execute function public.record_task_status_history();
+
+
+-- ---------------------------------------------------------------------
+-- 15.21f (2026-09-30): UDMELDINGER - trigger på memberships
+-- AFTER DELETE -> membership_departures (§9d). Springes over når hele
+-- organisationen slettes (org'en findes ikke længere under cascaden).
+-- ---------------------------------------------------------------------
+create or replace function public.record_membership_departure()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+begin
+  -- Slettes hele organisationen, er det ikke en udmelding.
+  if not exists (select 1 from public.organisations where id = old.organisation_id) then
+    return old;
+  end if;
+
+  insert into public.membership_departures (organisation_id, reason)
+  values (
+    old.organisation_id,
+    case
+      when auth.uid() = old.user_id then 'left'
+      when auth.uid() is not null then 'removed'
+      else 'deleted'
+    end
+  );
+  return old;
+end;
+$$;
+
+revoke execute on function public.record_membership_departure() from public, anon, authenticated;
+
+create trigger trg_record_membership_departure
+  after delete on public.memberships
+  for each row execute function public.record_membership_departure();
+
+
+-- ---------------------------------------------------------------------
 -- 15.22 (2026-09-25): ROLLE-BEGRÆNSEDE OPGAVERUM
 -- can_access_task_room: true hvis rummet er null, kalderen har
 -- view_all_task_rooms/admin, rummet ingen roller har, eller kalderens
@@ -4980,11 +5097,20 @@ as $$
   with t as (
     select * from public.tasks where organisation_id = p_org and (p_room_id is null or room_id = p_room_id)
   ),
+  -- I gang i perioden = en InProgress-periode i statushistorikken (§9c)
+  -- overlapper perioden.
+  active as (
+    select t.id from t
+    where exists (
+        select 1 from public.task_status_history h
+        where h.task_id = t.id and h.status = 'InProgress'
+          and h.valid_from < p_e and (h.valid_to is null or h.valid_to > p_s)
+      )
+  ),
   relevant as (
-    select id from t
-    where (created_at >= p_s and created_at < p_e)
-       or (coalesce(start_date, created_at) < p_e
-           and (status = 'InProgress' or (status = 'Completed' and finished_at >= p_s)))
+    select id from t where created_at >= p_s and created_at < p_e
+    union
+    select id from active
   ),
   active_members as (
     select distinct ta.user_id
@@ -4997,35 +5123,91 @@ as $$
       count(*) as n,
       count(*) filter (where end_date is not null) as with_deadline,
       count(*) filter (where end_date is not null and public.statistics_on_time(finished_at, end_date)) as on_time,
-      percentile_cont(0.5) within group (order by extract(epoch from finished_at - created_at)) as median_lead_seconds
+      percentile_cont(0.5) within group (order by extract(epoch from finished_at - created_at)) as median_lead_seconds,
+      -- Ventetid (oprettet -> første InProgress) og tid i gang (første
+      -- InProgress -> færdig), kun opgaver med en InProgress-periode.
+      percentile_cont(0.5) within group (order by extract(epoch from s.started_at - created_at))
+        filter (where s.started_at is not null) as median_wait_seconds,
+      percentile_cont(0.5) within group (order by extract(epoch from finished_at - s.started_at))
+        filter (where s.started_at is not null) as median_work_seconds
     from t
+    left join lateral (
+      select min(h.valid_from) as started_at
+      from public.task_status_history h
+      where h.task_id = t.id and h.status = 'InProgress'
+    ) s on true
     where status = 'Completed' and finished_at >= p_s and finished_at < p_e
   )
   select jsonb_build_object(
     'created',   (select count(*) from t where created_at >= p_s and created_at < p_e),
     'completed', d.n,
-    'active',    (select count(*) from t
-                  where coalesce(start_date, created_at) < p_e
-                    and (status = 'InProgress' or (status = 'Completed' and finished_at >= p_s))),
+    'active',    (select count(*) from active),
     'overdue',   (select count(*) from t
                   where status <> 'Completed' and end_date < now()
                     and end_date >= p_s and end_date < p_e),
     'members',   (select count(*) from public.memberships where organisation_id = p_org),
-    -- Medlemskaber oprettet i perioden (nuværende medlemmer - et medlem der
-    -- forlader org'en slettes, så udmeldte kan ikke tælles). Ikke rum-filter.
+    -- Medlemskaber oprettet i perioden (nuværende medlemmer). Ikke rum-filter.
     'newMembers', (select count(*) from public.memberships
                    where organisation_id = p_org and created_at >= p_s and created_at < p_e),
+    -- Udmeldte i perioden (membership_departures, §9d). Ikke rum-filter.
+    'membersLeft', (select count(*) from public.membership_departures
+                    where organisation_id = p_org and left_at >= p_s and left_at < p_e),
     'membersWithTaskActivity', (select count(*) from active_members),
     'completedWithDeadline', d.with_deadline,
     'completedOnTime', d.on_time,
     'onTimeRate', case when d.with_deadline > 0 then round(d.on_time::numeric * 100 / d.with_deadline, 1) end,
     'medianLeadDays', case when d.median_lead_seconds is not null
-                           then round((d.median_lead_seconds / 86400)::numeric, 1) end
+                           then round((d.median_lead_seconds / 86400)::numeric, 1) end,
+    'medianWaitDays', case when d.median_wait_seconds is not null
+                           then round((d.median_wait_seconds / 86400)::numeric, 1) end,
+    'medianWorkDays', case when d.median_work_seconds is not null
+                           then round((d.median_work_seconds / 86400)::numeric, 1) end
   )
   from done d;
 $$;
 
 revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, timestamptz) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 15.26f statistics_loss - tab/skader og forbrug (intern, 2026-09-30)
+-- Historik-rækker (§9b) der GÅR IND i Missing/Damaged/Consumed i [p_s, p_e)
+-- - split-rækker tæller med, fortsættelse i samme status (fx flytning) ikke.
+-- ---------------------------------------------------------------------
+create or replace function public.statistics_loss(
+  p_org uuid,
+  p_item_ids uuid[],
+  p_s timestamptz,
+  p_e timestamptz
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path to 'public'
+as $$
+  with entered as (
+    select h.status
+    from public.data_layer_item_unit_history h
+    where h.organisation_id = p_org
+      and h.status in ('Missing', 'Damaged', 'Consumed')
+      and h.valid_from >= p_s and h.valid_from < p_e
+      and (p_item_ids is null or h.item_id = any(p_item_ids))
+      -- Kun når status SKIFTER hertil (ikke fx en flytning i samme status).
+      and not exists (
+        select 1 from public.data_layer_item_unit_history p
+        where p.unit_id = h.unit_id and p.valid_to = h.valid_from and p.status = h.status
+      )
+  )
+  select jsonb_build_object(
+    'missing',  count(*) filter (where status = 'Missing'),
+    'damaged',  count(*) filter (where status = 'Damaged'),
+    'consumed', count(*) filter (where status = 'Consumed')
+  )
+  from entered;
+$$;
+
+revoke execute on function public.statistics_loss(uuid, uuid[], timestamptz, timestamptz) from public, anon, authenticated;
 
 
 -- ---------------------------------------------------------------------
@@ -5048,7 +5230,9 @@ revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, times
 --     membersWithTaskActivity = medlemmer tildelt >= 1 relevant opgave
 --     (oprettet eller aktiv i perioden); completedOnTime/-WithDeadline/
 --     onTimeRate (15.26d); medianLeadDays = median finished_at - created_at;
---     newMembers = memberships.created_at i perioden (ikke rum-filter).
+--     newMembers = memberships.created_at i perioden (ikke rum-filter);
+--     membersLeft = membership_departures i perioden (§9d); active/relevant
+--     og medianWaitDays/medianWorkDays fra task_status_history (§9c).
 --   previousKpis = kpis for perioden lige før (samme længde); null ved "Alt"
 --   taskRooms  = kpi-definitionerne pr. rum, alle org'ens rum (også 0)
 --   memberLoad = antal medlemmer pr. interval af relevante opgaver
@@ -5059,6 +5243,8 @@ revoke execute on function public.statistics_kpis(uuid, uuid, timestamptz, times
 --                invitationer (hele org)
 --   materials.byStatus = enhedsrækker pr. status ved min(slut, nu) fra
 --                lagerhistorikken §9b; null før historikkens start
+--   materials.loss / previousLoss = tab/skader + forbrug i perioden
+--                (statistics_loss, §15.26f), loss.byCategory pr. kategori
 --   materials.byLocation = enhedsrækker pr. lager (sektioner talt med) ved
 --                min(slut, nu) fra lagerhistorikken; null før dens start
 --   materials.usedByCategory = forskellige varer brugt på opgaver oprettet
@@ -5107,6 +5293,9 @@ declare
   v_used_by_category jsonb;
   v_top_used jsonb;
   v_attention jsonb;
+  v_loss jsonb;
+  v_loss_by_category jsonb;
+  v_previous_loss jsonb;
   v_categories jsonb;
   -- Varer i kategori-filteret (hovedkategori + alle underkategorier);
   -- null = ingen filter.
@@ -5226,12 +5415,15 @@ begin
 
   -- Anonym belastning: medlemmer pr. interval af relevante opgaver -----
   with relevant as (
-    select id from public.tasks
-    where organisation_id = p_org
-      and (p_room_id is null or room_id = p_room_id)
-      and ((created_at >= v_s and created_at < v_e)
-        or (coalesce(start_date, created_at) < v_e
-            and (status = 'InProgress' or (status = 'Completed' and finished_at >= v_s))))
+    select t.id from public.tasks t
+    where t.organisation_id = p_org
+      and (p_room_id is null or t.room_id = p_room_id)
+      and ((t.created_at >= v_s and t.created_at < v_e)
+        or exists (
+          select 1 from public.task_status_history h
+          where h.task_id = t.id and h.status = 'InProgress'
+            and h.valid_from < v_e and (h.valid_to is null or h.valid_to > v_s)
+        ))
   ),
   per_member as (
     select m.user_id, count(r.id) as n
@@ -5422,6 +5614,66 @@ begin
     having b.id is distinct from p_category_id or count(i.id) > 0
   ) x;
 
+  -- Materialer: tab/skader og forbrug I PERIODEN = historik-rækker der går
+  -- ind i Missing/Damaged/Consumed (statistics_loss, §15.26f). Null når
+  -- perioden slutter før lagerhistorikken starter. Følger kategori-filteret.
+  if v_history_start is null or v_status_as_of >= v_history_start then
+    v_loss := public.statistics_loss(p_org, v_item_ids, v_s, v_e);
+    if p_start is not null and p_end is not null then
+      v_previous_loss := public.statistics_loss(p_org, v_item_ids, p_start - (p_end - p_start), p_start);
+    end if;
+
+    -- Tab/skader (Missing + Damaged) pr. kategori - samme drill-down som byCategory.
+    with recursive roots as (
+      select id, title, rank
+      from public.data_layer_categories
+      where organisation_id = p_org
+        and ((p_category_id is null and parent_category_id is null) or parent_category_id = p_category_id)
+    ),
+    tree as (
+      select id, id as root_id from roots
+      union all
+      select c.id, tree.root_id
+      from public.data_layer_categories c
+      join tree on c.parent_category_id = tree.id
+      where c.organisation_id = p_org
+    ),
+    buckets as (
+      select id, title, rank from roots
+      union all
+      select id, title, -1 from public.data_layer_categories where id = p_category_id
+    ),
+    membership as (
+      select id as category_id, root_id as bucket_id from tree
+      union all
+      select p_category_id, p_category_id where p_category_id is not null
+    ),
+    entered as (
+      select h.item_id
+      from public.data_layer_item_unit_history h
+      where h.organisation_id = p_org
+        and h.status in ('Missing', 'Damaged')
+        and h.valid_from >= v_s and h.valid_from < v_e
+        and (v_item_ids is null or h.item_id = any(v_item_ids))
+        and not exists (
+          select 1 from public.data_layer_item_unit_history p
+          where p.unit_id = h.unit_id and p.valid_to = h.valid_from and p.status = h.status
+        )
+    )
+    select coalesce(jsonb_agg(jsonb_build_object('categoryId', x.id, 'title', x.title, 'count', x.n)
+                              order by x.n desc, x.rank, x.title), '[]'::jsonb)
+    into v_loss_by_category
+    from (
+      select b.id, b.title, b.rank, count(e.item_id) as n
+      from buckets b
+      left join membership m on m.bucket_id = b.id
+      left join public.data_layer_items i on i.category_id = m.category_id and i.organisation_id = p_org
+      left join entered e on e.item_id = i.id
+      group by b.id, b.title, b.rank
+      having b.id is distinct from p_category_id or count(e.item_id) > 0
+    ) x;
+  end if;
+
   -- Materialer: forskellige varer brugt på opgaver oprettet i perioden,
   -- pr. topkategori (alle topkategorier, også 0) - med kategori-filter pr.
   -- underkategori. Kan beregnes bagud - modsat varer pr. kategori.
@@ -5582,7 +5834,10 @@ begin
       'historyStart', v_history_start,
       'byCategory', v_by_category,
       'usedByCategory', v_used_by_category,
-      'topUsed', v_top_used
+      'topUsed', v_top_used,
+      'loss', case when v_loss is null then null
+                   else v_loss || jsonb_build_object('byCategory', v_loss_by_category) end,
+      'previousLoss', v_previous_loss
     )
   );
 end;
@@ -5665,6 +5920,7 @@ grant  execute on function public.get_statistics(timestamptz, timestamptz, text,
 -- used_category:* erstatter category:* (som kun var "nu"). Rum gemmes som
 -- room:/room_completed:/room_overdue:/room_on_time_rate:; "lige nu"
 -- (attention) gemmes ikke. location:<lager> gemmes som item_status:*.
+-- loss:<status>/loss_category:<kategori> kun når lagerhistorikken rækker.
 -- ---------------------------------------------------------------------
 create or replace function public.save_statistics_snapshot(
   p_start timestamptz,
@@ -5728,6 +5984,13 @@ begin
   union all select v_id, 'members', (v_payload->'kpis'->>'members')::numeric
   union all select v_id, 'members_with_task_activity', (v_payload->'kpis'->>'membersWithTaskActivity')::numeric
   union all select v_id, 'members_new', (v_payload->'kpis'->>'newMembers')::numeric
+  union all select v_id, 'members_left', (v_payload->'kpis'->>'membersLeft')::numeric
+  union all
+  select v_id, 'tasks_median_wait_days', (v_payload->'kpis'->>'medianWaitDays')::numeric
+  where v_payload->'kpis'->>'medianWaitDays' is not null
+  union all
+  select v_id, 'tasks_median_work_days', (v_payload->'kpis'->>'medianWorkDays')::numeric
+  where v_payload->'kpis'->>'medianWorkDays' is not null
   union all select v_id, 'tasks_completed_with_deadline', (v_payload->'kpis'->>'completedWithDeadline')::numeric
   union all select v_id, 'tasks_completed_on_time', (v_payload->'kpis'->>'completedOnTime')::numeric
   union all
@@ -5775,6 +6038,14 @@ begin
   -- så langt tilbage (byStatus = null).
   select v_id, 'item_status:' || (x->>'status'), (x->>'count')::numeric
   from jsonb_array_elements(coalesce(nullif(v_payload->'materials'->'byStatus', 'null'::jsonb), '[]'::jsonb)) x
+  union all
+  -- Tab/skader og forbrug i perioden (udelades før lagerhistorikken).
+  select v_id, 'loss:' || k.status, (v_payload->'materials'->'loss'->>k.key)::numeric
+  from (values ('Missing', 'missing'), ('Damaged', 'damaged'), ('Consumed', 'consumed')) as k(status, key)
+  where jsonb_typeof(v_payload->'materials'->'loss') = 'object'
+  union all
+  select v_id, 'loss_category:' || (x->>'title'), (x->>'count')::numeric
+  from jsonb_array_elements(coalesce(v_payload->'materials'->'loss'->'byCategory', '[]'::jsonb)) x
   union all
   -- Enheder pr. lager ved periodens slutning (samme regel; location: = uden lokation).
   select v_id, 'location:' || coalesce(x->>'name', ''), (x->>'count')::numeric
@@ -5830,6 +6101,8 @@ alter table public.data_layer_categories   enable row level security;
 alter table public.data_layer_items        enable row level security;
 alter table public.data_layer_item_units   enable row level security;
 alter table public.data_layer_item_unit_history enable row level security;
+alter table public.task_status_history     enable row level security;
+alter table public.membership_departures   enable row level security;
 alter table public.data_layer_favorites    enable row level security;
 alter table public.tasks                   enable row level security;
 alter table public.task_rooms              enable row level security;
@@ -6261,6 +6534,21 @@ create policy "Se lagerhistorik i egen organisation"
     organisation_id = public.auth_profile_org()
     and (public.has_privilege_or_admin('read_datalayer') or public.has_privilege_or_admin('read_statistics'))
   );
+
+
+-- ---------------------------------------------------------------------
+-- 16.6e TASK STATUS HISTORY + 16.6f MEMBERSHIP DEPARTURES (2026-09-30)
+-- Kun læsning med read_statistics; ingen skrive-policies (kun triggerne).
+-- ---------------------------------------------------------------------
+create policy "Se opgave-statushistorik i egen organisation"
+  on public.task_status_history for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_statistics'));
+
+create policy "Se udmeldinger i egen organisation"
+  on public.membership_departures for select
+  to authenticated
+  using (organisation_id = public.auth_profile_org() and public.has_privilege_or_admin('read_statistics'));
 
 
 -- ---------------------------------------------------------------------

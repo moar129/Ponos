@@ -8,6 +8,8 @@ import {
     YAxis,
 } from 'recharts'
 import type { TooltipContentProps } from 'recharts'
+import { useState } from 'react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { StatisticsGranularity } from '../../types/statistics/statisticsTypes'
 import type { TaskDevelopmentChartProps } from '../../types/statistics/statisticsComponentTypes'
@@ -40,6 +42,8 @@ const TOOLTIP_FORMAT: Record<StatisticsGranularity, Intl.DateTimeFormatOptions> 
 
 export function TaskDevelopmentChart({ data, granularity }: TaskDevelopmentChartProps) {
     const { t, i18n } = useTranslation('statistics')
+    // Same numbers as a table - for screen readers and exact reading.
+    const [showTable, setShowTable] = useState(false)
 
     const formatTick = (bucket: string) =>
         new Intl.DateTimeFormat(i18n.language, TICK_FORMAT[granularity]).format(parseBucket(bucket))
@@ -132,6 +136,41 @@ export function TaskDevelopmentChart({ data, granularity }: TaskDevelopmentChart
                     </div>
                 ))}
             </div>
+
+            <button
+                type="button"
+                aria-expanded={showTable}
+                onClick={() => setShowTable((current) => !current)}
+                className="mt-3 flex items-center gap-1.5 text-sm font-medium text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
+            >
+                {showTable ? <ChevronDown className="h-4 w-4" aria-hidden /> : <ChevronRight className="h-4 w-4" aria-hidden />}
+                {showTable ? t('snapshots.hideTable') : t('snapshots.showTable')}
+            </button>
+
+            {showTable && (
+                <div className="mt-2 max-h-72 overflow-auto rounded-lg border border-border-gray dark:border-slate-700">
+                    <table className="w-full text-sm">
+                        <thead className="sticky top-0 bg-white dark:bg-slate-800">
+                            <tr className="border-b border-border-gray dark:border-slate-700">
+                                <th scope="col" className="px-3 py-2 text-left font-medium text-secondary dark:text-slate-400">{t('development.period')}</th>
+                                <th scope="col" className="px-3 py-2 text-right font-medium text-secondary dark:text-slate-400">{seriesLabel('created')}</th>
+                                <th scope="col" className="px-3 py-2 text-right font-medium text-secondary dark:text-slate-400">{seriesLabel('completed')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((point) => (
+                                <tr key={point.bucket} className="border-b border-border-gray/60 last:border-0 dark:border-slate-700/60">
+                                    <th scope="row" className="px-3 py-1.5 text-left font-normal text-secondary dark:text-slate-300">
+                                        {formatTooltipLabel(point.bucket)}
+                                    </th>
+                                    <td className="px-3 py-1.5 text-right tabular-nums text-primary dark:text-slate-100">{point.created}</td>
+                                    <td className="px-3 py-1.5 text-right tabular-nums text-primary dark:text-slate-100">{point.completed}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     )
 }

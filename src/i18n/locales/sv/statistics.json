@@ -44,7 +44,9 @@
     "leadTime": "Genomloppstid (median)",
     "leadTimeDetail": "Från skapad till klar",
     "newMembers": "Nya medlemmar",
-    "membersTotal": "Medlemmar totalt: {{total}}"
+    "membersTotal": "Medlemmar totalt: {{total}}",
+    "leadTimeSplit": "Väntetid {{wait}} · pågår {{work}}",
+    "membersLeft": "Utträdda: {{left}} · netto {{net}}"
   },
   "sections": {
     "tasks": "Uppgifter",
@@ -55,7 +57,8 @@
     "title": "Uppgiftsutveckling",
     "description": "Skapade och slutförda uppgifter över tid.",
     "created": "Skapade",
-    "completed": "Slutförda"
+    "completed": "Slutförda",
+    "period": "Period"
   },
   "status": {
     "title": "Uppgiftsstatus",
@@ -149,7 +152,9 @@
       "room_completed": "Klara per rum",
       "room_overdue": "Försenade per rum",
       "room_on_time_rate": "I tid per rum (%)",
-      "location": "Enheter per plats"
+      "location": "Enheter per plats",
+      "loss": "Förlust och förbrukning",
+      "loss_category": "Förlust och skador per kategori"
     },
     "names": {
       "tasks_created": "Skapade uppgifter",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Klara i tid",
       "tasks_on_time_rate": "I tid (%)",
       "tasks_median_lead_days": "Median genomloppstid (dagar)",
-      "members_new": "Nya medlemmar"
+      "members_new": "Nya medlemmar",
+      "members_left": "Utträdda medlemmar",
+      "tasks_median_wait_days": "Median väntetid före start (dagar)",
+      "tasks_median_work_days": "Median tid pågående (dagar)"
     },
     "granularity": "Utveckling per",
     "granularityHint": "Hur detaljerat utvecklingen över tid sparas – används för att jämföra med andra ögonblicksbilder.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "{{completed}} uppgifter blev klara mot {{created}} nya – eftersläpningen minskar.",
     "lowestOnTime": "Lägst andel i tid i {{room}}: {{rate}} ({{onTime}} av {{total}}).",
     "rejections": "{{rejected}} av {{total}} klarmarkeringar avvisades.",
-    "outOfService": "{{rate}} av enheterna var ur drift vid periodens slut ({{units}})."
+    "outOfService": "{{rate}} av enheterna var ur drift vid periodens slut ({{units}}).",
+    "lossUp": "Förlust och skador ökade från {{from}} till {{to}} enheter.",
+    "lossDown": "Förlust och skador minskade från {{from}} till {{to}} enheter.",
+    "netMembersDown": "Fler medlemmar gick ur än in (netto {{net}})."
+  },
+  "loss": {
+    "title": "Förlust och skador",
+    "description": "Enheter som rapporterats saknade eller skadade under perioden.",
+    "consumed": "Förbrukat (slut) under perioden: {{units}}",
+    "byCategory": "Förlust och skador per kategori",
+    "bySubcategory": "Förlust och skador per underkategori i {{category}}"
   }
 }

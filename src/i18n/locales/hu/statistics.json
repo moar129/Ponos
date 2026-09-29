@@ -44,7 +44,9 @@
     "leadTime": "Átfutási idő (medián)",
     "leadTimeDetail": "Létrehozástól befejezésig",
     "newMembers": "Új tagok",
-    "membersTotal": "Tagok összesen: {{total}}"
+    "membersTotal": "Tagok összesen: {{total}}",
+    "leadTimeSplit": "Várakozás {{wait}} · folyamatban {{work}}",
+    "membersLeft": "Kilépett: {{left}} · nettó {{net}}"
   },
   "sections": {
     "tasks": "Feladatok",
@@ -55,7 +57,8 @@
     "title": "Feladatok alakulása",
     "description": "Létrehozott és befejezett feladatok az idő függvényében.",
     "created": "Létrehozott",
-    "completed": "Befejezett"
+    "completed": "Befejezett",
+    "period": "Időszak"
   },
   "status": {
     "title": "Feladatállapot",
@@ -149,7 +152,9 @@
       "room_completed": "Kész helyiségenként",
       "room_overdue": "Lejárt helyiségenként",
       "room_on_time_rate": "Határidőre helyiségenként (%)",
-      "location": "Egységek helyszínenként"
+      "location": "Egységek helyszínenként",
+      "loss": "Veszteség és felhasználás",
+      "loss_category": "Veszteség és kár kategóriánként"
     },
     "names": {
       "tasks_created": "Létrehozott feladatok",
@@ -164,7 +169,10 @@
       "tasks_completed_on_time": "Határidőre kész",
       "tasks_on_time_rate": "Határidőre (%)",
       "tasks_median_lead_days": "Medián átfutási idő (nap)",
-      "members_new": "Új tagok"
+      "members_new": "Új tagok",
+      "members_left": "Kilépett tagok",
+      "tasks_median_wait_days": "Medián várakozás indulás előtt (nap)",
+      "tasks_median_work_days": "Medián idő folyamatban (nap)"
     },
     "granularity": "Alakulás bontása",
     "granularityHint": "Milyen részletesen mentse az időbeli alakulást – más pillanatképekkel való összevetéshez.",
@@ -268,6 +276,16 @@
     "backlogShrinks": "{{completed}} feladat készült el {{created}} új mellett – a hátralék csökken.",
     "lowestOnTime": "Legalacsonyabb határidős arány itt: {{room}}: {{rate}} ({{total}}-ból {{onTime}}).",
     "rejections": "{{total}} készre jelentésből {{rejected}} elutasítva.",
-    "outOfService": "Az egységek {{rate}}-a nem volt üzemképes az időszak végén ({{units}})."
+    "outOfService": "Az egységek {{rate}}-a nem volt üzemképes az időszak végén ({{units}}).",
+    "lossUp": "A veszteség és kár {{from}} → {{to}} egységre nőtt.",
+    "lossDown": "A veszteség és kár {{from}} → {{to}} egységre csökkent.",
+    "netMembersDown": "Többen léptek ki, mint be (nettó {{net}})."
+  },
+  "loss": {
+    "title": "Veszteség és kár",
+    "description": "Az időszakban hiányzónak vagy sérültnek jelentett egységek.",
+    "consumed": "Felhasználva az időszakban: {{units}}",
+    "byCategory": "Veszteség és kár kategóriánként",
+    "bySubcategory": "Veszteség és kár alkategóriánként: {{category}}"
   }
 }

@@ -5,8 +5,9 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 
 ## Næste op
 
-Intet åbent – statistikken (US-48–55, US-80, leder-overblik, lokation, medlemmer, opsummering, kategori-filter) er
-færdig, kørt og verificeret 2026-09-30.
+1. **Giv Studerende 3 besked** (hvis ikke gjort): ny tabel `task_status_history` + trigger `trg_record_task_status_history`
+   på `tasks` (`dbSchema.sql` §9c/§15.21e) – kun en tilføjelse, intet i opgave-koden er ændret.
+2. Ellers intet åbent – statistikken er færdig, kørt og verificeret 2026-09-30.
 
 ## Arkitektur
 
@@ -75,6 +76,10 @@ færdig, kørt og verificeret 2026-09-30.
 | Nye medlemmer | `memberships.created_at` i perioden – kun nuværende medlemmer (udmeldte slettes og kan ikke tælles). Hele org (ikke rum-filter; kortet noterer det ved filter). Neutral trend. Snapshots: `members_new` |
 | Medlemskab (lige nu) | `membership_requests` + `membership_invitations` med status Pending, hele org. Link til `/dashboard?tab=administration` |
 | Opsummering | højst 3 regel-baserede sætninger (ingen AI) fra payloaden, vigtigste først: forfaldne ±≥ 2 (90/60), til tiden ±≥ 10 pp (80/50), rum med flest forfaldne ≥ 2 (75), gennemløbstid ±≥ 25 % (70/40), backlog vokser/skrumper (forskel ≥ 5 og ≥ 1,5×; 65/45), rum med lavest til tiden < 70 % (≥ 3 med slutdato; 55), afviste færdigmeldinger ≥ 25 % (≥ 4 afgjort; 50), enheder ude af drift ≥ 10 % (45). Rum-regler kun uden filter; trend-regler kun med forrige periode. Uafgjort → rumnavn. Reglerne findes også i `generate.mjs` (FACIT) – hold dem i takt |
+| I gang | en InProgress-periode i `task_status_history` overlapper perioden (backfill = tidligere tilnærmelse; præcis fremover). Samme regel for "relevante" opgaver (teamaktivitet/belastning) |
+| Ventetid / tid i gang | median `created_at` → første InProgress, og første InProgress → `finished_at`, for færdige i perioden med en InProgress-periode. Vises i gennemløbstid-kortets detaljelinje |
+| Udmeldte | rækker i `membership_departures` i perioden (trigger på `memberships`; reason left/removed/deleted; intet bruger-id; ikke ved sletning af hele org'en). Vises i Nye medlemmer-kortet som "Udmeldte: n · netto ±m" |
+| Tab og skader / forbrugt | historik-rækker der GÅR IND i Missing/Damaged (tab og skader) hhv. Consumed (forbrugt) i perioden (`statistics_loss`) – split-rækker tæller med, fortsættelse i samme status (fx flytning) ikke. Enhedsrækker. Følger kategori-filteret. Ændring mod forrige periode: ↑ rød. Snapshots `loss:*`, `loss_category:*` |
 | Varer pr. kategori | varer pr. hovedkategori nu |
 | Kategori-filter | `p_category_id` = hovedkategori (+ alle underkategorier). Filtrerer KUN materialer: enheder pr. status/lokation, top 5, lager i "Lige nu" (og dermed opsummeringens "ude af drift"). Varer/brugte varer pr. kategori viser da underkategorierne (varer direkte i hovedkategorien under dens navn). Opgaver/KPI'er uændrede (note under Nøgletal). Snapshots altid uden filtre. `CATEGORY_NOT_FOUND` hvis ikke en hovedkategori i org'en |
 | Enheder pr. lokation | antal enhedsrækker pr. lager (topniveau; sektioner via `parent_location_id` tælles med i deres lager) **ved periodens slutning** fra lagerhistorikken (`location_id` logges af triggeren). Alle lagre (også 0) + "Uden lokation" hvis nogen; "–" før historikkens start. Hele org (ikke rum-filter). Snapshots: `location:<lager>` |
@@ -101,6 +106,7 @@ færdig, kørt og verificeret 2026-09-30.
 | Nye medlemmer + ventende medlemskab | Kørt + verificeret 2026-09-30, i `dbSchema.sql` §15.26 |
 | Opsummering (tekst-indsigt) | Færdig + verificeret i browser 2026-09-30 (frontend, `utils/statisticsInsights.ts`) |
 | Kategori-filter | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §15.26a/b |
+| Tab/skader, udmeldte, opgave-statushistorik, delbart link, tabel under opgaveudvikling | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §9c/§9d/§15.21e/f/§15.26/§16.6e/f |
 | Browser-verifikation mod FACIT | Admin, "Alt" + snapshot: OK 2026-09-29. Medlemmer = 23 (FACIT 22) pga. ét ekstra, ikke-seedet medlem med 0 opgaver – ikke en fejl. Mangler: øvrige perioder, ikke-admin, dark mode, responsive |
 
 ## Verifikation
@@ -146,6 +152,11 @@ Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**
   forfaldne, ellers gul; "Intet kræver handling" grøn; links virker.
 - **KPI-række** (8 kort): 1 kolonne mobil → 2 → 3 → 4 (xl, 1920 = 4+4) → 8 (≥ 2200 px, 2560); trend-tekst
   grøn/rød kun på Færdige/Til tiden/Gennemløbstid/Forfaldne, ellers grå; ingen overlap ved lange tal.
+- **Tab og skader**: fuld bredde under Materialer; tal + Mangler/Beskadiget, ændring (rød ↑/grøn ↓), forbrugt for sig,
+  stolper pr. kategori; "–" før lagerhistorikken.
+- **Delbart link**: periode, datoer, rum og kategori står i adressen; kopiér til ny fane → samme visning; tilbage-knap
+  forlader siden (ingen historik pr. klik).
+- **Opgaveudvikling**: "Vis som tabel" under grafen (scroller ved mange rækker).
 - **Rum-oversigt**: tabel scroller vandret på mobil; rum-navne er links (klik = filter + scroll til top); forfaldne > 0
   rød; "–" ved rum uden færdige med slutdato.
 - **Grafer**: opgaveudvikling (blå oprettede + orange færdige), donut, stolper – akser/labels læsbare i mørk; tooltips

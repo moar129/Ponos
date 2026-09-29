@@ -627,6 +627,58 @@ ${taskBlocks}
     and (h.valid_to is not null
          or h.id <> (select min(h2.id) from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id));
 
+  -- c) Tab/skader: enheder der i dag er Missing/Damaged og aldrig har
+  --    skiftet status (kun oprettelses-rækken) var Available indtil dagen
+  --    efter festivalen - RF25 (6/7-2025) eller RF26 (5/7-2026). Oprettet
+  --    efter RF26: registreret sådan (ingen fortid).
+  with lost as (
+    select h.id,
+      case when h.valid_from < timestamptz '2025-07-06 10:00+02' then timestamptz '2025-07-06 10:00+02'
+           when h.valid_from < timestamptz '2026-07-05 10:00+02' then timestamptz '2026-07-05 10:00+02' end as lost_at
+    from public.data_layer_item_unit_history h
+    where h.organisation_id = v_org
+      and h.status in ('Missing', 'Damaged')
+      and h.valid_to is null
+      and not exists (select 1 from public.data_layer_item_unit_history h2 where h2.unit_id = h.unit_id and h2.id <> h.id)
+  ),
+  available_before as (
+    insert into public.data_layer_item_unit_history (organisation_id, unit_id, item_id, status, location_id, valid_from, valid_to)
+    select h.organisation_id, h.unit_id, h.item_id, 'Available'::public.e_item_status, h.location_id, h.valid_from, l.lost_at
+    from lost l
+    join public.data_layer_item_unit_history h on h.id = l.id
+    where l.lost_at is not null
+  )
+  update public.data_layer_item_unit_history h
+  set valid_from = l.lost_at
+  from lost l
+  where h.id = l.id and l.lost_at is not null;
+
+  -- d) Opgave-statushistorik: triggeren har logget alle opgaver "nu".
+  --    Samme tilnærmelse som migrationens backfill (Started fra created_at,
+  --    InProgress fra start_date, Completed fra finished_at).
+  delete from public.task_status_history where organisation_id = v_org;
+  with base as (
+    select t.id, t.organisation_id, t.status, t.created_at,
+      coalesce(t.finished_at, t.created_at) as done_at,
+      greatest(t.created_at, least(coalesce(t.start_date, t.created_at), coalesce(t.finished_at, now()))) as ip_from
+    from public.tasks t
+    where t.organisation_id = v_org
+  )
+  insert into public.task_status_history (organisation_id, task_id, status, valid_from, valid_to)
+  select organisation_id, id, 'Started'::public.e_task_status, created_at,
+         case when status = 'Started' then null else ip_from end
+  from base
+  where status = 'Started' or ip_from > created_at
+  union all
+  select organisation_id, id, 'InProgress'::public.e_task_status, ip_from,
+         case when status = 'Completed' then greatest(done_at, ip_from) end
+  from base
+  where status = 'InProgress' or (status = 'Completed' and done_at > ip_from)
+  union all
+  select organisation_id, id, 'Completed'::public.e_task_status, greatest(done_at, ip_from), null
+  from base
+  where status = 'Completed';
+
   raise notice 'Seed 06 færdig: ${tasks.length} opgaver.';
 end $$;
 `
@@ -736,10 +788,58 @@ function buildFacit() {
     }
   }
 
+  // Tab/skader (06's fixup c): Missing/Damaged uden statusskift var
+  // Available indtil dagen efter festivalen det år.
+  const RF25_AFTER = toDate('2025-07-06 10:00')
+  const RF26_AFTER = toDate('2026-07-05 10:00')
+  const lostAt = (r) => {
+    if (!['Missing', 'Damaged'].includes(r.st) || r.changedAt) return null
+    const created = toDate(r.created)
+    return created < RF25_AFTER ? RF25_AFTER : created < RF26_AFTER ? RF26_AFTER : null
+  }
+  // Tab/skader og forbrug i [s, e) = rækker der GÅR IND i Missing/Damaged/
+  // Consumed (statistics_loss): ved lostAt, ellers ved oprettelsen.
+  const lossIn = (s, e) => {
+    const entered = unitRows.filter((r) => ['Missing', 'Damaged', 'Consumed'].includes(r.st)).filter((r) => {
+      const at = lostAt(r) ?? toDate(r.created)
+      return at >= s && at < e
+    })
+    const byStatus = count(entered, (r) => r.st)
+    return {
+      missing: byStatus.Missing ?? 0, damaged: byStatus.Damaged ?? 0, consumed: byStatus.Consumed ?? 0,
+      byCategory: count(entered.filter((r) => r.st !== 'Consumed'), (r) => topOfItem[r.item]),
+    }
+  }
+
+  // Opgave-statushistorik (06's fixup d): InProgress-perioden pr. opgave.
+  const inProgressRange = (t) => {
+    if (t.st === 'Started') return null
+    const created = toDate(t.created).getTime()
+    const from = Math.max(created, Math.min(toDate(t.start ?? t.created).getTime(), t.finished ? toDate(t.finished).getTime() : NOW.getTime()))
+    if (t.st === 'InProgress') return [from, Infinity]
+    const done = t.finished ? toDate(t.finished).getTime() : created
+    return done > from ? [from, done] : null
+  }
+  const activeIn = (s, e) => tasks.filter((t) => {
+    const r = inProgressRange(t)
+    return r && r[0] < e.getTime() && r[1] > s.getTime()
+  })
+  const waitWork = (done) => {
+    const started = done.map((t) => [t, inProgressRange(t)]).filter(([, r]) => r)
+    const wait = median(started.map(([t, r]) => (r[0] - toDate(t.created).getTime()) / 86_400_000))
+    const work = median(started.map(([t, r]) => (toDate(t.finished).getTime() - r[0]) / 86_400_000))
+    return { wait: wait === null ? '–' : round1(wait), work: work === null ? '–' : round1(work) }
+  }
+  // Udmeldinger fra 02_users.sql - SKAL matche den.
+  const DEPARTURES = ['2025-07-20 12:00', '2025-08-05 12:00', '2025-08-15 12:00', '2026-02-02 10:00', '2026-09-18 12:00']
+  const leftIn = (s, e) => DEPARTURES.filter((d) => toDate(d) >= s && toDate(d) < e).length
+
   // Lagerhistorik: enhedens status på tidspunkt A (samme regel som
   // 06's historik-fixup: skift ved tildeling, tidligst ved oprettelse).
   const statusAt = (r, at) => {
     if (toDate(r.created) > at) return null
+    const lost = lostAt(r)
+    if (lost) return at < lost ? 'Available' : r.st
     if (!r.changedAt) return r.st
     const changed = Math.max(toDate(r.changedAt).getTime(), toDate(r.created).getTime())
     return changed <= at.getTime() ? r.st : r.prevSt
@@ -764,8 +864,7 @@ function buildFacit() {
   const periodStats = periods.map(([label, s, e]) => {
     const inP = (v) => v !== null && v !== undefined && toDate(v) >= s && toDate(v) < e
     const created = tasks.filter((t) => inP(t.created))
-    const active = tasks.filter((t) => toDate(t.start ?? t.created) < e
-      && (t.st === 'InProgress' || (t.st === 'Completed' && toDate(t.finished) >= s)))
+    const active = activeIn(s, e)
     const relevant = new Set([...created, ...active])
     const loadOf = (m) => [...relevant].filter((t) => t.assignees.includes(m)).length
     const periodReqs = tasks.flatMap((t) => t.allRequests).filter((r) => inP(r.at))
@@ -786,7 +885,10 @@ function buildFacit() {
       created: created.length,
       completed: done.length,
       newMembers: newMembersIn(s, e),
+      left: leftIn(s, e),
       quality: quality(done),
+      waitWork: waitWork(done),
+      loss: lossIn(s, e),
       active: active.length,
       overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
       withActivity: allMembers.filter((m) => loadOf(m) > 0).length,
@@ -813,7 +915,9 @@ function buildFacit() {
       completed: done.length,
       overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
       newMembers: newMembersIn(s, e),
+      left: leftIn(s, e),
       quality: quality(done),
+      loss: lossIn(s, e),
     }
   }
   // Kategori-filter (stikprøve) - samme definitioner som p_category_id i statistics_payload.
@@ -850,6 +954,8 @@ function buildFacit() {
         overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inR(t.end)).length,
         rate: withDeadline.length ? (withDeadline.filter(onTime).length * 100) / withDeadline.length : null,
         lead: median(done.map((t) => (toDate(t.finished) - toDate(t.created)) / 86_400_000)),
+        loss: (({ missing, damaged }) => missing + damaged)(lossIn(a, b)),
+        net: newMembersIn(a, b) - leftIn(a, b),
       }
     }
     const now = kpis(s, e)
@@ -886,6 +992,11 @@ function buildFacit() {
     const lowest = roomStats.filter((r) => r.withDeadline >= 3 && (r.onTime * 100) / r.withDeadline < 70)
       .sort((a, b) => a.onTime / a.withDeadline - b.onTime / b.withDeadline || a.n.localeCompare(b.n, 'da'))[0]
     if (lowest) out.push([55, `Lavest andel til tiden i ${lowest.n}: ${Math.round((lowest.onTime * 100) / lowest.withDeadline)} % (${lowest.onTime} af ${lowest.withDeadline}).`])
+    if (before && Math.abs(now.loss - before.loss) >= 3) {
+      const up = now.loss > before.loss
+      out.push([up ? 72 : 42, `Tab og skader ${up ? 'steg' : 'faldt'} fra ${before.loss} til ${now.loss} enheder.`])
+    }
+    if (now.net < 0) out.push([52, `Flere meldte sig ud end ind (netto −${Math.abs(now.net)}).`])
     const periodReqs = tasks.flatMap((t) => t.allRequests).filter((r) => inP(r.at))
     const acc = periodReqs.filter((r) => r.st === 'Accepted').length
     const rej = periodReqs.filter((r) => r.st === 'Rejected').length
@@ -908,7 +1019,8 @@ function buildFacit() {
     const now = kpisFor(s, e)
     const before = kpisFor(prevStart, s)
     return [label, `${now.created} / ${before.created}`, `${now.completed} / ${before.completed}`, `${now.overdue} / ${before.overdue}`,
-      `${now.quality.rate} / ${before.quality.rate}`, `${now.quality.lead} / ${before.quality.lead}`, `${now.newMembers} / ${before.newMembers}`]
+      `${now.quality.rate} / ${before.quality.rate}`, `${now.quality.lead} / ${before.quality.lead}`, `${now.newMembers} / ${before.newMembers}`,
+      `${now.left} / ${before.left}`, `${now.loss.missing + now.loss.damaged} / ${before.loss.missing + before.loss.damaged}`]
   })
 
   // Rum-oversigt ("Alt"): KPI-definitionerne pr. rum.
@@ -1032,6 +1144,13 @@ ${table(['Udsagn', ...periodStats.map((p) => p.label)], [
     pRow('Forfaldne', (p) => p.overdue),
     pRow('Med opgaveaktivitet', (p) => p.withActivity),
     pRow('Nye medlemmer (mock)', (p) => p.newMembers),
+    pRow('Udmeldte', (p) => p.left),
+    pRow('Ventetid før start (median dage)', (p) => p.waitWork.wait),
+    pRow('Tid i gang (median dage)', (p) => p.waitWork.work),
+    pRow('Tab og skader (Mangler + Beskadiget)', (p) => p.loss.missing + p.loss.damaged),
+    pRow('  heraf Mangler / Beskadiget', (p) => `${p.loss.missing} / ${p.loss.damaged}`),
+    pRow('Forbrugt (Brugt op)', (p) => p.loss.consumed),
+    ...categories.map(([top]) => pRow(`Tab og skader: ${top}`, (p) => p.loss.byCategory[top])),
     ...['Started', 'InProgress', 'Completed'].map((st) => pRow(`Status: ${st}`, (p) => p.status[st])),
     ...['Critical', 'High', 'Medium', 'Low'].map((pr) => pRow(`Prioritet: ${pr}`, (p) => p.prio[pr])),
     ...rooms.map(([, n]) => pRow(`Rum: ${n}`, (p) => p.rooms[n])),
@@ -1065,11 +1184,14 @@ KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16
 7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
 Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
 
-${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)', 'Nye medlemmer'], trendRows)}
+${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)', 'Nye medlemmer', 'Udmeldte', 'Tab og skader'], trendRows)}
 
 Til tiden = færdige med \`finished_at <= end_date\` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
 dagen). Gennemløbstid = median \`finished_at − created_at\` for færdige i perioden. Trend: Til tiden i procentpoint
 (↑ grøn), gennemløbstid ↓ grøn.
+Tab og skader = enheder der GÅR IND i Mangler/Beskadiget i perioden (seedet: dagen efter RF25/RF26); forbrugt =
+Brugt op (seedet: ved oprettelsen). Udmeldte = \`membership_departures\` (5 i seedet). Ventetid/tid i gang fra
+opgave-statushistorikken (første InProgress). "I gang" = en InProgress-periode overlapper perioden.
 Nye medlemmer = \`memberships.created_at\` i perioden, neutral trend. Tallene tæller kun seed-brugerne - dit eget
 og andre ikke-seedede medlemskaber kommer oveni, hvis de er oprettet i perioden ("Alt" = alle medlemmer).
 
