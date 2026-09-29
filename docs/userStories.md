@@ -1026,6 +1026,8 @@ Som bruger vil jeg kunne filtrere statistik efter relevante data, så jeg kan fo
 
 **Note:** Opfølgning på statistiksiden (docs/statistik-plan.md). Bygger på snapshot-sammenligningen (US-54) - ingen ny tabel. Tallene findes allerede i `statistics_values`.
 
+**Status: FÆRDIG 2026-09-30.** Knappen "Eksportér CSV" over snapshot-sammenligningen (fanen "Gem og sammenlign"). Ren frontend (`src/utils/statisticsCsv.ts`), deler rækkerne med tabellen via `buildSnapshotComparison`. Format: komma-separeret, punktum som decimaltegn, UTF-8 med BOM, CRLF (RFC 4180). Periode-rækker (start/slut) øverst, tidsserien ("Udvikling – …") til sidst. Kun sammenligningen eksporteres - ikke Overblik (valgt 2026-09-30).
+
 ### User Story
 
 Som bruger vil jeg kunne eksportere statistik som CSV, så jeg kan bruge tallene i fx rapporter og regneark.

@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}}/{{total}} joilla on päättymispäivä",
     "onTimeNone": "Ei valmistuneita tehtäviä, joilla on päättymispäivä",
     "leadTime": "Läpimenoaika (mediaani)",
-    "leadTimeDetail": "Luonnista valmistumiseen"
+    "leadTimeDetail": "Luonnista valmistumiseen",
+    "newMembers": "Uudet jäsenet",
+    "membersTotal": "Jäseniä yhteensä: {{total}}"
   },
   "sections": {
     "tasks": "Tehtävät",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Tila jakson lopussa ({{date}}).",
     "noHistory": "Varastohistoria alkaa {{date}} – sitä edeltävä tila on tuntematon.",
     "usedCategoryTitle": "Käytetyt nimikkeet luokittain",
-    "usedCategoryDescription": "Jakson aikana luotuihin tehtäviin käytettyjen eri nimikkeiden määrä pääluokittain."
+    "usedCategoryDescription": "Jakson aikana luotuihin tehtäviin käytettyjen eri nimikkeiden määrä pääluokittain.",
+    "locationTitle": "Yksiköt sijainneittain",
+    "locationDescriptionAt": "Varastoittain (osastot mukaan lukien) jakson lopussa ({{date}}).",
+    "noLocation": "Ei sijaintia"
   },
   "snapshots": {
     "title": "Tallennetut tilannekuvat",
@@ -140,7 +145,8 @@
       "used_category": "Käytetyt nimikkeet luokittain",
       "room_completed": "Valmistuneet huoneittain",
       "room_overdue": "Myöhässä huoneittain",
-      "room_on_time_rate": "Ajallaan huoneittain (%)"
+      "room_on_time_rate": "Ajallaan huoneittain (%)",
+      "location": "Yksiköt sijainneittain"
     },
     "names": {
       "tasks_created": "Luodut tehtävät",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Valmistuneet, joilla päättymispäivä",
       "tasks_completed_on_time": "Valmistuneet ajallaan",
       "tasks_on_time_rate": "Ajallaan (%)",
-      "tasks_median_lead_days": "Läpimenoajan mediaani (päivää)"
+      "tasks_median_lead_days": "Läpimenoajan mediaani (päivää)",
+      "members_new": "Uudet jäsenet"
     },
     "granularity": "Kehitys per",
     "granularityHint": "Kuinka tarkasti kehitys ajan mittaan tallennetaan – käytetään vertailuun muihin tilannekuviin.",
@@ -200,7 +207,16 @@
     "monthLabel": "Kuukausi",
     "labelAuto": "Tyhjä nimi tallennetaan muodossa ”{{name}}”.",
     "atPeriodEndNote": "Varasto jakson lopussa",
-    "wholeOrganisationNote": "Tilannekuvat tallennetaan aina koko organisaatiolle (ilman huonesuodatinta)."
+    "wholeOrganisationNote": "Tilannekuvat tallennetaan aina koko organisaatiolle (ilman huonesuodatinta).",
+    "csv": {
+      "export": "Vie CSV",
+      "group": "Ryhmä",
+      "period": "Jakso",
+      "start": "Alku",
+      "end": "Loppu",
+      "development": "Kehitys – {{metric}}",
+      "fileName": "tilastot-vertailu"
+    }
   },
   "tabs": {
     "overblik": "Yleiskatsaus",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Juuri nyt",
     "description": "Nykytila – ei seuraa valittua jaksoa.",
-    "roomNote": "Tehtävät huoneessa {{room}} · koko organisaation varasto.",
+    "roomNote": "Tehtävät huoneessa {{room}} · koko organisaation varasto ja jäsenyydet.",
     "allClear": "Mikään ei vaadi toimia juuri nyt.",
     "overdueTitle": "Myöhässä olevat tehtävät",
     "unassignedTitle": "Tehtävät ilman vastuuhenkilöä",
@@ -223,6 +239,28 @@
     "stockTitle": "Toimia vaativa varasto",
     "itemsWithoutAvailable": "Nimikkeet ilman vapaita yksiköitä: {{count}}",
     "goToTasks": "Siirry tehtäviin",
-    "goToDatalayer": "Siirry datakerrokseen"
+    "goToDatalayer": "Siirry datakerrokseen",
+    "membershipTitle": "Odottavat jäsenyydet",
+    "requests": "Hakemukset: {{count}}",
+    "invitations": "Kutsut: {{count}}",
+    "goToAdministration": "Siirry hallintaan"
+  },
+  "insights": {
+    "title": "Yhteenveto",
+    "none": "Ei merkittäviä muutoksia jaksolla.",
+    "toneBad": "Huolestuttava",
+    "toneGood": "Myönteinen",
+    "overdueUp": "Myöhässä olevat tehtävät nousivat {{from}} → {{to}}.",
+    "overdueDown": "Myöhässä olevat tehtävät laskivat {{from}} → {{to}}.",
+    "onTimeUp": "Ajallaan valmistuneiden osuus nousi {{from}} → {{to}}.",
+    "onTimeDown": "Ajallaan valmistuneiden osuus laski {{from}} → {{to}}.",
+    "worstRoom": "Eniten myöhässä olevia tehtäviä: {{room}} ({{overdue}}).",
+    "leadUp": "Läpimenoaika kasvoi {{from}} → {{to}}.",
+    "leadDown": "Läpimenoaika lyheni {{from}} → {{to}}.",
+    "backlogGrows": "Tehtäviä luotiin {{created}}, mutta vain {{completed}} valmistui – ruuhka kasvaa.",
+    "backlogShrinks": "Tehtäviä valmistui {{completed}} ja uusia tuli {{created}} – ruuhka pienenee.",
+    "lowestOnTime": "Alhaisin ajallaan-osuus: {{room}}: {{rate}} ({{onTime}}/{{total}}).",
+    "rejections": "{{total}} valmistumisilmoituksesta hylättiin {{rejected}}.",
+    "outOfService": "{{rate}} yksiköistä oli poissa käytöstä jakson lopussa ({{units}})."
   }
 }

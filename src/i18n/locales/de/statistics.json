@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} von {{total}} mit Enddatum",
     "onTimeNone": "Keine erledigten Aufgaben mit Enddatum",
     "leadTime": "Durchlaufzeit (Median)",
-    "leadTimeDetail": "Von erstellt bis erledigt"
+    "leadTimeDetail": "Von erstellt bis erledigt",
+    "newMembers": "Neue Mitglieder",
+    "membersTotal": "Mitglieder insgesamt: {{total}}"
   },
   "sections": {
     "tasks": "Aufgaben",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Status am Ende des Zeitraums ({{date}}).",
     "noHistory": "Der Lagerverlauf beginnt am {{date}} – der Status davor ist unbekannt.",
     "usedCategoryTitle": "Verwendete Artikel pro Kategorie",
-    "usedCategoryDescription": "Anzahl verschiedener Artikel, die für im Zeitraum erstellte Aufgaben verwendet wurden, pro Hauptkategorie."
+    "usedCategoryDescription": "Anzahl verschiedener Artikel, die für im Zeitraum erstellte Aufgaben verwendet wurden, pro Hauptkategorie.",
+    "locationTitle": "Einheiten pro Standort",
+    "locationDescriptionAt": "Pro Lager (Bereiche eingerechnet) zum Ende des Zeitraums ({{date}}).",
+    "noLocation": "Ohne Standort"
   },
   "snapshots": {
     "title": "Gespeicherte Snapshots",
@@ -140,7 +145,8 @@
       "used_category": "Verwendete Artikel pro Kategorie",
       "room_completed": "Erledigt pro Raum",
       "room_overdue": "Überfällig pro Raum",
-      "room_on_time_rate": "Pünktlich pro Raum (%)"
+      "room_on_time_rate": "Pünktlich pro Raum (%)",
+      "location": "Einheiten pro Standort"
     },
     "names": {
       "tasks_created": "Erstellte Aufgaben",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Erledigt mit Enddatum",
       "tasks_completed_on_time": "Pünktlich erledigt",
       "tasks_on_time_rate": "Pünktlich (%)",
-      "tasks_median_lead_days": "Median-Durchlaufzeit (Tage)"
+      "tasks_median_lead_days": "Median-Durchlaufzeit (Tage)",
+      "members_new": "Neue Mitglieder"
     },
     "granularity": "Entwicklung pro",
     "granularityHint": "Wie fein die Entwicklung über die Zeit gespeichert wird – für den Vergleich mit anderen Snapshots.",
@@ -200,7 +207,16 @@
     "monthLabel": "Monat",
     "labelAuto": "Ein leerer Name wird als „{{name}}\" gespeichert.",
     "atPeriodEndNote": "Lager am Ende des Zeitraums",
-    "wholeOrganisationNote": "Snapshots werden immer für die gesamte Organisation gespeichert (ohne Raumfilter)."
+    "wholeOrganisationNote": "Snapshots werden immer für die gesamte Organisation gespeichert (ohne Raumfilter).",
+    "csv": {
+      "export": "CSV exportieren",
+      "group": "Gruppe",
+      "period": "Zeitraum",
+      "start": "Beginn",
+      "end": "Ende",
+      "development": "Entwicklung – {{metric}}",
+      "fileName": "statistik-vergleich"
+    }
   },
   "tabs": {
     "overblik": "Überblick",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Aktuell",
     "description": "Aktueller Stand – folgt nicht dem gewählten Zeitraum.",
-    "roomNote": "Aufgaben in {{room}} · Lager der gesamten Organisation.",
+    "roomNote": "Aufgaben in {{room}} · Lager und Mitgliedschaft der gesamten Organisation.",
     "allClear": "Derzeit ist nichts zu tun.",
     "overdueTitle": "Überfällige Aufgaben",
     "unassignedTitle": "Aufgaben ohne Verantwortliche",
@@ -223,6 +239,28 @@
     "stockTitle": "Lager mit Handlungsbedarf",
     "itemsWithoutAvailable": "Artikel ohne verfügbare Einheiten: {{count}}",
     "goToTasks": "Zu den Aufgaben",
-    "goToDatalayer": "Zur Datenebene"
+    "goToDatalayer": "Zur Datenebene",
+    "membershipTitle": "Offene Mitgliedschaften",
+    "requests": "Anfragen: {{count}}",
+    "invitations": "Einladungen: {{count}}",
+    "goToAdministration": "Zur Verwaltung"
+  },
+  "insights": {
+    "title": "Zusammenfassung",
+    "none": "Keine deutlichen Veränderungen im Zeitraum.",
+    "toneBad": "Bedenklich",
+    "toneGood": "Positiv",
+    "overdueUp": "Überfällige Aufgaben stiegen von {{from}} auf {{to}}.",
+    "overdueDown": "Überfällige Aufgaben sanken von {{from}} auf {{to}}.",
+    "onTimeUp": "Der Anteil pünktlich erledigter Aufgaben stieg von {{from}} auf {{to}}.",
+    "onTimeDown": "Der Anteil pünktlich erledigter Aufgaben sank von {{from}} auf {{to}}.",
+    "worstRoom": "Die meisten überfälligen Aufgaben in {{room}} ({{overdue}}).",
+    "leadUp": "Die Durchlaufzeit stieg von {{from}} auf {{to}}.",
+    "leadDown": "Die Durchlaufzeit sank von {{from}} auf {{to}}.",
+    "backlogGrows": "Es wurden {{created}} Aufgaben erstellt, aber nur {{completed}} erledigt – der Rückstand wächst.",
+    "backlogShrinks": "Es wurden {{completed}} Aufgaben erledigt gegenüber {{created}} neuen – der Rückstand schrumpft.",
+    "lowestOnTime": "Niedrigster Pünktlichkeitsanteil in {{room}}: {{rate}} ({{onTime}} von {{total}}).",
+    "rejections": "{{rejected}} von {{total}} Fertigmeldungen wurden abgelehnt.",
+    "outOfService": "{{rate}} der Einheiten waren zum Ende des Zeitraums außer Betrieb ({{units}})."
   }
 }

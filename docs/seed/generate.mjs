@@ -695,6 +695,18 @@ function buildFacit() {
     ['Alt', new Date(-8.64e15), new Date(8.64e15)],
   ]
   const allMembers = [...members, 'admin']
+  // memberships.created_at = joined_at i 02_users.sql - SKAL matche den.
+  const JOINED = {
+    'mette.hansen': '2024-09-02 09:00', 'lars.boegh': '2024-09-02 09:30', 'sofie.andersen': '2024-09-16 10:00',
+    'anders.moeller': '2024-10-01 10:00', 'henrik.dahl': '2024-09-09 08:00', 'emma.nielsen': '2025-01-13 08:00',
+    'jonas.holm': '2025-03-03 08:00', 'camilla.thorsen': '2024-09-23 09:00', 'rasmus.kristensen': '2025-02-10 09:00',
+    'line.vestergaard': '2025-04-07 09:00', 'mikkel.brandt': '2024-10-14 09:00', 'peter.skov': '2025-01-20 09:00',
+    'nanna.bech': '2024-11-04 09:00', 'kasper.winther': '2025-02-24 09:00', 'ida.mortensen': '2025-03-17 12:00',
+    'oliver.juhl': '2025-04-14 12:00', 'freja.lassen': '2025-05-05 12:00', 'mads.poulsen': '2025-05-19 12:00',
+    'sara.oestergaard': '2025-06-02 12:00', 'tobias.krogh': '2026-05-11 12:00', 'ahmad.rahimi': '2026-09-15 12:00',
+  }
+  // toDate antager +02:00; vintertids-datoer rammer én time forkert, men ingen ligger tæt på en periodegrænse.
+  const newMembersIn = (s, e) => members.filter((m) => toDate(JOINED[m]) >= s && toDate(JOINED[m]) < e).length
   const loadBuckets = [['0', 0, 0], ['1-3', 1, 3], ['4-6', 4, 6], ['7+', 7, Infinity]]
   const median = (xs) => {
     if (!xs.length) return null
@@ -733,6 +745,20 @@ function buildFacit() {
     return changed <= at.getTime() ? r.st : r.prevSt
   }
   const stockAt = (at) => count(unitRows.filter((r) => statusAt(r, at)), (r) => statusAt(r, at))
+  // Lager pr. topniveau (sektioner tælles med i deres lager) - SKAL matche
+  // 03_locations.sql. Enheder flytter ikke i seedet, så kun oprettelsen tæller.
+  const LAGRE = ['Centrallager', 'Orange Scene', 'Arena', 'Avalon', 'Apollo', 'Camp Øst', 'Camp Vest', 'Frivilligcamp', 'Medic-telt', 'Sikkerhedscentral']
+  const SECTION_OF = {
+    'Hal 1 – Scene & teknik': 'Centrallager', 'Hal 2 – Hegn & telte': 'Centrallager', 'Hal 3 – Forbrugsvarer': 'Centrallager',
+    'Værksted': 'Centrallager', 'Containerplads': 'Centrallager', 'Backstage Orange': 'Orange Scene', 'FOH-tårn': 'Orange Scene',
+    'Scenelager Orange': 'Orange Scene', 'Backstage Arena': 'Arena', 'Toiletområde Øst': 'Camp Øst', 'Affaldsstation Øst': 'Camp Øst',
+    'Toiletområde Vest': 'Camp Vest', 'Affaldsstation Vest': 'Camp Vest', 'Frivilligdepot': 'Frivilligcamp', 'Radiodepot': 'Sikkerhedscentral',
+  }
+  const lagerOf = (loc) => (loc ? SECTION_OF[loc] ?? loc : 'Uden lokation')
+  for (const r of unitRows) {
+    if (r.loc && !LAGRE.includes(lagerOf(r.loc))) throw new Error(`Ukendt lokation i FACIT: ${r.loc}`)
+  }
+  const locationAt = (at) => count(unitRows.filter((r) => statusAt(r, at)), (r) => lagerOf(r.loc))
   const topOfItem = Object.fromEntries(items.map((it) => [it[2], categories.find(([top, subs]) => top === it[0] || subs.includes(it[0]))?.[0]]))
 
   const periodStats = periods.map(([label, s, e]) => {
@@ -759,6 +785,7 @@ function buildFacit() {
       label,
       created: created.length,
       completed: done.length,
+      newMembers: newMembersIn(s, e),
       quality: quality(done),
       active: active.length,
       overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
@@ -785,15 +812,83 @@ function buildFacit() {
       created: tasks.filter((t) => inP(t.created)).length,
       completed: done.length,
       overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
+      newMembers: newMembersIn(s, e),
       quality: quality(done),
     }
   }
+  // Opsummering (tekst-indsigt): SAMME regler/tærskler/vægte som
+  // src/utils/statisticsInsights.ts - hold dem i takt. Uden rum-filter.
+  const insightsFor = (s, e) => {
+    const inP = (v) => v !== null && v !== undefined && toDate(v) >= s && toDate(v) < e
+    const kpis = (a, b) => {
+      const inR = (v) => v !== null && v !== undefined && toDate(v) >= a && toDate(v) < b
+      const done = tasks.filter((t) => t.st === 'Completed' && inR(t.finished))
+      const withDeadline = done.filter((t) => t.end)
+      return {
+        created: tasks.filter((t) => inR(t.created)).length,
+        completed: done.length,
+        overdue: tasks.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inR(t.end)).length,
+        rate: withDeadline.length ? (withDeadline.filter(onTime).length * 100) / withDeadline.length : null,
+        lead: median(done.map((t) => (toDate(t.finished) - toDate(t.created)) / 86_400_000)),
+      }
+    }
+    const now = kpis(s, e)
+    const before = s.getTime() > -8e15 ? kpis(new Date(s.getTime() - (e.getTime() - s.getTime())), s) : null
+    const out = []
+    if (before && Math.abs(now.overdue - before.overdue) >= 2) {
+      const up = now.overdue > before.overdue
+      out.push([up ? 90 : 60, `Forfaldne opgaver ${up ? 'steg' : 'faldt'} fra ${before.overdue} til ${now.overdue}.`])
+    }
+    if (before && now.rate !== null && before.rate !== null && Math.abs(now.rate - before.rate) >= 10) {
+      const up = now.rate > before.rate
+      out.push([up ? 50 : 80, `Andelen færdige til tiden ${up ? 'steg' : 'faldt'} fra ${Math.round(before.rate)} % til ${Math.round(now.rate)} %.`])
+    }
+    const roomStats = rooms.map(([c, n]) => {
+      const inRoom = tasks.filter((t) => t.room === c)
+      const done = inRoom.filter((t) => t.st === 'Completed' && inP(t.finished) && t.end)
+      return { n, overdue: inRoom.filter((t) => t.st !== 'Completed' && toDate(t.end) < NOW && inP(t.end)).length,
+        withDeadline: done.length, onTime: done.filter(onTime).length }
+    })
+    const worst = [...roomStats].sort((a, b) => b.overdue - a.overdue || a.n.localeCompare(b.n, 'da'))[0]
+    if (worst && worst.overdue >= 2) out.push([75, `Flest forfaldne opgaver i ${worst.n} (${worst.overdue}).`])
+    if (before && now.lead !== null && before.lead !== null && before.lead > 0) {
+      const change = (round1(now.lead) - round1(before.lead)) / round1(before.lead)
+      if (Math.abs(change) >= 0.25) {
+        const up = change > 0
+        out.push([up ? 70 : 40, `Gennemløbstiden ${up ? 'steg' : 'faldt'} fra ${round1(before.lead)} til ${round1(now.lead)} dage.`])
+      }
+    }
+    if (now.created - now.completed >= 5 && now.created >= now.completed * 1.5) {
+      out.push([65, `Der blev oprettet ${now.created} opgaver, men kun ${now.completed} blev færdige – backloggen vokser.`])
+    } else if (now.completed - now.created >= 5 && now.completed >= now.created * 1.5) {
+      out.push([45, `Der blev færdiggjort ${now.completed} opgaver mod ${now.created} nye – backloggen skrumper.`])
+    }
+    const lowest = roomStats.filter((r) => r.withDeadline >= 3 && (r.onTime * 100) / r.withDeadline < 70)
+      .sort((a, b) => a.onTime / a.withDeadline - b.onTime / b.withDeadline || a.n.localeCompare(b.n, 'da'))[0]
+    if (lowest) out.push([55, `Lavest andel til tiden i ${lowest.n}: ${Math.round((lowest.onTime * 100) / lowest.withDeadline)} % (${lowest.onTime} af ${lowest.withDeadline}).`])
+    const periodReqs = tasks.flatMap((t) => t.allRequests).filter((r) => inP(r.at))
+    const acc = periodReqs.filter((r) => r.st === 'Accepted').length
+    const rej = periodReqs.filter((r) => r.st === 'Rejected').length
+    if (acc + rej >= 4 && rej / (acc + rej) >= 0.25) out.push([50, `${rej} af ${acc + rej} færdigmeldinger blev afvist.`])
+    const stock = stockAt(new Date(Math.min(e.getTime(), NOW.getTime())))
+    const total = Object.values(stock).reduce((a, b) => a + b, 0)
+    const outOfService = ['Missing', 'Damaged', 'Maintenance'].reduce((a, st) => a + (stock[st] ?? 0), 0)
+    if (total > 0 && outOfService / total >= 0.1) {
+      out.push([45, `${Math.round((outOfService * 100) / total)} % af enhederne var ude af drift ved periodens slutning (${outOfService}).`])
+    }
+    return out.sort((a, b) => b[0] - a[0]).slice(0, 3).map(([, text]) => text)
+  }
+  const insightRows = periods.filter(([label]) => label !== 'Dag').map(([label, s, e]) => {
+    const lines = insightsFor(s, e)
+    return [label, lines.length ? lines.join('<br>') : 'Ingen markante ændringer i perioden.']
+  })
+
   const trendRows = periods.filter(([label]) => label === '7 dage' || label === '30 dage').map(([label, s, e]) => {
     const prevStart = new Date(s.getTime() - (e.getTime() - s.getTime()))
     const now = kpisFor(s, e)
     const before = kpisFor(prevStart, s)
     return [label, `${now.created} / ${before.created}`, `${now.completed} / ${before.completed}`, `${now.overdue} / ${before.overdue}`,
-      `${now.quality.rate} / ${before.quality.rate}`, `${now.quality.lead} / ${before.quality.lead}`]
+      `${now.quality.rate} / ${before.quality.rate}`, `${now.quality.lead} / ${before.quality.lead}`, `${now.newMembers} / ${before.newMembers}`]
   })
 
   // Rum-oversigt ("Alt"): KPI-definitionerne pr. rum.
@@ -916,6 +1011,7 @@ ${table(['Udsagn', ...periodStats.map((p) => p.label)], [
     pRow('I gang', (p) => p.active),
     pRow('Forfaldne', (p) => p.overdue),
     pRow('Med opgaveaktivitet', (p) => p.withActivity),
+    pRow('Nye medlemmer (mock)', (p) => p.newMembers),
     ...['Started', 'InProgress', 'Completed'].map((st) => pRow(`Status: ${st}`, (p) => p.status[st])),
     ...['Critical', 'High', 'Medium', 'Low'].map((pr) => pRow(`Prioritet: ${pr}`, (p) => p.prio[pr])),
     ...rooms.map(([, n]) => pRow(`Rum: ${n}`, (p) => p.rooms[n])),
@@ -934,16 +1030,35 @@ slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fo
 
 ${table(['Status', '31/12-2024', '31/12-2025'], stockStatuses.map((st) => [st, stock2024[st] ?? 0, stock2025[st] ?? 0]))}
 
+Enheder pr. lager ("Enheder pr. lokation", sektioner talt med i deres lager; samme tidspunkt-regel):
+
+${(() => {
+    const now = locationAt(NOW)
+    const y24 = locationAt(new Date('2025-01-01T00:00:00+01:00'))
+    const y25 = locationAt(new Date('2026-01-01T00:00:00+01:00'))
+    const names = [...LAGRE, ...(now['Uden lokation'] || y24['Uden lokation'] || y25['Uden lokation'] ? ['Uden lokation'] : [])]
+    return table(['Lager', 'Nu (29/9)', '31/12-2024', '31/12-2025'], names.map((n) => [n, now[n] ?? 0, y24[n] ?? 0, y25[n] ?? 0]))
+  })()}
+
 KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
 ↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
 7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
 Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
 
-${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)'], trendRows)}
+${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)', 'Nye medlemmer'], trendRows)}
 
 Til tiden = færdige med \`finished_at <= end_date\` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
 dagen). Gennemløbstid = median \`finished_at − created_at\` for færdige i perioden. Trend: Til tiden i procentpoint
 (↑ grøn), gennemløbstid ↓ grøn.
+Nye medlemmer = \`memberships.created_at\` i perioden, neutral trend. Tallene tæller kun seed-brugerne - dit eget
+og andre ikke-seedede medlemskaber kommer oveni, hvis de er oprettet i perioden ("Alt" = alle medlemmer).
+
+### Opsummering (tekst-indsigt, uden rum-filter)
+
+Højst 3 sætninger, vigtigste først (regler i \`src/utils/statisticsInsights.ts\`). Tallene er formateret som på dansk
+side (fx "30,1 dage" dér, "30.1" her).
+
+${table(['Periode', 'Forventede sætninger'], insightRows)}
 
 Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
 
@@ -960,6 +1075,7 @@ ${table(['Rum', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden'], roomScoreRow
 | Forfaldne åbne opgaver | ${openOverdue.length} (${['Critical', 'High', 'Medium', 'Low'].filter((p) => overdueByPrio[p]).map((p) => `${p}: ${overdueByPrio[p]}`).join(', ')}) |
 | Åbne opgaver uden ansvarlige | ${unassignedOpen} |
 ${alertStatuses.map((st) => `| Enheder ${st} | ${unitsNow[st] ?? 0} |`).join('\n')}
+| Medlemskab: ventende anmodninger / invitationer | 3 / 2 |
 | Varer uden ledige enheder | ${itemsWithoutAvailable.length}${itemsWithoutAvailable.length ? ` (${itemsWithoutAvailable.join(', ')})` : ''} |
 
 Mest brugte materialer (top 5):

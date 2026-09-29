@@ -176,6 +176,7 @@ anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
 | I gang | 12 | 13 | 16 | 23 | 39 | 60 |
 | Forfaldne | 0 | 1 | 5 | 5 | 7 | 8 |
 | Med opgaveaktivitet | 13 | 14 | 16 | 18 | 18 | 18 |
+| Nye medlemmer (mock) | 0 | 0 | 1 | 1 | 2 | 21 |
 | Status: Started | 3 | 6 | 8 | 9 | 10 | 10 |
 | Status: InProgress | 0 | 0 | 6 | 9 | 9 | 11 |
 | Status: Completed | 0 | 1 | 2 | 9 | 27 | 49 |
@@ -233,19 +234,49 @@ slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fo
 | OutOfStock | 0 | 0 |
 | Reserved | 0 | 0 |
 
+Enheder pr. lager ("Enheder pr. lokation", sektioner talt med i deres lager; samme tidspunkt-regel):
+
+| Lager | Nu (29/9) | 31/12-2024 | 31/12-2025 |
+|---|---|---|---|
+| Centrallager | 498 | 170 | 368 |
+| Orange Scene | 4 | 0 | 3 |
+| Arena | 0 | 0 | 0 |
+| Avalon | 0 | 0 | 0 |
+| Apollo | 0 | 0 | 0 |
+| Camp Øst | 10 | 0 | 10 |
+| Camp Vest | 10 | 0 | 10 |
+| Frivilligcamp | 49 | 0 | 49 |
+| Medic-telt | 22 | 13 | 13 |
+| Sikkerhedscentral | 244 | 3 | 158 |
+
 KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
 ↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
 7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
 Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
 
-| Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) |
-|---|---|---|---|---|---|
-| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 |
-| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 |
+| Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) | Nye medlemmer |
+|---|---|---|---|---|---|---|
+| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 | 0 / 0 |
+| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 | 1 / 0 |
 
 Til tiden = færdige med `finished_at <= end_date` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
 dagen). Gennemløbstid = median `finished_at − created_at` for færdige i perioden. Trend: Til tiden i procentpoint
 (↑ grøn), gennemløbstid ↓ grøn.
+Nye medlemmer = `memberships.created_at` i perioden, neutral trend. Tallene tæller kun seed-brugerne - dit eget
+og andre ikke-seedede medlemskaber kommer oveni, hvis de er oprettet i perioden ("Alt" = alle medlemmer).
+
+### Opsummering (tekst-indsigt, uden rum-filter)
+
+Højst 3 sætninger, vigtigste først (regler i `src/utils/statisticsInsights.ts`). Tallene er formateret som på dansk
+side (fx "30,1 dage" dér, "30.1" her).
+
+| Periode | Forventede sætninger |
+|---|---|
+| 7 dage | Der blev oprettet 7 opgaver, men kun 2 blev færdige – backloggen vokser.<br>Forfaldne opgaver faldt fra 3 til 1.<br>Andelen færdige til tiden steg fra 0 % til 50 %. |
+| 30 dage | Forfaldne opgaver steg fra 0 til 5.<br>Flest forfaldne opgaver i Nedtagning (2).<br>Der blev oprettet 16 opgaver, men kun 5 blev færdige – backloggen vokser. |
+| 91 dage | Forfaldne opgaver steg fra 1 til 5.<br>Andelen færdige til tiden faldt fra 90 % til 67 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
+| 365 dage | Forfaldne opgaver steg fra 1 til 7.<br>Andelen færdige til tiden faldt fra 95 % til 82 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
+| Alt | Flest forfaldne opgaver i Nedtagning (3).<br>Lavest andel til tiden i Nedtagning: 63 % (5 af 8). |
 
 Rum-filter (US-55): brug rum-oversigten nedenfor – fx Sanitet ved "Alt": oprettede 5, færdige 3.
 
@@ -276,6 +307,7 @@ Samme definitioner som nøgletallene, pr. rum. Sorteres på siden efter forfaldn
 | Enheder OutOfStock | 1 |
 | Enheder NeedsEmptying | 3 |
 | Enheder NeedsRefilling | 3 |
+| Medlemskab: ventende anmodninger / invitationer | 3 / 2 |
 | Varer uden ledige enheder | 1 (Solcreme 1 l) |
 
 Mest brugte materialer (top 5):

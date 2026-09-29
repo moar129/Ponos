@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} z {{total}} s termínem",
     "onTimeNone": "Žádné dokončené úkoly s termínem",
     "leadTime": "Doba zpracování (medián)",
-    "leadTimeDetail": "Od vytvoření po dokončení"
+    "leadTimeDetail": "Od vytvoření po dokončení",
+    "newMembers": "Noví členové",
+    "membersTotal": "Členů celkem: {{total}}"
   },
   "sections": {
     "tasks": "Úkoly",
@@ -112,7 +114,10 @@
     "statusDescriptionAt": "Stav na konci období ({{date}}).",
     "noHistory": "Historie skladu začíná {{date}} – dřívější stav není znám.",
     "usedCategoryTitle": "Použité položky podle kategorie",
-    "usedCategoryDescription": "Počet různých položek použitých v úkolech vytvořených v období, podle hlavní kategorie."
+    "usedCategoryDescription": "Počet různých položek použitých v úkolech vytvořených v období, podle hlavní kategorie.",
+    "locationTitle": "Jednotky podle umístění",
+    "locationDescriptionAt": "Podle skladu (včetně sekcí) na konci období ({{date}}).",
+    "noLocation": "Bez umístění"
   },
   "snapshots": {
     "title": "Uložené snímky",
@@ -144,7 +149,8 @@
       "used_category": "Použité položky podle kategorie",
       "room_completed": "Dokončené podle místnosti",
       "room_overdue": "Po termínu podle místnosti",
-      "room_on_time_rate": "Včas podle místnosti (%)"
+      "room_on_time_rate": "Včas podle místnosti (%)",
+      "location": "Jednotky podle umístění"
     },
     "names": {
       "tasks_created": "Vytvořené úkoly",
@@ -158,7 +164,8 @@
       "tasks_completed_with_deadline": "Dokončené s termínem",
       "tasks_completed_on_time": "Dokončené včas",
       "tasks_on_time_rate": "Včas (%)",
-      "tasks_median_lead_days": "Medián doby zpracování (dny)"
+      "tasks_median_lead_days": "Medián doby zpracování (dny)",
+      "members_new": "Noví členové"
     },
     "granularity": "Vývoj po",
     "granularityHint": "Jak podrobně se ukládá vývoj v čase – slouží k porovnání s jinými snímky.",
@@ -206,7 +213,16 @@
     "monthLabel": "Měsíc",
     "labelAuto": "Prázdný název se uloží jako „{{name}}“.",
     "atPeriodEndNote": "Sklad na konci období",
-    "wholeOrganisationNote": "Snímky se vždy ukládají pro celou organizaci (bez filtru místnosti)."
+    "wholeOrganisationNote": "Snímky se vždy ukládají pro celou organizaci (bez filtru místnosti).",
+    "csv": {
+      "export": "Exportovat CSV",
+      "group": "Skupina",
+      "period": "Období",
+      "start": "Začátek",
+      "end": "Konec",
+      "development": "Vývoj – {{metric}}",
+      "fileName": "statistika-porovnani"
+    }
   },
   "tabs": {
     "overblik": "Přehled",
@@ -221,7 +237,7 @@
   "attention": {
     "title": "Právě teď",
     "description": "Aktuální stav – neřídí se vybraným obdobím.",
-    "roomNote": "Úkoly v {{room}} · sklad celé organizace.",
+    "roomNote": "Úkoly v {{room}} · sklad a členství celé organizace.",
     "allClear": "Právě teď nic nevyžaduje zásah.",
     "overdueTitle": "Úkoly po termínu",
     "unassignedTitle": "Úkoly bez odpovědných",
@@ -229,6 +245,28 @@
     "stockTitle": "Sklad vyžadující zásah",
     "itemsWithoutAvailable": "Položky bez volných jednotek: {{count}}",
     "goToTasks": "Přejít na úkoly",
-    "goToDatalayer": "Přejít na datovou vrstvu"
+    "goToDatalayer": "Přejít na datovou vrstvu",
+    "membershipTitle": "Čekající členství",
+    "requests": "Žádosti: {{count}}",
+    "invitations": "Pozvánky: {{count}}",
+    "goToAdministration": "Přejít do administrace"
+  },
+  "insights": {
+    "title": "Shrnutí",
+    "none": "V období nedošlo k výrazným změnám.",
+    "toneBad": "Znepokojivé",
+    "toneGood": "Pozitivní",
+    "overdueUp": "Úkoly po termínu vzrostly z {{from}} na {{to}}.",
+    "overdueDown": "Úkoly po termínu klesly z {{from}} na {{to}}.",
+    "onTimeUp": "Podíl dokončených včas vzrostl z {{from}} na {{to}}.",
+    "onTimeDown": "Podíl dokončených včas klesl z {{from}} na {{to}}.",
+    "worstRoom": "Nejvíce úkolů po termínu v {{room}} ({{overdue}}).",
+    "leadUp": "Doba zpracování vzrostla z {{from}} na {{to}}.",
+    "leadDown": "Doba zpracování klesla z {{from}} na {{to}}.",
+    "backlogGrows": "Vzniklo {{created}} úkolů, ale dokončeno jen {{completed}} – nevyřízené přibývají.",
+    "backlogShrinks": "Dokončeno {{completed}} úkolů oproti {{created}} novým – nevyřízené ubývají.",
+    "lowestOnTime": "Nejnižší podíl včas v {{room}}: {{rate}} ({{onTime}} z {{total}}).",
+    "rejections": "Zamítnuto {{rejected}} z {{total}} hlášení o dokončení.",
+    "outOfService": "{{rate}} jednotek bylo na konci období mimo provoz ({{units}})."
   }
 }

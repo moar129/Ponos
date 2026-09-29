@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { CheckCircle2, PackageX, TriangleAlert, UserX } from 'lucide-react'
+import { CheckCircle2, MailQuestion, PackageX, TriangleAlert, UserX } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import type { AttentionPanelProps } from '../../types/statistics/statisticsComponentTypes'
@@ -44,14 +44,17 @@ function AttentionItem({ icon, title, count, tone, details, to, linkLabel }: Att
 }
 
 // "Lige nu": what needs action today, independent of the period filter.
-// Task figures follow the room filter; stock is always the whole organisation.
+// Task figures follow the room filter; stock and membership are always the
+// whole organisation.
 export function AttentionPanel({ data, roomName }: AttentionPanelProps) {
     const { t } = useTranslation(['statistics', 'tasks', 'datalayer'])
 
     const overdue = data.overdueByPriority.reduce((total, row) => total + row.count, 0)
     const urgentOverdue = data.overdueByPriority.some((row) => row.priority === 'Critical' || row.priority === 'High')
     const stockUnits = data.stockAlerts.reduce((total, row) => total + row.count, 0)
+    const pendingMembership = data.pendingRequests + data.pendingInvitations
     const allClear = overdue === 0 && data.unassigned === 0 && stockUnits === 0 && data.itemsWithoutAvailable === 0
+        && pendingMembership === 0
 
     const priorityDetail = data.overdueByPriority
         .map((row) => `${row.priority ? t(`tasks:priority.${row.priority}`) : t('priority.none')}: ${row.count}`)
@@ -79,7 +82,7 @@ export function AttentionPanel({ data, roomName }: AttentionPanelProps) {
                     {t('attention.allClear')}
                 </p>
             ) : (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                     <AttentionItem
                         icon={<TriangleAlert className="h-5 w-5" />}
                         title={t('attention.overdueTitle')}
@@ -111,6 +114,18 @@ export function AttentionPanel({ data, roomName }: AttentionPanelProps) {
                         ]}
                         to="/datalager"
                         linkLabel={t('attention.goToDatalayer')}
+                    />
+                    <AttentionItem
+                        icon={<MailQuestion className="h-5 w-5" />}
+                        title={t('attention.membershipTitle')}
+                        count={pendingMembership}
+                        tone={pendingMembership > 0 ? 'warn' : 'ok'}
+                        details={[
+                            t('attention.requests', { count: data.pendingRequests }),
+                            t('attention.invitations', { count: data.pendingInvitations }),
+                        ]}
+                        to="/dashboard?tab=administration"
+                        linkLabel={t('attention.goToAdministration')}
                     />
                 </div>
             )}

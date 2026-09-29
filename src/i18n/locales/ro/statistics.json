@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} din {{total}} cu dată de final",
     "onTimeNone": "Nicio sarcină finalizată cu dată de final",
     "leadTime": "Timp de execuție (mediană)",
-    "leadTimeDetail": "De la creare la finalizare"
+    "leadTimeDetail": "De la creare la finalizare",
+    "newMembers": "Membri noi",
+    "membersTotal": "Membri în total: {{total}}"
   },
   "sections": {
     "tasks": "Sarcini",
@@ -110,7 +112,10 @@
     "statusDescriptionAt": "Starea la sfârșitul perioadei ({{date}}).",
     "noHistory": "Istoricul stocului începe pe {{date}} – starea de dinainte nu este cunoscută.",
     "usedCategoryTitle": "Articole folosite pe categorie",
-    "usedCategoryDescription": "Numărul de articole diferite folosite în sarcini create în perioadă, pe categorie principală."
+    "usedCategoryDescription": "Numărul de articole diferite folosite în sarcini create în perioadă, pe categorie principală.",
+    "locationTitle": "Unități pe locație",
+    "locationDescriptionAt": "Pe depozit (inclusiv secțiunile) la sfârșitul perioadei ({{date}}).",
+    "noLocation": "Fără locație"
   },
   "snapshots": {
     "title": "Instantanee salvate",
@@ -142,7 +147,8 @@
       "used_category": "Articole folosite pe categorie",
       "room_completed": "Finalizate pe cameră",
       "room_overdue": "Întârziate pe cameră",
-      "room_on_time_rate": "La timp pe cameră (%)"
+      "room_on_time_rate": "La timp pe cameră (%)",
+      "location": "Unități pe locație"
     },
     "names": {
       "tasks_created": "Sarcini create",
@@ -156,7 +162,8 @@
       "tasks_completed_with_deadline": "Finalizate cu dată de final",
       "tasks_completed_on_time": "Finalizate la timp",
       "tasks_on_time_rate": "La timp (%)",
-      "tasks_median_lead_days": "Timp median de execuție (zile)"
+      "tasks_median_lead_days": "Timp median de execuție (zile)",
+      "members_new": "Membri noi"
     },
     "granularity": "Evoluție pe",
     "granularityHint": "Cât de detaliat se salvează evoluția în timp – folosit pentru comparația cu alte instantanee.",
@@ -203,7 +210,16 @@
     "monthLabel": "Lună",
     "labelAuto": "Un nume gol se salvează ca „{{name}}”.",
     "atPeriodEndNote": "Stoc la sfârșitul perioadei",
-    "wholeOrganisationNote": "Instantaneele se salvează întotdeauna pentru întreaga organizație (fără filtru de cameră)."
+    "wholeOrganisationNote": "Instantaneele se salvează întotdeauna pentru întreaga organizație (fără filtru de cameră).",
+    "csv": {
+      "export": "Exportă CSV",
+      "group": "Grup",
+      "period": "Perioadă",
+      "start": "Început",
+      "end": "Sfârșit",
+      "development": "Evoluție – {{metric}}",
+      "fileName": "statistici-comparatie"
+    }
   },
   "tabs": {
     "overblik": "Prezentare generală",
@@ -218,7 +234,7 @@
   "attention": {
     "title": "Acum",
     "description": "Situația curentă – nu urmează perioada selectată.",
-    "roomNote": "Sarcini în {{room}} · stocul întregii organizații.",
+    "roomNote": "Sarcini în {{room}} · stocul și membrii întregii organizații.",
     "allClear": "Nimic nu necesită acțiune acum.",
     "overdueTitle": "Sarcini întârziate",
     "unassignedTitle": "Sarcini fără responsabili",
@@ -226,6 +242,28 @@
     "stockTitle": "Stoc care necesită acțiune",
     "itemsWithoutAvailable": "Articole fără unități disponibile: {{count}}",
     "goToTasks": "Mergi la sarcini",
-    "goToDatalayer": "Mergi la stratul de date"
+    "goToDatalayer": "Mergi la stratul de date",
+    "membershipTitle": "Calitate de membru în așteptare",
+    "requests": "Cereri: {{count}}",
+    "invitations": "Invitații: {{count}}",
+    "goToAdministration": "Mergi la administrare"
+  },
+  "insights": {
+    "title": "Rezumat",
+    "none": "Nicio schimbare semnificativă în perioadă.",
+    "toneBad": "Îngrijorător",
+    "toneGood": "Pozitiv",
+    "overdueUp": "Sarcinile întârziate au crescut de la {{from}} la {{to}}.",
+    "overdueDown": "Sarcinile întârziate au scăzut de la {{from}} la {{to}}.",
+    "onTimeUp": "Proporția finalizată la timp a crescut de la {{from}} la {{to}}.",
+    "onTimeDown": "Proporția finalizată la timp a scăzut de la {{from}} la {{to}}.",
+    "worstRoom": "Cele mai multe sarcini întârziate în {{room}} ({{overdue}}).",
+    "leadUp": "Timpul de execuție a crescut de la {{from}} la {{to}}.",
+    "leadDown": "Timpul de execuție a scăzut de la {{from}} la {{to}}.",
+    "backlogGrows": "Au fost create {{created}} sarcini, dar doar {{completed}} finalizate – restanțele cresc.",
+    "backlogShrinks": "Au fost finalizate {{completed}} sarcini față de {{created}} noi – restanțele scad.",
+    "lowestOnTime": "Cea mai mică proporție la timp în {{room}}: {{rate}} ({{onTime}} din {{total}}).",
+    "rejections": "{{rejected}} din {{total}} raportări de finalizare au fost respinse.",
+    "outOfService": "{{rate}} din unități erau scoase din uz la sfârșitul perioadei ({{units}})."
   }
 }

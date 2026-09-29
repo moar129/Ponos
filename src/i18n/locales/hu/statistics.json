@@ -42,7 +42,9 @@
     "onTimeDetail": "{{total}} határidős feladatból {{onTime}}",
     "onTimeNone": "Nincs határidős, kész feladat",
     "leadTime": "Átfutási idő (medián)",
-    "leadTimeDetail": "Létrehozástól befejezésig"
+    "leadTimeDetail": "Létrehozástól befejezésig",
+    "newMembers": "Új tagok",
+    "membersTotal": "Tagok összesen: {{total}}"
   },
   "sections": {
     "tasks": "Feladatok",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Állapot az időszak végén ({{date}}).",
     "noHistory": "A készlettörténet {{date}}-tól kezdődik – az azelőtti állapot ismeretlen.",
     "usedCategoryTitle": "Felhasznált tételek kategóriánként",
-    "usedCategoryDescription": "Az időszakban létrehozott feladatokhoz felhasznált különböző tételek száma főkategóriánként."
+    "usedCategoryDescription": "Az időszakban létrehozott feladatokhoz felhasznált különböző tételek száma főkategóriánként.",
+    "locationTitle": "Egységek helyszínenként",
+    "locationDescriptionAt": "Raktáranként (szekciókkal együtt) az időszak végén ({{date}}).",
+    "noLocation": "Helyszín nélkül"
   },
   "snapshots": {
     "title": "Mentett pillanatképek",
@@ -140,7 +145,8 @@
       "used_category": "Felhasznált tételek kategóriánként",
       "room_completed": "Kész helyiségenként",
       "room_overdue": "Lejárt helyiségenként",
-      "room_on_time_rate": "Határidőre helyiségenként (%)"
+      "room_on_time_rate": "Határidőre helyiségenként (%)",
+      "location": "Egységek helyszínenként"
     },
     "names": {
       "tasks_created": "Létrehozott feladatok",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Kész, határidővel",
       "tasks_completed_on_time": "Határidőre kész",
       "tasks_on_time_rate": "Határidőre (%)",
-      "tasks_median_lead_days": "Medián átfutási idő (nap)"
+      "tasks_median_lead_days": "Medián átfutási idő (nap)",
+      "members_new": "Új tagok"
     },
     "granularity": "Alakulás bontása",
     "granularityHint": "Milyen részletesen mentse az időbeli alakulást – más pillanatképekkel való összevetéshez.",
@@ -200,7 +207,16 @@
     "monthLabel": "Hónap",
     "labelAuto": "Üres név esetén „{{name}}” néven mentődik.",
     "atPeriodEndNote": "Készlet az időszak végén",
-    "wholeOrganisationNote": "A pillanatképek mindig a teljes szervezetre mentődnek (helyiségszűrő nélkül)."
+    "wholeOrganisationNote": "A pillanatképek mindig a teljes szervezetre mentődnek (helyiségszűrő nélkül).",
+    "csv": {
+      "export": "CSV exportálása",
+      "group": "Csoport",
+      "period": "Időszak",
+      "start": "Kezdet",
+      "end": "Vége",
+      "development": "Alakulás – {{metric}}",
+      "fileName": "statisztika-osszehasonlitas"
+    }
   },
   "tabs": {
     "overblik": "Áttekintés",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Most",
     "description": "Aktuális állapot – nem követi a kiválasztott időszakot.",
-    "roomNote": "Feladatok itt: {{room}} · a teljes szervezet készlete.",
+    "roomNote": "Feladatok itt: {{room}} · a teljes szervezet készlete és tagsága.",
     "allClear": "Jelenleg semmi sem igényel beavatkozást.",
     "overdueTitle": "Lejárt feladatok",
     "unassignedTitle": "Felelős nélküli feladatok",
@@ -223,6 +239,28 @@
     "stockTitle": "Beavatkozást igénylő készlet",
     "itemsWithoutAvailable": "Tételek szabad egység nélkül: {{count}}",
     "goToTasks": "Ugrás a feladatokhoz",
-    "goToDatalayer": "Ugrás az adatréteghez"
+    "goToDatalayer": "Ugrás az adatréteghez",
+    "membershipTitle": "Függő tagság",
+    "requests": "Kérelmek: {{count}}",
+    "invitations": "Meghívók: {{count}}",
+    "goToAdministration": "Ugrás az adminisztrációhoz"
+  },
+  "insights": {
+    "title": "Összefoglaló",
+    "none": "Nincs jelentős változás az időszakban.",
+    "toneBad": "Aggasztó",
+    "toneGood": "Pozitív",
+    "overdueUp": "A lejárt feladatok száma {{from}} → {{to}} nőtt.",
+    "overdueDown": "A lejárt feladatok száma {{from}} → {{to}} csökkent.",
+    "onTimeUp": "A határidőre kész arány {{from}} → {{to}} nőtt.",
+    "onTimeDown": "A határidőre kész arány {{from}} → {{to}} csökkent.",
+    "worstRoom": "A legtöbb lejárt feladat itt: {{room}} ({{overdue}}).",
+    "leadUp": "Az átfutási idő {{from}} → {{to}} nőtt.",
+    "leadDown": "Az átfutási idő {{from}} → {{to}} csökkent.",
+    "backlogGrows": "{{created}} feladat jött létre, de csak {{completed}} készült el – a hátralék nő.",
+    "backlogShrinks": "{{completed}} feladat készült el {{created}} új mellett – a hátralék csökken.",
+    "lowestOnTime": "Legalacsonyabb határidős arány itt: {{room}}: {{rate}} ({{total}}-ból {{onTime}}).",
+    "rejections": "{{total}} készre jelentésből {{rejected}} elutasítva.",
+    "outOfService": "Az egységek {{rate}}-a nem volt üzemképes az időszak végén ({{units}})."
   }
 }

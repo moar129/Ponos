@@ -81,6 +81,22 @@ export interface RoomScorecardProps {
     onSelectRoom: (roomId: string) => void
 }
 
+/** One sentence of the period summary (utils/statisticsInsights.ts). */
+export interface StatisticsInsight {
+    key: string
+    /** Higher = more important; the top few are shown. */
+    weight: number
+    tone: 'good' | 'bad' | 'neutral'
+    text: string
+}
+
+export interface InsightSummaryProps {
+    insights: StatisticsInsight[]
+    /** Period (and room) the sentences describe. */
+    subtitle: string
+    loading: boolean
+}
+
 export interface AttentionPanelProps {
     data: StatisticsAttention
     /** Set when the room filter is active (task figures follow it, stock does not). */

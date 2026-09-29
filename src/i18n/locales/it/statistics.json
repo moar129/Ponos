@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} su {{total}} con data di fine",
     "onTimeNone": "Nessuna attività completata con data di fine",
     "leadTime": "Tempo di attraversamento (mediana)",
-    "leadTimeDetail": "Dalla creazione al completamento"
+    "leadTimeDetail": "Dalla creazione al completamento",
+    "newMembers": "Nuovi membri",
+    "membersTotal": "Membri in totale: {{total}}"
   },
   "sections": {
     "tasks": "Attività",
@@ -110,7 +112,10 @@
     "statusDescriptionAt": "Stato alla fine del periodo ({{date}}).",
     "noHistory": "La cronologia del magazzino inizia il {{date}}: lo stato precedente non è noto.",
     "usedCategoryTitle": "Articoli usati per categoria",
-    "usedCategoryDescription": "Numero di articoli diversi usati nelle attività create nel periodo, per categoria principale."
+    "usedCategoryDescription": "Numero di articoli diversi usati nelle attività create nel periodo, per categoria principale.",
+    "locationTitle": "Unità per ubicazione",
+    "locationDescriptionAt": "Per magazzino (sezioni incluse) alla fine del periodo ({{date}}).",
+    "noLocation": "Senza ubicazione"
   },
   "snapshots": {
     "title": "Snapshot salvati",
@@ -142,7 +147,8 @@
       "used_category": "Articoli usati per categoria",
       "room_completed": "Completate per stanza",
       "room_overdue": "Scadute per stanza",
-      "room_on_time_rate": "In tempo per stanza (%)"
+      "room_on_time_rate": "In tempo per stanza (%)",
+      "location": "Unità per ubicazione"
     },
     "names": {
       "tasks_created": "Attività create",
@@ -156,7 +162,8 @@
       "tasks_completed_with_deadline": "Completate con data di fine",
       "tasks_completed_on_time": "Completate in tempo",
       "tasks_on_time_rate": "In tempo (%)",
-      "tasks_median_lead_days": "Tempo mediano (giorni)"
+      "tasks_median_lead_days": "Tempo mediano (giorni)",
+      "members_new": "Nuovi membri"
     },
     "granularity": "Andamento per",
     "granularityHint": "Con quale dettaglio viene salvato l’andamento nel tempo – serve per il confronto con altri snapshot.",
@@ -203,7 +210,16 @@
     "monthLabel": "Mese",
     "labelAuto": "Un nome vuoto viene salvato come \"{{name}}\".",
     "atPeriodEndNote": "Magazzino alla fine del periodo",
-    "wholeOrganisationNote": "Gli snapshot vengono sempre salvati per l'intera organizzazione (senza filtro stanza)."
+    "wholeOrganisationNote": "Gli snapshot vengono sempre salvati per l'intera organizzazione (senza filtro stanza).",
+    "csv": {
+      "export": "Esporta CSV",
+      "group": "Gruppo",
+      "period": "Periodo",
+      "start": "Inizio",
+      "end": "Fine",
+      "development": "Andamento – {{metric}}",
+      "fileName": "statistiche-confronto"
+    }
   },
   "tabs": {
     "overblik": "Panoramica",
@@ -218,7 +234,7 @@
   "attention": {
     "title": "In questo momento",
     "description": "Stato attuale – non segue il periodo selezionato.",
-    "roomNote": "Attività in {{room}} · magazzino dell’intera organizzazione.",
+    "roomNote": "Attività in {{room}} · magazzino e iscrizioni dell’intera organizzazione.",
     "allClear": "Nulla richiede interventi al momento.",
     "overdueTitle": "Attività scadute",
     "unassignedTitle": "Attività senza responsabili",
@@ -226,6 +242,28 @@
     "stockTitle": "Magazzino che richiede interventi",
     "itemsWithoutAvailable": "Articoli senza unità disponibili: {{count}}",
     "goToTasks": "Vai alle attività",
-    "goToDatalayer": "Vai al livello dati"
+    "goToDatalayer": "Vai al livello dati",
+    "membershipTitle": "Iscrizioni in attesa",
+    "requests": "Richieste: {{count}}",
+    "invitations": "Inviti: {{count}}",
+    "goToAdministration": "Vai all’amministrazione"
+  },
+  "insights": {
+    "title": "Riepilogo",
+    "none": "Nessun cambiamento rilevante nel periodo.",
+    "toneBad": "Preoccupante",
+    "toneGood": "Positivo",
+    "overdueUp": "Le attività scadute sono salite da {{from}} a {{to}}.",
+    "overdueDown": "Le attività scadute sono scese da {{from}} a {{to}}.",
+    "onTimeUp": "La quota completata in tempo è salita da {{from}} a {{to}}.",
+    "onTimeDown": "La quota completata in tempo è scesa da {{from}} a {{to}}.",
+    "worstRoom": "Più attività scadute in {{room}} ({{overdue}}).",
+    "leadUp": "Il tempo di attraversamento è salito da {{from}} a {{to}}.",
+    "leadDown": "Il tempo di attraversamento è sceso da {{from}} a {{to}}.",
+    "backlogGrows": "Sono state create {{created}} attività, ma solo {{completed}} completate: l’arretrato cresce.",
+    "backlogShrinks": "Sono state completate {{completed}} attività contro {{created}} nuove: l’arretrato cala.",
+    "lowestOnTime": "Quota in tempo più bassa in {{room}}: {{rate}} ({{onTime}} su {{total}}).",
+    "rejections": "{{rejected}} segnalazioni di completamento su {{total}} sono state respinte.",
+    "outOfService": "Il {{rate}} delle unità era fuori servizio alla fine del periodo ({{units}})."
   }
 }

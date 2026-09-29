@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} af {{total}} med slutdato",
     "onTimeNone": "Ingen færdige opgaver med slutdato",
     "leadTime": "Gennemløbstid (median)",
-    "leadTimeDetail": "Fra oprettet til færdig"
+    "leadTimeDetail": "Fra oprettet til færdig",
+    "newMembers": "Nye medlemmer",
+    "membersTotal": "Medlemmer i alt: {{total}}"
   },
   "sections": {
     "tasks": "Opgaver",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Status ved periodens slutning ({{date}}).",
     "noHistory": "Lagerhistorikken starter {{date}} – status før det kendes ikke.",
     "usedCategoryTitle": "Brugte varer pr. kategori",
-    "usedCategoryDescription": "Antal forskellige varer brugt på opgaver oprettet i perioden, pr. hovedkategori."
+    "usedCategoryDescription": "Antal forskellige varer brugt på opgaver oprettet i perioden, pr. hovedkategori.",
+    "locationTitle": "Enheder pr. lokation",
+    "locationDescriptionAt": "Pr. lager (sektioner talt med) ved periodens slutning ({{date}}).",
+    "noLocation": "Uden lokation"
   },
   "snapshots": {
     "title": "Gemte snapshots",
@@ -140,7 +145,8 @@
       "used_category": "Brugte varer pr. kategori",
       "room_completed": "Færdige pr. rum",
       "room_overdue": "Forfaldne pr. rum",
-      "room_on_time_rate": "Til tiden pr. rum (%)"
+      "room_on_time_rate": "Til tiden pr. rum (%)",
+      "location": "Enheder pr. lokation"
     },
     "names": {
       "tasks_created": "Oprettede opgaver",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Færdige med slutdato",
       "tasks_completed_on_time": "Færdige til tiden",
       "tasks_on_time_rate": "Til tiden (%)",
-      "tasks_median_lead_days": "Median gennemløbstid (dage)"
+      "tasks_median_lead_days": "Median gennemløbstid (dage)",
+      "members_new": "Nye medlemmer"
     },
     "granularity": "Udvikling pr.",
     "granularityHint": "Hvor fint udviklingen over tid gemmes – bruges til at sammenligne med andre snapshots.",
@@ -200,7 +207,16 @@
     "monthLabel": "Måned",
     "labelAuto": "Tomt navn gemmes som \"{{name}}\".",
     "atPeriodEndNote": "Lager ved periodens slutning",
-    "wholeOrganisationNote": "Snapshots gemmes altid for hele organisationen (uden rum-filter)."
+    "wholeOrganisationNote": "Snapshots gemmes altid for hele organisationen (uden rum-filter).",
+    "csv": {
+      "export": "Eksportér CSV",
+      "group": "Gruppe",
+      "period": "Periode",
+      "start": "Start",
+      "end": "Slut",
+      "development": "Udvikling – {{metric}}",
+      "fileName": "statistik-sammenligning"
+    }
   },
   "tabs": {
     "overblik": "Overblik",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Lige nu",
     "description": "Aktuel status – følger ikke den valgte periode.",
-    "roomNote": "Opgaver i {{room}} · lager for hele organisationen.",
+    "roomNote": "Opgaver i {{room}} · lager og medlemskab for hele organisationen.",
     "allClear": "Intet kræver handling lige nu.",
     "overdueTitle": "Forfaldne opgaver",
     "unassignedTitle": "Opgaver uden ansvarlige",
@@ -223,6 +239,28 @@
     "stockTitle": "Lager der kræver handling",
     "itemsWithoutAvailable": "Varer uden ledige enheder: {{count}}",
     "goToTasks": "Gå til opgaver",
-    "goToDatalayer": "Gå til datalager"
+    "goToDatalayer": "Gå til datalager",
+    "membershipTitle": "Medlemskab der venter",
+    "requests": "Anmodninger: {{count}}",
+    "invitations": "Invitationer: {{count}}",
+    "goToAdministration": "Gå til administration"
+  },
+  "insights": {
+    "title": "Opsummering",
+    "none": "Ingen markante ændringer i perioden.",
+    "toneBad": "Bekymrende",
+    "toneGood": "Positivt",
+    "overdueUp": "Forfaldne opgaver steg fra {{from}} til {{to}}.",
+    "overdueDown": "Forfaldne opgaver faldt fra {{from}} til {{to}}.",
+    "onTimeUp": "Andelen færdige til tiden steg fra {{from}} til {{to}}.",
+    "onTimeDown": "Andelen færdige til tiden faldt fra {{from}} til {{to}}.",
+    "worstRoom": "Flest forfaldne opgaver i {{room}} ({{overdue}}).",
+    "leadUp": "Gennemløbstiden steg fra {{from}} til {{to}}.",
+    "leadDown": "Gennemløbstiden faldt fra {{from}} til {{to}}.",
+    "backlogGrows": "Der blev oprettet {{created}} opgaver, men kun {{completed}} blev færdige – backloggen vokser.",
+    "backlogShrinks": "Der blev færdiggjort {{completed}} opgaver mod {{created}} nye – backloggen skrumper.",
+    "lowestOnTime": "Lavest andel til tiden i {{room}}: {{rate}} ({{onTime}} af {{total}}).",
+    "rejections": "{{rejected}} af {{total}} færdigmeldinger blev afvist.",
+    "outOfService": "{{rate}} af enhederne var ude af drift ved periodens slutning ({{units}})."
   }
 }

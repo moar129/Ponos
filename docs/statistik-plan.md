@@ -5,11 +5,9 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 
 ## Næste op
 
-1. **Giv Studerende 2 besked** om lagerhistorikken: ny tabel `data_layer_item_unit_history` + trigger
-   `trg_record_item_unit_history` på `data_layer_item_units` (`dbSchema.sql` §9b/§15.21d) – kun en tilføjelse,
-   intet i datalageret er ændret.
-2. Gennemgå **Visuel tjekliste** nedenfor (lys/mørk, alle skærmstørrelser).
-3. Derefter: "Senere" (US-80 CSV, lager pr. lokation, medlemmer, tekst-indsigt).
+1. **Verificér opsummeringen** i browseren mod FACIT ("Opsummering", 7/30/91/365 dage/Alt) – ingen migration.
+2. **Giv Studerende 2 besked** (hvis ikke gjort): triggeren logger nu også flytninger (`location_id`).
+3. "Senere": kun filter på kategori tilbage (ikke planlagt).
 
 ## Arkitektur
 
@@ -75,7 +73,11 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | Godkendelser | `task_requests` med `requested_at` i perioden (anmodninger, ikke opgaver). Rate = godkendt/(godkendt+afvist). Median behandlingstid = `done_at − requested_at` |
 | Enheder pr. status | antal enhedsrækker (ikke summeret mængde – den blander stk/kg/m) **ved periodens slutning** (`min(slut, nu)`), fra lagerhistorikken `data_layer_item_unit_history`. Ligger tidspunktet før historikkens start: ukendt ("–"), og snapshots gemmer ingen `item_status:*` |
 | Brugte varer pr. kategori | antal forskellige varer i `task_materials` på opgaver oprettet i perioden, pr. hovedkategori (erstatter `category:*` i snapshots) |
+| Nye medlemmer | `memberships.created_at` i perioden – kun nuværende medlemmer (udmeldte slettes og kan ikke tælles). Hele org (ikke rum-filter; kortet noterer det ved filter). Neutral trend. Snapshots: `members_new` |
+| Medlemskab (lige nu) | `membership_requests` + `membership_invitations` med status Pending, hele org. Link til `/dashboard?tab=administration` |
+| Opsummering | højst 3 regel-baserede sætninger (ingen AI) fra payloaden, vigtigste først: forfaldne ±≥ 2 (90/60), til tiden ±≥ 10 pp (80/50), rum med flest forfaldne ≥ 2 (75), gennemløbstid ±≥ 25 % (70/40), backlog vokser/skrumper (forskel ≥ 5 og ≥ 1,5×; 65/45), rum med lavest til tiden < 70 % (≥ 3 med slutdato; 55), afviste færdigmeldinger ≥ 25 % (≥ 4 afgjort; 50), enheder ude af drift ≥ 10 % (45). Rum-regler kun uden filter; trend-regler kun med forrige periode. Uafgjort → rumnavn. Reglerne findes også i `generate.mjs` (FACIT) – hold dem i takt |
 | Varer pr. kategori | varer pr. hovedkategori nu |
+| Enheder pr. lokation | antal enhedsrækker pr. lager (topniveau; sektioner via `parent_location_id` tælles med i deres lager) **ved periodens slutning** fra lagerhistorikken (`location_id` logges af triggeren). Alle lagre (også 0) + "Uden lokation" hvis nogen; "–" før historikkens start. Hele org (ikke rum-filter). Snapshots: `location:<lager>` |
 
 ## Status
 
@@ -94,6 +96,10 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | Lagerhistorik + brugte varer pr. kategori | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §9b/§15.21d/§16.6d |
 | Rum-filter (US-55) + KPI-trend + refetch ved fokus | Kørt + verificeret 2026-09-30, i `dbSchema.sql` §15.26 |
 | Leder-overblik: til tiden, gennemløbstid, rum-oversigt, "lige nu" | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §15.26a–e |
+| US-80 CSV-eksport af snapshot-sammenligning | Færdig 2026-09-30 (frontend, ingen migration) – ⏳ browser-test |
+| Enheder pr. lokation | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §9b/§15.21d/§15.26 |
+| Nye medlemmer + ventende medlemskab | Kørt + verificeret 2026-09-30, i `dbSchema.sql` §15.26 |
+| Opsummering (tekst-indsigt) | Færdig 2026-09-30 (frontend, `utils/statisticsInsights.ts`) – ⏳ browser-test mod FACIT |
 | Browser-verifikation mod FACIT | Admin, "Alt" + snapshot: OK 2026-09-29. Medlemmer = 23 (FACIT 22) pga. ét ekstra, ikke-seedet medlem med 0 opgaver – ikke en fejl. Mangler: øvrige perioder, ikke-admin, dark mode, responsive |
 
 ## Verifikation
@@ -133,16 +139,21 @@ Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**
 
 - **Header/faner**: "Overblik | Gem og sammenlign" scroller vandret på mobil uden at knække tekst; aktiv fane har accent-streg.
 - **Periodekort**: knapperne ombrydes pænt; rum-dropdown under en tynd linje; valgt knap læsbar i begge temaer.
-- **Lige nu**: 3 felter side om side fra md, ét pr. række på mobil; ikon + tal + tekst; rød ved kritiske/høje
+- **Opsummering**: øverst under periodekortet; ikon + tekst pr. sætning (rød/grøn/grå), skelet under indlæsning;
+  "Ingen markante ændringer" når intet rammer en tærskel; lange sætninger ombrydes pænt på mobil.
+- **Lige nu**: 4 felter – 1 pr. række mobil, 2+2 fra md, 4 fra xl; ikon + tal + tekst; rød ved kritiske/høje
   forfaldne, ellers gul; "Intet kræver handling" grøn; links virker.
-- **KPI-række** (7 kort): 1 kolonne mobil → 2 → 3 → 4 (xl, 1920 = 4+3) → 7 (≥ 2200 px, 2560); trend-tekst
+- **KPI-række** (8 kort): 1 kolonne mobil → 2 → 3 → 4 (xl, 1920 = 4+4) → 8 (≥ 2200 px, 2560); trend-tekst
   grøn/rød kun på Færdige/Til tiden/Gennemløbstid/Forfaldne, ellers grå; ingen overlap ved lange tal.
 - **Rum-oversigt**: tabel scroller vandret på mobil; rum-navne er links (klik = filter + scroll til top); forfaldne > 0
   rød; "–" ved rum uden færdige med slutdato.
 - **Grafer**: opgaveudvikling (blå oprettede + orange færdige), donut, stolper – akser/labels læsbare i mørk; tooltips
   har mørk baggrund i mørk tilstand.
-- **Materialer**: "Enheder pr. status" viser dato i beskrivelsen; ved filter "Hele organisationen …".
+- **Materialer**: "Enheder pr. status" viser dato i beskrivelsen; ved filter "Hele organisationen …". "Enheder pr.
+  lokation" fylder hele bredden fra xl, 10 lagre inkl. 0.
 - **Tomme tilstande**: vælg en periode uden data (fx "Dag" i en tom org) → tekst, ingen tomme akser.
+- **CSV-eksport**: "Eksportér CSV" over sammenligningen downloader `statistik-sammenligning-<dato>.csv`; åbner med
+  æøå i Google Sheets/Numbers og i Excel via Data → Fra tekst/CSV; tal med punktum; samme rækker/navne som tabellen.
 - **"Gem og sammenlign"-fanen**: chips ombrydes; metadata-linje læsbar; sammenligningstabel scroller vandret på mobil,
   ændring under tallet; foldbare grupper; graf med op til 4 farver + legend.
 - **Modaler** (brugerdefineret periode, gem snapshot, slet): passer på mobil (scroll i gem-dialogen), fokus/escape.
@@ -150,15 +161,4 @@ Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**
 
 ## Senere
 
-- **US-80 – Eksportér statistik** (CSV af snapshot-sammenligning).
-- **Lager pr. lokation** (valgt fra 2026-09-29, "D"): nyt kort under Materialer, "Enheder pr. lokation". Payload
-  `materials.byLocation = [{locationId, name, count}]` = antal enhedsrækker pr. `data_layer_item_units.location_id`
-  **ved periodens slutning** (lagerhistorikken skal så også have `location_id` – i dag kun status/item; alternativt
-  kun "nu" med note som `category`). Top 10 + "Øvrige" + "Uden lokation". Hele org (ikke rum-filter). Snapshots:
-  `location:<navn>`.
-- **Medlemmer** (valgt fra 2026-09-29, "E"): KPI "Nye medlemmer" = `memberships.created_at` i perioden (trend ↑
-  neutral); i "Lige nu": ventende medlemsanmodninger (`membership_requests.status = 'Pending'`) + invitationer, link
-  til dashboardets medlemsfane. Snapshots: `members_new`. Kræver ingen nye tabeller.
-- **Auto-genereret tekst-indsigt**: 2–3 sætninger øverst ("Forfaldne steg 5 → 8, flest i Nedtagning"), afledt af
-  payloaden i frontend – ingen AI, ingen nye data.
 - Filter på kategori (materialer) – RPC'en kan få `p_category_id` på samme måde som `p_room_id`.

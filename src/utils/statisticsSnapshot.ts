@@ -23,6 +23,7 @@ export const SNAPSHOT_GROUP_ORDER: SnapshotRowGroup[] = [
     'member_load',
     'approvals',
     'item_status',
+    'location',
     'used_category',
     'category',
     'top_material',
@@ -57,6 +58,8 @@ export function valueLabel(t: unknown, group: SnapshotRowGroup, key: string): st
             return tr(`statistics:approvals.${key}`)
         case 'item_status':
             return tr(`datalayer:status.${key}`)
+        case 'location':
+            return key || tr('statistics:materials.noLocation')
         default:
             return key
     }
@@ -271,6 +274,7 @@ export const NAMED_GROUPS: SnapshotRowGroup[] = [
     'room_completed',
     'room_overdue',
     'room_on_time_rate',
+    'location',
     'category',
     'used_category',
     'top_material',
@@ -283,7 +287,56 @@ export const NAMED_GROUPS: SnapshotRowGroup[] = [
  */
 export const GROUP_NOTES: Partial<Record<SnapshotRowGroup, 'atPeriodEndNote' | 'atSaveNote'>> = {
     item_status: 'atPeriodEndNote',
+    location: 'atPeriodEndNote',
     category: 'atSaveNote',
+}
+
+export interface ComparisonRow {
+    name: string
+    label: string
+}
+
+export interface SnapshotComparison {
+    /** Groups in display order, each with its rows (named groups sorted by the newest snapshot). */
+    groups: { group: SnapshotRowGroup; rows: ComparisonRow[] }[]
+    /** Per snapshot (same order): value name -> value, time series rows excluded. */
+    valuesBySnapshot: Map<string, number>[]
+}
+
+/**
+ * The comparison table's rows: the union of the snapshots' values, so a room
+ * that only exists in one of them still shows up. Shared by the table and
+ * the CSV export (US-80), so both always have the same rows and labels.
+ */
+export function buildSnapshotComparison(snapshots: StatisticsSnapshot[], t: unknown): SnapshotComparison {
+    const totals = snapshots.map((snapshot) => snapshot.values.filter((value) => !isSeriesValue(value)))
+    const valuesBySnapshot = totals.map((values) => new Map(values.map((value) => [value.name as string, value.value])))
+    const newest = valuesBySnapshot[valuesBySnapshot.length - 1] ?? new Map<string, number>()
+
+    const byGroup = new Map<SnapshotRowGroup, ComparisonRow[]>()
+    const seen = new Set<string>()
+
+    for (const values of totals) {
+        for (const value of values) {
+            if (seen.has(value.name)) continue
+            seen.add(value.name)
+
+            const { group, key } = parseValueName(value.name)
+            const rows = byGroup.get(group) ?? []
+            rows.push({ name: value.name, label: valueLabel(t, group, key) })
+            byGroup.set(group, rows)
+        }
+    }
+
+    // Named rows (rooms, categories, items) by the newest snapshot, largest first.
+    for (const group of NAMED_GROUPS) {
+        byGroup.get(group)?.sort((a, b) => (newest.get(b.name) ?? -1) - (newest.get(a.name) ?? -1))
+    }
+
+    return {
+        groups: SNAPSHOT_GROUP_ORDER.filter((group) => byGroup.has(group)).map((group) => ({ group, rows: byGroup.get(group) ?? [] })),
+        valuesBySnapshot,
+    }
 }
 
 /** Rows measured in percent: their change is shown in percentage points. */

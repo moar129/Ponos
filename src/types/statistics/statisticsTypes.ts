@@ -37,6 +37,8 @@ export interface StatisticsKpis {
     active: number
     overdue: number
     members: number
+    /** Memberships created in the period (current members; not room-filtered). */
+    newMembers: number
     membersWithTaskActivity: number
     /** Completed in the period with an end date. */
     completedWithDeadline: number
@@ -84,6 +86,9 @@ export interface StatisticsAttention {
     stockAlerts: ItemStatusCount[]
     /** Items with units, none of them Available (whole organisation). */
     itemsWithoutAvailable: number
+    /** Pending membership requests / invitations (whole organisation). */
+    pendingRequests: number
+    pendingInvitations: number
 }
 
 export interface MemberLoadCount {
@@ -109,6 +114,13 @@ export interface ApprovalStatistics {
 
 export interface ItemStatusCount {
     status: ItemStatus
+    count: number
+}
+
+export interface LocationCount {
+    /** Top-level location (lager); sections count towards it. null = no location. */
+    locationId: string | null
+    name: string | null
     count: number
 }
 
@@ -141,7 +153,9 @@ export interface StatisticsResult {
     materials: {
         /** Unit rows per status at the end of the period; null = before the stock history starts. */
         byStatus: ItemStatusCount[] | null
-        /** The instant byStatus describes (period end, or now). */
+        /** Unit rows per top-level location at the end of the period; null = before the stock history starts. */
+        byLocation: LocationCount[] | null
+        /** The instant byStatus/byLocation describe (period end, or now). */
         statusAsOf: string
         /** First entry in the stock history; null when the organisation has no units. */
         historyStart: string | null
@@ -169,6 +183,7 @@ export type StatisticsScalarName =
     | 'tasks_overdue'
     | 'members'
     | 'members_with_task_activity'
+    | 'members_new'
     | 'approvals_rate'
     | 'approvals_median_hours'
     | 'tasks_completed_with_deadline'
@@ -186,6 +201,7 @@ export type StatisticsValueGroup =
     | 'member_load'
     | 'approvals'
     | 'item_status'
+    | 'location'
     | 'category'
     | 'top_material'
     | 'used_category'

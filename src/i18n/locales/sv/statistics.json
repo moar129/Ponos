@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} av {{total}} med slutdatum",
     "onTimeNone": "Inga klara uppgifter med slutdatum",
     "leadTime": "Genomloppstid (median)",
-    "leadTimeDetail": "Från skapad till klar"
+    "leadTimeDetail": "Från skapad till klar",
+    "newMembers": "Nya medlemmar",
+    "membersTotal": "Medlemmar totalt: {{total}}"
   },
   "sections": {
     "tasks": "Uppgifter",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Status vid periodens slut ({{date}}).",
     "noHistory": "Lagerhistoriken börjar {{date}} – statusen innan dess är okänd.",
     "usedCategoryTitle": "Använda artiklar per kategori",
-    "usedCategoryDescription": "Antal olika artiklar som använts i uppgifter skapade under perioden, per huvudkategori."
+    "usedCategoryDescription": "Antal olika artiklar som använts i uppgifter skapade under perioden, per huvudkategori.",
+    "locationTitle": "Enheter per plats",
+    "locationDescriptionAt": "Per lager (sektioner inräknade) vid periodens slut ({{date}}).",
+    "noLocation": "Utan plats"
   },
   "snapshots": {
     "title": "Sparade ögonblicksbilder",
@@ -140,7 +145,8 @@
       "used_category": "Använda artiklar per kategori",
       "room_completed": "Klara per rum",
       "room_overdue": "Försenade per rum",
-      "room_on_time_rate": "I tid per rum (%)"
+      "room_on_time_rate": "I tid per rum (%)",
+      "location": "Enheter per plats"
     },
     "names": {
       "tasks_created": "Skapade uppgifter",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Klara med slutdatum",
       "tasks_completed_on_time": "Klara i tid",
       "tasks_on_time_rate": "I tid (%)",
-      "tasks_median_lead_days": "Median genomloppstid (dagar)"
+      "tasks_median_lead_days": "Median genomloppstid (dagar)",
+      "members_new": "Nya medlemmar"
     },
     "granularity": "Utveckling per",
     "granularityHint": "Hur detaljerat utvecklingen över tid sparas – används för att jämföra med andra ögonblicksbilder.",
@@ -200,7 +207,16 @@
     "monthLabel": "Månad",
     "labelAuto": "Ett tomt namn sparas som \"{{name}}\".",
     "atPeriodEndNote": "Lager vid periodens slut",
-    "wholeOrganisationNote": "Ögonblicksbilder sparas alltid för hela organisationen (utan rumsfilter)."
+    "wholeOrganisationNote": "Ögonblicksbilder sparas alltid för hela organisationen (utan rumsfilter).",
+    "csv": {
+      "export": "Exportera CSV",
+      "group": "Grupp",
+      "period": "Period",
+      "start": "Start",
+      "end": "Slut",
+      "development": "Utveckling – {{metric}}",
+      "fileName": "statistik-jamforelse"
+    }
   },
   "tabs": {
     "overblik": "Översikt",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Just nu",
     "description": "Aktuellt läge – följer inte den valda perioden.",
-    "roomNote": "Uppgifter i {{room}} · lager för hela organisationen.",
+    "roomNote": "Uppgifter i {{room}} · lager och medlemskap för hela organisationen.",
     "allClear": "Inget kräver åtgärd just nu.",
     "overdueTitle": "Försenade uppgifter",
     "unassignedTitle": "Uppgifter utan ansvariga",
@@ -223,6 +239,28 @@
     "stockTitle": "Lager som kräver åtgärd",
     "itemsWithoutAvailable": "Artiklar utan lediga enheter: {{count}}",
     "goToTasks": "Gå till uppgifter",
-    "goToDatalayer": "Gå till datalagret"
+    "goToDatalayer": "Gå till datalagret",
+    "membershipTitle": "Väntande medlemskap",
+    "requests": "Ansökningar: {{count}}",
+    "invitations": "Inbjudningar: {{count}}",
+    "goToAdministration": "Gå till administration"
+  },
+  "insights": {
+    "title": "Sammanfattning",
+    "none": "Inga tydliga förändringar under perioden.",
+    "toneBad": "Oroande",
+    "toneGood": "Positivt",
+    "overdueUp": "Försenade uppgifter ökade från {{from}} till {{to}}.",
+    "overdueDown": "Försenade uppgifter minskade från {{from}} till {{to}}.",
+    "onTimeUp": "Andelen klara i tid ökade från {{from}} till {{to}}.",
+    "onTimeDown": "Andelen klara i tid minskade från {{from}} till {{to}}.",
+    "worstRoom": "Flest försenade uppgifter i {{room}} ({{overdue}}).",
+    "leadUp": "Genomloppstiden ökade från {{from}} till {{to}}.",
+    "leadDown": "Genomloppstiden minskade från {{from}} till {{to}}.",
+    "backlogGrows": "{{created}} uppgifter skapades, men bara {{completed}} blev klara – eftersläpningen växer.",
+    "backlogShrinks": "{{completed}} uppgifter blev klara mot {{created}} nya – eftersläpningen minskar.",
+    "lowestOnTime": "Lägst andel i tid i {{room}}: {{rate}} ({{onTime}} av {{total}}).",
+    "rejections": "{{rejected}} av {{total}} klarmarkeringar avvisades.",
+    "outOfService": "{{rate}} av enheterna var ur drift vid periodens slut ({{units}})."
   }
 }

@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} sur {{total}} avec date de fin",
     "onTimeNone": "Aucune tâche terminée avec date de fin",
     "leadTime": "Délai de traitement (médiane)",
-    "leadTimeDetail": "De la création à la fin"
+    "leadTimeDetail": "De la création à la fin",
+    "newMembers": "Nouveaux membres",
+    "membersTotal": "Membres au total : {{total}}"
   },
   "sections": {
     "tasks": "Tâches",
@@ -110,7 +112,10 @@
     "statusDescriptionAt": "Statut à la fin de la période ({{date}}).",
     "noHistory": "L'historique du stock commence le {{date}} – le statut antérieur est inconnu.",
     "usedCategoryTitle": "Articles utilisés par catégorie",
-    "usedCategoryDescription": "Nombre d’articles différents utilisés pour les tâches créées pendant la période, par catégorie principale."
+    "usedCategoryDescription": "Nombre d’articles différents utilisés pour les tâches créées pendant la période, par catégorie principale.",
+    "locationTitle": "Unités par emplacement",
+    "locationDescriptionAt": "Par entrepôt (sections incluses) à la fin de la période ({{date}}).",
+    "noLocation": "Sans emplacement"
   },
   "snapshots": {
     "title": "Instantanés enregistrés",
@@ -142,7 +147,8 @@
       "used_category": "Articles utilisés par catégorie",
       "room_completed": "Terminées par salle",
       "room_overdue": "En retard par salle",
-      "room_on_time_rate": "À temps par salle (%)"
+      "room_on_time_rate": "À temps par salle (%)",
+      "location": "Unités par emplacement"
     },
     "names": {
       "tasks_created": "Tâches créées",
@@ -156,7 +162,8 @@
       "tasks_completed_with_deadline": "Terminées avec date de fin",
       "tasks_completed_on_time": "Terminées à temps",
       "tasks_on_time_rate": "À temps (%)",
-      "tasks_median_lead_days": "Délai médian (jours)"
+      "tasks_median_lead_days": "Délai médian (jours)",
+      "members_new": "Nouveaux membres"
     },
     "granularity": "Évolution par",
     "granularityHint": "Précision avec laquelle l'évolution est enregistrée – sert à comparer avec d'autres instantanés.",
@@ -203,7 +210,16 @@
     "monthLabel": "Mois",
     "labelAuto": "Un nom vide est enregistré comme « {{name}} ».",
     "atPeriodEndNote": "Stock à la fin de la période",
-    "wholeOrganisationNote": "Les instantanés sont toujours enregistrés pour toute l'organisation (sans filtre de salle)."
+    "wholeOrganisationNote": "Les instantanés sont toujours enregistrés pour toute l'organisation (sans filtre de salle).",
+    "csv": {
+      "export": "Exporter en CSV",
+      "group": "Groupe",
+      "period": "Période",
+      "start": "Début",
+      "end": "Fin",
+      "development": "Évolution – {{metric}}",
+      "fileName": "statistiques-comparaison"
+    }
   },
   "tabs": {
     "overblik": "Aperçu",
@@ -218,7 +234,7 @@
   "attention": {
     "title": "En ce moment",
     "description": "Situation actuelle – ne suit pas la période choisie.",
-    "roomNote": "Tâches de {{room}} · stock de toute l’organisation.",
+    "roomNote": "Tâches de {{room}} · stock et adhésions de toute l’organisation.",
     "allClear": "Rien ne nécessite d’action pour le moment.",
     "overdueTitle": "Tâches en retard",
     "unassignedTitle": "Tâches sans responsable",
@@ -226,6 +242,28 @@
     "stockTitle": "Stock nécessitant une action",
     "itemsWithoutAvailable": "Articles sans unité disponible : {{count}}",
     "goToTasks": "Aller aux tâches",
-    "goToDatalayer": "Aller à la couche de données"
+    "goToDatalayer": "Aller à la couche de données",
+    "membershipTitle": "Adhésions en attente",
+    "requests": "Demandes : {{count}}",
+    "invitations": "Invitations : {{count}}",
+    "goToAdministration": "Aller à l’administration"
+  },
+  "insights": {
+    "title": "Synthèse",
+    "none": "Aucun changement notable sur la période.",
+    "toneBad": "Préoccupant",
+    "toneGood": "Positif",
+    "overdueUp": "Les tâches en retard sont passées de {{from}} à {{to}}.",
+    "overdueDown": "Les tâches en retard sont descendues de {{from}} à {{to}}.",
+    "onTimeUp": "La part terminée à temps est passée de {{from}} à {{to}}.",
+    "onTimeDown": "La part terminée à temps est descendue de {{from}} à {{to}}.",
+    "worstRoom": "Le plus de tâches en retard dans {{room}} ({{overdue}}).",
+    "leadUp": "Le délai de traitement est passé de {{from}} à {{to}}.",
+    "leadDown": "Le délai de traitement est descendu de {{from}} à {{to}}.",
+    "backlogGrows": "{{created}} tâches ont été créées, mais seulement {{completed}} terminées – le retard s’accumule.",
+    "backlogShrinks": "{{completed}} tâches ont été terminées pour {{created}} nouvelles – le retard se résorbe.",
+    "lowestOnTime": "Part à temps la plus basse dans {{room}} : {{rate}} ({{onTime}} sur {{total}}).",
+    "rejections": "{{rejected}} déclarations de fin sur {{total}} ont été refusées.",
+    "outOfService": "{{rate}} des unités étaient hors service à la fin de la période ({{units}})."
   }
 }

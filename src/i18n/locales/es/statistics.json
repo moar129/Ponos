@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} de {{total}} con fecha de fin",
     "onTimeNone": "No hay tareas completadas con fecha de fin",
     "leadTime": "Tiempo de ciclo (mediana)",
-    "leadTimeDetail": "De creada a completada"
+    "leadTimeDetail": "De creada a completada",
+    "newMembers": "Nuevos miembros",
+    "membersTotal": "Miembros en total: {{total}}"
   },
   "sections": {
     "tasks": "Tareas",
@@ -110,7 +112,10 @@
     "statusDescriptionAt": "Estado al final del período ({{date}}).",
     "noHistory": "El historial de inventario empieza el {{date}}; el estado anterior se desconoce.",
     "usedCategoryTitle": "Artículos usados por categoría",
-    "usedCategoryDescription": "Número de artículos distintos usados en tareas creadas en el período, por categoría principal."
+    "usedCategoryDescription": "Número de artículos distintos usados en tareas creadas en el período, por categoría principal.",
+    "locationTitle": "Unidades por ubicación",
+    "locationDescriptionAt": "Por almacén (secciones incluidas) al final del período ({{date}}).",
+    "noLocation": "Sin ubicación"
   },
   "snapshots": {
     "title": "Instantáneas guardadas",
@@ -142,7 +147,8 @@
       "used_category": "Artículos usados por categoría",
       "room_completed": "Completadas por sala",
       "room_overdue": "Vencidas por sala",
-      "room_on_time_rate": "A tiempo por sala (%)"
+      "room_on_time_rate": "A tiempo por sala (%)",
+      "location": "Unidades por ubicación"
     },
     "names": {
       "tasks_created": "Tareas creadas",
@@ -156,7 +162,8 @@
       "tasks_completed_with_deadline": "Completadas con fecha de fin",
       "tasks_completed_on_time": "Completadas a tiempo",
       "tasks_on_time_rate": "A tiempo (%)",
-      "tasks_median_lead_days": "Tiempo de ciclo mediano (días)"
+      "tasks_median_lead_days": "Tiempo de ciclo mediano (días)",
+      "members_new": "Nuevos miembros"
     },
     "granularity": "Evolución por",
     "granularityHint": "Con qué detalle se guarda la evolución en el tiempo – sirve para comparar con otras instantáneas.",
@@ -203,7 +210,16 @@
     "monthLabel": "Mes",
     "labelAuto": "Un nombre vacío se guarda como «{{name}}».",
     "atPeriodEndNote": "Inventario al final del período",
-    "wholeOrganisationNote": "Las instantáneas siempre se guardan para toda la organización (sin filtro de sala)."
+    "wholeOrganisationNote": "Las instantáneas siempre se guardan para toda la organización (sin filtro de sala).",
+    "csv": {
+      "export": "Exportar CSV",
+      "group": "Grupo",
+      "period": "Período",
+      "start": "Inicio",
+      "end": "Fin",
+      "development": "Evolución – {{metric}}",
+      "fileName": "estadisticas-comparacion"
+    }
   },
   "tabs": {
     "overblik": "Resumen",
@@ -218,7 +234,7 @@
   "attention": {
     "title": "Ahora mismo",
     "description": "Estado actual: no sigue el período seleccionado.",
-    "roomNote": "Tareas de {{room}} · inventario de toda la organización.",
+    "roomNote": "Tareas de {{room}} · inventario y membresías de toda la organización.",
     "allClear": "Nada requiere acción ahora mismo.",
     "overdueTitle": "Tareas vencidas",
     "unassignedTitle": "Tareas sin responsables",
@@ -226,6 +242,28 @@
     "stockTitle": "Inventario que requiere acción",
     "itemsWithoutAvailable": "Artículos sin unidades disponibles: {{count}}",
     "goToTasks": "Ir a tareas",
-    "goToDatalayer": "Ir a la capa de datos"
+    "goToDatalayer": "Ir a la capa de datos",
+    "membershipTitle": "Membresías pendientes",
+    "requests": "Solicitudes: {{count}}",
+    "invitations": "Invitaciones: {{count}}",
+    "goToAdministration": "Ir a administración"
+  },
+  "insights": {
+    "title": "Resumen",
+    "none": "No hay cambios destacables en el período.",
+    "toneBad": "Preocupante",
+    "toneGood": "Positivo",
+    "overdueUp": "Las tareas vencidas subieron de {{from}} a {{to}}.",
+    "overdueDown": "Las tareas vencidas bajaron de {{from}} a {{to}}.",
+    "onTimeUp": "La proporción completada a tiempo subió de {{from}} a {{to}}.",
+    "onTimeDown": "La proporción completada a tiempo bajó de {{from}} a {{to}}.",
+    "worstRoom": "Más tareas vencidas en {{room}} ({{overdue}}).",
+    "leadUp": "El tiempo de ciclo subió de {{from}} a {{to}}.",
+    "leadDown": "El tiempo de ciclo bajó de {{from}} a {{to}}.",
+    "backlogGrows": "Se crearon {{created}} tareas, pero solo se completaron {{completed}}: el trabajo pendiente crece.",
+    "backlogShrinks": "Se completaron {{completed}} tareas frente a {{created}} nuevas: el trabajo pendiente disminuye.",
+    "lowestOnTime": "Menor proporción a tiempo en {{room}}: {{rate}} ({{onTime}} de {{total}}).",
+    "rejections": "Se rechazaron {{rejected}} de {{total}} avisos de finalización.",
+    "outOfService": "El {{rate}} de las unidades estaba fuera de servicio al final del período ({{units}})."
   }
 }

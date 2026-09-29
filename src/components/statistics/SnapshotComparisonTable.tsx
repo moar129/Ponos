@@ -1,28 +1,20 @@
 import { Fragment, useState } from 'react'
-import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
+import { ChevronDown, ChevronRight, Download, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
     DEVELOPMENT_METRICS,
     GROUP_NOTES,
-    NAMED_GROUPS,
-    SNAPSHOT_GROUP_ORDER,
     buildDevelopmentComparison,
+    buildSnapshotComparison,
     formatDelta,
     hasMixedLengths,
-    isSeriesValue,
-    parseValueName,
     snapshotName,
     snapshotPeriodDays,
-    valueLabel,
 } from '../../utils/statisticsSnapshot'
+import { downloadSnapshotComparisonCsv } from '../../utils/statisticsCsv'
 import type { SnapshotRowGroup } from '../../utils/statisticsSnapshot'
 import { SnapshotDevelopmentChart } from './SnapshotDevelopmentChart'
 import type { SnapshotComparisonTableProps } from '../../types/statistics/statisticsComponentTypes'
-
-interface ComparisonRow {
-    name: string
-    label: string
-}
 
 const CELL = 'px-3 py-1.5 text-right tabular-nums text-primary dark:text-slate-100'
 const DELTA = 'block text-xs font-normal text-secondary dark:text-slate-400 sm:ml-2 sm:inline'
@@ -42,30 +34,8 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
     const pointsSuffix = t('snapshots.pointsSuffix')
     const names = snapshots.map((snapshot) => snapshotName(snapshot, locale))
 
-    const totals = snapshots.map((snapshot) => snapshot.values.filter((value) => !isSeriesValue(value)))
-    const valuesBySnapshot = totals.map((values) => new Map(values.map((value) => [value.name as string, value.value])))
-    const newest = valuesBySnapshot[valuesBySnapshot.length - 1]
+    const { groups, valuesBySnapshot } = buildSnapshotComparison(snapshots, t)
     const development = buildDevelopmentComparison(snapshots, locale, (week) => t('snapshots.weekLabel', { week }))
-
-    const groups = new Map<SnapshotRowGroup, ComparisonRow[]>()
-    const seen = new Set<string>()
-
-    for (const values of totals) {
-        for (const value of values) {
-            if (seen.has(value.name)) continue
-            seen.add(value.name)
-
-            const { group, key } = parseValueName(value.name)
-            const rows = groups.get(group) ?? []
-            rows.push({ name: value.name, label: valueLabel(t, group, key) })
-            groups.set(group, rows)
-        }
-    }
-
-    // Named rows (rooms, categories, items) by the newest snapshot, largest first.
-    for (const group of NAMED_GROUPS) {
-        groups.get(group)?.sort((a, b) => (newest.get(b.name) ?? -1) - (newest.get(a.name) ?? -1))
-    }
 
     const toggleGroup = (group: SnapshotRowGroup) => {
         setOpenGroups((current) => {
@@ -101,6 +71,17 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
 
     return (
         <div className="space-y-4">
+            <div className="flex justify-end">
+                <button
+                    type="button"
+                    onClick={() => downloadSnapshotComparisonCsv(snapshots, t, locale)}
+                    className="inline-flex items-center gap-2 rounded-md border border-border-gray px-3 py-1.5 text-sm font-medium text-primary hover:bg-bg-gray/40 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700/40"
+                >
+                    <Download className="h-4 w-4" aria-hidden />
+                    {t('snapshots.csv.export')}
+                </button>
+            </div>
+
             {hasMixedLengths(snapshots) && (
                 <p role="note" className="flex items-start gap-2 rounded-md border border-border-gray bg-bg-gray/40 p-3 text-sm text-secondary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                     <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
@@ -114,7 +95,7 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
                 <table className="w-full text-sm">
                     <thead>{headerRow}</thead>
                     <tbody>
-                        {SNAPSHOT_GROUP_ORDER.filter((group) => groups.has(group)).map((group) => {
+                        {groups.map(({ group, rows }) => {
                             const open = openGroups.has(group)
 
                             return (
@@ -142,7 +123,7 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
                                         </th>
                                     </tr>
 
-                                    {open && (groups.get(group) ?? []).map((row) => (
+                                    {open && rows.map((row) => (
                                         <tr key={row.name} className="border-b border-border-gray/60 last:border-0 dark:border-slate-700/60">
                                             <th scope="row" className="py-1.5 pl-9 pr-3 text-left font-normal text-secondary dark:text-slate-300">
                                                 {row.label}

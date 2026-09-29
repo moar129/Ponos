@@ -10,6 +10,7 @@ import {
     Target,
     Timer,
     TriangleAlert,
+    UserPlus,
     Users,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -24,6 +25,7 @@ import { AttentionPanel } from '../../components/statistics/AttentionPanel'
 import { BarList } from '../../components/statistics/BarList'
 import { ChartCard } from '../../components/statistics/ChartCard'
 import { CustomPeriodModal } from '../../components/statistics/CustomPeriodModal'
+import { InsightSummary } from '../../components/statistics/InsightSummary'
 import { KPICard } from '../../components/statistics/KPICard'
 import { RoomScorecard } from '../../components/statistics/RoomScorecard'
 import { SnapshotPanel } from '../../components/statistics/SnapshotPanel'
@@ -32,6 +34,7 @@ import { StatisticsRoomFilter } from '../../components/statistics/StatisticsRoom
 import { StatisticsSection } from '../../components/statistics/StatisticsSection'
 import { TaskDevelopmentChart } from '../../components/statistics/TaskDevelopmentChart'
 import { TaskDistributionChart } from '../../components/statistics/TaskDistributionChart'
+import { buildInsights } from '../../utils/statisticsInsights'
 import { kpiTrend } from '../../utils/statisticsTrend'
 import type { KpiGoodDirection } from '../../utils/statisticsTrend'
 import type { StatisticsKpis, StatisticsTab } from '../../types/statistics/statisticsTypes'
@@ -196,6 +199,13 @@ export default function StatisticsPage() {
         .sort((a, b) => b.count - a.count)
         .map((row) => ({ key: row.status, label: t(`datalayer:status.${row.status}`), value: row.count }))
 
+    // Per top-level location (sections count towards it), at the period's end.
+    const locationRows = (materials?.byLocation ?? []).map((row) => ({
+        key: row.locationId ?? 'none',
+        label: row.name ?? t('materials.noLocation'),
+        value: row.count,
+    }))
+
     const categoryRows = (materials?.byCategory ?? []).map((row) => ({
         key: row.categoryId,
         label: row.title,
@@ -288,6 +298,14 @@ export default function StatisticsPage() {
                         </p>
                     )}
 
+                    {!errorMessage && (
+                        <InsightSummary
+                            insights={stats ? buildInsights(stats, { roomFiltered: Boolean(roomId), locale: i18n.language, t }) : []}
+                            subtitle={roomName ? t('filter.forRoom', { room: roomName, period: periodLabel }) : periodLabel}
+                            loading={loading}
+                        />
+                    )}
+
                     {stats && <AttentionPanel data={stats.attention} roomName={roomName} />}
 
                     {/* KPI'er */}
@@ -297,7 +315,7 @@ export default function StatisticsPage() {
                             <p className="text-sm text-secondary dark:text-slate-400">{t('kpi.description')}</p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-[2200px]:grid-cols-7">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-[2200px]:grid-cols-8">
                             <KPICard title={t('kpi.created')} icon={<ListTodo className="h-5 w-5" />} value={kpis?.created} trend={trendFor('created', null)} loading={loading} />
                             <KPICard title={t('kpi.completed')} icon={<CheckCircle2 className="h-5 w-5" />} value={kpis?.completed} trend={trendFor('completed', 'up')} loading={loading} />
                             <KPICard
@@ -325,6 +343,18 @@ export default function StatisticsPage() {
                                 icon={<Users className="h-5 w-5" />}
                                 value={kpis?.membersWithTaskActivity}
                                 trend={trendFor('membersWithTaskActivity', null)}
+                                loading={loading}
+                            />
+                            {/* Members belong to no room: shown organisation-wide, noted when filtered. */}
+                            <KPICard
+                                title={t('kpi.newMembers')}
+                                icon={<UserPlus className="h-5 w-5" />}
+                                value={kpis?.newMembers}
+                                detail={kpis && [
+                                    t('kpi.membersTotal', { total: kpis.members }),
+                                    roomId ? t('filter.wholeOrganisation') : '',
+                                ].filter(Boolean).join(' ')}
+                                trend={trendFor('newMembers', null)}
                                 loading={loading}
                             />
                         </div>
@@ -441,6 +471,22 @@ export default function StatisticsPage() {
                         >
                             <BarList rows={topMaterialRows} ariaLabel={t('materials.topTitle')} />
                         </ChartCard>
+
+                        <div className="min-w-0 xl:col-span-2">
+                            <ChartCard
+                                title={t('materials.locationTitle')}
+                                description={[
+                                    statusAsOf ? t('materials.locationDescriptionAt', { date: statusAsOf }) : '',
+                                    roomId ? t('filter.wholeOrganisation') : '',
+                                ].filter(Boolean).join(' ') || undefined}
+                                loading={loading}
+                                error={errorMessage}
+                                empty={stats ? sum(locationRows.map((row) => row.value)) === 0 : false}
+                                emptyMessage={statusUnknown ? t('materials.noHistory', { date: historyStart }) : undefined}
+                            >
+                                <BarList rows={locationRows} ariaLabel={t('materials.locationTitle')} />
+                            </ChartCard>
+                        </div>
                     </StatisticsSection>
                 </>
             )}

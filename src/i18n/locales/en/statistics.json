@@ -42,7 +42,9 @@
     "onTimeDetail": "{{onTime}} of {{total}} with an end date",
     "onTimeNone": "No completed tasks with an end date",
     "leadTime": "Lead time (median)",
-    "leadTimeDetail": "From created to completed"
+    "leadTimeDetail": "From created to completed",
+    "newMembers": "New members",
+    "membersTotal": "Members in total: {{total}}"
   },
   "sections": {
     "tasks": "Tasks",
@@ -108,7 +110,10 @@
     "statusDescriptionAt": "Status at the end of the period ({{date}}).",
     "noHistory": "The stock history starts {{date}} – the status before that is unknown.",
     "usedCategoryTitle": "Items used per category",
-    "usedCategoryDescription": "Number of different items used on tasks created in the period, per main category."
+    "usedCategoryDescription": "Number of different items used on tasks created in the period, per main category.",
+    "locationTitle": "Units per location",
+    "locationDescriptionAt": "Per storage site (sections included) at the end of the period ({{date}}).",
+    "noLocation": "No location"
   },
   "snapshots": {
     "title": "Saved snapshots",
@@ -140,7 +145,8 @@
       "used_category": "Items used per category",
       "room_completed": "Completed per room",
       "room_overdue": "Overdue per room",
-      "room_on_time_rate": "On time per room (%)"
+      "room_on_time_rate": "On time per room (%)",
+      "location": "Units per location"
     },
     "names": {
       "tasks_created": "Created tasks",
@@ -154,7 +160,8 @@
       "tasks_completed_with_deadline": "Completed with end date",
       "tasks_completed_on_time": "Completed on time",
       "tasks_on_time_rate": "On time (%)",
-      "tasks_median_lead_days": "Median lead time (days)"
+      "tasks_median_lead_days": "Median lead time (days)",
+      "members_new": "New members"
     },
     "granularity": "Development per",
     "granularityHint": "How finely the development over time is saved – used to compare with other snapshots.",
@@ -200,7 +207,16 @@
     "monthLabel": "Month",
     "labelAuto": "An empty name is saved as \"{{name}}\".",
     "atPeriodEndNote": "Stock at the end of the period",
-    "wholeOrganisationNote": "Snapshots are always saved for the whole organisation (no room filter)."
+    "wholeOrganisationNote": "Snapshots are always saved for the whole organisation (no room filter).",
+    "csv": {
+      "export": "Export CSV",
+      "group": "Group",
+      "period": "Period",
+      "start": "Start",
+      "end": "End",
+      "development": "Development – {{metric}}",
+      "fileName": "statistics-comparison"
+    }
   },
   "tabs": {
     "overblik": "Overview",
@@ -215,7 +231,7 @@
   "attention": {
     "title": "Right now",
     "description": "Current status – does not follow the selected period.",
-    "roomNote": "Tasks in {{room}} · stock for the whole organisation.",
+    "roomNote": "Tasks in {{room}} · stock and membership for the whole organisation.",
     "allClear": "Nothing needs action right now.",
     "overdueTitle": "Overdue tasks",
     "unassignedTitle": "Tasks without assignees",
@@ -223,6 +239,28 @@
     "stockTitle": "Stock that needs action",
     "itemsWithoutAvailable": "Items without available units: {{count}}",
     "goToTasks": "Go to tasks",
-    "goToDatalayer": "Go to data layer"
+    "goToDatalayer": "Go to data layer",
+    "membershipTitle": "Pending membership",
+    "requests": "Requests: {{count}}",
+    "invitations": "Invitations: {{count}}",
+    "goToAdministration": "Go to administration"
+  },
+  "insights": {
+    "title": "Summary",
+    "none": "No marked changes in the period.",
+    "toneBad": "Concern",
+    "toneGood": "Positive",
+    "overdueUp": "Overdue tasks rose from {{from}} to {{to}}.",
+    "overdueDown": "Overdue tasks fell from {{from}} to {{to}}.",
+    "onTimeUp": "The share completed on time rose from {{from}} to {{to}}.",
+    "onTimeDown": "The share completed on time fell from {{from}} to {{to}}.",
+    "worstRoom": "Most overdue tasks in {{room}} ({{overdue}}).",
+    "leadUp": "Lead time rose from {{from}} to {{to}}.",
+    "leadDown": "Lead time fell from {{from}} to {{to}}.",
+    "backlogGrows": "{{created}} tasks were created, but only {{completed}} were completed – the backlog is growing.",
+    "backlogShrinks": "{{completed}} tasks were completed against {{created}} new – the backlog is shrinking.",
+    "lowestOnTime": "Lowest share on time in {{room}}: {{rate}} ({{onTime}} of {{total}}).",
+    "rejections": "{{rejected}} of {{total}} completion reports were rejected.",
+    "outOfService": "{{rate}} of the units were out of service at the end of the period ({{units}})."
   }
 }
