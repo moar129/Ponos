@@ -3,40 +3,34 @@ import { useSearchParams } from 'react-router-dom'
 import type {
     StatisticsGranularity,
     StatisticsPeriodType,
+    StatisticsQuarter,
     StatisticsQueryArgs,
 } from '../../types/statistics/statisticsTypes'
 
-export const STATISTICS_PERIOD_TYPES: StatisticsPeriodType[] = [
+/** Plain period buttons, in order. Kvartal, Alt and Brugerdefineret follow them. */
+export const STATISTICS_PERIOD_TYPES: Exclude<StatisticsPeriodType, 'quarter' | 'max' | 'custom'>[] = [
     'day',
     'week',
     'month',
-    'quarter',
     'year',
-    'max',
-    'custom',
 ]
 
-// Rolling periods ending today (inclusive), in days.
-const ROLLING_DAYS: Partial<Record<StatisticsPeriodType, number>> = {
-    day: 1,
-    week: 7,
-    month: 30,
-    quarter: 91,
-    year: 365,
-}
+/** How many years (incl. this one) the year dropdowns offer. */
+export const STATISTICS_YEARS_BACK = 10
 
-// The period in the address (?periode=30d&fra=…&til=…), so a shared link
-// opens the same view. Danish values, like ?tab=overblik.
+// The period in the address (?periode=maaned, ?periode=kvartal&kvartal=3&aar=2025,
+// ?periode=egen&fra=…&til=…), so a shared link opens the same view. Danish values,
+// like ?tab=overblik.
 const PERIOD_PARAM: Record<StatisticsPeriodType, string> = {
     day: 'dag',
-    week: '7d',
-    month: '30d',
-    quarter: '91d',
-    year: '365d',
+    week: 'uge',
+    month: 'maaned',
+    quarter: 'kvartal',
+    year: 'aar',
     max: 'alt',
     custom: 'egen',
 }
-const DEFAULT_PERIOD: StatisticsPeriodType = 'week'
+const DEFAULT_PERIOD: StatisticsPeriodType = 'month'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -60,13 +54,41 @@ function parseParamDate(value: string | null): Date | null {
     return formatParamDate(date) === value ? date : null
 }
 
+/** First day of the current calendar week (Monday), month or year containing `today`. */
+function calendarStart(type: 'day' | 'week' | 'month' | 'year', today: Date): Date {
+    switch (type) {
+        case 'week':
+            return addDays(today, -((today.getDay() + 6) % 7))
+        case 'month':
+            return new Date(today.getFullYear(), today.getMonth(), 1)
+        case 'year':
+            return new Date(today.getFullYear(), 0, 1)
+        default:
+            return today
+    }
+}
+
+function quarterStart({ quarter, year }: StatisticsQuarter): Date {
+    return new Date(year, (quarter - 1) * 3, 1)
+}
+
+/** The calendar quarter containing `date`. */
+export function quarterFromDate(date: Date): StatisticsQuarter {
+    return { quarter: Math.floor(date.getMonth() / 3) + 1, year: date.getFullYear() }
+}
+
+/** False for quarters that have not begun yet - they can only show zeros. */
+export function isQuarterStarted(quarter: StatisticsQuarter, today: Date): boolean {
+    return quarterStart(quarter) <= today
+}
+
 // One source of truth for the time series resolution: 1 day -> hours,
-// up to a month -> days, up to a quarter -> weeks, otherwise months.
+// up to a month -> days, up to a quarter (92 days) -> weeks, otherwise months.
 function granularityFor(days: number | null): StatisticsGranularity {
     if (days === null) return 'month'
     if (days <= 1) return 'hour'
     if (days <= 31) return 'day'
-    if (days <= 91) return 'week'
+    if (days <= 92) return 'week'
     return 'month'
 }
 
@@ -79,21 +101,9 @@ export interface StatisticsDateRange {
 export function useStatisticsPeriod() {
     const [searchParams, setSearchParams] = useSearchParams()
 
-    const requested = Object.entries(PERIOD_PARAM).find(([, param]) => param === searchParams.get('periode'))?.[0] as
-        | StatisticsPeriodType
-        | undefined
-    const customStart = parseParamDate(searchParams.get('fra'))
-    const customEnd = parseParamDate(searchParams.get('til'))
-    const customValid = Boolean(customStart && customEnd && customStart <= customEnd)
-    // Unknown values (or a custom period without valid dates) fall back to the default.
-    const periodType: StatisticsPeriodType =
-        !requested || (requested === 'custom' && !customValid) ? DEFAULT_PERIOD : requested
-    const customStartTime = customStart?.getTime() ?? null
-    const customEndTime = customEnd?.getTime() ?? null
-
     // "Today" as state, refreshed when the window regains focus - otherwise a
-    // page left open past midnight keeps showing yesterday's rolling period
-    // (and refetchOnFocus would refetch that stale range). Same value = no re-render.
+    // page left open past midnight keeps showing yesterday's period (and
+    // refetchOnFocus would refetch that stale range). Same value = no re-render.
     const [todayTime, setTodayTime] = useState(() => startOfDay(new Date()).getTime())
     useEffect(() => {
         const refresh = () => setTodayTime(startOfDay(new Date()).getTime())
@@ -105,6 +115,36 @@ export function useStatisticsPeriod() {
         }
     }, [])
 
+    const requested = Object.entries(PERIOD_PARAM).find(([, param]) => param === searchParams.get('periode'))?.[0] as
+        | StatisticsPeriodType
+        | undefined
+    const customStart = parseParamDate(searchParams.get('fra'))
+    const customEnd = parseParamDate(searchParams.get('til'))
+    const customValid = Boolean(customStart && customEnd && customStart <= customEnd)
+
+    // ?kvartal=1-4, ?aar defaults to this year.
+    const quarterParam = Number(searchParams.get('kvartal'))
+    const yearParam = searchParams.get('aar')
+    const requestedQuarter: StatisticsQuarter | null =
+        Number.isInteger(quarterParam) && quarterParam >= 1 && quarterParam <= 4
+            ? { quarter: quarterParam, year: yearParam === null ? new Date(todayTime).getFullYear() : Number(yearParam) }
+            : null
+    const quarterValid = Boolean(
+        requestedQuarter && Number.isInteger(requestedQuarter.year) && isQuarterStarted(requestedQuarter, new Date(todayTime)),
+    )
+
+    // Unknown values (incl. the old 7d/30d… links), a custom period without valid
+    // dates or a quarter that has not begun fall back to the default.
+    const periodType: StatisticsPeriodType =
+        !requested || (requested === 'custom' && !customValid) || (requested === 'quarter' && !quarterValid)
+            ? DEFAULT_PERIOD
+            : requested
+    const customStartTime = customStart?.getTime() ?? null
+    const customEndTime = customEnd?.getTime() ?? null
+    const quarter = periodType === 'quarter' ? requestedQuarter : null
+    const quarterNumber = quarter?.quarter ?? null
+    const quarterYear = quarter?.year ?? null
+
     const range = useMemo<StatisticsDateRange | null>(() => {
         if (periodType === 'max') return null
         if (periodType === 'custom' && customStartTime !== null && customEndTime !== null) {
@@ -112,9 +152,17 @@ export function useStatisticsPeriod() {
         }
 
         const today = new Date(todayTime)
-        const days = ROLLING_DAYS[periodType] ?? 1
-        return { start: addDays(today, -(days - 1)), end: today }
-    }, [periodType, customStartTime, customEndTime, todayTime])
+        if (periodType === 'quarter' && quarterNumber !== null && quarterYear !== null) {
+            // A finished quarter in full; the current one up to today.
+            const start = quarterStart({ quarter: quarterNumber, year: quarterYear })
+            const last = addDays(new Date(start.getFullYear(), start.getMonth() + 3, 1), -1)
+            return { start, end: last < today ? last : today }
+        }
+        if (periodType === 'day' || periodType === 'week' || periodType === 'month' || periodType === 'year') {
+            return { start: calendarStart(periodType, today), end: today }
+        }
+        return { start: today, end: today }
+    }, [periodType, customStartTime, customEndTime, quarterNumber, quarterYear, todayTime])
 
     const apiArgs = useMemo<StatisticsQueryArgs>(() => {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -147,8 +195,24 @@ export function useStatisticsPeriod() {
         }, { replace: true })
     }
 
-    const changePeriod = (type: Exclude<StatisticsPeriodType, 'custom'>) => {
-        updateParams({ periode: type === DEFAULT_PERIOD ? null : PERIOD_PARAM[type], fra: null, til: null })
+    const changePeriod = (type: Exclude<StatisticsPeriodType, 'quarter' | 'custom'>) => {
+        updateParams({
+            periode: type === DEFAULT_PERIOD ? null : PERIOD_PARAM[type],
+            fra: null,
+            til: null,
+            kvartal: null,
+            aar: null,
+        })
+    }
+
+    const changeQuarter = ({ quarter: nextQuarter, year }: StatisticsQuarter) => {
+        updateParams({
+            periode: PERIOD_PARAM.quarter,
+            kvartal: String(nextQuarter),
+            aar: year === new Date(todayTime).getFullYear() ? null : String(year),
+            fra: null,
+            til: null,
+        })
     }
 
     const setCustomDates = (start: Date, end: Date) => {
@@ -156,6 +220,8 @@ export function useStatisticsPeriod() {
             periode: PERIOD_PARAM.custom,
             fra: formatParamDate(startOfDay(start)),
             til: formatParamDate(startOfDay(end)),
+            kvartal: null,
+            aar: null,
         })
     }
 
@@ -163,7 +229,11 @@ export function useStatisticsPeriod() {
         periodType,
         range,
         apiArgs,
+        /** The selected quarter; null unless periodType is 'quarter'. */
+        quarter,
+        today: new Date(todayTime),
         changePeriod,
+        changeQuarter,
         setCustomDates,
         /** Reads/writes one of the page's own filter params (rum, kategori). */
         filterParam: (key: 'rum' | 'kategori') => searchParams.get(key),

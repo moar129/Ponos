@@ -353,7 +353,7 @@ const T = (nr, room, title, desc, created, start, end, st, prio, appr, finished,
   ({ nr, room, title, desc, created, start, end, st, prio, appr, finished, assignees, max: extra.max ?? null, requests: extra.requests ?? [], materials: extra.materials ?? [] })
 
 // #36, #42, #45, #68 og #69 er færdige EFTER slutdatoen (forsinkede), så "Færdige til tiden"
-// og dens trend kan testes (7 dage: 1 af 2, 30 dage: 3 af 5).
+// og dens trend kan testes (Uge: 1 af 1, Måned: 3 af 5).
 const tasks = [
   // --- RF25-cyklus ---
   T(1, 'PLAN', 'Budget for sceneteknik RF25', 'Udarbejd budget for lyd, lys og strøm til alle scener.', '2024-10-07 09:00', '2024-10-14 08:00', '2024-11-15 16:00', 'Completed', 'High', true, '2024-11-12 14:00', ['mette.hansen', 'camilla.thorsen']),
@@ -736,14 +736,18 @@ function buildFacit() {
 
   // --- Statistiksiden pr. periode: SAMME definitioner som get_statistics /
   // statistics_payload (docs/dbSchema.sql §15.26). Perioder
-  // er rullende og slutter i dag inkl. (Europe/Copenhagen), slut eksklusiv.
-  const local = (d) => new Date(`${d}T00:00:00+02:00`)
+  // følger kalenderen (useStatisticsPeriod): uge/måned/år = den nuværende til og med
+  // i dag (tirsdag 29/9), kvartal = kalenderkvartal (det igangværende til i dag).
+  // Europe/Copenhagen, slut eksklusiv.
+  const local = (d) => new Date(`${d}T00:00:00${d < '2026-10-25' && d >= '2026-03-29' ? '+02:00' : '+01:00'}`)
   const periods = [
     ['Dag', local('2026-09-29'), local('2026-09-30')],
-    ['7 dage', local('2026-09-23'), local('2026-09-30')],
-    ['30 dage', local('2026-08-31'), local('2026-09-30')],
-    ['91 dage', local('2026-06-30'), local('2026-09-30')],
-    ['365 dage', local('2025-09-30'), local('2026-09-30')],
+    ['Uge', local('2026-09-28'), local('2026-09-30')],
+    ['Måned', local('2026-09-01'), local('2026-09-30')],
+    ['År', local('2026-01-01'), local('2026-09-30')],
+    ['Q1 2026', local('2026-01-01'), local('2026-04-01')],
+    ['Q2 2026', local('2026-04-01'), local('2026-07-01')],
+    ['Q3 2026', local('2026-07-01'), local('2026-09-30')],
     ['Alt', new Date(-8.64e15), new Date(8.64e15)],
   ]
   const allMembers = [...members, 'admin']
@@ -1014,7 +1018,7 @@ function buildFacit() {
     return [label, lines.length ? lines.join('<br>') : 'Ingen markante ændringer i perioden.']
   })
 
-  const trendRows = periods.filter(([label]) => label === '7 dage' || label === '30 dage').map(([label, s, e]) => {
+  const trendRows = periods.filter(([label]) => label === 'Uge' || label === 'Måned').map(([label, s, e]) => {
     const prevStart = new Date(s.getTime() - (e.getTime() - s.getTime()))
     const now = kpisFor(s, e)
     const before = kpisFor(prevStart, s)
@@ -1129,7 +1133,7 @@ ${table(['År', 'Oprettet', 'Færdige'], Object.keys(createdY).sort().map((y) =>
 ## Statistiksiden pr. periode (get_statistics)
 
 Samme definitioner som \`statistics_payload\` (docs/dbSchema.sql §15.26):
-rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
+kalenderperioder til og med 29/9 (uge fra mandag 28/9, måned fra 1/9, år fra 1/1; kvartaler hele, Q3 til 29/9; Europe/Copenhagen). Status, prioritet, rum og
 mest brugte = opgaver **oprettet** i perioden. *I gang* = \`coalesce(start_date, created_at)\`
 før periodens slut og (InProgress eller Completed med \`finished_at\` ≥ start). *Relevante*
 (teamaktivitet/belastning) = oprettet eller i gang i perioden. Godkendelser tæller
@@ -1179,10 +1183,10 @@ ${(() => {
     return table(['Lager', 'Nu (29/9)', '31/12-2024', '31/12-2025'], names.map((n) => [n, now[n] ?? 0, y24[n] ?? 0, y25[n] ?? 0]))
   })()}
 
-KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
+KPI-trend (nu / forrige periode af samme længde, fx Uge = 28/9–29/9 mod 26/9–27/9, Måned = 1/9–29/9 mod 3/8–31/8). Farver: Færdige ↑ grøn /
 ↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
-7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
-Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
+Uge: Oprettede ↑ 300 %, Færdige ↑ 1 (grøn), Forfaldne uændret, ingen trend på Til tiden/Gennemløbstid (forrige tom).
+Måned: Oprettede ↑ 88 %, Færdige ↑ 150 % (grøn), Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn), Gennemløbstid ↓ 46 % (grøn).
 
 ${table(['Periode', 'Oprettede', 'Færdige', 'Forfaldne', 'Til tiden', 'Gennemløbstid (dage)', 'Nye medlemmer', 'Udmeldte', 'Tab og skader'], trendRows)}
 
@@ -1250,8 +1254,8 @@ select status, count(*), sum(case when contents_total is not null then 1 else qu
 select to_char(created_at at time zone 'Europe/Copenhagen', 'YYYY-MM') m, count(*)
   from tasks where organisation_id = '<org>' group by 1 order by 1;
 
--- Hele statistik-payloaden som siden ser den (fx "30 dage"):
-select public.statistics_payload('<org>', '2026-08-31 00:00 Europe/Copenhagen',
+-- Hele statistik-payloaden som siden ser den (fx "Måned"):
+select public.statistics_payload('<org>', '2026-09-01 00:00 Europe/Copenhagen',
   '2026-09-30 00:00 Europe/Copenhagen', 'day', 'Europe/Copenhagen');
 \`\`\`
 `

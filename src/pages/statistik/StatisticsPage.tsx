@@ -51,7 +51,18 @@ export default function StatisticsPage() {
     const { t, i18n } = useTranslation(['statistics', 'tasks', 'datalayer'])
     const { data: profile, isLoading: isProfileLoading } = useGetMyProfileQuery()
     const { hasPrivilege: canRead, isLoading: isPrivilegeLoading } = useHasPrivilege(READ_STATISTICS_PRIVILEGE)
-    const { periodType, range, apiArgs, changePeriod, setCustomDates, filterParam, setFilterParam } = useStatisticsPeriod()
+    const {
+        periodType,
+        range,
+        apiArgs,
+        quarter,
+        today,
+        changePeriod,
+        changeQuarter,
+        setCustomDates,
+        filterParam,
+        setFilterParam,
+    } = useStatisticsPeriod()
     const [isCustomOpen, setIsCustomOpen] = useState(false)
     // Filters live in the address (?rum=…&kategori=…) like the period, so a
     // shared link opens the same view. null = no filter. Rum: US-55;
@@ -121,7 +132,8 @@ export default function StatisticsPage() {
             ? dateFormat.format(start)
             : t('period.range', { start: dateFormat.format(start), end: dateFormat.format(end) })
     const rangeLabel = range ? formatRange(range.start, range.end) : t('period.allTime')
-    const periodLabel = periodType === 'custom' ? rangeLabel : `${t(`period.${periodType}`)} (${rangeLabel})`
+    const periodName = quarter ? t('period.quarterLabel', { quarter: quarter.quarter, year: quarter.year }) : t(`period.${periodType}`)
+    const periodLabel = periodType === 'custom' ? rangeLabel : `${periodName} (${rangeLabel})`
 
     const kpis = stats?.kpis
     const previousKpis = stats?.previousKpis ?? null
@@ -290,7 +302,10 @@ export default function StatisticsPage() {
                 <>
                     <StatisticsPeriodPicker
                         periodType={periodType}
+                        quarter={quarter}
+                        today={today}
                         onChangePeriod={changePeriod}
+                        onChangeQuarter={changeQuarter}
                         onOpenCustom={() => setIsCustomOpen(true)}
                     >
                         <div className="flex flex-wrap gap-x-6 gap-y-3">

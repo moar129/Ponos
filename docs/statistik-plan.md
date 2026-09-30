@@ -18,7 +18,12 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
   rolle-låste rum) og PostgREST's loft på 1000 rækker.
 - Periode: klienten sender lokal midnat som ISO-tidspunkt, `p_end` eksklusiv (dagen efter),
   og browserens tidszone (bruges til bucket-grænser). null/null = "Alt".
-- Granularitet (`useStatisticsPeriod`): 1 dag → time, ≤31 → dag, ≤91 → uge, ellers måned.
+- Perioder følger kalenderen (`useStatisticsPeriod`): Dag = i dag, Uge = mandag–i dag, Måned = 1.–i dag, År = 1. jan–i dag,
+  Kvartal = valgt kalenderkvartal (dropdown Q1–Q4 + år, 10 år bagud; igangværende kun til i dag; ikke-begyndte kan ikke vælges),
+  Alt, Brugerdefineret. Standard: Måned. Adressen: `?periode=dag|uge|maaned|aar|kvartal|alt|egen`, kvartal med `&kvartal=3&aar=2025`
+  (`aar` udeladt = i år); ukendte værdier (fx gamle `7d`) → standard. KPI-trend sammenligner stadig med samme antal dage lige
+  før (server) – kortet viser den faktiske forrige periode.
+- Granularitet: 1 dag → time, ≤31 → dag, ≤92 → uge (et kvartal har op til 92 dage), ellers måned.
 - Snapshots (US-52/54): `save_statistics_snapshot` gemmer payloaden fladt i `statistics_values`
   som `tasks_created`, `task_status:Completed`, `room:<navn>` … Navne fryses. Ingen
   update-policy, så snapshots er uændrelige. Sletning kræver `delete_statistics`.
@@ -107,6 +112,7 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 | Opsummering (tekst-indsigt) | Færdig + verificeret i browser 2026-09-30 (frontend, `utils/statisticsInsights.ts`) |
 | Kategori-filter | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §15.26a/b |
 | Tab/skader, udmeldte, opgave-statushistorik, delbart link, tabel under opgaveudvikling | Kørt + verificeret mod FACIT 2026-09-30, i `dbSchema.sql` §9c/§9d/§15.21e/f/§15.26/§16.6e/f |
+| Kalender-perioder (Uge/Måned/År/Kvartal-dropdown) | Færdig 2026-09-30 (frontend, FACIT regenereret) – ⏳ browser-test |
 | Browser-verifikation mod FACIT | Admin, "Alt" + snapshot: OK 2026-09-29. Medlemmer = 23 (FACIT 22) pga. ét ekstra, ikke-seedet medlem med 0 opgaver – ikke en fejl. Mangler: øvrige perioder, ikke-admin, dark mode, responsive |
 
 ## Verifikation
@@ -115,7 +121,7 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
   skal matche FACIT: status 10/11/49, prioritet 7/19/29/15, requests 5/28/6 (82,4 %),
   members 22, aktive 18, 837 enhedsrækker, månedstabellen.
 - Browser: hver periodeknap skal matche tabellen "Statistiksiden pr. periode" i FACIT.md.
-  91 dage = uge-buckets, dage uden aktivitet vises som 0.
+  Kvartal = uge-buckets, År = måned-buckets, dage uden aktivitet vises som 0.
 - Log ind som `sofie.andersen@ponos-mock.test` (kun `read_statistics`): samme tal som admin.
 - Log ind som en frivillig: intet Statistik-link, siden viser "ingen adgang", RPC afvist (42501).
 - Tom org: ingen NaN/undefined, empty states. Org-skift på siden: tallene skifter uden F5.
@@ -145,7 +151,7 @@ bygget af Rasmus (Studerende 3) på branch `Statistic`; overtaget af Jens 2026-0
 Test i **lys og mørk** på **mobil (~375 px), laptop (~1366 px), 1920 og 2560**:
 
 - **Header/faner**: "Overblik | Gem og sammenlign" scroller vandret på mobil uden at knække tekst; aktiv fane har accent-streg.
-- **Periodekort**: knapperne ombrydes pænt; rum- og kategori-dropdown under en tynd linje (side om side, ombrydes på mobil); valgt knap læsbar i begge temaer.
+- **Periodekort**: knapperne ombrydes pænt; Kvartal-knap + 2 dropdowns holdes samlet (dæmpet når kvartal ikke er valgt, Q4 i år kan ikke vælges); rum- og kategori-dropdown under en tynd linje (side om side, ombrydes på mobil); valgt knap læsbar i begge temaer.
 - **Opsummering**: øverst under periodekortet; ikon + tekst pr. sætning (rød/grøn/grå), skelet under indlæsning;
   "Ingen markante ændringer" når intet rammer en tærskel; lange sætninger ombrydes pænt på mobil.
 - **Lige nu**: 4 felter – 1 pr. række mobil, 2+2 fra md, 4 fra xl; ikon + tal + tekst; rød ved kritiske/høje

@@ -8,8 +8,18 @@ import type { ETaskPriority, ETaskStatus } from '../Task/Task'
 /** Tabs on /statistik (?tab=). Labels live in statistics:tabs.<tab>. */
 export type StatisticsTab = 'overblik' | 'snapshots'
 
-/** Period picker options. Labels live in statistics:period.<type>. */
+/**
+ * Period picker options. Labels live in statistics:period.<type>. All follow
+ * the calendar: week/month/year = current one up to today, quarter = a chosen
+ * calendar quarter (StatisticsQuarter).
+ */
 export type StatisticsPeriodType = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'max' | 'custom'
+
+/** A calendar quarter, e.g. { quarter: 3, year: 2026 } = 1 Jul - 30 Sep 2026. */
+export interface StatisticsQuarter {
+    quarter: number
+    year: number
+}
 
 /** Postgres date_trunc unit used for the time series buckets. */
 export type StatisticsGranularity = 'hour' | 'day' | 'week' | 'month'

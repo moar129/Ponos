@@ -161,77 +161,77 @@ Linkede materialer: #48 (30 Byggehegn 3,5 m); #49 (4 LED-spot 200 W); #52 (250 A
 ## Statistiksiden pr. periode (get_statistics)
 
 Samme definitioner som `statistics_payload` (docs/dbSchema.sql §15.26):
-rullende perioder der slutter 29/9 inkl. (Europe/Copenhagen). Status, prioritet, rum og
+kalenderperioder til og med 29/9 (uge fra mandag 28/9, måned fra 1/9, år fra 1/1; kvartaler hele, Q3 til 29/9; Europe/Copenhagen). Status, prioritet, rum og
 mest brugte = opgaver **oprettet** i perioden. *I gang* = `coalesce(start_date, created_at)`
 før periodens slut og (InProgress eller Completed med `finished_at` ≥ start). *Relevante*
 (teamaktivitet/belastning) = oprettet eller i gang i perioden. Godkendelser tæller
 anmodninger efter `requested_at`. Medlemmer = 22 (inkl. dig) i alle perioder.
 
-| Udsagn | Dag | 7 dage | 30 dage | 91 dage | 365 dage | Alt |
-|---|---|---|---|---|---|---|
-| Oprettede | 3 | 7 | 16 | 27 | 46 | 70 |
-| Færdige | 1 | 2 | 5 | 12 | 28 | 49 |
-| Færdige til tiden | 100 % (1 af 1) | 50 % (1 af 2) | 60 % (3 af 5) | 66.7 % (8 af 12) | 82.1 % (23 af 28) | 87.8 % (43 af 49) |
-| Median gennemløbstid (dage) | 6.1 | 14.2 | 16.3 | 17.9 | 30.8 | 37.1 |
-| I gang | 12 | 13 | 16 | 23 | 39 | 60 |
-| Forfaldne | 0 | 1 | 5 | 5 | 7 | 8 |
-| Med opgaveaktivitet | 13 | 14 | 16 | 18 | 18 | 18 |
-| Nye medlemmer (mock) | 0 | 0 | 1 | 1 | 2 | 21 |
-| Udmeldte | 0 | 0 | 1 | 1 | 2 | 5 |
-| Ventetid før start (median dage) | 5 | 5 | 7 | 6.4 | 12.9 | 13 |
-| Tid i gang (median dage) | 1.1 | 9.2 | 9.3 | 9.8 | 13.9 | 17.3 |
-| Tab og skader (Mangler + Beskadiget) | 0 | 0 | 0 | 17 | 17 | 45 |
-|   heraf Mangler / Beskadiget | 0 / 0 | 0 / 0 | 0 / 0 | 6 / 11 | 6 / 11 | 16 / 29 |
-| Forbrugt (Brugt op) | 0 | 0 | 0 | 0 | 0 | 0 |
-| Tab og skader: Scene & Teknik | 0 | 0 | 0 | 5 | 5 | 14 |
-| Tab og skader: Hegn & Afspærring | 0 | 0 | 0 | 3 | 3 | 5 |
-| Tab og skader: Telte & Møbler | 0 | 0 | 0 | 0 | 0 | 4 |
-| Tab og skader: Sanitet | 0 | 0 | 0 | 0 | 0 | 1 |
-| Tab og skader: Affald & Genbrug | 0 | 0 | 0 | 1 | 1 | 1 |
-| Tab og skader: Sikkerhed | 0 | 0 | 0 | 1 | 1 | 12 |
-| Tab og skader: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 |
-| Tab og skader: Frivilligudstyr | 0 | 0 | 0 | 7 | 7 | 8 |
-| Status: Started | 3 | 6 | 8 | 9 | 10 | 10 |
-| Status: InProgress | 0 | 0 | 6 | 9 | 9 | 11 |
-| Status: Completed | 0 | 1 | 2 | 9 | 27 | 49 |
-| Prioritet: Critical | 0 | 0 | 1 | 1 | 4 | 7 |
-| Prioritet: High | 0 | 1 | 4 | 5 | 11 | 19 |
-| Prioritet: Medium | 2 | 3 | 7 | 14 | 20 | 29 |
-| Prioritet: Low | 1 | 3 | 4 | 7 | 11 | 15 |
-| Rum: Planlægning | 0 | 2 | 4 | 4 | 7 | 12 |
-| Rum: Opbygning | 0 | 1 | 1 | 1 | 4 | 7 |
-| Rum: Scener & Teknik | 1 | 1 | 3 | 4 | 8 | 11 |
-| Rum: Affald & Genbrug | 1 | 1 | 2 | 4 | 6 | 8 |
-| Rum: Sanitet | 1 | 1 | 2 | 2 | 3 | 5 |
-| Rum: Sikkerhed | 0 | 1 | 2 | 3 | 5 | 8 |
-| Rum: Frivillige | 0 | 0 | 1 | 2 | 5 | 7 |
-| Rum: Nedtagning | 0 | 0 | 1 | 7 | 8 | 12 |
-| Belastning 0 | 9 | 8 | 6 | 4 | 4 | 4 |
-| Belastning 1-3 | 13 | 14 | 16 | 15 | 6 | 1 |
-| Belastning 4-6 | 0 | 0 | 0 | 3 | 11 | 8 |
-| Belastning 7+ | 0 | 0 | 0 | 0 | 1 | 9 |
-| Anmodninger: Pending | 0 | 4 | 5 | 5 | 5 | 5 |
-| Anmodninger: Accepted | 0 | 1 | 2 | 6 | 16 | 28 |
-| Anmodninger: Rejected | 0 | 1 | 3 | 4 | 6 | 6 |
-| Godkendelsesrate | – | 50 % | 40 % | 60 % | 72.7 % | 82.4 % |
-| Median behandlingstid (t) | – | 2.5 | 3 | 3 | 3 | 3 |
-| Brugte varer: Scene & Teknik | 2 | 2 | 2 | 3 | 3 | 3 |
-| Brugte varer: Hegn & Afspærring | 0 | 0 | 0 | 1 | 1 | 1 |
-| Brugte varer: Telte & Møbler | 0 | 0 | 1 | 1 | 1 | 1 |
-| Brugte varer: Sanitet | 0 | 0 | 0 | 0 | 0 | 0 |
-| Brugte varer: Affald & Genbrug | 0 | 0 | 1 | 1 | 1 | 1 |
-| Brugte varer: Sikkerhed | 0 | 0 | 2 | 2 | 2 | 2 |
-| Brugte varer: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 |
-| Brugte varer: Frivilligudstyr | 0 | 0 | 0 | 0 | 0 | 0 |
-| Enheder ved periodens slut: Available | 736 | 736 | 736 | 736 | 736 | 736 |
-| Enheder ved periodens slut: Damaged | 29 | 29 | 29 | 29 | 29 | 29 |
-| Enheder ved periodens slut: InUse | 25 | 25 | 25 | 25 | 25 | 25 |
-| Enheder ved periodens slut: Maintenance | 21 | 21 | 21 | 21 | 21 | 21 |
-| Enheder ved periodens slut: Missing | 16 | 16 | 16 | 16 | 16 | 16 |
-| Enheder ved periodens slut: NeedsEmptying | 3 | 3 | 3 | 3 | 3 | 3 |
-| Enheder ved periodens slut: NeedsRefilling | 3 | 3 | 3 | 3 | 3 | 3 |
-| Enheder ved periodens slut: OutOfStock | 1 | 1 | 1 | 1 | 1 | 1 |
-| Enheder ved periodens slut: Reserved | 3 | 3 | 3 | 3 | 3 | 3 |
+| Udsagn | Dag | Uge | Måned | År | Q1 2026 | Q2 2026 | Q3 2026 | Alt |
+|---|---|---|---|---|---|---|---|---|
+| Oprettede | 3 | 4 | 15 | 42 | 5 | 10 | 27 | 70 |
+| Færdige | 1 | 1 | 5 | 26 | 4 | 10 | 12 | 49 |
+| Færdige til tiden | 100 % (1 af 1) | 100 % (1 af 1) | 60 % (3 af 5) | 80.8 % (21 af 26) | 100 % (4 af 4) | 90 % (9 af 10) | 66.7 % (8 af 12) | 87.8 % (43 af 49) |
+| Median gennemløbstid (dage) | 6.1 | 6.1 | 16.3 | 30.1 | 91.1 | 53.7 | 17.9 | 37.1 |
+| I gang | 12 | 12 | 16 | 37 | 7 | 14 | 23 | 60 |
+| Forfaldne | 0 | 0 | 5 | 6 | 0 | 1 | 5 | 8 |
+| Med opgaveaktivitet | 13 | 13 | 16 | 18 | 10 | 14 | 18 | 18 |
+| Nye medlemmer (mock) | 0 | 0 | 1 | 2 | 0 | 1 | 1 | 21 |
+| Udmeldte | 0 | 0 | 1 | 2 | 1 | 0 | 1 | 5 |
+| Ventetid før start (median dage) | 5 | 5 | 7 | 12.9 | 17.5 | 35.9 | 6.4 | 13 |
+| Tid i gang (median dage) | 1.1 | 1.1 | 9.3 | 10.4 | 63.6 | 10.4 | 9.8 | 17.3 |
+| Tab og skader (Mangler + Beskadiget) | 0 | 0 | 0 | 17 | 0 | 0 | 17 | 45 |
+|   heraf Mangler / Beskadiget | 0 / 0 | 0 / 0 | 0 / 0 | 6 / 11 | 0 / 0 | 0 / 0 | 6 / 11 | 16 / 29 |
+| Forbrugt (Brugt op) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Tab og skader: Scene & Teknik | 0 | 0 | 0 | 5 | 0 | 0 | 5 | 14 |
+| Tab og skader: Hegn & Afspærring | 0 | 0 | 0 | 3 | 0 | 0 | 3 | 5 |
+| Tab og skader: Telte & Møbler | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+| Tab og skader: Sanitet | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| Tab og skader: Affald & Genbrug | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 |
+| Tab og skader: Sikkerhed | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 12 |
+| Tab og skader: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Tab og skader: Frivilligudstyr | 0 | 0 | 0 | 7 | 0 | 0 | 7 | 8 |
+| Status: Started | 3 | 4 | 8 | 10 | 1 | 0 | 9 | 10 |
+| Status: InProgress | 0 | 0 | 5 | 9 | 0 | 0 | 9 | 11 |
+| Status: Completed | 0 | 0 | 2 | 23 | 4 | 10 | 9 | 49 |
+| Prioritet: Critical | 0 | 0 | 1 | 3 | 0 | 2 | 1 | 7 |
+| Prioritet: High | 0 | 1 | 4 | 10 | 1 | 4 | 5 | 19 |
+| Prioritet: Medium | 2 | 2 | 6 | 19 | 2 | 3 | 14 | 29 |
+| Prioritet: Low | 1 | 1 | 4 | 10 | 2 | 1 | 7 | 15 |
+| Rum: Planlægning | 0 | 0 | 3 | 6 | 2 | 0 | 4 | 12 |
+| Rum: Opbygning | 0 | 0 | 1 | 4 | 1 | 2 | 1 | 7 |
+| Rum: Scener & Teknik | 1 | 1 | 3 | 7 | 1 | 2 | 4 | 11 |
+| Rum: Affald & Genbrug | 1 | 1 | 2 | 6 | 0 | 2 | 4 | 8 |
+| Rum: Sanitet | 1 | 1 | 2 | 3 | 0 | 1 | 2 | 5 |
+| Rum: Sikkerhed | 0 | 1 | 2 | 4 | 0 | 1 | 3 | 8 |
+| Rum: Frivillige | 0 | 0 | 1 | 4 | 1 | 1 | 2 | 7 |
+| Rum: Nedtagning | 0 | 0 | 1 | 8 | 0 | 1 | 7 | 12 |
+| Belastning 0 | 9 | 9 | 6 | 4 | 12 | 8 | 4 | 4 |
+| Belastning 1-3 | 13 | 13 | 16 | 6 | 10 | 12 | 15 | 1 |
+| Belastning 4-6 | 0 | 0 | 0 | 11 | 0 | 2 | 3 | 8 |
+| Belastning 7+ | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 9 |
+| Anmodninger: Pending | 0 | 2 | 5 | 5 | 0 | 0 | 5 | 5 |
+| Anmodninger: Accepted | 0 | 0 | 2 | 14 | 2 | 6 | 6 | 28 |
+| Anmodninger: Rejected | 0 | 1 | 3 | 5 | 0 | 1 | 4 | 6 |
+| Godkendelsesrate | – | 0 % | 40 % | 73.7 % | 100 % | 85.7 % | 60 % | 82.4 % |
+| Median behandlingstid (t) | – | 2 | 3 | 3 | 3 | 3 | 3 | 3 |
+| Brugte varer: Scene & Teknik | 2 | 2 | 2 | 3 | 0 | 0 | 3 | 3 |
+| Brugte varer: Hegn & Afspærring | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 |
+| Brugte varer: Telte & Møbler | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+| Brugte varer: Sanitet | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Brugte varer: Affald & Genbrug | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+| Brugte varer: Sikkerhed | 0 | 0 | 2 | 2 | 0 | 0 | 2 | 2 |
+| Brugte varer: Forbrugsvarer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Brugte varer: Frivilligudstyr | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Enheder ved periodens slut: Available | 736 | 736 | 736 | 736 | 679 | 760 | 736 | 736 |
+| Enheder ved periodens slut: Damaged | 29 | 29 | 29 | 29 | 18 | 18 | 29 | 29 |
+| Enheder ved periodens slut: InUse | 25 | 25 | 25 | 25 | 4 | 4 | 25 | 25 |
+| Enheder ved periodens slut: Maintenance | 21 | 21 | 21 | 21 | 16 | 20 | 21 | 21 |
+| Enheder ved periodens slut: Missing | 16 | 16 | 16 | 16 | 10 | 10 | 16 | 16 |
+| Enheder ved periodens slut: NeedsEmptying | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| Enheder ved periodens slut: NeedsRefilling | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| Enheder ved periodens slut: OutOfStock | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| Enheder ved periodens slut: Reserved | 3 | 3 | 3 | 3 | 0 | 0 | 3 | 3 |
 
 Enheder ved periodens slut = status på `min(periodens slut, nu)` fra lagerhistorikken. Rullende perioder
 slutter i dag, så de er ens her. Til snapshot-test af et afsluttet år (seed-fortid efter 06's historik-fixup):
@@ -263,15 +263,15 @@ Enheder pr. lager ("Enheder pr. lokation", sektioner talt med i deres lager; sam
 | Medic-telt | 22 | 13 | 13 |
 | Sikkerhedscentral | 244 | 3 | 158 |
 
-KPI-trend (nu / forrige periode af samme længde, fx 7 dage = 23/9–29/9 mod 16/9–22/9). Farver: Færdige ↑ grøn /
+KPI-trend (nu / forrige periode af samme længde, fx Uge = 28/9–29/9 mod 26/9–27/9, Måned = 1/9–29/9 mod 3/8–31/8). Farver: Færdige ↑ grøn /
 ↓ rød, Forfaldne ↓ grøn / ↑ rød, øvrige neutrale. Forrige = 0 → absolut tal i stedet for %. Forventet på siden:
-7 dage: Oprettede ↑ 250 %, Færdige ↑ 100 % (grøn), Forfaldne ↓ 67 % (grøn), Til tiden ↑ 50 pp (grøn),
-Gennemløbstid ↓ 30 % (grøn). 30 dage: Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn).
+Uge: Oprettede ↑ 300 %, Færdige ↑ 1 (grøn), Forfaldne uændret, ingen trend på Til tiden/Gennemløbstid (forrige tom).
+Måned: Oprettede ↑ 88 %, Færdige ↑ 150 % (grøn), Forfaldne ↑ 5 (rød), Til tiden ↑ 10 pp (grøn), Gennemløbstid ↓ 46 % (grøn).
 
 | Periode | Oprettede | Færdige | Forfaldne | Til tiden | Gennemløbstid (dage) | Nye medlemmer | Udmeldte | Tab og skader |
 |---|---|---|---|---|---|---|---|---|
-| 7 dage | 7 / 2 | 2 / 1 | 1 / 3 | 50 % / 0 % | 14.2 / 20.2 | 0 / 0 | 0 / 1 | 0 / 0 |
-| 30 dage | 16 / 7 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 | 1 / 0 | 1 / 0 | 0 / 0 |
+| Uge | 4 / 1 | 1 / 0 | 0 / 0 | 100 % / – | 6.1 / – | 0 / 0 | 0 / 0 | 0 / 0 |
+| Måned | 15 / 8 | 5 / 2 | 5 / 0 | 60 % / 50 % | 16.3 / 30.1 | 1 / 0 | 1 / 0 | 0 / 0 |
 
 Til tiden = færdige med `finished_at <= end_date` blandt færdige i perioden med slutdato (kl. 00:00 UTC = hele
 dagen). Gennemløbstid = median `finished_at − created_at` for færdige i perioden. Trend: Til tiden i procentpoint
@@ -289,10 +289,12 @@ side (fx "30,1 dage" dér, "30.1" her).
 
 | Periode | Forventede sætninger |
 |---|---|
-| 7 dage | Der blev oprettet 7 opgaver, men kun 2 blev færdige – backloggen vokser.<br>Forfaldne opgaver faldt fra 3 til 1.<br>Andelen færdige til tiden steg fra 0 % til 50 %. |
-| 30 dage | Forfaldne opgaver steg fra 0 til 5.<br>Flest forfaldne opgaver i Nedtagning (2).<br>Der blev oprettet 16 opgaver, men kun 5 blev færdige – backloggen vokser. |
-| 91 dage | Forfaldne opgaver steg fra 1 til 5.<br>Andelen færdige til tiden faldt fra 90 % til 67 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
-| 365 dage | Forfaldne opgaver steg fra 1 til 7.<br>Andelen færdige til tiden faldt fra 95 % til 82 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
+| Uge | Ingen markante ændringer i perioden. |
+| Måned | Forfaldne opgaver steg fra 0 til 5.<br>Flest forfaldne opgaver i Nedtagning (2).<br>Der blev oprettet 15 opgaver, men kun 5 blev færdige – backloggen vokser. |
+| År | Forfaldne opgaver steg fra 2 til 6.<br>Andelen færdige til tiden faldt fra 94 % til 81 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
+| Q1 2026 | Gennemløbstiden steg fra 54.6 til 91.1 dage.<br>Flere meldte sig ud end ind (netto −1). |
+| Q2 2026 | Andelen færdige til tiden faldt fra 100 % til 90 %.<br>Gennemløbstiden faldt fra 91.1 til 53.7 dage. |
+| Q3 2026 | Forfaldne opgaver steg fra 1 til 5.<br>Andelen færdige til tiden faldt fra 90 % til 67 %.<br>Flest forfaldne opgaver i Nedtagning (2). |
 | Alt | Flest forfaldne opgaver i Nedtagning (3).<br>Lavest andel til tiden i Nedtagning: 63 % (5 af 8). |
 
 ### Kategori-filter (stikprøve: Scene & Teknik, "Alt")
@@ -344,10 +346,12 @@ Mest brugte materialer (top 5):
 | Periode | Materialer |
 |---|---|
 | Dag | 10 Stikdåse 6-vejs IP44, 2 Kabeltromle 25 m |
-| 7 dage | 10 Stikdåse 6-vejs IP44, 2 Kabeltromle 25 m |
-| 30 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio, 6 Brandslukker 6 kg pulver |
-| 91 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
-| 365 dage | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
+| Uge | 10 Stikdåse 6-vejs IP44, 2 Kabeltromle 25 m |
+| Måned | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio, 6 Brandslukker 6 kg pulver |
+| År | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
+| Q1 2026 | – |
+| Q2 2026 | – |
+| Q3 2026 | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
 | Alt | 250 Affaldssække 120 l, 40 Scenegulv-element 2x1 m, 30 Byggehegn 3,5 m, 10 Stikdåse 6-vejs IP44, 8 Håndradio |
 
 Varer pr. hovedkategori (nu, uafhængig af periode):
@@ -379,7 +383,7 @@ select status, count(*), sum(case when contents_total is not null then 1 else qu
 select to_char(created_at at time zone 'Europe/Copenhagen', 'YYYY-MM') m, count(*)
   from tasks where organisation_id = '<org>' group by 1 order by 1;
 
--- Hele statistik-payloaden som siden ser den (fx "30 dage"):
-select public.statistics_payload('<org>', '2026-08-31 00:00 Europe/Copenhagen',
+-- Hele statistik-payloaden som siden ser den (fx "Måned"):
+select public.statistics_payload('<org>', '2026-09-01 00:00 Europe/Copenhagen',
   '2026-09-30 00:00 Europe/Copenhagen', 'day', 'Europe/Copenhagen');
 ```

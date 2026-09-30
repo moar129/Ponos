@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { STATISTICS_YEARS_BACK } from '../../store/hooks/useStatisticsPeriod'
 import { defaultSnapshotGranularity, snapshotPeriodRange } from '../../utils/statisticsSnapshot'
 import type {
     SnapshotGranularity,
@@ -11,7 +12,6 @@ import type { SaveSnapshotModalProps } from '../../types/statistics/statisticsCo
 
 const GRANULARITIES: SnapshotGranularity[] = ['week', 'month', 'quarter']
 const PERIOD_TYPES: SnapshotPeriodType[] = ['year', 'quarter', 'month', 'custom', 'view']
-const YEARS_BACK = 10
 
 const SELECT =
     'rounded-md border border-border-gray bg-white px-2 py-1 text-sm text-primary outline-none focus:border-accent disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-white'
@@ -49,7 +49,7 @@ export function SaveSnapshotModal({
 
     const range = snapshotPeriodRange(choice, viewPeriod, locale)
     const granularity = chosenGranularity ?? defaultSnapshotGranularity(range?.days ?? null)
-    const years = Array.from({ length: YEARS_BACK }, (_, index) => now.getFullYear() - index)
+    const years = Array.from({ length: STATISTICS_YEARS_BACK }, (_, index) => now.getFullYear() - index)
     const monthName = new Intl.DateTimeFormat(locale, { month: 'long' })
     const update = (patch: Partial<SnapshotPeriodChoice>) => setChoice((current) => ({ ...current, ...patch }))
 

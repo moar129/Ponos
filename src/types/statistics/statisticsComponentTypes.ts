@@ -9,6 +9,7 @@ import type {
     StatisticsAttention,
     StatisticsGranularity,
     StatisticsPeriodType,
+    StatisticsQuarter,
     StatisticsSnapshot,
     TaskDevelopmentPoint,
     TaskRoomCount,
@@ -123,7 +124,12 @@ export interface ApprovalChartProps {
 
 export interface StatisticsPeriodPickerProps {
     periodType: StatisticsPeriodType
-    onChangePeriod: (type: Exclude<StatisticsPeriodType, 'custom'>) => void
+    /** The selected quarter; null unless periodType is 'quarter'. */
+    quarter: StatisticsQuarter | null
+    /** Start of today (local) - quarters after it cannot be chosen. */
+    today: Date
+    onChangePeriod: (type: Exclude<StatisticsPeriodType, 'quarter' | 'custom'>) => void
+    onChangeQuarter: (quarter: StatisticsQuarter) => void
     onOpenCustom: () => void
     /** Extra filters shown under the period buttons (the room filter). */
     children?: ReactNode
