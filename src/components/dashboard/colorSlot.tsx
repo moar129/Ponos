@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ColorSlotProps, ModePreviewProps, SavedColorsPaletteProps } from '../../types/dashboard/dashboardType'
 
 function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove }: SavedColorsPaletteProps) {
-    const { t } = useTranslation('organisation')
+    const { t } = useTranslation(['organisation', 'common'])
     const alreadySaved = savedColors.some((c) => c.toUpperCase() === activeColor.toUpperCase())
+    const [colorToRemove, setColorToRemove] = useState<string | null>(null)
+
+    function confirmRemove() {
+        if (colorToRemove) onRemove(colorToRemove)
+        setColorToRemove(null)
+    }
 
     return (
         <div>
@@ -38,7 +45,7 @@ function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove
                             />
                             <button
                                 type="button"
-                                onClick={() => onRemove(c)}
+                                onClick={() => setColorToRemove(c)}
                                 aria-label={t('admin.removeSavedColor')}
                                 className="absolute -top-1.5 -right-1.5 flex lg:hidden lg:group-hover:flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-white text-[10px] leading-none"
                             >
@@ -46,6 +53,50 @@ function SavedColorsPalette({ savedColors, activeColor, onPick, onSave, onRemove
                             </button>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {colorToRemove && (
+                <div
+                    className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setColorToRemove(null)}
+                >
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        className="w-full max-w-sm rounded-2xl border border-border-gray bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h2 className="mb-3 text-lg font-semibold text-primary dark:text-slate-100">
+                            {t('admin.removeSavedColor')}
+                        </h2>
+                        <div className="mb-4 flex items-center gap-3">
+                            <span
+                                className="w-8 h-8 shrink-0 rounded-full border border-border-gray dark:border-slate-600"
+                                style={{ backgroundColor: colorToRemove }}
+                            />
+                            <p className="text-sm text-secondary dark:text-slate-400">
+                                {t('admin.removeSavedColorConfirm', colorToRemove.toUpperCase())}
+                            </p>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setColorToRemove(null)}
+                                autoFocus
+                                className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                            >
+                                {t('common:cancel')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmRemove}
+                                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors dark:bg-red-700 dark:hover:bg-red-600"
+                            >
+                                {t('admin.removeSavedColor')}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
