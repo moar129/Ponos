@@ -7,6 +7,8 @@ import type {
     StatisticsValue,
     StatisticsValueGroup,
 } from '../types/statistics/statisticsTypes'
+import { addDays, DAY_MS, lastIncludedDay, parseDateKey, quarterOf, startOfQuarter, startOfWeek } from './calendar'
+import { formatDecimal, formatMediumDate, formatNumericDayMonth, formatPercent } from './formatDate'
 
 // Time series rows (development:*) have their own section, see buildDevelopmentComparison.
 export type SnapshotRowGroup = 'kpis' | Exclude<StatisticsValueGroup, 'development'>
@@ -72,8 +74,7 @@ export function valueLabel(t: unknown, group: SnapshotRowGroup, key: string): st
 /** Snapshot name: its label, otherwise its period (period_end is exclusive). */
 export function snapshotName(snapshot: StatisticsSnapshot, locale: string): string {
     if (snapshot.label) return snapshot.label
-    const format = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' })
-    return `${format.format(new Date(snapshot.periodStart))} – ${format.format(new Date(Date.parse(snapshot.periodEnd) - 1))}`
+    return `${formatMediumDate(snapshot.periodStart, locale)} – ${formatMediumDate(lastIncludedDay(snapshot.periodEnd), locale)}`
 }
 
 // ---------------------------------------------------------------------
@@ -84,7 +85,6 @@ export function snapshotName(snapshot: StatisticsSnapshot, locale: string): stri
 export const DEVELOPMENT_METRICS = ['created', 'completed'] as const
 export type DevelopmentMetric = (typeof DEVELOPMENT_METRICS)[number]
 
-const DAY_MS = 24 * 60 * 60 * 1000
 
 /** Default resolution for a new snapshot, from the period length in days (null = "Alt"). */
 export function defaultSnapshotGranularity(days: number | null): SnapshotGranularity {
@@ -111,11 +111,8 @@ function guessGranularity(value: StatisticsValue): SnapshotGranularity {
 
 /** Start of the full calendar sub-period containing `date` (local time). */
 function bucketStart(date: Date, granularity: SnapshotGranularity): Date {
-    if (granularity === 'week') {
-        const mondayOffset = (date.getDay() + 6) % 7
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate() - mondayOffset)
-    }
-    if (granularity === 'quarter') return new Date(date.getFullYear(), Math.floor(date.getMonth() / 3) * 3, 1)
+    if (granularity === 'week') return startOfWeek(date)
+    if (granularity === 'quarter') return startOfQuarter(date)
     return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
@@ -136,18 +133,18 @@ function isoWeek(date: Date): { year: number; week: number } {
 /** Position within the calendar year, e.g. month 7 -> "M07", Q3 -> "Q3", week 27 -> "W27". */
 function calendarKey(start: Date, granularity: SnapshotGranularity): string {
     if (granularity === 'week') return `W${String(isoWeek(start).week).padStart(2, '0')}`
-    if (granularity === 'quarter') return `Q${Math.floor(start.getMonth() / 3) + 1}`
+    if (granularity === 'quarter') return `Q${quarterOf(start)}`
     return `M${String(start.getMonth() + 1).padStart(2, '0')}`
 }
 
 function calendarLabel(start: Date, granularity: SnapshotGranularity, locale: string, weekLabel: (week: number) => string): string {
     if (granularity === 'week') return weekLabel(isoWeek(start).week)
-    if (granularity === 'quarter') return `Q${Math.floor(start.getMonth() / 3) + 1}`
+    if (granularity === 'quarter') return `Q${quarterOf(start)}`
     return new Intl.DateTimeFormat(locale, { month: 'long' }).format(start)
 }
 
 function dateLabel(start: Date, granularity: SnapshotGranularity, locale: string, weekLabel: (week: number) => string): string {
-    if (granularity === 'quarter') return `Q${Math.floor(start.getMonth() / 3) + 1} ${start.getFullYear()}`
+    if (granularity === 'quarter') return `Q${quarterOf(start)} ${start.getFullYear()}`
     if (granularity === 'month') return new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(start)
     // ISO week year, not calendar year: week 1 can start in late December.
     const { year, week } = isoWeek(start)
@@ -184,8 +181,6 @@ interface SeriesPoint {
 }
 
 function seriesPoints(snapshot: StatisticsSnapshot, locale: string): SeriesPoint[] {
-    const rangeFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'numeric' })
-
     return snapshot.values
         .filter(isSeriesValue)
         .map((value) => {
@@ -200,7 +195,7 @@ function seriesPoints(snapshot: StatisticsSnapshot, locale: string): SeriesPoint
                 value: value.value,
                 granularity,
                 bucket,
-                partialRange: partial ? `${rangeFormat.format(start)}–${rangeFormat.format(new Date(end.getTime() - 1))}` : null,
+                partialRange: partial ? `${formatNumericDayMonth(start, locale)}–${formatNumericDayMonth(new Date(end.getTime() - 1), locale)}` : null,
             }
         })
         .sort((a, b) => a.bucket.getTime() - b.bucket.getTime())
@@ -376,35 +371,21 @@ export function formatDelta(
     locale: string,
     pointsSuffix: string,
 ): string {
-    const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
+    const number = (n: number) => formatDecimal(n, 1, locale)
     const diff = value - baseline
     if (diff === 0) return '±0'
 
     const sign = diff > 0 ? '+' : '−'
-    const absolute = `${sign}${number.format(Math.abs(diff))}`
+    const absolute = `${sign}${number(Math.abs(diff))}`
 
     if (PERCENT_VALUES.has(name) || PERCENT_GROUPS.some((prefix) => name.startsWith(prefix))) return `${absolute} ${pointsSuffix}`
     if (baseline === 0) return absolute
-    return `${absolute} (${sign}${number.format(Math.abs((diff / baseline) * 100))} %)`
+    return `${absolute} (${sign}${formatPercent(Math.abs((diff / baseline) * 100), 1, locale)})`
 }
 
 // ---------------------------------------------------------------------
 // Period chosen in the save dialog (independent of the overview filter)
 // ---------------------------------------------------------------------
-
-/** Date -> 'YYYY-MM-DD' (local) for <input type="date">. */
-export function toDateInputValue(date: Date | null): string {
-    if (!date) return ''
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${date.getFullYear()}-${month}-${day}`
-}
-
-/** 'YYYY-MM-DD' -> local midnight. */
-export function fromDateInputValue(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number)
-    return new Date(year, month - 1, day)
-}
 
 export interface SnapshotPeriodRange {
     /** ISO instants; end exclusive. null = unbounded ("Alt" via "som visningen"). */
@@ -447,11 +428,11 @@ export function snapshotPeriodRange(
         }
         case 'custom': {
             if (!choice.from || !choice.to || choice.to < choice.from) return null
-            const from = fromDateInputValue(choice.from)
-            const to = fromDateInputValue(choice.to)
-            const short = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'numeric' })
-            const name = `${short.format(from)}–${short.format(to)} ${to.getFullYear()}`
-            return range(from, new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1), name)
+            const from = parseDateKey(choice.from)
+            const to = parseDateKey(choice.to)
+            if (!from || !to) return null
+            const name = `${formatNumericDayMonth(from, locale)}–${formatNumericDayMonth(to, locale)} ${to.getFullYear()}`
+            return range(from, addDays(to, 1), name)
         }
         case 'view':
             return { start: view.start, end: view.end, days: view.days, name: view.label }

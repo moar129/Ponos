@@ -7,7 +7,7 @@
 
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import { DEFAULT_LANGUAGE, isSupportedLanguage } from './languages'
+import { DEFAULT_LANGUAGE, getDocumentLanguage, isSupportedLanguage } from './languages'
 
 import daCommon from './locales/da/common.json'
 import daNav from './locales/da/nav.json'
@@ -74,38 +74,42 @@ const localeModules = import.meta.glob<{ default: Record<string, unknown> }>([
   '!./locales/da/*.json',
 ])
 
-// Sprog der allerede er lagt ind i i18next. Dansk er bundtet statisk.
-const loadedLanguages = new Set<string>([DEFAULT_LANGUAGE])
+// Indlæsning pr. sprog (igangværende eller færdig). Promiset gemmes, så
+// opstarten og useLanguage ikke henter samme sprog to gange samtidig.
+// Dansk er bundtet statisk.
+const languageLoads = new Map<string, Promise<void>>([[DEFAULT_LANGUAGE, Promise.resolve()]])
 
 /**
  * Henter og registrerer alle namespaces for ét sprog. Kaldes af
  * useLanguage før changeLanguage, så teksterne er på plads inden
  * komponenterne rendrer igen. Gentagne kald er gratis.
  */
-export async function loadLanguage(code: string): Promise<void> {
-  if (loadedLanguages.has(code) || !isSupportedLanguage(code)) return
+export function loadLanguage(code: string): Promise<void> {
+  if (!isSupportedLanguage(code)) return Promise.resolve()
 
-  await Promise.all(
-    NAMESPACES.map(async (ns) => {
-      const loader = localeModules[`./locales/${code}/${ns}.json`]
-      if (!loader) return
-      const module = await loader()
-      i18n.addResourceBundle(code, ns, module.default, true, true)
-    }),
-  )
-
-  loadedLanguages.add(code)
+  let load = languageLoads.get(code)
+  if (!load) {
+    load = Promise.all(
+      NAMESPACES.map(async (ns) => {
+        const loader = localeModules[`./locales/${code}/${ns}.json`]
+        if (!loader) return
+        const module = await loader()
+        i18n.addResourceBundle(code, ns, module.default, true, true)
+      }),
+    ).then(
+      () => undefined,
+      (err: unknown) => {
+        // En fejlet hentning (fx offline) må gerne prøves igen senere.
+        languageLoads.delete(code)
+        throw err
+      },
+    )
+    languageLoads.set(code, load)
+  }
+  return load
 }
 
-// Pre-hydration-scriptet i index.html har allerede afgjort sproget og
-// skrevet det på <html lang>, så vi læser det derfra i stedet for at
-// gentage localStorage/navigator-logikken her.
-function getInitialLanguage(): string {
-  const fromDocument = document.documentElement.lang
-  return isSupportedLanguage(fromDocument) ? fromDocument : DEFAULT_LANGUAGE
-}
-
-const initialLanguage = getInitialLanguage()
+const initialLanguage = getDocumentLanguage()
 
 i18n.use(initReactI18next).init({
   lng: initialLanguage,
@@ -137,7 +141,7 @@ export default i18n
 // returneret. asDynamic løsner typningen præcis dér, uden at svække den
 // alle andre steder. i18next returnerer selv nøglen uændret, hvis den
 // ikke findes.
-export type DynamicTFunction = (key: string) => string
+export type DynamicTFunction = (key: string, options?: Record<string, unknown>) => string
 
 export function asDynamic(t: unknown): DynamicTFunction {
   return t as DynamicTFunction

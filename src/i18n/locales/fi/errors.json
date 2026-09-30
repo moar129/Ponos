@@ -1,13 +1,7 @@
 {
   "generic": "Jokin meni pieleen. Yritä uudelleen.",
-  "notLoggedIn": "Et ole kirjautunut sisään.",
   "loginRequired": "Sinun on oltava kirjautuneena sisään.",
-  "loginRequiredForAction": "Sinun on oltava kirjautuneena sisään tehdäksesi tämän toiminnon.",
-  "loginRequiredForMembership": "Sinun on oltava kirjautuneena sisään hakeaksesi jäsenyyttä.",
-  "loginRequiredForProfile": "Sinun on oltava kirjautuneena sisään muokataksesi profiiliasi.",
-  "loginRequiredForOrganisation": "Sinun on oltava kirjautuneena sisään muokataksesi organisaatiota.",
   "noOrganisation": "Et ole minkään organisaation jäsen.",
-  "organisationLookupFailed": "Organisaatioyhteyttäsi ei voitu ladata.",
   "wrongCurrentPassword": "Nykyinen salasanasi on väärä.",
   "passwordChangeFailed": "Salasanaa ei voitu vaihtaa. Yritä uudelleen.",
   "requestAlreadyHandled": "Hakemusta ei voitu käsitellä. Se on ehkä jo käsitelty, tai sinulla ei ole oikeuksia.",

@@ -8,7 +8,6 @@
   "create": "Létrehozás",
   "search": "Keresés",
   "loading": "Betöltés...",
-  "genericError": "Valami hiba történt. Próbálja újra.",
   "language": {
     "label": "Nyelv",
     "choose": "Nyelv kiválasztása",
@@ -26,7 +25,6 @@
   "title": "Cím",
   "description": "Leírás",
   "status": "Állapot",
-  "selected": "kiválasztva",
   "cannotUndo": "Ez a művelet nem vonható vissza.",
   "reset": "Visszaállítás",
   "closeDialog": "Párbeszédablak bezárása",
@@ -41,9 +39,7 @@
   "sending": "Küldés...",
   "processing": "Feldolgozás...",
   "updating": "Frissítés...",
-  "creating": "Létrehozás...",
   "yes": "Igen",
-  "send": "Küldés",
   "numberInput": {
     "required": "Adjon meg egy számot.",
     "invalid": "Érvénytelen szám.",

@@ -1,13 +1,7 @@
 {
   "generic": "Valami hiba történt. Próbálja újra.",
-  "notLoggedIn": "Nincs bejelentkezve.",
   "loginRequired": "Be kell jelentkeznie.",
-  "loginRequiredForAction": "Be kell jelentkeznie a művelet végrehajtásához.",
-  "loginRequiredForMembership": "Be kell jelentkeznie a tagság igényléséhez.",
-  "loginRequiredForProfile": "Be kell jelentkeznie a profilja szerkesztéséhez.",
-  "loginRequiredForOrganisation": "Be kell jelentkeznie a szervezet szerkesztéséhez.",
   "noOrganisation": "Nem tagja egyetlen szervezetnek sem.",
-  "organisationLookupFailed": "A szervezeti tagságát nem sikerült betölteni.",
   "wrongCurrentPassword": "A jelenlegi jelszava helytelen.",
   "passwordChangeFailed": "A jelszót nem sikerült módosítani. Próbálja újra.",
   "requestAlreadyHandled": "A kérelmet nem sikerült feldolgozni. Lehet, hogy már elbírálták, vagy nincs hozzá jogosultsága.",

@@ -4,6 +4,9 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
+import { AuthCard } from '../../components/auth/AuthCard'
+import { Alert } from '../../components/common/Alert'
+import { passwordProblem } from '../../utils/validatePassword'
 
 export default function SignUp() {
     const { t } = useTranslation('auth')
@@ -33,13 +36,8 @@ export default function SignUp() {
         if (!emailRegex.test(email.trim())) {
             return t('signup.invalidEmail')
         }
-        if (password.length < 6) {
-            return t('validation.passwordTooShort')
-        }
-        if (password !== confirmPassword) {
-            return t('validation.passwordsDoNotMatch')
-        }
-        return null
+        const problem = passwordProblem(password, confirmPassword)
+        return problem ? t(problem) : null
     }
 
     // Håndterer formens submit-event. Kalder Supabase Auth for at oprette en ny bruger.
@@ -97,85 +95,75 @@ export default function SignUp() {
     }
 
     return (
-        <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-5 sm:p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">{t('signup.title')}</h1>
+        <AuthCard
+            title={t('signup.title')}
+            onSubmit={handleSubmit}
+            footer={<>{t('signup.haveAccount')} <Link to="/login" className="text-accent hover:underline">{t('signup.loginLink')}</Link></>}
+        >
+            <Alert className="mb-4">{error}</Alert>
 
-                {/* Fejlbesked vises kun hvis error er sat */}
-                {error && (
-                    <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
-                        {error}
-                    </div>
-                )}
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
+                <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
-                    <input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
+                <input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
-                    <input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
+                <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
+                <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-6">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatPassword')}</label>
+                <input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatPassword')}</label>
-                    <input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                >
-                    {loading ? t('signup.submitting') : t('signup.submit')}
-                </button>
-
-                {/* Link til login-siden - ruten "/login" matcher Login.tsx */}
-                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    {t('signup.haveAccount')} <Link to="/login" className="text-accent hover:underline">{t('signup.loginLink')}</Link>
-                </p>
-            </form>
-        </div>
+            <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+            >
+                {loading ? t('signup.submitting') : t('signup.submit')}
+            </button>
+        </AuthCard>
     )
 }

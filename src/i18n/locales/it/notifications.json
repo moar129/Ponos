@@ -8,7 +8,6 @@
   "deletePermanently": "Elimina definitivamente",
   "deleteAriaLabel": "Elimina definitivamente la notifica",
   "hidden": "Nascosta",
-  "justNow": "Proprio ora",
   "emptyCategory": "Nessun/a {{category}}.",
   "category": {
     "messages": "Messaggi",

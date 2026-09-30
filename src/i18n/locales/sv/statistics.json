@@ -131,7 +131,6 @@
     "saveTitle": "Spara ögonblicksbild",
     "label": "Namn (valfritt)",
     "labelPlaceholder": "T.ex. Säsong 2026",
-    "saving": "Sparar...",
     "saveFailed": "Ögonblicksbilden kunde inte sparas.",
     "loadFailed": "Ögonblicksbilder kunde inte laddas.",
     "empty": "Inga sparade ögonblicksbilder ännu.",

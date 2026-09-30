@@ -36,7 +36,6 @@
   "notifications": {
     "title": "Értesítések",
     "seeAll": "Összes megtekintése",
-    "all": "Összes",
     "unread": "Olvasatlan",
     "loading": "Értesítések betöltése...",
     "emptyUnread": "Nincs olvasatlan értesítés.",
@@ -55,7 +54,6 @@
     "next": "Következő hír",
     "showNews": "{{number}}. hír megjelenítése"
   },
-  "comingSoon": "Hamarosan",
   "administration": {
     "noPrivileges": "Nincs jogosultsága egyetlen adminisztrációs funkcióhoz sem.",
     "panels": {
@@ -84,7 +82,6 @@
     "noAssignees": "Senki sincs hozzárendelve",
     "materials": "Anyagok:",
     "noMaterials": "Nincsenek anyagok",
-    "edit": "Szerkesztés",
     "reopen": "Újranyitás",
     "reopening": "Újranyitás...",
     "sortNewest": "Legutóbb befejezettek elöl",
@@ -95,7 +92,6 @@
     "presetToday": "Ma",
     "preset7": "7 nap",
     "preset30": "30 nap",
-    "resetFilters": "Visszaállítás",
     "finishedOn": "Befejezve: {{date}}",
     "showing": "{{count}} / {{total}}"
   }

@@ -1,13 +1,7 @@
 {
   "generic": "Something went wrong. Please try again.",
-  "notLoggedIn": "You are not logged in.",
   "loginRequired": "You must be logged in.",
-  "loginRequiredForAction": "You must be logged in to perform this action.",
-  "loginRequiredForMembership": "You must be logged in to request membership.",
-  "loginRequiredForProfile": "You must be logged in to edit your profile.",
-  "loginRequiredForOrganisation": "You must be logged in to edit the organisation.",
   "noOrganisation": "You are not a member of an organisation.",
-  "organisationLookupFailed": "Could not load your organisation membership.",
   "wrongCurrentPassword": "Your current password is incorrect.",
   "passwordChangeFailed": "The password could not be changed. Please try again.",
   "requestAlreadyHandled": "The request could not be processed. It may already have been handled, or you lack permission.",

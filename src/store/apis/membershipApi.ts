@@ -6,29 +6,21 @@ import type {
     PendingMembershipRequest,
     ReviewMembershipRequestInput,
 } from '../../types/membership/membershipType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, runQuery } from './apiError'
+import { getCurrentUserId, getOptionalUserId } from './session'
+import { fetchProfilesByIds } from './profileApi'
 
 export const membershipApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         getMyPendingRequest: builder.query<PendingMembershipRequest | null, void>({
-            queryFn: async () => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-
-                if (userError) {
-                    if (userError.name === 'AuthSessionMissingError') {
-                        return { data: null }
-                    }
-                    return { error: mapDbError(userError) }
-                }
-
-                if (!userData.user) {
-                    return { data: null }
-                }
+            queryFn: () => runQuery(async () => {
+                const userId = await getOptionalUserId()
+                if (!userId) return { data: null }
 
                 const { data, error } = await supabase
                     .from('membership_requests')
                     .select('organisation_id, organisations(name)')
-                    .eq('user_id', userData.user.id)
+                    .eq('user_id', userId)
                     .eq('status', 'Pending')
                     .maybeSingle()
 
@@ -46,7 +38,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                         organisationName: (data.organisations as unknown as { name: string }).name,
                     },
                 }
-            },
+            }),
 
             providesTags: ['PendingRequest'],
         }),
@@ -55,45 +47,23 @@ export const membershipApi = supabaseApi.injectEndpoints({
         // valgte organisation. Bruges af dashboardets Organisation-fane
         // (OrganisationTab.tsx).
         requestMembership: builder.mutation<void, { organisationId: string }>({
-            queryFn: async ({ organisationId }) => {
-                // Finder den aktuelt indloggede bruger direkte fra Supabase
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-
-                if (userError || !userData.user) {
-                    return {
-                        error: { 
-                            status: 'CUSTOM_ERROR', 
-                            error: 'errors:loginRequiredForMembership' 
-                        },
-                    }
-                }
+            queryFn: ({ organisationId }) => runQuery(async () => {
+                const userId = await getCurrentUserId()
 
                 // Indsætter selve anmodningen. Status sættes automatisk til
                 // 'Pending' af databasens default-værdi.
                 const { error: insertError } = await supabase
                     .from('membership_requests')
                     .insert({
-                        user_id: userData.user.id,
+                        user_id: userId,
                         organisation_id: organisationId,
                     })
 
-                if (insertError) {
-                    // Postgres-fejlkode 23505 = unique constraint violation.
-                    // Betyder her: brugeren har allerede en Pending-anmodning
-                    // til denne organisation (jf. unique index i skemaet).
-                    if (insertError.code === '23505') {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:duplicateMembershipRequest',
-                            },
-                        }
-                    }
-                    return { error: mapDbError(insertError) }
-                }
-
+                // unique: brugeren har allerede en Pending-anmodning til
+                // denne organisation (jf. unique index i skemaet).
+                if (insertError) return { error: mapDbError(insertError, { unique: 'duplicateMembershipRequest' }) }
                 return { data: undefined }
-            },
+            }),
 
             // Efter en vellykket indsendelse invalideres 'PendingRequest',
             // så getMyPendingRequest automatisk henter frisk data igen -
@@ -108,7 +78,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
         // begrænser allerede rækkerne server-side. En ikke-admin får
         // derfor kun sine egne anmodninger, aldrig andres.
         getPendingMembershipRequests: builder.query<MembershipRequest[], void>({
-            queryFn: async () => {
+            queryFn: () => runQuery(async () => {
                 const { data: requests, error: requestsError } = await supabase
                     .from('membership_requests')
                     .select('id, user_id, requested_at')
@@ -123,20 +93,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                     return { data: [] }
                 }
 
-                // Profilerne hentes i et separat kald i stedet for som
-                // PostgREST-join, af samme grund som lookupName i
-                // profileApi.ts: joins er skrøbelige her, og en fejlende
-                // join ville vælte hele listen.
-                const { data: profiles, error: profilesError } = await supabase
-                    .from('profiles')
-                    .select('id, first_name, last_name, email')
-                    .in('id', requests.map((request) => request.user_id))
-
-                if (profilesError) {
-                    return { error: mapDbError(profilesError) }
-                }
-
-                const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+                const profileById = await fetchProfilesByIds(requests.map((request) => request.user_id))
 
                 return {
                     data: requests.flatMap((request) => {
@@ -156,7 +113,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                         }]
                     }),
                 }
-            },
+            }),
 
             providesTags: ['MembershipRequest'],
         }),
@@ -182,14 +139,7 @@ export const membershipApi = supabaseApi.injectEndpoints({
                 // Ingen rækker ramt = enten blokeret af RLS eller allerede
                 // behandlet af en anden. Uden dette tjek ville UI'en melde
                 // succes på en opdatering, der aldrig skete.
-                if (!data || data.length === 0) {
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: 'errors:requestAlreadyHandled',
-                        },
-                    }
-                }
+                if (!data || data.length === 0) return { error: errorCode('requestAlreadyHandled') }
 
                 return { data: undefined }
             },

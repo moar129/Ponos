@@ -7,7 +7,6 @@
     "ownRow": "Et voi muuttaa omaa riviäsi",
     "adminLockedTitle": "Vain ylläpitäjä voi muuttaa toisen ylläpitäjän roolia",
     "locked": "Lukittu",
-    "remove": "Poista",
     "confirmRemove": "Haluatko varmasti poistaa jäsenen {{name}} organisaatiosta?",
     "removing": "Poistetaan...",
     "confirmRemoveYes": "Kyllä, poista",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Kutsu sähköpostilla",
     "send": "Lähetä kutsu",
-    "sending": "Lähetetään...",
     "pendingHeading": "Odottavat kutsut",
     "loading": "Ladataan kutsuja...",
     "empty": "Ei odottavia kutsuja.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Kyllä, peru",
     "undo": "Ei sittenkään",
     "emailPlaceholder": "nimi@esimerkki.fi",
-    "invitedOn": "Kutsuttu",
-    "invitedOnDate": "Kutsuttu {{date}}"
+    "invitedOnDate": "Kutsuttu {{date}}",
+    "sentTo": "Kutsu lähetetty osoitteeseen {{email}}."
   },
   "requests": {
     "loading": "Ladataan hakemuksia...",
     "empty": "Odottavia hakemuksia ei ole.",
     "confirmAccept": "Haluatko varmasti hyväksyä käyttäjän {{name}} organisaatioon?",
     "confirmReject": "Haluatko varmasti hylätä hakemuksen? {{name}} voi hakea uudelleen myöhemmin.",
-    "processing": "Käsitellään...",
-    "yes": "Kyllä",
     "accept": "Hyväksy",
     "reject": "Hylkää",
     "requestedOn": "Haettu {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Kirjoita organisaation nimi ({{name}}) vahvistukseksi",
     "ackDataLoss": "Ymmärrän, että kaikki organisaation tiedot (tehtävät, nimikkeet, luokat, sijainnit ja tilastot) poistetaan pysyvästi eikä niitä voi palauttaa.",
     "ackMemberImpact": "Ymmärrän, että muut {{count}} jäsentä menettävät pääsynsä välittömästi.",
-    "deleting": "Poistetaan...",
     "deletePermanently": "Poista pysyvästi",
     "deleted": "\"{{name}}\" on poistettu.",
     "deletedNewActive": "\"{{name}}\" on poistettu. Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Yläpalkin tekstin ja kuvakkeiden väri. Tyhjä = valitaan automaattisesti, jotta se on luettavissa taustaa vasten.",
     "footerTextColorLabel": "Alapalkki – teksti",
     "footerTextColorHint": "Alapalkin tekstin väri. Tyhjä = valitaan automaattisesti, jotta se on luettavissa taustaa vasten.",
-    "colorPickerAriaLabel": "Valitse painikkeiden ja linkkien väri",
-    "colorReset": "Nollaa",
     "colorUseDefault": "Käytä oletusta",
     "colorNoneSet": "Ei valittu (oletus)",
     "previewLight": "Vaalea",
@@ -117,16 +110,11 @@
     "memberCount": "Jäsenten määrä"
   },
   "myInvitations": {
-    "loading": "Ladataan kutsuja...",
     "empty": "Sinulla ei ole odottavia kutsuja.",
     "accept": "Hyväksy",
     "reject": "Hylkää",
     "confirmAccept": "Haluatko varmasti liittyä organisaatioon {{name}}?",
-    "confirmReject": "Haluatko varmasti hylätä kutsun?",
-    "processing": "Käsitellään...",
-    "yes": "Kyllä",
-    "invitedOn": "Kutsuttu",
-    "invitedOnDate": "Kutsuttu {{date}}"
+    "confirmReject": "Haluatko varmasti hylätä kutsun?"
   },
   "myOrganisations": {
     "loading": "Ladataan organisaatioitasi...",
@@ -141,6 +129,5 @@
     "left": "Poistuit organisaatiosta \"{{name}}\".",
     "leftNewActive": "Poistuit organisaatiosta \"{{name}}\". Aktiivinen organisaatiosi on nyt \"{{newActive}}\".",
     "leftNoActive": "Poistuit organisaatiosta \"{{name}}\". Sinulla ei ole enää aktiivista organisaatiota."
-  },
-  "genericLoading": "Ladataan..."
+  }
 }

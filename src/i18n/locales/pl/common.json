@@ -8,7 +8,6 @@
   "create": "Utwórz",
   "search": "Szukaj",
   "loading": "Ładowanie...",
-  "genericError": "Coś poszło nie tak. Spróbuj ponownie.",
   "language": {
     "label": "Język",
     "choose": "Wybierz język",
@@ -26,7 +25,6 @@
   "title": "Tytuł",
   "description": "Opis",
   "status": "Status",
-  "selected": "zaznaczone",
   "cannotUndo": "Tej operacji nie można cofnąć.",
   "reset": "Resetuj",
   "closeDialog": "Zamknij okno dialogowe",
@@ -43,9 +41,7 @@
   "sending": "Wysyłanie...",
   "processing": "Przetwarzanie...",
   "updating": "Aktualizowanie...",
-  "creating": "Tworzenie...",
   "yes": "Tak",
-  "send": "Wyślij",
   "numberInput": {
     "required": "Wpisz liczbę.",
     "invalid": "Nieprawidłowa liczba.",

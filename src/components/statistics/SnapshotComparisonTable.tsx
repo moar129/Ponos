@@ -15,6 +15,7 @@ import { downloadSnapshotComparisonCsv } from '../../utils/statisticsCsv'
 import type { SnapshotRowGroup } from '../../utils/statisticsSnapshot'
 import { SnapshotDevelopmentChart } from './SnapshotDevelopmentChart'
 import type { SnapshotComparisonTableProps } from '../../types/statistics/statisticsComponentTypes'
+import { formatDecimal } from '../../utils/formatDate'
 
 const CELL = 'px-3 py-1.5 text-right tabular-nums text-primary dark:text-slate-100'
 const DELTA = 'block text-xs font-normal text-secondary dark:text-slate-400 sm:ml-2 sm:inline'
@@ -30,7 +31,6 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
     const [showDevelopmentTable, setShowDevelopmentTable] = useState(false)
 
     const locale = i18n.language
-    const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
     const pointsSuffix = t('snapshots.pointsSuffix')
     const names = snapshots.map((snapshot) => snapshotName(snapshot, locale))
 
@@ -48,7 +48,7 @@ export function SnapshotComparisonTable({ snapshots }: SnapshotComparisonTablePr
 
     const renderCell = (key: string, name: string, value: number | undefined, baseline: number | undefined, index: number, partial?: string | null) => (
         <td key={key} title={partial ?? undefined} className={CELL}>
-            {value === undefined ? '–' : number.format(value)}
+            {value === undefined ? '–' : formatDecimal(value, 1, locale)}
             {partial && <span className="ml-1 text-xs text-secondary dark:text-slate-400">({partial})</span>}
             {index > 0 && value !== undefined && baseline !== undefined && (
                 <span className={DELTA}>{formatDelta(name, value, baseline, locale, pointsSuffix)}</span>

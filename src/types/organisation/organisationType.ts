@@ -12,19 +12,19 @@ export interface Organisation {
   footerTextColor?: string | null
 }
 
-export interface UpdateOrganisationInput {
-  name: string
-  color?: string | null
-  headerColor?: string | null
-  footerColor?: string | null
-  headerTextColor?: string | null
-  footerTextColor?: string | null
-}
 // The five branding colors an admin can pick (null/undefined = Ponos default).
 export type OrganisationColors = Pick<
   Organisation,
   'color' | 'headerColor' | 'footerColor' | 'headerTextColor' | 'footerTextColor'
 >
+
+export type UpdateOrganisationInput = { name: string } & OrganisationColors
+
+export interface OrganisationHeaderProps {
+  name: string
+  isAdmin?: boolean
+  subtitle?: string
+}
 
 export interface BarPalette {
   bg: string

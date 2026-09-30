@@ -11,7 +11,6 @@
     "Critical": "Kritická"
   },
   "fields": {
-    "title": "Název",
     "description": "Popis",
     "room": "Místnost",
     "priority": "Priorita",
@@ -35,7 +34,6 @@
     "inProgressHeading": "Probíhá"
   },
   "mine": {
-    "loading": "Načítání vašich úkolů...",
     "noAccess": "Nemáte přístup k zobrazení svých úkolů v této organizaci.",
     "heading": "Moje úkoly",
     "subtitle": "Získejte přehled o úkolech, ke kterým jste přiřazeni.",
@@ -94,7 +92,7 @@
     "nobodyToAssign": "Nejsou k dispozici žádní pracovníci k přiřazení.",
     "signUp": "Přihlásit se",
     "signOff": "Odhlásit se",
-    "employee": "Pracovník"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Žádný popis",
@@ -103,12 +101,10 @@
     "awaitingApproval": "Čeká na schválení",
     "markDone": "Nahlásit jako dokončené",
     "priorityBadge": "Priorita: {{priority}}",
-    "edit": "Upravit",
     "details": "Podrobnosti úkolu",
     "responsible": "Přiřazeno",
     "start": "Začátek",
     "end": "Konec",
-    "statusLabel": "Stav:",
     "addEmployeeShort": "+ Přidat pracovníka",
     "created": "Vytvořeno",
     "statusValue": "Stav: {{status}}",
@@ -119,7 +115,6 @@
     "show": "Zobrazit filtr",
     "hide": "Skrýt filtr",
     "searchPlaceholder": "Hledat v názvu, popisu, místnosti nebo osobě...",
-    "all": "Vše",
     "sortNewest": "Nejnovější",
     "sortOldest": "Nejstarší",
     "sortPriority": "Priorita",
@@ -139,15 +134,12 @@
     "chooseTasks": "Vyberte úkoly, které se mají smazat také.",
     "noTasks": "V této místnosti nejsou žádné úkoly.",
     "keptNote": "Nevybrané úkoly nebudou smazány. Místo toho se přesunou do <b>{{room}}</b>.",
-    "failed": "Místnost se nepodařilo smazat. Zkuste to znovu.",
-    "deleting": "Mazání...",
     "submit": "Smazat místnost"
   },
   "editRoom": {
     "heading": "Upravit místnost",
     "intro": "Vyberte místnost a upravte název a přístup.",
-    "namePlaceholder": "Zadejte název místnosti",
-    "failed": "Místnost se nepodařilo upravit. Zkuste to znovu."
+    "namePlaceholder": "Zadejte název místnosti"
   },
   "favorites": {
     "toggleFailed": "Oblíbenou místnost se nepodařilo aktualizovat."

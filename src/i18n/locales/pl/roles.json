@@ -102,7 +102,6 @@
       "deadline": "Najbliższy termin najpierw",
       "rejections": "Najwięcej odrzuceń najpierw"
     },
-    "resetFilters": "Resetuj",
     "showing": "{{count}} z {{total}}",
     "noMatch": "Brak zgłoszeń pasujących do filtrów.",
     "deadline": "Termin {{date}}",

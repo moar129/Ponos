@@ -16,7 +16,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getErrorMessage } from '../../ErrorMessage'
-import { useGetMyProfileQuery } from '../../store/apis/profileApi'
+import { useHasOrganisation } from '../../store/hooks/useNavItems'
 import { READ_STATISTICS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { useGetStatisticsQuery } from '../../store/apis/statisticApi'
 import { useStatisticsPeriod } from '../../store/hooks/useStatisticsPeriod'
@@ -39,6 +39,8 @@ import { buildInsights } from '../../utils/statisticsInsights'
 import { kpiTrend } from '../../utils/statisticsTrend'
 import type { KpiGoodDirection } from '../../utils/statisticsTrend'
 import type { StatisticsKpis, StatisticsTab } from '../../types/statistics/statisticsTypes'
+import { addDays, inclusiveDayCount } from '../../utils/calendar'
+import { formatDecimal, formatMediumDate, formatPercent } from '../../utils/formatDate'
 
 const CARD = 'rounded-lg bg-white p-4 text-primary shadow-md dark:bg-slate-800 dark:text-slate-100 sm:p-6 lg:p-8'
 
@@ -49,7 +51,7 @@ const TABS: { key: StatisticsTab; icon: typeof BarChart3 }[] = [
 
 export default function StatisticsPage() {
     const { t, i18n } = useTranslation(['statistics', 'tasks', 'datalayer'])
-    const { data: profile, isLoading: isProfileLoading } = useGetMyProfileQuery()
+    const { hasOrganisation, isLoading: isProfileLoading } = useHasOrganisation()
     const { hasPrivilege: canRead, isLoading: isPrivilegeLoading } = useHasPrivilege(READ_STATISTICS_PRIVILEGE)
     const {
         periodType,
@@ -78,7 +80,6 @@ export default function StatisticsPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const activeTab: StatisticsTab = searchParams.get('tab') === 'snapshots' ? 'snapshots' : 'overblik'
 
-    const hasOrganisation = Boolean(profile?.activeOrganisationId)
 
     // currentData is undefined while a new period is fetched, so an old
     // period's numbers are never shown under a new period's label.
@@ -126,11 +127,10 @@ export default function StatisticsPage() {
     const loading = isFetching && !stats
     const errorMessage = error ? getErrorMessage(error, t('loadFailed')) : null
 
-    const dateFormat = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })
     const formatRange = (start: Date, end: Date) =>
         start.getTime() === end.getTime()
-            ? dateFormat.format(start)
-            : t('period.range', { start: dateFormat.format(start), end: dateFormat.format(end) })
+            ? formatMediumDate(start)
+            : t('period.range', { start: formatMediumDate(start), end: formatMediumDate(end) })
     const rangeLabel = range ? formatRange(range.start, range.end) : t('period.allTime')
     const periodName = quarter ? t('period.quarterLabel', { quarter: quarter.quarter, year: quarter.year }) : t(`period.${periodType}`)
     const periodLabel = periodType === 'custom' ? rangeLabel : `${periodName} (${rangeLabel})`
@@ -142,10 +142,8 @@ export default function StatisticsPage() {
     // named compactly ("1.–30. aug.") on each KPI card.
     const previousRange = range && previousKpis
         ? (() => {
-            const days = Math.round((range.end.getTime() - range.start.getTime()) / 86_400_000) + 1
-            const day = (offset: number) =>
-                new Date(range.start.getFullYear(), range.start.getMonth(), range.start.getDate() + offset)
-            return { start: day(-days), end: day(-1) }
+            const days = inclusiveDayCount(range.start, range.end)
+            return { start: addDays(range.start, -days), end: addDays(range.start, -1) }
         })()
         : null
     const previousRangeShort = previousRange
@@ -164,9 +162,7 @@ export default function StatisticsPage() {
     const filterNames = [roomName, categoryName].filter(Boolean).join(' · ')
     const scopeLabel = filterNames ? t('filter.forRoom', { room: filterNames, period: periodLabel }) : periodLabel
 
-    const decimal = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 })
-    const formatPercent = (value: number) => `${decimal.format(value)} %`
-    const formatDays = (days: number) => t('approvals.days', { count: days, formatted: decimal.format(days) })
+    const formatDays = (days: number) => t('approvals.days', { count: days, formatted: formatDecimal(days) })
 
     // Trend against the same-length period right before (none for "Alt", nor
     // when either side has no value, e.g. no deadlines). Percent figures move
@@ -245,9 +241,9 @@ export default function StatisticsPage() {
 
     // Stock status is read from the history at the period's end; before the
     // history starts it is unknown (byStatus = null).
-    const statusAsOf = materials ? dateFormat.format(new Date(materials.statusAsOf)) : ''
+    const statusAsOf = materials ? formatMediumDate(materials.statusAsOf) : ''
     const statusUnknown = Boolean(materials && materials.byStatus === null)
-    const historyStart = materials?.historyStart ? dateFormat.format(new Date(materials.historyStart)) : ''
+    const historyStart = materials?.historyStart ? formatMediumDate(materials.historyStart) : ''
 
     const topMaterialRows = (materials?.topUsed ?? []).map((row) => ({
         key: row.itemId,
@@ -578,7 +574,7 @@ export default function StatisticsPage() {
                     viewPeriod={{
                         start: apiArgs.start,
                         end: apiArgs.end,
-                        days: range ? Math.round((range.end.getTime() - range.start.getTime()) / 86_400_000) + 1 : null,
+                        days: range ? inclusiveDayCount(range.start, range.end) : null,
                         label: periodLabel,
                     }}
                     timeZone={apiArgs.tz}

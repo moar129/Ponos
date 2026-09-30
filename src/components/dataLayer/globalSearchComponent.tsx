@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Folder, Package, MapPin, Boxes } from 'lucide-react';
 import type { GlobalSearchResultsComponentProps, ItemLocation } from '../../types/dataLayer/datalayerTypes';
 import { ItemStatusBadges } from './itemStatusBadgesComponent';
+import { locationPathLabel } from '../../utils/locationPathLabel';
+import { LocationKindBadge } from './warehouse/LocationKindBadge';
 
 // Udvider den eksisterende props-type lokalt, så vi ikke behøver at røre
 // den delte type-fil for at tilføje lager/sektion-søgning.
@@ -11,12 +13,6 @@ type Props = GlobalSearchResultsComponentProps & {
   allLocations: ItemLocation[];
   onSelectLocation: (location: ItemLocation) => void;
 };
-
-function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[]): string {
-  if (!location.parentLocationId) return location.name;
-  const parent = allLocations.find((l) => l.id === location.parentLocationId);
-  return parent ? `${parent.name} > ${location.name}` : location.name;
-}
 
 export function GlobalSearchResultsComponent({
   isOpen, query, matchedCategories, matchedItems, matchedLocations, allLocations,
@@ -73,13 +69,7 @@ export function GlobalSearchResultsComponent({
                     )}
                     <span className="text-sm text-primary truncate dark:text-slate-100">{locationPathLabel(loc, allLocations)}</span>
                   </div>
-                  <span className={`shrink-0 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border ${
-                    loc.parentLocationId
-                      ? 'bg-accent/10 text-accent border-accent/30'
-                      : 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600'
-                  }`}>
-                    {loc.parentLocationId ? t('locations.section') : t('locations.warehouse')}
-                  </span>
+                  <LocationKindBadge location={loc} className="shrink-0" />
                 </button>
               ))}
             </div>

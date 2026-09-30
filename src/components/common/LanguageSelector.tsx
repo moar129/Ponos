@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Globe, Check } from 'lucide-react'
 import { useLanguage } from '../../store/hooks/useLanguage'
 import { LANGUAGES } from '../../i18n/languages'
 import type { LanguageSelectorProps } from '../../types/common/languageType'
+import { useDismissable } from '../../store/hooks/useDismissable'
 
 // Sorteres på sprogets eget navn, så listen læser rigtigt for den der
 // leder efter sit eget sprog - ikke på ISO-koden, som ingen kender.
@@ -19,28 +20,8 @@ export function LanguageSelector({ variant = 'dropdown', align = 'right', classN
   const [query, setQuery] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Samme luk-adfærd som bruger-dropdownen i headerComponent.tsx:
-  // klik udenfor eller Escape lukker panelet.
-  useEffect(() => {
-    if (!open) return
-
-    function handlePointerDown(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
-    }
-
-    document.addEventListener('mousedown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [open])
+  // Klik udenfor eller Escape lukker panelet.
+  useDismissable(menuRef, open, () => setOpen(false))
 
   // Søgningen matcher både det lokale og det engelske navn, så man kan
   // finde "Tysk" ved at skrive enten "Deutsch" eller "German".

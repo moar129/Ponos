@@ -102,7 +102,6 @@
       "deadline": "Nejbližší termín první",
       "rejections": "Nejvíce zamítnutí první"
     },
-    "resetFilters": "Obnovit",
     "showing": "{{count}} z {{total}}",
     "noMatch": "Filtrům neodpovídají žádná hlášení.",
     "deadline": "Termín {{date}}",

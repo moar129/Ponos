@@ -8,7 +8,6 @@
   "create": "Creează",
   "search": "Caută",
   "loading": "Se încarcă...",
-  "genericError": "Ceva nu a funcționat. Încercați din nou.",
   "language": {
     "label": "Limbă",
     "choose": "Alegeți limba",
@@ -26,7 +25,6 @@
   "title": "Titlu",
   "description": "Descriere",
   "status": "Stare",
-  "selected": "selectate",
   "cannotUndo": "Această acțiune nu poate fi anulată.",
   "reset": "Resetează",
   "closeDialog": "Închide dialogul",
@@ -42,9 +40,7 @@
   "sending": "Se trimite...",
   "processing": "Se procesează...",
   "updating": "Se actualizează...",
-  "creating": "Se creează...",
   "yes": "Da",
-  "send": "Trimite",
   "numberInput": {
     "required": "Introdu un număr.",
     "invalid": "Număr invalid.",

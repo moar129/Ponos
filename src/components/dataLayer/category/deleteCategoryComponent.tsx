@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Loader2, X, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { useDeleteCategoryMutation } from '../../../store/apis/categoryApi';
+import { useDeleteMany } from '../../../store/hooks/useDeleteMany';
+import { toggleInSet } from '../../../utils/toggle';
 import type { DataLayerCat, SubCategoryCheckboxProps, DeleteCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
-import { getErrorMessage } from '../../../ErrorMessage';
+import { ConfirmDialog } from '../../common/ConfirmDialog';
 
 
 function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCategoryCheckboxProps) {
@@ -55,30 +57,15 @@ function SubCategoryCheckbox({ category, depth, selectedIds, onToggle }: SubCate
   );
 }
 
-export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }: DeleteCategoryComponentProps) {
+// Kalderen mounter kun dialogen mens den er åben (key = kategorien), så
+// valget altid starter tomt.
+export function DeleteCategoryComponent({ category, onClose, onDeleted }: DeleteCategoryComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [deleteCategory] = useDeleteCategoryMutation();
+  const { deleteAll, isDeleting, error } = useDeleteMany((id) => deleteCategory({ id }).unwrap(), t('deleteCategory.deleteFailed'));
 
-  useEffect(() => {
-    // Nulstil valg hver gang der åbnes en ny kategori til sletning
-    setSelectedIds(new Set());
-    setFormError(null);
-    setIsDeleting(false);
-  }, [category]);
-
-  if (!isOpen || !category) return null;
-
-  const toggle = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
 
   // Tæller items der reelt forsvinder: kategoriens egne items + items i valgte underkategorier (rekursivt)
   function itemsForSelected(cat: DataLayerCat, isSelected: boolean): number {
@@ -92,51 +79,25 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
   const itemsToDelete = itemsForSelected(category, true);
 
   const handleConfirm = async () => {
-    setIsDeleting(true);
-    setFormError(null);
-
+    // Rækkefølge er ligegyldig: parent_category_id sættes automatisk til NULL
+    // for underkategorier, der ikke er valgt til sletning.
     const idsToDelete = [category.id, ...selectedIds];
-
-    try {
-      // Rækkefølge er ligegyldig: parent_category_id sættes automatisk til NULL
-      // for underkategorier, der ikke er valgt til sletning.
-      await Promise.all(idsToDelete.map((id) => deleteCategory({ id }).unwrap()));
+    if (await deleteAll(idsToDelete)) {
       onDeleted(idsToDelete);
       onClose();
-    } catch (err) {
-      setFormError(getErrorMessage(err, t('deleteCategory.deleteFailed')));
-      setIsDeleting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div
-        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start gap-3 p-5 border-b border-border-gray dark:border-slate-700">
-          <div className="shrink-0 p-2 rounded-full bg-red-50 dark:bg-red-900/30">
-            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold text-primary dark:text-slate-100">{t('deleteCategory.heading', { name: category.title })}</h2>
-            <p className="text-sm text-secondary mt-1 dark:text-slate-400">
-              {t('deleteCategory.intro')}
-            </p>
-          </div>
-          <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-bg-gray text-secondary hover:text-primary shrink-0 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-4 overflow-y-auto flex-1">
-          {formError && (
-            <div className="p-3 mb-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-              {formError}
-            </div>
-          )}
-
+    <ConfirmDialog
+      title={t('deleteCategory.heading', { name: category.title })}
+      message={t('deleteCategory.intro')}
+      confirmLabel={t('deleteCategory.submit', { count: selectedIds.size + 1 })}
+      isLoading={isDeleting}
+      error={error}
+      onConfirm={handleConfirm}
+      onCancel={onClose}
+    >
           <div className="flex items-center gap-2 py-1.5 px-1.5 rounded-md bg-bg-gray/40 border border-border-gray mb-1 dark:bg-slate-800/40 dark:border-slate-700">
             <span className="w-4 shrink-0" />
             <input type="checkbox" checked disabled className="w-4 h-4 rounded border-border-gray bg-white text-accent shrink-0 dark:border-slate-700 dark:bg-slate-800" />
@@ -158,28 +119,10 @@ export function DeleteCategoryComponent({ isOpen, category, onClose, onDeleted }
           ) : (
             <p className="text-xs text-secondary mt-2 dark:text-slate-400">{t('deleteCategory.noSubcategories')}</p>
           )}
-        </div>
 
-        <div className="flex items-center justify-between gap-3 p-4 border-t border-border-gray dark:border-slate-700">
-          <p className="text-xs text-secondary dark:text-slate-400">
+          <p className="mt-3 text-xs text-secondary dark:text-slate-400">
             {itemsToDelete > 0 ? t('deleteCategory.itemsDeleted', { count: itemsToDelete }) : t('deleteCategory.noItemsDeleted')}
           </p>
-          <div className="flex items-center gap-3 shrink-0">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
-              {t('common:cancel')}
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              disabled={isDeleting}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-60"
-            >
-              {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-              {t('deleteCategory.submit', { count: selectedIds.size + 1 })}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </ConfirmDialog>
   );
 }

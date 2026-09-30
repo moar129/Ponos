@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronRight, Star } from 'lucide-react';
 import type { FavoriteRowProps, FavoritesSectionProps } from '../../../types/dataLayer/datalayerTypes';
 import { FavoriteStarButton } from '../../common/FavoriteStarButton';
+import { toggleInSet } from '../../../utils/toggle';
 
 function FavoriteRow({ entry, expandedKeys, onToggleExpand }: FavoriteRowProps) {
   const hasChildren = entry.children.length > 0;
@@ -58,14 +59,7 @@ export function FavoritesSection({ entries }: FavoritesSectionProps) {
 
   if (entries.length === 0) return null;
 
-  const toggleExpand = (key: string) => {
-    setExpandedKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  };
+  const toggleExpand = (key: string) => setExpandedKeys((prev) => toggleInSet(prev, key));
 
   return (
     <div className="mb-3 pb-3 border-b border-border-gray dark:border-slate-700">

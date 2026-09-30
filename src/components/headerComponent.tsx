@@ -1,62 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  ClipboardList,
-  BarChart3,
-  Database,
-  Newspaper,
-  User,
-  ChevronDown,
-  LogOut,
-  Menu,
-  X,
-  Home,
-  LogIn,
-  UserPlus,
-  MessageSquareText,
-  Sun,
-  Moon
-} from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { User, ChevronDown, LogOut, Menu, X, UserPlus, Sun, Moon } from 'lucide-react';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
 import { useGetMyProfileQuery } from '../store/apis/profileApi';
 import { Avatar } from './common/Avatar';
-import { useGetSessionQuery, useSignOutMutation } from '../store/apis/authApi';
-import { READ_DATALAYER_PRIVILEGE, READ_NEWS_PRIVILEGE, READ_STATISTICS_PRIVILEGE, READ_TASKS_PRIVILEGE, useHasPrivilege } from '../store/apis/privilegeApi';
+import { useNavItems, useSignOutAndRedirect } from '../store/hooks/useNavItems';
+import { useDismissable } from '../store/hooks/useDismissable';
+import { formatFullName } from '../utils/personName';
 import { NotificationBellComponent } from './notification/notificationBellComponent';
 import { useTheme } from '../store/hooks/useTheme';
 import { useFitText } from '../store/hooks/useFitText';
 import { LanguageSelector } from './common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
-export function Header() {
-  const navigate = useNavigate();
+// Lys/mørkt-knappen - står i topbaren fra sm og i mobilmenuen under sm.
+function ThemeToggleButton({ className = '' }: { className?: string }) {
+  const { t } = useTranslation('common');
+  const { mode, toggleTheme } = useTheme();
 
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={mode === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+      aria-pressed={mode === 'dark'}
+      className={`p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors ${className}`}
+    >
+      {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
+}
+
+export function Header() {
   // Samme session-kilde som resten af appen (App.tsx holder queryen aktiv,
   // og authApi's onAuthStateChange opdaterer cachen), så headeren skifter
-  // med det samme ved login/logout uden reload.
-  const { data: session, isLoading: isLoadingSession } = useGetSessionQuery();
-  const isAuthenticated = !!session;
+  // med det samme ved login/logout uden reload. Linkene er de samme som
+  // footerens (useNavItems).
+  const { items: navItems, isAuthenticated, isLoading: isLoadingSession } = useNavItems();
 
   // Viser den indloggede brugers eget navn/rolle i stedet for pladsholder-
   // tekst. Er ingen logget ind (eller profilen endnu ikke hentet), falder
   // vi tilbage til en neutral tekst.
-  const { data: profile, isLoading: loadingProfile } = useGetMyProfileQuery();
-  const [signOut, { isLoading: signingOut }] = useSignOutMutation();
-
-  // Opgaver/Statistik/Datalager/Nyheder giver kun mening med en aktiv
-  // organisation (US-45/US-56). Genbruger activeOrganisationId fra profilen
-  // ovenfor i stedet for et selvstændigt organisations-opslag - samme ja/nej-
-  // svar uden et ekstra kald på hver side. Skjuler indtil profilen er hentet,
-  // så en bruger uden organisation aldrig ser links, der ikke virker for dem.
-  const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
-
-  // Fase 3: Datalager-/Nyheder-/Opgave-linkene kræver hhv. read_datalayer,
-  // read_news og read_tasks (eller admin); Statistik kræver read_statistics.
-  const { hasPrivilege: canReadDatalayer } = useHasPrivilege(READ_DATALAYER_PRIVILEGE);
-  const { hasPrivilege: canReadNews } = useHasPrivilege(READ_NEWS_PRIVILEGE);
-  const { hasPrivilege: canReadTasks } = useHasPrivilege(READ_TASKS_PRIVILEGE);
-  const { hasPrivilege: canReadStatistics } = useHasPrivilege(READ_STATISTICS_PRIVILEGE);
+  const { data: profile } = useGetMyProfileQuery();
+  const { signOutAndRedirect, signingOut } = useSignOutAndRedirect();
 
   const { t, i18n } = useTranslation(['nav', 'common']);
 
@@ -67,35 +53,12 @@ export function Header() {
   // Bruger-dropdown: "Se profil" + "Log ud"
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  // Luk brugermenuen ved klik udenfor eller Escape, så den ikke bliver
+  // hængende åben når brugeren navigerer videre i siden.
+  useDismissable(menuRef, menuOpen, () => setMenuOpen(false));
 
   // Mobil hamburger-navigation
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  // Lys/mørkt tema - toggle-knappen ligger i handlings-klyngen nedenfor
-  const { mode, toggleTheme } = useTheme();
-
-  // Luk brugermenuen ved klik udenfor eller Escape, så den ikke bliver
-  // hængende åben når brugeren navigerer videre i siden.
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    function handlePointerDown(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setMenuOpen(false);
-    }
-
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [menuOpen]);
 
   // Luk mobil-menuen automatisk, hvis vinduet bliver bredt nok til desktop-nav (lg = 1024px)
   useEffect(() => {
@@ -109,10 +72,7 @@ export function Header() {
   async function handleSignOut() {
     setMenuOpen(false);
     setMobileNavOpen(false);
-    await signOut();
-    // Auth-listeneren rydder cachen; her sikrer vi bare at brugeren ikke
-    // bliver stående på en beskyttet side efter logout.
-    navigate('/login');
+    await signOutAndRedirect();
   }
 
   // Dynamisk styling baseret på om ruten er aktiv. Tre trin: kun ikoner ved lg,
@@ -172,66 +132,15 @@ export function Header() {
             bliver klemt mindre end sit indhold; det er logo-zonen (uden
             shrink-0, med min-w-0), der giver sig, så org-navnet truncater i
             stedet. */}
-        {isAuthenticated ? (
+        {!isLoadingSession && (
           <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-2 shrink-0 whitespace-nowrap">
-            <NavLink to="/dashboard" className={getNavLinkClass} title={t('links.dashboard')}>
-              <LayoutDashboard className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-              <span className="hidden xl:inline">{t('links.dashboard')}</span>
-            </NavLink>
-
-            {hasOrganisation && (
-              <>
-                {canReadTasks && (
-                  <NavLink to="/tasks" className={getNavLinkClass} title={t('links.tasks')}>
-                    <ClipboardList className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                    <span className="hidden xl:inline">{t('links.tasks')}</span>
-                  </NavLink>
-                )}
-
-                {canReadStatistics && (
-                  <NavLink to="/statistik" className={getNavLinkClass} title={t('links.statistics')}>
-                    <BarChart3 className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                    <span className="hidden xl:inline">{t('links.statistics')}</span>
-                  </NavLink>
-                )}
-
-                {canReadDatalayer && (
-                  <NavLink to="/datalager" className={getNavLinkClass} title={t('links.datalayer')}>
-                    <Database className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                    <span className="hidden xl:inline">{t('links.datalayer')}</span>
-                  </NavLink>
-                )}
-
-                {canReadNews && (
-                  <NavLink to="/nyheder" className={getNavLinkClass} title={t('links.news')}>
-                    <Newspaper className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                    <span className="hidden xl:inline">{t('links.news')}</span>
-                  </NavLink>
-                )}
-                <NavLink to="/beskeder" className={getNavLinkClass} title={t('links.messages')}>
-                  <MessageSquareText className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                  <span className="hidden xl:inline">{t('links.messages')}</span>
-                </NavLink>
-              </>
-            )}
+            {navItems.map(({ to, labelKey, icon: Icon }) => (
+              <NavLink key={to} to={to} end={to === '/'} className={getNavLinkClass} title={t(labelKey)}>
+                <Icon className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
+                <span className="hidden xl:inline">{t(labelKey)}</span>
+              </NavLink>
+            ))}
           </nav>
-        ) : (
-          // Samme klasse og samme slot som ovenfor, så de to tilstande står
-          // ens. Forside hører kun til her - er man logget ind, hører man
-          // hjemme på dashboardet, og "/" redirecter derhen alligevel.
-          !isLoadingSession && (
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-2 shrink-0 whitespace-nowrap">
-              <NavLink to="/" className={getNavLinkClass} title={t('links.home')}>
-                <Home className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                <span className="hidden xl:inline">{t('links.home')}</span>
-              </NavLink>
-
-              <NavLink to="/login" className={getNavLinkClass} title={t('links.login')}>
-                <LogIn className="w-4 h-4 2xl:w-5 2xl:h-5 shrink-0" />
-                <span className="hidden xl:inline">{t('links.login')}</span>
-              </NavLink>
-            </nav>
-          )
         )}
 
         {/* Højre side: handlingerne. Logget ind er det notifikationer og
@@ -272,7 +181,7 @@ export function Header() {
                   />
                   <div className="hidden min-[1800px]:flex flex-col text-left">
                     <span className="text-sm font-semibold leading-tight">
-                      {profile ? `${profile.firstName} ${profile.lastName}` : t('user.fallbackName')}
+                      {profile ? formatFullName(profile.firstName, profile.lastName) : t('user.fallbackName')}
                     </span>
                     <span className="text-xs text-[var(--color-header-muted)]">
                       {profile?.roleName ?? t('user.noRole')}
@@ -338,15 +247,7 @@ export function Header() {
           {/* Tema-toggle: uafhængig af login-status, må derfor aldrig gates
               af isLoadingSession eller stå inde i isAuthenticated-grenen.
               Skjult under sm - se note ovenfor. */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
-            aria-pressed={mode === 'dark'}
-            className="hidden sm:block p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
-          >
-            {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
+          <ThemeToggleButton className="hidden sm:block" />
 
           {/* Hamburger-knap: kun synlig under lg, hvor nav'en er skjult.
               Fælles for begge tilstande. */}
@@ -370,72 +271,24 @@ export function Header() {
           også "Opret konto", så knappen ikke forsvinder på mobil. */}
       {mobileNavOpen && (
         <nav className="lg:hidden border-t border-[var(--color-header-border)] bg-[var(--color-header-bg)] px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
-          {isAuthenticated ? (
-            <>
-              <NavLink to="/dashboard" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <LayoutDashboard className="w-5 h-5 shrink-0" />
-                <span>{t('links.dashboard')}</span>
-              </NavLink>
+          {navItems.map(({ to, labelKey, icon: Icon }) => (
+            <NavLink key={to} to={to} end={to === '/'} className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
+              <Icon className="w-5 h-5 shrink-0" />
+              <span>{t(labelKey)}</span>
+            </NavLink>
+          ))}
 
-              {hasOrganisation && (
-                <>
-                  {canReadTasks && (
-                    <NavLink to="/tasks" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                      <ClipboardList className="w-5 h-5 shrink-0" />
-                      <span>{t('links.tasks')}</span>
-                    </NavLink>
-                  )}
-
-                  {canReadStatistics && (
-                    <NavLink to="/statistik" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                      <BarChart3 className="w-5 h-5 shrink-0" />
-                      <span>{t('links.statistics')}</span>
-                    </NavLink>
-                  )}
-
-                  {canReadDatalayer && (
-                    <NavLink to="/datalager" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                      <Database className="w-5 h-5 shrink-0" />
-                      <span>{t('links.datalayer')}</span>
-                    </NavLink>
-                  )}
-
-                  {canReadNews && (
-                    <NavLink to="/nyheder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                      <Newspaper className="w-5 h-5 shrink-0" />
-                      <span>{t('links.news')}</span>
-                    </NavLink>
-                  )}
-                  <NavLink to="/beskeder" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                    <MessageSquareText className="w-5 h-5 shrink-0" />
-                    <span>{t('links.messages')}</span>
-                  </NavLink>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <NavLink to="/" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <Home className="w-5 h-5 shrink-0" />
-                <span>{t('links.home')}</span>
-              </NavLink>
-
-              <NavLink to="/login" className={getMobileNavLinkClass} onClick={() => setMobileNavOpen(false)}>
-                <LogIn className="w-5 h-5 shrink-0" />
-                <span>{t('links.login')}</span>
-              </NavLink>
-
-              {/* Beholder guldet i menuen, så hierarkiet er det samme som på
-                  desktop - samme geometri som de to punkter over, bare fyldt. */}
-              <Link
-                to="/signup"
-                onClick={() => setMobileNavOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-white text-primary hover:bg-slate-100 transition-colors"
-              >
-                <UserPlus className="w-5 h-5 shrink-0" />
-                <span>{t('links.signup')}</span>
-              </Link>
-            </>
+          {!isAuthenticated && (
+            // Beholder guldet i menuen, så hierarkiet er det samme som på
+            // desktop - samme geometri som punkterne over, bare fyldt.
+            <Link
+              to="/signup"
+              onClick={() => setMobileNavOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-semibold bg-white text-primary hover:bg-slate-100 transition-colors"
+            >
+              <UserPlus className="w-5 h-5 shrink-0" />
+              <span>{t('links.signup')}</span>
+            </Link>
           )}
 
           {/* Sprog + tema: kun her på de mindste skærme (<640px), hvor de er
@@ -443,15 +296,7 @@ export function Header() {
               stedet i topbaren og gentages derfor ikke her. */}
           <div className="sm:hidden flex items-center gap-3 pt-3 mt-2 border-t border-[var(--color-header-border)]">
             <LanguageSelector align="left" />
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={mode === 'dark' ? t('common:theme.toLight') : t('common:theme.toDark')}
-              aria-pressed={mode === 'dark'}
-              className="p-2 text-[var(--color-header-muted)] hover:text-[var(--color-header-text)] hover:bg-black/10 rounded-md transition-colors"
-            >
-              {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+            <ThemeToggleButton />
           </div>
         </nav>
       )}

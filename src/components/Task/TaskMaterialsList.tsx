@@ -3,12 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { asDynamic } from '../../i18n/config';
 import { readableError } from '../../ErrorMessage';
 import { useGetTaskMaterialsQuery } from '../../store/apis/taskApi';
-import { useChangeTaskMaterialStatusMutation, useReleaseItemUnitsMutation } from '../../store/apis/categoryApi';
+import { useChangeTaskMaterialStatusMutation } from '../../store/apis/categoryApi';
+import { useApplyMaterialOutcomes } from '../../store/hooks/useApplyMaterialOutcomes';
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import type { ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import type { TaskMaterial, TaskMaterialsListProps } from '../../types/Task/Task';
+import type { MaterialOutcomeEntry, TaskMaterial, TaskMaterialsListProps } from '../../types/Task/Task';
 import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
-import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
+import { Alert } from '../common/Alert';
+import { ItemStatusSelect } from '../dataLayer/item/ItemStatusSelect';
+import { materialLocationLabels } from '../../utils/taskMaterials';
 
 interface StatusChangeForm {
   materialId: string;
@@ -28,7 +31,7 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
   const { t } = useTranslation(['tasks', 'datalayer', 'common']);
   const td = asDynamic(t);
   const { data: materials = [] } = useGetTaskMaterialsQuery(taskId);
-  const [releaseItemUnits] = useReleaseItemUnitsMutation();
+  const { release } = useApplyMaterialOutcomes(taskId);
   const [changeTaskMaterialStatus, { isLoading: isChangingStatus, error: changeStatusError }] = useChangeTaskMaterialStatusMutation();
   const [releaseMaterialId, setReleaseMaterialId] = useState<string | null>(null);
   const [statusForm, setStatusForm] = useState<StatusChangeForm | null>(null);
@@ -39,14 +42,7 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
   // Brugeren har valgt slutstatus pr. statusgruppe i modalen - fejl kastes
   // videre, så modalen selv viser dem.
   const handleReleaseConfirm = async (entries: MaterialOutcomeEntry[]) => {
-    for (const entry of entries) {
-      await releaseItemUnits({
-        taskMaterialId: entry.taskMaterialId,
-        itemId: entry.itemId,
-        taskId,
-        outcomes: entry.outcomes,
-      }).unwrap();
-    }
+    await release(entries);
     setReleaseMaterialId(null);
   };
 
@@ -75,11 +71,7 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
 
   return (
     <div>
-      {errorMessage && (
-        <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-          {errorMessage}
-        </div>
-      )}
+      <Alert className="mb-3">{errorMessage}</Alert>
 
       {materials.length === 0 ? (
         <p className="text-sm text-secondary dark:text-slate-400">{t('materials.none')}</p>
@@ -96,7 +88,7 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
                 {!material.resolved && (material.locationLabels.length > 0 || material.hasUnitsWithoutLocation) && (
                   <p className="text-xs text-secondary dark:text-slate-400">
                     {t('materials.locationLabel')}:{' '}
-                    {[...material.locationLabels, ...(material.hasUnitsWithoutLocation ? [t('materials.noLocation')] : [])].join(', ')}
+                    {materialLocationLabels(material, t('materials.noLocation')).join(', ')}
                   </p>
                 )}
 
@@ -131,20 +123,13 @@ export function TaskMaterialsList({ taskId, canManage, taskStatus }: TaskMateria
 
                           {isEditing && statusForm && (
                             <div className="mt-1 flex flex-wrap items-center gap-2">
-                              <select
+                              <ItemStatusSelect
                                 value={statusForm.toStatus}
-                                onChange={(e) => setStatusForm({ ...statusForm, toStatus: e.target.value as ItemStatus | '' })}
+                                onChange={(toStatus) => setStatusForm({ ...statusForm, toStatus })}
+                                placeholder={t('materials.chooseStatusPlaceholder')}
+                                statuses={ALL_ITEM_STATUSES.filter((status) => status !== group.status)}
                                 className={inputClass}
-                              >
-                                <option value="" disabled>
-                                  {t('materials.chooseStatusPlaceholder')}
-                                </option>
-                                {ALL_ITEM_STATUSES.filter((status) => status !== group.status).map((status) => (
-                                  <option key={status} value={status}>
-                                    {td(`datalayer:status.${status}`)}
-                                  </option>
-                                ))}
-                              </select>
+                              />
 
                               <input
                                 type="number"

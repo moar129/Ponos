@@ -7,7 +7,6 @@
     "ownRow": "Svůj vlastní řádek nemůžete měnit",
     "adminLockedTitle": "Roli jiného administrátora může změnit pouze administrátor",
     "locked": "Uzamčeno",
-    "remove": "Odebrat",
     "confirmRemove": "Opravdu chcete odebrat {{name}} z organizace?",
     "removing": "Odebírání...",
     "confirmRemoveYes": "Ano, odebrat",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Pozvat e-mailem",
     "send": "Odeslat pozvánku",
-    "sending": "Odesílání...",
     "pendingHeading": "Čekající pozvánky",
     "loading": "Načítání pozvánek...",
     "empty": "Žádné čekající pozvánky.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Ano, zrušit",
     "undo": "Zpět",
     "emailPlaceholder": "jmeno@priklad.cz",
-    "invitedOn": "Pozváni",
-    "invitedOnDate": "Pozváni {{date}}"
+    "invitedOnDate": "Pozváni {{date}}",
+    "sentTo": "Pozvánka odeslána na {{email}}."
   },
   "requests": {
     "loading": "Načítání žádostí...",
     "empty": "Žádné čekající žádosti.",
     "confirmAccept": "Opravdu chcete přijmout {{name}} do organizace?",
     "confirmReject": "Opravdu chcete žádost zamítnout? {{name}} může požádat znovu později.",
-    "processing": "Zpracovávání...",
-    "yes": "Ano",
     "accept": "Přijmout",
     "reject": "Zamítnout",
     "requestedOn": "Požádáno {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Pro potvrzení napište název organizace ({{name}})",
     "ackDataLoss": "Rozumím, že všechna data organizace (úkoly, položky, kategorie, místa a statistiky) budou trvale smazána a nelze je obnovit.",
     "ackMemberImpact": "Rozumím, že dalších {{count}} členů okamžitě ztratí přístup.",
-    "deleting": "Mazání...",
     "deletePermanently": "Trvale smazat",
     "deleted": "„{{name}}“ byla smazána.",
     "deletedNewActive": "„{{name}}“ byla smazána. Vaše aktivní organizace je nyní „{{newActive}}“.",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Barva textu a ikon v horní liště. Prázdné = zvolí se automaticky, aby byl čitelný na pozadí.",
     "footerTextColorLabel": "Spodní lišta – text",
     "footerTextColorHint": "Barva textu ve spodní liště. Prázdné = zvolí se automaticky, aby byl čitelný na pozadí.",
-    "colorPickerAriaLabel": "Vyberte barvu tlačítek a odkazů",
-    "colorReset": "Resetovat",
     "colorUseDefault": "Použít výchozí",
     "colorNoneSet": "Není vybráno (výchozí)",
     "previewLight": "Světlý",
@@ -117,16 +110,11 @@
     "memberCount": "Počet členů"
   },
   "myInvitations": {
-    "loading": "Načítání pozvánek...",
     "empty": "Nemáte žádné čekající pozvánky.",
     "accept": "Přijmout",
     "reject": "Zamítnout",
     "confirmAccept": "Opravdu se chcete stát členem organizace {{name}}?",
-    "confirmReject": "Opravdu chcete pozvánku zamítnout?",
-    "processing": "Zpracovávání...",
-    "yes": "Ano",
-    "invitedOn": "Pozváni",
-    "invitedOnDate": "Pozváni {{date}}"
+    "confirmReject": "Opravdu chcete pozvánku zamítnout?"
   },
   "myOrganisations": {
     "loading": "Načítání vašich organizací...",
@@ -141,6 +129,5 @@
     "left": "Opustili jste „{{name}}“.",
     "leftNewActive": "Opustili jste „{{name}}“. Vaše aktivní organizace je nyní „{{newActive}}“.",
     "leftNoActive": "Opustili jste „{{name}}“. Nemáte již žádnou aktivní organizaci."
-  },
-  "genericLoading": "Načítání..."
+  }
 }

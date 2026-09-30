@@ -8,7 +8,6 @@
   "deletePermanently": "Definitief verwijderen",
   "deleteAriaLabel": "Melding definitief verwijderen",
   "hidden": "Verborgen",
-  "justNow": "Zojuist",
   "emptyCategory": "Geen {{category}}.",
   "category": {
     "messages": "Berichten",

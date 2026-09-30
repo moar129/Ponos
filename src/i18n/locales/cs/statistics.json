@@ -135,7 +135,6 @@
     "saveTitle": "Uložit snímek",
     "label": "Název (volitelné)",
     "labelPlaceholder": "Např. Sezóna 2026",
-    "saving": "Ukládání...",
     "saveFailed": "Snímek se nepodařilo uložit.",
     "loadFailed": "Snímky se nepodařilo načíst.",
     "empty": "Zatím žádné uložené snímky.",

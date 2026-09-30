@@ -101,7 +101,6 @@
       "deadline": "Cel mai apropiat termen întâi",
       "rejections": "Cele mai multe respingeri întâi"
     },
-    "resetFilters": "Resetează",
     "showing": "{{count}} din {{total}}",
     "noMatch": "Nicio cerere nu corespunde filtrelor.",
     "deadline": "Termen {{date}}",

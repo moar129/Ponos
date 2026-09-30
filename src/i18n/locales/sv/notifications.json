@@ -8,7 +8,6 @@
   "deletePermanently": "Radera permanent",
   "deleteAriaLabel": "Radera aviseringen permanent",
   "hidden": "Dold",
-  "justNow": "Just nu",
   "emptyCategory": "Inga {{category}}.",
   "category": {
     "messages": "Meddelanden",

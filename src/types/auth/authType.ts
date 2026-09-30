@@ -1,4 +1,5 @@
 // src/types/auth/authType.ts
+import type { FormEvent, ReactNode } from 'react'
 
 // US-68: argumenter til authApi's resetPassword-mutation. Navnefelterne er
 // prototypens eneste "bevis" for, at det er den rigtige person - der sendes
@@ -15,4 +16,13 @@ export interface ResetPasswordInput {
 export interface ChangePasswordInput {
     currentPassword: string
     newPassword: string
+}
+
+export interface AuthCardProps {
+    title: string
+    intro?: string
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void
+    children: ReactNode
+    // "Har du ikke en konto? Opret konto" under knappen.
+    footer: ReactNode
 }

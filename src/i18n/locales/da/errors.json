@@ -1,13 +1,7 @@
 {
   "generic": "Noget gik galt. Prøv igen.",
-  "notLoggedIn": "Du er ikke logget ind.",
   "loginRequired": "Du skal være logget ind.",
-  "loginRequiredForAction": "Du skal være logget ind for at udføre denne handling.",
-  "loginRequiredForMembership": "Du skal være logget ind for at anmode om medlemskab.",
-  "loginRequiredForProfile": "Du skal være logget ind for at redigere din profil.",
-  "loginRequiredForOrganisation": "Du skal være logget ind for at redigere organisationen.",
   "noOrganisation": "Du er ikke medlem af en organisation.",
-  "organisationLookupFailed": "Kunne ikke hente din organisationstilknytning.",
   "wrongCurrentPassword": "Din nuværende adgangskode er forkert.",
   "passwordChangeFailed": "Adgangskoden kunne ikke ændres. Prøv igen.",
   "requestAlreadyHandled": "Anmodningen kunne ikke behandles. Den er måske allerede behandlet, eller du mangler rettigheder.",

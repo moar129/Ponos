@@ -12,6 +12,7 @@ import {
 } from '../../store/apis/roleApi'
 import {
     ADMIN_PRIVILEGE,
+    adminRoleIdsOf,
     DELETE_MEMBERS_PRIVILEGE,
     UPDATE_ROLES_PRIVILEGE,
     useGetOrganisationPrivilegesQuery,
@@ -19,7 +20,9 @@ import {
 } from '../../store/apis/privilegeApi'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import type { OrganisationMember } from '../../types/role/roleType'
-
+import { filterPeople, formatFullName } from '../../utils/personName'
+import { Alert } from '../common/Alert'
+import { InlineConfirm } from '../common/InlineConfirm'
 
 // Organisationens medlemmer (US-11 + US-66), med en dropdown pr. medlem
 // til at tildele/fjerne en rolle, og en knap til at fjerne medlemmet fra
@@ -54,7 +57,7 @@ export function MembersPanel() {
     // "Fjern" for en manage_members-holder, der ikke selv er fuld admin
     // (matcher escalation-guarden i remove_member-RPC'en server-side), og
     // til at afgøre om et rolleskift reelt er et admin-hand-off.
-    const roleIdsWithAdmin = new Set((privileges ?? []).filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
+    const roleIdsWithAdmin = adminRoleIdsOf(privileges ?? [])
 
     // Kun én admin ad gangen (databasens
     // prevent_non_admin_role_change_on_admin_membership håndhæver det).
@@ -112,26 +115,14 @@ export function MembersPanel() {
     }
 
     if (listError) {
-        return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {listError}
-            </div>
-        )
+        return <Alert>{listError}</Alert>
     }
 
     if (!members || members.length === 0) {
         return <p className="text-secondary dark:text-slate-400">{t('members.empty')}</p>
     }
 
-    const filteredMembers = members
-        .filter((member) => {
-            const term = searchTerm.trim().toLowerCase()
-            if (!term) return true
-            return (
-                `${member.firstName} ${member.lastName}`.toLowerCase().includes(term) ||
-                member.email.toLowerCase().includes(term)
-            )
-        })
+    const filteredMembers = filterPeople(members, searchTerm)
         // Den indloggede bruger ligger altid øverst, uanset søgning - .sort()
         // er stabil, så resten beholder deres eksisterende rækkefølge
         // (server-sorteret på fornavn).
@@ -143,11 +134,7 @@ export function MembersPanel() {
 
     return (
         <div>
-            {actionError && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {actionError}
-                </div>
-            )}
+            <Alert className="mb-4">{actionError}</Alert>
 
             <input
                 type="text"
@@ -170,7 +157,7 @@ export function MembersPanel() {
                         <li key={member.id} className="py-3">
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div>
-                                    <p className="font-medium">{member.firstName} {member.lastName}</p>
+                                    <p className="font-medium">{formatFullName(member.firstName, member.lastName)}</p>
                                     <p className="text-sm text-secondary dark:text-slate-400">{member.email}</p>
                                 </div>
 
@@ -208,7 +195,7 @@ export function MembersPanel() {
                                                     onClick={() => setConfirmingRemoveId(member.id)}
                                                     className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                                                 >
-                                                    {t('members.remove')}
+                                                    {t('common:remove')}
                                                 </button>
                                             )}
                                         </>
@@ -217,50 +204,28 @@ export function MembersPanel() {
                             </div>
 
                             {confirmingRemoveId === member.id && (
-                                <div className="mt-2 flex flex-wrap items-center gap-3">
-                                    <span className="text-sm text-secondary dark:text-slate-400">
-                                        {t('members.confirmRemove', { name: `${member.firstName} ${member.lastName}` })}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemove(member)}
-                                        disabled={removingUserId === member.id}
-                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
-                                    >
-                                        {removingUserId === member.id ? t('members.removing') : t('members.confirmRemoveYes')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setConfirmingRemoveId(null)}
-                                        disabled={removingUserId === member.id}
-                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
-                                    >
-                                        {t('common:cancel')}
-                                    </button>
+                                <div className="mt-2">
+                                    <InlineConfirm
+                                        question={t('members.confirmRemove', { name: formatFullName(member.firstName, member.lastName) })}
+                                        confirmLabel={t('members.confirmRemoveYes')}
+                                        loadingLabel={t('members.removing')}
+                                        isLoading={removingUserId === member.id}
+                                        onConfirm={() => handleRemove(member)}
+                                        onCancel={() => setConfirmingRemoveId(null)}
+                                    />
                                 </div>
                             )}
 
                             {pendingTransferId === member.id && (
-                                <div className="mt-2 flex flex-wrap items-center gap-3">
-                                    <span className="text-sm text-secondary dark:text-slate-400">
-                                        {t('members.confirmTransfer', { name: `${member.firstName} ${member.lastName}` })}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleConfirmTransfer(member)}
-                                        disabled={savingUserId === member.id}
-                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
-                                    >
-                                        {savingUserId === member.id ? t('members.transferring') : t('members.confirmTransferYes')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setPendingTransferId(null)}
-                                        disabled={savingUserId === member.id}
-                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
-                                    >
-                                        {t('common:cancel')}
-                                    </button>
+                                <div className="mt-2">
+                                    <InlineConfirm
+                                        question={t('members.confirmTransfer', { name: formatFullName(member.firstName, member.lastName) })}
+                                        confirmLabel={t('members.confirmTransferYes')}
+                                        loadingLabel={t('members.transferring')}
+                                        isLoading={savingUserId === member.id}
+                                        onConfirm={() => handleConfirmTransfer(member)}
+                                        onCancel={() => setPendingTransferId(null)}
+                                    />
                                 </div>
                             )}
                         </li>

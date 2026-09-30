@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
+import { conversationPath } from '../../utils/conversationPath';
 import { Loader2, MessageSquareText } from 'lucide-react';
 import { useGetMyConversationsQuery, useGetOrJoinRoomConversationMutation } from '../../store/apis/messageApi';
 import { readableError } from '../../ErrorMessage';
@@ -20,7 +21,7 @@ export function RoomChatButton({ roomId }: RoomChatButtonProps) {
   const handleClick = async () => {
     try {
       const conversationId = await getOrJoinRoomConversation({ roomId }).unwrap();
-      navigate(`/beskeder?conversation=${conversationId}`);
+      navigate(conversationPath(conversationId));
     } catch {
       // Fejlen vises via errorMessage.
     }

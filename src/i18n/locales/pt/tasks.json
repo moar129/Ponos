@@ -11,7 +11,6 @@
     "Critical": "Crítica"
   },
   "fields": {
-    "title": "Título",
     "description": "Descrição",
     "room": "Sala",
     "priority": "Prioridade",
@@ -35,7 +34,6 @@
     "inProgressHeading": "Em curso"
   },
   "mine": {
-    "loading": "A carregar as suas tarefas...",
     "noAccess": "Não tem acesso para ver as suas tarefas nesta organização.",
     "heading": "As minhas tarefas",
     "subtitle": "Obtenha uma visão geral das tarefas às quais está atribuído.",
@@ -93,7 +91,7 @@
     "nobodyToAssign": "Não há colaboradores para atribuir.",
     "signUp": "Inscrever-se",
     "signOff": "Desinscrever-se",
-    "employee": "Colaborador"
+    "maxOf": "Máx. {{people}}"
   },
   "card": {
     "noDescription": "Sem descrição",
@@ -102,12 +100,10 @@
     "awaitingApproval": "A aguardar aprovação",
     "markDone": "Comunicar conclusão",
     "priorityBadge": "Prioridade: {{priority}}",
-    "edit": "Editar",
     "details": "Detalhes da tarefa",
     "responsible": "Atribuída a",
     "start": "Início",
     "end": "Fim",
-    "statusLabel": "Estado:",
     "addEmployeeShort": "+ Adicionar colaborador",
     "created": "Criada",
     "statusValue": "Estado: {{status}}",
@@ -118,7 +114,6 @@
     "show": "Mostrar filtro",
     "hide": "Ocultar filtro",
     "searchPlaceholder": "Pesquisar título, descrição, sala ou pessoa...",
-    "all": "Todas",
     "sortNewest": "Mais recentes",
     "sortOldest": "Mais antigas",
     "sortPriority": "Prioridade",
@@ -137,15 +132,12 @@
     "chooseTasks": "Escolha as tarefas que também devem ser eliminadas.",
     "noTasks": "Não há tarefas nesta sala.",
     "keptNote": "As tarefas que não selecionar não são eliminadas. São movidas para <b>{{room}}</b>.",
-    "failed": "Não foi possível eliminar a sala. Tente novamente.",
-    "deleting": "A eliminar...",
     "submit": "Eliminar sala"
   },
   "editRoom": {
     "heading": "Editar sala",
     "intro": "Escolha uma sala e edite o nome e o acesso.",
-    "namePlaceholder": "Escreva o nome da sala",
-    "failed": "Não foi possível editar a sala. Tente novamente."
+    "namePlaceholder": "Escreva o nome da sala"
   },
   "favorites": {
     "toggleFailed": "Não foi possível atualizar a sala favorita."

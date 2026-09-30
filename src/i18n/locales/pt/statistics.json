@@ -133,7 +133,6 @@
     "saveTitle": "Guardar instantâneo",
     "label": "Nome (opcional)",
     "labelPlaceholder": "Ex.: Época 2026",
-    "saving": "A guardar...",
     "saveFailed": "Não foi possível guardar o instantâneo.",
     "loadFailed": "Não foi possível carregar os instantâneos.",
     "empty": "Ainda não há instantâneos guardados.",

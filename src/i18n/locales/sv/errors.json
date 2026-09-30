@@ -1,13 +1,7 @@
 {
   "generic": "Något gick fel. Försök igen.",
-  "notLoggedIn": "Du är inte inloggad.",
   "loginRequired": "Du måste vara inloggad.",
-  "loginRequiredForAction": "Du måste vara inloggad för att utföra den här åtgärden.",
-  "loginRequiredForMembership": "Du måste vara inloggad för att ansöka om medlemskap.",
-  "loginRequiredForProfile": "Du måste vara inloggad för att redigera din profil.",
-  "loginRequiredForOrganisation": "Du måste vara inloggad för att redigera organisationen.",
   "noOrganisation": "Du är inte medlem i någon organisation.",
-  "organisationLookupFailed": "Din organisationstillhörighet kunde inte hämtas.",
   "wrongCurrentPassword": "Ditt nuvarande lösenord är fel.",
   "passwordChangeFailed": "Lösenordet kunde inte ändras. Försök igen.",
   "requestAlreadyHandled": "Ansökan kunde inte behandlas. Den kan redan ha hanterats, eller så saknar du behörighet.",

@@ -7,7 +7,6 @@
     "ownRow": "Nie możesz zmienić własnego wiersza",
     "adminLockedTitle": "Tylko administrator może zmienić rolę innego administratora",
     "locked": "Zablokowane",
-    "remove": "Usuń",
     "confirmRemove": "Czy na pewno chcesz usunąć {{name}} z organizacji?",
     "removing": "Usuwanie...",
     "confirmRemoveYes": "Tak, usuń",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Zaproś przez e-mail",
     "send": "Wyślij zaproszenie",
-    "sending": "Wysyłanie...",
     "pendingHeading": "Oczekujące zaproszenia",
     "loading": "Ładowanie zaproszeń...",
     "empty": "Brak oczekujących zaproszeń.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Tak, wycofaj",
     "undo": "Jednak nie",
     "emailPlaceholder": "imie@przyklad.pl",
-    "invitedOn": "Zaproszony",
-    "invitedOnDate": "Zaproszony {{date}}"
+    "invitedOnDate": "Zaproszony {{date}}",
+    "sentTo": "Zaproszenie wysłane do {{email}}."
   },
   "requests": {
     "loading": "Ładowanie wniosków...",
     "empty": "Nie ma oczekujących wniosków.",
     "confirmAccept": "Czy na pewno {{name}} ma zostać przyjęty do organizacji?",
     "confirmReject": "Czy na pewno wniosek ma zostać odrzucony? {{name}} może złożyć go ponownie później.",
-    "processing": "Przetwarzanie...",
-    "yes": "Tak",
     "accept": "Akceptuj",
     "reject": "Odrzuć",
     "requestedOn": "Złożono {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Wpisz nazwę organizacji ({{name}}), aby potwierdzić",
     "ackDataLoss": "Rozumiem, że wszystkie dane organizacji (zadania, elementy, kategorie, lokalizacje i statystyki) zostaną trwale usunięte i nie będzie można ich odzyskać.",
     "ackMemberImpact": "Rozumiem, że pozostałych {{count}} członków natychmiast straci dostęp.",
-    "deleting": "Usuwanie...",
     "deletePermanently": "Usuń trwale",
     "deleted": "\"{{name}}\" została usunięta.",
     "deletedNewActive": "\"{{name}}\" została usunięta. Twoją aktywną organizacją jest teraz \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Kolor tekstu i ikon w górnym pasku. Puste = wybierany automatycznie, aby był czytelny na tle.",
     "footerTextColorLabel": "Dolny pasek – tekst",
     "footerTextColorHint": "Kolor tekstu w dolnym pasku. Puste = wybierany automatycznie, aby był czytelny na tle.",
-    "colorPickerAriaLabel": "Wybierz kolor przycisków i linków",
-    "colorReset": "Resetuj",
     "colorUseDefault": "Użyj domyślnego",
     "colorNoneSet": "Brak wyboru (domyślny)",
     "previewLight": "Jasny",
@@ -117,16 +110,11 @@
     "memberCount": "Liczba członków"
   },
   "myInvitations": {
-    "loading": "Ładowanie zaproszeń...",
     "empty": "Nie masz oczekujących zaproszeń.",
     "accept": "Akceptuj",
     "reject": "Odrzuć",
     "confirmAccept": "Czy na pewno chcesz zostać członkiem {{name}}?",
-    "confirmReject": "Czy na pewno zaproszenie ma zostać odrzucone?",
-    "processing": "Przetwarzanie...",
-    "yes": "Tak",
-    "invitedOn": "Zaproszony",
-    "invitedOnDate": "Zaproszony {{date}}"
+    "confirmReject": "Czy na pewno zaproszenie ma zostać odrzucone?"
   },
   "myOrganisations": {
     "loading": "Ładowanie Twoich organizacji...",
@@ -141,6 +129,5 @@
     "left": "Opuściłeś \"{{name}}\".",
     "leftNewActive": "Opuściłeś \"{{name}}\". Twoją aktywną organizacją jest teraz \"{{newActive}}\".",
     "leftNoActive": "Opuściłeś \"{{name}}\". Nie masz już aktywnej organizacji."
-  },
-  "genericLoading": "Ładowanie..."
+  }
 }

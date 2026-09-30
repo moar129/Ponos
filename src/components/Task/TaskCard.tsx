@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import type { TaskCardProps } from '../../types/Task/Task';
+import type { TaskAssignee, TaskCardProps } from '../../types/Task/Task';
+import type { OrganisationMember } from '../../types/role/roleType';
 import {
   useGetTaskAssigneesQuery,
-  useGetOrganisationEmployeesQuery,
   useAssignToTaskMutation,
   useUnassignFromTaskMutation,
   useRemoveAssigneeFromTaskMutation,
@@ -12,96 +12,82 @@ import {
   useCreateTaskRequestMutation,
   useGetRoomsQuery,
   useGetTaskMaterialsQuery,
-  useResolveTaskMaterialUnitsMutation,
 } from '../../store/apis/taskApi';
+import { useGetOrganisationMembersQuery } from '../../store/apis/roleApi';
+import { useGetMyProfileQuery } from '../../store/apis/profileApi';
+import { useApplyMaterialOutcomes } from '../../store/hooks/useApplyMaterialOutcomes';
+import { useDisplayName } from '../../store/hooks/useDisplayName';
+import { formatDate, formatNumericDate } from '../../utils/formatDate';
+import { formatFullName } from '../../utils/personName';
+import type { MaterialOutcomeEntry } from '../../types/Task/Task';
 import { EditTaskModal } from './EditTaskModal';
 import { TaskTimeline } from './TaskTimeline';
 import { TaskItemPicker } from './TaskItemPicker';
 import { TaskMaterialsList } from './TaskMaterialsList';
 import { ResolveTaskMaterialsModal } from './ResolveTaskMaterialsModal';
 import { TaskChatButton } from './TaskChatButton';
-import type { MaterialOutcomeEntry } from './ResolveTaskMaterialsModal';
-import { formatNumericDate, formatDate as formatLongDate } from '../../utils/formatDate';
-import { supabase } from '../../lib/supabase';
+import { PriorityBadge } from './PriorityBadge';
+import { Avatar } from '../common/Avatar';
+import { Modal } from '../common/Modal';
+
+const SECTION_LABEL = 'mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400';
+const GRAY_BADGE = 'rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400';
+const CLOSE_BUTTON = 'rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600';
 
 export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetailsOpen, onDetailsClose }: TaskCardProps) {
   const { t } = useTranslation(['tasks', 'common'])
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const displayName = useDisplayName();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(
-    defaultDetailsOpen ?? false
-  );
+  const [isDetailsOpen, setIsDetailsOpen] = useState(defaultDetailsOpen ?? false);
+  const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
+  const [showResolveModal, setShowResolveModal] = useState(false);
 
   const closeDetails = () => {
     setIsDetailsOpen(false);
     onDetailsClose?.();
   };
 
-  const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false);
-
-  const [assigneeProfiles, setAssigneeProfiles] = useState<
-    Record<
-      string,
-      {
-        name: string;
-        url_picture: string | null;
-      }
-    >
-  >({});
-
+  const currentUserId = useGetMyProfileQuery().data?.id ?? null;
   const { data: assignees = [] } = useGetTaskAssigneesQuery(task.id);
-  const { data: employees = [] } = useGetOrganisationEmployeesQuery();
+  // Navne og billeder på de tilmeldte kommer fra organisationens
+  // medlemsliste (hentet én gang, delt af alle kort).
+  const { data: members = [] } = useGetOrganisationMembersQuery();
   const { data: rooms = [] } = useGetRoomsQuery();
   const { data: taskRequests = [] } = useGetTaskRequestsQuery(task.id);
   const { data: materials = [] } = useGetTaskMaterialsQuery(task.id);
 
   const [assignToTask] = useAssignToTaskMutation();
   const [unassignFromTask] = useUnassignFromTaskMutation();
-  const [removeAssigneeFromTask] =
-    useRemoveAssigneeFromTaskMutation();
+  const [removeAssigneeFromTask] = useRemoveAssigneeFromTaskMutation();
+  const [updateTaskStatus, { isLoading: isUpdatingStatus }] = useUpdateTaskStatusMutation();
+  const [createTaskRequest, { isLoading: isCreatingRequest }] = useCreateTaskRequestMutation();
+  const { resolve } = useApplyMaterialOutcomes(task.id);
 
-  const [updateTaskStatus, { isLoading: isUpdatingStatus }] =
-    useUpdateTaskStatusMutation();
-
-  const [createTaskRequest, { isLoading: isCreatingRequest }] =
-    useCreateTaskRequestMutation();
-
-  const [resolveTaskMaterialUnits] = useResolveTaskMaterialUnitsMutation();
-
-  const [showResolveModal, setShowResolveModal] = useState(false);
+  const memberById = new Map(members.map((member) => [member.id, member]));
+  const assigneeName = (userId: string) => {
+    const member = memberById.get(userId);
+    return displayName(member && formatFullName(member.firstName, member.lastName));
+  };
 
   const taskRoom = rooms.find((room) => room.id === task.room_id);
-
-  const currentAssignee = assignees.find(
-    (assignee) => assignee.user_id === currentUserId
-  );
-
+  const currentAssignee = assignees.find((assignee) => assignee.user_id === currentUserId);
   const isAssigned = currentAssignee !== undefined;
 
   // Selv-tilmeldt = frivillig, kan afmelde sig (kun mens opgaven er Started,
   // håndhævet i RLS). Tilføjet af en anden = tildeling: kan ikke afmelde
   // sig, men kan stadig påbegynde og melde færdig.
-  const selfSigned =
-    currentAssignee?.assigned_by === currentUserId;
-
+  const selfSigned = currentAssignee?.assigned_by === currentUserId;
   const canUnassignSelf = selfSigned && task.status === 'Started';
 
-  const currentPendingRequest = taskRequests.find(
-    (request) =>
-      request.requested_by === currentUserId &&
-      request.status === 'Pending'
+  const hasPendingCompletionRequest = taskRequests.some(
+    (request) => request.requested_by === currentUserId && request.status === 'Pending'
   );
-
-  const hasPendingCompletionRequest =
-    currentPendingRequest !== undefined;
 
   // Seneste anmodning (listen er sorteret nyeste først) - er den afvist,
   // vises godkenderens begrundelse, indtil opgaven meldes færdig igen.
   const latestRequest = taskRequests[0];
   const rejectionReason =
-    task.status === 'InProgress' && latestRequest?.status === 'Rejected'
-      ? latestRequest.rejection_reason
-      : null;
+    task.status === 'InProgress' && latestRequest?.status === 'Rejected' ? latestRequest.rejection_reason : null;
 
   const rejectionBox = rejectionReason && (
     <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
@@ -109,88 +95,49 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
     </div>
   );
 
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const { data } = await supabase.auth.getUser();
+  const roomTag = (
+    <span className="mt-1 inline-flex w-fit items-center rounded-md border border-border-gray bg-bg-gray px-2 py-0.5 text-xs font-semibold text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+      {t('fields.room')}: {taskRoom?.name ?? t('rooms.noRoom')}
+    </span>
+  );
 
-      setCurrentUserId(data.user?.id ?? null);
-    };
+  const timeline = (
+    <div className="mb-6">
+      <TaskTimeline status={task.status} createdAt={task.created_at} startedAt={null} finishedAt={task.finished_at} />
+    </div>
+  );
 
-    getCurrentUser();
-  }, []);
-
-  useEffect(() => {
-    const getAssigneeProfiles = async () => {
-      if (assignees.length === 0) {
-        setAssigneeProfiles({});
-        return;
-      }
-
-      const userIds = assignees.map(
-        (assignee) => assignee.user_id
-      );
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, url_picture')
-        .in('id', userIds);
-
-      if (error || !data) {
-        return;
-      }
-
-      const profiles: Record<
-        string,
-        {
-          name: string;
-          url_picture: string | null;
-        }
-      > = {};
-
-      data.forEach((profile) => {
-        profiles[profile.id] = {
-          name: `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
-          url_picture: profile.url_picture,
-        };
-      });
-
-      setAssigneeProfiles(profiles);
-    };
-
-    getAssigneeProfiles();
-  }, [assignees]);
+  const badges = (
+    <>
+      {task.priority && (
+        <PriorityBadge
+          priority={task.priority}
+          size="md"
+          label={t('card.priorityBadge', { priority: t(`priority.${task.priority}`) })}
+        />
+      )}
+      <span className={GRAY_BADGE}>
+        {task.max_assignees === null ? t('assignees.noLimit') : t('assignees.maxOf', { people: t('assignees.count', { count: task.max_assignees }) })}
+      </span>
+    </>
+  );
 
   const handleAssignment = async () => {
-    if (hasPendingCompletionRequest) {
-      return;
-    }
+    if (hasPendingCompletionRequest) return;
 
     if (canUnassignSelf) {
-      await unassignFromTask({
-        taskId: task.id,
-        userId: currentUserId!,
-      });
-
+      await unassignFromTask({ taskId: task.id });
       return;
     }
 
     if (!isAssigned && currentUserId) {
-      await assignToTask({
-        taskId: task.id,
-        userId: currentUserId,
-      });
+      await assignToTask({ taskId: task.id, userId: currentUserId });
     }
   };
 
   const handleStartTask = async () => {
-    if (!currentUserId || !isAssigned) {
-      return;
-    }
-
-    await updateTaskStatus({
-      id: task.id,
-      status: 'InProgress',
-    });
+    if (!currentUserId || !isAssigned) return;
+    await updateTaskStatus({ id: task.id, status: 'InProgress' });
   };
 
   const unresolvedMaterials = materials.filter((m) => !m.resolved);
@@ -200,11 +147,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
       await createTaskRequest({ taskId: task.id });
       return;
     }
-
-    await updateTaskStatus({
-      id: task.id,
-      status: 'Completed',
-    });
+    await updateTaskStatus({ id: task.id, status: 'Completed' });
   };
 
   // Kaldes af ResolveTaskMaterialsModal, når den tildelte har valgt udfald
@@ -216,8 +159,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
   //   faktisk godkender. Afvises anmodningen i stedet, rører vi slet ikke
   //   materialerne (se 2026-09-23-defer-material-resolution-to-approval.sql).
   // - UDEN godkendelse: der er intet godkendelsestrin at vente på, så
-  //   udfaldene anvendes med det samme (resolveTaskMaterialUnits pr. linje),
-  //   før opgaven markeres Completed.
+  //   udfaldene anvendes med det samme, før opgaven markeres Completed.
   const handleResolveConfirm = async (entries: MaterialOutcomeEntry[]) => {
     if (task.requires_approval) {
       await createTaskRequest({
@@ -225,15 +167,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         materialOutcomes: entries.map(({ taskMaterialId, outcomes }) => ({ taskMaterialId, outcomes })),
       }).unwrap();
     } else {
-      for (const entry of entries) {
-        await resolveTaskMaterialUnits({
-          taskMaterialId: entry.taskMaterialId,
-          taskId: task.id,
-          itemId: entry.itemId,
-          outcomes: entry.outcomes,
-        }).unwrap();
-      }
-
+      await resolve(entries);
       await updateTaskStatus({ id: task.id, status: 'Completed' });
     }
 
@@ -241,13 +175,7 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
   };
 
   const handleCompleteTask = async () => {
-    if (!currentUserId || !isAssigned) {
-      return;
-    }
-
-    if (hasPendingCompletionRequest) {
-      return;
-    }
+    if (!currentUserId || !isAssigned || hasPendingCompletionRequest) return;
 
     if (unresolvedMaterials.length > 0) {
       setShowResolveModal(true);
@@ -257,53 +185,8 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
     await proceedToComplete();
   };
 
-  const getPriorityColor = (
-    priority: TaskCardProps['task']['priority']
-  ) => {
-    switch (priority) {
-      case 'Low':
-        return 'bg-green-100 text-green-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-
-      case 'Medium':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-amber-900/30 dark:text-amber-400';
-
-      case 'High':
-        return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-
-      case 'Critical':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-
-      default:
-        return 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300';
-    }
-  };
-
-  const formatDate = (date: string | null) => {
-    if (!date) return '—';
-    return formatNumericDate(date);
-  };
-
-  const formatFullDate = (date: string | null) => {
-    if (!date) return '—';
-    return formatLongDate(date);
-  };
-
-  const getInitials = (name: string) => {
-    const parts = name.split(' ').filter(Boolean);
-
-    if (parts.length === 0) {
-      return '?';
-    }
-
-    if (parts.length === 1) {
-      return parts[0].charAt(0).toUpperCase();
-    }
-
-    return (
-      parts[0].charAt(0) +
-      parts[parts.length - 1].charAt(0)
-    ).toUpperCase();
-  };
+  const unassignedMembers = members.filter((member) => !assignees.some((assignee) => assignee.user_id === member.id));
+  const isFull = task.max_assignees !== null && assignees.length >= task.max_assignees;
 
   return (
     <>
@@ -312,19 +195,9 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         onClick={() => setIsDetailsOpen(true)}
         className="w-full cursor-pointer rounded-xl border-2 border-border-gray bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
       >
-        {/* HEADER */}
-        <div className="mb-4 flex items-start justify-between">
-          <div className="min-w-0">
-            <h3 className="text-xl font-bold text-primary dark:text-slate-100">
-              {task.title}
-            </h3>
-
-            <span className="mt-1 inline-flex w-fit items-center rounded-md border border-border-gray bg-bg-gray px-2 py-0.5 text-xs font-semibold text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
-              {taskRoom
-                ? `Rum: ${taskRoom.name}`
-                : 'Rum: Uden rum'}
-            </span>
-          </div>
+        <div className="mb-4 min-w-0">
+          <h3 className="text-xl font-bold text-primary dark:text-slate-100">{task.title}</h3>
+          {roomTag}
         </div>
 
         {/* BESKRIVELSE */}
@@ -332,204 +205,94 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
           <span className="absolute -top-3 left-3 bg-white px-2 text-xs font-bold uppercase text-secondary dark:bg-slate-800 dark:text-slate-400">
             {t('common:info')}
           </span>
-
           <p className="break-words text-sm text-secondary hyphens-auto dark:text-slate-400">
             {task.description || t('card.noDescription')}
           </p>
         </div>
 
-        {/* TIDSLINJE */}
+        {timeline}
+
+        <div className="mb-4 flex flex-wrap gap-2">{badges}</div>
+
         <div className="mb-6">
-          <TaskTimeline
-            status={task.status}
-            createdAt={task.created_at}
-            startedAt={null}
-            finishedAt={task.finished_at}
-          />
-        </div>
-
-        {/* BADGES */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {task.priority && (
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(
-                task.priority
-              )}`}
-            >
-              {t('card.priorityBadge', { priority: t(`priority.${task.priority}`) })}
-            </span>
-          )}
-
-          <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
-            {task.max_assignees === null
-              ? t('assignees.noLimit')
-              : `Maks. ${task.max_assignees} personer`}
-          </span>
-        </div>
-
-        {/* ANSVARLIGE */}
-        <div className="mb-6">
-          <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-            {t('card.responsible')}
-          </span>
-
-          {assignees.length === 0 ? (
-            <p className="text-sm text-secondary dark:text-slate-400">
-              {t('assignees.nobodyAssigned')}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {assignees.map((assignee) => {
-                const profile =
-                  assigneeProfiles[assignee.user_id];
-
-                const name = profile?.name || t('assignees.unknownUser');
-
-                const assignedByMe =
-                  assignee.assigned_by === currentUserId;
-
-                return (
-                  <div
-                    key={assignee.user_id}
-                    className="flex items-center justify-between rounded-lg border border-border-gray px-4 py-3 dark:border-slate-700"
-                  >
-                    <div className="flex items-center gap-3">
-                      {profile?.url_picture ? (
-                        <img
-                          src={profile.url_picture}
-                          alt={name}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-gray text-sm font-bold text-primary dark:bg-slate-700 dark:text-slate-100">
-                          {getInitials(name)}
-                        </div>
-                      )}
-
-                      <div>
-                        <p className="font-medium text-primary dark:text-slate-100">
-                          {name}
-                        </p>
-
-                        <p className="text-xs text-secondary dark:text-slate-400">
-                          {assignedByMe
-                            ? t('assignees.selfSigned')
-                            : t('assignees.assignedByOther')}
-                        </p>
-                      </div>
-                    </div>
-
-                    {assignee.user_id === currentUserId && (
-                      <span className="text-xs font-semibold text-secondary dark:text-slate-400">
-                        {t('common:you')}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <span className={SECTION_LABEL}>{t('card.responsible')}</span>
+          <AssigneeList assignees={assignees} currentUserId={currentUserId} nameOf={assigneeName} memberById={memberById} />
         </div>
 
         {/* DATOER */}
         <div className="mb-5 flex flex-wrap gap-x-8 gap-y-2 border-t border-border-gray pt-3 text-sm text-secondary dark:border-slate-700 dark:text-slate-400">
-          <div>
-            <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-              {t('card.start')}
-            </span>
-
-            <span className="font-medium text-primary dark:text-slate-100">
-              {formatDate(task.start_date)}
-            </span>
-          </div>
-
-          <div>
-            <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-              {t('card.end')}
-            </span>
-
-            <span className="font-medium text-primary dark:text-slate-100">
-              {formatDate(task.end_date)}
-            </span>
-          </div>
+          {([['card.start', task.start_date], ['card.end', task.end_date]] as const).map(([labelKey, date]) => (
+            <div key={labelKey}>
+              <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">{t(labelKey)}</span>
+              <span className="font-medium text-primary dark:text-slate-100">{date ? formatNumericDate(date) : '—'}</span>
+            </div>
+          ))}
         </div>
 
-        {/* AFVIST-BEGRUNDELSE */}
         {rejectionBox}
 
         {/* HANDLINGER */}
         <div className="flex flex-wrap gap-3">
-          {/* TILMELD / AFMELD */}
-          {(task.status === 'Started' ||
-            task.status === 'InProgress') && (
-              <>
-                {!hasPendingCompletionRequest && (
-                  <button
-                    type="button"
-                    disabled={isAssigned && !canUnassignSelf}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAssignment();
-                    }}
-                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
-                        ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
-                        : isAssigned
-                          ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                          : 'border-accent text-accent hover:bg-accent hover:text-accent-text'
-                      }`}
-                  >
-                    {canUnassignSelf
-                      ? t('assignees.signOff')
+          {(task.status === 'Started' || task.status === 'InProgress') && (
+            <>
+              {/* TILMELD / AFMELD */}
+              {!hasPendingCompletionRequest && (
+                <button
+                  type="button"
+                  disabled={isAssigned && !canUnassignSelf}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAssignment();
+                  }}
+                  className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${canUnassignSelf
+                      ? 'border-red-800 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400'
                       : isAssigned
-                        ? t('assignees.assignedToYou')
-                        : t('assignees.signUp')}
-                  </button>
-                )}
-
-                {/* PÅBEGYND ARBEJDE */}
-                {task.status === 'Started' && isAssigned && (
-                  <button
-                    type="button"
-                    disabled={isUpdatingStatus}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleStartTask();
-                    }}
-                    className="rounded border-2 border-accent bg-accent px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isUpdatingStatus
-                      ? t('common:updating')
-                      : t('card.startWork')}
-                  </button>
-                )}
-
-                {/* MELD FÆRDIG */}
-                {task.status === 'InProgress' && isAssigned && (
-                  <button
-                    type="button"
-                    disabled={
-                      isUpdatingStatus ||
-                      isCreatingRequest ||
-                      hasPendingCompletionRequest
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCompleteTask();
-                    }}
-                    className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
                         ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
-                        : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
-                      }`}
-                  >
-                    {hasPendingCompletionRequest
-                      ? t('card.awaitingApproval')
-                      : isCreatingRequest || isUpdatingStatus
-                        ? t('common:sending')
-                        : t('card.markDone')}
-                  </button>
-                )}
-              </>
-            )}
+                        : 'border-accent text-accent hover:bg-accent hover:text-accent-text'
+                    }`}
+                >
+                  {canUnassignSelf ? t('assignees.signOff') : isAssigned ? t('assignees.assignedToYou') : t('assignees.signUp')}
+                </button>
+              )}
+
+              {/* PÅBEGYND ARBEJDE */}
+              {task.status === 'Started' && isAssigned && (
+                <button
+                  type="button"
+                  disabled={isUpdatingStatus}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartTask();
+                  }}
+                  className="rounded border-2 border-accent bg-accent px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest text-accent-text transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isUpdatingStatus ? t('common:updating') : t('card.startWork')}
+                </button>
+              )}
+
+              {/* MELD FÆRDIG */}
+              {task.status === 'InProgress' && isAssigned && (
+                <button
+                  type="button"
+                  disabled={isUpdatingStatus || isCreatingRequest || hasPendingCompletionRequest}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCompleteTask();
+                  }}
+                  className={`rounded border-2 px-4 xl:px-8 py-2 text-xs font-bold uppercase tracking-widest transition-all ${hasPendingCompletionRequest
+                      ? 'cursor-not-allowed border-border-gray bg-bg-gray text-secondary dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400'
+                      : 'border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white'
+                    }`}
+                >
+                  {hasPendingCompletionRequest
+                    ? t('card.awaitingApproval')
+                    : isCreatingRequest || isUpdatingStatus
+                      ? t('common:sending')
+                      : t('card.markDone')}
+                </button>
+              )}
+            </>
+          )}
 
           {/* OPGAVE-CHAT - jeg er deltager, eller tilmeldt og kan melde mig ind igen */}
           <TaskChatButton taskId={task.id} canJoin={isAssigned && assignees.length >= 2} />
@@ -546,424 +309,224 @@ export function TaskCard({ task, canUpdate, canDelete, canAssign, defaultDetails
         />
       )}
 
-      {/* TASK DETAILS POPUP */}
+      {/* OPGAVEDETALJER */}
       {isDetailsOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => {
-            closeDetails();
-          }}
-        >
-          <div
-            className="flex max-h-[90vh] w-full max-w-lg lg:max-w-2xl flex-col rounded-xl border border-border-gray bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
-            onClick={(e) => e.stopPropagation()}
-          >
-          <div className="overflow-y-auto p-6">
-            {/* HEADER */}
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-primary dark:text-slate-100">
-                  {task.title}
-                </h2>
-
-                <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                  {t('card.details')}
-                </p>
-
-                <span className="mt-1 inline-flex w-fit items-center rounded-md border border-border-gray bg-bg-gray px-2 py-0.5 text-xs font-semibold text-secondary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
-                  {taskRoom
-                    ? `Rum: ${taskRoom.name}`
-                    : 'Rum: Uden rum'}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4">
-                {/* REDIGER - gemme er gated af canUpdate og sletning af
-                    canDelete inde i EditTaskModal, så knappen vises ved
-                    hver af de to */}
-                {(canUpdate || canDelete) && (
-                  <button
-                    type="button"
-                    onClick={() => setIsEditOpen(true)}
-                    className="text-sm font-semibold text-accent hover:text-accent-hover"
-                  >
-                    {t('card.edit')}
-                  </button>
-                )}
-
-                {/* LUK */}
+        <Modal
+          onClose={closeDetails}
+          size="2xl"
+          title={task.title}
+          subtitle={<>{t('card.details')}<br />{roomTag}</>}
+          footer={
+            <div className="flex w-full items-center justify-between gap-3">
+              {/* Gemme er gated af canUpdate og sletning af canDelete inde
+                  i EditTaskModal, så knappen vises ved hver af de to. */}
+              {canUpdate || canDelete ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    closeDetails();
-                  }}
-                  className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
+                  onClick={() => setIsEditOpen(true)}
+                  className="text-sm font-semibold text-accent hover:text-accent-hover"
                 >
-                  X
+                  {t('common:edit')}
                 </button>
-              </div>
-            </div>
+              ) : <span />}
 
-            {/* BESKRIVELSE */}
-            <div className="mb-5 rounded-lg border border-border-gray bg-bg-gray/40 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-              <span className="mb-2 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-                {t('common:description')}
-              </span>
-
-              <p className="break-words text-sm text-secondary dark:text-slate-400">
-                {task.description || t('card.noDescription')}
-              </p>
-            </div>
-
-            {/* TIDSLINJE */}
-            <div className="mb-6">
-              <TaskTimeline
-                status={task.status}
-                createdAt={task.created_at}
-                startedAt={null}
-                finishedAt={task.finished_at}
-              />
-            </div>
-
-            {/* PRIORITET + PERSONER */}
-            <div className="mb-5">
-              <div className="flex flex-wrap gap-2">
-                {task.priority && (
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(
-                      task.priority
-                    )}`}
-                  >
-                    {t('card.priorityBadge', { priority: t(`priority.${task.priority}`) })}
-                  </span>
-                )}
-
-                <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
-                  {task.max_assignees === null
-                    ? t('assignees.noLimit')
-                    : `Maks. ${task.max_assignees} personer`}
-                </span>
-
-                <span className="rounded-full bg-bg-gray px-3 py-1 text-xs font-semibold text-secondary dark:bg-slate-700 dark:text-slate-400">
-                  {t('card.statusValue', { status: t(`status.${task.status}`) })}
-                </span>
-              </div>
-
-              {rejectionBox && <div className="mt-3">{rejectionBox}</div>}
-
-              {task.requires_approval && (
-                <div className="mt-3">
-                  <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                    {t('card.requiresApproval')}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* ANSVARLIGE */}
-            <div className="mb-6">
-              <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-                {t('card.responsible')}
-              </span>
-
-              {assignees.length === 0 ? (
-                <p className="text-sm text-secondary dark:text-slate-400">
-                  {t('assignees.nobodyAssigned')}
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {assignees.map((assignee) => {
-                    const profile =
-                      assigneeProfiles[assignee.user_id];
-
-                    const name = profile?.name || t('assignees.unknownUser');
-
-                    const assignedByMe =
-                      assignee.assigned_by === currentUserId;
-
-                    return (
-                      <div
-                        key={assignee.user_id}
-                        className="flex items-center justify-between rounded-lg border border-border-gray px-4 py-3 dark:border-slate-700"
-                      >
-                        <div className="flex items-center gap-3">
-                          {profile?.url_picture ? (
-                            <img
-                              src={profile.url_picture}
-                              alt={name}
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-gray text-sm font-bold text-primary dark:bg-slate-700 dark:text-slate-100">
-                              {getInitials(name)}
-                            </div>
-                          )}
-
-                          <div>
-                            <p className="font-medium text-primary dark:text-slate-100">
-                              {name}
-                            </p>
-
-                            <p className="text-xs text-secondary dark:text-slate-400">
-                              {assignedByMe
-                                ? t('assignees.selfSigned')
-                                : t('assignees.assignedByOther')}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {assignee.user_id === currentUserId && (
-                            <span className="text-xs font-semibold text-secondary dark:text-slate-400">
-                              {t('common:you')}
-                            </span>
-                          )}
-
-                          {canAssign && (
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                await removeAssigneeFromTask({
-                                  taskId: task.id,
-                                  userId: assignee.user_id,
-                                });
-                              }}
-                              className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                            >
-                              {t('common:remove')}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {canAssign && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setIsEmployeePickerOpen(true)
-                  }
-                  className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
-                >
-                  {t('card.addEmployeeShort')}
-                </button>
-              )}
-            </div>
-
-            {/* MATERIALER */}
-            <div className="mb-6">
-              <span className="mb-3 block text-xs font-bold uppercase text-secondary dark:text-slate-400">
-                {t('materials.heading')}
-              </span>
-
-              <TaskMaterialsList taskId={task.id} canManage={canUpdate} taskStatus={task.status} />
-
-              {canUpdate && <TaskItemPicker taskId={task.id} />}
-            </div>
-
-            {/* DATOER */}
-            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
-                <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-                  {t('fields.startDate')}
-                </span>
-
-                <span className="mt-1 block font-medium text-primary dark:text-slate-100">
-                  {formatFullDate(task.start_date)}
-                </span>
-              </div>
-
-              <div className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
-                <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-                  {t('fields.endDate')}
-                </span>
-
-                <span className="mt-1 block font-medium text-primary dark:text-slate-100">
-                  {formatFullDate(task.end_date)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-            {/* HANDLINGER */}
-            <div className="flex justify-end border-t border-border-gray p-4 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => {
-                  closeDetails();
-                }}
-                className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
-              >
+              <button type="button" onClick={closeDetails} className={CLOSE_BUTTON}>
                 {t('common:close')}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* EMPLOYEE PICKER */}
-      {isEmployeePickerOpen && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setIsEmployeePickerOpen(false)}
+          }
         >
-          <div
-            className="w-full max-w-md rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* HEADER */}
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-primary dark:text-slate-100">
-                  {t('assignees.addEmployee')}
-                </h3>
+          <div className="mb-5 rounded-lg border border-border-gray bg-bg-gray/40 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+            <span className="mb-2 block text-xs font-bold uppercase text-secondary dark:text-slate-400">{t('common:description')}</span>
+            <p className="break-words text-sm text-secondary dark:text-slate-400">{task.description || t('card.noDescription')}</p>
+          </div>
 
-                <p className="mt-1 text-sm text-secondary dark:text-slate-400">
-                  {t('assignees.chooseWho')}
-                </p>
-              </div>
+          {timeline}
 
-              <button
-                type="button"
-                onClick={() =>
-                  setIsEmployeePickerOpen(false)
-                }
-                className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100"
-              >
-                X
-              </button>
+          <div className="mb-5">
+            <div className="flex flex-wrap gap-2">
+              {badges}
+              <span className={GRAY_BADGE}>{t('card.statusValue', { status: t(`status.${task.status}`) })}</span>
             </div>
 
-            {/* ANTAL ANSVARLIGE */}
-            <div className="mb-4 rounded-lg bg-bg-gray/40 px-4 py-3 dark:bg-slate-900/40">
-              <p className="text-sm font-semibold text-secondary dark:text-slate-400">
-                Ansvarlige:{' '}
-                {task.max_assignees === null
-                  ? assignees.length
-                  : `${assignees.length} / ${task.max_assignees}`}
-              </p>
+            {rejectionBox && <div className="mt-3">{rejectionBox}</div>}
 
-              {task.max_assignees !== null &&
-                assignees.length >= task.max_assignees && (
-                  <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                    {t('assignees.maxReached')}
-                  </p>
-                )}
-            </div>
-
-            {/* MEDARBEJDERE */}
-            {task.max_assignees !== null &&
-              assignees.length >= task.max_assignees ? (
-              <p className="py-6 text-center text-sm text-secondary dark:text-slate-400">
-                {t('assignees.noFreeSlots')}
-              </p>
-            ) : (
-              <div className="max-h-80 space-y-2 overflow-y-auto">
-                {employees
-                  .filter(
-                    (employee) =>
-                      !assignees.some(
-                        (assignee) =>
-                          assignee.user_id === employee.id
-                      )
-                  )
-                  .map((employee) => {
-                    const name =
-                      `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim();
-
-                    return (
-                      <button
-                        key={employee.id}
-                        type="button"
-                        onClick={async () => {
-                          await assignToTask({
-                            taskId: task.id,
-                            userId: employee.id,
-                          });
-
-                          setIsEmployeePickerOpen(false);
-                        }}
-                        className="w-full rounded-lg border border-border-gray px-4 py-3 text-left transition hover:border-secondary hover:bg-bg-gray dark:border-slate-700 dark:hover:bg-slate-700"
-                      >
-                        <div className="flex items-center gap-3">
-                          {employee.url_picture ? (
-                            <img
-                              src={employee.url_picture}
-                              alt={
-                                name ||
-                                employee.email ||
-                                t('assignees.employee')
-                              }
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-gray text-sm font-bold text-primary dark:bg-slate-700 dark:text-slate-100">
-                              {getInitials(
-                                name || employee.email || '?'
-                              )}
-                            </div>
-                          )}
-
-                          <div>
-                            {(name || employee.email) && (
-                              <p className="font-medium text-primary dark:text-slate-100">
-                                {name || employee.email}
-                              </p>
-                            )}
-
-                            {employee.email && (
-                              <p className="text-xs text-secondary dark:text-slate-400">
-                                {employee.email}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-
-                {employees.filter(
-                  (employee) =>
-                    !assignees.some(
-                      (assignee) =>
-                        assignee.user_id === employee.id
-                    )
-                ).length === 0 && (
-                    <p className="py-4 text-center text-sm text-secondary dark:text-slate-400">
-                      {t('assignees.nobodyToAssign')}
-                    </p>
-                  )}
+            {task.requires_approval && (
+              <div className="mt-3">
+                <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  {t('card.requiresApproval')}
+                </span>
               </div>
             )}
+          </div>
 
-            {/* LUK */}
-            <div className="mt-5 flex justify-end">
+          <div className="mb-6">
+            <span className={SECTION_LABEL}>{t('card.responsible')}</span>
+            <AssigneeList
+              assignees={assignees}
+              currentUserId={currentUserId}
+              nameOf={assigneeName}
+              memberById={memberById}
+              onRemove={canAssign ? (userId) => void removeAssigneeFromTask({ taskId: task.id, userId }) : undefined}
+            />
+
+            {canAssign && (
               <button
                 type="button"
-                onClick={() =>
-                  setIsEmployeePickerOpen(false)
-                }
-                className="rounded-lg bg-bg-gray px-5 py-2 text-sm font-semibold text-primary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
+                onClick={() => setIsEmployeePickerOpen(true)}
+                className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
               >
-                {t('common:close')}
+                {t('card.addEmployeeShort')}
               </button>
-            </div>
+            )}
           </div>
-        </div>
+
+          <div className="mb-6">
+            <span className={SECTION_LABEL}>{t('materials.heading')}</span>
+            <TaskMaterialsList taskId={task.id} canManage={canUpdate} taskStatus={task.status} />
+            {canUpdate && <TaskItemPicker taskId={task.id} />}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {([['fields.startDate', task.start_date], ['fields.endDate', task.end_date]] as const).map(([labelKey, date]) => (
+              <div key={labelKey} className="rounded-lg border border-border-gray p-4 dark:border-slate-700">
+                <span className="block text-xs font-semibold uppercase text-secondary dark:text-slate-400">{t(labelKey)}</span>
+                <span className="mt-1 block font-medium text-primary dark:text-slate-100">{date ? formatDate(date) : '—'}</span>
+              </div>
+            ))}
+          </div>
+        </Modal>
       )}
 
-      {/* EDIT MODAL */}
-      <EditTaskModal
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        task={task}
-        canUpdate={canUpdate}
-        canDelete={canDelete}
-        assigneeNames={assignees.map((a) => assigneeProfiles[a.user_id]?.name || t('assignees.unknownUser'))}
-      />
+      {/* TILFØJ MEDARBEJDER */}
+      {isEmployeePickerOpen && (
+        <Modal
+          onClose={() => setIsEmployeePickerOpen(false)}
+          title={t('assignees.addEmployee')}
+          subtitle={t('assignees.chooseWho')}
+          footer={
+            <button type="button" onClick={() => setIsEmployeePickerOpen(false)} className={CLOSE_BUTTON}>
+              {t('common:close')}
+            </button>
+          }
+        >
+          <div className="mb-4 rounded-lg bg-bg-gray/40 px-4 py-3 dark:bg-slate-900/40">
+            <p className="text-sm font-semibold text-secondary dark:text-slate-400">
+              {t('card.responsible')}:{' '}
+              {task.max_assignees === null ? assignees.length : `${assignees.length} / ${task.max_assignees}`}
+            </p>
+            {isFull && <p className="mt-1 text-xs text-secondary dark:text-slate-400">{t('assignees.maxReached')}</p>}
+          </div>
+
+          {isFull ? (
+            <p className="py-6 text-center text-sm text-secondary dark:text-slate-400">{t('assignees.noFreeSlots')}</p>
+          ) : unassignedMembers.length === 0 ? (
+            <p className="py-4 text-center text-sm text-secondary dark:text-slate-400">{t('assignees.nobodyToAssign')}</p>
+          ) : (
+            <div className="max-h-80 space-y-2 overflow-y-auto">
+              {unassignedMembers.map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  onClick={async () => {
+                    await assignToTask({ taskId: task.id, userId: member.id });
+                    setIsEmployeePickerOpen(false);
+                  }}
+                  className="w-full rounded-lg border border-border-gray px-4 py-3 text-left transition hover:border-secondary hover:bg-bg-gray dark:border-slate-700 dark:hover:bg-slate-700"
+                >
+                  <PersonRow member={member} name={formatFullName(member.firstName, member.lastName) || member.email} detail={member.email} />
+                </button>
+              ))}
+            </div>
+          )}
+        </Modal>
+      )}
+
+      {isEditOpen && (
+        <EditTaskModal
+          onClose={() => setIsEditOpen(false)}
+          task={task}
+          canUpdate={canUpdate}
+          canDelete={canDelete}
+          assigneeNames={assignees.map((a) => assigneeName(a.user_id))}
+        />
+      )}
     </>
+  );
+}
+
+// Avatar + navn + en linje under - de tilmeldte og medarbejder-vælgeren.
+function PersonRow({ member, name, detail }: { member: OrganisationMember | undefined; name: string; detail: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar
+        firstName={member?.firstName}
+        lastName={member?.lastName}
+        urlPicture={member?.urlPicture}
+        className="h-10 w-10 bg-bg-gray text-primary dark:bg-slate-700 dark:text-slate-100"
+        textClassName="text-sm font-bold"
+      />
+      <div>
+        <p className="font-medium text-primary dark:text-slate-100">{name}</p>
+        <p className="text-xs text-secondary dark:text-slate-400">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+// De tilmeldte på kortet og i detaljerne. Med onRemove kan de fjernes.
+function AssigneeList({
+  assignees,
+  currentUserId,
+  nameOf,
+  memberById,
+  onRemove,
+}: {
+  assignees: TaskAssignee[];
+  currentUserId: string | null;
+  nameOf: (userId: string) => string;
+  memberById: Map<string, OrganisationMember>;
+  onRemove?: (userId: string) => void;
+}) {
+  const { t } = useTranslation(['tasks', 'common']);
+
+  if (assignees.length === 0) {
+    return <p className="text-sm text-secondary dark:text-slate-400">{t('assignees.nobodyAssigned')}</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {assignees.map((assignee) => (
+        <div
+          key={assignee.user_id}
+          className="flex items-center justify-between rounded-lg border border-border-gray px-4 py-3 dark:border-slate-700"
+        >
+          <PersonRow
+            member={memberById.get(assignee.user_id)}
+            name={nameOf(assignee.user_id)}
+            detail={assignee.assigned_by === currentUserId ? t('assignees.selfSigned') : t('assignees.assignedByOther')}
+          />
+
+          <div className="flex items-center gap-3">
+            {assignee.user_id === currentUserId && (
+              <span className="text-xs font-semibold text-secondary dark:text-slate-400">{t('common:you')}</span>
+            )}
+
+            {onRemove && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(assignee.user_id);
+                }}
+                className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              >
+                {t('common:remove')}
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -101,7 +101,6 @@
       "deadline": "Scadenza più vicina prima",
       "rejections": "Più rifiuti prima"
     },
-    "resetFilters": "Reimposta",
     "showing": "{{count}} di {{total}}",
     "noMatch": "Nessuna richiesta corrisponde ai filtri.",
     "deadline": "Scadenza {{date}}",

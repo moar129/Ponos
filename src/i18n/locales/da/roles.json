@@ -100,7 +100,6 @@
       "deadline": "Tidligste deadline først",
       "rejections": "Flest afvisninger først"
     },
-    "resetFilters": "Nulstil",
     "showing": "Viser {{count}} af {{total}}",
     "noMatch": "Ingen færdigmeldinger matcher filtrene.",
     "deadline": "Deadline {{date}}",

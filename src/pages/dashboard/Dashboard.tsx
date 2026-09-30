@@ -5,24 +5,8 @@ import type { LucideIcon } from 'lucide-react'
 import { useGetMyProfileQuery } from '../../store/apis/profileApi'
 import { useTranslation } from 'react-i18next'
 import { useGetMyOrganisationQuery } from '../../store/apis/organisationApi'
-import {
-    APPROVE_TASK_PRIVILEGE,
-    REJECT_TASK_PRIVILEGE,
-    CREATE_INVITATIONS_PRIVILEGE,
-    CREATE_ROLES_PRIVILEGE,
-    DELETE_INVITATIONS_PRIVILEGE,
-    DELETE_MEMBERS_PRIVILEGE,
-    DELETE_ROLES_PRIVILEGE,
-    READ_INVITATIONS_PRIVILEGE,
-    READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
-    READ_ROLES_PRIVILEGE,
-    UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-    UPDATE_ORGANISATION_PRIVILEGE,
-    UPDATE_ROLES_PRIVILEGE,
-    VIEW_COMPLETED_TASKS_PRIVILEGE,
-    useHasAnyPrivilege,
-    useHasPrivilege,
-} from '../../store/apis/privilegeApi'
+import { useAdministrationTabs } from '../../store/hooks/useAdministrationTabs'
+import { resolveDashboardTab } from '../../utils/dashboardTab'
 import type { DashboardTab } from '../../types/dashboard/dashboardType'
 import { OverviewTab } from '../../components/dashboard/OverviewTab'
 import { OrganisationTab } from '../../components/dashboard/OrganisationTab'
@@ -50,51 +34,15 @@ export default function Dashboard() {
     const { t } = useTranslation('dashboard')
     const { data: profile } = useGetMyProfileQuery()
     const { data: organisation, isLoading: loadingOrganisation } = useGetMyOrganisationQuery()
-    const { hasPrivilege: canSeeRolesDomain } = useHasAnyPrivilege([
-        CREATE_ROLES_PRIVILEGE,
-        READ_ROLES_PRIVILEGE,
-        UPDATE_ROLES_PRIVILEGE,
-        DELETE_ROLES_PRIVILEGE,
-    ])
-    const { hasPrivilege: canManageMembers } = useHasPrivilege(DELETE_MEMBERS_PRIVILEGE)
-    const { hasPrivilege: canManageInvitations } = useHasAnyPrivilege([
-        CREATE_INVITATIONS_PRIVILEGE,
-        READ_INVITATIONS_PRIVILEGE,
-        DELETE_INVITATIONS_PRIVILEGE,
-    ])
-    const { hasPrivilege: canManageMembershipRequests } = useHasAnyPrivilege([
-        READ_MEMBERSHIP_REQUESTS_PRIVILEGE,
-        UPDATE_MEMBERSHIP_REQUESTS_PRIVILEGE,
-    ])
-    const { hasPrivilege: canManageOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
-    // Samme check som AdministrationTab.tsx bruger til "Afsluttede
-    // opgaver"-underfanen. read_tasks ALENE giver bevidst IKKE adgang til
-    // Administration. 2026-09-27: eget privilegie view_completed_tasks
-    // (håndhævet i RLS) i stedet for update/delete_tasks.
-    const { hasPrivilege: canSeeCompletedTasks } = useHasPrivilege(VIEW_COMPLETED_TASKS_PRIVILEGE)
-    const { hasPrivilege: canSeeTaskApprovals } = useHasAnyPrivilege([APPROVE_TASK_PRIVILEGE, REJECT_TASK_PRIVILEGE])
-    const canSeeAdministration =
-        canSeeTaskApprovals ||
-        canSeeRolesDomain ||
-        canManageMembers ||
-        canManageInvitations ||
-        canManageMembershipRequests ||
-        canManageOrganisation ||
-        canSeeCompletedTasks
+    // Samme liste som selve fanen bruger - så de ikke kan være uenige.
+    const canSeeAdministration = useAdministrationTabs().length > 0
 
     const [searchParams, setSearchParams] = useSearchParams()
     const rawTab = searchParams.get('tab')
 
-    // Uden et eksplicit ?tab=... falder vi tilbage til Oversigt for en
-    // bruger med aktiv organisation, og til Organisation for en bruger
-    // uden - der er intet nyttigt at vise på Oversigt for dem endnu.
-    // (Ventes stadig på svar fra organisations-opslaget, antages der en
-    // aktiv org, så vi ikke først viser Organisation og så hopper til
-    // Oversigt et øjeblik efter.)
-    const requestedTab: DashboardTab =
-        rawTab === 'organisation' || rawTab === 'administration' || rawTab === 'oversigt'
-            ? rawTab
-            : (loadingOrganisation || organisation ? 'oversigt' : 'organisation')
+    // Venter vi stadig på organisations-opslaget, antages der en aktiv
+    // org, så vi ikke først viser Organisation og så hopper til Oversigt.
+    const requestedTab = resolveDashboardTab(rawTab, loadingOrganisation || Boolean(organisation))
 
     // Falder tilbage til Oversigt, hvis Administration er valgt men lige
     // er blevet usynlig (fx mistet privilegie, eller brugeren netop

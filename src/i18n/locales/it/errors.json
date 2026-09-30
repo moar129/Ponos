@@ -1,13 +1,7 @@
 {
   "generic": "Qualcosa è andato storto. Riprova.",
-  "notLoggedIn": "Non hai effettuato l'accesso.",
   "loginRequired": "Devi aver effettuato l'accesso.",
-  "loginRequiredForAction": "Devi aver effettuato l'accesso per eseguire questa azione.",
-  "loginRequiredForMembership": "Devi aver effettuato l'accesso per richiedere l'adesione.",
-  "loginRequiredForProfile": "Devi aver effettuato l'accesso per modificare il tuo profilo.",
-  "loginRequiredForOrganisation": "Devi aver effettuato l'accesso per modificare l'organizzazione.",
   "noOrganisation": "Non sei membro di alcuna organizzazione.",
-  "organisationLookupFailed": "Impossibile caricare la tua appartenenza all'organizzazione.",
   "wrongCurrentPassword": "La tua password attuale non è corretta.",
   "passwordChangeFailed": "Non è stato possibile cambiare la password. Riprova.",
   "requestAlreadyHandled": "Non è stato possibile elaborare la richiesta. Forse è già stata gestita, oppure non hai i permessi necessari.",

@@ -53,6 +53,16 @@ export function isSupportedLanguage(code: string): boolean {
 }
 
 /**
+ * Sproget ved opstart. Pre-hydration-scriptet i index.html har allerede
+ * afgjort det (localStorage/navigator) og skrevet det på <html lang>, så
+ * i18n og languageSlice læser det derfra i stedet for at gentage logikken.
+ */
+export function getDocumentLanguage(): string {
+  const fromDocument = document.documentElement.lang
+  return isSupportedLanguage(fromDocument) ? fromDocument : DEFAULT_LANGUAGE
+}
+
+/**
  * Finder et sprog i registret. Bruges af vælgerne til at vise det aktive
  * sprogs navn; falder tilbage til dansk, så kaldere slipper for null-tjek.
  */

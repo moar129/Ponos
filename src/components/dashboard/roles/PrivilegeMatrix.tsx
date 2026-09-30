@@ -17,6 +17,7 @@ import { RoleColumnHeader } from './RoleColumnHeader'
 import { MatrixRow } from './MatrixRow'
 import { roleColumnLockState } from './privilegeLocking'
 import type { Privilege } from '../../../types/role/roleType'
+import { Alert } from '../../common/Alert'
 
 
 const KNOWN_NAMES = new Set(KNOWN_PRIVILEGES.map((p) => p.name))
@@ -148,11 +149,7 @@ export function PrivilegeMatrix() {
                 </button>
             </form>
 
-            {(listError || submitError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {listError ?? submitError}
-                </div>
-            )}
+            <Alert className="mb-4">{listError ?? submitError}</Alert>
 
             {loadingRoles || loadingPrivileges ? (
                 <p className="text-secondary dark:text-slate-400">{t('matrix.loading')}</p>

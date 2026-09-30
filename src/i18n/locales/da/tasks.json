@@ -11,7 +11,6 @@
     "Critical": "Kritisk"
   },
   "fields": {
-    "title": "Titel",
     "description": "Beskrivelse",
     "room": "Rum",
     "priority": "Prioritet",
@@ -35,7 +34,6 @@
     "inProgressHeading": "I gang"
   },
   "mine": {
-    "loading": "Henter dine opgaver...",
     "noAccess": "Du har ikke adgang til at se dine opgaver i denne organisation.",
     "heading": "Mine opgaver",
     "subtitle": "Få overblik over de opgaver, du selv er tilknyttet.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "Der er ingen medarbejdere at tildele.",
     "signUp": "Tilmeld",
     "signOff": "Afmeld",
-    "employee": "Medarbejder"
+    "maxOf": "Maks. {{people}}"
   },
   "card": {
     "noDescription": "Ingen beskrivelse",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Afventer godkendelse",
     "markDone": "Meld færdig",
     "priorityBadge": "Prioritet: {{priority}}",
-    "edit": "Rediger",
     "details": "Opgavedetaljer",
     "responsible": "Ansvarlige",
     "start": "Start",
     "end": "Slut",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Tilføj medarbejder",
     "created": "Oprettet",
     "statusValue": "Status: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Vis filter",
     "hide": "Skjul filter",
     "searchPlaceholder": "Søg i titel, beskrivelse, rum eller person...",
-    "all": "Alle",
     "sortNewest": "Nyeste",
     "sortOldest": "Ældste",
     "sortPriority": "Prioritet",
@@ -135,15 +130,12 @@
     "chooseTasks": "Vælg de opgaver, der også skal slettes.",
     "noTasks": "Der er ingen opgaver i dette rum.",
     "keptNote": "Opgaver, du ikke vælger, bliver ikke slettet. De bliver i stedet flyttet til <b>{{room}}</b>.",
-    "failed": "Kunne ikke slette rummet. Prøv igen.",
-    "deleting": "Sletter...",
     "submit": "Slet rum"
   },
   "editRoom": {
     "heading": "Rediger rum",
     "intro": "Vælg et rum og rediger navn og adgang.",
-    "namePlaceholder": "Indtast rumnavn",
-    "failed": "Kunne ikke redigere rummet. Prøv igen."
+    "namePlaceholder": "Indtast rumnavn"
   },
   "materials": {
     "heading": "Materialer",
@@ -156,22 +148,15 @@
     "reserving": "Reserverer...",
     "release": "Frigiv",
     "resolved": "Afrapporteret",
-    "reserved": "Reserveret",
-    "available_one": "{{count}} ledig",
-    "available_other": "{{count}} ledige",
     "insufficientAvailable": "Der er kun {{available}} ledige.",
     "resolve": {
       "heading": "Afrapportér materialer",
       "intro": "Bekræft hvad der reelt skete med de reserverede materialer, før opgaven kan færdiggøres.",
       "introApproval": "Vælg hvad der skal ske med de reserverede materialer. Dine valg gemmes og udføres først, når opgaven bliver godkendt - bliver den afvist i stedet, rører vi ikke materialerne.",
-      "outcomeStatus": "Status",
-      "outcomeQuantity": "Antal",
       "addOutcomeLine": "+ Tilføj linje",
-      "removeOutcomeLine": "Fjern",
       "quantityMismatch": "Summen skal være {{expected}} (er nu {{actual}}).",
       "confirm": "Bekræft og afslut opgave",
-      "confirming": "Afrapporterer...",
-      "cancel": "Annuller"
+      "confirming": "Afrapporterer..."
     },
     "chooseStatusPlaceholder": "Vælg status...",
     "changeStatus": "Skift status",

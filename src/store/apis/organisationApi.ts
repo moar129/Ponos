@@ -2,7 +2,8 @@
 import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { CreateOrganisationInput, MyMembership, Organisation, UpdateOrganisationInput } from '../../types/organisation/organisationType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, QueryFailure, runQuery } from './apiError'
+import { getActiveOrganisationId, getActiveOrganisationIdOf, getOptionalUserId } from './session'
 
 type OrgRow = {
     id: string
@@ -28,7 +29,34 @@ function toOrganisation(row: OrgRow): Organisation {
     }
 }
 
-    const ORG_COLUMNS = 'id, name, color, header_color, footer_color, header_text_color, footer_text_color, saved_colors'
+const ORG_COLUMNS = 'id, name, color, header_color, footer_color, header_text_color, footer_text_color, saved_colors'
+
+const MAX_SAVED_COLORS = 12
+
+// Læser den aktive organisations gemte farver, lader change beregne den
+// nye liste og skriver den tilbage. Uændret liste = intet skrive-kald.
+async function updateSavedColors(change: (current: string[]) => string[]): Promise<{ data: string[] }> {
+    const organisationId = await getActiveOrganisationId()
+
+    const { data: org, error: readError } = await supabase
+        .from('organisations')
+        .select('saved_colors')
+        .eq('id', organisationId)
+        .maybeSingle()
+    if (readError) throw new QueryFailure(mapDbError(readError))
+
+    const current: string[] = org?.saved_colors ?? []
+    const next = change(current)
+    if (next === current) return { data: current }
+
+    const { error } = await supabase
+        .from('organisations')
+        .update({ saved_colors: next })
+        .eq('id', organisationId)
+    if (error) throw new QueryFailure(mapDbError(error))
+
+    return { data: next }
+}
 
 export const organisationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -40,50 +68,22 @@ export const organisationApi = supabaseApi.injectEndpoints({
         // Postgrests PGRST116-fejl igennem i 0-rækker-tilfældet (bruger uden
         // organisation) i stedet for stille at give null.
         getMyOrganisation: builder.query<Organisation | null, void>({
-            queryFn: async () => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
+            queryFn: () => runQuery(async () => {
+                const userId = await getOptionalUserId()
+                if (!userId) return { data: null }
 
-                if (userError) {
-                    if (userError.name === 'AuthSessionMissingError') {
-                        return { data: null }
-                    }
-                    return { error: mapDbError(userError) }
-                }
-
-                if (!userData.user) {
-                    return { data: null }
-                }
-
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('active_organisation_id')
-                    .eq('id', userData.user.id)
-                    .maybeSingle()
-
-                if (profileError) {
-                    return { error: mapDbError(profileError) }
-                }
-
-                if (!profile?.active_organisation_id) {
-                    return { data: null }
-                }
+                const organisationId = await getActiveOrganisationIdOf(userId)
+                if (!organisationId) return { data: null }
 
                 const { data, error } = await supabase
                     .from('organisations')
                     .select(ORG_COLUMNS)
-                    .eq('id', profile.active_organisation_id)
+                    .eq('id', organisationId)
                     .maybeSingle()
 
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-
-                if (!data) {
-                    return { data: null }
-                }
-
-                return { data: toOrganisation(data) }
-            },
+                if (error) return { error: mapDbError(error) }
+                return { data: data ? toOrganisation(data) : null }
+            }),
 
             providesTags: ['Organisation'],
         }),
@@ -127,33 +127,8 @@ export const organisationApi = supabaseApi.injectEndpoints({
         // hjemmesiden skal kunne bruges af alle virksomheder. color: null
         // nulstiller til appens standard-accent.
         updateMyOrganisation: builder.mutation<void, UpdateOrganisationInput>({
-            queryFn: async ({ name, color, headerColor, footerColor, headerTextColor, footerTextColor }) => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-
-                if (userError || !userData.user) {
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: 'errors:loginRequiredForOrganisation',
-                        },
-                    }
-                }
-
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('active_organisation_id')
-                    .eq('id', userData.user.id)
-                    .maybeSingle()
-
-                if (profileError) {
-                    return { error: mapDbError(profileError) }
-                }
-
-                if (!profile?.active_organisation_id) {
-                    return {
-                        error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' },
-                    }
-                }
+            queryFn: ({ name, color, headerColor, footerColor, headerTextColor, footerTextColor }) => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
                 const { error } = await supabase
                     .from('organisations')
@@ -165,30 +140,21 @@ export const organisationApi = supabaseApi.injectEndpoints({
                         header_text_color: headerTextColor ?? null,
                         footer_text_color: footerTextColor ?? null,
                     })
-                    .eq('id', profile.active_organisation_id)
+                    .eq('id', organisationId)
 
+                // unique = organisations_name_unique, check =
+                // organisations_color_hex_check (ikke en gyldig hex-kode).
                 if (error) {
-                    // Postgres-fejlkode 23505 = unique constraint violation
-                    // (organisations_name_unique) - der findes allerede en
-                    // organisation med dette navn.
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
-                        }
+                    return {
+                        error: mapDbError(error, {
+                            unique: 'duplicateOrganisationName',
+                            check: 'invalidOrganisationColor',
+                        }),
                     }
-                    // Postgres-fejlkode 23514 = check constraint violation
-                    // (organisations_color_hex_check) - farven er ikke en
-                    // gyldig hex-kode.
-                    if (error.code === '23514') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:invalidOrganisationColor' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
                 }
 
                 return { data: undefined }
-            },
+            }),
 
             // Får getMyOrganisation til at hente frisk data, så det
             // opdaterede navn/farve vises umiddelbart efter en succesfuld
@@ -210,31 +176,12 @@ export const organisationApi = supabaseApi.injectEndpoints({
             queryFn: async ({ name }) => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return {
-                        error: { status: 'CUSTOM_ERROR', error: 'errors:required.organisationName' },
-                    }
-                }
+                if (!trimmed) return { error: errorCode('required.organisationName') }
 
                 const { data, error } = await supabase.rpc('create_organisation', { p_name: trimmed })
 
-                if (error) {
-                    // Postgres-fejlkode 23505 = unique constraint violation
-                    // (organisations_name_unique) - der findes allerede en
-                    // organisation med dette navn.
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateOrganisationName' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
-                }
-
-                if (!data) {
-                    return {
-                        error: { status: 'CUSTOM_ERROR', error: 'errors:organisationLookupFailed' },
-                    }
-                }
+                if (error) return { error: mapDbError(error, { unique: 'duplicateOrganisationName' }) }
+                if (!data) return { error: errorCode('generic') }
 
                 return { data: toOrganisation(data as OrgRow) }
             },
@@ -363,88 +310,19 @@ export const organisationApi = supabaseApi.injectEndpoints({
         }),
 
         addSavedOrganisationColor: builder.mutation<string[], { color: string }>({
-            queryFn: async ({ color }) => {
-                const { data: userData } = await supabase.auth.getUser()
-                if (!userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequiredForOrganisation' } }
-                }
-
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('active_organisation_id')
-                    .eq('id', userData.user.id)
-                    .maybeSingle()
-                const orgId = profile?.active_organisation_id
-                if (!orgId) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' } }
-                }
-
-                const { data: org, error: readError } = await supabase
-                    .from('organisations')
-                    .select('saved_colors')
-                    .eq('id', orgId)
-                    .maybeSingle()
-                if (readError) {
-                    return { error: mapDbError(readError) }
-                }
-
-                const current: string[] = org?.saved_colors ?? []
-                const normalised = color.toUpperCase()
-                if (current.includes(normalised)) {
-                    return { data: current }
-                }
-                const next = [...current, normalised].slice(-12)
-
-                const { error } = await supabase
-                    .from('organisations')
-                    .update({ saved_colors: next })
-                    .eq('id', orgId)
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-                return { data: next }
-            },
+            queryFn: ({ color }) => runQuery(() =>
+                updateSavedColors((current) => {
+                    const normalised = color.toUpperCase()
+                    return current.includes(normalised) ? current : [...current, normalised].slice(-MAX_SAVED_COLORS)
+                }),
+            ),
             invalidatesTags: ['Organisation'],
         }),
 
         removeSavedOrganisationColor: builder.mutation<string[], { color: string }>({
-            queryFn: async ({ color }) => {
-                const { data: userData } = await supabase.auth.getUser()
-                if (!userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequiredForOrganisation' } }
-                }
-
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('active_organisation_id')
-                    .eq('id', userData.user.id)
-                    .maybeSingle()
-                const orgId = profile?.active_organisation_id
-                if (!orgId) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:noOrganisation' } }
-                }
-
-                const { data: org, error: readError } = await supabase
-                    .from('organisations')
-                    .select('saved_colors')
-                    .eq('id', orgId)
-                    .maybeSingle()
-                if (readError) {
-                    return { error: mapDbError(readError) }
-                }
-
-                const next = (org?.saved_colors ?? []).filter(
-                    (c: string) => c.toUpperCase() !== color.toUpperCase(),
-                )
-                const { error } = await supabase
-                    .from('organisations')
-                    .update({ saved_colors: next })
-                    .eq('id', orgId)
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-                return { data: next }
-            },
+            queryFn: ({ color }) => runQuery(() =>
+                updateSavedColors((current) => current.filter((c) => c.toUpperCase() !== color.toUpperCase())),
+            ),
             invalidatesTags: ['Organisation'],
         }),
     }),
@@ -462,3 +340,9 @@ export const {
     useAddSavedOrganisationColorMutation,
     useRemoveSavedOrganisationColorMutation,
 } = organisationApi
+// Brugerens medlemskab af den AKTIVE organisation (rolle, admin-flag,
+// medlemsantal) - eller null.
+export function useActiveMembership(): MyMembership | null {
+    const { data: memberships } = useGetMyMembershipsQuery()
+    return memberships?.find((membership) => membership.isActive) ?? null
+}

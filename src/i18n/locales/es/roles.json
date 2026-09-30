@@ -101,7 +101,6 @@
       "deadline": "Fecha límite más próxima primero",
       "rejections": "Más rechazos primero"
     },
-    "resetFilters": "Restablecer",
     "showing": "Mostrando {{count}} de {{total}}",
     "noMatch": "Ninguna solicitud coincide con los filtros.",
     "deadline": "Fecha límite {{date}}",

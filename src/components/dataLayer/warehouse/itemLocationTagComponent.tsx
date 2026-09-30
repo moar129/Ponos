@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Boxes, MapPin } from 'lucide-react';
-import type { ItemLocation, ItemLocationTagProps } from '../../../types/dataLayer/datalayerTypes';
-
-function locationLabel(location: ItemLocation, locationsById: Map<string, ItemLocation>): string {
-  const parent = location.parentLocationId ? locationsById.get(location.parentLocationId) : undefined;
-  return parent ? `${parent.name} › ${location.name}` : location.name;
-}
+import type { ItemLocationTagProps } from '../../../types/dataLayer/datalayerTypes';
+import { locationPathLabel } from '../../../utils/locationPathLabel';
 
 // Viser hvor et item ligger: "Lager › Sektion" for sektioner, ellers lagernavn.
 // Ligger det flere steder, vises første + "+N", og alle i tooltip.
@@ -13,7 +9,7 @@ export function ItemLocationTag({ locationIds, locationsById, className }: ItemL
   const { t } = useTranslation('datalayer');
   const labels = locationIds.map((id) => {
     const location = id ? locationsById.get(id) : undefined;
-    return location ? locationLabel(location, locationsById) : t('itemDetail.noLocation');
+    return location ? locationPathLabel(location, locationsById) : t('itemDetail.noLocation');
   });
   const first = locationIds[0] ? locationsById.get(locationIds[0]) : undefined;
 

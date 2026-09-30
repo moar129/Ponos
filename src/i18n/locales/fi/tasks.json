@@ -11,7 +11,6 @@
     "Critical": "Kriittinen"
   },
   "fields": {
-    "title": "Otsikko",
     "description": "Kuvaus",
     "room": "Tila",
     "priority": "Prioriteetti",
@@ -35,7 +34,6 @@
     "inProgressHeading": "Käynnissä"
   },
   "mine": {
-    "loading": "Ladataan tehtäviäsi...",
     "noAccess": "Sinulla ei ole oikeutta nähdä tehtäviäsi tässä organisaatiossa.",
     "heading": "Omat tehtävät",
     "subtitle": "Saat yleiskuvan tehtävistä, joihin sinut on liitetty.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "Määrättäviä työntekijöitä ei ole.",
     "signUp": "Ilmoittaudu",
     "signOff": "Peru ilmoittautuminen",
-    "employee": "Työntekijä"
+    "maxOf": "Enintään {{people}}"
   },
   "card": {
     "noDescription": "Ei kuvausta",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Odottaa hyväksyntää",
     "markDone": "Ilmoita valmiiksi",
     "priorityBadge": "Prioriteetti: {{priority}}",
-    "edit": "Muokkaa",
     "details": "Tehtävän tiedot",
     "responsible": "Määrätty",
     "start": "Alku",
     "end": "Loppu",
-    "statusLabel": "Tila:",
     "addEmployeeShort": "+ Lisää työntekijä",
     "created": "Luotu",
     "statusValue": "Tila: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Näytä suodatin",
     "hide": "Piilota suodatin",
     "searchPlaceholder": "Hae otsikosta, kuvauksesta, huoneesta tai henkilöstä...",
-    "all": "Kaikki",
     "sortNewest": "Uusimmat",
     "sortOldest": "Vanhimmat",
     "sortPriority": "Prioriteetti",
@@ -135,15 +130,12 @@
     "chooseTasks": "Valitse tehtävät, jotka poistetaan myös.",
     "noTasks": "Tässä tilassa ei ole tehtäviä.",
     "keptNote": "Tehtäviä, joita et valitse, ei poisteta. Ne siirretään sen sijaan kohteeseen <b>{{room}}</b>.",
-    "failed": "Tilaa ei voitu poistaa. Yritä uudelleen.",
-    "deleting": "Poistetaan...",
     "submit": "Poista tila"
   },
   "editRoom": {
     "heading": "Muokkaa tilaa",
     "intro": "Valitse huone ja muokkaa nimeä ja pääsyä.",
-    "namePlaceholder": "Kirjoita tilan nimi",
-    "failed": "Tilaa ei voitu muokata. Yritä uudelleen."
+    "namePlaceholder": "Kirjoita tilan nimi"
   },
   "favorites": {
     "toggleFailed": "Suosikkihuonetta ei voitu päivittää."

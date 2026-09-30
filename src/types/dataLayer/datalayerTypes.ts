@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 export type ItemStatus =
   | 'Available'
   | 'Reserved'
@@ -123,6 +125,24 @@ export interface ItemLocation {
   parentLocationId?: string | null;
 }
 
+// Rå locations-række fra Supabase.
+export interface LocationRow {
+  id: string;
+  organisation_id: string;
+  name: string;
+  description?: string | null;
+  address?: string | null;
+  parent_location_id?: string | null;
+}
+
+// Automatisk statusskift når indholdet når tom/delvist/fuldt (se
+// sync_status_from_contents i docs/dbSchema.sql §15.21). null = intet skift.
+export interface ContentsThresholds {
+  contentsEmptyStatus?: ItemStatus | null;
+  contentsPartialStatus?: ItemStatus | null;
+  contentsFullStatus?: ItemStatus | null;
+}
+
 // Personlig stjernemarkering (data_layer_favorites) - præcis ét af
 // categoryId/locationId er sat.
 export interface DataLayerFavorite {
@@ -188,14 +208,12 @@ export interface CategoryTreeNodeProps {
 }
 
 export interface EditCategoryComponentProps {
-  isOpen: boolean;
   onClose: () => void;
-  category: DataLayerCat | null;
+  category: DataLayerCat;
   categoryTree: DataLayerCat[];
 }
 
 export interface AddCategoryComponentProps {
-  isOpen: boolean;
   onClose: () => void;
   parentId: string | null;
   parentPath?: string[];
@@ -209,7 +227,6 @@ export interface AggregatedItem extends DataLayerItem {
 }
 
 export interface AddItemsComponentProps {
-  isOpen: boolean;
   onClose: () => void;
   categoryTree: DataLayerCat[]; // NYT: hele træet, så en anden kategori kan vælges
   categoryId: string | null;    // forudvalgt/foreslået kategori (den man havde åben)
@@ -219,7 +236,7 @@ export interface AddItemsComponentProps {
 }
 
 export interface ItemDetailComponentProps {
-  item: AggregatedItem | null;
+  item: AggregatedItem;
   onClose: () => void;
   onViewLocation: (location: ItemLocation) => void;
   // Fase 3: create/read/update/delete_datalayer - ét fælles domæne for
@@ -262,12 +279,19 @@ export const ITEM_STATUS_STYLES: Record<ItemStatus, string> = {
 // N enheder à quantity=1 (evt. serienummer pr. enhed via
 // serialNumbersRaw, kommasepareret), false = ét batch med quantity=N,
 // intet serienummer. Se docs/dbSchema.sql §15.21 add_item_with_units.
-export interface ItemRow {
+export interface ItemRow extends ItemUnitFormValues {
   key: string;
   name: string;
   description: string;
   packaging: string;
   unitOfMeasurement: string;
+}
+
+// Enkeltstyk / Mængde / Beholder (Mængde + kapacitet).
+export type ItemKind = 'discrete' | 'measured' | 'container';
+
+// "Hvordan tælles det"-delen af opret item / tilføj enheder.
+export interface ItemUnitFormValues {
   // Talfelterne er tekst, så feltet kan være tomt mens man skriver - se
   // utils/numberInput.ts. Parses til tal ved indsendelse.
   quantity: string;
@@ -301,8 +325,7 @@ export interface ItemRow {
 }
 
 export interface DeleteCategoryComponentProps {
-  isOpen: boolean;
-  category: DataLayerCat | null;
+  category: DataLayerCat;
   onClose: () => void;
   onDeleted: (deletedIds: string[]) => void;
 }
@@ -315,22 +338,11 @@ export interface SubCategoryCheckboxProps {
 }
 
 export interface DeleteItemsComponentProps {
-  isOpen: boolean;
   items: AggregatedItem[];
   onClose: () => void;
   onDeleted: (deletedIds: string[]) => void;
 }
 
-
-export interface ConfirmDialogComponentProps {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  isLoading?: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
 
 export interface LocationPickerComponentProps {
   value: string | null;
@@ -349,14 +361,6 @@ export interface FilterPanelComponentProps {
   onToggleUnit: (unit: string) => void;
   onClear: () => void;
   onClose: () => void;
-}
-
-export interface LocationItemsComponentProps {
-  isOpen: boolean;
-  location: ItemLocation | null;
-  items: AggregatedItem[];
-  onClose: () => void;
-  onSelectItem: (item: AggregatedItem) => void;
 }
 
 export interface GlobalSearchResultsComponentProps {
@@ -412,4 +416,102 @@ export interface SummaryChip {
 export interface SummaryChipsProps {
   title: string;
   chips: SummaryChip[];
+}
+
+export interface ItemStatusSelectProps {
+  value: ItemStatus | '';
+  onChange: (status: ItemStatus | '') => void;
+  className: string;
+  // Adds a first "" option with this label (e.g. "Ingen ændring").
+  emptyLabel?: string;
+  // Like emptyLabel, but the "" option cannot be picked (a required choice).
+  placeholder?: string;
+  // Default: all statuses.
+  statuses?: readonly ItemStatus[];
+  disabled?: boolean;
+  id?: string;
+  'aria-label'?: string;
+}
+
+export interface LocationFormValues {
+  name: string;
+  address: string;
+  description: string;
+}
+
+export interface LocationFormFieldsProps {
+  values: LocationFormValues;
+  onChange: (values: LocationFormValues) => void;
+  isSection: boolean;
+}
+
+export interface LocationFormModalProps {
+  onClose: () => void;
+  // Opret: parent = lageret en ny sektion skal ligge under (null = nyt lager).
+  // Rediger: location sat.
+  parent?: ItemLocation | null;
+  location?: ItemLocation;
+  onCreated?: (newLocationId: string) => void;
+}
+
+export interface ItemUnitFieldsProps {
+  values: ItemUnitFormValues;
+  onChange: (patch: Partial<ItemUnitFormValues>) => void;
+  // Synlig fejl for et talfelt (eller null).
+  errorFor: (field: 'quantity' | 'packageSize' | 'contentsTotal' | 'contentsStart') => string | null;
+  inputClass: string;
+  selectClass: string;
+}
+
+// Højre panel på /datalager: items for den valgte kategori eller lokation.
+export interface ItemListPanelProps {
+  // Venstre del af overskriften (titel, stjerne, sti...).
+  heading: ReactNode;
+  chipsTitle: string;
+  chips: SummaryChip[];
+  searchPlaceholder: string;
+  search: string;
+  onSearchChange: (value: string) => void;
+  // Alle items i visningen før filtrering - afgør "ingen match" vs. "tom".
+  totalCount: number;
+  items: AggregatedItem[];
+  emptyText: string;
+  placementIds: (item: AggregatedItem) => (string | null)[];
+  locationsById: Map<string, ItemLocation>;
+  onOpenItem: (item: AggregatedItem) => void;
+  onClearFilters: () => void;
+  onAddItems: () => void;
+  canCreate: boolean;
+  canDelete: boolean;
+  isSelectMode: boolean;
+  selectedIds: Set<string>;
+  onToggleSelected: (id: string) => void;
+  onEnterSelectMode: () => void;
+  onExitSelectMode: () => void;
+  onDeleteSelected: () => void;
+}
+
+// Én række i kategori- og lager-træet.
+export interface TreeRowProps {
+  label: string;
+  icon: LucideIcon;
+  isSelected: boolean;
+  onSelect: () => void;
+  hasChildren: boolean;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  // Minimumsbredde på navnet før knapperne folder ned på egen linje.
+  nameMinWidthClass: string;
+  // Stjernen (udeladt = ingen favorit-adgang).
+  favorite?: { isFavorite: boolean; onToggle: () => void };
+  // TreeActionButton'er - synlige på touch, hover-only fra lg.
+  actions: ReactNode;
+}
+
+export interface TreeActionButtonProps {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
 }

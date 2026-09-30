@@ -11,7 +11,6 @@
     "Critical": "Critique"
   },
   "fields": {
-    "title": "Titre",
     "description": "Description",
     "room": "Salle",
     "priority": "Priorité",
@@ -35,7 +34,6 @@
     "inProgressHeading": "En cours"
   },
   "mine": {
-    "loading": "Chargement de vos tâches...",
     "noAccess": "Vous n'avez pas accès à vos tâches dans cette organisation.",
     "heading": "Mes tâches",
     "subtitle": "Obtenez une vue d'ensemble des tâches qui vous sont attribuées.",
@@ -92,8 +90,8 @@
     "nobodyToAssign": "Il n'y a aucun collaborateur à assigner.",
     "signUp": "S'inscrire",
     "signOff": "Se désinscrire",
-    "employee": "Collaborateur",
-    "count_many": "{{count}} personnes"
+    "count_many": "{{count}} personnes",
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Aucune description",
@@ -102,12 +100,10 @@
     "awaitingApproval": "En attente de validation",
     "markDone": "Déclarer terminée",
     "priorityBadge": "Priorité : {{priority}}",
-    "edit": "Modifier",
     "details": "Détails de la tâche",
     "responsible": "Assignée à",
     "start": "Début",
     "end": "Fin",
-    "statusLabel": "Statut :",
     "addEmployeeShort": "+ Ajouter un collaborateur",
     "created": "Créée",
     "statusValue": "Statut : {{status}}",
@@ -118,7 +114,6 @@
     "show": "Afficher le filtre",
     "hide": "Masquer le filtre",
     "searchPlaceholder": "Rechercher titre, description, salle ou personne...",
-    "all": "Toutes",
     "sortNewest": "Plus récentes",
     "sortOldest": "Plus anciennes",
     "sortPriority": "Priorité",
@@ -137,15 +132,12 @@
     "chooseTasks": "Choisissez les tâches à supprimer également.",
     "noTasks": "Il n'y a aucune tâche dans cette salle.",
     "keptNote": "Les tâches que vous ne sélectionnez pas ne sont pas supprimées. Elles sont déplacées vers <b>{{room}}</b>.",
-    "failed": "Impossible de supprimer la salle. Veuillez réessayer.",
-    "deleting": "Suppression...",
     "submit": "Supprimer la salle"
   },
   "editRoom": {
     "heading": "Modifier la salle",
     "intro": "Choisissez une salle et modifiez son nom et son accès.",
-    "namePlaceholder": "Saisissez un nom de salle",
-    "failed": "Impossible de modifier la salle. Veuillez réessayer."
+    "namePlaceholder": "Saisissez un nom de salle"
   },
   "favorites": {
     "toggleFailed": "Impossible de mettre à jour la salle favorite."

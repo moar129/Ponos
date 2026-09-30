@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { DEVELOPMENT_METRICS } from '../../utils/statisticsSnapshot'
 import type { DevelopmentMetric } from '../../utils/statisticsSnapshot'
 import type { SnapshotDevelopmentChartProps } from '../../types/statistics/statisticsComponentTypes'
+import { formatDecimal } from '../../utils/formatDate'
 
 // One fixed color per column position (never cycled; max 4 snapshots).
 const SERIES_COLORS = ['var(--chart-series-1)', 'var(--chart-series-2)', 'var(--chart-series-3)', 'var(--chart-series-4)']
@@ -17,9 +18,8 @@ interface ChartRow {
 // Created/completed per sub-period, one line per snapshot, aligned like the
 // table (calendar position when possible, otherwise dates).
 export function SnapshotDevelopmentChart({ comparison, names }: SnapshotDevelopmentChartProps) {
-    const { t, i18n } = useTranslation('statistics')
+    const { t } = useTranslation('statistics')
     const [metric, setMetric] = useState<DevelopmentMetric>('created')
-    const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 })
 
     const rows = comparison.rows[metric]
     const data: ChartRow[] = rows.map((row) => {
@@ -46,7 +46,7 @@ export function SnapshotDevelopmentChart({ comparison, names }: SnapshotDevelopm
                             <span className="h-0.5 w-3 rounded" style={{ backgroundColor: SERIES_COLORS[index] }} />
                             {name}
                             <span className="ml-auto pl-3 font-semibold tabular-nums text-primary dark:text-slate-100">
-                                {typeof value === 'number' ? number.format(value) : '–'}
+                                {typeof value === 'number' ? formatDecimal(value) : '–'}
                             </span>
                             {partial && <span className="text-xs text-secondary dark:text-slate-400">({partial})</span>}
                         </p>

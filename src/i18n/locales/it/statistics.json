@@ -133,7 +133,6 @@
     "saveTitle": "Salva snapshot",
     "label": "Nome (facoltativo)",
     "labelPlaceholder": "Es. Stagione 2026",
-    "saving": "Salvataggio...",
     "saveFailed": "Impossibile salvare lo snapshot.",
     "loadFailed": "Impossibile caricare gli snapshot.",
     "empty": "Nessuno snapshot salvato.",

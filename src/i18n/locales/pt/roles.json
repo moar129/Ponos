@@ -101,7 +101,6 @@
       "deadline": "Prazo mais próximo primeiro",
       "rejections": "Mais rejeições primeiro"
     },
-    "resetFilters": "Repor",
     "showing": "A mostrar {{count}} de {{total}}",
     "noMatch": "Nenhum pedido corresponde aos filtros.",
     "deadline": "Prazo {{date}}",

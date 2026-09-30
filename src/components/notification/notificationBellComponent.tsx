@@ -1,67 +1,38 @@
 // components/notifications/notificationBellComponent.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { asDynamic } from '../../i18n/config'
-import { notificationBody, notificationTitle } from '../../utils/notificationDisplay'
 import { useNavigate } from 'react-router-dom';
-import { Bell, Loader2, CheckCheck, X } from 'lucide-react';
+import { Bell, CheckCheck, X } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
-  useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
   useDismissNotificationMutation, // ændret fra useDeleteNotificationMutation
 } from '../../store/apis/notificationApi';
 import type { AppNotification } from '../../types/notification/notificationTypes';
 
-function useTimeAgo() {
-  const { t } = useTranslation('dashboard');
-  return (dateString: string): string => {
-    const diffMs = Date.now() - new Date(dateString).getTime();
-    const minutes = Math.floor(diffMs / 60000);
-    if (minutes < 1) return t('notifications.justNow');
-    if (minutes < 60) return t('notifications.minutesAgo', { count: minutes });
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return t('notifications.hoursAgo', { count: hours });
-    return t('notifications.daysAgo', { count: Math.floor(hours / 24) });
-  };
-}
+import { useDismissable } from '../../store/hooks/useDismissable';
+import { useOpenNotification } from '../../store/hooks/useOpenNotification';
+import { Spinner } from '../common/Spinner';
+import { NotificationSummary } from './NotificationSummary';
 
 export function NotificationBellComponent() {
   const { t } = useTranslation(['notifications', 'common'])
-  const td = asDynamic(t)
-  const timeAgo = useTimeAgo()
   const navigate = useNavigate();
+  const openNotification = useOpenNotification();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: notifications = [], isLoading } = useGetMyNotificationsQuery({ limit: 8 });
-  const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsReadMutation();
   const [dismissNotification] = useDismissNotificationMutation(); // ændret
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  useEffect(() => {
-    if (!isOpen) return;
+  useDismissable(menuRef, isOpen, () => setIsOpen(false));
 
-    function handlePointerDown(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown);
-    return () => document.removeEventListener('mousedown', handlePointerDown);
-  }, [isOpen]);
-
-  const handleSelect = async (notification: AppNotification) => {
-    if (!notification.isRead) {
-      await markRead({ id: notification.id });
-    }
+  const handleSelect = (notification: AppNotification) => {
     setIsOpen(false);
-    if (notification.link) {
-      navigate(notification.link);
-    }
+    void openNotification(notification);
   };
 
   const handleDismiss = async (event: React.MouseEvent, notificationId: string) => {
@@ -109,9 +80,7 @@ export function NotificationBellComponent() {
 
           <div className="max-h-80 overflow-y-auto">
             {isLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin text-accent" />
-              </div>
+              <Spinner block />
             ) : notifications.length === 0 ? (
               <p className="text-sm text-secondary dark:text-slate-400 text-center py-8 px-4">{t('empty')}</p>
             ) : (
@@ -125,16 +94,7 @@ export function NotificationBellComponent() {
                         notification.isRead ? 'hover:bg-bg-gray/50 dark:hover:bg-slate-700' : 'bg-accent/10 hover:bg-accent/15'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm text-primary dark:text-slate-100 truncate">{notificationTitle(notification, td)}</p>
-                        {!notification.isRead && (
-                          <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
-                        )}
-                      </div>
-                      {notification.body && (
-                        <p className="text-xs text-secondary dark:text-slate-400 truncate mt-0.5">{notificationBody(notification, td)}</p>
-                      )}
-                      <p className="text-[11px] text-secondary dark:text-slate-400 mt-1">{timeAgo(notification.createdAt)}</p>
+                      <NotificationSummary notification={notification} compact />
                     </button>
 
                     <button

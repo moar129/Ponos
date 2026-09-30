@@ -51,3 +51,17 @@ export interface NewsImageProps {
     // Til placeholderen, hvis den skal have anden størrelse end et rigtigt billede.
     placeholderClassName?: string
 }
+
+export interface NewsActionsProps {
+    canUpdate: boolean
+    canDelete: boolean
+    onEdit: () => void
+    onDelete: () => void
+}
+
+export interface DeleteNewsDialogProps {
+    // null = closed.
+    news: News | null
+    onCancel: () => void
+    onDeleted: () => void
+}

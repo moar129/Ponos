@@ -37,7 +37,6 @@
   "notifications": {
     "title": "Notificări",
     "seeAll": "Vezi tot",
-    "all": "Toate",
     "unread": "Necitite",
     "loading": "Se încarcă notificările...",
     "emptyUnread": "Nicio notificare necitită.",
@@ -56,7 +55,6 @@
     "next": "Noutatea următoare",
     "showNews": "Afișează noutatea numărul {{number}}"
   },
-  "comingSoon": "În curând",
   "administration": {
     "noPrivileges": "Nu aveți drepturi pentru nicio funcție de administrare.",
     "panels": {
@@ -85,7 +83,6 @@
     "noAssignees": "Nimeni nu este atribuit",
     "materials": "Materiale:",
     "noMaterials": "Niciun material",
-    "edit": "Editează",
     "reopen": "Redeschide",
     "reopening": "Se redeschide...",
     "sortNewest": "Finalizate recent mai întâi",
@@ -96,7 +93,6 @@
     "presetToday": "Astăzi",
     "preset7": "7 zile",
     "preset30": "30 de zile",
-    "resetFilters": "Resetează",
     "finishedOn": "Finalizată {{date}}",
     "showing": "{{count}} din {{total}}"
   }

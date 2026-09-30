@@ -1,13 +1,7 @@
 {
   "generic": "Něco se nepovedlo. Zkuste to znovu.",
-  "notLoggedIn": "Nejste přihlášeni.",
   "loginRequired": "Musíte se přihlásit.",
-  "loginRequiredForAction": "Pro tuto akci se musíte přihlásit.",
-  "loginRequiredForMembership": "Pro žádost o členství se musíte přihlásit.",
-  "loginRequiredForProfile": "Pro úpravu profilu se musíte přihlásit.",
-  "loginRequiredForOrganisation": "Pro úpravu organizace se musíte přihlásit.",
   "noOrganisation": "Nejste členem žádné organizace.",
-  "organisationLookupFailed": "Vaše členství v organizaci se nepodařilo načíst.",
   "wrongCurrentPassword": "Vaše současné heslo je nesprávné.",
   "passwordChangeFailed": "Heslo se nepodařilo změnit. Zkuste to znovu.",
   "requestAlreadyHandled": "Žádost se nepodařilo zpracovat. Možná už byla vyřízena nebo k ní nemáte oprávnění.",

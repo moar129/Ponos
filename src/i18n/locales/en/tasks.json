@@ -11,7 +11,6 @@
     "Critical": "Critical"
   },
   "fields": {
-    "title": "Title",
     "description": "Description",
     "room": "Room",
     "priority": "Priority",
@@ -35,7 +34,6 @@
     "inProgressHeading": "In progress"
   },
   "mine": {
-    "loading": "Loading your tasks...",
     "noAccess": "You do not have access to view your tasks in this organisation.",
     "heading": "My tasks",
     "subtitle": "Get an overview of the tasks you are assigned to.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "There are no employees to assign.",
     "signUp": "Sign up",
     "signOff": "Sign off",
-    "employee": "Employee"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "No description",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Awaiting approval",
     "markDone": "Mark as done",
     "priorityBadge": "Priority: {{priority}}",
-    "edit": "Edit",
     "details": "Task details",
     "responsible": "Assigned",
     "start": "Start",
     "end": "End",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Add employee",
     "created": "Created",
     "statusValue": "Status: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Show filter",
     "hide": "Hide filter",
     "searchPlaceholder": "Search title, description, room or person...",
-    "all": "All",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
     "sortPriority": "Priority",
@@ -135,15 +130,12 @@
     "chooseTasks": "Choose the tasks that should be deleted as well.",
     "noTasks": "There are no tasks in this room.",
     "keptNote": "Tasks you do not select are not deleted. They are moved to <b>{{room}}</b> instead.",
-    "failed": "Could not delete the room. Please try again.",
-    "deleting": "Deleting...",
     "submit": "Delete room"
   },
   "editRoom": {
     "heading": "Edit room",
     "intro": "Choose a room and edit its name and access.",
-    "namePlaceholder": "Enter a room name",
-    "failed": "Could not edit the room. Please try again."
+    "namePlaceholder": "Enter a room name"
   },
   "materials": {
     "heading": "Materials",
@@ -156,22 +148,15 @@
     "reserving": "Reserving...",
     "release": "Release",
     "resolved": "Reported",
-    "reserved": "Reserved",
-    "available_one": "{{count}} available",
-    "available_other": "{{count}} available",
     "insufficientAvailable": "Only {{available}} available.",
     "resolve": {
       "heading": "Report material usage",
       "intro": "Confirm what actually happened to the reserved materials before the task can be completed.",
       "introApproval": "Choose what should happen to the reserved materials. Your choices are saved and only applied once the task is approved - if it's rejected instead, the materials are left untouched.",
-      "outcomeStatus": "Status",
-      "outcomeQuantity": "Quantity",
       "addOutcomeLine": "+ Add line",
-      "removeOutcomeLine": "Remove",
       "quantityMismatch": "The total must be {{expected}} (is currently {{actual}}).",
       "confirm": "Confirm and complete task",
-      "confirming": "Reporting...",
-      "cancel": "Cancel"
+      "confirming": "Reporting..."
     },
     "chooseStatusPlaceholder": "Choose status...",
     "changeStatus": "Change status",

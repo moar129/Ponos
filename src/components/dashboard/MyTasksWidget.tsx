@@ -1,13 +1,15 @@
 // src/components/dashboard/MyTasksWidget.tsx
 import { readableError } from '../../ErrorMessage';
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, ListChecks, Star } from 'lucide-react'
+import { ListChecks, Star } from 'lucide-react'
 import { useGetMyTaskIdsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { READ_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import { FavoriteRoomsList } from './FavoriteRoomsList'
-import { PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
+import { formatShortDate } from '../../utils/formatDate'
+import { PriorityBadge } from '../Task/PriorityBadge'
+import { DashboardWidget, PillTabs } from './DashboardWidget'
 import { compareTasks } from '../../utils/taskFilters'
 
 const MAX_TASKS = 5
@@ -51,11 +53,6 @@ export function MyTasksWidget() {
         }
     }
 
-    const tabClass = (value: MyTasksTab) =>
-        `px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${tab === value
-            ? 'bg-accent/10 text-accent'
-            : 'text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100'
-        }`
     const { data: tasks = [], isLoading: loadingTasks, error: tasksError } = useGetTasksQuery()
     const { data: myTaskIds = [], isLoading: loadingMyTaskIds, error: myTaskIdsError } = useGetMyTaskIdsQuery()
 
@@ -67,39 +64,25 @@ export function MyTasksWidget() {
     const error = readableError(tasksError) ?? readableError(myTaskIdsError)
 
     return (
-        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                        {tab === 'favorites' ? (
-                            <Star className="w-5 h-5 text-amber-500 dark:text-amber-400" fill="currentColor" />
-                        ) : (
-                            <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />
-                        )}
-                        <h3 className="font-medium text-primary dark:text-slate-100">
-                            {tab === 'favorites' ? t('favoriteRooms.title') : t('myTasks.title')}
-                        </h3>
-                    </div>
-                    <Link
-                        to={tab === 'favorites' ? '/tasks' : '/tasks/mine'}
-                        className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0"
-                    >
-                        {tab === 'favorites' ? t('favoriteRooms.goToTasks') : t('myTasks.goToTasks')}
-                        <ChevronRight className="w-4 h-4" />
-                    </Link>
-                </div>
-                {canReadTasks && (
-                    <div className="flex items-center gap-1">
-                        <button type="button" onClick={() => selectTab('tasks')} className={tabClass('tasks')}>
-                            {t('myTasks.tab')}
-                        </button>
-                        <button type="button" onClick={() => selectTab('favorites')} className={tabClass('favorites')}>
-                            {t('favoriteRooms.tab')}
-                        </button>
-                    </div>
-                )}
-            </div>
-
+        <DashboardWidget
+            icon={tab === 'favorites'
+                ? <Star className="w-5 h-5 text-amber-500 dark:text-amber-400" fill="currentColor" />
+                : <ListChecks className="w-5 h-5 text-secondary dark:text-slate-400" />}
+            title={tab === 'favorites' ? t('favoriteRooms.title') : t('myTasks.title')}
+            link={tab === 'favorites'
+                ? { to: '/tasks', label: t('favoriteRooms.goToTasks') }
+                : { to: '/tasks/mine', label: t('myTasks.goToTasks') }}
+            actions={canReadTasks && (
+                <PillTabs
+                    tabs={[
+                        { key: 'tasks', label: t('myTasks.tab') },
+                        { key: 'favorites', label: t('favoriteRooms.tab') },
+                    ]}
+                    active={tab}
+                    onSelect={selectTab}
+                />
+            )}
+        >
             {tab === 'favorites' ? (
                 <FavoriteRoomsList />
             ) : loadingTasks || loadingMyTaskIds ? (
@@ -122,13 +105,9 @@ export function MyTasksWidget() {
                                     <span className="rounded-full bg-bg-gray px-2 py-0.5 font-medium text-secondary dark:bg-slate-700 dark:text-slate-400">
                                         {t(`tasks:status.${task.status}`)}
                                     </span>
-                                    {task.priority && (
-                                        <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                                            {t(`tasks:priority.${task.priority}`)}
-                                        </span>
-                                    )}
+                                    {task.priority && <PriorityBadge priority={task.priority} />}
                                     {task.end_date && (
-                                        <span className="text-secondary dark:text-slate-400">{t('myTasks.endsOn', { date: formatDate(task.end_date) })}</span>
+                                        <span className="text-secondary dark:text-slate-400">{t('myTasks.endsOn', { date: formatShortDate(task.end_date) })}</span>
                                     )}
                                 </div>
                             </button>
@@ -136,6 +115,6 @@ export function MyTasksWidget() {
                     ))}
                 </ul>
             )}
-        </div>
+        </DashboardWidget>
     )
 }

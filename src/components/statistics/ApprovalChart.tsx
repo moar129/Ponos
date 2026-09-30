@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock3, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { formatDecimal, formatPercent } from '../../utils/formatDate'
 import type { ApprovalChartProps } from '../../types/statistics/statisticsComponentTypes'
 
 // Status colors are fixed and always paired with an icon + label.
@@ -10,18 +11,17 @@ const SEGMENTS = [
 ] as const
 
 export function ApprovalChart({ data }: ApprovalChartProps) {
-    const { t, i18n } = useTranslation('statistics')
+    const { t } = useTranslation('statistics')
     const total = data.accepted + data.pending + data.rejected
-    const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 })
 
     // Median handling time: hours below 48 h, otherwise days.
     const median = (() => {
         if (data.medianHours === null) return '–'
         if (data.medianHours < 48) {
-            return t('approvals.hours', { count: data.medianHours, formatted: number.format(data.medianHours) })
+            return t('approvals.hours', { count: data.medianHours, formatted: formatDecimal(data.medianHours) })
         }
         const days = Math.round((data.medianHours / 24) * 10) / 10
-        return t('approvals.days', { count: days, formatted: number.format(days) })
+        return t('approvals.days', { count: days, formatted: formatDecimal(days) })
     })()
 
     const visible = SEGMENTS.filter((segment) => data[segment.key] > 0)
@@ -32,7 +32,7 @@ export function ApprovalChart({ data }: ApprovalChartProps) {
                 <div>
                     <p className="text-sm text-secondary dark:text-slate-400">{t('approvals.rate')}</p>
                     <p className="mt-1 text-2xl font-semibold text-primary dark:text-slate-100">
-                        {data.rate === null ? '–' : `${number.format(data.rate)} %`}
+                        {data.rate === null ? '–' : formatPercent(data.rate)}
                     </p>
                 </div>
                 <div>

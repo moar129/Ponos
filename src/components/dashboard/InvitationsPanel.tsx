@@ -9,8 +9,9 @@ import {
     useInviteMemberMutation,
 } from '../../store/apis/invitationApi'
 import { formatDate } from '../../utils/formatDate'
-
-
+import { formatFullName } from '../../utils/personName'
+import { Alert } from '../common/Alert'
+import { InlineConfirm } from '../common/InlineConfirm'
 
 // Invitér en eksisterende Ponos-bruger til den aktive organisation
 // (US-67), plus en liste over ventende sendte invitationer med mulighed
@@ -18,7 +19,7 @@ import { formatDate } from '../../utils/formatDate'
 // allerede har bekræftet manage_invitations-privilegiet - selve
 // adgangen håndhæves stadig server-side (RPC'en invite_member + RLS).
 export function InvitationsPanel() {
-    const { t } = useTranslation('organisation')
+    const { t } = useTranslation(['organisation', 'common'])
     const [inviteMember, { isLoading: inviting, error: inviteError }] = useInviteMemberMutation()
     const { data: invitations, isLoading: loadingInvitations, error: listError } = useGetSentInvitationsQuery()
     const [cancelInvitation, { error: cancelError }] = useCancelInvitationMutation()
@@ -37,7 +38,7 @@ export function InvitationsPanel() {
 
         try {
             await inviteMember({ email: trimmed }).unwrap()
-            setSentMessage(`Invitation sendt til ${trimmed}.`)
+            setSentMessage(t('invitations.sentTo', { email: trimmed }))
             setEmail('')
         } catch {
             // Fejlen vises via inviteError.
@@ -79,28 +80,17 @@ export function InvitationsPanel() {
                     disabled={inviting || !email.trim()}
                     className="bg-accent text-accent-text rounded-md px-4 py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
                 >
-                    {inviting ? t('invitations.sending') : t('invitations.send')}
+                    {inviting ? t('common:sending') : t('invitations.send')}
                 </button>
             </form>
 
-            {sentMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                    {sentMessage}
-                </div>
-            )}
-
-            {(inviteErrorMessage || cancelErrorMessage) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {inviteErrorMessage ?? cancelErrorMessage}
-                </div>
-            )}
+            <Alert tone="success" className="mb-4">{sentMessage}</Alert>
+            <Alert className="mb-4">{inviteErrorMessage ?? cancelErrorMessage}</Alert>
 
             <h3 className="text-sm font-medium text-secondary mb-3 dark:text-slate-400">{t('invitations.pendingHeading')}</h3>
 
             {sentListError ? (
-                <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {sentListError}
-                </div>
+                <Alert>{sentListError}</Alert>
             ) : loadingInvitations ? (
                 <p className="text-secondary dark:text-slate-400">{t('invitations.loading')}</p>
             ) : !invitations || invitations.length === 0 ? (
@@ -110,31 +100,21 @@ export function InvitationsPanel() {
                     {invitations.map((invitation) => (
                         <li key={invitation.id} className="py-3 flex flex-wrap items-center justify-between gap-4">
                             <div>
-                                <p className="font-medium">{invitation.firstName} {invitation.lastName}</p>
+                                <p className="font-medium">{formatFullName(invitation.firstName, invitation.lastName)}</p>
                                 <p className="text-sm text-secondary dark:text-slate-400">{invitation.email}</p>
                                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{t('invitations.invitedOnDate', { date: formatDate(invitation.invitedAt) })}</p>
                             </div>
 
                             {confirmingCancelId === invitation.id ? (
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <span className="text-sm text-secondary dark:text-slate-400">{t('invitations.areYouSure')}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleCancel(invitation.id)}
-                                        disabled={cancellingId === invitation.id}
-                                        className="text-red-600 text-sm font-medium hover:underline disabled:opacity-60 dark:text-red-400"
-                                    >
-                                        {cancellingId === invitation.id ? t('invitations.cancelling') : t('invitations.confirmCancelYes')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setConfirmingCancelId(null)}
-                                        disabled={cancellingId === invitation.id}
-                                        className="text-secondary text-sm hover:underline disabled:opacity-60 dark:text-slate-400"
-                                    >
-                                        {t('invitations.undo')}
-                                    </button>
-                                </div>
+                                <InlineConfirm
+                                    question={t('invitations.areYouSure')}
+                                    confirmLabel={t('invitations.confirmCancelYes')}
+                                    loadingLabel={t('invitations.cancelling')}
+                                    cancelLabel={t('invitations.undo')}
+                                    isLoading={cancellingId === invitation.id}
+                                    onConfirm={() => handleCancel(invitation.id)}
+                                    onCancel={() => setConfirmingCancelId(null)}
+                                />
                             ) : (
                                 <button
                                     type="button"

@@ -36,7 +36,6 @@
   "notifications": {
     "title": "Notifikationer",
     "seeAll": "Se alle",
-    "all": "Alle",
     "unread": "Ulæst",
     "loading": "Indlæser notifikationer...",
     "emptyUnread": "Ingen ulæste notifikationer.",
@@ -55,7 +54,6 @@
     "next": "Næste nyhed",
     "showNews": "Vis nyhed {{number}}"
   },
-  "comingSoon": "Kommer snart",
   "administration": {
     "noPrivileges": "Du har ikke rettigheder til nogen administrative funktioner.",
     "panels": {
@@ -84,7 +82,6 @@
     "noAssignees": "Ingen tilmeldte",
     "materials": "Materialer:",
     "noMaterials": "Ingen materialer",
-    "edit": "Rediger",
     "reopen": "Genåbn",
     "reopening": "Genåbner...",
     "sortNewest": "Nyeste afsluttede først",
@@ -95,7 +92,6 @@
     "presetToday": "I dag",
     "preset7": "7 dage",
     "preset30": "30 dage",
-    "resetFilters": "Nulstil",
     "finishedOn": "Færdig {{date}}",
     "showing": "Viser {{count}} af {{total}}"
   }

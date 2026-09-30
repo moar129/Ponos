@@ -6,6 +6,15 @@ import type {
     StatisticsQuarter,
     StatisticsQueryArgs,
 } from '../../types/statistics/statisticsTypes'
+import {
+    addDays,
+    inclusiveDayCount,
+    parseDateKey,
+    quarterOf,
+    startOfDay,
+    startOfWeek,
+    toDateKey,
+} from '../../utils/calendar'
 
 /** Plain period buttons, in order. Kvartal, Alt and Brugerdefineret follow them. */
 export const STATISTICS_PERIOD_TYPES: Exclude<StatisticsPeriodType, 'quarter' | 'max' | 'custom'>[] = [
@@ -32,33 +41,11 @@ const PERIOD_PARAM: Record<StatisticsPeriodType, string> = {
 }
 const DEFAULT_PERIOD: StatisticsPeriodType = 'month'
 
-const DAY_MS = 24 * 60 * 60 * 1000
-
-function startOfDay(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
-
-function addDays(date: Date, days: number): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
-}
-
-/** 'YYYY-MM-DD' (local) <-> Date; null for anything that is not a real date. */
-function formatParamDate(date: Date): string {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-function parseParamDate(value: string | null): Date | null {
-    const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-    if (!match) return null
-    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-    return formatParamDate(date) === value ? date : null
-}
-
 /** First day of the current calendar week (Monday), month or year containing `today`. */
 function calendarStart(type: 'day' | 'week' | 'month' | 'year', today: Date): Date {
     switch (type) {
         case 'week':
-            return addDays(today, -((today.getDay() + 6) % 7))
+            return startOfWeek(today)
         case 'month':
             return new Date(today.getFullYear(), today.getMonth(), 1)
         case 'year':
@@ -74,7 +61,7 @@ function quarterStart({ quarter, year }: StatisticsQuarter): Date {
 
 /** The calendar quarter containing `date`. */
 export function quarterFromDate(date: Date): StatisticsQuarter {
-    return { quarter: Math.floor(date.getMonth() / 3) + 1, year: date.getFullYear() }
+    return { quarter: quarterOf(date), year: date.getFullYear() }
 }
 
 /** False for quarters that have not begun yet - they can only show zeros. */
@@ -118,8 +105,8 @@ export function useStatisticsPeriod() {
     const requested = Object.entries(PERIOD_PARAM).find(([, param]) => param === searchParams.get('periode'))?.[0] as
         | StatisticsPeriodType
         | undefined
-    const customStart = parseParamDate(searchParams.get('fra'))
-    const customEnd = parseParamDate(searchParams.get('til'))
+    const customStart = parseDateKey(searchParams.get('fra'))
+    const customEnd = parseDateKey(searchParams.get('til'))
     const customValid = Boolean(customStart && customEnd && customStart <= customEnd)
 
     // ?kvartal=1-4, ?aar defaults to this year.
@@ -172,7 +159,7 @@ export function useStatisticsPeriod() {
         }
 
         // Local midnight -> ISO instant; end is exclusive (the day after).
-        const days = Math.round((range.end.getTime() - range.start.getTime()) / DAY_MS) + 1
+        const days = inclusiveDayCount(range.start, range.end)
 
         return {
             start: range.start.toISOString(),
@@ -218,8 +205,8 @@ export function useStatisticsPeriod() {
     const setCustomDates = (start: Date, end: Date) => {
         updateParams({
             periode: PERIOD_PARAM.custom,
-            fra: formatParamDate(startOfDay(start)),
-            til: formatParamDate(startOfDay(end)),
+            fra: toDateKey(startOfDay(start)),
+            til: toDateKey(startOfDay(end)),
             kvartal: null,
             aar: null,
         })

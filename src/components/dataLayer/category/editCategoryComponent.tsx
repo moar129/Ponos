@@ -1,47 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { X, Loader2, Save } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { useUpdateCategoryMutation } from '../../../store/apis/categoryApi';
-import { getDescendantCategories } from '../../../store/slices/dataLayersSlices/aggregatedItems';
-import type { DataLayerCat, EditCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
+import { findCategoryInTree, flattenWithPath, getDescendantCategories } from '../../../store/slices/dataLayersSlices/aggregatedItems';
+import type { EditCategoryComponentProps } from '../../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../../ErrorMessage';
+import { Alert } from '../../common/Alert';
+import { Modal } from '../../common/Modal';
 
-function findCategoryInTree(categories: DataLayerCat[], id: string): DataLayerCat | null {
-  for (const cat of categories) {
-    if (cat.id === id) return cat;
-    const found = findCategoryInTree(cat.subCategories, id);
-    if (found) return found;
-  }
-  return null;
-}
+const LABEL = 'block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400';
+const INPUT = 'w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100';
 
-function flattenWithPath(categories: DataLayerCat[], path: string[] = []): { id: string; label: string }[] {
-  const result: { id: string; label: string }[] = [];
-  for (const cat of categories) {
-    const currentPath = [...path, cat.title];
-    result.push({ id: cat.id, label: currentPath.join(' > ') });
-    result.push(...flattenWithPath(cat.subCategories, currentPath));
-  }
-  return result;
-}
-
-export function EditCategoryComponent({ isOpen, onClose, category, categoryTree }: EditCategoryComponentProps) {
+// Kalderen mounter kun modalen mens den er åben (key = kategorien), så
+// felterne altid starter fra kategoriens nuværende værdier.
+export function EditCategoryComponent({ onClose, category, categoryTree }: EditCategoryComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
-  const [title, setTitle] = useState('');
-  const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
+  const [title, setTitle] = useState(category.title);
+  const [selectedParentId, setSelectedParentId] = useState<string | null>(category.parentCategoryId);
   const [formError, setFormError] = useState<string | null>(null);
   const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
-  useEffect(() => {
-    if (category) {
-      setTitle(category.title);
-      setSelectedParentId(category.parentCategoryId);
-      setFormError(null);
-    }
-  }, [category]);
-
-  if (!isOpen || !category) return null;
-
+  // En kategori kan ikke flyttes ind under sig selv eller sine efterkommere.
   const excludedIds = new Set(getDescendantCategories(category).map((c) => c.id));
   const parentOptions = flattenWithPath(categoryTree).filter((opt) => !excludedIds.has(opt.id));
 
@@ -73,71 +52,54 @@ export function EditCategoryComponent({ isOpen, onClose, category, categoryTree 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div
-        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-md dark:bg-slate-800 dark:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
-          <h2 className="text-lg font-semibold text-primary dark:text-slate-100">{t('editCategory.heading')}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-            title={t('close')}
-            aria-label={t('closeModal')}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-4 space-y-3">
-          {formError && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-              {formError}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.title')}</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.parentCategory')}</label>
-            <select
-              value={selectedParentId ?? ''}
-              onChange={(e) => setSelectedParentId(e.target.value || null)}
-              className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-            >
-              <option value="">{t('editCategory.noParent')}</option>
-              {parentOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
+    <Modal
+      onClose={onClose}
+      title={t('editCategory.heading')}
+      closeOnBackdrop={false}
+      disableClose={isLoading}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit();
+      }}
+      footer={
+        <>
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700">
             {t('common:cancel')}
           </button>
           <button
-            type="button"
-            onClick={handleSubmit}
+            type="submit"
             disabled={isLoading}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
           >
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {t('common:save')}
           </button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <Alert>{formError}</Alert>
+
+        <div>
+          <label htmlFor="edit-category-title" className={LABEL}>{t('common:title')}</label>
+          <input id="edit-category-title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={INPUT} />
+        </div>
+
+        <div>
+          <label htmlFor="edit-category-parent" className={LABEL}>{t('fields.parentCategory')}</label>
+          <select
+            id="edit-category-parent"
+            value={selectedParentId ?? ''}
+            onChange={(e) => setSelectedParentId(e.target.value || null)}
+            className={INPUT}
+          >
+            <option value="">{t('editCategory.noParent')}</option>
+            {parentOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>{opt.label}</option>
+            ))}
+          </select>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

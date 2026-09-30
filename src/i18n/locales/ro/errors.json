@@ -1,13 +1,7 @@
 {
   "generic": "Ceva nu a funcționat. Încercați din nou.",
-  "notLoggedIn": "Nu sunteți autentificat.",
   "loginRequired": "Trebuie să vă autentificați.",
-  "loginRequiredForAction": "Trebuie să vă autentificați pentru această acțiune.",
-  "loginRequiredForMembership": "Trebuie să vă autentificați pentru a solicita aderarea.",
-  "loginRequiredForProfile": "Trebuie să vă autentificați pentru a vă edita profilul.",
-  "loginRequiredForOrganisation": "Trebuie să vă autentificați pentru a edita organizația.",
   "noOrganisation": "Nu sunteți membru al niciunei organizații.",
-  "organisationLookupFailed": "Apartenența dumneavoastră la organizație nu a putut fi încărcată.",
   "wrongCurrentPassword": "Parola dumneavoastră actuală este incorectă.",
   "passwordChangeFailed": "Parola nu a putut fi schimbată. Încercați din nou.",
   "requestAlreadyHandled": "Cererea nu a putut fi procesată. Poate a fost deja soluționată sau nu aveți drepturi pentru ea.",

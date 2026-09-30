@@ -39,7 +39,7 @@ export function FilterPanelComponent({
         </div>
 
         <div>
-          <p className="text-xs text-secondary uppercase tracking-wide mb-2 dark:text-slate-400">{t('fields.status')}</p>
+          <p className="text-xs text-secondary uppercase tracking-wide mb-2 dark:text-slate-400">{t('common:status')}</p>
           <div className="space-y-1.5 max-h-40 overflow-y-auto">
             {statuses.map((status) => (
               <label key={status} className="flex items-center gap-2 text-sm text-primary cursor-pointer dark:text-slate-100">

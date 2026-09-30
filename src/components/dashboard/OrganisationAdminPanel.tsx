@@ -2,15 +2,19 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Building2 } from 'lucide-react'
 import {
+    useActiveMembership,
     useDeleteOrganisationMutation,
-    useGetMyMembershipsQuery,
     useGetMyOrganisationQuery,
     useUpdateMyOrganisationMutation,
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { DeleteOrganisationControlProps, Organisation } from '../../types/organisation/organisationType'
+import { organisationColorsOf } from '../../utils/orgPalette'
+import { organisationExitMessage } from '../../utils/organisationExitMessage'
+import { Alert } from '../common/Alert'
+import { DetailList, DetailRow } from '../common/DetailList'
+import { OrganisationHeader } from './OrganisationHeader'
 
 // Rediger organisation (navn) + slet organisation, samlet i ét panel
 // under dashboardets Administration-fane (US-65) - flyttet fra
@@ -27,7 +31,9 @@ import type { DeleteOrganisationControlProps, Organisation } from '../../types/o
 export function OrganisationAdminPanel() {
     const { t } = useTranslation(['organisation', 'common', 'errors'])
     const { data: organisation, isLoading, error: queryError } = useGetMyOrganisationQuery()
-    const { data: memberships } = useGetMyMembershipsQuery()
+    // Egen aktive medlemskab - afgør om "Slet organisation" vises,
+    // uafhængigt af update_organisation-privilegiet.
+    const activeMembership = useActiveMembership()
     const { hasPrivilege: canEditOrganisation } = useHasPrivilege(UPDATE_ORGANISATION_PRIVILEGE)
     const [updateMyOrganisation, { isLoading: saving, error: mutationError }] = useUpdateMyOrganisationMutation()
 
@@ -64,14 +70,7 @@ export function OrganisationAdminPanel() {
 
         try {
             // Mutationen skriver alle felter - farverne sendes uændret med.
-            await updateMyOrganisation({
-                name: trimmedName,
-                color: current.color ?? null,
-                headerColor: current.headerColor ?? null,
-                footerColor: current.footerColor ?? null,
-                headerTextColor: current.headerTextColor ?? null,
-                footerTextColor: current.footerTextColor ?? null,
-            }).unwrap()
+            await updateMyOrganisation({ name: trimmedName, ...organisationColorsOf(current) }).unwrap()
 
             setIsEditing(false)
             setSavedMessage(true)
@@ -81,13 +80,7 @@ export function OrganisationAdminPanel() {
     }
 
     function handleDeleted(organisationName: string, wasActive: boolean, newActiveOrganisation: Organisation | null) {
-        if (!wasActive) {
-            setDeletedMessage(t('admin.deleted', { name: organisationName }))
-        } else if (newActiveOrganisation) {
-            setDeletedMessage(t('admin.deletedNewActive', { name: organisationName, newActive: newActiveOrganisation.name }))
-        } else {
-            setDeletedMessage(t('admin.deletedNoActive', { name: organisationName }))
-        }
+        setDeletedMessage(organisationExitMessage(t, 'organisation:admin.deleted', organisationName, wasActive, newActiveOrganisation))
     }
 
     if (isLoading) {
@@ -95,37 +88,16 @@ export function OrganisationAdminPanel() {
     }
 
     if (queryError || !organisation) {
-        return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {readableError(queryError) ?? t('admin.loadFailed')}
-            </div>
-        )
+        return <Alert>{readableError(queryError) ?? t('admin.loadFailed')}</Alert>
     }
 
-    // Egen aktive medlemskab - bruges til at afgøre om "Slet organisation"
-    // skal vises, uafhængigt af manage_organisation-privilegiet.
-    const activeMembership = memberships?.find((m) => m.isActive) ?? null
     const saveError = readableError(mutationError)
 
     return (
         <div>
-            {deletedMessage && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                    {deletedMessage}
-                </div>
-            )}
-
-            {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                    {t('admin.saved')}
-                </div>
-            )}
-
-            {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {validationError ?? saveError}
-                </div>
-            )}
+            <Alert tone="success" className="mb-4">{deletedMessage}</Alert>
+            {savedMessage && !isEditing && <Alert tone="success" className="mb-4">{t('admin.saved')}</Alert>}
+            <Alert className="mb-4">{validationError ?? saveError}</Alert>
 
             {isEditing ? (
                 <form onSubmit={(event) => {
@@ -163,19 +135,11 @@ export function OrganisationAdminPanel() {
                 </form>
             ) : (
                 <>
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                            <Building2 className="w-7 h-7 text-accent" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-primary dark:text-slate-100">{organisation.name}</h3>
-                    </div>
+                    <OrganisationHeader name={organisation.name} />
 
-                    <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('admin.memberCount')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">{activeMembership?.memberCount ?? '—'}</dd>
-                        </div>
-                    </dl>
+                    <DetailList>
+                        <DetailRow label={t('admin.memberCount')}>{activeMembership?.memberCount ?? '—'}</DetailRow>
+                    </DetailList>
 
                     {canEditOrganisation && (
                         <div className="mt-6 flex flex-wrap gap-3">
@@ -199,8 +163,6 @@ export function OrganisationAdminPanel() {
         </div>
     )
 }
-
-// ... resten af filen (DeleteOrganisationControl) forbliver uændret
 
 // US-64: vises kun for administratorer af den AKTIVE organisation.
 // Sletning er permanent og fjerner ALT organisationens data samt alle
@@ -308,7 +270,7 @@ function DeleteOrganisationControl({ membership, onDeleted }: DeleteOrganisation
                     disabled={!canDelete || deleting}
                     className="rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-600"
                 >
-                    {deleting ? t('admin.deleting') : t('admin.deletePermanently')}
+                    {deleting ? t('common:deleting') : t('admin.deletePermanently')}
                 </button>
                 <button
                     type="button"

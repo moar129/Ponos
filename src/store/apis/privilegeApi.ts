@@ -2,7 +2,9 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { CreatePrivilegeInput, Privilege, UpdatePrivilegeInput } from '../../types/role/roleType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, runQuery } from './apiError'
+import { getActiveOrganisationIdOf, getMembershipRoleId, getOptionalUserId } from './session'
+import type { DynamicTFunction } from '../../i18n/config'
 
 // Navnet på det privilegie, der giver adgang til ALT (superset af alle
 // andre privilegier). Konventionen er sat i databasen, hvor RLS-policies
@@ -191,7 +193,6 @@ export const ROLE_TEMPLATES: Record<RoleTemplateKey, string[]> = {
 // (roles:domain.<domain> / roles:op.<op>). Funktionerne herunder tager
 // derfor t() som parameter - et modul kan ikke kalde useTranslation, og
 // en etiket hentet uden for React ville ikke skifte sprog igen.
-type TranslateFn = (key: string) => string
 
 // Kendte systemprivilegier - bruges til at vise en dropdown i stedet for
 // et fritekstfelt, når man tilføjer et privilegie til en rolle. En
@@ -210,7 +211,7 @@ export const KNOWN_PRIVILEGES: { name: string; domain: string; op: PrivilegeOp }
 
 // Fuld etiket, fx "Nyheder — Opret". Falder tilbage til det rå navn for
 // custom-privilegier, der ikke er i katalogen.
-export function privilegeLabel(name: string, t: TranslateFn): string {
+export function privilegeLabel(name: string, t: DynamicTFunction): string {
     if (name === ADMIN_PRIVILEGE) return t('roles:privilege.admin')
     const known = KNOWN_PRIVILEGES.find((p) => p.name === name)
     if (!known) return name
@@ -220,7 +221,7 @@ export function privilegeLabel(name: string, t: TranslateFn): string {
 // Kun operations-delen ("Opret", "Se", ...) uden domænenavnet foran -
 // bruges når domænet allerede vises som en overskrift (fx den grupperede
 // "Tilføj privilegie"-dropdown).
-export function privilegeOpLabel(name: string, t: TranslateFn): string {
+export function privilegeOpLabel(name: string, t: DynamicTFunction): string {
     const known = KNOWN_PRIVILEGES.find((p) => p.name === name)
     return known ? t(`roles:op.${known.op}`) : privilegeLabel(name, t)
 }
@@ -241,67 +242,30 @@ export const privilegeApi = supabaseApi.injectEndpoints({
         // Bruges KUN til at vise/skjule UI - den reelle adgangskontrol
         // ligger i RLS, som ikke kan omgås fra klienten.
         getMyPrivileges: builder.query<string[], void>({
-            queryFn: async () => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-
-                if (userError) {
-                    // Ingen session er ikke en fejl - så har man ingen
-                    // privilegier at vise UI efter.
-                    if (userError.name === 'AuthSessionMissingError') {
-                        return { data: [] }
-                    }
-                    return { error: mapDbError(userError) }
-                }
-
-                if (!userData.user) {
-                    return { data: [] }
-                }
-
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('active_organisation_id')
-                    .eq('id', userData.user.id)
-                    .maybeSingle()
-
-                if (profileError) {
-                    return { error: mapDbError(profileError) }
-                }
+            queryFn: () => runQuery(async () => {
+                // Ingen session er ikke en fejl - så har man ingen
+                // privilegier at vise UI efter.
+                const userId = await getOptionalUserId()
+                if (!userId) return { data: [] }
 
                 // Uden aktiv organisation (fx nyoprettet bruger) er der
                 // ingen privilegier - og intet ekstra opslag at lave.
-                if (!profile?.active_organisation_id) {
-                    return { data: [] }
-                }
+                const organisationId = await getActiveOrganisationIdOf(userId)
+                if (!organisationId) return { data: [] }
 
-                // Rollen ligger på memberships (US-59) - brugerens rolle i
-                // DEN AKTIVE organisation, ikke nødvendigvis i alle sine
-                // organisationer.
-                const { data: membership, error: membershipError } = await supabase
-                    .from('memberships')
-                    .select('role_id')
-                    .eq('user_id', userData.user.id)
-                    .eq('organisation_id', profile.active_organisation_id)
-                    .maybeSingle()
-
-                if (membershipError) {
-                    return { error: mapDbError(membershipError) }
-                }
-
-                if (!membership?.role_id) {
-                    return { data: [] }
-                }
+                // Brugerens rolle i DEN AKTIVE organisation, ikke
+                // nødvendigvis i alle sine organisationer.
+                const roleId = await getMembershipRoleId(userId, organisationId)
+                if (!roleId) return { data: [] }
 
                 const { data, error } = await supabase
                     .from('privileges')
                     .select('name')
-                    .eq('role_id', membership.role_id)
+                    .eq('role_id', roleId)
 
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-
-                return { data: (data ?? []).map((privilege) => privilege.name) }
-            },
+                if (error) return { error: mapDbError(error) }
+                return { data: (data ?? []).map((privilege) => privilege.name as string) }
+            }),
 
             providesTags: ['Privilege'],
         }),
@@ -340,9 +304,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
             queryFn: async ({ roleId, name }) => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.privilegeName' } }
-                }
+                if (!trimmed) return { error: errorCode('required.privilegeName') }
 
                 const { data, error } = await supabase
                     .from('privileges')
@@ -350,22 +312,10 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .select('id, role_id, name')
                     .single()
 
+                // unique (role_id, name): rollen har allerede privilegiet.
+                // 42501: fx et privilegie ved navn "admin" uden selv at være admin.
                 if (error) {
-                    // Postgres-fejlkode 23505 = unique constraint violation
-                    // (role_id, name) - rollen har allerede dette privilege.
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:rolePrivilegeExists' },
-                        }
-                    }
-                    // 42501 = RLS afviste - fx forsøg på at oprette et
-                    // privilegie ved navn "admin" uden selv at være admin.
-                    if (error.code === '42501') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.createPrivilege' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
+                    return { error: mapDbError(error, { unique: 'rolePrivilegeExists', permission: 'createPrivilege' }) }
                 }
 
                 return { data: { id: data.id, roleId: data.role_id, name: data.name } }
@@ -381,9 +331,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
             queryFn: async ({ privilegeId, name }) => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.privilegeName' } }
-                }
+                if (!trimmed) return { error: errorCode('required.privilegeName') }
 
                 const { error } = await supabase
                     .from('privileges')
@@ -391,19 +339,7 @@ export const privilegeApi = supabaseApi.injectEndpoints({
                     .eq('id', privilegeId)
 
                 if (error) {
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:rolePrivilegeExists' },
-                        }
-                    }
-                    // 42501 = RLS afviste - fx forsøg på at omdøbe et
-                    // privilegie til "admin" uden selv at være admin.
-                    if (error.code === '42501') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.updatePrivilege' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
+                    return { error: mapDbError(error, { unique: 'rolePrivilegeExists', permission: 'updatePrivilege' }) }
                 }
 
                 return { data: undefined }
@@ -464,4 +400,9 @@ export function useHasAnyPrivilege(names: string[]): { hasPrivilege: boolean; is
             (privileges?.includes(ADMIN_PRIVILEGE) || names.some((name) => privileges?.includes(name))) ?? false,
         isLoading,
     }
+}
+
+// Roller hvis privilegier inkluderer admin-privilegiet.
+export function adminRoleIdsOf(privileges: readonly Privilege[]): Set<string> {
+    return new Set(privileges.filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
 }

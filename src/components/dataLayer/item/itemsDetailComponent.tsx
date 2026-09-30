@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../../i18n/config'
-import { X, Package, Pencil, Trash2, Loader2, Save, Info } from 'lucide-react';
+import { Package, Pencil, Trash2, Loader2, Save, Info } from 'lucide-react';
 import {
   useUpdateItemMutation,
   useDeleteItemMutation,
@@ -12,33 +12,48 @@ import {
   useDeleteItemUnitMutation,
 } from '../../../store/apis/categoryApi';
 import { LocationPickerComponent } from '../warehouse/locationsPickerComponent';
-import { ConfirmDialogComponent } from '../confirmDialogComponent';
-import type { ItemDetailComponentProps, ItemLocation, ItemStatus, ItemUnit } from '../../../types/dataLayer/datalayerTypes';
+import { ConfirmDialog } from '../../common/ConfirmDialog';
+import type { ItemDetailComponentProps, ItemStatus, ItemUnit } from '../../../types/dataLayer/datalayerTypes';
 import {
-  ALL_ITEM_STATUSES,
   ITEM_STATUS_STYLES,
-  UNIT_OF_MEASUREMENT_SUGGESTIONS,
-  PACKAGING_SUGGESTIONS_DISCRETE,
-  PACKAGING_SUGGESTIONS_MEASURED,
   formatItemQuantity,
 } from '../../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../../ErrorMessage';
 import { NumberInput } from '../../common/NumberInput';
 import { numberInputError, parseNumberInput, toNumberInput } from '../../../utils/numberInput';
+import { joinPath, locationPathLabel, PATH_SEPARATOR } from '../../../utils/locationPathLabel';
+import { Alert } from '../../common/Alert';
+import { Modal } from '../../common/Modal';
+import { ItemStatusBadges } from '../itemStatusBadgesComponent';
+import { ItemStatusSelect } from './ItemStatusSelect';
+import { ItemKindHelp, ItemKindRadios, ItemSuggestionLists, ItemUnitFields } from './ItemUnitFields';
+import {
+  emptyItemUnitForm,
+  hasItemUnitNumberErrors,
+  itemKindPatch,
+  itemUnitNumberErrors,
+  quantityLabelKey,
+  toItemUnitPayload,
+} from '../../../utils/itemUnitForm';
+import type { ItemUnitFormValues } from '../../../types/dataLayer/datalayerTypes';
 
+
+const COMPACT_INPUT = 'w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100';
 
 export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, canUpdate, canDelete }: ItemDetailComponentProps) {
   const { t } = useTranslation(['datalayer', 'common'])
   const td = asDynamic(t)
+  // Kalderen mounter komponenten pr. item (key), så felterne altid starter
+  // fra det valgte items værdier.
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [packaging, setPackaging] = useState('');
-  const [unitOfMeasurement, setUnitOfMeasurement] = useState('stk');
+  const [name, setName] = useState(item.name);
+  const [description, setDescription] = useState(item.description ?? '');
+  const [packaging, setPackaging] = useState(item.packaging ?? '');
+  const [unitOfMeasurement, setUnitOfMeasurement] = useState(item.unitOfMeasurement);
   // Talfelter holdes som tekst, så de kan være tomme mens man skriver -
   // se utils/numberInput.ts.
-  const [packageSize, setPackageSize] = useState('');
-  const [itemLocationId, setItemLocationId] = useState<string | null>(null);
+  const [packageSize, setPackageSize] = useState(toNumberInput(item.packageSize));
+  const [itemLocationId, setItemLocationId] = useState<string | null>(item.itemLocationId ?? null);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingDiscardAction, setPendingDiscardAction] = useState<'close' | 'cancel' | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -49,68 +64,23 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
   const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
   const { data: locations = [] } = useGetItemLocationsQuery();
 
-  const { data: units = [], isLoading: unitsLoading } = useGetItemUnitsQuery(item?.id ?? '', { skip: !item });
+  const { data: units = [], isLoading: unitsLoading } = useGetItemUnitsQuery(item.id);
   const [addItemUnits, { isLoading: isAddingUnits }] = useAddItemUnitsMutation();
   const [updateItemUnit] = useUpdateItemUnitMutation();
   const [deleteItemUnit] = useDeleteItemUnitMutation();
   const [showAddUnits, setShowAddUnits] = useState(false);
-  const [addQuantity, setAddQuantity] = useState('1');
-  const [addStatus, setAddStatus] = useState<ItemStatus>('Available');
-  const [addIsDiscrete, setAddIsDiscrete] = useState(true);
-  const [addHasContents, setAddHasContents] = useState(false);
-  const [addContentsTotal, setAddContentsTotal] = useState('1');
-  const [addContentsStart, setAddContentsStart] = useState('');
+  const [addUnits, setAddUnits] = useState<ItemUnitFormValues>(emptyItemUnitForm);
   const [addSubmitted, setAddSubmitted] = useState(false);
-  const [addContentsEmptyStatus, setAddContentsEmptyStatus] = useState<ItemStatus | ''>('Consumed');
-  const [addContentsPartialStatus, setAddContentsPartialStatus] = useState<ItemStatus | ''>('Missing');
-  const [addContentsFullStatus, setAddContentsFullStatus] = useState<ItemStatus | ''>('Available');
-  const [addSerialNumbersRaw, setAddSerialNumbersRaw] = useState('');
+  const patchAddUnits = (patch: Partial<ItemUnitFormValues>) => setAddUnits((current) => ({ ...current, ...patch }));
   const [unitsError, setUnitsError] = useState<string | null>(null);
   const [unitPendingDelete, setUnitPendingDelete] = useState<{ id: string } | null>(null);
   const [isDeletingUnit, setIsDeletingUnit] = useState(false);
 
   useEffect(() => {
-    if (item) {
-      setName(item.name);
-      setDescription(item.description ?? '');
-      setPackaging(item.packaging ?? '');
-      setUnitOfMeasurement(item.unitOfMeasurement);
-      setPackageSize(toNumberInput(item.packageSize));
-      setItemLocationId(item.itemLocationId ?? null);
-      setIsEditing(false);
-      setFormError(null);
-      setPendingDiscardAction(null);
-      setIsConfirmingDelete(false);
-      setDeleteError(null);
-      setShowAddUnits(false);
-      setAddQuantity('1');
-      setAddStatus('Available');
-      setAddIsDiscrete(true);
-      setAddHasContents(false);
-      setAddContentsTotal('1');
-      setAddContentsStart('');
-      setAddSubmitted(false);
-      setAddContentsEmptyStatus('Consumed');
-      setAddContentsPartialStatus('Missing');
-      setAddContentsFullStatus('Available');
-      setAddSerialNumbersRaw('');
-      setUnitsError(null);
-      setUnitPendingDelete(null);
-    }
-  }, [item]);
-
-  useEffect(() => {
     if (isEditing) nameInputRef.current?.focus();
   }, [isEditing]);
 
-  function locationPathLabel(location: ItemLocation, allLocations: ItemLocation[]): string {
-    if (!location.parentLocationId) return location.name;
-    const parent = allLocations.find((l) => l.id === location.parentLocationId);
-    return parent ? `${parent.name} > ${location.name}` : location.name;
-  }
-
   const hasUnsavedChanges =
-    !!item &&
     (name !== item.name ||
       description !== (item.description ?? '') ||
       packaging !== (item.packaging ?? '') ||
@@ -118,22 +88,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       packageSize.trim() !== toNumberInput(item.packageSize) ||
       itemLocationId !== (item.itemLocationId ?? null));
 
-  useEffect(() => {
-    if (!item) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') requestClose();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, isEditing, hasUnsavedChanges]);
-
-  if (!item) return null;
-
   const currentLocation = locations.find((l) => l.id === item.itemLocationId);
-  const statusEntries = (Object.entries(item.statusCounts) as [ItemStatus, number][]).filter(([, count]) => (count ?? 0) > 0);
 
   const requestClose = () => {
     if (isEditing && hasUnsavedChanges) {
@@ -155,16 +110,10 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
   const packageSizeError = numberInputError(packageSize, { required: false });
 
-  // Fejl for "Tilføj enheder"-felterne. Startniveau må gerne være 0.
-  const addNumberErrors = {
-    quantity: numberInputError(addQuantity),
-    contentsTotal: addHasContents ? numberInputError(addContentsTotal) : null,
-    contentsStart: !addIsDiscrete && addHasContents ? numberInputError(addContentsStart, { required: false, allowZero: true }) : null,
-  };
-  // Fejl vises for felter man har skrevet i, og efter et forsøg på at
-  // tilføje også for tomme påkrævede felter.
-  const visibleAddError = (value: string, error: string | null) =>
-    value.trim() !== '' || addSubmitted ? error : null;
+  // Fejl for "Tilføj enheder"-felterne vises for felter man har skrevet
+  // i, og efter et forsøg på at tilføje også for tomme påkrævede felter.
+  const visibleAddError = (field: keyof ReturnType<typeof itemUnitNumberErrors>) =>
+    addUnits[field].trim() !== '' || addSubmitted ? itemUnitNumberErrors(addUnits)[field] : null;
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -213,42 +162,20 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
   const handleAddUnits = async () => {
     setAddSubmitted(true);
-    if (Object.values(addNumberErrors).some((error) => error !== null)) {
+    if (hasItemUnitNumberErrors(addUnits)) {
       setUnitsError(t('common:numberInput.fixFields'));
       return;
     }
     setUnitsError(null);
     try {
-      const serialNumbers =
-        addIsDiscrete && addSerialNumbersRaw.trim()
-          ? addSerialNumbersRaw.split(',').map((s) => s.trim())
-          : undefined;
-
       await addItemUnits({
+        ...toItemUnitPayload(addUnits, item.packageSize),
         itemId: item.id,
-        quantity: parseNumberInput(addQuantity)!,
-        status: addStatus,
-        isDiscrete: addIsDiscrete,
-        contentsTotal: addHasContents ? parseNumberInput(addContentsTotal)! : undefined,
-        contentsStart: !addIsDiscrete && addHasContents ? parseNumberInput(addContentsStart) ?? undefined : undefined,
-        contentsEmptyStatus: addHasContents ? addContentsEmptyStatus || null : undefined,
-        contentsPartialStatus: addHasContents ? addContentsPartialStatus || null : undefined,
-        contentsFullStatus: addHasContents ? addContentsFullStatus || null : undefined,
-        packageSize: !addIsDiscrete && !addHasContents ? item.packageSize ?? undefined : undefined,
-        serialNumbers,
+        status: addUnits.itemStatus,
       }).unwrap();
       setShowAddUnits(false);
-      setAddQuantity('1');
-      setAddStatus('Available');
-      setAddIsDiscrete(true);
-      setAddHasContents(false);
-      setAddContentsTotal('1');
-      setAddContentsStart('');
+      setAddUnits(emptyItemUnitForm());
       setAddSubmitted(false);
-      setAddContentsEmptyStatus('Consumed');
-      setAddContentsPartialStatus('Missing');
-      setAddContentsFullStatus('Available');
-      setAddSerialNumbersRaw('');
     } catch (err) {
       setUnitsError(getErrorMessage(err, t('itemDetail.addUnitsFailed')));
     }
@@ -394,15 +321,13 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
         </div>
       )}
       {canUpdate ? (
-        <select
+        <ItemStatusSelect
           value={unit.status}
-          onChange={(e) => handleUnitStatusChange(unit.id, e.target.value as ItemStatus)}
-          className={`px-1.5 py-1 rounded border text-xs ${ITEM_STATUS_STYLES[unit.status] ?? 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-700'}`}
-        >
-          {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
-        </select>
+          onChange={(status) => status && handleUnitStatusChange(unit.id, status)}
+          className={`px-1.5 py-1 rounded border text-xs ${ITEM_STATUS_STYLES[unit.status]}`}
+        />
       ) : (
-        <span className={`px-1.5 py-0.5 rounded border ${ITEM_STATUS_STYLES[unit.status] ?? 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-700'}`}>
+        <span className={`px-1.5 py-0.5 rounded border ${ITEM_STATUS_STYLES[unit.status]}`}>
           {td(`datalayer:status.${unit.status}`)}
         </span>
       )}
@@ -422,66 +347,70 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
   return (
     <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={requestClose}>
-      <div
-        className="bg-white border border-border-gray rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col dark:bg-slate-800 dark:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-border-gray dark:border-slate-700">
-          <div className="flex items-center gap-2 min-w-0">
-            <Package className="w-5 h-5 text-accent shrink-0" />
-            <div className="min-w-0">
-              {isEditing ? (
-                <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{t('itemDetail.heading')}</h2>
-              ) : (
-                <h2 className="text-lg font-semibold text-primary truncate dark:text-slate-100">{item.name}</h2>
-              )}
-              {!isEditing && (() => {
-                const parts = item.sourceCategoryTitle.split(' > ');
-                const current = parts[parts.length - 1];
-                const ancestors = parts.slice(0, -1);
-                return (
-                  <p className="text-xs text-secondary truncate dark:text-slate-400">
-                    {t('itemDetail.inCategory')} {ancestors.length > 0 && `${ancestors.join(' > ')} > `}
-                    <strong className="text-primary font-medium dark:text-slate-100">{current}</strong>
-                  </p>
-                );
-              })()}
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {!isEditing && canUpdate && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
-                title={t('itemDetail.editItem')}
-                aria-label={t('itemDetail.editItem')}
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-            )}
-            {!isEditing && canDelete && (
-              <button
-                onClick={() => setIsConfirmingDelete(true)}
-                className="p-1.5 rounded-md hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
-                title={t('itemDetail.deleteItem')}
-                aria-label={t('itemDetail.deleteItem')}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
-            <button type="button" onClick={requestClose} className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100" title={t('close')} aria-label={t('closeModal')}>
-              <X className="w-5 h-5" />
+    <Modal
+      onClose={requestClose}
+      icon={Package}
+      size="2xl"
+      title={isEditing ? t('itemDetail.heading') : item.name}
+      subtitle={!isEditing && (() => {
+        const parts = item.sourceCategoryTitle.split(PATH_SEPARATOR);
+        const ancestors = parts.slice(0, -1);
+        return (
+          <span className="block truncate text-xs">
+            {t('itemDetail.inCategory')} {ancestors.length > 0 && `${joinPath(ancestors)}${PATH_SEPARATOR}`}
+            <strong className="text-primary font-medium dark:text-slate-100">{parts[parts.length - 1]}</strong>
+          </span>
+        );
+      })()}
+      headerActions={!isEditing && (
+        <div className="flex items-center gap-1 shrink-0">
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="p-1.5 rounded-md hover:bg-bg-gray text-secondary hover:text-primary dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-100"
+              title={t('itemDetail.editItem')}
+              aria-label={t('itemDetail.editItem')}
+            >
+              <Pencil className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4 overflow-y-auto">
-          {formError && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-              {formError}
-            </div>
           )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={() => setIsConfirmingDelete(true)}
+              className="p-1.5 rounded-md hover:bg-red-50 text-secondary hover:text-red-600 dark:hover:bg-red-900/30 dark:text-slate-400 dark:hover:text-red-400"
+              title={t('itemDetail.deleteItem')}
+              aria-label={t('itemDetail.deleteItem')}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
+      footer={isEditing && (
+        <>
+          <button
+            type="button"
+            onClick={requestCancelEdit}
+            className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
+          >
+            {t('common:cancel')}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
+          >
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {t('common:save')}
+          </button>
+        </>
+      )}
+    >
+        <div className="space-y-4">
+          <Alert>{formError}</Alert>
 
           {isEditing && (
             <div>
@@ -502,18 +431,8 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.status')}</span>
-              {statusEntries.length === 0 ? (
-                <span className="text-secondary dark:text-slate-400">{t('itemDetail.noUnits')}</span>
-              ) : (
-                <div className="flex flex-wrap gap-1">
-                  {statusEntries.map(([status, count]) => (
-                    <span key={status} className={`inline-block px-2 py-0.5 rounded border text-xs ${ITEM_STATUS_STYLES[status] ?? 'bg-bg-gray text-secondary border-border-gray dark:bg-slate-700 dark:text-slate-400 dark:border-slate-700'}`}>
-                      {td(`datalayer:status.${status}`)}: {count}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('common:status')}</span>
+              <ItemStatusBadges item={item} className="justify-start" />
             </div>
             <div>
               <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.quantity')}</span>
@@ -604,7 +523,7 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
             </div>
           </div>
           <div>
-            <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('fields.description')}</span>
+            <span className="block text-xs text-secondary uppercase tracking-wide mb-1 dark:text-slate-400">{t('common:description')}</span>
             {isEditing ? (
               <textarea
                 value={description}
@@ -635,193 +554,37 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
                 )}
               </div>
 
-              {unitsError && (
-                <div className="p-2 mb-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                  {unitsError}
-                </div>
-              )}
+              <Alert className="mb-2">{unitsError}</Alert>
 
               {showAddUnits && (
                 <div className="p-3 mb-2 bg-bg-gray/40 border border-border-gray rounded-lg space-y-2 dark:bg-slate-800/40 dark:border-slate-700">
-                  <div className="p-2 bg-accent/5 border border-accent/20 rounded-lg text-[11px] text-secondary dark:bg-accent/10 dark:border-accent/30 dark:text-slate-400">
-                    <p className="font-medium text-primary mb-0.5 dark:text-slate-100">{t('addItems.helpHeading')}</p>
-                    <ul className="space-y-0.5 list-disc list-inside">
-                      <li>{t('addItems.helpDiscrete')}</li>
-                      <li>{t('addItems.helpMeasured')}</li>
-                      <li>{t('addItems.helpContainer')}</li>
-                    </ul>
-                  </div>
-                  <div className="flex gap-3 text-xs">
-                    <label className="flex items-center gap-1.5 cursor-pointer text-primary dark:text-slate-100">
-                      <input
-                        type="radio"
-                        checked={addIsDiscrete}
-                        onChange={() => {
-                          setAddIsDiscrete(true);
-                          setAddHasContents(false);
-                          setAddContentsEmptyStatus('Consumed');
-                          setAddContentsPartialStatus('Missing');
-                          setAddContentsFullStatus('Available');
-                        }}
-                      />
-                      {t('itemDetail.discreteOption')}
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-primary dark:text-slate-100">
-                      <input
-                        type="radio"
-                        checked={!addIsDiscrete && !addHasContents}
-                        onChange={() => {
-                          setAddIsDiscrete(false);
-                          setAddHasContents(false);
-                        }}
-                      />
-                      {t('itemDetail.measuredOption')}
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-primary dark:text-slate-100">
-                      <input
-                        type="radio"
-                        checked={!addIsDiscrete && addHasContents}
-                        onChange={() => {
-                          setAddIsDiscrete(false);
-                          setAddHasContents(true);
-                          // Kind-afhængige defaults (opfølgning 4) - en
-                          // beholder skal ikke arve 12-pack'ens "tom=Brugt
-                          // op"-default.
-                          setAddContentsEmptyStatus('NeedsRefilling');
-                          setAddContentsPartialStatus('');
-                          setAddContentsFullStatus('Available');
-                        }}
-                      />
-                      {t('itemDetail.containerOption')}
-                    </label>
-                  </div>
+                  <ItemKindHelp className="text-[11px]" />
+                  <ItemKindRadios values={addUnits} onKindChange={(kind) => patchAddUnits(itemKindPatch(kind))} />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <label className="text-xs text-secondary dark:text-slate-400">
-                      {t(
-                        !addIsDiscrete && addHasContents
-                          ? 'addItems.containerCountPlaceholder'
-                          : !addIsDiscrete && !addHasContents && item.packageSize != null
-                          ? 'addItems.packageCountLabel'
-                          : 'addItems.quantityPlaceholder'
-                      )}
+                      {t(quantityLabelKey(addUnits, item.packageSize != null))}
                       <NumberInput
-                        value={addQuantity}
-                        onValueChange={setAddQuantity}
-                        error={visibleAddError(addQuantity, addNumberErrors.quantity)}
-                        className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+                        value={addUnits.quantity}
+                        onValueChange={(quantity) => patchAddUnits({ quantity })}
+                        error={visibleAddError('quantity')}
+                        className={`mt-1 ${COMPACT_INPUT}`}
                       />
                     </label>
                     <label className="text-xs text-secondary dark:text-slate-400">
-                      {t('fields.status')}
-                      <select
-                        value={addStatus}
-                        onChange={(e) => setAddStatus(e.target.value as ItemStatus)}
-                        className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                      >
-                        {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
-                      </select>
+                      {t('common:status')}
+                      <ItemStatusSelect
+                        value={addUnits.itemStatus}
+                        onChange={(itemStatus) => itemStatus && patchAddUnits({ itemStatus })}
+                        className={`mt-1 ${COMPACT_INPUT}`}
+                      />
                     </label>
-                    {addIsDiscrete && (
-                      <label className="col-span-2 text-xs text-secondary dark:text-slate-400">
-                        {t('itemDetail.serialNumbersPlaceholder')}
-                        <input
-                          type="text"
-                          value={addSerialNumbersRaw}
-                          onChange={(e) => setAddSerialNumbersRaw(e.target.value)}
-                          className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                        />
-                      </label>
-                    )}
-                    {addIsDiscrete && (
-                      <label className="flex items-center gap-1.5 text-xs text-primary cursor-pointer dark:text-slate-100">
-                        <input
-                          type="checkbox"
-                          checked={addHasContents}
-                          onChange={(e) => setAddHasContents(e.target.checked)}
-                        />
-                        {t('addItems.hasContentsOption')}
-                      </label>
-                    )}
-                    {addHasContents && (
-                      <div>
-                        <label className="text-xs text-secondary dark:text-slate-400">
-                          {t(addIsDiscrete ? 'addItems.contentsTotalPlaceholder' : 'addItems.contentsTotalPlaceholderMeasured')}
-                          <NumberInput
-                            value={addContentsTotal}
-                            onValueChange={setAddContentsTotal}
-                            error={visibleAddError(addContentsTotal, addNumberErrors.contentsTotal)}
-                            className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                          />
-                        </label>
-                        {addIsDiscrete && (
-                          <p className="mt-1 flex items-start gap-1 text-[11px] text-secondary dark:text-slate-400">
-                            <Info className="w-3 h-3 mt-0.5 shrink-0 text-accent" />
-                            {t('addItems.hasContentsHint')}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    {!addIsDiscrete && addHasContents && (
-                      <div>
-                        <label className="text-xs text-secondary dark:text-slate-400">
-                          {t('addItems.contentsStartPlaceholder')}
-                          <NumberInput
-                            value={addContentsStart}
-                            onValueChange={setAddContentsStart}
-                            error={visibleAddError(addContentsStart, addNumberErrors.contentsStart)}
-                            className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                          />
-                        </label>
-                        <p className="mt-1 flex items-start gap-1 text-[11px] text-secondary dark:text-slate-400">
-                          <Info className="w-3 h-3 mt-0.5 shrink-0 text-accent" />
-                          {t('addItems.containerLevelHint')}
-                        </p>
-                      </div>
-                    )}
-                    {addHasContents && (
-                      <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                        <p className="sm:col-span-3 text-[11px] text-secondary uppercase tracking-wide dark:text-slate-400">
-                          {t('addItems.contentsStatusHeading')}
-                        </p>
-                        <p className="sm:col-span-3 -mt-1 flex items-start gap-1 text-[11px] text-secondary normal-case dark:text-slate-400">
-                          <Info className="w-3 h-3 mt-0.5 shrink-0 text-accent" />
-                          {t('addItems.contentsStatusHint')}
-                        </p>
-                        <label className="text-xs text-secondary dark:text-slate-400">
-                          {t('addItems.contentsEmptyStatusLabel')}
-                          <select
-                            value={addContentsEmptyStatus}
-                            onChange={(e) => setAddContentsEmptyStatus(e.target.value as ItemStatus | '')}
-                            className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                          >
-                            <option value="">{t('addItems.contentsStatusNoChange')}</option>
-                            {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
-                          </select>
-                        </label>
-                        <label className="text-xs text-secondary dark:text-slate-400">
-                          {t('addItems.contentsPartialStatusLabel')}
-                          <select
-                            value={addContentsPartialStatus}
-                            onChange={(e) => setAddContentsPartialStatus(e.target.value as ItemStatus | '')}
-                            className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                          >
-                            <option value="">{t('addItems.contentsStatusNoChange')}</option>
-                            {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
-                          </select>
-                        </label>
-                        <label className="text-xs text-secondary dark:text-slate-400">
-                          {t('addItems.contentsFullStatusLabel')}
-                          <select
-                            value={addContentsFullStatus}
-                            onChange={(e) => setAddContentsFullStatus(e.target.value as ItemStatus | '')}
-                            className="mt-1 w-full bg-white border border-border-gray rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                          >
-                            <option value="">{t('addItems.contentsStatusNoChange')}</option>
-                            {ALL_ITEM_STATUSES.map((status) => <option key={status} value={status}>{td(`datalayer:status.${status}`)}</option>)}
-                          </select>
-                        </label>
-                      </div>
-                    )}
+                    <ItemUnitFields
+                      values={addUnits}
+                      onChange={patchAddUnits}
+                      errorFor={visibleAddError}
+                      inputClass={COMPACT_INPUT}
+                      selectClass={COMPACT_INPUT}
+                    />
                   </div>
                   <div className="flex justify-end gap-2">
                     <button
@@ -857,30 +620,9 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
           )}
         </div>
 
-        {isEditing && (
-          <div className="flex items-center justify-end gap-3 p-4 border-t border-border-gray dark:border-slate-700">
-            <button
-              type="button"
-              onClick={requestCancelEdit}
-              className="px-4 py-2 rounded-lg text-sm text-secondary hover:bg-bg-gray dark:text-slate-400 dark:hover:bg-slate-700"
-            >
-              {t('common:cancel')}
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-accent-text text-sm font-medium disabled:opacity-60"
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {t('common:save')}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    </Modal>
 
-    <ConfirmDialogComponent
+    <ConfirmDialog
       isOpen={pendingDiscardAction !== null}
       title={t('itemDetail.discardTitle')}
       message={t('itemDetail.discardMessage')}
@@ -895,35 +637,28 @@ export function ItemDetailComponent({ item, onClose, onViewLocation, canCreate, 
       onCancel={() => setPendingDiscardAction(null)}
     />
 
-    <ConfirmDialogComponent
+    <ConfirmDialog
       isOpen={isConfirmingDelete}
       title={t('itemDetail.deleteTitle')}
-      message={`${t('itemDetail.deleteMessage', { name: item.name })}${deleteError ? ` ${deleteError}` : ''}`}
-      confirmLabel={t('itemDetail.deleteConfirm')}
+      message={t('itemDetail.deleteMessage', { name: item.name })}
+      error={deleteError}
+      confirmLabel={t('common:delete')}
       isLoading={isDeleting}
       onConfirm={handleDelete}
       onCancel={() => { setIsConfirmingDelete(false); setDeleteError(null); }}
     />
 
-    <ConfirmDialogComponent
+    <ConfirmDialog
       isOpen={unitPendingDelete !== null}
       title={t('itemDetail.deleteUnitTitle')}
       message={t('itemDetail.deleteUnitMessage')}
-      confirmLabel={t('itemDetail.deleteUnitConfirm')}
+      confirmLabel={t('common:delete')}
       isLoading={isDeletingUnit}
       onConfirm={handleDeleteUnit}
       onCancel={() => setUnitPendingDelete(null)}
     />
 
-    <datalist id="unit-of-measurement-suggestions">
-      {UNIT_OF_MEASUREMENT_SUGGESTIONS.map((s) => <option key={s} value={s} />)}
-    </datalist>
-    <datalist id="packaging-suggestions-discrete">
-      {PACKAGING_SUGGESTIONS_DISCRETE.map((s) => <option key={s} value={s} />)}
-    </datalist>
-    <datalist id="packaging-suggestions-measured">
-      {PACKAGING_SUGGESTIONS_MEASURED.map((s) => <option key={s} value={s} />)}
-    </datalist>
+    <ItemSuggestionLists />
     </>
   );
 }

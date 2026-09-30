@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { ETaskPriority, OpenTaskStatus, TaskSortOption } from '../../types/Task/Task';
+import { OPEN_TASK_STATUSES } from '../../utils/taskDisplay';
 
-const ALL_OPEN_STATUSES: OpenTaskStatus[] = ['Started', 'InProgress'];
+const ALL_OPEN_STATUSES = [...OPEN_TASK_STATUSES];
 
 // Søg/filter/sortering delt af /tasks og /tasks/mine (FilterBar +
 // FilterPanel). Sortering tæller ikke som aktivt filter - kun det der

@@ -8,7 +8,6 @@
   "create": "Create",
   "search": "Search",
   "loading": "Loading...",
-  "genericError": "Something went wrong. Please try again.",
   "language": {
     "label": "Language",
     "choose": "Choose language",
@@ -26,7 +25,6 @@
   "title": "Title",
   "description": "Description",
   "status": "Status",
-  "selected": "selected",
   "cannotUndo": "This cannot be undone.",
   "reset": "Reset",
   "closeDialog": "Close dialog",
@@ -39,9 +37,7 @@
   "sending": "Sending...",
   "processing": "Processing...",
   "updating": "Updating...",
-  "creating": "Creating...",
   "yes": "Yes",
-  "send": "Send",
   "selectedCount_one": "{{count}} selected",
   "selectedCount_other": "{{count}} selected",
   "numberInput": {

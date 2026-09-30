@@ -7,7 +7,6 @@
     "ownRow": "Du kan inte ändra din egen rad",
     "adminLockedTitle": "Bara en administratör kan ändra en annan administratörs roll",
     "locked": "Låst",
-    "remove": "Ta bort",
     "confirmRemove": "Är du säker på att du vill ta bort {{name}} från organisationen?",
     "removing": "Tar bort...",
     "confirmRemoveYes": "Ja, ta bort",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Bjud in via e-post",
     "send": "Skicka inbjudan",
-    "sending": "Skickar...",
     "pendingHeading": "Väntande inbjudningar",
     "loading": "Laddar inbjudningar...",
     "empty": "Inga väntande inbjudningar.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Ja, återkalla",
     "undo": "Ändå inte",
     "emailPlaceholder": "namn@exempel.se",
-    "invitedOn": "Inbjuden",
-    "invitedOnDate": "Inbjuden {{date}}"
+    "invitedOnDate": "Inbjuden {{date}}",
+    "sentTo": "Inbjudan skickad till {{email}}."
   },
   "requests": {
     "loading": "Laddar ansökningar...",
     "empty": "Det finns inga väntande ansökningar.",
     "confirmAccept": "Är du säker på att {{name}} ska tas in i organisationen?",
     "confirmReject": "Är du säker på att ansökan ska avslås? {{name}} kan ansöka igen senare.",
-    "processing": "Behandlar...",
-    "yes": "Ja",
     "accept": "Acceptera",
     "reject": "Avslå",
     "requestedOn": "Ansökt {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Skriv organisationens namn ({{name}}) för att bekräfta",
     "ackDataLoss": "Jag förstår att all organisationens data (uppgifter, artiklar, kategorier, platser och statistik) raderas permanent och inte kan återskapas.",
     "ackMemberImpact": "Jag förstår att de {{count}} andra medlemmarna förlorar sin åtkomst direkt.",
-    "deleting": "Raderar...",
     "deletePermanently": "Radera permanent",
     "deleted": "\"{{name}}\" har raderats.",
     "deletedNewActive": "\"{{name}}\" har raderats. Din aktiva organisation är nu \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Färgen på text och ikoner i toppfältet. Tom = väljs automatiskt så att den går att läsa mot bakgrunden.",
     "footerTextColorLabel": "Bottenfält – text",
     "footerTextColorHint": "Färgen på texten i bottenfältet. Tom = väljs automatiskt så att den går att läsa mot bakgrunden.",
-    "colorPickerAriaLabel": "Välj knapp- och länkfärg",
-    "colorReset": "Återställ",
     "colorUseDefault": "Använd standard",
     "colorNoneSet": "Ingen vald (standard)",
     "previewLight": "Ljus",
@@ -117,16 +110,11 @@
     "memberCount": "Antal medlemmar"
   },
   "myInvitations": {
-    "loading": "Laddar inbjudningar...",
     "empty": "Du har inga väntande inbjudningar.",
     "accept": "Acceptera",
     "reject": "Avslå",
     "confirmAccept": "Är du säker på att du vill bli medlem i {{name}}?",
-    "confirmReject": "Är du säker på att inbjudan ska avslås?",
-    "processing": "Behandlar...",
-    "yes": "Ja",
-    "invitedOn": "Inbjuden",
-    "invitedOnDate": "Inbjuden {{date}}"
+    "confirmReject": "Är du säker på att inbjudan ska avslås?"
   },
   "myOrganisations": {
     "loading": "Laddar dina organisationer...",
@@ -141,6 +129,5 @@
     "left": "Du har lämnat \"{{name}}\".",
     "leftNewActive": "Du har lämnat \"{{name}}\". Din aktiva organisation är nu \"{{newActive}}\".",
     "leftNoActive": "Du har lämnat \"{{name}}\". Du har inte längre någon aktiv organisation."
-  },
-  "genericLoading": "Laddar..."
+  }
 }

@@ -4,6 +4,10 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useResetPasswordMutation } from '../../store/apis/authApi'
+import { AuthCard } from '../../components/auth/AuthCard'
+import { Alert } from '../../components/common/Alert'
+import { passwordProblem } from '../../utils/validatePassword'
+import { getErrorMessage } from '../../ErrorMessage'
 
 // US-68: den udloggede vej ind igen, når adgangskoden er glemt.
 // PROTOTYPE: der sendes ingen bekræftelse på mail - email + fornavn +
@@ -28,13 +32,8 @@ export default function ForgotPassword() {
         if (!email.trim() || !firstName.trim() || !lastName.trim()) {
             return t('forgotPassword.allFieldsRequired')
         }
-        if (password.length < 6) {
-            return t('validation.passwordTooShort')
-        }
-        if (password !== confirmPassword) {
-            return t('validation.passwordsDoNotMatch')
-        }
-        return null
+        const problem = passwordProblem(password, confirmPassword)
+        return problem ? t(problem) : null
     }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -53,103 +52,88 @@ export default function ForgotPassword() {
             // Kvitteringen vises på loginsiden via ?nulstillet=1
             navigate('/login?nulstillet=1', { replace: true })
         } catch (err) {
-            // RPC'ens fejlbeskeder er allerede danske og bevidst ens uanset
-            // hvilket felt der ikke passede - de vises derfor som de kommer.
-            if (typeof err === 'object' && err !== null && 'error' in err && typeof err.error === 'string') {
-                setError(err.error)
-            } else {
-                setError(t('common:genericError'))
-            }
+            // RPC'ens fejl er bevidst ens uanset hvilket felt der ikke passede.
+            setError(getErrorMessage(err))
         }
     }
 
     return (
-        <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-5 sm:p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-2">{t('forgotPassword.title')}</h1>
-                <p className="text-sm text-secondary dark:text-slate-400 mb-6">
-                    {t('forgotPassword.intro')}
-                </p>
+        <AuthCard
+            title={t('forgotPassword.title')}
+            intro={t('forgotPassword.intro')}
+            onSubmit={handleSubmit}
+            footer={<>{t('forgotPassword.rememberedIt')} <Link to="/login" className="text-accent hover:underline">{t('login.title')}</Link></>}
+        >
+            <Alert className="mb-4">{error}</Alert>
 
-                {error && (
-                    <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
-                        {error}
-                    </div>
-                )}
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
+                <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
+                <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="firstName">{t('fields.firstName')}</label>
-                    <input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
+                <input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="lastName">{t('fields.lastName')}</label>
-                    <input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.newPassword')}</label>
+                <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.newPassword')}</label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <div className="mb-6">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatNewPassword')}</label>
+                <input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="confirmPassword">{t('fields.repeatNewPassword')}</label>
-                    <input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
+            <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+            >
+                {isLoading ? t('forgotPassword.submitting') : t('forgotPassword.submit')}
+            </button>
 
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                >
-                    {isLoading ? t('forgotPassword.submitting') : t('forgotPassword.submit')}
-                </button>
-
-                {/* Ærlig note om prototypen - fjernes, når rigtig
-                    mailbekræftelse kommer på. */}
-                <p className="mt-3 text-xs text-secondary dark:text-slate-400 text-center">
-                    {t('forgotPassword.prototypeNote')}
-                </p>
-
-                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    {t('forgotPassword.rememberedIt')} <Link to="/login" className="text-accent hover:underline">{t('login.title')}</Link>
-                </p>
-            </form>
-        </div>
+            {/* Ærlig note om prototypen - fjernes, når rigtig
+                mailbekræftelse kommer på. */}
+            <p className="mt-3 text-xs text-secondary dark:text-slate-400 text-center">
+                {t('forgotPassword.prototypeNote')}
+            </p>
+        </AuthCard>
     )
 }

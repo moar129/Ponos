@@ -3,7 +3,7 @@ import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Newspaper, Plus } from 'lucide-react'
-import { useDeleteNewsMutation, useGetNewsQuery } from '../../store/apis/newsApi'
+import { useGetNewsQuery } from '../../store/apis/newsApi'
 import {
     CREATE_NEWS_PRIVILEGE,
     DELETE_NEWS_PRIVILEGE,
@@ -13,6 +13,8 @@ import {
 } from '../../store/apis/privilegeApi'
 import { NewsCard } from '../../components/News/NewsCard'
 import { NewsFormModal } from '../../components/News/NewsFormModal'
+import { DeleteNewsDialog } from '../../components/News/DeleteNewsDialog'
+import { Alert } from '../../components/common/Alert'
 import type { News } from '../../types/news/newsType'
 
 
@@ -26,7 +28,6 @@ export function NewsPage() {
     const { hasPrivilege: canRead, isLoading: loadingReadPrivilege } = useHasPrivilege(READ_NEWS_PRIVILEGE)
     const { hasPrivilege: canUpdate } = useHasPrivilege(UPDATE_NEWS_PRIVILEGE)
     const { hasPrivilege: canDelete } = useHasPrivilege(DELETE_NEWS_PRIVILEGE)
-    const [deleteNews, { isLoading: deleting, error: deleteError }] = useDeleteNewsMutation()
 
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingNews, setEditingNews] = useState<News | null>(null)
@@ -42,18 +43,6 @@ export function NewsPage() {
         setIsFormOpen(true)
     }
 
-    async function confirmDelete() {
-        if (!deleteTarget) return
-        try {
-            await deleteNews({ id: deleteTarget.id }).unwrap()
-            setDeleteTarget(null)
-        } catch {
-            // Fejlen vises via deleteError - bekræftelses-boksen lukkes ikke,
-            // så brugeren kan se fejlen og evt. prøve igen.
-        }
-    }
-
-    const errorMessage = readableError(listError) ?? readableError(deleteError)
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 text-primary dark:text-slate-100 space-y-6">
@@ -75,11 +64,7 @@ export function NewsPage() {
                 )}
             </div>
 
-            {errorMessage && (
-                <div className="rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
-                    {errorMessage}
-                </div>
-            )}
+            <Alert>{readableError(listError)}</Alert>
 
             {isLoading || loadingReadPrivilege ? (
                 <p className="text-secondary dark:text-slate-400">{t('loading')}</p>
@@ -104,32 +89,11 @@ export function NewsPage() {
 
             <NewsFormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} editingNews={editingNews} />
 
-            {deleteTarget && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-xl p-5">
-                        <p className="text-sm text-primary dark:text-slate-100 font-medium mb-1">{t('deleteTitle', { name: deleteTarget.title })}</p>
-                        <p className="text-sm text-secondary dark:text-slate-400 mb-4">{t('common:cannotUndo')}</p>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={confirmDelete}
-                                disabled={deleting}
-                                className="bg-red-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-60"
-                            >
-                                {deleting ? t('common:deleting') : t('common:delete')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setDeleteTarget(null)}
-                                disabled={deleting}
-                                className="rounded-md border border-border-gray dark:border-slate-700 bg-bg-gray dark:bg-slate-800 px-4 py-2 text-sm font-medium text-secondary dark:text-slate-400 hover:bg-border-gray dark:hover:bg-slate-700 transition-colors disabled:opacity-60"
-                            >
-                                {t('common:cancel')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <DeleteNewsDialog
+                news={deleteTarget}
+                onCancel={() => setDeleteTarget(null)}
+                onDeleted={() => setDeleteTarget(null)}
+            />
         </div>
     )
 }

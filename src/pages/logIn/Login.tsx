@@ -4,6 +4,8 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
+import { AuthCard } from '../../components/auth/AuthCard'
+import { Alert } from '../../components/common/Alert'
 
 export default function Login() {
     const navigate = useNavigate()
@@ -46,59 +48,46 @@ export default function Login() {
     }
 
     return (
-        <div className="flex items-center justify-center px-2 py-15 sm:px-6 lg:px-8">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-border-gray dark:border-slate-700 rounded-lg shadow-md p-5 sm:p-8 max-w-md w-full text-primary dark:text-slate-100">
-                <h1 className="text-xl font-semibold text-primary dark:text-slate-100 mb-6">{t('login.title')}</h1>
+        <AuthCard
+            title={t('login.title')}
+            onSubmit={handleSubmit}
+            footer={<>{t('login.noAccount')} <Link to="/signup" className="text-accent hover:underline">{t('signup.title')}</Link></>}
+        >
+            {passwordWasReset && <Alert tone="success" className="mb-4">{t('login.passwordWasReset')}</Alert>}
+            <Alert className="mb-4">{error}</Alert>
 
-                {passwordWasReset && (
-                    <div className="mb-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-3 py-2">
-                        {t('login.passwordWasReset')}
-                    </div>
-                )}
+            <div className="mb-4">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
+                <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+            </div>
 
-                {error && (
-                    <div className="mb-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2">
-                        {error}
-                    </div>
-                )}
-
-                <div className="mb-4">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="email">{t('fields.email')}</label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                </div>
-
-                <div className="mb-6">
-                    <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
-                    />
-                    <p className="mt-2 text-sm">
-                        <Link to="/glemt-adgangskode" className="text-accent hover:underline">{t('login.forgotPassword')}</Link>
-                    </p>
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                >
-                    {loading ? t('login.submitting') : t('login.submit')}
-                </button>
-
-                <p className="mt-4 text-sm text-secondary dark:text-slate-400 text-center">
-                    {t('login.noAccount')} <Link to="/signup" className="text-accent hover:underline">{t('signup.title')}</Link>
+            <div className="mb-6">
+                <label className="block text-sm text-secondary dark:text-slate-400 mb-1" htmlFor="password">{t('fields.password')}</label>
+                <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-md border border-border-gray dark:border-slate-700 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 px-3 py-2 focus:outline-none focus:border-accent"
+                />
+                <p className="mt-2 text-sm">
+                    <Link to="/glemt-adgangskode" className="text-accent hover:underline">{t('login.forgotPassword')}</Link>
                 </p>
-            </form>
-        </div>
+            </div>
+
+            <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-accent text-accent-text rounded-md py-2 font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
+            >
+                {loading ? t('login.submitting') : t('login.submit')}
+            </button>
+        </AuthCard>
     )
 }

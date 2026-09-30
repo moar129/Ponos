@@ -7,7 +7,6 @@
     "ownRow": "A saját sorát nem módosíthatja",
     "adminLockedTitle": "Egy másik rendszergazda szerepkörét csak rendszergazda módosíthatja",
     "locked": "Zárolva",
-    "remove": "Eltávolítás",
     "confirmRemove": "Biztosan eltávolítja {{name}} tagot a szervezetből?",
     "removing": "Eltávolítás...",
     "confirmRemoveYes": "Igen, eltávolítom",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Meghívás e-mailben",
     "send": "Meghívó küldése",
-    "sending": "Küldés...",
     "pendingHeading": "Függőben lévő meghívók",
     "loading": "Meghívók betöltése...",
     "empty": "Nincsenek függőben lévő meghívók.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Igen, visszavonom",
     "undo": "Mégsem",
     "emailPlaceholder": "nev@pelda.hu",
-    "invitedOn": "Meghívva",
-    "invitedOnDate": "Meghívva: {{date}}"
+    "invitedOnDate": "Meghívva: {{date}}",
+    "sentTo": "Meghívó elküldve ide: {{email}}."
   },
   "requests": {
     "loading": "Kérelmek betöltése...",
     "empty": "Nincsenek függőben lévő kérelmek.",
     "confirmAccept": "Biztosan felvegyük {{name}} tagot a szervezetbe?",
     "confirmReject": "Biztosan elutasítja a kérelmet? {{name}} később újra jelentkezhet.",
-    "processing": "Feldolgozás...",
-    "yes": "Igen",
     "accept": "Elfogadás",
     "reject": "Elutasítás",
     "requestedOn": "Kérelmezve: {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "A megerősítéshez írja be a szervezet nevét ({{name}})",
     "ackDataLoss": "Megértettem, hogy a szervezet összes adata (feladatok, tételek, kategóriák, helyszínek és statisztikák) véglegesen törlődik, és nem állítható helyre.",
     "ackMemberImpact": "Megértettem, hogy a másik {{count}} tag azonnal elveszíti a hozzáférését.",
-    "deleting": "Törlés...",
     "deletePermanently": "Végleges törlés",
     "deleted": "\"{{name}}\" törölve lett.",
     "deletedNewActive": "\"{{name}}\" törölve lett. Az aktív szervezete most \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "A felső sáv szövegének és ikonjainak színe. Üres = automatikusan választódik, hogy olvasható legyen a háttéren.",
     "footerTextColorLabel": "Alsó sáv – szöveg",
     "footerTextColorHint": "Az alsó sáv szövegének színe. Üres = automatikusan választódik, hogy olvasható legyen a háttéren.",
-    "colorPickerAriaLabel": "Válassza ki a gomb- és hivatkozásszínt",
-    "colorReset": "Visszaállítás",
     "colorUseDefault": "Alapértelmezett használata",
     "colorNoneSet": "Nincs kiválasztva (alapértelmezett)",
     "previewLight": "Világos",
@@ -117,16 +110,11 @@
     "memberCount": "Tagok száma"
   },
   "myInvitations": {
-    "loading": "Meghívók betöltése...",
     "empty": "Nincsenek függőben lévő meghívói.",
     "accept": "Elfogadás",
     "reject": "Elutasítás",
     "confirmAccept": "Biztosan tagja szeretne lenni ennek: {{name}}?",
-    "confirmReject": "Biztosan elutasítja a meghívót?",
-    "processing": "Feldolgozás...",
-    "yes": "Igen",
-    "invitedOn": "Meghívva",
-    "invitedOnDate": "Meghívva: {{date}}"
+    "confirmReject": "Biztosan elutasítja a meghívót?"
   },
   "myOrganisations": {
     "loading": "Szervezetei betöltése...",
@@ -141,6 +129,5 @@
     "left": "Kilépett innen: \"{{name}}\".",
     "leftNewActive": "Kilépett innen: \"{{name}}\". Az aktív szervezete most \"{{newActive}}\".",
     "leftNoActive": "Kilépett innen: \"{{name}}\". Már nincs aktív szervezete."
-  },
-  "genericLoading": "Betöltés..."
+  }
 }

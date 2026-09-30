@@ -11,7 +11,6 @@
     "Critical": "Critică"
   },
   "fields": {
-    "title": "Titlu",
     "description": "Descriere",
     "room": "Încăpere",
     "priority": "Prioritate",
@@ -35,7 +34,6 @@
     "inProgressHeading": "În lucru"
   },
   "mine": {
-    "loading": "Se încarcă sarcinile tale...",
     "noAccess": "Nu aveți acces pentru a vedea sarcinile dvs. în această organizație.",
     "heading": "Sarcinile mele",
     "subtitle": "Obțineți o imagine de ansamblu asupra sarcinilor la care sunteți alocat.",
@@ -93,7 +91,7 @@
     "nobodyToAssign": "Nu există angajați de atribuit.",
     "signUp": "Înscrie-te",
     "signOff": "Retrage-te",
-    "employee": "Angajat"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Nicio descriere",
@@ -102,12 +100,10 @@
     "awaitingApproval": "Așteaptă aprobare",
     "markDone": "Raportează ca finalizată",
     "priorityBadge": "Prioritate: {{priority}}",
-    "edit": "Editează",
     "details": "Detaliile sarcinii",
     "responsible": "Atribuită",
     "start": "Început",
     "end": "Sfârșit",
-    "statusLabel": "Stare:",
     "addEmployeeShort": "+ Adaugă un angajat",
     "created": "Creată",
     "statusValue": "Stare: {{status}}",
@@ -118,7 +114,6 @@
     "show": "Arată filtrul",
     "hide": "Ascunde filtrul",
     "searchPlaceholder": "Caută în titlu, descriere, cameră sau persoană...",
-    "all": "Toate",
     "sortNewest": "Cele mai noi",
     "sortOldest": "Cele mai vechi",
     "sortPriority": "Prioritate",
@@ -137,15 +132,12 @@
     "chooseTasks": "Alegeți sarcinile care trebuie șterse și ele.",
     "noTasks": "Nu există sarcini în această încăpere.",
     "keptNote": "Sarcinile neselectate nu vor fi șterse. În schimb, ele se mută în <b>{{room}}</b>.",
-    "failed": "Încăperea nu a putut fi ștearsă. Încercați din nou.",
-    "deleting": "Se șterge...",
     "submit": "Șterge încăperea"
   },
   "editRoom": {
     "heading": "Editează încăperea",
     "intro": "Alegeți o cameră și editați numele și accesul.",
-    "namePlaceholder": "Introduceți numele încăperii",
-    "failed": "Încăperea nu a putut fi editată. Încercați din nou."
+    "namePlaceholder": "Introduceți numele încăperii"
   },
   "favorites": {
     "toggleFailed": "Nu s-a putut actualiza camera favorită."

@@ -1,26 +1,26 @@
-
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { Send } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
+import type { MessageInputProps } from '../../types/messages/messagesTypes';
 
-type Props = {
-  onSend: (content: string) => void | Promise<void>;
-  disabled?: boolean;
-};
-
-export function MessageInputComponent({ onSend, disabled = false }: Props) {
+// Beskedfeltet nederst i en samtale (1:1 og gruppe). Enter sender,
+// Shift + Enter giver ny linje.
+export function MessageInputComponent({ onSend, disabled = false }: MessageInputProps) {
   const { t } = useTranslation(['messages', 'common'])
   const [content, setContent] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const isBusy = disabled || isSending;
 
   const handleSend = async () => {
     const trimmedContent = content.trim();
-    if (!trimmedContent || disabled || isSending) return;
+    if (!trimmedContent || isBusy) return;
 
     setIsSending(true);
     try {
       await onSend(trimmedContent);
       setContent('');
+    } catch {
+      // Teksten bliver stående, så brugeren kan prøve igen.
     } finally {
       setIsSending(false);
     }
@@ -32,31 +32,33 @@ export function MessageInputComponent({ onSend, disabled = false }: Props) {
         event.preventDefault();
         void handleSend();
       }}
-      className="flex items-end gap-2 border-t border-border-gray p-3 dark:border-slate-700"
+      className="border-t border-border-gray p-3 shrink-0 dark:border-slate-700"
     >
-      <textarea
-        rows={1}
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        placeholder={t('inputPlaceholder')}
-        disabled={disabled || isSending}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            event.currentTarget.form?.requestSubmit();
-          }
-        }}
-        className="min-h-10 flex-1 resize-none rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-      />
-
-      <button
-        type="submit"
-        disabled={disabled || isSending || !content.trim()}
-        className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-text transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <Send className="h-4 w-4" />
-        {isSending ? t('common:sending') : t('common:send')}
-      </button>
+      <div className="flex items-end gap-2">
+        <textarea
+          rows={1}
+          value={content}
+          onChange={(event) => setContent(event.target.value)}
+          placeholder={t('inputPlaceholder')}
+          disabled={isBusy}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              event.currentTarget.form?.requestSubmit();
+            }
+          }}
+          className="flex-1 resize-none bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent disabled:opacity-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+        />
+        <button
+          type="submit"
+          disabled={isBusy || !content.trim()}
+          className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-text hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label={t('sendMessage')}
+        >
+          {isBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        </button>
+      </div>
+      <p className="text-[10px] text-secondary mt-1 dark:text-slate-400">{t('enterHint')}</p>
     </form>
   );
 }

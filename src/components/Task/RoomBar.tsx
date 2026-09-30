@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { Lock, MoreHorizontal } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Room, RoomBarProps, TasksLocationState } from '../../types/Task/Task';
-import { EditRoomModal } from './EditRoomModal';
+import { RoomFormModal } from './RoomFormModal';
 import { RoomChatButton } from './RoomChatButton';
 import { DeleteRoomModal } from './DeleteRoomModal';
+import { useDismissable } from '../../store/hooks/useDismissable';
 import { FavoriteStarButton } from '../common/FavoriteStarButton';
 import { useGetOrganisationRolesQuery } from '../../store/apis/roleApi';
 import {
@@ -23,7 +24,6 @@ export function RoomBar({
     rooms,
     selectedRoomId,
     onSelectRoom,
-    onAddRoom,
     canCreate,
     canUpdate,
     canDelete,
@@ -31,6 +31,8 @@ export function RoomBar({
 }: RoomBarProps) {
   const { t } = useTranslation(['tasks', 'common'])
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    // Rum-modalerne mountes kun mens de er åbne, så de altid starter forfra.
+    const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
     const [isEditRoomOpen, setIsEditRoomOpen] = useState(false);
     const [isDeleteRoomOpen, setIsDeleteRoomOpen] = useState(false);
 
@@ -117,24 +119,7 @@ export function RoomBar({
         </div>
     );
 
-    useEffect(() => {
-        if (!isMenuOpen) return;
-
-        function handlePointerDown(event: MouseEvent) {
-            if (
-                menuRef.current &&
-                !menuRef.current.contains(event.target as Node)
-            ) {
-                setIsMenuOpen(false);
-            }
-        }
-
-        document.addEventListener('mousedown', handlePointerDown);
-
-        return () => {
-            document.removeEventListener('mousedown', handlePointerDown);
-        };
-    }, [isMenuOpen]);
+    useDismissable(menuRef, isMenuOpen, () => setIsMenuOpen(false));
 
     return (
         <div className="w-full bg-white dark:bg-slate-900">
@@ -248,7 +233,7 @@ export function RoomBar({
                         {canCreate && (
                             <button
                                 type="button"
-                                onClick={onAddRoom}
+                                onClick={() => setIsCreateRoomOpen(true)}
                                 className="px-4 py-3 text-lg text-secondary hover:text-primary transition dark:text-slate-400 dark:hover:text-slate-100"
                                 title={t('rooms.create')}
                             >
@@ -321,19 +306,9 @@ export function RoomBar({
                 )}
             </div>
 
-            {/* EDIT ROOM MODAL */}
-            <EditRoomModal
-                isOpen={isEditRoomOpen}
-                onClose={() => setIsEditRoomOpen(false)}
-                rooms={rooms}
-            />
-
-            {/* DELETE ROOM MODAL */}
-            <DeleteRoomModal
-                isOpen={isDeleteRoomOpen}
-                onClose={() => setIsDeleteRoomOpen(false)}
-                rooms={rooms}
-            />
+            {isCreateRoomOpen && <RoomFormModal onClose={() => setIsCreateRoomOpen(false)} />}
+            {isEditRoomOpen && <RoomFormModal rooms={rooms} onClose={() => setIsEditRoomOpen(false)} />}
+            {isDeleteRoomOpen && <DeleteRoomModal rooms={rooms} onClose={() => setIsDeleteRoomOpen(false)} />}
         </div>
     );
 }

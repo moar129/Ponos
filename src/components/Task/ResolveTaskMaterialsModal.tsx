@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
-import { asDynamic } from '../../i18n/config';
 import { readableError } from '../../ErrorMessage';
 import { ALL_ITEM_STATUSES } from '../../types/dataLayer/datalayerTypes';
 import type { ItemStatus } from '../../types/dataLayer/datalayerTypes';
-import type { TaskMaterial } from '../../types/Task/Task';
-
-export interface MaterialOutcomeEntry {
-  taskMaterialId: string;
-  itemId: string;
-  outcomes: { status: ItemStatus; quantity: number }[];
-}
+import type { MaterialOutcomeEntry, TaskMaterial } from '../../types/Task/Task';
+import { Alert } from '../common/Alert';
+import { Modal } from '../common/Modal';
+import { ItemStatusSelect } from '../dataLayer/item/ItemStatusSelect';
 
 // resolve = afrapportering ved færdiggørelse; release = "Frigiv" på én
 // linje; deleteTask = alle linjer frigives, før opgaven slettes.
@@ -53,7 +48,6 @@ export function ResolveTaskMaterialsModal({
   onCancel,
 }: ResolveTaskMaterialsModalProps) {
   const { t } = useTranslation(['tasks', 'datalayer', 'common']);
-  const td = asDynamic(t);
 
   const isRelease = mode !== 'resolve';
   const statusOptions = isRelease ? ALL_ITEM_STATUSES.filter((s) => !NON_FINAL_STATUSES.includes(s)) : ALL_ITEM_STATUSES;
@@ -136,29 +130,38 @@ export function ResolveTaskMaterialsModal({
           };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
-      <div
-        className="w-full max-w-lg rounded-xl border border-border-gray bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <h3 className="text-xl font-bold text-primary dark:text-slate-100">{texts.heading}</h3>
-            <p className="mt-1 text-sm text-secondary dark:text-slate-400">{texts.intro}</p>
-          </div>
-
-          <button type="button" onClick={onCancel} className="text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-slate-100">
-            <X />
+    <Modal
+      onClose={onCancel}
+      title={texts.heading}
+      subtitle={texts.intro}
+      size="lg"
+      closeOnBackdrop={false}
+      disableClose={isSubmitting}
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-border-gray transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+          >
+            {t('common:cancel')}
           </button>
-        </div>
 
-        {errorMessage && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-            {errorMessage}
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={isSubmitting || !isValid || unresolved.length === 0}
+            className="rounded-lg bg-accent px-4 py-2 text-sm text-accent-text hover:bg-accent-hover transition-colors disabled:opacity-60"
+          >
+            {isSubmitting ? texts.confirming : texts.confirm}
+          </button>
+        </>
+      }
+    >
+        <Alert className="mb-4">{errorMessage}</Alert>
 
-        <div className="max-h-96 space-y-4 overflow-y-auto">
+        <div className="space-y-4">
           {unresolved.map((material) => {
             const outcomes = getOutcomes(material);
             const sum = sumOf(outcomes);
@@ -175,24 +178,17 @@ export function ResolveTaskMaterialsModal({
                 <div className="space-y-2">
                   {outcomes.map((outcome, index) => (
                     <div key={index} className="flex flex-wrap items-center gap-2">
-                      <select
+                      <ItemStatusSelect
                         value={outcome.status}
-                        onChange={(e) => {
+                        onChange={(status) => {
                           const next = [...outcomes];
-                          next[index] = { ...next[index], status: e.target.value as ItemStatus | '' };
+                          next[index] = { ...next[index], status };
                           setOutcomes(material.id, next);
                         }}
+                        placeholder={t('materials.chooseStatusPlaceholder')}
+                        statuses={statusOptions}
                         className="flex-1 rounded-lg border border-border-gray bg-white text-primary px-2 py-1 text-sm outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                      >
-                        <option value="" disabled>
-                          {t('materials.chooseStatusPlaceholder')}
-                        </option>
-                        {statusOptions.map((status) => (
-                          <option key={status} value={status}>
-                            {td(`datalayer:status.${status}`)}
-                          </option>
-                        ))}
-                      </select>
+                      />
 
                       <input
                         type="number"
@@ -212,7 +208,7 @@ export function ResolveTaskMaterialsModal({
                           onClick={() => setOutcomes(material.id, outcomes.filter((_, i) => i !== index))}
                           className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
                         >
-                          {t('materials.resolve.removeOutcomeLine')}
+                          {t('common:remove')}
                         </button>
                       )}
                     </div>
@@ -236,27 +232,6 @@ export function ResolveTaskMaterialsModal({
             );
           })}
         </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isSubmitting}
-            className="rounded-lg border border-border-gray bg-bg-gray px-4 py-2 text-sm text-secondary hover:bg-border-gray transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-          >
-            {t('materials.resolve.cancel')}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={isSubmitting || !isValid || unresolved.length === 0}
-            className="rounded-lg bg-accent px-4 py-2 text-sm text-accent-text hover:bg-accent-hover transition-colors disabled:opacity-60"
-          >
-            {isSubmitting ? texts.confirming : texts.confirm}
-          </button>
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

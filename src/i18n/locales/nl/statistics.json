@@ -131,7 +131,6 @@
     "saveTitle": "Momentopname opslaan",
     "label": "Naam (optioneel)",
     "labelPlaceholder": "Bijv. Seizoen 2026",
-    "saving": "Opslaan...",
     "saveFailed": "De momentopname kon niet worden opgeslagen.",
     "loadFailed": "Momentopnamen konden niet worden geladen.",
     "empty": "Nog geen opgeslagen momentopnamen.",

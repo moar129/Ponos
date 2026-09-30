@@ -8,7 +8,6 @@
   "create": "Vytvořit",
   "search": "Hledat",
   "loading": "Načítání...",
-  "genericError": "Něco se nepovedlo. Zkuste to znovu.",
   "language": {
     "label": "Jazyk",
     "choose": "Vybrat jazyk",
@@ -26,7 +25,6 @@
   "title": "Název",
   "description": "Popis",
   "status": "Stav",
-  "selected": "vybráno",
   "cannotUndo": "Tuto akci nelze vrátit zpět.",
   "reset": "Obnovit",
   "closeDialog": "Zavřít dialog",
@@ -43,9 +41,7 @@
   "sending": "Odesílání...",
   "processing": "Zpracovávání...",
   "updating": "Aktualizace...",
-  "creating": "Vytváření...",
   "yes": "Ano",
-  "send": "Odeslat",
   "numberInput": {
     "required": "Zadejte číslo.",
     "invalid": "Neplatné číslo.",

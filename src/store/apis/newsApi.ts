@@ -1,27 +1,11 @@
 // src/store/apis/newsApi.ts
-import { supabaseApi } from './supabaseApi'
+import { listTags, supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
-import { mapDbError, mapPermissionError } from './apiError'
+import { errorCode, mapDbError, mapPermissionError, runQuery } from './apiError'
+import { getActiveOrganisationId } from './session'
 import type { CreateNewsInput, News, UpdateNewsInput } from '../../types/news/newsType'
 
-async function getAuthenticatedOrganisationId(): Promise<string> {
-    const { data: authData, error: authError } = await supabase.auth.getUser()
-    if (authError || !authData.user) {
-        throw new Error('errors:loginRequiredForAction')
-    }
-
-    const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('active_organisation_id')
-        .eq('id', authData.user.id)
-        .single()
-
-    if (profileError || !profileData?.active_organisation_id) {
-        throw new Error('errors:organisationLookupFailed')
-    }
-
-    return profileData.active_organisation_id
-}
+const NEWS_COLUMNS = 'id, organisation_id, title, description, picture_url, published_at, url'
 
 function mapNewsRow(row: {
     id: string
@@ -46,29 +30,22 @@ function mapNewsRow(row: {
 export const newsApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         getNews: builder.query<News[], void>({
-            queryFn: async () => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
-                    const { data, error } = await supabase
-                        .from('news')
-                        .select('id, organisation_id, title, description, picture_url, published_at, url')
-                        .eq('organisation_id', organisationId)
-                        .order('published_at', { ascending: false })
+                const { data, error } = await supabase
+                    .from('news')
+                    .select(NEWS_COLUMNS)
+                    .eq('organisation_id', organisationId)
+                    .order('published_at', { ascending: false })
 
-                    if (error) {
-                        return { error: mapDbError(error) }
-                    }
-
-                    return { data: (data ?? []).map(mapNewsRow) }
-                } catch (err: any) {
-                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } }
+                if (error) {
+                    return { error: mapDbError(error) }
                 }
-            },
-            providesTags: (result) =>
-                result
-                    ? [{ type: 'News' as const, id: 'LIST' }, ...result.map((n) => ({ type: 'News' as const, id: n.id }))]
-                    : [{ type: 'News' as const, id: 'LIST' }],
+
+                return { data: (data ?? []).map(mapNewsRow) }
+            }),
+            providesTags: (result) => listTags('News', result),
         }),
 
         // Én nyhed, til detalje-siden (/nyheder/:id) - egen query frem for
@@ -78,7 +55,7 @@ export const newsApi = supabaseApi.injectEndpoints({
             queryFn: async (id) => {
                 const { data, error } = await supabase
                     .from('news')
-                    .select('id, organisation_id, title, description, picture_url, published_at, url')
+                    .select(NEWS_COLUMNS)
                     .eq('id', id)
                     .single()
 
@@ -92,44 +69,38 @@ export const newsApi = supabaseApi.injectEndpoints({
         }),
 
         createNews: builder.mutation<News, CreateNewsInput>({
-            queryFn: async (input) => {
-                try {
-                    const trimmedTitle = input.title.trim()
-                    if (!trimmedTitle) {
-                        return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.newsTitle' } }
-                    }
+            queryFn: (input) => runQuery(async () => {
+                const trimmedTitle = input.title.trim()
+                if (!trimmedTitle) return { error: errorCode('required.newsTitle') }
 
-                    const organisationId = await getAuthenticatedOrganisationId()
+                const organisationId = await getActiveOrganisationId()
 
-                    const { data, error } = await supabase
-                        .from('news')
-                        .insert({
-                            organisation_id: organisationId,
-                            title: trimmedTitle,
-                            description: input.description ?? null,
-                            picture_url: input.pictureUrl ?? null,
-                            url: input.url ?? null,
-                            ...(input.publishedAt ? { published_at: input.publishedAt } : {}),
-                        })
-                        .select('id, organisation_id, title, description, picture_url, published_at, url')
-                        .single()
+                const { data, error } = await supabase
+                    .from('news')
+                    .insert({
+                        organisation_id: organisationId,
+                        title: trimmedTitle,
+                        description: input.description ?? null,
+                        picture_url: input.pictureUrl ?? null,
+                        url: input.url ?? null,
+                        ...(input.publishedAt ? { published_at: input.publishedAt } : {}),
+                    })
+                    .select(NEWS_COLUMNS)
+                    .single()
 
-                    if (error) {
-                        return { error: mapPermissionError(error, 'createNews') }
-                    }
-
-                    return { data: mapNewsRow(data) }
-                } catch (err: any) {
-                    return { error: { status: 'CUSTOM_ERROR', error: err.message || 'errors:generic' } }
+                if (error) {
+                    return { error: mapPermissionError(error, 'createNews') }
                 }
-            },
+
+                return { data: mapNewsRow(data) }
+            }),
             invalidatesTags: [{ type: 'News', id: 'LIST' }],
         }),
 
         updateNews: builder.mutation<void, UpdateNewsInput>({
             queryFn: async ({ id, ...changes }) => {
                 if (changes.title !== undefined && !changes.title.trim()) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.newsTitle' } }
+                    return { error: errorCode('required.newsTitle') }
                 }
 
                 const { error } = await supabase

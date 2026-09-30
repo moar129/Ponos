@@ -36,7 +36,6 @@
   "notifications": {
     "title": "Ilmoitukset",
     "seeAll": "Näytä kaikki",
-    "all": "Kaikki",
     "unread": "Lukematta",
     "loading": "Ladataan ilmoituksia...",
     "emptyUnread": "Ei lukemattomia ilmoituksia.",
@@ -55,7 +54,6 @@
     "next": "Seuraava uutinen",
     "showNews": "Näytä uutinen {{number}}"
   },
-  "comingSoon": "Tulossa pian",
   "administration": {
     "noPrivileges": "Sinulla ei ole oikeuksia yhteenkään hallintatoimintoon.",
     "panels": {
@@ -84,7 +82,6 @@
     "noAssignees": "Ei ketään määrättynä",
     "materials": "Materiaalit:",
     "noMaterials": "Ei materiaaleja",
-    "edit": "Muokkaa",
     "reopen": "Avaa uudelleen",
     "reopening": "Avataan uudelleen...",
     "sortNewest": "Viimeksi valmistuneet ensin",
@@ -95,7 +92,6 @@
     "presetToday": "Tänään",
     "preset7": "7 päivää",
     "preset30": "30 päivää",
-    "resetFilters": "Tyhjennä",
     "finishedOn": "Valmistui {{date}}",
     "showing": "{{count}} / {{total}}"
   }

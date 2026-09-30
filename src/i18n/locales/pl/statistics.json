@@ -135,7 +135,6 @@
     "saveTitle": "Zapisz migawkę",
     "label": "Nazwa (opcjonalnie)",
     "labelPlaceholder": "Np. Sezon 2026",
-    "saving": "Zapisywanie...",
     "saveFailed": "Nie udało się zapisać migawki.",
     "loadFailed": "Nie udało się załadować migawek.",
     "empty": "Brak zapisanych migawek.",

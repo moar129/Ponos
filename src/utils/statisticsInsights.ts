@@ -1,7 +1,7 @@
 import type { StatisticsInsight } from '../types/statistics/statisticsComponentTypes'
 import type { StatisticsResult } from '../types/statistics/statisticsTypes'
-
-type Translate = (key: string, options?: Record<string, unknown>) => string
+import { formatDecimal, formatPercent } from './formatDate'
+import { asDynamic } from '../i18n/config'
 
 /** At most this many sentences are shown - the figures are right below. */
 export const MAX_INSIGHTS = 3
@@ -19,11 +19,9 @@ export function buildInsights(
     stats: StatisticsResult,
     options: { roomFiltered: boolean; locale: string; t: unknown },
 ): StatisticsInsight[] {
-    const t = options.t as Translate
-    const whole = new Intl.NumberFormat(options.locale, { maximumFractionDigits: 0 })
-    const decimal = new Intl.NumberFormat(options.locale, { maximumFractionDigits: 1 })
-    const percent = (value: number) => `${whole.format(value)} %`
-    const days = (value: number) => t('statistics:approvals.days', { count: value, formatted: decimal.format(value) })
+    const t = asDynamic(options.t)
+    const percent = (value: number) => formatPercent(value, 0, options.locale)
+    const days = (value: number) => t('statistics:approvals.days', { count: value, formatted: formatDecimal(value, 1, options.locale) })
     const roomLabel = (name: string | null) => name ?? t('statistics:rooms.noRoom')
     // Ties are broken by room name, so the page and FACIT agree.
     const byName = (a: { name: string | null }, b: { name: string | null }) => (a.name ?? '').localeCompare(b.name ?? '', 'da')

@@ -7,7 +7,6 @@
     "ownRow": "Non puoi modificare la tua stessa riga",
     "adminLockedTitle": "Solo un amministratore può cambiare il ruolo di un altro amministratore",
     "locked": "Bloccato",
-    "remove": "Rimuovi",
     "confirmRemove": "Vuoi davvero rimuovere {{name}} dall'organizzazione?",
     "removing": "Rimozione...",
     "confirmRemoveYes": "Sì, rimuovi",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Invita via e-mail",
     "send": "Invia l'invito",
-    "sending": "Invio...",
     "pendingHeading": "Inviti in sospeso",
     "loading": "Caricamento degli inviti...",
     "empty": "Nessun invito in sospeso.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Sì, revoca",
     "undo": "Lascia stare",
     "emailPlaceholder": "nome@esempio.it",
-    "invitedOn": "Invitato",
-    "invitedOnDate": "Invitato il {{date}}"
+    "invitedOnDate": "Invitato il {{date}}",
+    "sentTo": "Invito inviato a {{email}}."
   },
   "requests": {
     "loading": "Caricamento delle richieste...",
     "empty": "Non ci sono richieste in sospeso.",
     "confirmAccept": "Sei sicuro che {{name}} debba essere ammesso nell'organizzazione?",
     "confirmReject": "Sei sicuro di voler rifiutare la richiesta? {{name}} potrà richiederlo di nuovo più avanti.",
-    "processing": "Elaborazione...",
-    "yes": "Sì",
     "accept": "Accetta",
     "reject": "Rifiuta",
     "requestedOn": "Richiesto il {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Scrivi il nome dell'organizzazione ({{name}}) per confermare",
     "ackDataLoss": "Capisco che tutti i dati dell'organizzazione (attività, articoli, categorie, posizioni e statistiche) vengono eliminati definitivamente e non possono essere recuperati.",
     "ackMemberImpact": "Capisco che gli altri {{count}} membri perdono subito il loro accesso.",
-    "deleting": "Eliminazione...",
     "deletePermanently": "Elimina definitivamente",
     "deleted": "\"{{name}}\" è stata eliminata.",
     "deletedNewActive": "\"{{name}}\" è stata eliminata. La tua organizzazione attiva è ora \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Colore del testo e delle icone nella barra superiore. Vuoto = scelto automaticamente per essere leggibile sullo sfondo.",
     "footerTextColorLabel": "Barra inferiore – testo",
     "footerTextColorHint": "Colore del testo nella barra inferiore. Vuoto = scelto automaticamente per essere leggibile sullo sfondo.",
-    "colorPickerAriaLabel": "Scegli il colore di pulsanti e link",
-    "colorReset": "Reimposta",
     "colorUseDefault": "Usa predefinito",
     "colorNoneSet": "Nessuno selezionato (predefinito)",
     "previewLight": "Chiaro",
@@ -117,16 +110,11 @@
     "memberCount": "Numero di membri"
   },
   "myInvitations": {
-    "loading": "Caricamento degli inviti...",
     "empty": "Non hai inviti in sospeso.",
     "accept": "Accetta",
     "reject": "Rifiuta",
     "confirmAccept": "Vuoi davvero diventare membro di {{name}}?",
-    "confirmReject": "Vuoi davvero rifiutare l'invito?",
-    "processing": "Elaborazione...",
-    "yes": "Sì",
-    "invitedOn": "Invitato",
-    "invitedOnDate": "Invitato il {{date}}"
+    "confirmReject": "Vuoi davvero rifiutare l'invito?"
   },
   "myOrganisations": {
     "loading": "Caricamento delle tue organizzazioni...",
@@ -141,6 +129,5 @@
     "left": "Hai lasciato \"{{name}}\".",
     "leftNewActive": "Hai lasciato \"{{name}}\". La tua organizzazione attiva è ora \"{{newActive}}\".",
     "leftNoActive": "Hai lasciato \"{{name}}\". Non hai più un'organizzazione attiva."
-  },
-  "genericLoading": "Caricamento..."
+  }
 }

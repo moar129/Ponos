@@ -1,10 +1,15 @@
 // pages/notifications/NotificationsPage.tsx
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { asDynamic } from '../../i18n/config'
-import { NOTIFICATION_SETTINGS_ANCHOR, notificationBody, notificationTitle } from '../../utils/notificationDisplay'
-import { Bell, Loader2, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings, Building2 } from 'lucide-react';
+import { NOTIFICATION_SETTINGS_ANCHOR, NOTIFICATION_TYPE_GROUPS, notificationBody, notificationTitle } from '../../utils/notificationDisplay'
+import { readableError } from '../../ErrorMessage'
+import { useOpenNotification } from '../../store/hooks/useOpenNotification'
+import { Alert } from '../../components/common/Alert'
+import { EmptyState } from '../../components/common/EmptyState'
+import { Spinner } from '../../components/common/Spinner'
+import { Bell, CheckCheck, Trash2, EyeOff, Eye, MessageSquare, ListChecks, Newspaper, Settings, Building2 } from 'lucide-react';
 import {
   useGetMyNotificationsQuery,
   useMarkNotificationReadMutation,
@@ -12,24 +17,21 @@ import {
   useDeleteNotificationMutation,
   useUndismissNotificationMutation,
 } from '../../store/apis/notificationApi';
-import type { AppNotification } from '../../types/notification/notificationTypes';
+import type { NotificationTypeGroup } from '../../types/notification/notificationTypes';
 import { formatNumericDateTime } from '../../utils/formatDate';
 
 
-// --- Kategorisering af notifikationer ---------------------------------
-// Notifikationstyperne kommer fra e_notification-check-constrainten:
-// 'message', 'task_assigned', 'task_updated', 'task_completed',
-// 'task_approved', 'task_rejected', 'task_favorite_room', 'news',
-// 'membership_invitation'. Ukendte typer falder tilbage til 'news'.
-type NotificationCategory = 'messages' | 'tasks' | 'news' | 'organisation';
+// Kategorierne er de samme grupper, som notifikationsindstillingerne på
+// /bruger bruger (NOTIFICATION_TYPE_GROUPS). Ukendte typer falder tilbage
+// til 'news'.
+type NotificationCategory = NotificationTypeGroup['key'];
 type CategoryFilter = NotificationCategory | 'all';
 
 function getNotificationCategory(type: string): NotificationCategory {
-  if (type === 'message') return 'messages';
-  if (type.startsWith('task_')) return 'tasks';
-  if (type === 'membership_invitation') return 'organisation';
-  return 'news';
+  return NOTIFICATION_TYPE_GROUPS.find((group) => (group.types as string[]).includes(type))?.key ?? 'news';
 }
+
+const CATEGORY_ORDER: NotificationCategory[] = NOTIFICATION_TYPE_GROUPS.map((group) => group.key);
 
 const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
   messages: MessageSquare,
@@ -38,12 +40,11 @@ const CATEGORY_ICONS: Record<NotificationCategory, typeof Bell> = {
   organisation: Building2,
 };
 
-const CATEGORY_ORDER: NotificationCategory[] = ['messages', 'tasks', 'news', 'organisation'];
 
 export default function NotificationsPage() {
   const { t } = useTranslation(['notifications', 'common'])
   const td = asDynamic(t)
-  const navigate = useNavigate();
+  const openNotification = useOpenNotification();
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
 
   // onlyVisible: false - denne side viser ALT, inklusiv skjulte, så
@@ -67,30 +68,14 @@ export default function NotificationsPage() {
     return counts;
   }, [notifications]);
 
-  const totalUnread =
-    unreadCountByCategory.messages +
-    unreadCountByCategory.tasks +
-    unreadCountByCategory.news +
-    unreadCountByCategory.organisation;
+  const totalUnread = Object.values(unreadCountByCategory).reduce((sum, count) => sum + count, 0);
 
   const filteredNotifications = useMemo(() => {
     if (activeCategory === 'all') return notifications;
     return notifications.filter((n) => getNotificationCategory(n.type) === activeCategory);
   }, [notifications, activeCategory]);
 
-  const errorMessage =
-    error && typeof error === 'object' && 'error' in error
-      ? (error as { error: string }).error
-      : null;
-
-  const handleSelect = async (notification: AppNotification) => {
-    if (!notification.isRead) {
-      await markRead({ id: notification.id });
-    }
-    if (notification.link) {
-      navigate(notification.link);
-    }
-  };
+  const errorMessage = readableError(error);
 
   const handleDelete = async (event: React.MouseEvent, notificationId: string) => {
     event.stopPropagation();
@@ -177,22 +162,17 @@ export default function NotificationsPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-accent" />
-          </div>
+          <Spinner block />
         ) : errorMessage ? (
-          <div className="m-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-            {errorMessage}
-          </div>
+          <Alert className="m-4">{errorMessage}</Alert>
         ) : filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center text-secondary px-4 dark:text-slate-400">
-            <Bell className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-            <p className="text-sm">
-              {activeCategory === 'all'
-                ? t('empty')
-                : t('emptyCategory', { category: td(`notifications:category.${activeCategory}`).toLowerCase() })}
-            </p>
-          </div>
+          <EmptyState
+            icon={Bell}
+            className="py-16"
+            title={activeCategory === 'all'
+              ? t('empty')
+              : t('emptyCategory', { category: td(`notifications:category.${activeCategory}`).toLowerCase() })}
+          />
         ) : (
           <ul className="divide-y divide-border-gray dark:divide-slate-700">
             {filteredNotifications.map((notification) => {
@@ -210,7 +190,7 @@ export default function NotificationsPage() {
                   >
                     <button
                       type="button"
-                      onClick={() => handleSelect(notification)}
+                      onClick={() => openNotification(notification)}
                       className="flex-1 min-w-0 text-left"
                     >
                       <div className="flex items-center gap-2">

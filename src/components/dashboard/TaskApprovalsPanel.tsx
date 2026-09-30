@@ -2,14 +2,17 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Check, X } from 'lucide-react'
 import {
     useApproveTaskRequestMutation,
     useGetPendingTaskRequestsQuery,
     useRejectTaskRequestMutation,
 } from '../../store/apis/taskApi'
 import { formatDateTime, formatNumericDate } from '../../utils/formatDate'
-import { PRIORITY_COLORS } from '../../utils/taskDisplay'
+import { PriorityBadge } from '../Task/PriorityBadge'
+import { Alert } from '../common/Alert'
+import { TaskApprovalActions } from './TaskApprovalActions'
+import { useDisplayName } from '../../store/hooks/useDisplayName'
+import type { Decision } from '../../types/common/confirmType'
 import { compareApprovalRequests } from '../../utils/taskFilters'
 import {
     APPROVE_TASK_PRIVILEGE,
@@ -18,9 +21,8 @@ import {
 } from '../../store/apis/privilegeApi'
 import type { ApprovalSortOption, TaskApprovalRowProps } from '../../types/Task/Task'
 import { TaskApprovalDetailsModal } from './TaskApprovalDetailsModal'
-import { RejectReasonInput } from './RejectReasonInput'
 
-type PendingDecision = NonNullable<TaskApprovalRowProps['pendingDecision']>
+type PendingDecision = { requestId: string; decision: Decision }
 
 // Rum-filter: alle, kun opgaver uden rum, eller et bestemt rum-id.
 const ALL_ROOMS = 'all'
@@ -37,6 +39,7 @@ const inputClass =
 // adgangen håndhæves server-side i RPC'erne.
 export function TaskApprovalsPanel() {
     const { t } = useTranslation(['roles', 'common', 'errors'])
+    const displayName = useDisplayName()
     const { hasPrivilege: canApprove } = useHasPrivilege(APPROVE_TASK_PRIVILEGE)
     const { hasPrivilege: canReject } = useHasPrivilege(REJECT_TASK_PRIVILEGE)
 
@@ -69,7 +72,7 @@ export function TaskApprovalsPanel() {
             const matchesSearch =
                 search === '' ||
                 r.taskTitle.toLowerCase().includes(search) ||
-                r.requesterName.toLowerCase().includes(search)
+                displayName(r.requesterName).toLowerCase().includes(search)
             const matchesRoom =
                 roomFilter === ALL_ROOMS ||
                 (roomFilter === NO_ROOM ? r.roomId === null : r.roomId === roomFilter)
@@ -89,16 +92,16 @@ export function TaskApprovalsPanel() {
         setRejectReason('')
     }
 
-    async function confirmDecision(decision: PendingDecision) {
-        const request = requests?.find((r) => r.id === decision.requestId)
-        if (!request) {
+    async function confirmDecision() {
+        const request = requests?.find((r) => r.id === pendingDecision?.requestId)
+        if (!pendingDecision || !request) {
             selectDecision(null)
             return
         }
 
         const input = { requestId: request.id, taskId: request.taskId }
         try {
-            if (decision.decision === 'approve') await approve(input).unwrap()
+            if (pendingDecision.decision === 'accept') await approve(input).unwrap()
             else await reject({ ...input, reason: rejectReason.trim() }).unwrap()
             setDetailsRequestId(null)
             selectDecision(null)
@@ -111,13 +114,22 @@ export function TaskApprovalsPanel() {
     const listError = readableError(queryError)
     const actionError = readableError(approveError) ?? readableError(rejectError)
 
+    // Godkend/afvis-props for én anmodning - ens for rækken og modalen.
+    const actionsFor = (requestId: string) => ({
+        canApprove,
+        canReject,
+        pending: pendingDecision?.requestId === requestId ? pendingDecision.decision : null,
+        submitting,
+        onSelect: (decision: Decision) => selectDecision({ requestId, decision }),
+        onCancel: () => selectDecision(null),
+        onConfirm: confirmDecision,
+        rejectReason,
+        onRejectReasonChange: setRejectReason,
+    })
+
     return (
         <div>
-            {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {listError ?? actionError}
-                </div>
-            )}
+            <Alert className="mb-4">{listError ?? actionError}</Alert>
 
             {isLoading ? (
                 <p className="text-secondary dark:text-slate-400">{t('roles:approvals.loading')}</p>
@@ -160,7 +172,7 @@ export function TaskApprovalsPanel() {
                         onClick={resetFilters}
                         className="rounded-full border border-border-gray px-3 py-1 text-xs font-medium text-secondary hover:bg-bg-gray hover:text-primary dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
                     >
-                        {t('roles:approvals.resetFilters')}
+                        {t('common:reset')}
                     </button>
                 </div>
 
@@ -176,15 +188,7 @@ export function TaskApprovalsPanel() {
                         <li key={request.id} className="py-4">
                             <TaskApprovalRow
                                 request={request}
-                                canApprove={canApprove}
-                                canReject={canReject}
-                                pendingDecision={pendingDecision}
-                                submitting={submitting}
-                                onSelect={selectDecision}
-                                onCancel={() => selectDecision(null)}
-                                onConfirm={confirmDecision}
-                                rejectReason={rejectReason}
-                                onRejectReasonChange={setRejectReason}
+                                {...actionsFor(request.id)}
                                 onOpenDetails={() => setDetailsRequestId(request.id)}
                             />
                         </li>
@@ -197,16 +201,8 @@ export function TaskApprovalsPanel() {
             {detailsRequest && (
                 <TaskApprovalDetailsModal
                     request={detailsRequest}
-                    canApprove={canApprove}
-                    canReject={canReject}
-                    pendingDecision={pendingDecision}
-                    submitting={submitting}
+                    {...actionsFor(detailsRequest.id)}
                     errorMessage={actionError}
-                    onSelect={selectDecision}
-                    onCancel={() => selectDecision(null)}
-                    onConfirm={confirmDecision}
-                    rejectReason={rejectReason}
-                    onRejectReasonChange={setRejectReason}
                     onClose={() => {
                         setDetailsRequestId(null)
                         selectDecision(null)
@@ -217,23 +213,10 @@ export function TaskApprovalsPanel() {
     )
 }
 
-function TaskApprovalRow({
-    request,
-    canApprove,
-    canReject,
-    pendingDecision,
-    submitting,
-    onSelect,
-    onCancel,
-    onConfirm,
-    rejectReason,
-    onRejectReasonChange,
-    onOpenDetails,
-}: TaskApprovalRowProps) {
+function TaskApprovalRow({ request, onOpenDetails, ...actions }: TaskApprovalRowProps) {
     const { t } = useTranslation(['roles', 'tasks', 'common', 'errors'])
-    const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
+    const displayName = useDisplayName()
     const overdue = request.endDate !== null && new Date(request.endDate) < new Date()
-    const missingReason = decision?.decision === 'reject' && rejectReason.trim() === ''
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -258,11 +241,7 @@ function TaskApprovalRow({
                                 {request.roomName}
                             </span>
                         )}
-                        {request.priority && (
-                            <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[request.priority]}`}>
-                                {t(`tasks:priority.${request.priority}`)}
-                            </span>
-                        )}
+                        {request.priority && <PriorityBadge priority={request.priority} />}
                         {request.endDate && (
                             <span className={overdue ? 'font-semibold text-red-700 dark:text-red-400' : 'text-secondary dark:text-slate-400'}>
                                 {t(overdue ? 'roles:approvals.deadlineOverdue' : 'roles:approvals.deadline', { date: formatNumericDate(request.endDate) })}
@@ -270,66 +249,12 @@ function TaskApprovalRow({
                         )}
                     </div>
                 )}
-                <p className="text-sm text-secondary dark:text-slate-400">{t('roles:approvals.reportedDoneBy', { name: request.requesterName })}</p>
+                <p className="text-sm text-secondary dark:text-slate-400">{t('roles:approvals.reportedDoneBy', { name: displayName(request.requesterName) })}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">{formatDateTime(request.requestedAt)}</p>
                 <p className="text-xs font-semibold text-accent mt-1">{t('roles:approvals.details.open')}</p>
             </button>
 
-            {decision ? (
-                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:max-w-xl">
-                    <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
-                        {decision.decision === 'approve'
-                            ? t('roles:approvals.confirmApprove')
-                            : t('roles:approvals.confirmReject')}
-                    </p>
-                    {decision.decision === 'reject' && (
-                        <RejectReasonInput value={rejectReason} onChange={onRejectReasonChange} disabled={submitting} />
-                    )}
-                    <div className="flex shrink-0 items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={() => onConfirm(decision)}
-                            disabled={submitting || missingReason}
-                            className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                        >
-                            {submitting ? t('common:processing') : t('common:yes')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            disabled={submitting}
-                            className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                        >
-                            {t('common:cancel')}
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <div className="flex flex-wrap items-center gap-3">
-                    {canApprove && (
-                        <button
-                            type="button"
-                            onClick={() => onSelect({ requestId: request.id, decision: 'approve' })}
-                            disabled={submitting}
-                            className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                        >
-                            <Check className="w-4 h-4" />
-                            {t('roles:approvals.approve')}
-                        </button>
-                    )}
-                    {canReject && (
-                        <button
-                            type="button"
-                            onClick={() => onSelect({ requestId: request.id, decision: 'reject' })}
-                            disabled={submitting}
-                            className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                        >
-                            <X className="w-4 h-4" />
-                            {t('roles:approvals.reject')}
-                        </button>
-                    )}
-                </div>
-            )}
+            <TaskApprovalActions {...actions} className="w-full sm:w-auto sm:max-w-xl" />
         </div>
     )
 }

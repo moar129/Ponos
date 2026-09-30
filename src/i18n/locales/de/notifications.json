@@ -8,7 +8,6 @@
   "deletePermanently": "Endgültig löschen",
   "deleteAriaLabel": "Benachrichtigung endgültig löschen",
   "hidden": "Ausgeblendet",
-  "justNow": "Gerade eben",
   "emptyCategory": "Keine {{category}}.",
   "category": {
     "messages": "Nachrichten",

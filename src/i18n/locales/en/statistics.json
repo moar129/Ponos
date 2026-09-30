@@ -131,7 +131,6 @@
     "saveTitle": "Save snapshot",
     "label": "Name (optional)",
     "labelPlaceholder": "E.g. Season 2026",
-    "saving": "Saving...",
     "saveFailed": "The snapshot could not be saved.",
     "loadFailed": "Snapshots could not be loaded.",
     "empty": "No saved snapshots yet.",

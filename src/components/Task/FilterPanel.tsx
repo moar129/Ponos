@@ -1,8 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import type { ETaskPriority, OpenTaskStatus, TaskSortOption } from '../../types/Task/Task';
+import { OPEN_TASK_STATUSES } from '../../utils/taskDisplay';
+import { toggleInArray } from '../../utils/toggle';
+import { PrioritySelect } from './PrioritySelect';
 
-const STATUS_OPTIONS: OpenTaskStatus[] = ['Started', 'InProgress'];
 
 interface FilterPanelProps {
   isOpen: boolean;
@@ -31,11 +33,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   if (!isOpen) return null;
 
   const toggleStatus = (status: OpenTaskStatus) => {
-    const newStatuses = selectedStatuses.includes(status)
-      ? selectedStatuses.filter((s) => s !== status)
-      : [...selectedStatuses, status];
-
-    onStatusChange(newStatuses);
+    onStatusChange(toggleInArray(selectedStatuses, status));
   };
 
   return (
@@ -47,7 +45,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div>
             <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('common:status')}</h3>
             <div className="space-y-2">
-              {STATUS_OPTIONS.map((status) => {
+              {OPEN_TASK_STATUSES.map((status) => {
                 const checked = selectedStatuses.includes(status);
                 // Sidste valgte kan ikke fravælges - ellers ville siden være tom.
                 const isLastChecked = checked && selectedStatuses.length === 1;
@@ -73,21 +71,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           {/* PRIORITET */}
           <div>
             <h3 className="text-sm font-semibold text-primary mb-3 dark:text-slate-100">{t('fields.priority')}</h3>
-            <select
+            <PrioritySelect
               value={selectedPriority}
-              onChange={(event) =>
-                onPriorityChange(
-                  event.target.value as ETaskPriority | 'All'
-                )
-              }
+              emptyValue="All"
+              emptyLabel={t('common:all')}
+              onChange={onPriorityChange}
               className="border border-border-gray rounded-lg px-3 py-2 text-sm bg-white text-primary min-w-[150px] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-            >
-              <option value="All">{t('filter.all')}</option>
-              <option value="Low">{t('priority.Low')}</option>
-              <option value="Medium">{t('priority.Medium')}</option>
-              <option value="High">{t('priority.High')}</option>
-              <option value="Critical">{t('priority.Critical')}</option>
-            </select>
+            />
           </div>
 
           {/* SORTÉR */}

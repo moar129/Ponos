@@ -100,7 +100,6 @@
       "deadline": "Earliest deadline first",
       "rejections": "Most rejections first"
     },
-    "resetFilters": "Reset",
     "showing": "Showing {{count}} of {{total}}",
     "noMatch": "No requests match the filters.",
     "deadline": "Deadline {{date}}",

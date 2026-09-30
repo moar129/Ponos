@@ -133,7 +133,6 @@
     "saveTitle": "Guardar instantánea",
     "label": "Nombre (opcional)",
     "labelPlaceholder": "P. ej. Temporada 2026",
-    "saving": "Guardando...",
     "saveFailed": "No se pudo guardar la instantánea.",
     "loadFailed": "No se pudieron cargar las instantáneas.",
     "empty": "Todavía no hay instantáneas guardadas.",

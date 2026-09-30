@@ -20,8 +20,16 @@ const DARK_BAR_MAX_LUMINANCE = 0.07
 
 const SURFACE_LIGHT = '#FFFFFF' // bg-white
 const SURFACE_DARK = '#1E293B' // slate-800, the lightest common dark surface (cards)
-const NAVY = '#071B33'
-const OFF_WHITE = '#F1F5F9'
+
+// The five branding colors, in one place - an update writes all of them, so
+// every caller must send the full set (see organisationColorsOf).
+export const ORGANISATION_COLOR_KEYS = ['color', 'headerColor', 'footerColor', 'headerTextColor', 'footerTextColor'] as const
+export type OrganisationColorKey = (typeof ORGANISATION_COLOR_KEYS)[number]
+
+/** All five colors of an organisation or a form; empty/missing = null (Ponos default). */
+export function organisationColorsOf(source: OrganisationColors): Record<OrganisationColorKey, string | null> {
+    return Object.fromEntries(ORGANISATION_COLOR_KEYS.map((key) => [key, source[key] || null])) as Record<OrganisationColorKey, string | null>
+}
 
 type Hsl = { h: number; s: number; l: number }
 
@@ -111,7 +119,7 @@ function capLuminance(hex: string, max: number): string {
 function textPairFor(hex: string) {
     const light = relativeLuminance(hex) > 0.45
     return {
-        text: light ? NAVY : OFF_WHITE,
+        text: light ? DEFAULT_BAR_COLOR : DEFAULT_BAR_TEXT_COLOR,
         muted: light ? '#3E5574' : '#CBD5E1',
         border: light ? 'rgba(7,27,51,0.15)' : 'rgba(255,255,255,0.15)',
     }
@@ -120,7 +128,7 @@ function textPairFor(hex: string) {
 // Text on accent backgrounds (bg-accent): whichever of navy/off-white has
 // the higher contrast.
 function contrastTextFor(hex: string): string {
-    return contrastRatio(hex, NAVY) >= contrastRatio(hex, OFF_WHITE) ? NAVY : OFF_WHITE
+    return contrastRatio(hex, DEFAULT_BAR_COLOR) >= contrastRatio(hex, DEFAULT_BAR_TEXT_COLOR) ? DEFAULT_BAR_COLOR : DEFAULT_BAR_TEXT_COLOR
 }
 
 function buildBar(chosenBg: string, chosenText: string | null | undefined, mode: ThemeMode): BarPalette {

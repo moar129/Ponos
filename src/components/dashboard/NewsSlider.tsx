@@ -7,6 +7,7 @@ import { richTextToPlainText } from '../../lib/richText'
 import { formatDayMonth } from '../../utils/formatDate'
 import { NewsImage } from '../News/NewsImage'
 import { useTranslation } from 'react-i18next'
+import { DashboardWidget } from './DashboardWidget'
 
 const MAX_SLIDES = 10
 const AUTO_ADVANCE_MS = 6000
@@ -42,18 +43,11 @@ export function NewsSlider() {
     const current = slides[safeIndex] as (typeof slides)[number] | undefined
 
     return (
-        <div className="rounded-lg border border-border-gray bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-            <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                    <Newspaper className="w-5 h-5 text-secondary dark:text-slate-400" />
-                    <h3 className="font-medium text-primary dark:text-slate-100">{t('news.title')}</h3>
-                </div>
-                <Link to="/nyheder" className="flex items-center gap-1 text-sm text-accent hover:underline shrink-0">
-                    {t('news.seeAll')}
-                    <ChevronRight className="w-4 h-4" />
-                </Link>
-            </div>
-
+        <DashboardWidget
+            icon={<Newspaper className="w-5 h-5 text-secondary dark:text-slate-400" />}
+            title={t('news.title')}
+            link={{ to: '/nyheder', label: t('news.seeAll') }}
+        >
             {isLoading ? (
                 <p className="text-sm text-secondary dark:text-slate-400">{t('news.loading')}</p>
             ) : !current ? (
@@ -118,6 +112,6 @@ export function NewsSlider() {
                     )}
                 </div>
             )}
-        </div>
+        </DashboardWidget>
     )
 }

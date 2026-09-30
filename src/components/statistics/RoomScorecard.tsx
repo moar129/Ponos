@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { formatPercent } from '../../utils/formatDate'
 import type { RoomScorecardProps } from '../../types/statistics/statisticsComponentTypes'
 
 const CELL_BASE = 'px-3 py-2 text-right tabular-nums'
@@ -9,7 +10,6 @@ const HEAD = 'whitespace-nowrap px-3 py-2 text-right font-medium text-secondary 
 // Rooms with overdue tasks first - the question is "where is it slipping?".
 export function RoomScorecard({ data, onSelectRoom }: RoomScorecardProps) {
     const { t, i18n } = useTranslation('statistics')
-    const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 })
 
     const rows = [...data].sort((a, b) =>
         b.overdue - a.overdue
@@ -61,7 +61,7 @@ export function RoomScorecard({ data, onSelectRoom }: RoomScorecardProps) {
                                         <span className="text-secondary dark:text-slate-500">–</span>
                                     ) : (
                                         <>
-                                            {number.format(room.onTimeRate)} %
+                                            {formatPercent(room.onTimeRate, 0)}
                                             <span className="ml-1 text-xs text-secondary dark:text-slate-400">
                                                 ({t('rooms.onTimeValue', { onTime: room.completedOnTime, total: room.completedWithDeadline })})
                                             </span>

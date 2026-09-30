@@ -1,7 +1,7 @@
 // src/components/landing/LandingHero.tsx
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import compass from '../../assets/logo/ponos_compass.svg'
+import { LandingAuthButtons } from './LandingAuthButtons'
 
 // Forsidens hero. Går kant-til-kant i samme bg-primary som headeren, så de
 // to flyder sammen til ét navy bånd. Kompasset ligger som svagt vandmærke
@@ -34,20 +34,7 @@ export function LandingHero() {
                         {t('hero.intro')}
                     </p>
 
-                    <div className="mt-9 flex flex-col sm:flex-row gap-3">
-                        <Link
-                            to="/signup"
-                            className="inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
-                        >
-                            {t('cta.signup')}
-                        </Link>
-                        <Link
-                            to="/login"
-                            className="inline-flex items-center justify-center rounded-md border border-slate-600 px-6 py-3 font-medium text-slate-200 hover:bg-slate-800/50 hover:text-white transition-colors"
-                        >
-                            {t('cta.login')}
-                        </Link>
-                    </div>
+                    <LandingAuthButtons className="mt-9" />
                 </div>
             </div>
         </section>

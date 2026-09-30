@@ -1,13 +1,7 @@
 {
   "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
-  "notLoggedIn": "Sie sind nicht angemeldet.",
   "loginRequired": "Sie müssen angemeldet sein.",
-  "loginRequiredForAction": "Sie müssen angemeldet sein, um diese Aktion auszuführen.",
-  "loginRequiredForMembership": "Sie müssen angemeldet sein, um eine Mitgliedschaft zu beantragen.",
-  "loginRequiredForProfile": "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
-  "loginRequiredForOrganisation": "Sie müssen angemeldet sein, um die Organisation zu bearbeiten.",
   "noOrganisation": "Sie sind kein Mitglied einer Organisation.",
-  "organisationLookupFailed": "Ihre Organisationszugehörigkeit konnte nicht geladen werden.",
   "wrongCurrentPassword": "Ihr aktuelles Passwort ist falsch.",
   "passwordChangeFailed": "Das Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
   "requestAlreadyHandled": "Die Anfrage konnte nicht bearbeitet werden. Möglicherweise wurde sie bereits bearbeitet, oder Ihnen fehlt die Berechtigung.",

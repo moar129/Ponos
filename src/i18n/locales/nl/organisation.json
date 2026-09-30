@@ -7,7 +7,6 @@
     "ownRow": "Je kunt je eigen rij niet wijzigen",
     "adminLockedTitle": "Alleen een beheerder kan de rol van een andere beheerder wijzigen",
     "locked": "Vergrendeld",
-    "remove": "Verwijderen",
     "confirmRemove": "Weet je zeker dat je {{name}} uit de organisatie wilt verwijderen?",
     "removing": "Bezig met verwijderen...",
     "confirmRemoveYes": "Ja, verwijderen",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Uitnodigen per e-mail",
     "send": "Uitnodiging verzenden",
-    "sending": "Bezig met verzenden...",
     "pendingHeading": "Openstaande uitnodigingen",
     "loading": "Uitnodigingen worden geladen...",
     "empty": "Geen openstaande uitnodigingen.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Ja, intrekken",
     "undo": "Toch niet",
     "emailPlaceholder": "naam@voorbeeld.nl",
-    "invitedOn": "Uitgenodigd",
-    "invitedOnDate": "Uitgenodigd op {{date}}"
+    "invitedOnDate": "Uitgenodigd op {{date}}",
+    "sentTo": "Uitnodiging verzonden naar {{email}}."
   },
   "requests": {
     "loading": "Verzoeken worden geladen...",
     "empty": "Er zijn geen openstaande verzoeken.",
     "confirmAccept": "Weet je zeker dat {{name}} tot de organisatie moet worden toegelaten?",
     "confirmReject": "Weet je zeker dat het verzoek moet worden afgewezen? {{name}} kan later opnieuw een verzoek indienen.",
-    "processing": "Bezig met verwerken...",
-    "yes": "Ja",
     "accept": "Accepteren",
     "reject": "Afwijzen",
     "requestedOn": "Aangevraagd op {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Typ de naam van de organisatie ({{name}}) om te bevestigen",
     "ackDataLoss": "Ik begrijp dat alle gegevens van de organisatie (taken, artikelen, categorieën, locaties en statistieken) definitief worden verwijderd en niet kunnen worden hersteld.",
     "ackMemberImpact": "Ik begrijp dat de {{count}} andere leden onmiddellijk hun toegang verliezen.",
-    "deleting": "Bezig met verwijderen...",
     "deletePermanently": "Definitief verwijderen",
     "deleted": "\"{{name}}\" is verwijderd.",
     "deletedNewActive": "\"{{name}}\" is verwijderd. Je actieve organisatie is nu \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Kleur van tekst en pictogrammen in de bovenbalk. Leeg = wordt automatisch gekozen zodat die leesbaar is op de achtergrond.",
     "footerTextColorLabel": "Onderbalk – tekst",
     "footerTextColorHint": "Kleur van de tekst in de onderbalk. Leeg = wordt automatisch gekozen zodat die leesbaar is op de achtergrond.",
-    "colorPickerAriaLabel": "Kies de knop- en linkkleur",
-    "colorReset": "Resetten",
     "colorUseDefault": "Gebruik standaard",
     "colorNoneSet": "Geen geselecteerd (standaard)",
     "previewLight": "Licht",
@@ -117,16 +110,11 @@
     "memberCount": "Aantal leden"
   },
   "myInvitations": {
-    "loading": "Uitnodigingen worden geladen...",
     "empty": "Je hebt geen openstaande uitnodigingen.",
     "accept": "Accepteren",
     "reject": "Afwijzen",
     "confirmAccept": "Weet je zeker dat je lid wilt worden van {{name}}?",
-    "confirmReject": "Weet je zeker dat de uitnodiging moet worden afgewezen?",
-    "processing": "Bezig met verwerken...",
-    "yes": "Ja",
-    "invitedOn": "Uitgenodigd",
-    "invitedOnDate": "Uitgenodigd op {{date}}"
+    "confirmReject": "Weet je zeker dat de uitnodiging moet worden afgewezen?"
   },
   "myOrganisations": {
     "loading": "Je organisaties worden geladen...",
@@ -141,6 +129,5 @@
     "left": "Je hebt \"{{name}}\" verlaten.",
     "leftNewActive": "Je hebt \"{{name}}\" verlaten. Je actieve organisatie is nu \"{{newActive}}\".",
     "leftNoActive": "Je hebt \"{{name}}\" verlaten. Je hebt geen actieve organisatie meer."
-  },
-  "genericLoading": "Laden..."
+  }
 }

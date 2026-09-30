@@ -100,7 +100,6 @@
       "deadline": "Früheste Frist zuerst",
       "rejections": "Meiste Ablehnungen zuerst"
     },
-    "resetFilters": "Zurücksetzen",
     "showing": "{{count}} von {{total}}",
     "noMatch": "Keine Meldungen entsprechen den Filtern.",
     "deadline": "Frist {{date}}",

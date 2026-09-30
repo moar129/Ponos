@@ -1,23 +1,14 @@
 import { MapPin, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo/PONOS_compass_1024x1024.png';
-import { useGetSessionQuery } from '../store/apis/authApi';
-import { useGetMyProfileQuery } from '../store/apis/profileApi';
+import { useNavItems } from '../store/hooks/useNavItems';
 import { CONTACT_EMAIL, CONTACT_LOCATION } from '../lib/contact';
 import { useTranslation } from 'react-i18next';
 
 export function Footer() {
   const { t } = useTranslation('nav');
-  // Samme kilde som resten af appen (App.tsx holder denne aktiv, og den
-  // opdateres øjeblikkeligt via onAuthStateChange ved login/logout).
-  const { data: session, isLoading: isLoadingSession } = useGetSessionQuery();
-  const isAuthenticated = !!session;
-
-  // Samme org-gate som headeren - holdes bevidst identisk, så de to nav-
-  // lister ikke driver fra hinanden igen. Genbruger headerens allerede
-  // hentede profil-query (samme cache, ingen ekstra netværkskald).
-  const { data: profile, isLoading: loadingProfile } = useGetMyProfileQuery();
-  const hasOrganisation = !loadingProfile && !!profile?.activeOrganisationId;
+  // Samme links som headeren (inkl. privilegie-tjek) - én liste i useNavItems.
+  const { items: navItems, isAuthenticated, isLoading: isLoadingSession } = useNavItems();
 
   const linkClass =
     'hover:text-[var(--color-footer-text)] focus-visible:text-[var(--color-footer-text)] focus-visible:outline-none focus-visible:underline transition-colors';
@@ -54,23 +45,11 @@ export function Footer() {
                 <li className="h-3 w-20 bg-black/20 rounded" />
                 <li className="h-3 w-14 bg-black/20 rounded" />
               </ul>
-            ) : isAuthenticated ? (
-              <ul className="space-y-2 text-xs text-[var(--color-footer-muted)]">
-                <li><Link to="/dashboard" className={linkClass}>{t('links.dashboard')}</Link></li>
-                {hasOrganisation && (
-                  <>
-                    <li><Link to="/tasks" className={linkClass}>{t('links.tasks')}</Link></li>
-                    <li><Link to="/statistik" className={linkClass}>{t('links.statistics')}</Link></li>
-                    <li><Link to="/datalager" className={linkClass}>{t('links.datalayer')}</Link></li>
-                    <li><Link to="/nyheder" className={linkClass}>{t('links.news')}</Link></li>
-                    <li><Link to="/beskeder" className={linkClass}>{t('links.messages')}</Link></li>
-                  </>
-                )}
-              </ul>
             ) : (
               <ul className="space-y-2 text-xs text-[var(--color-footer-muted)]">
-                <li><Link to="/" className={linkClass}>{t('links.home')}</Link></li>
-                <li><Link to="/login" className={linkClass}>{t('links.login')}</Link></li>
+                {navItems.map(({ to, labelKey }) => (
+                  <li key={to}><Link to={to} className={linkClass}>{t(labelKey)}</Link></li>
+                ))}
               </ul>
             )}
           </nav>

@@ -1,7 +1,8 @@
-import { supabaseApi } from './supabaseApi'
+import { listTags, supabaseApi, taskMaterialTags, taskTags, type ApiTag } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type {
     CompletedTaskDetails,
+    CreateRoomInput,
     ETaskPriority,
     ETaskStatus,
     PendingTaskRequest,
@@ -10,13 +11,23 @@ import type {
     Room,
     Task,
     TaskAssignee,
+    TaskAssignmentInput,
     TaskMaterial,
+    TaskMaterialOutcome,
+    TaskMaterialStatusGroup,
+    TaskRequest,
     TaskRequestDetails,
+    UpdateRoomInput,
 } from '../../types/Task/Task'
 
 import type { ItemLocation, ItemStatus } from '../../types/dataLayer/datalayerTypes'
+import { toItemLocation } from './categoryApi'
 import { locationPathLabel } from '../../utils/locationPathLabel'
-import { mapDbError, mapPermissionError, type QueryError } from './apiError'
+import { mapDbError, mapPermissionError, runQuery } from './apiError'
+import { getActiveOrganisationId, getCurrentUserId } from './session'
+import { fetchProfilesByIds } from './profileApi'
+import { formatFullName } from '../../utils/personName'
+import { OPEN_TASK_STATUSES } from '../../utils/taskDisplay'
 
 interface CreateTaskInput {
     title: string
@@ -40,17 +51,6 @@ interface UpdateTaskInput {
     room_id?: string | null
 }
 
-interface CreateRoomInput {
-    name: string
-    roleIds: string[]
-}
-
-interface UpdateRoomInput {
-    id: string
-    name: string
-    roleIds: string[]
-}
-
 type RoomRow = Omit<Room, 'role_ids'> & { task_room_roles?: { role_id: string }[] }
 
 const toRoom = ({ task_room_roles, ...room }: RoomRow): Room => ({
@@ -63,72 +63,24 @@ interface UpdateTaskStatusInput {
     status: ETaskStatus
 }
 
-interface AssignToTaskInput {
-    taskId: string
-    userId: string
-}
-
-interface RemoveAssigneeInput {
-    taskId: string
-    userId: string
-}
-
-interface TaskRequest {
-    id: string
-    task_id: string
-    requested_by: string
-    requested_at: string
-    status: 'Pending' | 'Accepted' | 'Rejected'
-    handled_by: string | null
-    done_at: string | null
-    rejection_reason: string | null
-}
-
-
-async function getAuthenticatedOrganisationId(): Promise<string> {
-    const { data: authData, error: authError } = await supabase.auth.getUser()
-    if (authError || !authData.user) {
-        throw new Error('errors:loginRequiredForAction')
-    }
-
-    const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('active_organisation_id')
-        .eq('id', authData.user.id)
-        .single()
-
-    if (profileError || !profileData?.active_organisation_id) {
-        throw new Error('errors:organisationLookupFailed')
-    }
-
-    return profileData.active_organisation_id
-}
+// Tilmeld/afmeld/fjern: tilmeldte, opgavelisten, "Mine opgaver" og
+// opgavens chat (deltagerne følger de tilmeldte).
+const assignmentTags = (taskId: string): ApiTag[] => ['Conversation', 'MyTasks', taskTags.list, taskTags.assignees(taskId)]
 
 export const taskApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
         getTasks: builder.query<Task[], void>({
-            queryFn: async () => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data, error } = await supabase
-                        .from('tasks')
-                        .select('*')
-                        .eq('organisation_id', organisationId)
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .eq('organisation_id', organisationId)
 
-                    if (error) return { error: mapDbError(error) as QueryError }
-                    return { data: (data ?? []) as Task[] }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
-                }
-            },
-            providesTags: (result) =>
-                result
-                    ? [
-                        { type: 'Task' as const, id: 'LIST' },
-                        ...result.map((task) => ({ type: 'Task' as const, id: task.id })),
-                    ]
-                    : [{ type: 'Task' as const, id: 'LIST' }],
+                if (error) return { error: mapDbError(error) }
+                return { data: (data ?? []) as Task[] }
+            }),
+            providesTags: (result) => listTags('Task', result),
         }),
 
         // US-70: alle afsluttede opgaver i aktiv organisation, med rum-navn,
@@ -136,89 +88,79 @@ export const taskApi = supabaseApi.injectEndpoints({
         // batch-opslag - samme mønster som roleApi.ts/messageApi.ts'
         // profil-batch-opslag, da getTasks ikke selv joiner disse relationer.
         getCompletedTasks: builder.query<CompletedTaskDetails[], void>({
-            queryFn: async () => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data: tasks, error: tasksError } = await supabase
-                        .from('tasks')
-                        .select('*')
-                        .eq('organisation_id', organisationId)
-                        .eq('status', 'Completed')
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
+                const { data: tasks, error: tasksError } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .eq('organisation_id', organisationId)
+                    .eq('status', 'Completed')
 
-                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
-                    if (!tasks || tasks.length === 0) return { data: [] }
+                if (tasksError) return { error: mapDbError(tasksError) }
+                if (!tasks || tasks.length === 0) return { data: [] }
 
-                    const taskIds = tasks.map((task) => task.id)
+                const taskIds = tasks.map((task) => task.id)
 
-                    const [assigneesResult, materialsResult] = await Promise.all([
-                        supabase.from('task_assignees').select('task_id,user_id').in('task_id', taskIds),
-                        supabase.from('task_materials').select('task_id,item_id,quantity').in('task_id', taskIds),
-                    ])
+                const [assigneesResult, materialsResult] = await Promise.all([
+                    supabase.from('task_assignees').select('task_id,user_id').in('task_id', taskIds),
+                    supabase.from('task_materials').select('task_id,item_id,quantity').in('task_id', taskIds),
+                ])
 
-                    if (assigneesResult.error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: assigneesResult.error.message } as QueryError }
-                    }
-                    if (materialsResult.error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: materialsResult.error.message } as QueryError }
-                    }
-
-                    const assigneeRows = assigneesResult.data ?? []
-                    const materialRows = materialsResult.data ?? []
-
-                    const userIds = [...new Set(assigneeRows.map((row) => row.user_id))]
-                    const itemIds = [...new Set(materialRows.map((row) => row.item_id))]
-                    const roomIds = [...new Set(tasks.map((task) => task.room_id).filter((id): id is string => id !== null))]
-
-                    const [profilesResult, itemsResult, roomsResult] = await Promise.all([
-                        userIds.length > 0
-                            ? supabase.from('profiles').select('id,first_name,last_name').in('id', userIds)
-                            : Promise.resolve({ data: [], error: null }),
-                        itemIds.length > 0
-                            ? supabase.from('data_layer_items').select('id,name').in('id', itemIds)
-                            : Promise.resolve({ data: [], error: null }),
-                        roomIds.length > 0
-                            ? supabase.from('task_rooms').select('id,name').in('id', roomIds)
-                            : Promise.resolve({ data: [], error: null }),
-                    ])
-
-                    if (profilesResult.error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: profilesResult.error.message } as QueryError }
-                    }
-                    if (itemsResult.error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: itemsResult.error.message } as QueryError }
-                    }
-                    if (roomsResult.error) {
-                        return { error: { status: 'CUSTOM_ERROR', error: roomsResult.error.message } as QueryError }
-                    }
-
-                    const profileNameById = new Map(
-                        (profilesResult.data ?? []).map((profile) => [profile.id, `${profile.first_name} ${profile.last_name}`.trim()])
-                    )
-                    const itemNameById = new Map((itemsResult.data ?? []).map((item) => [item.id, item.name as string]))
-                    const roomNameById = new Map((roomsResult.data ?? []).map((room) => [room.id, room.name as string]))
-
-                    const data: CompletedTaskDetails[] = tasks.map((task) => ({
-                        ...(task as Task),
-                        roomName: task.room_id ? (roomNameById.get(task.room_id) ?? null) : null,
-                        assignees: assigneeRows
-                            .filter((row) => row.task_id === task.id)
-                            .map((row) => ({ id: row.user_id, name: profileNameById.get(row.user_id) ?? '' })),
-                        materials: materialRows
-                            .filter((row) => row.task_id === task.id)
-                            .map((row) => ({
-                                itemId: row.item_id,
-                                name: itemNameById.get(row.item_id) ?? 'Ukendt materiale',
-                                quantity: row.quantity,
-                            })),
-                    }))
-
-                    // Sorted client-side in CompletedTasksPanel (user-selectable).
-                    return { data }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
+                if (assigneesResult.error) {
+                    return { error: mapDbError(assigneesResult.error) }
                 }
-            },
+                if (materialsResult.error) {
+                    return { error: mapDbError(materialsResult.error) }
+                }
+
+                const assigneeRows = assigneesResult.data ?? []
+                const materialRows = materialsResult.data ?? []
+
+                const userIds = assigneeRows.map((row) => row.user_id)
+                const itemIds = [...new Set(materialRows.map((row) => row.item_id))]
+                const roomIds = [...new Set(tasks.map((task) => task.room_id).filter((id): id is string => id !== null))]
+
+                const [profileById, itemsResult, roomsResult] = await Promise.all([
+                    fetchProfilesByIds(userIds),
+                    itemIds.length > 0
+                        ? supabase.from('data_layer_items').select('id,name').in('id', itemIds)
+                        : Promise.resolve({ data: [], error: null }),
+                    roomIds.length > 0
+                        ? supabase.from('task_rooms').select('id,name').in('id', roomIds)
+                        : Promise.resolve({ data: [], error: null }),
+                ])
+
+                if (itemsResult.error) {
+                    return { error: mapDbError(itemsResult.error) }
+                }
+                if (roomsResult.error) {
+                    return { error: mapDbError(roomsResult.error) }
+                }
+
+                const itemNameById = new Map((itemsResult.data ?? []).map((item) => [item.id, item.name as string]))
+                const roomNameById = new Map((roomsResult.data ?? []).map((room) => [room.id, room.name as string]))
+
+                const data: CompletedTaskDetails[] = tasks.map((task) => ({
+                    ...(task as Task),
+                    roomName: task.room_id ? (roomNameById.get(task.room_id) ?? null) : null,
+                    assignees: assigneeRows
+                        .filter((row) => row.task_id === task.id)
+                        .map((row) => {
+                            const profile = profileById.get(row.user_id)
+                            return { id: row.user_id, name: formatFullName(profile?.first_name, profile?.last_name) }
+                        }),
+                    materials: materialRows
+                        .filter((row) => row.task_id === task.id)
+                        .map((row) => ({
+                            itemId: row.item_id,
+                            name: itemNameById.get(row.item_id) ?? '',
+                            quantity: row.quantity,
+                        })),
+                }))
+
+                // Sorted client-side in CompletedTasksPanel (user-selectable).
+                return { data }
+            }),
             providesTags: [{ type: 'Task' as const, id: 'LIST' }],
         }),
 
@@ -227,201 +169,81 @@ export const taskApi = supabaseApi.injectEndpoints({
         // Samme batch-mønster som getCompletedTasks. Tilmeld/afmeld
         // invaliderer 'MyTasks' + Task LIST, så navnene følger med.
         getOpenTaskAssigneeNames: builder.query<Record<string, string[]>, void>({
-            queryFn: async () => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data: tasks, error: tasksError } = await supabase
-                        .from('tasks')
-                        .select('id')
-                        .eq('organisation_id', organisationId)
-                        .in('status', ['Started', 'InProgress'])
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
+                const { data: tasks, error: tasksError } = await supabase
+                    .from('tasks')
+                    .select('id')
+                    .eq('organisation_id', organisationId)
+                    .in('status', OPEN_TASK_STATUSES)
 
-                    if (tasksError) return { error: mapDbError(tasksError) as QueryError }
-                    if (!tasks || tasks.length === 0) return { data: {} }
+                if (tasksError) return { error: mapDbError(tasksError) }
+                if (!tasks || tasks.length === 0) return { data: {} }
 
-                    const { data: assigneeRows, error: assigneesError } = await supabase
-                        .from('task_assignees')
-                        .select('task_id,user_id')
-                        .in('task_id', tasks.map((task) => task.id))
+                const { data: assigneeRows, error: assigneesError } = await supabase
+                    .from('task_assignees')
+                    .select('task_id,user_id')
+                    .in('task_id', tasks.map((task) => task.id))
 
-                    if (assigneesError) return { error: mapDbError(assigneesError) as QueryError }
+                if (assigneesError) return { error: mapDbError(assigneesError) }
 
-                    const userIds = [...new Set((assigneeRows ?? []).map((row) => row.user_id))]
-                    if (userIds.length === 0) return { data: {} }
+                const profileById = await fetchProfilesByIds((assigneeRows ?? []).map((row) => row.user_id))
 
-                    const { data: profiles, error: profilesError } = await supabase
-                        .from('profiles')
-                        .select('id,first_name,last_name')
-                        .in('id', userIds)
-
-                    if (profilesError) return { error: mapDbError(profilesError) as QueryError }
-
-                    const nameById = new Map(
-                        (profiles ?? []).map((profile) => [
-                            profile.id as string,
-                            `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
-                        ])
-                    )
-
-                    const data: Record<string, string[]> = {}
-                    for (const row of assigneeRows ?? []) {
-                        const name = nameById.get(row.user_id)
-                        if (!name) continue
-                        ;(data[row.task_id] ??= []).push(name)
-                    }
-                    return { data }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
+                const data: Record<string, string[]> = {}
+                for (const row of assigneeRows ?? []) {
+                    const profile = profileById.get(row.user_id)
+                    const name = formatFullName(profile?.first_name, profile?.last_name)
+                    if (!name) continue
+                    ;(data[row.task_id] ??= []).push(name)
                 }
-            },
-            providesTags: ['MyTasks', { type: 'Task' as const, id: 'LIST' }],
+                return { data }
+            }),
+            providesTags: ['MyTasks', taskTags.list],
         }),
 
         getRooms: builder.query<Room[], void>({
-            queryFn: async () => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data, error } = await supabase
-                        .from('task_rooms')
-                        .select('*, task_room_roles(role_id)')
-                        .eq('organisation_id', organisationId)
-                        .order('created_at', { ascending: true })
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
+                const { data, error } = await supabase
+                    .from('task_rooms')
+                    .select('*, task_room_roles(role_id)')
+                    .eq('organisation_id', organisationId)
+                    .order('created_at', { ascending: true })
 
-                    if (error) return { error: mapDbError(error) as QueryError }
-                    return { data: ((data ?? []) as RoomRow[]).map(toRoom) }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
-                }
-            },
-            providesTags: (result) =>
-                result
-                    ? [
-                        { type: 'TaskRoom' as const, id: 'LIST' },
-                        ...result.map((room) => ({ type: 'TaskRoom' as const, id: room.id })),
-                    ]
-                    : [{ type: 'TaskRoom' as const, id: 'LIST' }],
-        }),
-
-        getOrganisationEmployees: builder.query<
-            {
-                id: string
-                first_name: string | null
-                last_name: string | null
-                email: string | null
-                url_picture: string | null
-            }[],
-            void
-        >({
-            queryFn: async () => {
-                try {
-                    const organisationId =
-                        await getAuthenticatedOrganisationId()
-
-                    // Find brugere i den aktuelle organisation
-                    const { data: memberships, error: membershipError } =
-                        await supabase
-                            .from('memberships')
-                            .select('user_id')
-                            .eq('organisation_id', organisationId)
-
-                    if (membershipError) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: membershipError.message,
-                            } as QueryError,
-                        }
-                    }
-
-                    if (!memberships || memberships.length === 0) {
-                        return {
-                            data: [],
-                        }
-                    }
-
-                    const userIds = memberships.map(
-                        (membership) => membership.user_id
-                    )
-
-                    // Hent profilerne for brugerne
-                    const { data: profiles, error: profileError } =
-                        await supabase
-                            .from('profiles')
-                            .select(
-                                'id, first_name, last_name, email, url_picture'
-                            )
-                            .in('id', userIds)
-
-                    if (profileError) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: profileError.message,
-                            } as QueryError,
-                        }
-                    }
-
-                    return {
-                        data: (profiles ?? []).map((profile) => ({
-                            id: profile.id,
-                            first_name: profile.first_name,
-                            last_name: profile.last_name,
-                            email: profile.email,
-                            url_picture: profile.url_picture,
-                        })),
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
-                }
-            },
-            providesTags: ['Profile'],
+                if (error) return { error: mapDbError(error) }
+                return { data: ((data ?? []) as RoomRow[]).map(toRoom) }
+            }),
+            providesTags: (result) => listTags('TaskRoom', result),
         }),
 
         createTask: builder.mutation<Task, CreateTaskInput>({
-            queryFn: async ({ title, description, start_date, end_date, priority, max_assignees, requires_approval, room_id }) => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
-                    const { data, error } = await supabase
-                        .from('tasks')
-                        .insert({
-                            organisation_id: organisationId,
-                            title,
-                            description,
-                            start_date,
-                            end_date,
-                            priority,
-                            status: 'Started',
-                            max_assignees,
-                            requires_approval,
-                            room_id,
-                        })
-                        .select()
-                        .single()
+            queryFn: ({ title, description, start_date, end_date, priority, max_assignees, requires_approval, room_id }) => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .insert({
+                        organisation_id: organisationId,
+                        title,
+                        description,
+                        start_date,
+                        end_date,
+                        priority,
+                        status: 'Started',
+                        max_assignees,
+                        requires_approval,
+                        room_id,
+                    })
+                    .select()
+                    .single()
 
-                    if (error) return { error: mapPermissionError(error, 'createTask') }
-                    return { data: data as Task }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
-                }
-            },
+                if (error) return { error: mapPermissionError(error, 'createTask') }
+                return { data: data as Task }
+            }),
             invalidatesTags: [{ type: 'Task', id: 'LIST' }],
         }),
 
         updateTask: builder.mutation<Task, UpdateTaskInput>({
-            queryFn: async ({
+            queryFn: ({
                 id,
                 title,
                 description,
@@ -430,45 +252,31 @@ export const taskApi = supabaseApi.injectEndpoints({
                 priority,
                 max_assignees,
                 room_id,
-            }) => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
+            }) => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
-                    const { data, error } = await supabase
-                        .from('tasks')
-                        .update({
-                            title,
-                            description,
-                            start_date,
-                            end_date,
-                            priority,
-                            max_assignees,
-                            room_id,
-                        })
-                        .eq('id', id)
-                        .eq('organisation_id', organisationId)
-                        .select()
-                        .single()
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .update({
+                        title,
+                        description,
+                        start_date,
+                        end_date,
+                        priority,
+                        max_assignees,
+                        room_id,
+                    })
+                    .eq('id', id)
+                    .eq('organisation_id', organisationId)
+                    .select()
+                    .single()
 
-                    if (error) {
-                        return { error: mapPermissionError(error, 'updateTask') }
-                    }
-
-                    return { data: data as Task }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+                if (error) {
+                    return { error: mapPermissionError(error, 'updateTask') }
                 }
-            },
+
+                return { data: data as Task }
+            }),
             invalidatesTags: (_result, _error, { id }) => [
                 'Conversation',
                 { type: 'Task', id },
@@ -479,51 +287,32 @@ export const taskApi = supabaseApi.injectEndpoints({
         // Rum + rolle-begrænsning oprettes/redigeres atomisk via RPC'er
         // (task_room_roles har kun en select-policy).
         createRoom: builder.mutation<Room, CreateRoomInput>({
-            queryFn: async ({ name, roleIds }) => {
-                try {
-                    const { data, error } = await supabase.rpc('create_task_room', {
-                        p_name: name,
-                        p_role_ids: roleIds,
-                    })
+            queryFn: ({ name, roleIds }) => runQuery(async () => {
+                const { data, error } = await supabase.rpc('create_task_room', {
+                    p_name: name,
+                    p_role_ids: roleIds,
+                })
 
-                    if (error) return { error: mapPermissionError(error, 'createRoom') }
-                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
-                } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'errors:generic'
-                    return { error: { status: 'CUSTOM_ERROR', error: message } as QueryError }
-                }
-            },
+                if (error) return { error: mapPermissionError(error, 'createRoom') }
+                return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
+            }),
             invalidatesTags: [{ type: 'TaskRoom', id: 'LIST' }, 'Conversation'],
         }),
 
         updateRoom: builder.mutation<Room, UpdateRoomInput>({
-            queryFn: async ({ id, name, roleIds }) => {
-                try {
-                    const { data, error } = await supabase.rpc('update_task_room', {
-                        p_room_id: id,
-                        p_name: name,
-                        p_role_ids: roleIds,
-                    })
+            queryFn: ({ id, name, roleIds }) => runQuery(async () => {
+                const { data, error } = await supabase.rpc('update_task_room', {
+                    p_room_id: id,
+                    p_name: name,
+                    p_role_ids: roleIds,
+                })
 
-                    if (error) {
-                        return { error: mapPermissionError(error, 'updateRoom') }
-                    }
-
-                    return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+                if (error) {
+                    return { error: mapPermissionError(error, 'updateRoom') }
                 }
-            },
+
+                return { data: { ...(data as Omit<Room, 'role_ids'>), role_ids: roleIds } }
+            }),
             // Rollerne styrer hvilke opgaver der er synlige (RLS).
             invalidatesTags: (_result, _error, { id }) => [
                 'Conversation',
@@ -553,48 +342,25 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 const { data, error } = await supabase.from('tasks').select('*').eq('id', id).maybeSingle()
 
-                if (error) return { error: mapDbError(error) as QueryError }
+                if (error) return { error: mapDbError(error) }
                 return { data: (data as Task | null) ?? null }
             },
             invalidatesTags: (_result, _error, { id }) => [{ type: 'Task', id }, { type: 'Task', id: 'LIST' }, 'Conversation'],
         }),
         getTaskAssignees: builder.query<TaskAssignee[], string>({
-            queryFn: async (taskId) => {
-                try {
-                    const { data, error } = await supabase
-                        .from('task_assignees')
-                        .select('user_id, assigned_by, assigned_at')
-                        .eq('task_id', taskId)
-                    if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
-                    }
-                    return {
-                        data: (data ?? []) as TaskAssignee[],
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+            queryFn: (taskId) => runQuery(async () => {
+                const { data, error } = await supabase
+                    .from('task_assignees')
+                    .select('user_id, assigned_by, assigned_at')
+                    .eq('task_id', taskId)
+                if (error) {
+                    return { error: mapDbError(error) }
                 }
-            },
-            providesTags: (_result, _error, taskId) => [
-                {
-                    type: 'Task',
-                    id: `${taskId}-ASSIGNEES`,
-                },
-            ],
+                return {
+                    data: (data ?? []) as TaskAssignee[],
+                }
+            }),
+            providesTags: (_result, _error, taskId) => [taskTags.assignees(taskId)],
         }),
 
         // materialOutcomes: den tildeltes valg af udfald pr. uafrapporteret
@@ -605,139 +371,77 @@ export const taskApi = supabaseApi.injectEndpoints({
         // 2026-09-23-defer-material-resolution-to-approval.sql.
         createTaskRequest: builder.mutation<
             TaskRequest,
-            { taskId: string; materialOutcomes?: { taskMaterialId: string; outcomes: { status: string; quantity: number }[] }[] }
+            { taskId: string; materialOutcomes?: TaskMaterialOutcome[] }
         >({
-            queryFn: async ({ taskId, materialOutcomes }) => {
-                try {
-                    const { data: authData, error: authError } =
-                        await supabase.auth.getUser()
-
-                    if (authError || !authData.user) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:loginRequired',
-                            } as QueryError,
-                        }
-                    }
-                    const { data: existingRequest, error: existingRequestError } =
-                        await supabase
-                            .from('task_requests')
-                            .select('*')
-                            .eq('task_id', taskId)
-                            .eq('requested_by', authData.user.id)
-                            .eq('status', 'Pending')
-                            .maybeSingle()
-
-                    if (existingRequestError) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: existingRequestError.message,
-                            } as QueryError,
-                        }
-                    }
-
-                    if (existingRequest) {
-                        return {
-                            data: existingRequest as TaskRequest,
-                        }
-                    }
-
-                    // Opret ny completion request
-                    const { data, error } = await supabase
+            queryFn: ({ taskId, materialOutcomes }) => runQuery(async () => {
+                const userId = await getCurrentUserId()
+                const { data: existingRequest, error: existingRequestError } =
+                    await supabase
                         .from('task_requests')
-                        .insert({
-                            task_id: taskId,
-                            requested_by: authData.user.id,
-                            status: 'Pending',
-                            material_outcomes: materialOutcomes ?? null,
-                        })
-                        .select()
-                        .single()
+                        .select('*')
+                        .eq('task_id', taskId)
+                        .eq('requested_by', userId)
+                        .eq('status', 'Pending')
+                        .maybeSingle()
 
-                    if (error) {
-                        return {
-                            error: mapPermissionError(error, 'finishTask'),
-                        }
-                    }
+                if (existingRequestError) {
+                    return { error: mapDbError(existingRequestError) }
+                }
 
+                if (existingRequest) {
                     return {
-                        data: data as TaskRequest,
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
+                        data: existingRequest as TaskRequest,
                     }
                 }
-            },
+
+                // Opret ny completion request
+                const { data, error } = await supabase
+                    .from('task_requests')
+                    .insert({
+                        task_id: taskId,
+                        requested_by: userId,
+                        status: 'Pending',
+                        material_outcomes: materialOutcomes ?? null,
+                    })
+                    .select()
+                    .single()
+
+                if (error) {
+                    return {
+                        error: mapPermissionError(error, 'finishTask'),
+                    }
+                }
+
+                return {
+                    data: data as TaskRequest,
+                }
+            }),
 
             invalidatesTags: (_result, _error, { taskId }) => [
-                { type: 'Task', id: 'PENDING-REQUESTS' },
-                {
-                    type: 'Task',
-                    id: `${taskId}-REQUESTS`,
-                },
-                {
-                    type: 'Task',
-                    id: taskId,
-                },
-                {
-                    type: 'Task',
-                    id: 'LIST',
-                },
+                taskTags.pendingRequests,
+                taskTags.requests(taskId),
+                taskTags.one(taskId),
+                taskTags.list,
             ],
         }),
 
         getTaskRequests: builder.query<TaskRequest[], string>({
-            queryFn: async (taskId) => {
-                try {
-                    const { data, error } = await supabase
-                        .from('task_requests')
-                        .select('*')
-                        .eq('task_id', taskId)
-                        .order('requested_at', { ascending: false })
+            queryFn: (taskId) => runQuery(async () => {
+                const { data, error } = await supabase
+                    .from('task_requests')
+                    .select('*')
+                    .eq('task_id', taskId)
+                    .order('requested_at', { ascending: false })
 
-                    if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        }
-                    }
-
-                    return {
-                        data: (data ?? []) as TaskRequest[],
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+                if (error) {
+                    return { error: mapDbError(error) }
                 }
-            },
-            providesTags: (_result, _error, taskId) => [
-                {
-                    type: 'Task',
-                    id: `${taskId}-REQUESTS`,
-                },
-            ],
+
+                return {
+                    data: (data ?? []) as TaskRequest[],
+                }
+            }),
+            providesTags: (_result, _error, taskId) => [taskTags.requests(taskId)],
         }),
 
         // Godkend/afvis opgave-færdigmelding. Listen og begge handlinger går
@@ -772,7 +476,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         taskTitle: row.task_title,
                         requestedBy: row.requested_by,
                         requesterName:
-                            `${row.requester_first_name ?? ''} ${row.requester_last_name ?? ''}`.trim() || 'Ukendt bruger',
+                            formatFullName(row.requester_first_name, row.requester_last_name),
                         requestedAt: row.requested_at,
                         rejectionCount: row.rejection_count ?? 0,
                         roomId: row.room_id,
@@ -782,7 +486,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     })),
                 }
             },
-            providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
+            providesTags: [taskTags.pendingRequests],
         }),
 
         // Detaljer for én færdigmelding (opgave, tilmeldte, materialer +
@@ -794,7 +498,6 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 if (error) return { error: mapPermissionError(error, 'readTaskApprovals') }
 
-                type StatusGroupRow = { status: ItemStatus; quantity: number }
                 type Row = {
                     task: {
                         id: string
@@ -815,10 +518,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                         item_name: string
                         unit_of_measurement: string | null
                         quantity: number
-                        linked_groups: StatusGroupRow[]
+                        linked_groups: TaskMaterialStatusGroup[]
                         location_labels: string[]
                         has_units_without_location: boolean
-                        proposed_outcomes: StatusGroupRow[] | null
+                        proposed_outcomes: TaskMaterialStatusGroup[] | null
                     }[]
                     previous_rejections?: {
                         reason: string | null
@@ -830,7 +533,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 }
 
                 const row = data as Row
-                const toGroups = (groups: StatusGroupRow[]) =>
+                const toGroups = (groups: TaskMaterialStatusGroup[]) =>
                     groups.map((g) => ({ status: g.status, quantity: Number(g.quantity) }))
 
                 return {
@@ -846,7 +549,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                             requires_approval: row.task.requires_approval,
                         },
                         roomName: row.task.room_name,
-                        requesterName: row.requester_name || 'Ukendt bruger',
+                        requesterName: row.requester_name ?? '',
                         requestedAt: row.requested_at,
                         assignees: row.assignees,
                         materials: row.materials.map((m) => ({
@@ -862,15 +565,15 @@ export const taskApi = supabaseApi.injectEndpoints({
                         previousRejections: (row.previous_rejections ?? []).map((r) => ({
                             reason: r.reason,
                             rejectedAt: r.rejected_at,
-                            rejectedByName: r.rejected_by_name || 'Ukendt bruger',
-                            requesterName: r.requester_name || 'Ukendt bruger',
+                            rejectedByName: r.rejected_by_name ?? '',
+                            requesterName: r.requester_name ?? '',
                             requestedAt: r.requested_at,
                         })),
                     },
                 }
             },
             // Samme tag som listen, så godkend/afvis også genindlæser detaljerne.
-            providesTags: [{ type: 'Task', id: 'PENDING-REQUESTS' }],
+            providesTags: [taskTags.pendingRequests],
         }),
 
         approveTaskRequest: builder.mutation<void, ReviewTaskRequestInput>({
@@ -882,11 +585,11 @@ export const taskApi = supabaseApi.injectEndpoints({
             },
             invalidatesTags: (_result, _error, { taskId }) => [
                 'Conversation',
-                { type: 'Task', id: 'PENDING-REQUESTS' },
-                { type: 'Task', id: `${taskId}-REQUESTS` },
-                { type: 'Task', id: taskId },
-                { type: 'Task', id: `${taskId}-MATERIALS` },
-                { type: 'Task', id: 'LIST' },
+                taskTags.pendingRequests,
+                taskTags.requests(taskId),
+                taskTags.one(taskId),
+                taskTags.materials(taskId),
+                taskTags.list,
                 { type: 'Item', id: 'LIST' },
             ],
         }),
@@ -900,205 +603,82 @@ export const taskApi = supabaseApi.injectEndpoints({
                 if (error) return { error: mapPermissionError(error, 'rejectTasks') }
                 return { data: undefined }
             },
-            invalidatesTags: (_result, _error, { taskId }) => [
-                { type: 'Task', id: 'PENDING-REQUESTS' },
-                { type: 'Task', id: `${taskId}-REQUESTS` },
-            ],
+            invalidatesTags: (_result, _error, { taskId }) => [taskTags.pendingRequests, taskTags.requests(taskId)],
         }),
 
-        assignToTask: builder.mutation<void, AssignToTaskInput>({
-            queryFn: async ({ taskId, userId }) => {
-                try {
-                    const { data: authData, error: authError } =
-                        await supabase.auth.getUser()
-                    if (authError || !authData.user) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:loginRequired',
-                            } as QueryError,
-                        }
-                    }
-                    const { error } = await supabase
-                        .from('task_assignees')
-                        .insert({
-                            task_id: taskId,
-                            user_id: userId,
-                            assigned_by: authData.user.id,
-                        })
-                    if (error) {
-                        return { error: mapPermissionError(error, 'assignEmployee') }
-                    }
-                    return {
-                        data: undefined,
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+        assignToTask: builder.mutation<void, TaskAssignmentInput>({
+            queryFn: ({ taskId, userId }) => runQuery(async () => {
+                const assignedBy = await getCurrentUserId()
+                const { error } = await supabase
+                    .from('task_assignees')
+                    .insert({
+                        task_id: taskId,
+                        user_id: userId,
+                        assigned_by: assignedBy,
+                    })
+                if (error) {
+                    return { error: mapPermissionError(error, 'assignEmployee') }
                 }
-            },
-            invalidatesTags: (_result, _error, { taskId }) => [
-                'Conversation',
-                'MyTasks',
-                { type: 'Task', id: 'LIST' },
-                {
-                    type: 'Task',
-                    id: `${taskId}-ASSIGNEES`,
-                },
-            ],
+                return {
+                    data: undefined,
+                }
+            }),
+            invalidatesTags: (_result, _error, { taskId }) => assignmentTags(taskId),
         }),
-        unassignFromTask: builder.mutation<void, AssignToTaskInput>({
-            queryFn: async ({ taskId }) => {
-                try {
-                    const { data: authData, error: authError } =
-                        await supabase.auth.getUser();
-                    if (authError || !authData.user) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:loginRequired',
-                            } as QueryError,
-                        };
-                    }
-                    const { error } = await supabase
-                        .from('task_assignees')
-                        .delete()
-                        .eq('task_id', taskId)
-                        .eq('user_id', authData.user.id)
-                        .eq('assigned_by', authData.user.id);
-                    if (error) {
-                        return { error: mapPermissionError(error, 'unassignSelf') };
-                    }
-                    return {
-                        data: undefined,
-                    };
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic';
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    };
+        unassignFromTask: builder.mutation<void, Pick<TaskAssignmentInput, 'taskId'>>({
+            queryFn: ({ taskId }) => runQuery(async () => {
+                const userId = await getCurrentUserId()
+                const { error } = await supabase
+                    .from('task_assignees')
+                    .delete()
+                    .eq('task_id', taskId)
+                    .eq('user_id', userId)
+                    .eq('assigned_by', userId);
+                if (error) {
+                    return { error: mapPermissionError(error, 'unassignSelf') };
                 }
-            },
-            invalidatesTags: (_result, _error, { taskId }) => [
-                'Conversation',
-                'MyTasks',
-                { type: 'Task', id: 'LIST' },
-                {
-                    type: 'Task',
-                    id: `${taskId}-ASSIGNEES`,
-                },
-            ],
+                return {
+                    data: undefined,
+                };
+            }),
+            invalidatesTags: (_result, _error, { taskId }) => assignmentTags(taskId),
         }),
 
-        removeAssigneeFromTask: builder.mutation<void, RemoveAssigneeInput>({
-            queryFn: async ({ taskId, userId }) => {
-                try {
-                    const { data: authData, error: authError } =
-                        await supabase.auth.getUser()
+        removeAssigneeFromTask: builder.mutation<void, TaskAssignmentInput>({
+            queryFn: ({ taskId, userId }) => runQuery(async () => {
+                await getCurrentUserId()
 
-                    if (authError || !authData.user) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:loginRequired',
-                            } as QueryError,
-                        }
-                    }
+                const { error } = await supabase
+                    .from('task_assignees')
+                    .delete()
+                    .eq('task_id', taskId)
+                    .eq('user_id', userId)
 
-                    const { error } = await supabase
-                        .from('task_assignees')
-                        .delete()
-                        .eq('task_id', taskId)
-                        .eq('user_id', userId)
-
-                    if (error) {
-                        return { error: mapPermissionError(error, 'removeEmployee') }
-                    }
-
-                    return {
-                        data: undefined,
-                    }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+                if (error) {
+                    return { error: mapPermissionError(error, 'removeEmployee') }
                 }
-            },
-            invalidatesTags: (_result, _error, { taskId }) => [
-                'Conversation',
-                'MyTasks',
-                { type: 'Task', id: 'LIST' },
-                {
-                    type: 'Task',
-                    id: `${taskId}-ASSIGNEES`,
-                },
-            ],
+
+                return {
+                    data: undefined,
+                }
+            }),
+            invalidatesTags: (_result, _error, { taskId }) => assignmentTags(taskId),
         }),
 
         getMyTaskIds: builder.query<string[], void>({
-            queryFn: async () => {
-                try {
-                    const { data: authData, error: authError } =
-                        await supabase.auth.getUser();
-                    if (authError || !authData.user) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: 'errors:loginRequired',
-                            } as QueryError,
-                        };
-                    }
-                    const { data, error } = await supabase
-                        .from('task_assignees')
-                        .select('task_id')
-                        .eq('user_id', authData.user.id);
-                    if (error) {
-                        return {
-                            error: {
-                                status: 'CUSTOM_ERROR',
-                                error: error.message,
-                            } as QueryError,
-                        };
-                    }
-                    return {
-                        data: (data ?? []).map((assignment) => assignment.task_id),
-                    };
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic';
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    };
+            queryFn: () => runQuery(async () => {
+                const userId = await getCurrentUserId()
+                const { data, error } = await supabase
+                    .from('task_assignees')
+                    .select('task_id')
+                    .eq('user_id', userId);
+                if (error) {
+                    return { error: mapDbError(error) };
                 }
-            },
+                return {
+                    data: (data ?? []).map((assignment) => assignment.task_id),
+                };
+            }),
             providesTags: ['MyTasks'],
         }),
 
@@ -1109,66 +689,52 @@ export const taskApi = supabaseApi.injectEndpoints({
                 taskIdsToDelete: string[]
             }
         >({
-            queryFn: async ({ roomId, taskIdsToDelete }) => {
-                try {
-                    const organisationId =
-                        await getAuthenticatedOrganisationId()
+            queryFn: ({ roomId, taskIdsToDelete }) => runQuery(async () => {
+                const organisationId =
+                    await getActiveOrganisationId()
 
-                    // Slet de opgaver brugeren har valgt
-                    if (taskIdsToDelete.length > 0) {
-                        const { error: deleteTasksError } =
-                            await supabase
-                                .from('tasks')
-                                .delete()
-                                .in('id', taskIdsToDelete)
-                                .eq('organisation_id', organisationId)
-
-                        if (deleteTasksError) {
-                            return { error: mapPermissionError(deleteTasksError, 'deleteRoomTasks') }
-                        }
-                    }
-
-                    // Flyt resterende opgaver til "Uden rum"
-                    const { error: updateTasksError } =
+                // Slet de opgaver brugeren har valgt
+                if (taskIdsToDelete.length > 0) {
+                    const { error: deleteTasksError } =
                         await supabase
                             .from('tasks')
-                            .update({
-                                room_id: null,
-                            })
-                            .eq('room_id', roomId)
-                            .eq('organisation_id', organisationId)
-
-                    if (updateTasksError) {
-                        return { error: mapPermissionError(updateTasksError, 'moveRoomTasks') }
-                    }
-
-                    // Slet selve rummet
-                    const { error: deleteRoomError } =
-                        await supabase
-                            .from('task_rooms')
                             .delete()
-                            .eq('id', roomId)
+                            .in('id', taskIdsToDelete)
                             .eq('organisation_id', organisationId)
 
-                    if (deleteRoomError) {
-                        return { error: mapPermissionError(deleteRoomError, 'deleteRoom') }
-                    }
-
-                    return { data: undefined }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
+                    if (deleteTasksError) {
+                        return { error: mapPermissionError(deleteTasksError, 'deleteRoomTasks') }
                     }
                 }
-            },
+
+                // Flyt resterende opgaver til "Uden rum"
+                const { error: updateTasksError } =
+                    await supabase
+                        .from('tasks')
+                        .update({
+                            room_id: null,
+                        })
+                        .eq('room_id', roomId)
+                        .eq('organisation_id', organisationId)
+
+                if (updateTasksError) {
+                    return { error: mapPermissionError(updateTasksError, 'moveRoomTasks') }
+                }
+
+                // Slet selve rummet
+                const { error: deleteRoomError } =
+                    await supabase
+                        .from('task_rooms')
+                        .delete()
+                        .eq('id', roomId)
+                        .eq('organisation_id', organisationId)
+
+                if (deleteRoomError) {
+                    return { error: mapPermissionError(deleteRoomError, 'deleteRoom') }
+                }
+
+                return { data: undefined }
+            }),
             invalidatesTags: (_result, _error, { roomId }) => [
                 'Conversation',
                 { type: 'TaskRoom', id: roomId },
@@ -1181,35 +747,21 @@ export const taskApi = supabaseApi.injectEndpoints({
         }),
 
         deleteTask: builder.mutation<void, string>({
-            queryFn: async (taskId) => {
-                try {
-                    const organisationId = await getAuthenticatedOrganisationId()
+            queryFn: (taskId) => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
-                    const { error } = await supabase
-                        .from('tasks')
-                        .delete()
-                        .eq('id', taskId)
-                        .eq('organisation_id', organisationId)
+                const { error } = await supabase
+                    .from('tasks')
+                    .delete()
+                    .eq('id', taskId)
+                    .eq('organisation_id', organisationId)
 
-                    if (error) {
-                        return { error: mapPermissionError(error, 'deleteTask') }
-                    }
-
-                    return { data: undefined }
-                } catch (err: unknown) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'errors:generic'
-
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: message,
-                        } as QueryError,
-                    }
+                if (error) {
+                    return { error: mapPermissionError(error, 'deleteTask') }
                 }
-            },
+
+                return { data: undefined }
+            }),
             invalidatesTags: (_result, _error, taskId) => [
                 'Conversation',
                 { type: 'Task', id: taskId },
@@ -1227,7 +779,7 @@ export const taskApi = supabaseApi.injectEndpoints({
         // outcomes-statusser er 'ItemStatus'-værdier, ikke opgave-statusser.
         resolveTaskMaterialUnits: builder.mutation<
             void,
-            { taskMaterialId: string; taskId: string; itemId: string; outcomes: { status: string; quantity: number }[] }
+            { taskMaterialId: string; taskId: string; itemId: string; outcomes: TaskMaterialStatusGroup[] }
         >({
             queryFn: async ({ taskMaterialId, outcomes }) => {
                 const { error } = await supabase.rpc('resolve_task_material_units', {
@@ -1241,14 +793,7 @@ export const taskApi = supabaseApi.injectEndpoints({
 
                 return { data: undefined }
             },
-            invalidatesTags: (_result, _error, { taskId, itemId }) => [
-                { type: 'Task', id: taskId },
-                { type: 'Task', id: `${taskId}-MATERIALS` },
-                { type: 'Task', id: 'LIST' },
-                { type: 'Item', id: 'LIST' },
-                { type: 'Item', id: itemId },
-                { type: 'ItemUnit', id: `ITEM-${itemId}` },
-            ],
+            invalidatesTags: (_result, _error, { taskId, itemId }) => taskMaterialTags(taskId, itemId),
         }),
 
         // Materialer tilknyttet en opgave (US-42/US-43) - task_materials
@@ -1263,7 +808,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     .eq('task_id', taskId)
 
                 if (materialsError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: materialsError.message } as QueryError }
+                    return { error: mapDbError(materialsError) }
                 }
                 if (!materials || materials.length === 0) {
                     return { data: [] }
@@ -1281,10 +826,10 @@ export const taskApi = supabaseApi.injectEndpoints({
                 ])
 
                 if (itemsResult.error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: itemsResult.error.message } as QueryError }
+                    return { error: mapDbError(itemsResult.error) }
                 }
                 if (linkedUnitsResult.error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: linkedUnitsResult.error.message } as QueryError }
+                    return { error: mapDbError(linkedUnitsResult.error) }
                 }
 
                 const itemById = new Map((itemsResult.data ?? []).map((i) => [i.id, i]))
@@ -1312,13 +857,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         .from('locations')
                         .select('id, name, organisation_id, parent_location_id')
                         .in('id', ids)
-                    const rows: ItemLocation[] = (data ?? []).map((l) => ({
-                        id: l.id,
-                        name: l.name,
-                        organisationId: l.organisation_id,
-                        parentLocationId: l.parent_location_id,
-                    }))
-                    return { rows, error }
+                    return { rows: (data ?? []).map(toItemLocation), error }
                 }
 
                 const unitLocationIds = [...new Set(
@@ -1326,7 +865,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 )]
                 const unitLocations = await fetchLocations(unitLocationIds)
                 if (unitLocations.error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: unitLocations.error.message } as QueryError }
+                    return { error: mapDbError(unitLocations.error) }
                 }
                 const parentIds = [...new Set(
                     unitLocations.rows
@@ -1335,7 +874,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                 )]
                 const parentLocations = await fetchLocations(parentIds)
                 if (parentLocations.error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: parentLocations.error.message } as QueryError }
+                    return { error: mapDbError(parentLocations.error) }
                 }
                 const locations = [...unitLocations.rows, ...parentLocations.rows]
 
@@ -1353,7 +892,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                         return {
                             id: m.id,
                             itemId: m.item_id,
-                            itemName: itemById.get(m.item_id)?.name ?? 'Ukendt materiale',
+                            itemName: itemById.get(m.item_id)?.name ?? '',
                             unitOfMeasurement: itemById.get(m.item_id)?.unit_of_measurement ?? '',
                             quantity: m.quantity,
                             linkedGroups,
@@ -1366,7 +905,7 @@ export const taskApi = supabaseApi.injectEndpoints({
                     }),
                 }
             },
-            providesTags: (_result, _error, taskId) => [{ type: 'Task', id: `${taskId}-MATERIALS` }],
+            providesTags: (_result, _error, taskId) => [taskTags.materials(taskId)],
         }),
 
     }),
@@ -1377,7 +916,6 @@ export const {
     useGetCompletedTasksQuery,
     useGetOpenTaskAssigneeNamesQuery,
     useGetRoomsQuery,
-    useGetOrganisationEmployeesQuery,
     useGetTaskAssigneesQuery,
     useGetTaskRequestsQuery,
     useCreateTaskRequestMutation,

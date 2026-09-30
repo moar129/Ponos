@@ -11,7 +11,6 @@
     "Critical": "Krytyczny"
   },
   "fields": {
-    "title": "Tytuł",
     "description": "Opis",
     "room": "Pomieszczenie",
     "priority": "Priorytet",
@@ -35,7 +34,6 @@
     "inProgressHeading": "W toku"
   },
   "mine": {
-    "loading": "Wczytywanie Twoich zadań...",
     "noAccess": "Nie masz dostępu do przeglądania swoich zadań w tej organizacji.",
     "heading": "Moje zadania",
     "subtitle": "Zdobądź przegląd zadań, do których jesteś przypisany.",
@@ -94,7 +92,7 @@
     "nobodyToAssign": "Nie ma pracowników do przypisania.",
     "signUp": "Zapisz się",
     "signOff": "Wypisz się",
-    "employee": "Pracownik"
+    "maxOf": "Maks. {{people}}"
   },
   "card": {
     "noDescription": "Brak opisu",
@@ -103,12 +101,10 @@
     "awaitingApproval": "Czeka na zatwierdzenie",
     "markDone": "Zgłoś zakończenie",
     "priorityBadge": "Priorytet: {{priority}}",
-    "edit": "Edytuj",
     "details": "Szczegóły zadania",
     "responsible": "Przypisane do",
     "start": "Początek",
     "end": "Koniec",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Dodaj pracownika",
     "created": "Utworzone",
     "statusValue": "Status: {{status}}",
@@ -119,7 +115,6 @@
     "show": "Pokaż filtr",
     "hide": "Ukryj filtr",
     "searchPlaceholder": "Szukaj w tytule, opisie, pokoju lub osobie...",
-    "all": "Wszystkie",
     "sortNewest": "Najnowsze",
     "sortOldest": "Najstarsze",
     "sortPriority": "Priorytet",
@@ -139,15 +134,12 @@
     "chooseTasks": "Wybierz zadania, które również mają zostać usunięte.",
     "noTasks": "W tym pomieszczeniu nie ma zadań.",
     "keptNote": "Zadania, których nie zaznaczysz, nie zostaną usunięte. Zamiast tego zostaną przeniesione do <b>{{room}}</b>.",
-    "failed": "Nie udało się usunąć pomieszczenia. Spróbuj ponownie.",
-    "deleting": "Usuwanie...",
     "submit": "Usuń pomieszczenie"
   },
   "editRoom": {
     "heading": "Edytuj pomieszczenie",
     "intro": "Wybierz pokój i edytuj nazwę oraz dostęp.",
-    "namePlaceholder": "Wpisz nazwę pomieszczenia",
-    "failed": "Nie udało się edytować pomieszczenia. Spróbuj ponownie."
+    "namePlaceholder": "Wpisz nazwę pomieszczenia"
   },
   "favorites": {
     "toggleFailed": "Nie udało się zaktualizować ulubionego pokoju."

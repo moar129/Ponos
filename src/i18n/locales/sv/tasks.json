@@ -11,7 +11,6 @@
     "Critical": "Kritisk"
   },
   "fields": {
-    "title": "Titel",
     "description": "Beskrivning",
     "room": "Rum",
     "priority": "Prioritet",
@@ -35,7 +34,6 @@
     "inProgressHeading": "Pågår"
   },
   "mine": {
-    "loading": "Hämtar dina uppgifter...",
     "noAccess": "Du har inte åtkomst till att se dina uppgifter i den här organisationen.",
     "heading": "Mina uppgifter",
     "subtitle": "Få en överblick över de uppgifter du själv är kopplad till.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "Det finns inga medarbetare att tilldela.",
     "signUp": "Anmäl",
     "signOff": "Avanmäl",
-    "employee": "Medarbetare"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Ingen beskrivning",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Väntar på godkännande",
     "markDone": "Slutrapportera",
     "priorityBadge": "Prioritet: {{priority}}",
-    "edit": "Redigera",
     "details": "Uppgiftsdetaljer",
     "responsible": "Tilldelad",
     "start": "Start",
     "end": "Slut",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Lägg till medarbetare",
     "created": "Skapad",
     "statusValue": "Status: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Visa filter",
     "hide": "Dölj filter",
     "searchPlaceholder": "Sök i titel, beskrivning, rum eller person...",
-    "all": "Alla",
     "sortNewest": "Nyaste",
     "sortOldest": "Äldsta",
     "sortPriority": "Prioritet",
@@ -135,15 +130,12 @@
     "chooseTasks": "Välj de uppgifter som också ska raderas.",
     "noTasks": "Det finns inga uppgifter i det här rummet.",
     "keptNote": "Uppgifter du inte väljer raderas inte. De flyttas i stället till <b>{{room}}</b>.",
-    "failed": "Rummet kunde inte raderas. Försök igen.",
-    "deleting": "Raderar...",
     "submit": "Radera rummet"
   },
   "editRoom": {
     "heading": "Redigera rum",
     "intro": "Välj ett rum och redigera namn och åtkomst.",
-    "namePlaceholder": "Skriv namn på rummet",
-    "failed": "Rummet kunde inte redigeras. Försök igen."
+    "namePlaceholder": "Skriv namn på rummet"
   },
   "favorites": {
     "toggleFailed": "Kunde inte uppdatera favoritrum."

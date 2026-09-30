@@ -5,8 +5,8 @@ import {
     buildDevelopmentComparison,
     buildSnapshotComparison,
     snapshotName,
-    toDateInputValue,
 } from './statisticsSnapshot'
+import { lastIncludedDay, toDateKey } from './calendar'
 
 type CsvCell = string | number | null | undefined
 
@@ -44,14 +44,14 @@ export function snapshotComparisonCsv(snapshots: StatisticsSnapshot[], t: unknow
     const tr = asDynamic(t)
     const { groups, valuesBySnapshot } = buildSnapshotComparison(snapshots, t)
     const development = buildDevelopmentComparison(snapshots, locale, (week) =>
-        (t as (key: string, options: { week: number }) => string)('statistics:snapshots.weekLabel', { week }))
+        asDynamic(t)('statistics:snapshots.weekLabel', { week }))
 
     const periodGroup = tr('statistics:snapshots.csv.period')
     const rows: CsvCell[][] = [
         [tr('statistics:snapshots.csv.group'), tr('statistics:snapshots.metric'), ...snapshots.map((snapshot) => snapshotName(snapshot, locale))],
-        [periodGroup, tr('statistics:snapshots.csv.start'), ...snapshots.map((snapshot) => toDateInputValue(new Date(snapshot.periodStart)))],
+        [periodGroup, tr('statistics:snapshots.csv.start'), ...snapshots.map((snapshot) => toDateKey(new Date(snapshot.periodStart)))],
         // period_end is exclusive; the last included day is shown.
-        [periodGroup, tr('statistics:snapshots.csv.end'), ...snapshots.map((snapshot) => toDateInputValue(new Date(Date.parse(snapshot.periodEnd) - 1)))],
+        [periodGroup, tr('statistics:snapshots.csv.end'), ...snapshots.map((snapshot) => toDateKey(lastIncludedDay(snapshot.periodEnd)))],
     ]
 
     for (const { group, rows: groupRows } of groups) {
@@ -63,7 +63,7 @@ export function snapshotComparisonCsv(snapshots: StatisticsSnapshot[], t: unknow
 
     if (development) {
         for (const metric of DEVELOPMENT_METRICS) {
-            const groupLabel = (t as (key: string, options: { metric: string }) => string)(
+            const groupLabel = asDynamic(t)(
                 'statistics:snapshots.csv.development',
                 { metric: tr(`statistics:snapshots.development.${metric}`) },
             )
@@ -77,6 +77,6 @@ export function snapshotComparisonCsv(snapshots: StatisticsSnapshot[], t: unknow
 }
 
 export function downloadSnapshotComparisonCsv(snapshots: StatisticsSnapshot[], t: unknown, locale: string): void {
-    const fileName = `${asDynamic(t)('statistics:snapshots.csv.fileName')}-${toDateInputValue(new Date())}.csv`
+    const fileName = `${asDynamic(t)('statistics:snapshots.csv.fileName')}-${toDateKey(new Date())}.csv`
     downloadCsv(fileName, snapshotComparisonCsv(snapshots, t, locale))
 }

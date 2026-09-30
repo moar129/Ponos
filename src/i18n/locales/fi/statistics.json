@@ -131,7 +131,6 @@
     "saveTitle": "Tallenna tilannekuva",
     "label": "Nimi (valinnainen)",
     "labelPlaceholder": "Esim. Kausi 2026",
-    "saving": "Tallennetaan...",
     "saveFailed": "Tilannekuvaa ei voitu tallentaa.",
     "loadFailed": "Tilannekuvia ei voitu ladata.",
     "empty": "Ei vielä tallennettuja tilannekuvia.",

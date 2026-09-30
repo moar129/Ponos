@@ -11,7 +11,6 @@
     "Critical": "Kritisch"
   },
   "fields": {
-    "title": "Titel",
     "description": "Beschreibung",
     "room": "Raum",
     "priority": "Priorität",
@@ -35,7 +34,6 @@
     "inProgressHeading": "In Arbeit"
   },
   "mine": {
-    "loading": "Deine Aufgaben werden geladen...",
     "noAccess": "Du hast keinen Zugriff, um deine Aufgaben in dieser Organisation zu sehen.",
     "heading": "Meine Aufgaben",
     "subtitle": "Verschaffe dir einen Überblick über die Aufgaben, denen du zugeordnet bist.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "Es gibt keine Mitarbeitenden zum Zuweisen.",
     "signUp": "Anmelden",
     "signOff": "Abmelden",
-    "employee": "Mitarbeiter"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Keine Beschreibung",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Wartet auf Freigabe",
     "markDone": "Fertig melden",
     "priorityBadge": "Priorität: {{priority}}",
-    "edit": "Bearbeiten",
     "details": "Aufgabendetails",
     "responsible": "Zugewiesen",
     "start": "Start",
     "end": "Ende",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Mitarbeiter hinzufügen",
     "created": "Erstellt",
     "statusValue": "Status: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Filter anzeigen",
     "hide": "Filter ausblenden",
     "searchPlaceholder": "Titel, Beschreibung, Raum oder Person suchen...",
-    "all": "Alle",
     "sortNewest": "Neueste",
     "sortOldest": "Älteste",
     "sortPriority": "Priorität",
@@ -135,15 +130,12 @@
     "chooseTasks": "Wählen Sie die Aufgaben, die ebenfalls gelöscht werden sollen.",
     "noTasks": "In diesem Raum gibt es keine Aufgaben.",
     "keptNote": "Aufgaben, die Sie nicht auswählen, werden nicht gelöscht. Sie werden stattdessen nach <b>{{room}}</b> verschoben.",
-    "failed": "Der Raum konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
-    "deleting": "Wird gelöscht...",
     "submit": "Raum löschen"
   },
   "editRoom": {
     "heading": "Raum bearbeiten",
     "intro": "Wählen Sie einen Raum und bearbeiten Sie Namen und Zugriff.",
-    "namePlaceholder": "Raumnamen eingeben",
-    "failed": "Der Raum konnte nicht bearbeitet werden. Bitte versuchen Sie es erneut."
+    "namePlaceholder": "Raumnamen eingeben"
   },
   "favorites": {
     "toggleFailed": "Favoritenraum konnte nicht aktualisiert werden."

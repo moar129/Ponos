@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabaseApi, USER_SCOPED_TAGS } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { ChangePasswordInput, ResetPasswordInput } from '../../types/auth/authType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError } from './apiError'
 
 export const authApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -107,7 +107,7 @@ export const authApi = supabaseApi.injectEndpoints({
                 const email = sessionData.session?.user.email
 
                 if (!email) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:notLoggedIn' } }
+                    return { error: errorCode('loginRequired') }
                 }
 
                 // Trin 1 ER verifikationen: Supabase kræver ikke selv den
@@ -121,14 +121,14 @@ export const authApi = supabaseApi.injectEndpoints({
 
                 if (signInError) {
                     // Intet er ændret på dette tidspunkt.
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:wrongCurrentPassword' } }
+                    return { error: errorCode('wrongCurrentPassword') }
                 }
 
                 // Trin 2: selve skiftet. Brugeren forbliver logget ind.
                 const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
 
                 if (updateError) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:passwordChangeFailed' } }
+                    return { error: errorCode('passwordChangeFailed') }
                 }
 
                 return { data: undefined }

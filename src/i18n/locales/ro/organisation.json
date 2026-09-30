@@ -7,7 +7,6 @@
     "ownRow": "Nu vă puteți modifica propriul rând",
     "adminLockedTitle": "Doar un administrator poate schimba rolul altui administrator",
     "locked": "Blocat",
-    "remove": "Elimină",
     "confirmRemove": "Sigur doriți să eliminați {{name}} din organizație?",
     "removing": "Se elimină...",
     "confirmRemoveYes": "Da, elimină",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Invită prin e-mail",
     "send": "Trimite invitația",
-    "sending": "Se trimite...",
     "pendingHeading": "Invitații în așteptare",
     "loading": "Se încarcă invitațiile...",
     "empty": "Nicio invitație în așteptare.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Da, anulează",
     "undo": "Înapoi",
     "emailPlaceholder": "nume@exemplu.ro",
-    "invitedOn": "Invitat",
-    "invitedOnDate": "Invitat {{date}}"
+    "invitedOnDate": "Invitat {{date}}",
+    "sentTo": "Invitație trimisă către {{email}}."
   },
   "requests": {
     "loading": "Se încarcă cererile...",
     "empty": "Nicio cerere în așteptare.",
     "confirmAccept": "Sigur doriți să îl acceptați pe {{name}} în organizație?",
     "confirmReject": "Sigur doriți să respingeți cererea? {{name}} poate solicita din nou mai târziu.",
-    "processing": "Se procesează...",
-    "yes": "Da",
     "accept": "Acceptă",
     "reject": "Respinge",
     "requestedOn": "Solicitat {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Scrieți numele organizației pentru confirmare ({{name}})",
     "ackDataLoss": "Înțeleg că toate datele organizației (sarcini, articole, categorii, locații și statistici) vor fi șterse definitiv și nu pot fi recuperate.",
     "ackMemberImpact": "Înțeleg că ceilalți {{count}} membri își pierd imediat accesul.",
-    "deleting": "Se șterge...",
     "deletePermanently": "Șterge definitiv",
     "deleted": "„{{name}}” a fost ștearsă.",
     "deletedNewActive": "„{{name}}” a fost ștearsă. Organizația dumneavoastră activă este acum „{{newActive}}”.",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Culoarea textului și a pictogramelor din bara de sus. Gol = aleasă automat, astfel încât să fie lizibilă pe fundal.",
     "footerTextColorLabel": "Bara de jos – text",
     "footerTextColorHint": "Culoarea textului din bara de jos. Gol = aleasă automat, astfel încât să fie lizibilă pe fundal.",
-    "colorPickerAriaLabel": "Alegeți culoarea butoanelor și linkurilor",
-    "colorReset": "Resetează",
     "colorUseDefault": "Folosește implicit",
     "colorNoneSet": "Nicio selecție (implicit)",
     "previewLight": "Luminos",
@@ -117,16 +110,11 @@
     "memberCount": "Număr de membri"
   },
   "myInvitations": {
-    "loading": "Se încarcă invitațiile...",
     "empty": "Nu aveți invitații în așteptare.",
     "accept": "Acceptă",
     "reject": "Respinge",
     "confirmAccept": "Sigur doriți să deveniți membru al organizației {{name}}?",
-    "confirmReject": "Sigur doriți să respingeți invitația?",
-    "processing": "Se procesează...",
-    "yes": "Da",
-    "invitedOn": "Invitat",
-    "invitedOnDate": "Invitat {{date}}"
+    "confirmReject": "Sigur doriți să respingeți invitația?"
   },
   "myOrganisations": {
     "loading": "Se încarcă organizațiile dumneavoastră...",
@@ -141,6 +129,5 @@
     "left": "Ați părăsit „{{name}}”.",
     "leftNewActive": "Ați părăsit „{{name}}”. Organizația dumneavoastră activă este acum „{{newActive}}”.",
     "leftNoActive": "Ați părăsit „{{name}}”. Nu mai aveți nicio organizație activă."
-  },
-  "genericLoading": "Se încarcă..."
+  }
 }

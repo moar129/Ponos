@@ -1,4 +1,4 @@
-import { getInitials } from '../../utils/getInitials'
+import { getInitials } from '../../utils/personName'
 import type { AvatarProps } from '../../types/common/avatarType'
 
 export function Avatar({ firstName, lastName, urlPicture, className = '', textClassName = '' }: AvatarProps) {

@@ -8,7 +8,6 @@
   "deletePermanently": "Șterge definitiv",
   "deleteAriaLabel": "Șterge definitiv notificarea",
   "hidden": "Ascunsă",
-  "justNow": "Chiar acum",
   "emptyCategory": "Nicio {{category}}.",
   "category": {
     "messages": "Mesaje",

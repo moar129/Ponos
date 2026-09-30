@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
+import { conversationPath } from '../../utils/conversationPath';
 import { Loader2, MessageSquareText } from 'lucide-react';
 import { useGetMyConversationsQuery, useJoinTaskConversationMutation } from '../../store/apis/messageApi';
 import { readableError } from '../../ErrorMessage';
@@ -22,13 +23,13 @@ export function TaskChatButton({ taskId, canJoin }: TaskChatButtonProps) {
 
   const handleClick = async () => {
     if (conversation) {
-      navigate(`/beskeder?conversation=${conversation.conversationId}`);
+      navigate(conversationPath(conversation.conversationId));
       return;
     }
 
     try {
       const conversationId = await joinTaskConversation({ taskId }).unwrap();
-      navigate(`/beskeder?conversation=${conversationId}`);
+      navigate(conversationPath(conversationId));
     } catch {
       // Fejlen vises via errorMessage.
     }

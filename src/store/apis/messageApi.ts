@@ -3,7 +3,33 @@ import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { ConversationParticipant, ConversationSummary, Message, TaskChatChoice } from '../../types/messages/messagesTypes'
 import type { ETaskStatus } from '../../types/Task/Task'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, runQuery } from './apiError'
+import { getCurrentUserId } from './session'
+import { fetchProfilesByIds } from './profileApi'
+
+type MessageRow = {
+    id: string
+    conversation_id: string
+    sender_id: string
+    content: string
+    created_at: string
+    message_type: 'user' | 'system' | null
+    edited_at: string | null
+    deleted_at: string | null
+}
+
+function toMessage(row: MessageRow): Message {
+    return {
+        id: row.id,
+        conversationId: row.conversation_id,
+        senderId: row.sender_id,
+        content: row.content,
+        createdAt: row.created_at,
+        messageType: row.message_type ?? 'user',
+        editedAt: row.edited_at,
+        deletedAt: row.deleted_at,
+    }
+}
 
 export const messageApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -87,18 +113,7 @@ export const messageApi = supabaseApi.injectEndpoints({
             return { error: mapDbError(error) }
         }
 
-        return {
-            data: (data ?? []).map((row) => ({
-                id: row.id,
-                conversationId: row.conversation_id,
-                senderId: row.sender_id,
-                content: row.content,
-                createdAt: row.created_at,
-                messageType: (row.message_type ?? 'user') as 'user' | 'system',
-                editedAt: row.edited_at,
-                deletedAt: row.deleted_at,
-            })),
-        }
+        return { data: ((data ?? []) as MessageRow[]).map(toMessage) }
     },
 
     providesTags: (_result, _error, conversationId) => [{ type: 'Message', id: conversationId }],
@@ -112,29 +127,11 @@ export const messageApi = supabaseApi.injectEndpoints({
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
                 (payload) => {
-                    const row = payload.new as {
-                        id: string
-                        conversation_id: string
-                        sender_id: string
-                        content: string
-                        created_at: string
-                        message_type: 'user' | 'system'
-                        edited_at: string | null
-                        deleted_at: string | null
-                    }
+                    const row = payload.new as MessageRow
 
                     updateCachedData((draft) => {
                         if (draft.some((m) => m.id === row.id)) return
-                        draft.push({
-                            id: row.id,
-                            conversationId: row.conversation_id,
-                            senderId: row.sender_id,
-                            content: row.content,
-                            createdAt: row.created_at,
-                            messageType: row.message_type ?? 'user',
-                            editedAt: row.edited_at,
-                            deletedAt: row.deleted_at,
-                        })
+                        draft.push(toMessage(row))
                     })
                 }
             )
@@ -175,29 +172,21 @@ export const messageApi = supabaseApi.injectEndpoints({
 
         // Sender en besked i en samtale (US-B3).
         sendMessage: builder.mutation<void, { conversationId: string; content: string }>({
-            queryFn: async ({ conversationId, content }) => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-                if (userError || !userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequired' } }
-                }
+            queryFn: ({ conversationId, content }) => runQuery(async () => {
+                const userId = await getCurrentUserId()
 
                 const trimmed = content.trim()
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.message' } }
-                }
+                if (!trimmed) return { error: errorCode('required.message') }
 
                 const { error } = await supabase.from('messages').insert({
                     conversation_id: conversationId,
-                    sender_id: userData.user.id,
+                    sender_id: userId,
                     content: trimmed,
                 })
 
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-
+                if (error) return { error: mapDbError(error) }
                 return { data: undefined }
-            },
+            }),
 
             invalidatesTags: (_result, _error, { conversationId }) => [
                 { type: 'Message', id: conversationId },
@@ -230,7 +219,7 @@ export const messageApi = supabaseApi.injectEndpoints({
         // afgrænser allerede til samtaler, jeg selv deltager i.
         // getConversationParticipants: tilføj last_read_at til select + mapping
 getConversationParticipants: builder.query<ConversationParticipant[], string>({
-    queryFn: async (conversationId) => {
+    queryFn: (conversationId) => runQuery(async () => {
         const { data: participants, error: participantsError } = await supabase
             .from('conversation_participants')
             .select('user_id, last_read_at')
@@ -244,27 +233,22 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
             return { data: [] }
         }
 
-        const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('id, first_name, last_name, url_picture')
-            .in('id', participants.map((p) => p.user_id))
-
-        if (profilesError) {
-            return { error: mapDbError(profilesError) }
-        }
-
-        const lastReadById = new Map(participants.map((p) => [p.user_id, p.last_read_at]))
+        const profileById = await fetchProfilesByIds(participants.map((p) => p.user_id))
 
         return {
-            data: (profiles ?? []).map((profile) => ({
-                userId: profile.id,
-                firstName: profile.first_name,
-                lastName: profile.last_name,
-                urlPicture: profile.url_picture,
-                lastReadAt: lastReadById.get(profile.id) ?? null,
-            })),
+            data: participants.flatMap((participant) => {
+                const profile = profileById.get(participant.user_id)
+                if (!profile) return []
+                return [{
+                    userId: profile.id,
+                    firstName: profile.first_name,
+                    lastName: profile.last_name,
+                    urlPicture: profile.url_picture,
+                    lastReadAt: participant.last_read_at ?? null,
+                }]
+            }),
         }
-    },
+    }),
 
     providesTags: (_result, _error, conversationId) => [{ type: 'Conversation', id: conversationId }],
 
@@ -345,9 +329,7 @@ getConversationParticipants: builder.query<ConversationParticipant[], string>({
         // nye medlemmer hører til samme organisation.
         addGroupParticipants: builder.mutation<void, { conversationId: string; userIds: string[] }>({
             queryFn: async ({ conversationId, userIds }) => {
-                if (userIds.length === 0) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.atLeastOneMember' } }
-                }
+                if (userIds.length === 0) return { error: errorCode('required.atLeastOneMember') }
 
                 const { error } = await supabase.rpc('add_group_participants', {
                     p_conversation_id: conversationId,

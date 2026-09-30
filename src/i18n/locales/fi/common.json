@@ -8,7 +8,6 @@
   "create": "Luo",
   "search": "Hae",
   "loading": "Ladataan...",
-  "genericError": "Jokin meni pieleen. Yritä uudelleen.",
   "language": {
     "label": "Kieli",
     "choose": "Valitse kieli",
@@ -26,7 +25,6 @@
   "title": "Otsikko",
   "description": "Kuvaus",
   "status": "Tila",
-  "selected": "valittu",
   "cannotUndo": "Tätä ei voi perua.",
   "reset": "Palauta",
   "closeDialog": "Sulje valintaikkuna",
@@ -41,9 +39,7 @@
   "sending": "Lähetetään...",
   "processing": "Käsitellään...",
   "updating": "Päivitetään...",
-  "creating": "Luodaan...",
   "yes": "Kyllä",
-  "send": "Lähetä",
   "numberInput": {
     "required": "Kirjoita numero.",
     "invalid": "Virheellinen numero.",

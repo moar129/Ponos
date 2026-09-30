@@ -36,7 +36,6 @@
   "notifications": {
     "title": "Benachrichtigungen",
     "seeAll": "Alle anzeigen",
-    "all": "Alle",
     "unread": "Ungelesen",
     "loading": "Benachrichtigungen werden geladen...",
     "emptyUnread": "Keine ungelesenen Benachrichtigungen.",
@@ -55,7 +54,6 @@
     "next": "Nächste Meldung",
     "showNews": "Meldung {{number}} anzeigen"
   },
-  "comingSoon": "Demnächst",
   "administration": {
     "noPrivileges": "Sie haben keine Berechtigung für Verwaltungsfunktionen.",
     "panels": {
@@ -84,7 +82,6 @@
     "noAssignees": "Niemand zugewiesen",
     "materials": "Materialien:",
     "noMaterials": "Keine Materialien",
-    "edit": "Bearbeiten",
     "reopen": "Wieder öffnen",
     "reopening": "Wird wieder geöffnet...",
     "sortNewest": "Zuletzt erledigte zuerst",
@@ -95,7 +92,6 @@
     "presetToday": "Heute",
     "preset7": "7 Tage",
     "preset30": "30 Tage",
-    "resetFilters": "Zurücksetzen",
     "finishedOn": "Erledigt {{date}}",
     "showing": "{{count}} von {{total}}"
   }

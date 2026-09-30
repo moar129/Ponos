@@ -8,7 +8,6 @@
   "deletePermanently": "Usuń trwale",
   "deleteAriaLabel": "Usuń powiadomienie trwale",
   "hidden": "Ukryte",
-  "justNow": "Przed chwilą",
   "emptyCategory": "Brak {{category}}.",
   "category": {
     "messages": "Wiadomości",

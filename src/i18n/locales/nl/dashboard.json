@@ -36,7 +36,6 @@
   "notifications": {
     "title": "Meldingen",
     "seeAll": "Alles bekijken",
-    "all": "Alle",
     "unread": "Ongelezen",
     "loading": "Meldingen worden geladen...",
     "emptyUnread": "Geen ongelezen meldingen.",
@@ -55,7 +54,6 @@
     "next": "Volgend nieuwsbericht",
     "showNews": "Nieuwsbericht {{number}} tonen"
   },
-  "comingSoon": "Binnenkort",
   "administration": {
     "noPrivileges": "Je hebt geen rechten voor beheerfuncties.",
     "panels": {
@@ -84,7 +82,6 @@
     "noAssignees": "Niemand toegewezen",
     "materials": "Materialen:",
     "noMaterials": "Geen materialen",
-    "edit": "Bewerken",
     "reopen": "Heropenen",
     "reopening": "Bezig met heropenen...",
     "sortNewest": "Recent afgerond eerst",
@@ -95,7 +92,6 @@
     "presetToday": "Vandaag",
     "preset7": "7 dagen",
     "preset30": "30 dagen",
-    "resetFilters": "Wissen",
     "finishedOn": "Afgerond {{date}}",
     "showing": "{{count}} van {{total}}"
   }

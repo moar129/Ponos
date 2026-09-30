@@ -11,12 +11,16 @@ import {
     ROLE_TEMPLATES,
     privilegeOpLabel,
     useGetMyPrivilegesQuery,
+    adminRoleIdsOf,
     useGetOrganisationPrivilegesQuery,
     useHasPrivilege,
     type RoleTemplateKey,
 } from '../../../store/apis/privilegeApi'
 import { ADMIN_ROLE_NAME, useCreateRoleWithPrivilegesMutation, useGetOrganisationRolesQuery } from '../../../store/apis/roleApi'
 import type { QuickCreateRoleModalProps } from '../../../types/role/roleType'
+import { Modal } from '../../common/Modal'
+import { Alert } from '../../common/Alert'
+import { toggleInArray } from '../../../utils/toggle'
 
 type TemplateChoice = RoleTemplateKey | 'copy'
 
@@ -38,7 +42,7 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
 
     // Admin-roller kan ikke kopieres - admin-privilegiet kan ikke gives
     // videre, så en kopi ville bare blive "alt undtagen admin".
-    const adminRoleIds = new Set(orgPrivileges.filter((p) => p.name === ADMIN_PRIVILEGE).map((p) => p.roleId))
+    const adminRoleIds = adminRoleIdsOf(orgPrivileges)
     const copyableRoles = roles.filter((role) => role.name !== ADMIN_ROLE_NAME && !adminRoleIds.has(role.id))
 
     const isAdmin = myPrivileges.includes(ADMIN_PRIVILEGE)
@@ -79,11 +83,7 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
     }
 
     const togglePrivilege = (privilegeName: string) => {
-        setCustomSelection(
-            selected.includes(privilegeName)
-                ? selected.filter((n) => n !== privilegeName)
-                : [...selected, privilegeName],
-        )
+        setCustomSelection(toggleInArray(selected, privilegeName))
     }
 
     const handleCreate = async () => {
@@ -99,151 +99,12 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
     const submitError = readableError(createError)
 
     return (
-        <div
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
-            onClick={onClose}
-        >
-            <div
-                className="flex max-h-[90vh] w-full max-w-md flex-col rounded-2xl border border-border-gray bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <h2 className="mb-4 text-xl font-semibold text-primary dark:text-slate-100">
-                    {t('quickCreate.heading')}
-                </h2>
-
-                <div className="space-y-4 overflow-y-auto">
-                    <div>
-                        <label
-                            htmlFor="quick-role-name"
-                            className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
-                        >
-                            {t('common:name')}
-                        </label>
-                        <input
-                            id="quick-role-name"
-                            type="text"
-                            value={name}
-                            onChange={(e) => {
-                                setName(e.target.value)
-                                setNameTouched(true)
-                            }}
-                            placeholder={t('matrix.newRoleLabel')}
-                            className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                            autoFocus
-                        />
-                    </div>
-
-                    <fieldset>
-                        <legend className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400">
-                            {t('quickCreate.templateLabel')}
-                        </legend>
-                        <div className="space-y-1">
-                            {(['participant', 'leader'] as const).map((key) => (
-                                <label key={key} className="flex cursor-pointer items-start gap-2 text-sm text-primary dark:text-slate-100">
-                                    <input
-                                        type="radio"
-                                        name="quick-role-template"
-                                        checked={template === key}
-                                        onChange={() => chooseTemplate(key)}
-                                        className="mt-0.5 h-4 w-4 shrink-0 border-border-gray text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
-                                    />
-                                    <span>
-                                        {t(`quickCreate.template.${key}`)}
-                                        <span className="block text-xs text-secondary dark:text-slate-400">
-                                            {t(`quickCreate.templateHint.${key}`)}
-                                        </span>
-                                    </span>
-                                </label>
-                            ))}
-
-                            {canReadRoles && (
-                                <label className="flex cursor-pointer items-center gap-2 text-sm text-primary dark:text-slate-100">
-                                    <input
-                                        type="radio"
-                                        name="quick-role-template"
-                                        checked={template === 'copy'}
-                                        onChange={() => chooseTemplate('copy')}
-                                        className="h-4 w-4 shrink-0 border-border-gray text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
-                                    />
-                                    {t('quickCreate.template.copy')}
-                                    <select
-                                        value={copyRoleId}
-                                        onChange={(e) => {
-                                            chooseTemplate('copy')
-                                            setCopyRoleId(e.target.value)
-                                        }}
-                                        className="ml-1 flex-1 rounded-lg border border-border-gray bg-white px-2 py-1 text-sm text-primary focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                                    >
-                                        <option value="">{t('quickCreate.chooseRole')}</option>
-                                        {copyableRoles.map((role) => (
-                                            <option key={role.id} value={role.id}>
-                                                {role.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                            )}
-                        </div>
-                    </fieldset>
-
-                    <div>
-                        <button
-                            type="button"
-                            onClick={() => setIsCustomizeOpen((open) => !open)}
-                            className="flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-hover"
-                        >
-                            {isCustomizeOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                            {t('quickCreate.customize', { selected: selected.length })}
-                        </button>
-
-                        {isCustomizeOpen && (
-                            <div className="mt-2 space-y-3 rounded-lg border border-border-gray p-3 dark:border-slate-700">
-                                {loadingMine && (
-                                    <p className="text-sm text-secondary dark:text-slate-400">{t('common:loading')}</p>
-                                )}
-                                {PRIVILEGE_DOMAINS.map((domain) => (
-                                    <div key={domain.domain}>
-                                        <p className="mb-1 text-xs font-semibold uppercase text-secondary dark:text-slate-400">
-                                            {td(`roles:domain.${domain.domain}`)}
-                                        </p>
-                                        <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                            {(Object.values(domain.ops) as string[]).map((privilegeName) => {
-                                                const allowed = canGrant(privilegeName)
-                                                return (
-                                                    <label
-                                                        key={privilegeName}
-                                                        title={allowed ? undefined : t('quickCreate.notOwned')}
-                                                        className={`flex items-center gap-1.5 text-sm ${allowed
-                                                            ? 'cursor-pointer text-primary dark:text-slate-100'
-                                                            : 'cursor-not-allowed text-secondary/60 dark:text-slate-500'
-                                                            }`}
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            disabled={!allowed}
-                                                            checked={selected.includes(privilegeName)}
-                                                            onChange={() => togglePrivilege(privilegeName)}
-                                                            className="h-4 w-4 shrink-0 rounded border-border-gray bg-white text-accent focus:ring-accent disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
-                                                        />
-                                                        {privilegeOpLabel(privilegeName, td)}
-                                                    </label>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <p className="text-xs text-secondary dark:text-slate-400">{t('quickCreate.assignHint')}</p>
-
-                    {submitError && (
-                        <p className="text-sm text-red-700 dark:text-red-400">{submitError}</p>
-                    )}
-                </div>
-
-                <div className="mt-6 flex justify-end gap-3">
+        <Modal
+            onClose={onClose}
+            title={t('quickCreate.heading')}
+            closeOnBackdrop={false}
+            footer={
+                <>
                     <button
                         type="button"
                         onClick={onClose}
@@ -259,8 +120,138 @@ export function QuickCreateRoleModal({ isOpen, onClose, onCreated, suggestedName
                     >
                         {creating ? t('matrix.creatingRole') : t('matrix.createRole')}
                     </button>
+                </>
+            }
+        >
+            <div className="space-y-4">
+                <div>
+                    <label
+                        htmlFor="quick-role-name"
+                        className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400"
+                    >
+                        {t('common:name')}
+                    </label>
+                    <input
+                        id="quick-role-name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value)
+                            setNameTouched(true)
+                        }}
+                        placeholder={t('matrix.newRoleLabel')}
+                        className="w-full rounded-lg border border-border-gray bg-white px-3 py-2 text-sm text-primary focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                        autoFocus
+                    />
                 </div>
+
+                <fieldset>
+                    <legend className="mb-1 block text-sm font-medium text-secondary dark:text-slate-400">
+                        {t('quickCreate.templateLabel')}
+                    </legend>
+                    <div className="space-y-1">
+                        {(['participant', 'leader'] as const).map((key) => (
+                            <label key={key} className="flex cursor-pointer items-start gap-2 text-sm text-primary dark:text-slate-100">
+                                <input
+                                    type="radio"
+                                    name="quick-role-template"
+                                    checked={template === key}
+                                    onChange={() => chooseTemplate(key)}
+                                    className="mt-0.5 h-4 w-4 shrink-0 border-border-gray text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
+                                />
+                                <span>
+                                    {t(`quickCreate.template.${key}`)}
+                                    <span className="block text-xs text-secondary dark:text-slate-400">
+                                        {t(`quickCreate.templateHint.${key}`)}
+                                    </span>
+                                </span>
+                            </label>
+                        ))}
+
+                        {canReadRoles && (
+                            <label className="flex cursor-pointer items-center gap-2 text-sm text-primary dark:text-slate-100">
+                                <input
+                                    type="radio"
+                                    name="quick-role-template"
+                                    checked={template === 'copy'}
+                                    onChange={() => chooseTemplate('copy')}
+                                    className="h-4 w-4 shrink-0 border-border-gray text-accent focus:ring-accent dark:border-slate-700 dark:bg-slate-800"
+                                />
+                                {t('quickCreate.template.copy')}
+                                <select
+                                    value={copyRoleId}
+                                    onChange={(e) => {
+                                        chooseTemplate('copy')
+                                        setCopyRoleId(e.target.value)
+                                    }}
+                                    className="ml-1 flex-1 rounded-lg border border-border-gray bg-white px-2 py-1 text-sm text-primary focus:border-accent focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                >
+                                    <option value="">{t('quickCreate.chooseRole')}</option>
+                                    {copyableRoles.map((role) => (
+                                        <option key={role.id} value={role.id}>
+                                            {role.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
+                    </div>
+                </fieldset>
+
+                <div>
+                    <button
+                        type="button"
+                        onClick={() => setIsCustomizeOpen((open) => !open)}
+                        className="flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-hover"
+                    >
+                        {isCustomizeOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        {t('quickCreate.customize', { selected: selected.length })}
+                    </button>
+
+                    {isCustomizeOpen && (
+                        <div className="mt-2 space-y-3 rounded-lg border border-border-gray p-3 dark:border-slate-700">
+                            {loadingMine && (
+                                <p className="text-sm text-secondary dark:text-slate-400">{t('common:loading')}</p>
+                            )}
+                            {PRIVILEGE_DOMAINS.map((domain) => (
+                                <div key={domain.domain}>
+                                    <p className="mb-1 text-xs font-semibold uppercase text-secondary dark:text-slate-400">
+                                        {td(`roles:domain.${domain.domain}`)}
+                                    </p>
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                        {(Object.values(domain.ops) as string[]).map((privilegeName) => {
+                                            const allowed = canGrant(privilegeName)
+                                            return (
+                                                <label
+                                                    key={privilegeName}
+                                                    title={allowed ? undefined : t('quickCreate.notOwned')}
+                                                    className={`flex items-center gap-1.5 text-sm ${allowed
+                                                        ? 'cursor-pointer text-primary dark:text-slate-100'
+                                                        : 'cursor-not-allowed text-secondary/60 dark:text-slate-500'
+                                                        }`}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        disabled={!allowed}
+                                                        checked={selected.includes(privilegeName)}
+                                                        onChange={() => togglePrivilege(privilegeName)}
+                                                        className="h-4 w-4 shrink-0 rounded border-border-gray bg-white text-accent focus:ring-accent disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
+                                                    />
+                                                    {privilegeOpLabel(privilegeName, td)}
+                                                </label>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <p className="text-xs text-secondary dark:text-slate-400">{t('quickCreate.assignHint')}</p>
+
+                <Alert>{submitError}</Alert>
             </div>
-        </div>
+        </Modal>
     )
 }

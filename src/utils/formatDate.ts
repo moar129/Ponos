@@ -75,3 +75,28 @@ export function formatDayMonthTime(value: string | Date): string {
 export function formatNumber(value: number): string {
   return value.toLocaleString(currentLocale())
 }
+
+/** Tal med højst `maxFractionDigits` decimaler, fx "12,5". */
+export function formatDecimal(value: number, maxFractionDigits = 1, locale = currentLocale()): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: maxFractionDigits }).format(value)
+}
+
+/** Procent med mellemrum før tegnet, fx "12,5 %". */
+export function formatPercent(value: number, maxFractionDigits = 1, locale = currentLocale()): string {
+  return `${formatDecimal(value, maxFractionDigits, locale)} %`
+}
+
+/** Dag, forkortet måned og år, fx "5. mar. 2026". */
+export function formatMediumDate(value: string | Date, locale = currentLocale()): string {
+  return new Date(value).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+/** Dag og måned som tal uden år, fx "5.3.". Til korte periode-etiketter. */
+export function formatNumericDayMonth(value: string | Date, locale = currentLocale()): string {
+  return new Date(value).toLocaleDateString(locale, { day: 'numeric', month: 'numeric' })
+}
+
+/** Kort periode, fx "5. mar – 9. mar". En manglende dato vises som `missing`. */
+export function formatShortDateRange(start: string | null, end: string | null, missing = '—'): string {
+  return `${start ? formatShortDate(start) : missing} – ${end ? formatShortDate(end) : missing}`
+}

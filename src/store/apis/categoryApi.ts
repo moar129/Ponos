@@ -1,13 +1,16 @@
-import { supabaseApi } from './supabaseApi';
+import { itemTags, itemUnitsTag, listTags, supabaseApi, taskMaterialTags } from './supabaseApi';
 import { supabase } from '../../lib/supabase';
-import { mapDbError, mapPermissionError } from './apiError';
+import { mapDbError, mapPermissionError, runQuery } from './apiError';
+import { getActiveOrganisationId } from './session';
 import type {
   AvailableUnitLocation,
+  ContentsThresholds,
   DataLayerCat,
   DataLayerItem,
   ItemLocation,
   ItemStatus,
   ItemUnit,
+  LocationRow,
   RawCategory,
   UnitLocationCount,
 } from '../../types/dataLayer/datalayerTypes';
@@ -39,26 +42,8 @@ function flattenCategoryIds(cat: DataLayerCat): { type: 'Category' | 'Item'; id:
   ];
 }
 
-export async function getAuthenticatedOrganisationId(): Promise<string> {
-  const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError || !authData.user) {
-    throw new Error('errors:loginRequiredForAction');
-  }
 
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select('active_organisation_id')
-    .eq('id', authData.user.id)
-    .single();
-
-  if (profileError || !profileData?.active_organisation_id) {
-    throw new Error('errors:organisationLookupFailed');
-  }
-
-  return profileData.active_organisation_id;
-}
-
-interface AddItemInput {
+interface AddItemInput extends ContentsThresholds {
   categoryId: string;
   itemLocationId?: string | null;
   name: string;
@@ -73,12 +58,7 @@ interface AddItemInput {
   // delt pulje mellem enhederne. quantity styrer fortsat kun hvor mange
   // enheder der oprettes (fx 5 kasser).
   contentsTotal?: number;
-  // Kun relevant når contentsTotal er sat - null/undefined = ingen
-  // automatisk statusskift ved den tærskel. Se sync_status_from_contents
-  // i docs/dbSchema.sql §15.21.
-  contentsEmptyStatus?: ItemStatus | null;
-  contentsPartialStatus?: ItemStatus | null;
-  contentsFullStatus?: ItemStatus | null;
+  // Tærsklerne (ContentsThresholds) er kun relevante når contentsTotal er sat.
   // Kun relevant når !isDiscrete && contentsTotal er sat (Målt mængde +
   // kapacitet, fx en tank) - startniveau pr. oprettet beholder.
   // null/undefined = start fuld (= contentsTotal).
@@ -90,99 +70,119 @@ interface AddItemInput {
   serialNumbers?: string[];
 }
 
-// 23505 = Postgres unique constraint violation. Rammer her kun
-// idx_item_units_serial_item (serienummer skal være unikt pr. item) -
-// den rå Postgres-fejl har intet hint, så den kan ikke gå gennem
-// mapDbError; mappes derfor direkte, samme mønster som
-// organisationApi.ts/roleApi.ts/privilegeApi.ts/membershipApi.ts bruger
-// til deres egne dublet-fejl.
-function mapItemUnitError(error: { code?: string; hint?: string | null; message: string }, actionKey: string) {
-  if (error.code === '23505') {
-    return { status: 'CUSTOM_ERROR' as const, error: 'errors:duplicateSerialNumber' };
-  }
-  return mapPermissionError(error, actionKey);
+// Serienummer skal være unikt pr. item (idx_item_units_serial_item) -
+// 23505 giver derfor sin egen fejlnøgle ved oprettelse af enheder.
+// locations-række -> ItemLocation (delt med taskApi.getTaskMaterials).
+export function toItemLocation(row: LocationRow): ItemLocation {
+  return {
+    id: row.id,
+    organisationId: row.organisation_id,
+    name: row.name,
+    description: row.description,
+    address: row.address,
+    parentLocationId: row.parent_location_id,
+  };
+}
+
+const ITEM_UNIT_KEYS = { unique: 'duplicateSerialNumber' }
+
+function addItemRpcArgs(item: AddItemInput) {
+  return {
+    p_category_id: item.categoryId,
+    p_location_id: item.itemLocationId ?? null,
+    p_name: item.name,
+    p_description: item.description ?? null,
+    p_packaging: item.packaging ?? null,
+    p_unit_of_measurement: item.unitOfMeasurement,
+    p_quantity: item.quantity,
+    p_status: item.itemStatus,
+    p_serial_numbers: item.serialNumbers ?? null,
+    p_is_discrete: item.isDiscrete,
+    p_contents_total: item.contentsTotal ?? null,
+    p_contents_empty_status: item.contentsEmptyStatus ?? null,
+    p_contents_partial_status: item.contentsPartialStatus ?? null,
+    p_contents_full_status: item.contentsFullStatus ?? null,
+    p_contents_start: item.contentsStart ?? null,
+    p_package_size: item.packageSize ?? null,
+  };
 }
 
 export const categoryApi = supabaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCategoryTree: builder.query<DataLayerCat[], void>({
-      queryFn: async () => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: () => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data: rawCategories, error: catError } = await supabase
-            .from('data_layer_categories')
-            .select('id, title, rank, parent_category_id, organisation_id')
-            .eq('organisation_id', organisationId);
+        const { data: rawCategories, error: catError } = await supabase
+          .from('data_layer_categories')
+          .select('id, title, rank, parent_category_id, organisation_id')
+          .eq('organisation_id', organisationId);
 
-          if (catError) {
-            return { error: mapDbError(catError) };
-          }
-
-          const { data: rawItems, error: itemError } = await supabase
-            .from('data_layer_items')
-            .select('id, location_id, organisation_id, category_id, name, description, packaging, unit_of_measurement, package_size')
-            .eq('organisation_id', organisationId);
-
-          if (itemError) {
-            return { error: mapDbError(itemError) };
-          }
-
-          const itemIds = (rawItems ?? []).map((i) => i.id);
-
-          // Aggregerede status-tal (view data_layer_item_status_counts) i
-          // stedet for de rå enheds-rækker - se docs/dbSchema.sql §9a.
-          const { data: rawCounts, error: countsError } =
-            itemIds.length > 0
-              ? await supabase
-                  .from('data_layer_item_status_counts')
-                  .select('item_id, status, total_quantity, has_capacity_units')
-                  .in('item_id', itemIds)
-              : {
-                  data: [] as { item_id: string; status: ItemStatus; total_quantity: number; has_capacity_units: boolean }[],
-                  error: null,
-                };
-
-          if (countsError) {
-            return { error: mapDbError(countsError) };
-          }
-
-          const countsByItem = new Map<string, Partial<Record<ItemStatus, number>>>();
-          const capacityByItem = new Set<string>();
-          for (const row of rawCounts ?? []) {
-            const status = row.status as ItemStatus;
-            const existing = countsByItem.get(row.item_id) ?? {};
-            existing[status] = row.total_quantity;
-            countsByItem.set(row.item_id, existing);
-            if (row.has_capacity_units) capacityByItem.add(row.item_id);
-          }
-
-          const items: DataLayerItem[] = (rawItems ?? []).map((i) => {
-            const statusCounts = countsByItem.get(i.id) ?? {};
-            const quantity = Object.values(statusCounts).reduce((sum: number, n) => sum + (n ?? 0), 0);
-            return {
-              id: i.id,
-              itemLocationId: i.location_id,
-              organisationId: i.organisation_id,
-              categoryId: i.category_id,
-              name: i.name,
-              description: i.description,
-              packaging: i.packaging,
-              unitOfMeasurement: i.unit_of_measurement,
-              quantity,
-              statusCounts,
-              hasCapacityUnits: capacityByItem.has(i.id),
-              packageSize: i.package_size,
-            };
-          });
-
-          return {
-            data: buildCategoryTree(rawCategories ?? [], items),
-          };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (catError) {
+          return { error: mapDbError(catError) };
         }
-      },
+
+        const { data: rawItems, error: itemError } = await supabase
+          .from('data_layer_items')
+          .select('id, location_id, organisation_id, category_id, name, description, packaging, unit_of_measurement, package_size')
+          .eq('organisation_id', organisationId);
+
+        if (itemError) {
+          return { error: mapDbError(itemError) };
+        }
+
+        const itemIds = (rawItems ?? []).map((i) => i.id);
+
+        // Aggregerede status-tal (view data_layer_item_status_counts) i
+        // stedet for de rå enheds-rækker - se docs/dbSchema.sql §9a.
+        const { data: rawCounts, error: countsError } =
+          itemIds.length > 0
+            ? await supabase
+                .from('data_layer_item_status_counts')
+                .select('item_id, status, total_quantity, has_capacity_units')
+                .in('item_id', itemIds)
+            : {
+                data: [] as { item_id: string; status: ItemStatus; total_quantity: number; has_capacity_units: boolean }[],
+                error: null,
+              };
+
+        if (countsError) {
+          return { error: mapDbError(countsError) };
+        }
+
+        const countsByItem = new Map<string, Partial<Record<ItemStatus, number>>>();
+        const capacityByItem = new Set<string>();
+        for (const row of rawCounts ?? []) {
+          const status = row.status as ItemStatus;
+          const existing = countsByItem.get(row.item_id) ?? {};
+          existing[status] = row.total_quantity;
+          countsByItem.set(row.item_id, existing);
+          if (row.has_capacity_units) capacityByItem.add(row.item_id);
+        }
+
+        const items: DataLayerItem[] = (rawItems ?? []).map((i) => {
+          const statusCounts = countsByItem.get(i.id) ?? {};
+          const quantity = Object.values(statusCounts).reduce((sum: number, n) => sum + (n ?? 0), 0);
+          return {
+            id: i.id,
+            itemLocationId: i.location_id,
+            organisationId: i.organisation_id,
+            categoryId: i.category_id,
+            name: i.name,
+            description: i.description,
+            packaging: i.packaging,
+            unitOfMeasurement: i.unit_of_measurement,
+            quantity,
+            statusCounts,
+            hasCapacityUnits: capacityByItem.has(i.id),
+            packageSize: i.package_size,
+          };
+        });
+
+        return {
+          data: buildCategoryTree(rawCategories ?? [], items),
+        };
+      }),
 
       providesTags: (result) =>
         result
@@ -197,30 +197,26 @@ export const categoryApi = supabaseApi.injectEndpoints({
     addCategory: builder.mutation< string,
     { title: string; parentId: string | null; rank: number } >
     ({
-      queryFn: async ({ title, parentId, rank }) => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: ({ title, parentId, rank }) => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data, error } = await supabase
-            .from('data_layer_categories')
-            .insert({
-              title,
-              organisation_id: organisationId,
-              parent_category_id: parentId,
-              rank,
-            })
-            .select('id')
-            .single();
+        const { data, error } = await supabase
+          .from('data_layer_categories')
+          .insert({
+            title,
+            organisation_id: organisationId,
+            parent_category_id: parentId,
+            rank,
+          })
+          .select('id')
+          .single();
 
-          if (error) {
-            return { error: mapPermissionError(error, 'createCategory') };
-          }
-
-          return { data: data.id };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapPermissionError(error, 'createCategory') };
         }
-      },
+
+        return { data: data.id };
+      }),
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
     }),
 
@@ -263,36 +259,15 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // meget et enkeltstyk som "stk") -> N enheder à quantity=1 (evt.
     // serienummer pr. enhed); false -> ét batch med quantity=N.
     addItem: builder.mutation<string, AddItemInput>({
-      queryFn: async (item) => {
-        try {
-          const { data, error } = await supabase.rpc('add_item_with_units', {
-            p_category_id: item.categoryId,
-            p_location_id: item.itemLocationId ?? null,
-            p_name: item.name,
-            p_description: item.description ?? null,
-            p_packaging: item.packaging ?? null,
-            p_unit_of_measurement: item.unitOfMeasurement,
-            p_quantity: item.quantity,
-            p_status: item.itemStatus,
-            p_serial_numbers: item.serialNumbers ?? null,
-            p_is_discrete: item.isDiscrete,
-            p_contents_total: item.contentsTotal ?? null,
-            p_contents_empty_status: item.contentsEmptyStatus ?? null,
-            p_contents_partial_status: item.contentsPartialStatus ?? null,
-            p_contents_full_status: item.contentsFullStatus ?? null,
-            p_contents_start: item.contentsStart ?? null,
-            p_package_size: item.packageSize ?? null,
-          });
+      queryFn: (item) => runQuery(async () => {
+        const { data, error } = await supabase.rpc('add_item_with_units', addItemRpcArgs(item));
 
-          if (error) {
-            return { error: mapItemUnitError(error, 'createItem') };
-          }
-
-          return { data: data as string };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapDbError(error, { ...ITEM_UNIT_KEYS, permission: 'createItem' }) };
         }
-      },
+
+        return { data: data as string };
+      }),
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
     }),
 
@@ -301,42 +276,21 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // unitOfMeasurement/serienummer-slicing. Typisk antal rækker pr. kald
     // fra addItemsComponent.tsx er lavt, så det er ikke et ydelsesproblem.
     addItems: builder.mutation<string[], AddItemInput[]>({
-      queryFn: async (items) => {
-        try {
-          const ids: string[] = [];
+      queryFn: (items) => runQuery(async () => {
+        const ids: string[] = [];
 
-          for (const item of items) {
-            const { data, error } = await supabase.rpc('add_item_with_units', {
-              p_category_id: item.categoryId,
-              p_location_id: item.itemLocationId ?? null,
-              p_name: item.name,
-              p_description: item.description ?? null,
-              p_packaging: item.packaging ?? null,
-              p_unit_of_measurement: item.unitOfMeasurement,
-              p_quantity: item.quantity,
-              p_status: item.itemStatus,
-              p_serial_numbers: item.serialNumbers ?? null,
-              p_is_discrete: item.isDiscrete,
-              p_contents_total: item.contentsTotal ?? null,
-              p_contents_empty_status: item.contentsEmptyStatus ?? null,
-              p_contents_partial_status: item.contentsPartialStatus ?? null,
-              p_contents_full_status: item.contentsFullStatus ?? null,
-              p_contents_start: item.contentsStart ?? null,
-              p_package_size: item.packageSize ?? null,
-            });
+        for (const item of items) {
+          const { data, error } = await supabase.rpc('add_item_with_units', addItemRpcArgs(item));
 
-            if (error) {
-              return { error: mapItemUnitError(error, 'createItems') };
-            }
-
-            ids.push(data as string);
+          if (error) {
+            return { error: mapDbError(error, { ...ITEM_UNIT_KEYS, permission: 'createItems' }) };
           }
 
-          return { data: ids };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+          ids.push(data as string);
         }
-      },
+
+        return { data: ids };
+      }),
       invalidatesTags: [{ type: 'Item', id: 'LIST' }],
     }),
 
@@ -386,36 +340,32 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // før man vælger. Deler 'Item LIST'-tagget med getCategoryTree, da
     // alle mutationer der ændrer status-fordelingen allerede invaliderer det.
     getAvailableUnitLocations: builder.query<AvailableUnitLocation[], void>({
-      queryFn: async () => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: () => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data, error } = await supabase
-            .from('data_layer_item_units')
-            .select('item_id, location_id, quantity')
-            .eq('organisation_id', organisationId)
-            .eq('status', 'Available');
+        const { data, error } = await supabase
+          .from('data_layer_item_units')
+          .select('item_id, location_id, quantity')
+          .eq('organisation_id', organisationId)
+          .eq('status', 'Available');
 
-          if (error) {
-            return { error: mapDbError(error) };
-          }
-
-          const byKey = new Map<string, AvailableUnitLocation>();
-          for (const row of data ?? []) {
-            const key = `${row.item_id}|${row.location_id ?? ''}`;
-            const existing = byKey.get(key);
-            if (existing) {
-              existing.quantity += Number(row.quantity);
-            } else {
-              byKey.set(key, { itemId: row.item_id, locationId: row.location_id, quantity: Number(row.quantity) });
-            }
-          }
-
-          return { data: [...byKey.values()] };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapDbError(error) };
         }
-      },
+
+        const byKey = new Map<string, AvailableUnitLocation>();
+        for (const row of data ?? []) {
+          const key = `${row.item_id}|${row.location_id ?? ''}`;
+          const existing = byKey.get(key);
+          if (existing) {
+            existing.quantity += Number(row.quantity);
+          } else {
+            byKey.set(key, { itemId: row.item_id, locationId: row.location_id, quantity: Number(row.quantity) });
+          }
+        }
+
+        return { data: [...byKey.values()] };
+      }),
       providesTags: [{ type: 'Item', id: 'LIST' }],
     }),
 
@@ -424,40 +374,36 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // datalager-siden til at vise hvad der ligger hvor. ItemLocation LIST
     // med, da sletning af en lokation sætter enhedernes location_id til null.
     getUnitLocationCounts: builder.query<UnitLocationCount[], void>({
-      queryFn: async () => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: () => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data, error } = await supabase
-            .from('data_layer_item_units')
-            .select('item_id, location_id, status, quantity')
-            .eq('organisation_id', organisationId);
+        const { data, error } = await supabase
+          .from('data_layer_item_units')
+          .select('item_id, location_id, status, quantity')
+          .eq('organisation_id', organisationId);
 
-          if (error) {
-            return { error: mapDbError(error) };
-          }
-
-          const byKey = new Map<string, UnitLocationCount>();
-          for (const row of data ?? []) {
-            const key = `${row.item_id}|${row.location_id ?? ''}|${row.status}`;
-            const existing = byKey.get(key);
-            if (existing) {
-              existing.quantity += Number(row.quantity);
-            } else {
-              byKey.set(key, {
-                itemId: row.item_id,
-                locationId: row.location_id,
-                status: row.status as ItemStatus,
-                quantity: Number(row.quantity),
-              });
-            }
-          }
-
-          return { data: [...byKey.values()] };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapDbError(error) };
         }
-      },
+
+        const byKey = new Map<string, UnitLocationCount>();
+        for (const row of data ?? []) {
+          const key = `${row.item_id}|${row.location_id ?? ''}|${row.status}`;
+          const existing = byKey.get(key);
+          if (existing) {
+            existing.quantity += Number(row.quantity);
+          } else {
+            byKey.set(key, {
+              itemId: row.item_id,
+              locationId: row.location_id,
+              status: row.status as ItemStatus,
+              quantity: Number(row.quantity),
+            });
+          }
+        }
+
+        return { data: [...byKey.values()] };
+      }),
       providesTags: [
         { type: 'Item', id: 'LIST' },
         { type: 'ItemLocation', id: 'LIST' },
@@ -493,13 +439,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: units };
       },
-      providesTags: (result, _error, itemId) =>
-        result
-          ? [
-              { type: 'ItemUnit' as const, id: `ITEM-${itemId}` },
-              ...result.map((u) => ({ type: 'ItemUnit' as const, id: u.id })),
-            ]
-          : [{ type: 'ItemUnit' as const, id: `ITEM-${itemId}` }],
+      providesTags: (result, _error, itemId) => [itemUnitsTag(itemId), ...(result ?? []).map((u) => ({ type: 'ItemUnit' as const, id: u.id }))],
     }),
 
     // Restock - bruges både fra Datalager (itemsDetailComponent) og som
@@ -510,7 +450,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
     // "flaske", "kg").
     addItemUnits: builder.mutation<
       void,
-      {
+      ContentsThresholds & {
         itemId: string;
         quantity: number;
         status: ItemStatus;
@@ -522,9 +462,6 @@ export const categoryApi = supabaseApi.injectEndpoints({
         // mængde + kapacitet) - startniveau pr. oprettet beholder.
         // null/undefined = start fuld (= contentsTotal).
         contentsStart?: number | null;
-        contentsEmptyStatus?: ItemStatus | null;
-        contentsPartialStatus?: ItemStatus | null;
-        contentsFullStatus?: ItemStatus | null;
         // Kun relevant når !isDiscrete && !contentsTotal (Mængde + pakke-
         // faktor) - quantity er da ANTAL EMBALLAGER, hver får sin egen
         // række med quantity = packageSize.
@@ -533,7 +470,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
         locationId?: string | null;
       }
     >({
-      queryFn: async ({
+      queryFn: ({
         itemId,
         quantity,
         status,
@@ -546,112 +483,81 @@ export const categoryApi = supabaseApi.injectEndpoints({
         packageSize,
         serialNumbers,
         locationId,
-      }) => {
-        try {
-          const { data: itemRow, error: itemError } = await supabase
-            .from('data_layer_items')
-            .select('organisation_id, location_id')
-            .eq('id', itemId)
-            .single();
+      }) => runQuery(async () => {
+        const { data: itemRow, error: itemError } = await supabase
+          .from('data_layer_items')
+          .select('organisation_id, location_id')
+          .eq('id', itemId)
+          .single();
 
-          if (itemError || !itemRow) {
-            return { error: mapDbError(itemError ?? { message: 'errors:generic' }) };
-          }
-
-          const resolvedLocationId = locationId !== undefined ? locationId : itemRow.location_id;
-          // Diskret: contentsTotal er indhold pr. enhed (fx 12-pack), sat
-          // sammen med contents_remaining. Målt: contentsTotal er
-          // KAPACITET (fx en tanks 200 liter) - contents_remaining
-          // sættes IKKE, niveauet er quantity selv, se
-          // sync_status_from_contents i docs/dbSchema.sql §15.21.
-          const contentsValue = isDiscrete && contentsTotal ? contentsTotal : null;
-          const capacityValue = !isDiscrete && contentsTotal ? contentsTotal : null;
-          const trackedValue = contentsValue ?? capacityValue;
-          const emptyStatusValue = trackedValue ? contentsEmptyStatus ?? null : null;
-          const partialStatusValue = trackedValue ? contentsPartialStatus ?? null : null;
-          const fullStatusValue = trackedValue ? contentsFullStatus ?? null : null;
-
-          const rows = isDiscrete
-            ? Array.from({ length: quantity }, (_, i) => ({
-                organisation_id: itemRow.organisation_id,
-                item_id: itemId,
-                location_id: resolvedLocationId,
-                serial_number: serialNumbers?.[i]?.trim() || null,
-                quantity: 1,
-                status,
-                contents_total: contentsValue,
-                contents_remaining: contentsValue,
-                contents_empty_status: emptyStatusValue,
-                contents_partial_status: partialStatusValue,
-                contents_full_status: fullStatusValue,
-              }))
-            : capacityValue
-            ? // Målt mængde + kapacitet (fx en tank): quantity er ANTAL
-              // BEHOLDERE, hver får sin egen række med kapacitet +
-              // startniveau (default fuld) - ligesom add_item_with_units,
-              // se docs/dbSchema.sql §15.21.
-              Array.from({ length: quantity }, () => ({
-                organisation_id: itemRow.organisation_id,
-                item_id: itemId,
-                location_id: resolvedLocationId,
-                serial_number: null,
-                quantity: contentsStart || capacityValue,
-                status,
-                contents_total: capacityValue,
-                contents_remaining: null,
-                contents_empty_status: emptyStatusValue,
-                contents_partial_status: partialStatusValue,
-                contents_full_status: fullStatusValue,
-              }))
-            : packageSize
-            ? // Mængde + pakke-faktor (fx "1 big bag = 500 kg"): quantity
-              // er ANTAL EMBALLAGER, hver får sin egen række med
-              // quantity = packageSize - ligesom add_item_with_units.
-              Array.from({ length: quantity }, () => ({
-                organisation_id: itemRow.organisation_id,
-                item_id: itemId,
-                location_id: resolvedLocationId,
-                serial_number: null,
-                quantity: packageSize,
-                status,
-                contents_total: null,
-                contents_remaining: null,
-                contents_empty_status: null,
-                contents_partial_status: null,
-                contents_full_status: null,
-              }))
-            : [
-                {
-                  organisation_id: itemRow.organisation_id,
-                  item_id: itemId,
-                  location_id: resolvedLocationId,
-                  serial_number: null,
-                  quantity,
-                  status,
-                  contents_total: null,
-                  contents_remaining: null,
-                  contents_empty_status: null,
-                  contents_partial_status: null,
-                  contents_full_status: null,
-                },
-              ];
-
-          const { error } = await supabase.from('data_layer_item_units').insert(rows);
-
-          if (error) {
-            return { error: mapItemUnitError(error, 'addItemUnits') };
-          }
-
-          return { data: undefined };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (itemError || !itemRow) {
+          return { error: mapDbError(itemError ?? { message: 'errors:generic' }) };
         }
-      },
-      invalidatesTags: (_result, _error, { itemId }) => [
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-      ],
+
+        const resolvedLocationId = locationId !== undefined ? locationId : itemRow.location_id;
+        // Diskret: contentsTotal er indhold pr. enhed (fx 12-pack), sat
+        // sammen med contents_remaining. Målt: contentsTotal er
+        // KAPACITET (fx en tanks 200 liter) - contents_remaining
+        // sættes IKKE, niveauet er quantity selv, se
+        // sync_status_from_contents i docs/dbSchema.sql §15.21.
+        const contentsValue = isDiscrete && contentsTotal ? contentsTotal : null;
+        const capacityValue = !isDiscrete && contentsTotal ? contentsTotal : null;
+        const trackedValue = contentsValue ?? capacityValue;
+        const emptyStatusValue = trackedValue ? contentsEmptyStatus ?? null : null;
+        const partialStatusValue = trackedValue ? contentsPartialStatus ?? null : null;
+        const fullStatusValue = trackedValue ? contentsFullStatus ?? null : null;
+
+        const baseRow = {
+          organisation_id: itemRow.organisation_id,
+          item_id: itemId,
+          location_id: resolvedLocationId,
+          serial_number: null as string | null,
+          status,
+          contents_total: null as number | null,
+          contents_remaining: null as number | null,
+          contents_empty_status: null as ItemStatus | null,
+          contents_partial_status: null as ItemStatus | null,
+          contents_full_status: null as ItemStatus | null,
+        };
+        const thresholds = {
+          contents_empty_status: emptyStatusValue,
+          contents_partial_status: partialStatusValue,
+          contents_full_status: fullStatusValue,
+        };
+        // quantity rækker, hver bygget af baseRow + variant(i).
+        const rowsOf = (variant: (i: number) => Partial<typeof baseRow> & { quantity: number }) =>
+          Array.from({ length: quantity }, (_, i) => ({ ...baseRow, ...variant(i) }));
+
+        const rows = isDiscrete
+          ? rowsOf((i) => ({
+              serial_number: serialNumbers?.[i]?.trim() || null,
+              quantity: 1,
+              contents_total: contentsValue,
+              contents_remaining: contentsValue,
+              ...thresholds,
+            }))
+          : capacityValue
+          ? // Målt mængde + kapacitet (fx en tank): quantity er ANTAL
+            // BEHOLDERE, hver får sin egen række med kapacitet +
+            // startniveau (default fuld) - ligesom add_item_with_units,
+            // se docs/dbSchema.sql §15.21.
+            rowsOf(() => ({ quantity: contentsStart || capacityValue, contents_total: capacityValue, ...thresholds }))
+          : packageSize
+          ? // Mængde + pakke-faktor (fx "1 big bag = 500 kg"): quantity
+            // er ANTAL EMBALLAGER, hver får sin egen række med
+            // quantity = packageSize - ligesom add_item_with_units.
+            rowsOf(() => ({ quantity: packageSize }))
+          : [{ ...baseRow, quantity }];
+
+        const { error } = await supabase.from('data_layer_item_units').insert(rows);
+
+        if (error) {
+          return { error: mapDbError(error, { ...ITEM_UNIT_KEYS, permission: 'addItemUnits' }) };
+        }
+
+        return { data: undefined };
+      }),
+      invalidatesTags: (_result, _error, { itemId }) => itemTags(itemId),
     }),
 
     updateItemUnit: builder.mutation<
@@ -690,12 +596,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: undefined };
       },
-      invalidatesTags: (_result, _error, { id, itemId }) => [
-        { type: 'ItemUnit', id },
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-      ],
+      invalidatesTags: (_result, _error, { id, itemId }) => [{ type: 'ItemUnit', id }, ...itemTags(itemId)],
     }),
 
     deleteItemUnit: builder.mutation<void, { id: string; itemId: string }>({
@@ -708,11 +609,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: undefined };
       },
-      invalidatesTags: (_result, _error, { itemId }) => [
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-      ],
+      invalidatesTags: (_result, _error, { itemId }) => itemTags(itemId),
     }),
 
     // Forbrug, Datalager -> Task: systemet vælger/splitter N ledige
@@ -736,14 +633,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: data as string };
       },
-      invalidatesTags: (_result, _error, { taskId, itemId }) => [
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-        { type: 'Task', id: taskId },
-        { type: 'Task', id: `${taskId}-MATERIALS` },
-        { type: 'Task', id: 'LIST' },
-      ],
+      invalidatesTags: (_result, _error, { taskId, itemId }) => taskMaterialTags(taskId, itemId),
     }),
 
     // Annullering/fjernelse før færdiggørelse (RPC release_item_units).
@@ -765,14 +655,7 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: undefined };
       },
-      invalidatesTags: (_result, _error, { taskId, itemId }) => [
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-        { type: 'Task', id: taskId },
-        { type: 'Task', id: `${taskId}-MATERIALS` },
-        { type: 'Task', id: 'LIST' },
-      ],
+      invalidatesTags: (_result, _error, { taskId, itemId }) => taskMaterialTags(taskId, itemId),
     }),
 
     // Statusskift på en del af en linjes linkede enheder MENS opgaven er
@@ -796,78 +679,49 @@ export const categoryApi = supabaseApi.injectEndpoints({
 
         return { data: undefined };
       },
-      invalidatesTags: (_result, _error, { taskId, itemId }) => [
-        { type: 'ItemUnit', id: `ITEM-${itemId}` },
-        { type: 'Item', id: itemId },
-        { type: 'Item', id: 'LIST' },
-        { type: 'Task', id: taskId },
-        { type: 'Task', id: `${taskId}-MATERIALS` },
-      ],
+      invalidatesTags: (_result, _error, { taskId, itemId }) => taskMaterialTags(taskId, itemId),
     }),
 
     getItemLocations: builder.query<ItemLocation[], void>({
-      queryFn: async () => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: () => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data, error } = await supabase
-            .from('locations')
-            .select('id, name, description, address, organisation_id, parent_location_id')
-            .eq('organisation_id', organisationId);
+        const { data, error } = await supabase
+          .from('locations')
+          .select('id, name, description, address, organisation_id, parent_location_id')
+          .eq('organisation_id', organisationId);
 
-          if (error) {
-            return { error: mapDbError(error) };
-          }
-
-          const locations: ItemLocation[] = (data ?? []).map((loc) => ({
-            id: loc.id,
-            organisationId: loc.organisation_id,
-            name: loc.name,
-            description: loc.description,
-            address: loc.address,
-            parentLocationId: loc.parent_location_id,
-          }));
-
-          return { data: locations };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapDbError(error) };
         }
-      },
-      providesTags: (result) =>
-        result
-          ? [
-              { type: 'ItemLocation' as const, id: 'LIST' },
-              ...result.map((loc) => ({ type: 'ItemLocation' as const, id: loc.id })),
-            ]
-          : [{ type: 'ItemLocation' as const, id: 'LIST' }],
+
+        return { data: (data ?? []).map(toItemLocation) };
+      }),
+      providesTags: (result) => listTags('ItemLocation', result),
     }),
 
     addLocation: builder.mutation<string, { name: string; description?: string | null; address?: string | null; parentLocationId?: string | null }>({
-      queryFn: async (location) => {
-        try {
-          const organisationId = await getAuthenticatedOrganisationId();
+      queryFn: (location) => runQuery(async () => {
+        const organisationId = await getActiveOrganisationId();
 
-          const { data, error } = await supabase
-            .from('locations')
-            .insert({
-              organisation_id: organisationId,
-              name: location.name,
-              description: location.description ?? null,
-              address: location.address ?? null,
-              parent_location_id: location.parentLocationId ?? null,
-            })
-            .select('id')
-            .single();
+        const { data, error } = await supabase
+          .from('locations')
+          .insert({
+            organisation_id: organisationId,
+            name: location.name,
+            description: location.description ?? null,
+            address: location.address ?? null,
+            parent_location_id: location.parentLocationId ?? null,
+          })
+          .select('id')
+          .single();
 
-          if (error) {
-            return { error: mapPermissionError(error, 'createLocation') };
-          }
-
-          return { data: data.id };
-        } catch (err: unknown) {
-          return { error: { status: 'CUSTOM_ERROR', error: err instanceof Error ? err.message : 'errors:generic' } };
+        if (error) {
+          return { error: mapPermissionError(error, 'createLocation') };
         }
-      },
+
+        return { data: data.id };
+      }),
       invalidatesTags: [{ type: 'ItemLocation', id: 'LIST' }],
     }),
 

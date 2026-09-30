@@ -1,4 +1,4 @@
-import i18n from './i18n/config';
+import i18n, { asDynamic } from './i18n/config';
 import { ERROR_CODE_PREFIX } from './store/apis/apiError';
 
 // Ét sted til at gøre en fejl fra RTK Query/Supabase læsbar.
@@ -18,7 +18,7 @@ import { ERROR_CODE_PREFIX } from './store/apis/apiError';
 // nøglen derimod fra et endpoint som en almindelig streng og kan ikke
 // kontrolleres på forhånd. Dette er det ENESTE sted den begrænsning
 // løsnes; i18next returnerer selv nøglen uændret, hvis den ikke findes.
-const translateKey = i18n.t as (key: string) => string;
+const translateKey = asDynamic(i18n.t);
 
 function extractRawMessage(err: unknown): string | null {
   if (typeof err === 'string') return err.trim() || null;

@@ -100,7 +100,6 @@
       "deadline": "Tidigaste deadline först",
       "rejections": "Flest avslag först"
     },
-    "resetFilters": "Återställ",
     "showing": "Visar {{count}} av {{total}}",
     "noMatch": "Inga anmälningar matchar filtren.",
     "deadline": "Deadline {{date}}",

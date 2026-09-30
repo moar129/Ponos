@@ -1,11 +1,10 @@
 // src/components/News/NewsCard.tsx
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Pencil, Trash2 } from 'lucide-react'
 import { richTextToPlainText } from '../../lib/richText'
 import { formatDate } from '../../utils/formatDate'
 import type { NewsCardProps } from '../../types/news/newsType'
 import { NewsImage } from './NewsImage'
+import { NewsActions } from './NewsActions'
 
 // Ét nyhedskort - US-56's acceptkriterier (titel, beskrivelse, evt.
 // billede, dato). Rediger/slet vises uafhængigt af hinanden (Fase 3:
@@ -13,7 +12,6 @@ import { NewsImage } from './NewsImage'
 // /nyheder/:id - rediger/slet-knapperne stopper propagation, så de ikke
 // også trigger navigation.
 export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsCardProps) {
-  const { t } = useTranslation(['news', 'common'])
     const navigate = useNavigate()
 
     return (
@@ -34,36 +32,12 @@ export function NewsCard({ news, canUpdate, canDelete, onEdit, onDelete }: NewsC
                         <p className="text-xs text-secondary dark:text-slate-400 mt-0.5">{formatDate(news.publishedAt)}</p>
                     </div>
 
-                    {(canUpdate || canDelete) && (
-                        <div className="flex items-center gap-1 shrink-0">
-                            {canUpdate && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onEdit(news)
-                                    }}
-                                    aria-label={t('edit')}
-                                    className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-slate-100 hover:bg-bg-gray dark:hover:bg-slate-700 transition-colors"
-                                >
-                                    <Pencil className="w-4 h-4" />
-                                </button>
-                            )}
-                            {canDelete && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onDelete(news)
-                                    }}
-                                    aria-label={t('delete')}
-                                    className="p-1.5 rounded-md text-secondary dark:text-slate-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    <NewsActions
+                        canUpdate={canUpdate}
+                        canDelete={canDelete}
+                        onEdit={() => onEdit(news)}
+                        onDelete={() => onDelete(news)}
+                    />
                 </div>
 
                 {/* Uddrag som ren tekst - en formateret beskrivelse ville ellers

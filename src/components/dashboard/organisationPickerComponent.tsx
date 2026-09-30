@@ -1,7 +1,8 @@
 // src/components/dashboard/organisationPickerComponent.tsx
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Loader2, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
+import { Spinner } from '../common/Spinner'
 import { readableError } from '../../ErrorMessage'
 import { useSearchOrganisationsQuery } from '../../store/apis/organisationApi'
 import type { OrganisationPickerComponentProps } from '../../types/organisation/organisationType'
@@ -65,9 +66,7 @@ export function OrganisationPickerComponent({
                         {t('picker.minChars')}
                     </p>
                 ) : searching ? (
-                    <div className="flex justify-center py-6">
-                        <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                    </div>
+                    <Spinner block />
                 ) : errorMessage ? (
                     <p className="text-sm text-red-600 text-center py-6 dark:text-red-400">{errorMessage}</p>
                 ) : results.length === 0 ? (

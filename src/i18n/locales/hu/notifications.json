@@ -8,7 +8,6 @@
   "deletePermanently": "Végleges törlés",
   "deleteAriaLabel": "Értesítés végleges törlése",
   "hidden": "Elrejtve",
-  "justNow": "Épp most",
   "emptyCategory": "Nincs {{category}}.",
   "category": {
     "messages": "Üzenetek",

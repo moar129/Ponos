@@ -10,7 +10,9 @@ import {
 } from '../../store/apis/organisationApi'
 import { UPDATE_ORGANISATION_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
 import type { Organisation, OrganisationColors, OrgPalette } from '../../types/organisation/organisationType'
-import { buildOrgPalette, DEFAULT_ACCENT, DEFAULT_BAR_COLOR, DEFAULT_BAR_TEXT_COLOR } from '../../utils/orgPalette'
+import { buildOrgPalette, DEFAULT_ACCENT, DEFAULT_BAR_COLOR, DEFAULT_BAR_TEXT_COLOR, organisationColorsOf } from '../../utils/orgPalette'
+import { Alert } from '../common/Alert'
+import { DetailList, DetailRow } from '../common/DetailList'
 import { ColorSlot, ModePreview } from './colorSlot'
 
 // Rækkefølge og i18n-nøgler for de fem farver - bruges af både oversigten
@@ -26,12 +28,7 @@ const COLOR_FIELDS = [
     { field: 'footerTextColor', labelKey: 'admin.footerTextColorLabel', hintKey: 'admin.footerTextColorHint', fallback: DEFAULT_BAR_TEXT_COLOR, rendered: (p: OrgPalette) => p.footer.text },
 ] as const
 
-type ColorField = (typeof COLOR_FIELDS)[number]['field']
-type ColorForm = Record<ColorField, string | null>
-
-const emptyForm: ColorForm = {
-    color: null, headerColor: null, footerColor: null, headerTextColor: null, footerTextColor: null,
-}
+type ColorForm = ReturnType<typeof organisationColorsOf>
 
 function isValidHexColor(value: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(value)
@@ -58,18 +55,12 @@ export function OrganisationColorsPanel() {
     const [removeSavedColor] = useRemoveSavedOrganisationColorMutation()
 
     const [isEditing, setIsEditing] = useState(false)
-    const [form, setForm] = useState<ColorForm>(emptyForm)
+    const [form, setForm] = useState<ColorForm>(() => organisationColorsOf({}))
     const [validationError, setValidationError] = useState<string | null>(null)
     const [savedMessage, setSavedMessage] = useState(false)
 
     function startEdit(current: Organisation) {
-        setForm({
-            color: current.color ?? null,
-            headerColor: current.headerColor ?? null,
-            footerColor: current.footerColor ?? null,
-            headerTextColor: current.headerTextColor ?? null,
-            footerTextColor: current.footerTextColor ?? null,
-        })
+        setForm(organisationColorsOf(current))
         setValidationError(null)
         setSavedMessage(false)
         setIsEditing(true)
@@ -92,14 +83,7 @@ export function OrganisationColorsPanel() {
 
         try {
             // Mutationen skriver alle felter - navnet sendes uændret med.
-            await updateMyOrganisation({
-                name: current.name,
-                color: form.color || null,
-                headerColor: form.headerColor || null,
-                footerColor: form.footerColor || null,
-                headerTextColor: form.headerTextColor || null,
-                footerTextColor: form.footerTextColor || null,
-            }).unwrap()
+            await updateMyOrganisation({ name: current.name, ...organisationColorsOf(form) }).unwrap()
 
             setIsEditing(false)
             setSavedMessage(true)
@@ -113,11 +97,7 @@ export function OrganisationColorsPanel() {
     }
 
     if (queryError || !organisation) {
-        return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {readableError(queryError) ?? t('admin.loadFailed')}
-            </div>
-        )
+        return <Alert>{readableError(queryError) ?? t('admin.loadFailed')}</Alert>
     }
 
     const saveError = readableError(mutationError)
@@ -127,17 +107,8 @@ export function OrganisationColorsPanel() {
 
     return (
         <div>
-            {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">
-                    {t('admin.saved')}
-                </div>
-            )}
-
-            {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {validationError ?? saveError}
-                </div>
-            )}
+            {savedMessage && !isEditing && <Alert tone="success" className="mb-4">{t('admin.saved')}</Alert>}
+            <Alert className="mb-4">{validationError ?? saveError}</Alert>
 
             {isEditing ? (
                 <form onSubmit={(event) => {
@@ -179,11 +150,9 @@ export function OrganisationColorsPanel() {
                 </form>
             ) : (
                 <>
-                    <dl className="divide-y divide-border-gray border-t border-border-gray dark:divide-slate-700 dark:border-slate-700">
+                    <DetailList>
                         {COLOR_FIELDS.map(({ field, labelKey, fallback, rendered }) => (
-                            <div key={field} className="py-3 flex justify-between gap-4 items-center">
-                                <dt className="text-sm text-secondary dark:text-slate-400">{t(labelKey)}</dt>
-                                <dd className="text-sm text-right min-w-0 break-words flex flex-col items-end gap-1">
+                            <DetailRow key={field} label={t(labelKey)} className="flex flex-col items-end gap-1">
                                     <span className="flex items-center gap-2">
                                         <span
                                             className="w-4 h-4 rounded-full border border-border-gray dark:border-slate-700"
@@ -196,10 +165,9 @@ export function OrganisationColorsPanel() {
                                         light={rendered(lightPalette)}
                                         dark={rendered(darkPalette)}
                                     />
-                                </dd>
-                            </div>
+                            </DetailRow>
                         ))}
-                    </dl>
+                    </DetailList>
 
                     {canEditOrganisation && (
                         <div className="mt-6 flex flex-wrap gap-3">

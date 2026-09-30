@@ -1,13 +1,7 @@
 {
   "generic": "Er is iets misgegaan. Probeer het opnieuw.",
-  "notLoggedIn": "Je bent niet ingelogd.",
   "loginRequired": "Je moet ingelogd zijn.",
-  "loginRequiredForAction": "Je moet ingelogd zijn om deze actie uit te voeren.",
-  "loginRequiredForMembership": "Je moet ingelogd zijn om lidmaatschap aan te vragen.",
-  "loginRequiredForProfile": "Je moet ingelogd zijn om je profiel te bewerken.",
-  "loginRequiredForOrganisation": "Je moet ingelogd zijn om de organisatie te bewerken.",
   "noOrganisation": "Je bent geen lid van een organisatie.",
-  "organisationLookupFailed": "Je organisatielidmaatschap kon niet worden geladen.",
   "wrongCurrentPassword": "Je huidige wachtwoord is onjuist.",
   "passwordChangeFailed": "Het wachtwoord kon niet worden gewijzigd. Probeer het opnieuw.",
   "requestAlreadyHandled": "Het verzoek kon niet worden verwerkt. Mogelijk is het al afgehandeld, of heb je niet de juiste rechten.",

@@ -131,7 +131,6 @@
     "saveTitle": "Snapshot speichern",
     "label": "Name (optional)",
     "labelPlaceholder": "z. B. Saison 2026",
-    "saving": "Wird gespeichert...",
     "saveFailed": "Der Snapshot konnte nicht gespeichert werden.",
     "loadFailed": "Snapshots konnten nicht geladen werden.",
     "empty": "Noch keine gespeicherten Snapshots.",

@@ -1,14 +1,12 @@
 import type { ApprovalSortOption, PendingTaskRequest, Task, TaskSortOption } from '../types/Task/Task'
-import { PRIORITY_RANK } from './taskDisplay'
+import { priorityRank } from './taskDisplay'
 
 // Delt søg/sortering for /tasks, /tasks/mine og dashboardets "Dine opgaver"
 // (tidligere kopieret tre steder).
 
-const priorityRank = (task: Task): number => (task.priority ? PRIORITY_RANK[task.priority] : 5)
-
-// Manglende værdi sorteres altid sidst.
-function compareNullableAsc(a: string | null, b: string | null): number {
-    if (a && b) return a.localeCompare(b)
+// Manglende værdi sorteres altid sidst, uanset retning.
+export function compareNullable(a: string | null, b: string | null, direction: 1 | -1 = 1): number {
+    if (a && b) return direction * a.localeCompare(b)
     if (a) return -1
     if (b) return 1
     return 0
@@ -20,11 +18,11 @@ export function compareTasks(sortBy: TaskSortOption): (a: Task, b: Task) => numb
     switch (sortBy) {
         // Prioritet (manglende = sidst), så nærmeste deadline.
         case 'priority':
-            return (a, b) => priorityRank(a) - priorityRank(b) || compareNullableAsc(a.end_date, b.end_date)
+            return (a, b) => priorityRank(a.priority) - priorityRank(b.priority) || compareNullable(a.end_date, b.end_date)
         // Nærmeste deadline (manglende sidst), så prioritet, så nyeste.
         case 'deadline':
             return (a, b) =>
-                compareNullableAsc(a.end_date, b.end_date) || priorityRank(a) - priorityRank(b) || byCreatedDesc(a, b)
+                compareNullable(a.end_date, b.end_date) || priorityRank(a.priority) - priorityRank(b.priority) || byCreatedDesc(a, b)
         case 'newest':
             return byCreatedDesc
         case 'oldest':
@@ -51,7 +49,6 @@ export function matchesTaskSearch(
 
 // Godkendelseslisten (TaskApprovalsPanel). Uafgjort -> ældste
 // færdigmelding først, så ingen venter unødigt længe.
-const requestPriorityRank = (r: PendingTaskRequest): number => (r.priority ? PRIORITY_RANK[r.priority] : 5)
 const byRequestedAsc = (a: PendingTaskRequest, b: PendingTaskRequest): number => a.requestedAt.localeCompare(b.requestedAt)
 
 export function compareApprovalRequests(sortBy: ApprovalSortOption): (a: PendingTaskRequest, b: PendingTaskRequest) => number {
@@ -61,9 +58,9 @@ export function compareApprovalRequests(sortBy: ApprovalSortOption): (a: Pending
         case 'newest':
             return (a, b) => b.requestedAt.localeCompare(a.requestedAt)
         case 'priority':
-            return (a, b) => requestPriorityRank(a) - requestPriorityRank(b) || byRequestedAsc(a, b)
+            return (a, b) => priorityRank(a.priority) - priorityRank(b.priority) || byRequestedAsc(a, b)
         case 'deadline':
-            return (a, b) => compareNullableAsc(a.endDate, b.endDate) || byRequestedAsc(a, b)
+            return (a, b) => compareNullable(a.endDate, b.endDate) || byRequestedAsc(a, b)
         case 'rejections':
             return (a, b) => b.rejectionCount - a.rejectionCount || byRequestedAsc(a, b)
     }

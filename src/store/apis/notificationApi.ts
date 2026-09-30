@@ -1,10 +1,11 @@
 // src/store/apis/notificationApi.ts
-import { supabaseApi } from './supabaseApi'
+import { listTags, supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { AppNotification } from '../../types/notification/notificationTypes'
-import { mapDbError } from './apiError'
+import { mapDbError, runQuery } from './apiError'
+import { getCurrentUserId } from './session'
 
-function mapNotificationRow(row: {
+type NotificationRow = {
     id: string
     type: string
     title: string
@@ -14,7 +15,9 @@ function mapNotificationRow(row: {
     is_read: boolean
     dismissed_at: string | null
     created_at: string
-}): AppNotification {
+}
+
+function mapNotificationRow(row: NotificationRow): AppNotification {
     return {
         id: row.id,
         type: row.type as AppNotification['type'],
@@ -54,13 +57,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                 return { data: (data ?? []).map(mapNotificationRow) }
             },
 
-            providesTags: (result) =>
-                result
-                    ? [
-                        { type: 'Notification' as const, id: 'LIST' },
-                        ...result.map((n) => ({ type: 'Notification' as const, id: n.id })),
-                    ]
-                    : [{ type: 'Notification' as const, id: 'LIST' }],
+            providesTags: (result) => listTags('Notification', result),
 
             // Live-opdatering (US-B8): abonnerer på nye rækker i
             // notifications for netop mig. Da trg_notify_new_message
@@ -90,17 +87,7 @@ export const notificationApi = supabaseApi.injectEndpoints({
                         'postgres_changes',
                         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
                         (payload) => {
-                            const row = payload.new as {
-                                id: string
-                                type: string
-                                title: string
-                                body: string | null
-                                link: string | null
-                                reference_id: string | null
-                                is_read: boolean
-                                dismissed_at: string | null
-                                created_at: string
-                            }
+                            const row = payload.new as NotificationRow
 
                             // Sætter den nye notifikation direkte ind i cachen
                             // i stedet for at genhente hele listen - klokken
@@ -174,24 +161,18 @@ export const notificationApi = supabaseApi.injectEndpoints({
         }),
 
         markAllNotificationsRead: builder.mutation<void, void>({
-            queryFn: async () => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-                if (userError || !userData.user) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:loginRequired' } }
-                }
+            queryFn: () => runQuery(async () => {
+                const userId = await getCurrentUserId()
 
                 const { error } = await supabase
                     .from('notifications')
                     .update({ is_read: true })
-                    .eq('user_id', userData.user.id)
+                    .eq('user_id', userId)
                     .eq('is_read', false)
 
-                if (error) {
-                    return { error: mapDbError(error) }
-                }
-
+                if (error) return { error: mapDbError(error) }
                 return { data: undefined }
-            },
+            }),
 
             invalidatesTags: [{ type: 'Notification', id: 'LIST' }],
         }),

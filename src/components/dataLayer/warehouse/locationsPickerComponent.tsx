@@ -4,6 +4,9 @@ import { MapPin, Boxes, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { useGetItemLocationsQuery, useAddLocationMutation } from '../../../store/apis/categoryApi';
 import type { LocationPickerComponentProps } from '../../../types/dataLayer/datalayerTypes';
 import { getErrorMessage } from '../../../ErrorMessage';
+import { LocationFormFields } from './LocationFormFields';
+import { EMPTY_LOCATION_FORM, toLocationPayload } from '../../../utils/locationForm';
+import type { LocationFormValues } from '../../../types/dataLayer/datalayerTypes';
 
 
 export function LocationPickerComponent({ value, onChange, canCreate }: LocationPickerComponentProps) {
@@ -15,9 +18,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
   const [creatingKind, setCreatingKind] = useState<'warehouse' | 'section' | null>(null);
   const isCreating = creatingKind !== null;
   const isCreatingSection = creatingKind === 'section';
-  const [newName, setNewName] = useState('');
-  const [newAddress, setNewAddress] = useState('');
-  const [newDescription, setNewDescription] = useState('');
+  const [newLocation, setNewLocation] = useState<LocationFormValues>(EMPTY_LOCATION_FORM);
   const [createError, setCreateError] = useState<string | null>(null);
   const [addLocation, { isLoading: isSaving }] = useAddLocationMutation();
 
@@ -83,23 +84,19 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
   // nederst i dropdown'en.
   const openCreateWarehouse = () => {
     setSelectedWarehouseId(null);
-    setNewName('');
-    setNewAddress('');
-    setNewDescription('');
+    setNewLocation(EMPTY_LOCATION_FORM);
     setCreateError(null);
     setCreatingKind('warehouse');
   };
 
   const handleCreate = async () => {
-    if (!newName.trim()) {
+    if (!newLocation.name.trim()) {
       setCreateError(t('locations.nameRequired'));
       return;
     }
     try {
       const id = await addLocation({
-        name: newName.trim(),
-        address: newAddress.trim() || null,
-        description: newDescription.trim() || null,
+        ...toLocationPayload(newLocation),
         // Sektion under det valgte lager, eller et nyt selvstændigt lager.
         parentLocationId: isCreatingSection ? selectedWarehouseId : null,
       }).unwrap();
@@ -116,9 +113,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
       }
 
       setCreatingKind(null);
-      setNewName('');
-      setNewAddress('');
-      setNewDescription('');
+      setNewLocation(EMPTY_LOCATION_FORM);
       setCreateError(null);
     } catch (err) {
       setCreateError(getErrorMessage(err, t('locations.createFailed')));
@@ -147,28 +142,7 @@ export function LocationPickerComponent({ value, onChange, canCreate }: Location
           <p className="text-xs text-secondary dark:text-slate-400">
             {isCreatingSection ? t('locations.creatingSectionHint') : t('locations.creatingWarehouseHint')}
           </p>
-          <input
-            type="text"
-            autoFocus
-            placeholder={isCreatingSection ? t('locations.sectionNamePlaceholder') : t('locations.namePlaceholder')}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-          />
-          <input
-            type="text"
-            placeholder={t('locations.addressOptional')}
-            value={newAddress}
-            onChange={(e) => setNewAddress(e.target.value)}
-            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-          />
-          <input
-            type="text"
-            placeholder={t('locations.descriptionOptional')}
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            className="w-full bg-white border border-border-gray rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-          />
+          <LocationFormFields values={newLocation} onChange={setNewLocation} isSection={isCreatingSection} />
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"

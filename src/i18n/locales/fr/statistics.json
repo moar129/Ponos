@@ -133,7 +133,6 @@
     "saveTitle": "Enregistrer l'instantané",
     "label": "Nom (facultatif)",
     "labelPlaceholder": "Ex. Saison 2026",
-    "saving": "Enregistrement...",
     "saveFailed": "L'instantané n'a pas pu être enregistré.",
     "loadFailed": "Les instantanés n'ont pas pu être chargés.",
     "empty": "Aucun instantané enregistré pour le moment.",

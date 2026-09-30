@@ -8,7 +8,6 @@
   "deletePermanently": "Slet permanent",
   "deleteAriaLabel": "Slet notifikation permanent",
   "hidden": "Skjult",
-  "justNow": "Lige nu",
   "emptyCategory": "Ingen {{category}}.",
   "category": {
     "messages": "Beskeder",

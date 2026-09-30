@@ -101,7 +101,6 @@
       "deadline": "Échéance la plus proche d'abord",
       "rejections": "Plus de refus d'abord"
     },
-    "resetFilters": "Réinitialiser",
     "showing": "{{count}} sur {{total}}",
     "noMatch": "Aucune demande ne correspond aux filtres.",
     "deadline": "Échéance {{date}}",

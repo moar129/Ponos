@@ -18,11 +18,13 @@ import {
     snapshotPeriodDays,
     sortChronologically,
 } from '../../utils/statisticsSnapshot'
-import { ConfirmDialogComponent } from '../dataLayer/confirmDialogComponent'
+import { ConfirmDialog } from '../common/ConfirmDialog';
 import { SaveSnapshotModal } from './SaveSnapshotModal'
 import { SnapshotComparisonTable } from './SnapshotComparisonTable'
 import type { SnapshotSaveRequest, StatisticsSnapshot } from '../../types/statistics/statisticsTypes'
 import type { SnapshotPanelProps } from '../../types/statistics/statisticsComponentTypes'
+import { lastIncludedDay } from '../../utils/calendar'
+import { formatNumericDayMonth } from '../../utils/formatDate'
 
 // US-52 (save) + US-54 (compare). Save and delete are gated independently;
 // the server enforces both (save_statistics_snapshot / delete policy).
@@ -45,13 +47,12 @@ export function SnapshotPanel({ viewPeriod, timeZone }: SnapshotPanelProps) {
     const selected = sortChronologically(snapshots.filter((snapshot) => selectedIds.includes(snapshot.id)))
     const isFull = selected.length >= MAX_COMPARED_SNAPSHOTS
 
-    const shortDate = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'numeric' })
     const snapshotMeta = (snapshot: StatisticsSnapshot) =>
         [
-            `${shortDate.format(new Date(snapshot.periodStart))}–${shortDate.format(new Date(Date.parse(snapshot.periodEnd) - 1))} ${new Date(Date.parse(snapshot.periodEnd) - 1).getFullYear()}`,
+            `${formatNumericDayMonth(snapshot.periodStart)}–${formatNumericDayMonth(lastIncludedDay(snapshot.periodEnd))} ${lastIncludedDay(snapshot.periodEnd).getFullYear()}`,
             t('snapshots.days', { count: snapshotPeriodDays(snapshot) }),
             snapshot.seriesGranularity ? t(`snapshots.per.${snapshot.seriesGranularity}`) : null,
-            t('snapshots.savedOn', { date: shortDate.format(new Date(snapshot.createdAt)) }),
+            t('snapshots.savedOn', { date: formatNumericDayMonth(snapshot.createdAt) }),
         ]
             .filter(Boolean)
             .join(' · ')
@@ -200,7 +201,7 @@ export function SnapshotPanel({ viewPeriod, timeZone }: SnapshotPanelProps) {
                 />
             )}
 
-            <ConfirmDialogComponent
+            <ConfirmDialog
                 isOpen={toDelete !== null}
                 title={t('snapshots.deleteTitle')}
                 message={toDelete ? t('snapshots.deleteMessage', { name: snapshotName(toDelete, i18n.language) }) : ''}

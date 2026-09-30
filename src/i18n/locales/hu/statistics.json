@@ -131,7 +131,6 @@
     "saveTitle": "Pillanatkép mentése",
     "label": "Név (nem kötelező)",
     "labelPlaceholder": "Pl. 2026-os szezon",
-    "saving": "Mentés...",
     "saveFailed": "A pillanatképet nem sikerült menteni.",
     "loadFailed": "A pillanatképeket nem sikerült betölteni.",
     "empty": "Még nincs mentett pillanatkép.",

@@ -9,6 +9,7 @@ import type {
     SnapshotPeriodType,
 } from '../../types/statistics/statisticsTypes'
 import type { SaveSnapshotModalProps } from '../../types/statistics/statisticsComponentTypes'
+import { Modal } from '../common/Modal'
 
 const GRANULARITIES: SnapshotGranularity[] = ['week', 'month', 'quarter']
 const PERIOD_TYPES: SnapshotPeriodType[] = ['year', 'quarter', 'month', 'custom', 'view']
@@ -133,106 +134,20 @@ export function SaveSnapshotModal({
     }
 
     return (
-        <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
-            onMouseDown={(event) => {
-                if (event.target === event.currentTarget && !isSaving) onClose()
+        <Modal
+            onClose={onClose}
+            icon={Save}
+            title={t('snapshots.saveTitle')}
+            subtitle={<>{t('snapshots.saveIntro')}<span className="mt-1 block text-xs">{t('snapshots.wholeOrganisationNote')}</span></>}
+            size="lg"
+            disableClose={isSaving}
+            onSubmit={(event) => {
+            event.preventDefault()
+            if (!range) return
+            onSave({ start: range.start, end: range.end, label: label.trim() || range.name, granularity })
             }}
-        >
-            <form
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="statistics-save-title"
-                className="max-h-full w-full max-w-lg overflow-y-auto rounded-lg bg-white p-5 shadow-xl dark:bg-slate-800"
-                onSubmit={(event) => {
-                    event.preventDefault()
-                    if (!range) return
-                    onSave({ start: range.start, end: range.end, label: label.trim() || range.name, granularity })
-                }}
-            >
-                <div className="flex items-center gap-3">
-                    <Save className="h-5 w-5 text-secondary dark:text-slate-400" />
-                    <div>
-                        <h2 id="statistics-save-title" className="font-semibold text-primary dark:text-slate-100">
-                            {t('snapshots.saveTitle')}
-                        </h2>
-                        <p className="text-sm text-secondary dark:text-slate-400">{t('snapshots.saveIntro')}</p>
-                        <p className="mt-1 text-xs text-secondary dark:text-slate-400">{t('snapshots.wholeOrganisationNote')}</p>
-                    </div>
-                </div>
-
-                <fieldset className="mt-5">
-                    <legend className="mb-2 text-sm font-medium text-primary dark:text-slate-200">
-                        {t('snapshots.periodLabel')}
-                    </legend>
-
-                    <div className="space-y-2">
-                        {PERIOD_TYPES.map((type) => (
-                            <div key={type} className="flex flex-wrap items-center gap-2">
-                                <label className="flex min-w-[9rem] cursor-pointer items-center gap-2 text-sm text-primary dark:text-slate-100">
-                                    <input
-                                        type="radio"
-                                        name="snapshot-period"
-                                        checked={choice.type === type}
-                                        onChange={() => update({ type })}
-                                        className="accent-[var(--color-accent)]"
-                                    />
-                                    {t(`snapshots.periodType.${type}`)}
-                                </label>
-                                {periodControls(type)}
-                            </div>
-                        ))}
-                    </div>
-
-                    {choice.type === 'custom' && !range && choice.from && choice.to && (
-                        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
-                            {t('custom.endBeforeStart')}
-                        </p>
-                    )}
-                </fieldset>
-
-                <label htmlFor="statistics-snapshot-label" className="mb-1 mt-5 block text-sm font-medium text-primary dark:text-slate-200">
-                    {t('snapshots.label')}
-                </label>
-                <input
-                    id="statistics-snapshot-label"
-                    type="text"
-                    value={label}
-                    maxLength={80}
-                    placeholder={range?.name ?? t('snapshots.labelPlaceholder')}
-                    onChange={(event) => setLabel(event.target.value)}
-                    className={INPUT}
-                />
-                {range && !label.trim() && (
-                    <p className="mt-1 text-xs text-secondary dark:text-slate-400">
-                        {t('snapshots.labelAuto', { name: range.name })}
-                    </p>
-                )}
-
-                <label htmlFor="statistics-snapshot-granularity" className="mb-1 mt-4 block text-sm font-medium text-primary dark:text-slate-200">
-                    {t('snapshots.granularity')}
-                </label>
-                <select
-                    id="statistics-snapshot-granularity"
-                    value={granularity}
-                    onChange={(event) => setChosenGranularity(event.target.value as SnapshotGranularity)}
-                    className={INPUT}
-                >
-                    {GRANULARITIES.map((option) => (
-                        <option key={option} value={option}>
-                            {t(`snapshots.granularityOption.${option}`)}
-                        </option>
-                    ))}
-                </select>
-                <p className="mt-1 text-xs text-secondary dark:text-slate-400">{t('snapshots.granularityHint')}</p>
-
-                {error && (
-                    <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">
-                        {error}
-                    </p>
-                )}
-
-                <div className="mt-5 flex justify-end gap-2">
+            footer={
+                <>
                     <button
                         type="button"
                         onClick={onClose}
@@ -248,10 +163,81 @@ export function SaveSnapshotModal({
                         className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-accent dark:text-accent-text"
                     >
                         {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {isSaving ? t('snapshots.saving') : t('common:save')}
+                        {isSaving ? t('common:saving') : t('common:save')}
                     </button>
+                </>
+            }
+        >
+            <fieldset>
+                <legend className="mb-2 text-sm font-medium text-primary dark:text-slate-200">
+                    {t('snapshots.periodLabel')}
+                </legend>
+
+                <div className="space-y-2">
+                    {PERIOD_TYPES.map((type) => (
+                        <div key={type} className="flex flex-wrap items-center gap-2">
+                            <label className="flex min-w-[9rem] cursor-pointer items-center gap-2 text-sm text-primary dark:text-slate-100">
+                                <input
+                                    type="radio"
+                                    name="snapshot-period"
+                                    checked={choice.type === type}
+                                    onChange={() => update({ type })}
+                                    className="accent-[var(--color-accent)]"
+                                />
+                                {t(`snapshots.periodType.${type}`)}
+                            </label>
+                            {periodControls(type)}
+                        </div>
+                    ))}
                 </div>
-            </form>
-        </div>
+
+                {choice.type === 'custom' && !range && choice.from && choice.to && (
+                    <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+                        {t('custom.endBeforeStart')}
+                    </p>
+                )}
+            </fieldset>
+
+            <label htmlFor="statistics-snapshot-label" className="mb-1 mt-5 block text-sm font-medium text-primary dark:text-slate-200">
+                {t('snapshots.label')}
+            </label>
+            <input
+                id="statistics-snapshot-label"
+                type="text"
+                value={label}
+                maxLength={80}
+                placeholder={range?.name ?? t('snapshots.labelPlaceholder')}
+                onChange={(event) => setLabel(event.target.value)}
+                className={INPUT}
+            />
+            {range && !label.trim() && (
+                <p className="mt-1 text-xs text-secondary dark:text-slate-400">
+                    {t('snapshots.labelAuto', { name: range.name })}
+                </p>
+            )}
+
+            <label htmlFor="statistics-snapshot-granularity" className="mb-1 mt-4 block text-sm font-medium text-primary dark:text-slate-200">
+                {t('snapshots.granularity')}
+            </label>
+            <select
+                id="statistics-snapshot-granularity"
+                value={granularity}
+                onChange={(event) => setChosenGranularity(event.target.value as SnapshotGranularity)}
+                className={INPUT}
+            >
+                {GRANULARITIES.map((option) => (
+                    <option key={option} value={option}>
+                        {t(`snapshots.granularityOption.${option}`)}
+                    </option>
+                ))}
+            </select>
+            <p className="mt-1 text-xs text-secondary dark:text-slate-400">{t('snapshots.granularityHint')}</p>
+
+            {error && (
+                <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">
+                    {error}
+                </p>
+            )}
+        </Modal>
     )
 }

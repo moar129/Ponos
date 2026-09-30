@@ -7,7 +7,6 @@
     "ownRow": "Du kan ikke ændre din egen række",
     "adminLockedTitle": "Kun en administrator kan ændre en anden administrators rolle",
     "locked": "Låst",
-    "remove": "Fjern",
     "confirmRemove": "Er du sikker på at du vil fjerne {{name}} fra organisationen?",
     "removing": "Fjerner...",
     "confirmRemoveYes": "Ja, fjern",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Inviter via email",
     "send": "Send invitation",
-    "sending": "Sender...",
     "pendingHeading": "Ventende invitationer",
     "loading": "Indlæser invitationer...",
     "empty": "Ingen ventende invitationer.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Ja, annullér",
     "undo": "Fortryd",
     "emailPlaceholder": "navn@eksempel.dk",
-    "invitedOn": "Inviteret",
-    "invitedOnDate": "Inviteret {{date}}"
+    "invitedOnDate": "Inviteret {{date}}",
+    "sentTo": "Invitation sendt til {{email}}."
   },
   "requests": {
     "loading": "Indlæser anmodninger...",
     "empty": "Der er ingen ventende anmodninger.",
     "confirmAccept": "Er du sikker på, at {{name}} skal optages i organisationen?",
     "confirmReject": "Er du sikker på, at anmodningen skal afvises? {{name}} kan anmode igen senere.",
-    "processing": "Behandler...",
-    "yes": "Ja",
     "accept": "Accepter",
     "reject": "Afvis",
     "requestedOn": "Anmodet {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Skriv organisationens navn ({{name}}) for at bekræfte",
     "ackDataLoss": "Jeg forstår at al organisationens data (opgaver, items, kategorier, lokationer og statistik) slettes permanent og ikke kan gendannes.",
     "ackMemberImpact": "Jeg forstår at de {{count}} andre medlemmer mister deres adgang med det samme.",
-    "deleting": "Sletter...",
     "deletePermanently": "Slet permanent",
     "deleted": "\"{{name}}\" er slettet.",
     "deletedNewActive": "\"{{name}}\" er slettet. Din aktive organisation er nu \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Farven på tekst og ikoner i topbjælken. Tom = vælges automatisk, så den kan læses på baggrunden.",
     "footerTextColorLabel": "Bundbjælke – tekst",
     "footerTextColorHint": "Farven på teksten i bundbjælken. Tom = vælges automatisk, så den kan læses på baggrunden.",
-    "colorPickerAriaLabel": "Vælg knap- og linkfarve",
-    "colorReset": "Nulstil",
     "colorUseDefault": "Brug standard",
     "colorNoneSet": "Ingen valgt (standard)",
     "previewLight": "Lys",
@@ -117,16 +110,11 @@
     "memberCount": "Antal medlemmer"
   },
   "myInvitations": {
-    "loading": "Indlæser invitationer...",
     "empty": "Du har ingen ventende invitationer.",
     "accept": "Acceptér",
     "reject": "Afvis",
     "confirmAccept": "Er du sikker på, at du vil blive medlem af {{name}}?",
-    "confirmReject": "Er du sikker på, at invitationen skal afvises?",
-    "processing": "Behandler...",
-    "yes": "Ja",
-    "invitedOn": "Inviteret",
-    "invitedOnDate": "Inviteret {{date}}"
+    "confirmReject": "Er du sikker på, at invitationen skal afvises?"
   },
   "myOrganisations": {
     "loading": "Indlæser dine organisationer...",
@@ -141,6 +129,5 @@
     "left": "Du har forladt \"{{name}}\".",
     "leftNewActive": "Du har forladt \"{{name}}\". Din aktive organisation er nu \"{{newActive}}\".",
     "leftNoActive": "Du har forladt \"{{name}}\". Du har ingen aktiv organisation længere."
-  },
-  "genericLoading": "Indlæser..."
+  }
 }

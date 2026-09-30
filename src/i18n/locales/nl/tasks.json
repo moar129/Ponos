@@ -11,7 +11,6 @@
     "Critical": "Kritiek"
   },
   "fields": {
-    "title": "Titel",
     "description": "Beschrijving",
     "room": "Ruimte",
     "priority": "Prioriteit",
@@ -35,7 +34,6 @@
     "inProgressHeading": "Bezig"
   },
   "mine": {
-    "loading": "Je taken worden geladen...",
     "noAccess": "Je hebt geen toegang om je taken in deze organisatie te bekijken.",
     "heading": "Mijn taken",
     "subtitle": "Krijg een overzicht van de taken waaraan je bent toegewezen.",
@@ -92,7 +90,7 @@
     "nobodyToAssign": "Er zijn geen medewerkers om toe te wijzen.",
     "signUp": "Inschrijven",
     "signOff": "Uitschrijven",
-    "employee": "Medewerker"
+    "maxOf": "Max. {{people}}"
   },
   "card": {
     "noDescription": "Geen beschrijving",
@@ -101,12 +99,10 @@
     "awaitingApproval": "Wacht op goedkeuring",
     "markDone": "Gereedmelden",
     "priorityBadge": "Prioriteit: {{priority}}",
-    "edit": "Bewerken",
     "details": "Taakdetails",
     "responsible": "Toegewezen aan",
     "start": "Start",
     "end": "Einde",
-    "statusLabel": "Status:",
     "addEmployeeShort": "+ Medewerker toevoegen",
     "created": "Aangemaakt",
     "statusValue": "Status: {{status}}",
@@ -117,7 +113,6 @@
     "show": "Filter tonen",
     "hide": "Filter verbergen",
     "searchPlaceholder": "Zoek op titel, beschrijving, ruimte of persoon...",
-    "all": "Alle",
     "sortNewest": "Nieuwste",
     "sortOldest": "Oudste",
     "sortPriority": "Prioriteit",
@@ -135,15 +130,12 @@
     "chooseTasks": "Kies de taken die ook verwijderd moeten worden.",
     "noTasks": "Er zijn geen taken in deze ruimte.",
     "keptNote": "Taken die je niet selecteert worden niet verwijderd. Ze worden in plaats daarvan verplaatst naar <b>{{room}}</b>.",
-    "failed": "De ruimte kon niet worden verwijderd. Probeer het opnieuw.",
-    "deleting": "Bezig met verwijderen...",
     "submit": "Ruimte verwijderen"
   },
   "editRoom": {
     "heading": "Ruimte bewerken",
     "intro": "Kies een ruimte en bewerk de naam en toegang.",
-    "namePlaceholder": "Schrijf een naam voor de ruimte",
-    "failed": "De ruimte kon niet worden bewerkt. Probeer het opnieuw."
+    "namePlaceholder": "Schrijf een naam voor de ruimte"
   },
   "favorites": {
     "toggleFailed": "Kon favoriete ruimte niet bijwerken."

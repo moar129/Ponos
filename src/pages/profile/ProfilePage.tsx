@@ -1,17 +1,19 @@
 // src/pages/profile/ProfilePage.tsx
 import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import type { FormEvent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 import { useGetMyProfileQuery, useUpdateMyProfileMutation } from '../../store/apis/profileApi'
-import { useSignOutMutation } from '../../store/apis/authApi'
+import { useSignOutAndRedirect } from '../../store/hooks/useNavItems'
 import ChangePasswordForm from '../../components/profile/ChangePasswordForm'
 import { PreferencesSection } from '../../components/profile/PreferencesSection'
 import { NotificationSettingsSection } from '../../components/profile/NotificationSettingsSection'
 import { NOTIFICATION_SETTINGS_ANCHOR } from '../../utils/notificationDisplay'
 import { readableError } from '../../ErrorMessage'
 import { Avatar } from '../../components/common/Avatar'
+import { Alert } from '../../components/common/Alert'
+import { DetailList, DetailRow } from '../../components/common/DetailList'
+import { formatFullName } from '../../utils/personName'
 import type { Profile, UpdateProfileInput } from '../../types/profile/profileType'
 
 // Tom formular-tilstand, indtil brugeren trykker "Rediger profil" og
@@ -27,11 +29,10 @@ const emptyForm: UpdateProfileInput = {
 // oplysninger og kan skifte til en redigerings-tilstand for de felter,
 // brugeren selv må ændre. Rolle, organisation og e-mail vises kun.
 export default function ProfilePage() {
-    const navigate = useNavigate()
     const { t } = useTranslation(['profile', 'common'])
     const { data: profile, isLoading, error: queryError } = useGetMyProfileQuery()
     const [updateMyProfile, { isLoading: saving, error: mutationError }] = useUpdateMyProfileMutation()
-    const [signOut, { isLoading: signingOut }] = useSignOutMutation()
+    const { signOutAndRedirect: handleSignOut, signingOut } = useSignOutAndRedirect()
 
     const [isEditing, setIsEditing] = useState(false)
     const [form, setForm] = useState<UpdateProfileInput>(emptyForm)
@@ -53,13 +54,6 @@ export default function ProfilePage() {
     function cancelEdit() {
         setIsEditing(false)
         setValidationError(null)
-    }
-
-    async function handleSignOut() {
-        await signOut()
-        // Auth-listeneren i authApi rydder selv cachen; her sikrer vi bare
-        // at brugeren ikke bliver stående på den beskyttede profilside.
-        navigate('/login')
     }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -97,11 +91,7 @@ export default function ProfilePage() {
     }
 
     if (queryError) {
-        return (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
-                {readableError(queryError)}
-            </div>
-        )
+        return <Alert>{readableError(queryError)}</Alert>
     }
 
     if (!profile) {
@@ -123,23 +113,14 @@ export default function ProfilePage() {
                 />
                 <div>
                     <h1 className="text-xl font-semibold text-primary dark:text-slate-100">
-                        {profile.firstName} {profile.lastName}
+                        {formatFullName(profile.firstName, profile.lastName)}
                     </h1>
                     <p className="text-sm text-secondary dark:text-slate-400">{profile.email}</p>
                 </div>
             </div>
 
-            {savedMessage && !isEditing && (
-                <div className="mb-4 rounded-md bg-green-50 dark:bg-emerald-900/30 border border-green-200 dark:border-emerald-800 text-green-700 dark:text-emerald-400 text-sm px-3 py-2">
-                    {t('saved')}
-                </div>
-            )}
-
-            {(validationError || saveError) && (
-                <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-3 py-2">
-                    {validationError ?? saveError}
-                </div>
-            )}
+            {savedMessage && !isEditing && <Alert tone="success" className="mb-4">{t('saved')}</Alert>}
+            <Alert className="mb-4">{validationError ?? saveError}</Alert>
 
             {isEditing ? (
                 <form onSubmit={handleSubmit}>
@@ -214,41 +195,17 @@ export default function ProfilePage() {
                 </form>
             ) : (
                 <>
-                    <dl className="divide-y divide-border-gray dark:divide-slate-700 border-t border-border-gray dark:border-slate-700">
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.firstName')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">{profile.firstName}</dd>
-                        </div>
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.lastName')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">{profile.lastName}</dd>
-                        </div>
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.email')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">{profile.email}</dd>
-                        </div>
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.organisation')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">
-                                {profile.organisationName ?? t('empty.organisation')}
-                            </dd>
-                        </div>
+                    <DetailList>
+                        <DetailRow label={t('fields.firstName')}>{profile.firstName}</DetailRow>
+                        <DetailRow label={t('fields.lastName')}>{profile.lastName}</DetailRow>
+                        <DetailRow label={t('fields.email')}>{profile.email}</DetailRow>
+                        <DetailRow label={t('fields.organisation')}>{profile.organisationName ?? t('empty.organisation')}</DetailRow>
                         {/* Rolle vises kun, hvis brugeren har en aktiv organisation */}
                         {profile.activeOrganisationId && (
-                            <div className="py-3 flex justify-between gap-4">
-                                <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.role')}</dt>
-                                <dd className="text-sm text-right min-w-0 break-words">
-                                    {profile.roleName ?? t('empty.role')}
-                                </dd>
-                            </div>
+                            <DetailRow label={t('fields.role')}>{profile.roleName ?? t('empty.role')}</DetailRow>
                         )}
-                        <div className="py-3 flex justify-between gap-4">
-                            <dt className="text-sm text-secondary dark:text-slate-400">{t('fields.description')}</dt>
-                            <dd className="text-sm text-right min-w-0 break-words">
-                                {profile.description ?? t('empty.description')}
-                            </dd>
-                        </div>
-                    </dl>
+                        <DetailRow label={t('fields.description')}>{profile.description ?? t('empty.description')}</DetailRow>
+                    </DetailList>
 
                     <div className="mt-6 flex flex-wrap gap-3">
                         <button
@@ -271,40 +228,36 @@ export default function ProfilePage() {
                 </>
             )}
 
-            {/* Sprog + tema. Ligger uden for profilformularen, fordi begge
-                gemmes i browseren og ikke i profiles-tabellen. Skjules
-                under redigering, som afsnittet nedenfor. */}
+            {/* Afsnittene nedenfor skjules under redigering, så der ikke
+                står to formularer oven på hinanden. */}
             {!isEditing && (
-                <section className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
-                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
-                        {t('preferences.title')}
-                    </h2>
-                    <PreferencesSection />
-                </section>
-            )}
+                <>
+                    {/* Sprog + tema - gemmes i browseren, ikke i profiles-tabellen. */}
+                    <ProfileSection title={t('preferences.title')}>
+                        <PreferencesSection />
+                    </ProfileSection>
 
-            {/* US-79: notifikationsindstillinger - gemmes i databasen med
-                det samme (notification_preferences), ingen Gem-knap. */}
-            {!isEditing && (
-                <section
-                    id={NOTIFICATION_SETTINGS_ANCHOR}
-                    className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700"
-                >
-                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">
-                        {t('notifications.title')}
-                    </h2>
-                    <NotificationSettingsSection />
-                </section>
-            )}
+                    {/* US-79: notifikationsindstillinger - gemmes i databasen
+                        med det samme (notification_preferences), ingen Gem-knap. */}
+                    <ProfileSection title={t('notifications.title')} id={NOTIFICATION_SETTINGS_ANCHOR}>
+                        <NotificationSettingsSection />
+                    </ProfileSection>
 
-            {/* US-69: eget afsnit nederst. Skjules under redigering, så
-                der ikke står to formularer oven på hinanden. */}
-            {!isEditing && (
-                <section className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
-                    <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">{t('passwordHeading')}</h2>
-                    <ChangePasswordForm />
-                </section>
+                    {/* US-69 */}
+                    <ProfileSection title={t('passwordHeading')}>
+                        <ChangePasswordForm />
+                    </ProfileSection>
+                </>
             )}
         </div>
+    )
+}
+
+function ProfileSection({ title, id, children }: { title: string; id?: string; children: ReactNode }) {
+    return (
+        <section id={id} className="mt-8 pt-6 border-t border-border-gray dark:border-slate-700">
+            <h2 className="text-lg font-semibold text-primary dark:text-slate-100 mb-4">{title}</h2>
+            {children}
+        </section>
     )
 }

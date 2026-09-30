@@ -2,7 +2,9 @@
 import { supabaseApi } from './supabaseApi'
 import { supabase } from '../../lib/supabase'
 import type { AssignRoleInput, CreateRoleInput, CreateRoleWithPrivilegesInput, OrganisationMember, Role, UpdateRoleInput } from '../../types/role/roleType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, runQuery } from './apiError'
+import { getActiveOrganisationId } from './session'
+import { fetchProfilesByIds } from './profileApi'
 
 // Navnet på organisationens indbyggede administrator-rolle. Sammen med
 // ADMIN_PRIVILEGE (privilegeApi.ts) bruges det til at låse netop denne
@@ -17,34 +19,6 @@ export const ADMIN_ROLE_NAME = 'Admin'
 // i dbSchema.sql). Bruges her til at låse netop denne rolle mod omdøb/
 // slet i UI'en, samme mønster som ADMIN_ROLE_NAME.
 export const MEMBER_ROLE_NAME = 'Medlem'
-
-// Slår den indloggede brugers AKTIVE organisation op (US-59). Samme
-// mønster som updateMyOrganisation i organisationApi.ts - roller/
-// tildelinger skal altid ske inden for administratorens aktive
-// organisation, aldrig i en anden af brugerens organisationer.
-async function getActiveOrganisationId(): Promise<{ organisationId: string } | { error: string }> {
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !userData.user) {
-        return { error: 'errors:loginRequiredForAction' }
-    }
-
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('active_organisation_id')
-        .eq('id', userData.user.id)
-        .maybeSingle()
-
-    if (profileError) {
-        return { error: profileError.message }
-    }
-
-    if (!profile?.active_organisation_id) {
-        return { error: 'errors:noOrganisation' }
-    }
-
-    return { organisationId: profile.active_organisation_id }
-}
 
 export const roleApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -71,38 +45,24 @@ export const roleApi = supabaseApi.injectEndpoints({
         // ("Admin kan oprette roller i egen organisation") afviser dette
         // server-side for ikke-admins.
         createRole: builder.mutation<Role, CreateRoleInput>({
-            queryFn: async ({ name }) => {
+            queryFn: ({ name }) => runQuery(async () => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
-                }
+                if (!trimmed) return { error: errorCode('required.roleName') }
 
-                const org = await getActiveOrganisationId()
-                if ('error' in org) {
-                    return { error: { status: 'CUSTOM_ERROR', error: org.error } }
-                }
+                // Roller oprettes altid i administratorens AKTIVE organisation (US-59).
+                const organisationId = await getActiveOrganisationId()
 
                 const { data, error } = await supabase
                     .from('roles')
-                    .insert({ organisation_id: org.organisationId, name: trimmed })
+                    .insert({ organisation_id: organisationId, name: trimmed })
                     .select('id, name')
                     .single()
 
-                if (error) {
-                    // Postgres-fejlkode 23505 = unique constraint violation
-                    // (organisation_id, name) - der findes allerede en rolle
-                    // med dette navn i organisationen.
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
-                }
-
+                // unique (organisation_id, name): rollenavnet findes allerede.
+                if (error) return { error: mapDbError(error, { unique: 'duplicateRoleName' }) }
                 return { data }
-            },
+            }),
 
             invalidatesTags: ['Role'],
         }),
@@ -115,26 +75,17 @@ export const roleApi = supabaseApi.injectEndpoints({
             queryFn: async ({ name, privilegeNames }) => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
-                }
+                if (!trimmed) return { error: errorCode('required.roleName') }
 
                 const { data, error } = await supabase.rpc('create_role_with_privileges', {
                     p_name: trimmed,
                     p_privilege_names: privilegeNames,
                 })
 
-                if (error) {
-                    if (error.code === '23505') {
-                        return { error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' } }
-                    }
-                    return { error: mapDbError(error) }
-                }
+                if (error) return { error: mapDbError(error, { unique: 'duplicateRoleName' }) }
 
                 const role = (data as Role[] | null)?.[0]
-                if (!role) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:generic' } }
-                }
+                if (!role) return { error: errorCode('generic') }
 
                 return { data: role }
             },
@@ -149,23 +100,14 @@ export const roleApi = supabaseApi.injectEndpoints({
             queryFn: async ({ roleId, name }) => {
                 const trimmed = name.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.roleName' } }
-                }
+                if (!trimmed) return { error: errorCode('required.roleName') }
 
                 const { error } = await supabase
                     .from('roles')
                     .update({ name: trimmed })
                     .eq('id', roleId)
 
-                if (error) {
-                    if (error.code === '23505') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:duplicateRoleName' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
-                }
+                if (error) return { error: mapDbError(error, { unique: 'duplicateRoleName' }) }
 
                 return { data: undefined }
             },
@@ -195,72 +137,51 @@ export const roleApi = supabaseApi.injectEndpoints({
         }),
 
         // Henter medlemmerne af administratorens AKTIVE organisation, så de
-        // kan tildeles en rolle (US-11). US-59: medlemskab (og dermed rolle)
-        // ligger nu på memberships, ikke profiles - hentes i to kald i
-        // stedet for en PostgREST-join (samme mønster som
-        // getPendingMembershipRequests i membershipApi.ts), da en enkelt
-        // fejlende join ellers ville vælte hele medlemslisten.
-        // Henter medlemmerne af administratorens AKTIVE organisation, så de kan
-// tildeles en rolle (US-11) og bruges som kontaktliste (US-B1). Rolle-
-// navn og profilbillede hentes med, så kontaktlisten kan vise dem uden
-// et ekstra kald per medlem.
+        // kan tildeles en rolle (US-11), bruges som kontaktliste (US-B1) og
+        // som tilmeldingsliste på opgaver. US-59: medlemskab (og dermed
+        // rolle) ligger på memberships, ikke profiles. Rollenavn og
+        // profilbillede hentes med, så listerne kan vise dem uden et ekstra
+        // kald per medlem.
         getOrganisationMembers: builder.query<OrganisationMember[], void>({
-            queryFn: async () => {
-                const org = await getActiveOrganisationId()
-                if ('error' in org) {
-                    return { error: { status: 'CUSTOM_ERROR', error: org.error } }
-                }
+            queryFn: () => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
                 const { data: memberships, error: membershipsError } = await supabase
                     .from('memberships')
                     .select('user_id, role_id')
-                    .eq('organisation_id', org.organisationId)
+                    .eq('organisation_id', organisationId)
 
-                if (membershipsError) {
-                    return { error: mapDbError(membershipsError) }
-                }
+                if (membershipsError) return { error: mapDbError(membershipsError) }
+                if (!memberships || memberships.length === 0) return { data: [] }
 
-                if (!memberships || memberships.length === 0) {
-                    return { data: [] }
-                }
-
-                const [{ data: profiles, error: profilesError }, { data: roles, error: rolesError }] = await Promise.all([
-                    supabase
-                        .from('profiles')
-                        .select('id, first_name, last_name, email, url_picture')
-                        .in('id', memberships.map((m) => m.user_id))
-                        .order('first_name'),
-                    supabase
-                        .from('roles')
-                        .select('id, name')
-                        .eq('organisation_id', org.organisationId),
+                const [profileById, { data: roles, error: rolesError }] = await Promise.all([
+                    fetchProfilesByIds(memberships.map((m) => m.user_id)),
+                    supabase.from('roles').select('id, name').eq('organisation_id', organisationId),
                 ])
 
-                if (profilesError) {
-                    return { error: mapDbError(profilesError) }
-                }
-                if (rolesError) {
-                    return { error: mapDbError(rolesError) }
-                }
+                if (rolesError) return { error: mapDbError(rolesError) }
 
-                const roleIdByUserId = new Map(memberships.map((m) => [m.user_id, m.role_id]))
                 const roleNameById = new Map((roles ?? []).map((r) => [r.id, r.name]))
 
+                const members: OrganisationMember[] = memberships.flatMap((membership) => {
+                    const profile = profileById.get(membership.user_id)
+                    if (!profile) return []
+                    const roleId: string | null = membership.role_id ?? null
+                    return [{
+                        id: profile.id,
+                        firstName: profile.first_name,
+                        lastName: profile.last_name,
+                        email: profile.email,
+                        roleId,
+                        roleName: roleId ? roleNameById.get(roleId) ?? null : null,
+                        urlPicture: profile.url_picture,
+                    }]
+                })
+
                 return {
-                    data: (profiles ?? []).map((profile) => {
-                        const roleId = roleIdByUserId.get(profile.id) ?? null
-                        return {
-                            id: profile.id,
-                            firstName: profile.first_name,
-                            lastName: profile.last_name,
-                            email: profile.email,
-                            roleId,
-                            roleName: roleId ? roleNameById.get(roleId) ?? null : null,
-                            urlPicture: profile.url_picture,
-                        }
-                    }),
+                    data: members.sort((a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? '')),
                 }
-            },
+            }),
 
             providesTags: ['Role'],
         }),
@@ -274,31 +195,20 @@ export const roleApi = supabaseApi.injectEndpoints({
         // administratoren forsøger at tildele sig selv en rolle - UI'en
         // undgår desuden at vise kontrollen for administratorens egen række.
         assignRole: builder.mutation<void, AssignRoleInput>({
-            queryFn: async ({ userId, roleId }) => {
-                const org = await getActiveOrganisationId()
-                if ('error' in org) {
-                    return { error: { status: 'CUSTOM_ERROR', error: org.error } }
-                }
+            queryFn: ({ userId, roleId }) => runQuery(async () => {
+                const organisationId = await getActiveOrganisationId()
 
                 const { error } = await supabase
                     .from('memberships')
                     .update({ role_id: roleId })
                     .eq('user_id', userId)
-                    .eq('organisation_id', org.organisationId)
+                    .eq('organisation_id', organisationId)
 
-                if (error) {
-                    // 42501 = RLS afviste - fx forsøg på at give en rolle med
-                    // admin-privilegiet uden selv at være admin (escalation-guard).
-                    if (error.code === '42501') {
-                        return {
-                            error: { status: 'CUSTOM_ERROR', error: 'errors:permission.assignRole' },
-                        }
-                    }
-                    return { error: mapDbError(error) }
-                }
-
+                // 42501 = RLS afviste - fx forsøg på at give en rolle med
+                // admin-privilegiet uden selv at være admin (escalation-guard).
+                if (error) return { error: mapDbError(error, { permission: 'assignRole' }) }
                 return { data: undefined }
-            },
+            }),
 
             // 'Profile' invalideres, så headerens rollevisning følger med,
             // hvis medlemmet selv har appen åben.

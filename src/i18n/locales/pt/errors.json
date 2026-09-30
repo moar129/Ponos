@@ -1,13 +1,7 @@
 {
   "generic": "Algo correu mal. Tente novamente.",
-  "notLoggedIn": "Não tem sessão iniciada.",
   "loginRequired": "Tem de ter sessão iniciada.",
-  "loginRequiredForAction": "Tem de ter sessão iniciada para executar esta ação.",
-  "loginRequiredForMembership": "Tem de ter sessão iniciada para pedir adesão.",
-  "loginRequiredForProfile": "Tem de ter sessão iniciada para editar o seu perfil.",
-  "loginRequiredForOrganisation": "Tem de ter sessão iniciada para editar a organização.",
   "noOrganisation": "Não é membro de nenhuma organização.",
-  "organisationLookupFailed": "Não foi possível carregar a sua ligação à organização.",
   "wrongCurrentPassword": "A sua palavra-passe atual está incorreta.",
   "passwordChangeFailed": "Não foi possível alterar a palavra-passe. Tente novamente.",
   "requestAlreadyHandled": "Não foi possível processar o pedido. Pode já ter sido tratado, ou não tem as permissões necessárias.",

@@ -7,7 +7,6 @@
     "ownRow": "Não pode alterar a sua própria linha",
     "adminLockedTitle": "Só um administrador pode alterar a função de outro administrador",
     "locked": "Bloqueado",
-    "remove": "Remover",
     "confirmRemove": "Tem a certeza de que quer remover {{name}} da organização?",
     "removing": "A remover...",
     "confirmRemoveYes": "Sim, remover",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Convidar por e-mail",
     "send": "Enviar convite",
-    "sending": "A enviar...",
     "pendingHeading": "Convites pendentes",
     "loading": "A carregar convites...",
     "empty": "Não há convites pendentes.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Sim, anular",
     "undo": "Afinal não",
     "emailPlaceholder": "nome@exemplo.pt",
-    "invitedOn": "Convidado",
-    "invitedOnDate": "Convidado a {{date}}"
+    "invitedOnDate": "Convidado a {{date}}",
+    "sentTo": "Convite enviado para {{email}}."
   },
   "requests": {
     "loading": "A carregar pedidos...",
     "empty": "Não há pedidos pendentes.",
     "confirmAccept": "Tem a certeza de que {{name}} deve ser admitido na organização?",
     "confirmReject": "Tem a certeza de que o pedido deve ser rejeitado? {{name}} pode voltar a pedir mais tarde.",
-    "processing": "A processar...",
-    "yes": "Sim",
     "accept": "Aceitar",
     "reject": "Rejeitar",
     "requestedOn": "Pedido a {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Escreva o nome da organização ({{name}}) para confirmar",
     "ackDataLoss": "Compreendo que todos os dados da organização (tarefas, artigos, categorias, localizações e estatísticas) são eliminados definitivamente e não podem ser recuperados.",
     "ackMemberImpact": "Compreendo que os outros {{count}} membros perdem o acesso imediatamente.",
-    "deleting": "A eliminar...",
     "deletePermanently": "Eliminar definitivamente",
     "deleted": "\"{{name}}\" foi eliminada.",
     "deletedNewActive": "\"{{name}}\" foi eliminada. A sua organização ativa é agora \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Cor do texto e dos ícones na barra superior. Vazio = escolhida automaticamente para ser legível sobre o fundo.",
     "footerTextColorLabel": "Barra inferior – texto",
     "footerTextColorHint": "Cor do texto na barra inferior. Vazio = escolhida automaticamente para ser legível sobre o fundo.",
-    "colorPickerAriaLabel": "Escolha a cor dos botões e links",
-    "colorReset": "Repor",
     "colorUseDefault": "Usar predefinição",
     "colorNoneSet": "Nenhuma selecionada (predefinição)",
     "previewLight": "Claro",
@@ -117,16 +110,11 @@
     "memberCount": "Número de membros"
   },
   "myInvitations": {
-    "loading": "A carregar convites...",
     "empty": "Não tem convites pendentes.",
     "accept": "Aceitar",
     "reject": "Rejeitar",
     "confirmAccept": "Tem a certeza de que quer tornar-se membro de {{name}}?",
-    "confirmReject": "Tem a certeza de que o convite deve ser rejeitado?",
-    "processing": "A processar...",
-    "yes": "Sim",
-    "invitedOn": "Convidado",
-    "invitedOnDate": "Convidado a {{date}}"
+    "confirmReject": "Tem a certeza de que o convite deve ser rejeitado?"
   },
   "myOrganisations": {
     "loading": "A carregar as suas organizações...",
@@ -141,6 +129,5 @@
     "left": "Saiu de \"{{name}}\".",
     "leftNewActive": "Saiu de \"{{name}}\". A sua organização ativa é agora \"{{newActive}}\".",
     "leftNoActive": "Saiu de \"{{name}}\". Já não tem nenhuma organização ativa."
-  },
-  "genericLoading": "A carregar..."
+  }
 }

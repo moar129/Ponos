@@ -133,7 +133,6 @@
     "saveTitle": "Salvează instantaneul",
     "label": "Nume (opțional)",
     "labelPlaceholder": "Ex. Sezonul 2026",
-    "saving": "Se salvează...",
     "saveFailed": "Instantaneul nu a putut fi salvat.",
     "loadFailed": "Instantaneele nu au putut fi încărcate.",
     "empty": "Încă nu există instantanee salvate.",

@@ -100,7 +100,6 @@
       "deadline": "Vroegste deadline eerst",
       "rejections": "Meeste afwijzingen eerst"
     },
-    "resetFilters": "Resetten",
     "showing": "{{count}} van {{total}}",
     "noMatch": "Geen meldingen komen overeen met de filters.",
     "deadline": "Deadline {{date}}",

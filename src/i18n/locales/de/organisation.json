@@ -7,7 +7,6 @@
     "ownRow": "Sie können Ihre eigene Zeile nicht ändern",
     "adminLockedTitle": "Nur ein Administrator kann die Rolle eines anderen Administrators ändern",
     "locked": "Gesperrt",
-    "remove": "Entfernen",
     "confirmRemove": "Möchten Sie {{name}} wirklich aus der Organisation entfernen?",
     "removing": "Wird entfernt...",
     "confirmRemoveYes": "Ja, entfernen",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Per E-Mail einladen",
     "send": "Einladung senden",
-    "sending": "Wird gesendet...",
     "pendingHeading": "Offene Einladungen",
     "loading": "Einladungen werden geladen...",
     "empty": "Keine offenen Einladungen.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Ja, zurückziehen",
     "undo": "Doch nicht",
     "emailPlaceholder": "name@beispiel.de",
-    "invitedOn": "Eingeladen",
-    "invitedOnDate": "Eingeladen am {{date}}"
+    "invitedOnDate": "Eingeladen am {{date}}",
+    "sentTo": "Einladung an {{email}} gesendet."
   },
   "requests": {
     "loading": "Anfragen werden geladen...",
     "empty": "Es gibt keine offenen Anfragen.",
     "confirmAccept": "Soll {{name}} wirklich in die Organisation aufgenommen werden?",
     "confirmReject": "Soll die Anfrage wirklich abgelehnt werden? {{name}} kann später erneut anfragen.",
-    "processing": "Wird verarbeitet...",
-    "yes": "Ja",
     "accept": "Annehmen",
     "reject": "Ablehnen",
     "requestedOn": "Angefragt am {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Geben Sie zur Bestätigung den Namen der Organisation ({{name}}) ein",
     "ackDataLoss": "Ich verstehe, dass alle Daten der Organisation (Aufgaben, Artikel, Kategorien, Standorte und Statistiken) endgültig gelöscht werden und nicht wiederhergestellt werden können.",
     "ackMemberImpact": "Ich verstehe, dass die {{count}} anderen Mitglieder sofort ihren Zugang verlieren.",
-    "deleting": "Wird gelöscht...",
     "deletePermanently": "Endgültig löschen",
     "deleted": "\"{{name}}\" wurde gelöscht.",
     "deletedNewActive": "\"{{name}}\" wurde gelöscht. Ihre aktive Organisation ist jetzt \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Farbe von Text und Symbolen in der oberen Leiste. Leer = wird automatisch gewählt, damit er auf dem Hintergrund lesbar ist.",
     "footerTextColorLabel": "Untere Leiste – Text",
     "footerTextColorHint": "Farbe des Textes in der unteren Leiste. Leer = wird automatisch gewählt, damit er auf dem Hintergrund lesbar ist.",
-    "colorPickerAriaLabel": "Schaltflächen- und Linkfarbe wählen",
-    "colorReset": "Zurücksetzen",
     "colorUseDefault": "Standard verwenden",
     "colorNoneSet": "Keine ausgewählt (Standard)",
     "previewLight": "Hell",
@@ -117,16 +110,11 @@
     "memberCount": "Anzahl der Mitglieder"
   },
   "myInvitations": {
-    "loading": "Einladungen werden geladen...",
     "empty": "Sie haben keine offenen Einladungen.",
     "accept": "Annehmen",
     "reject": "Ablehnen",
     "confirmAccept": "Möchten Sie wirklich Mitglied von {{name}} werden?",
-    "confirmReject": "Soll die Einladung wirklich abgelehnt werden?",
-    "processing": "Wird verarbeitet...",
-    "yes": "Ja",
-    "invitedOn": "Eingeladen",
-    "invitedOnDate": "Eingeladen am {{date}}"
+    "confirmReject": "Soll die Einladung wirklich abgelehnt werden?"
   },
   "myOrganisations": {
     "loading": "Ihre Organisationen werden geladen...",
@@ -141,6 +129,5 @@
     "left": "Sie haben \"{{name}}\" verlassen.",
     "leftNewActive": "Sie haben \"{{name}}\" verlassen. Ihre aktive Organisation ist jetzt \"{{newActive}}\".",
     "leftNoActive": "Sie haben \"{{name}}\" verlassen. Sie haben keine aktive Organisation mehr."
-  },
-  "genericLoading": "Wird geladen..."
+  }
 }

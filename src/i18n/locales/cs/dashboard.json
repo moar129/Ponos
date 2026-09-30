@@ -38,7 +38,6 @@
   "notifications": {
     "title": "Oznámení",
     "seeAll": "Zobrazit vše",
-    "all": "Vše",
     "unread": "Nepřečtené",
     "loading": "Načítání oznámení...",
     "emptyUnread": "Žádná nepřečtená oznámení.",
@@ -57,7 +56,6 @@
     "next": "Další novinka",
     "showNews": "Zobrazit novinku číslo {{number}}"
   },
-  "comingSoon": "Již brzy",
   "administration": {
     "noPrivileges": "Nemáte oprávnění k žádné funkci správy.",
     "panels": {
@@ -86,7 +84,6 @@
     "noAssignees": "Nikdo není přiřazen",
     "materials": "Materiály:",
     "noMaterials": "Žádné materiály",
-    "edit": "Upravit",
     "reopen": "Znovu otevřít",
     "reopening": "Otevírání...",
     "sortNewest": "Naposledy dokončené první",
@@ -97,7 +94,6 @@
     "presetToday": "Dnes",
     "preset7": "7 dní",
     "preset30": "30 dní",
-    "resetFilters": "Obnovit",
     "finishedOn": "Dokončeno {{date}}",
     "showing": "{{count}} z {{total}}"
   }

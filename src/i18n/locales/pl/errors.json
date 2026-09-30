@@ -1,13 +1,7 @@
 {
   "generic": "Coś poszło nie tak. Spróbuj ponownie.",
-  "notLoggedIn": "Nie jesteś zalogowany.",
   "loginRequired": "Musisz być zalogowany.",
-  "loginRequiredForAction": "Musisz być zalogowany, aby wykonać tę operację.",
-  "loginRequiredForMembership": "Musisz być zalogowany, aby złożyć wniosek o członkostwo.",
-  "loginRequiredForProfile": "Musisz być zalogowany, aby edytować swój profil.",
-  "loginRequiredForOrganisation": "Musisz być zalogowany, aby edytować organizację.",
   "noOrganisation": "Nie jesteś członkiem żadnej organizacji.",
-  "organisationLookupFailed": "Nie udało się wczytać Twojej przynależności do organizacji.",
   "wrongCurrentPassword": "Twoje obecne hasło jest nieprawidłowe.",
   "passwordChangeFailed": "Nie udało się zmienić hasła. Spróbuj ponownie.",
   "requestAlreadyHandled": "Nie udało się przetworzyć wniosku. Możliwe, że został już rozpatrzony lub nie masz uprawnień.",

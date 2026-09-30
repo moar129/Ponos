@@ -8,7 +8,6 @@
   "create": "Erstellen",
   "search": "Suchen",
   "loading": "Wird geladen...",
-  "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
   "language": {
     "label": "Sprache",
     "choose": "Sprache wählen",
@@ -26,7 +25,6 @@
   "title": "Titel",
   "description": "Beschreibung",
   "status": "Status",
-  "selected": "ausgewählt",
   "cannotUndo": "Dies kann nicht rückgängig gemacht werden.",
   "reset": "Zurücksetzen",
   "closeDialog": "Dialog schließen",
@@ -39,9 +37,7 @@
   "sending": "Wird gesendet...",
   "processing": "Wird verarbeitet...",
   "updating": "Wird aktualisiert...",
-  "creating": "Wird erstellt...",
   "yes": "Ja",
-  "send": "Senden",
   "selectedCount_one": "{{count}} ausgewählt",
   "selectedCount_other": "{{count}} ausgewählt",
   "numberInput": {

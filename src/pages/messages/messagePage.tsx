@@ -10,6 +10,7 @@ import { CreateGroupComponent } from '../../components/messages/createGroupCompo
 import { useGetMyConversationsQuery } from '../../store/apis/messageApi';
 import { useGetOrganisationMembersQuery } from '../../store/apis/roleApi';
 import { useGetMyProfileQuery } from '../../store/apis/profileApi';
+import { EmptyState } from '../../components/common/EmptyState';
 import type { OrganisationMember } from '../../types/role/roleType';
 import type { ConversationSummary } from '../../types/messages/messagesTypes';
 
@@ -64,20 +65,29 @@ export function MessagesPage() {
 
   // Åbner den samtale, en notifikations-link peger på (?conversation=<id>).
   // Venter på både samtale- og medlemslisten, så en 1:1-samtale kan finde
-  // sin kontakt korrekt, før den vælges.
-  useEffect(() => {
-    const conversationParam = searchParams.get('conversation');
-    if (!conversationParam) return;
-    if (conversations.length === 0) return;
+  // sin kontakt korrekt, før den vælges. Valget sker under render (med
+  // handledLink som vagt) i stedet for i et effect, så siden ikke først
+  // tegnes uden valgt samtale.
+  const conversationParam = searchParams.get('conversation');
+  const linkedConversation = conversationParam
+    ? conversations.find((c) => c.conversationId === conversationParam)
+    : undefined;
+  const isLinkReady = !!linkedConversation && (linkedConversation.isGroup || members.length > 0);
+  const [handledLink, setHandledLink] = useState<string | null>(null);
 
-    const conversation = conversations.find((c) => c.conversationId === conversationParam);
-    if (!conversation) return;
-    if (!conversation.isGroup && members.length === 0) return;
-
-    handleSelectConversation(conversationParam);
+  if (isLinkReady && conversationParam !== handledLink) {
+    setHandledLink(linkedConversation.conversationId);
+    handleSelectConversation(linkedConversation.conversationId);
     setActiveTab('conversations');
-    setSearchParams({}, { replace: true });
-  }, [conversations, members, searchParams]);
+  } else if (!conversationParam && handledLink) {
+    // Klar til samme link igen (fx samme notifikation klikket to gange).
+    setHandledLink(null);
+  }
+
+  // Fjern parameteren fra URL'en, når samtalen er valgt.
+  useEffect(() => {
+    if (isLinkReady) setSearchParams({}, { replace: true });
+  }, [isLinkReady, setSearchParams]);
 
   const handleSelectContact = (contact: OrganisationMember) => {
     const conversation = conversations.find((c) => c.otherUserId === contact.id && !c.isGroup);
@@ -104,11 +114,9 @@ export function MessagesPage() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 h-[calc(100dvh-140px)] lg:h-[calc(100vh-200px)] min-h-[420px] min-w-0">
-      <CreateGroupComponent
-        isOpen={isCreateGroupOpen}
-        onClose={() => setIsCreateGroupOpen(false)}
-        onCreated={handleGroupCreated}
-      />
+      {isCreateGroupOpen && (
+        <CreateGroupComponent onClose={() => setIsCreateGroupOpen(false)} onCreated={handleGroupCreated} />
+      )}
 
       {/* VENSTRE SIDE */}
       <div className={`${hasSelection ? 'hidden md:flex' : 'flex'} md:col-span-5 lg:col-span-4 2xl:col-span-3 bg-white rounded-xl border border-border-gray shadow-sm overflow-hidden flex-col min-h-0 dark:bg-slate-800 dark:border-slate-700`}>
@@ -200,14 +208,7 @@ export function MessagesPage() {
             }}
           />
         ) : (
-          <div className="h-full flex items-center justify-center">
-            <div className="flex flex-col items-center text-center text-secondary px-4 dark:text-slate-400">
-              <MessageSquareText className="w-10 h-10 mb-3 stroke-[1.5] text-secondary dark:text-slate-400" />
-              <p className="text-sm">
-                {t('chooseConversation')}
-              </p>
-            </div>
-          </div>
+          <EmptyState icon={MessageSquareText} title={t('chooseConversation')} className="h-full" />
         )}
         </div>
       </div>

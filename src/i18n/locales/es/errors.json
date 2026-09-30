@@ -1,13 +1,7 @@
 {
   "generic": "Algo ha salido mal. Inténtalo de nuevo.",
-  "notLoggedIn": "No has iniciado sesión.",
   "loginRequired": "Debes haber iniciado sesión.",
-  "loginRequiredForAction": "Debes haber iniciado sesión para realizar esta acción.",
-  "loginRequiredForMembership": "Debes haber iniciado sesión para solicitar la membresía.",
-  "loginRequiredForProfile": "Debes haber iniciado sesión para editar tu perfil.",
-  "loginRequiredForOrganisation": "Debes haber iniciado sesión para editar la organización.",
   "noOrganisation": "No eres miembro de ninguna organización.",
-  "organisationLookupFailed": "No se ha podido cargar tu pertenencia a la organización.",
   "wrongCurrentPassword": "Tu contraseña actual es incorrecta.",
   "passwordChangeFailed": "No se ha podido cambiar la contraseña. Inténtalo de nuevo.",
   "requestAlreadyHandled": "No se ha podido procesar la solicitud. Puede que ya se haya tramitado, o que no tengas permiso.",

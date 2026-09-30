@@ -7,7 +7,6 @@
     "ownRow": "You cannot change your own row",
     "adminLockedTitle": "Only an administrator can change another administrator's role",
     "locked": "Locked",
-    "remove": "Remove",
     "confirmRemove": "Are you sure you want to remove {{name}} from the organisation?",
     "removing": "Removing...",
     "confirmRemoveYes": "Yes, remove",
@@ -18,7 +17,6 @@
   "invitations": {
     "emailLabel": "Invite by email",
     "send": "Send invitation",
-    "sending": "Sending...",
     "pendingHeading": "Pending invitations",
     "loading": "Loading invitations...",
     "empty": "No pending invitations.",
@@ -28,16 +26,14 @@
     "confirmCancelYes": "Yes, cancel",
     "undo": "Never mind",
     "emailPlaceholder": "name@example.com",
-    "invitedOn": "Invited",
-    "invitedOnDate": "Invited {{date}}"
+    "invitedOnDate": "Invited {{date}}",
+    "sentTo": "Invitation sent to {{email}}."
   },
   "requests": {
     "loading": "Loading requests...",
     "empty": "There are no pending requests.",
     "confirmAccept": "Are you sure {{name}} should be admitted to the organisation?",
     "confirmReject": "Are you sure the request should be rejected? {{name}} can request again later.",
-    "processing": "Processing...",
-    "yes": "Yes",
     "accept": "Accept",
     "reject": "Reject",
     "requestedOn": "Requested {{date}}"
@@ -55,7 +51,6 @@
     "typeNameToConfirm": "Type the organisation's name ({{name}}) to confirm",
     "ackDataLoss": "I understand that all of the organisation's data (tasks, items, categories, locations and statistics) is permanently deleted and cannot be recovered.",
     "ackMemberImpact": "I understand that the {{count}} other members lose their access immediately.",
-    "deleting": "Deleting...",
     "deletePermanently": "Delete permanently",
     "deleted": "\"{{name}}\" has been deleted.",
     "deletedNewActive": "\"{{name}}\" has been deleted. Your active organisation is now \"{{newActive}}\".",
@@ -70,8 +65,6 @@
     "headerTextColorHint": "Colour of text and icons in the top bar. Empty = chosen automatically so it is readable on the background.",
     "footerTextColorLabel": "Bottom bar – text",
     "footerTextColorHint": "Colour of the text in the bottom bar. Empty = chosen automatically so it is readable on the background.",
-    "colorPickerAriaLabel": "Choose button and link colour",
-    "colorReset": "Reset",
     "colorUseDefault": "Use default",
     "colorNoneSet": "None selected (default)",
     "previewLight": "Light",
@@ -117,16 +110,11 @@
     "memberCount": "Number of members"
   },
   "myInvitations": {
-    "loading": "Loading invitations...",
     "empty": "You have no pending invitations.",
     "accept": "Accept",
     "reject": "Reject",
     "confirmAccept": "Are you sure you want to become a member of {{name}}?",
-    "confirmReject": "Are you sure the invitation should be rejected?",
-    "processing": "Processing...",
-    "yes": "Yes",
-    "invitedOn": "Invited",
-    "invitedOnDate": "Invited {{date}}"
+    "confirmReject": "Are you sure the invitation should be rejected?"
   },
   "myOrganisations": {
     "loading": "Loading your organisations...",
@@ -141,6 +129,5 @@
     "left": "You have left \"{{name}}\".",
     "leftNewActive": "You have left \"{{name}}\". Your active organisation is now \"{{newActive}}\".",
     "leftNoActive": "You have left \"{{name}}\". You no longer have an active organisation."
-  },
-  "genericLoading": "Loading..."
+  }
 }

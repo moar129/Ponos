@@ -1,52 +1,25 @@
 // components/messaging/ConversationListComponent.tsx
-import { ClipboardList, DoorOpen, Loader2, Lock, MessageSquareText, Users } from 'lucide-react';
+import { ClipboardList, DoorOpen, Lock, MessageSquareText, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
 import { useGetMyConversationsQuery } from '../../store/apis/messageApi';
+import { readableError } from '../../ErrorMessage';
 import { systemMessageText } from '../../utils/systemMessageDisplay';
+import { getInitialsFromName } from '../../utils/personName';
 import { asDynamic } from '../../i18n/config';
+import { Alert } from '../common/Alert';
+import { EmptyState } from '../common/EmptyState';
+import { Spinner } from '../common/Spinner';
 import type { ConversationListComponentProps } from '../../types/messages/messagesTypes';
-
-function getInitials(name: string | null): string {
-  if (!name) return '?';
-  const parts = name.trim().split(' ');
-  return parts.length > 1
-    ? `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase()
-    : name.slice(0, 2).toUpperCase();
-}
 
 export function ConversationListComponent({ selectedConversationId, onSelectConversation }: ConversationListComponentProps) {
   const { t } = useTranslation(['messages', 'common'])
   const { data: conversations = [], isLoading, error } = useGetMyConversationsQuery();
 
-  const errorMessage =
-    error && typeof error === 'object' && 'error' in error
-      ? (error as { error: string }).error
-      : null;
+  const errorMessage = readableError(error);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (errorMessage) {
-    return (
-      <div className="m-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-        {errorMessage}
-      </div>
-    );
-  }
-
-  if (conversations.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-secondary px-4 dark:text-slate-400">
-        <MessageSquareText className="w-8 h-8 mb-2 stroke-[1.5] text-secondary dark:text-slate-400" />
-        <p className="text-sm">{t('noConversations')}</p>
-      </div>
-    );
-  }
+  if (isLoading) return <Spinner block />;
+  if (errorMessage) return <Alert className="m-3">{errorMessage}</Alert>;
+  if (conversations.length === 0) return <EmptyState icon={MessageSquareText} title={t('noConversations')} />;
 
   return (
     <ul className="divide-y divide-border-gray dark:divide-slate-700">
@@ -71,7 +44,7 @@ export function ConversationListComponent({ selectedConversationId, onSelectConv
                 ) : conv.urlPicture ? (
                   <img src={conv.urlPicture} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  getInitials(conv.displayName)
+                  getInitialsFromName(conv.displayName)
                 )}
               </div>
               <div className="min-w-0 flex-1">

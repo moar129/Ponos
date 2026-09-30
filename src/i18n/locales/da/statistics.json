@@ -131,7 +131,6 @@
     "saveTitle": "Gem snapshot",
     "label": "Navn (valgfrit)",
     "labelPlaceholder": "Fx Sæson 2026",
-    "saving": "Gemmer...",
     "saveFailed": "Snapshottet kunne ikke gemmes.",
     "loadFailed": "Snapshots kunne ikke indlæses.",
     "empty": "Ingen gemte snapshots endnu.",

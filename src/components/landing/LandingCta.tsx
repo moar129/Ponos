@@ -1,7 +1,7 @@
 // src/components/landing/LandingCta.tsx
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useGetSessionQuery } from '../../store/apis/authApi'
+import { LandingAuthButtons } from './LandingAuthButtons'
 
 // Afsluttende opfordring, så man ikke skal scrolle op igen. Samme navy som
 // footeren der følger lige under, så siden lukker i ét bånd.
@@ -29,20 +29,7 @@ export function LandingCta() {
                     {t('cta.body')}
                 </p>
 
-                <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-                    <Link
-                        to="/signup"
-                        className="inline-flex items-center justify-center bg-accent text-accent-text rounded-md px-6 py-3 font-semibold hover:bg-accent-hover transition-colors"
-                    >
-                        {t('cta.signup')}
-                    </Link>
-                    <Link
-                        to="/login"
-                        className="inline-flex items-center justify-center rounded-md border border-slate-600 px-6 py-3 font-medium text-slate-200 hover:bg-slate-800/50 hover:text-white transition-colors"
-                    >
-                        {t('cta.login')}
-                    </Link>
-                </div>
+                <LandingAuthButtons className="mt-8 justify-center" />
             </div>
         </section>
     )

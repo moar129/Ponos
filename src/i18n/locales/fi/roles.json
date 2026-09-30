@@ -100,7 +100,6 @@
       "deadline": "Aikaisin määräaika ensin",
       "rejections": "Eniten hylkäyksiä ensin"
     },
-    "resetFilters": "Nollaa",
     "showing": "{{count}} / {{total}}",
     "noMatch": "Mikään ilmoitus ei vastaa suodattimia.",
     "deadline": "Määräaika {{date}}",

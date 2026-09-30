@@ -8,7 +8,6 @@
   "deletePermanently": "Poista pysyvästi",
   "deleteAriaLabel": "Poista ilmoitus pysyvästi",
   "hidden": "Piilotettu",
-  "justNow": "Juuri nyt",
   "emptyCategory": "Ei {{category}}.",
   "category": {
     "messages": "Viestit",

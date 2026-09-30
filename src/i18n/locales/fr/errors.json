@@ -1,13 +1,7 @@
 {
   "generic": "Une erreur est survenue. Veuillez réessayer.",
-  "notLoggedIn": "Vous n'êtes pas connecté.",
   "loginRequired": "Vous devez être connecté.",
-  "loginRequiredForAction": "Vous devez être connecté pour effectuer cette action.",
-  "loginRequiredForMembership": "Vous devez être connecté pour demander une adhésion.",
-  "loginRequiredForProfile": "Vous devez être connecté pour modifier votre profil.",
-  "loginRequiredForOrganisation": "Vous devez être connecté pour modifier l'organisation.",
   "noOrganisation": "Vous n'êtes membre d'aucune organisation.",
-  "organisationLookupFailed": "Impossible de charger votre appartenance à une organisation.",
   "wrongCurrentPassword": "Votre mot de passe actuel est incorrect.",
   "passwordChangeFailed": "Le mot de passe n'a pas pu être modifié. Veuillez réessayer.",
   "requestAlreadyHandled": "La demande n'a pas pu être traitée. Elle a peut-être déjà été traitée, ou vous n'avez pas les droits nécessaires.",

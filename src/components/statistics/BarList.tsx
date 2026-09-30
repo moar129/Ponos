@@ -1,4 +1,5 @@
 import type { BarListProps } from '../../types/statistics/statisticsComponentTypes'
+import { formatNumber } from '../../utils/formatDate'
 
 // Horizontal single-hue bars for "compare magnitude" data (priority, rooms,
 // categories, item status ...). One series, so no legend - the card title
@@ -11,7 +12,7 @@ export function BarList({ rows, ariaLabel }: BarListProps) {
         <ul aria-label={ariaLabel} className="space-y-2.5">
             {rows.map((row) => {
                 const width = max > 0 ? (row.value / max) * 100 : 0
-                const valueLabel = row.valueLabel ?? row.value.toLocaleString()
+                const valueLabel = row.valueLabel ?? formatNumber(row.value)
 
                 return (
                     <li

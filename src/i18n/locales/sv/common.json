@@ -8,7 +8,6 @@
   "create": "Skapa",
   "search": "Sök",
   "loading": "Laddar...",
-  "genericError": "Något gick fel. Försök igen.",
   "language": {
     "label": "Språk",
     "choose": "Välj språk",
@@ -26,7 +25,6 @@
   "title": "Titel",
   "description": "Beskrivning",
   "status": "Status",
-  "selected": "valda",
   "cannotUndo": "Detta går inte att ångra.",
   "reset": "Återställ",
   "closeDialog": "Stäng dialogrutan",
@@ -39,9 +37,7 @@
   "sending": "Skickar...",
   "processing": "Behandlar...",
   "updating": "Uppdaterar...",
-  "creating": "Skapar...",
   "yes": "Ja",
-  "send": "Skicka",
   "selectedCount_one": "{{count}} vald",
   "selectedCount_other": "{{count}} valda",
   "numberInput": {

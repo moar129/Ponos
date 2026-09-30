@@ -8,7 +8,6 @@
   "create": "Opret",
   "search": "Søg",
   "loading": "Indlæser...",
-  "genericError": "Noget gik galt. Prøv igen.",
   "language": {
     "label": "Sprog",
     "choose": "Vælg sprog",
@@ -26,7 +25,6 @@
   "title": "Titel",
   "description": "Beskrivelse",
   "status": "Status",
-  "selected": "valgt",
   "cannotUndo": "Dette kan ikke fortrydes.",
   "reset": "Nulstil",
   "closeDialog": "Luk dialog",
@@ -39,9 +37,7 @@
   "sending": "Sender...",
   "processing": "Behandler...",
   "updating": "Opdaterer...",
-  "creating": "Opretter...",
   "yes": "Ja",
-  "send": "Send",
   "selectedCount_one": "{{count}} valgt",
   "selectedCount_other": "{{count}} valgt",
   "numberInput": {

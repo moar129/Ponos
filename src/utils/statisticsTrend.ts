@@ -1,3 +1,4 @@
+import { formatDecimal, formatPercent } from './formatDate'
 import type { KpiTrend } from '../types/statistics/statisticsComponentTypes'
 
 /** Which direction is good for a KPI; null = neither (shown neutral). */
@@ -33,12 +34,11 @@ export function kpiTrend(
     if (diff === 0) return { direction: 'flat', tone: 'neutral', text: `${ARROWS.flat} ${sameSentence}` }
 
     const direction = diff > 0 ? 'up' : 'down'
-    const number = new Intl.NumberFormat(locale, { maximumFractionDigits: pointsSuffix || previous === 0 ? 1 : 0 })
     const change = pointsSuffix
-        ? `${number.format(Math.abs(diff))} ${pointsSuffix}`
+        ? `${formatDecimal(Math.abs(diff), 1, locale)} ${pointsSuffix}`
         : previous === 0
-            ? number.format(Math.abs(diff))
-            : `${number.format(Math.abs((diff / previous) * 100))} %`
+            ? formatDecimal(Math.abs(diff), 1, locale)
+            : formatPercent(Math.abs((diff / previous) * 100), 0, locale)
 
     const tone = goodWhen === null ? 'neutral' : goodWhen === direction ? 'good' : 'bad'
     return { direction, tone, text: `${ARROWS[direction]} ${sentence(change)}` }

@@ -7,6 +7,7 @@ import { useGetRoomsQuery, useGetTasksQuery } from '../../store/apis/taskApi'
 import { useGetTaskRoomFavoritesQuery } from '../../store/apis/taskRoomFavoriteApi'
 import { splitFavoriteRooms } from '../../utils/splitFavoriteRooms'
 import type { TasksLocationState } from '../../types/Task/Task'
+import { isOpenTask } from '../../utils/taskDisplay'
 
 // US-77: brugerens favoritrum (task_room_favorites) som fane i
 // MyTasksWidget. Rum brugeren ikke længere har adgang til returneres ikke
@@ -25,7 +26,7 @@ export function FavoriteRoomsList() {
 
     const openCount = (roomId: string) =>
         tasks.filter(
-            (task) => task.room_id === roomId && (task.status === 'Started' || task.status === 'InProgress')
+            (task) => task.room_id === roomId && isOpenTask(task)
         ).length
 
     const openRoom = (roomId: string) => {

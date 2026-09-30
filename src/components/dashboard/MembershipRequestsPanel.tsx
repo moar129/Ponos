@@ -2,56 +2,49 @@
 import { readableError } from '../../ErrorMessage';
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Check, X } from 'lucide-react'
 import {
     useGetPendingMembershipRequestsQuery,
     useReviewMembershipRequestMutation,
 } from '../../store/apis/membershipApi'
 import { formatDate } from '../../utils/formatDate'
-import type { RequestRowProps, ReviewMembershipRequestInput } from '../../types/membership/membershipType'
-
-// Hvilken række der afventer bekræftelse, og hvad der blev trykket på.
-type PendingDecision = ReviewMembershipRequestInput
-
-
+import { formatFullName } from '../../utils/personName'
+import { Alert } from '../common/Alert'
+import { DecisionActions } from '../common/DecisionActions'
+import type { Decision } from '../../types/common/confirmType'
+import type { RequestRowProps } from '../../types/membership/membershipType'
 
 // Se, accepter og afvis medlemsanmodninger, i ét panel under
 // dashboardets Administration-fane (US-65). Panelet mountes kun når
-// AdministrationTab allerede har bekræftet manage_membership_requests-
-// privilegiet - selve adgangen håndhæves stadig server-side af RLS.
+// AdministrationTab allerede har bekræftet privilegiet - selve adgangen
+// håndhæves stadig server-side af RLS.
 export function MembershipRequestsPanel() {
     const { t } = useTranslation(['organisation', 'common'])
     const { data: requests, isLoading, error: queryError } = useGetPendingMembershipRequestsQuery()
     const [reviewRequest, { isLoading: submitting, error: mutationError }] = useReviewMembershipRequestMutation()
 
     // Både accept og afvisning skal bekræftes, så et fejlklik ikke rammer
-    // en ansøger. Rækken skifter til en bekræftelses-boks i stedet for at
-    // bruge browserens confirm().
-    const [pendingDecision, setPendingDecision] = useState<PendingDecision | null>(null)
+    // en ansøger.
+    const [pending, setPending] = useState<{ requestId: string; decision: Decision } | null>(null)
 
-    async function confirmDecision(decision: PendingDecision) {
+    async function confirmDecision() {
+        if (!pending) return
         try {
-            await reviewRequest(decision).unwrap()
-            // Mutationen invaliderer 'MembershipRequest', så listen henter
-            // sig selv igen og den behandlede række forsvinder.
-            setPendingDecision(null)
+            // Mutationen invaliderer 'MembershipRequest', så den behandlede
+            // række forsvinder af sig selv.
+            await reviewRequest({
+                requestId: pending.requestId,
+                decision: pending.decision === 'accept' ? 'Accepted' : 'Rejected',
+            }).unwrap()
         } catch {
-            // Fejlen vises via mutationError; bekræftelses-boksen lukkes,
-            // så listen ikke står fast i en halv-tilstand.
-            setPendingDecision(null)
+            // Fejlen vises via mutationError.
+        } finally {
+            setPending(null)
         }
     }
 
-    const listError = readableError(queryError)
-    const actionError = readableError(mutationError)
-
     return (
         <div>
-            {(listError || actionError) && (
-                <div className="mb-4 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                    {listError ?? actionError}
-                </div>
-            )}
+            <Alert className="mb-4">{readableError(queryError) ?? readableError(mutationError)}</Alert>
 
             {isLoading ? (
                 <p className="text-secondary dark:text-slate-400">{t('requests.loading')}</p>
@@ -63,10 +56,10 @@ export function MembershipRequestsPanel() {
                         <li key={request.id} className="py-4">
                             <RequestRow
                                 request={request}
-                                pendingDecision={pendingDecision}
+                                pending={pending?.requestId === request.id ? pending.decision : null}
                                 submitting={submitting}
-                                onSelect={setPendingDecision}
-                                onCancel={() => setPendingDecision(null)}
+                                onSelect={(decision) => setPending({ requestId: request.id, decision })}
+                                onCancel={() => setPending(null)}
                                 onConfirm={confirmDecision}
                             />
                         </li>
@@ -77,70 +70,31 @@ export function MembershipRequestsPanel() {
     )
 }
 
-// Én anmodning: enten navn/email + de to knapper, eller - hvis netop
-// denne række afventer bekræftelse - en "er du sikker?"-boks.
-function RequestRow({ request, pendingDecision, submitting, onSelect, onCancel, onConfirm }: RequestRowProps) {
-    const { t } = useTranslation(['organisation', 'common'])
-    const decision = pendingDecision?.requestId === request.id ? pendingDecision : null
+function RequestRow({ request, pending, submitting, onSelect, onCancel, onConfirm }: RequestRowProps) {
+    const { t } = useTranslation('organisation')
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p className="font-medium">
-                    {request.firstName} {request.lastName}
-                </p>
+                <p className="font-medium">{formatFullName(request.firstName, request.lastName)}</p>
                 <p className="text-sm text-secondary dark:text-slate-400">{request.email}</p>
                 <p className="text-xs text-secondary mt-1 dark:text-slate-400">
                     {t('requests.requestedOn', { date: formatDate(request.requestedAt) })}
                 </p>
             </div>
 
-            {decision ? (
-                <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-secondary max-w-xs dark:text-slate-400">
-                        {decision.decision === 'Accepted'
-                            ? t('requests.confirmAccept', { name: request.firstName })
-                            : t('requests.confirmReject', { name: request.firstName })}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => onConfirm(decision)}
-                        disabled={submitting}
-                        className="bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                    >
-                        {submitting ? t('requests.processing') : t('requests.yes')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={submitting}
-                        className="rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                    >
-                        {t('common:cancel')}
-                    </button>
-                </div>
-            ) : (
-                <div className="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={() => onSelect({ requestId: request.id, decision: 'Accepted' })}
-                        disabled={submitting}
-                        className="flex items-center gap-2 bg-accent text-accent-text rounded-md px-4 py-2 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60"
-                    >
-                        <Check className="w-4 h-4" />
-                        {t('requests.accept')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => onSelect({ requestId: request.id, decision: 'Rejected' })}
-                        disabled={submitting}
-                        className="flex items-center gap-2 rounded-md border border-border-gray bg-bg-gray px-4 py-2 text-sm font-medium text-secondary hover:bg-bg-gray/70 transition-colors disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
-                    >
-                        <X className="w-4 h-4" />
-                        {t('requests.reject')}
-                    </button>
-                </div>
-            )}
+            <DecisionActions
+                pending={pending}
+                onSelect={onSelect}
+                onConfirm={onConfirm}
+                onCancel={onCancel}
+                submitting={submitting}
+                acceptLabel={t('requests.accept')}
+                rejectLabel={t('requests.reject')}
+                confirmText={pending === 'accept'
+                    ? t('requests.confirmAccept', { name: request.firstName })
+                    : t('requests.confirmReject', { name: request.firstName })}
+            />
         </div>
     )
 }

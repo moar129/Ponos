@@ -8,7 +8,6 @@
   "create": "Aanmaken",
   "search": "Zoeken",
   "loading": "Laden...",
-  "genericError": "Er is iets misgegaan. Probeer het opnieuw.",
   "language": {
     "label": "Taal",
     "choose": "Taal kiezen",
@@ -26,7 +25,6 @@
   "title": "Titel",
   "description": "Beschrijving",
   "status": "Status",
-  "selected": "geselecteerd",
   "cannotUndo": "Dit kan niet ongedaan worden gemaakt.",
   "reset": "Herstellen",
   "closeDialog": "Dialoogvenster sluiten",
@@ -39,9 +37,7 @@
   "sending": "Bezig met verzenden...",
   "processing": "Bezig met verwerken...",
   "updating": "Bezig met bijwerken...",
-  "creating": "Bezig met aanmaken...",
   "yes": "Ja",
-  "send": "Verzenden",
   "selectedCount_one": "{{count}} geselecteerd",
   "selectedCount_other": "{{count}} geselecteerd",
   "numberInput": {

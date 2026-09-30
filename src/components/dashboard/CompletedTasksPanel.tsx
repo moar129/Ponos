@@ -6,18 +6,16 @@ import { ChevronDown, ChevronUp, Pencil, RotateCcw } from 'lucide-react'
 import { useGetCompletedTasksQuery, useUpdateTaskStatusMutation } from '../../store/apis/taskApi'
 import { EditTaskModal } from '../Task/EditTaskModal'
 import { DELETE_TASKS_PRIVILEGE, UPDATE_TASKS_PRIVILEGE, useHasPrivilege } from '../../store/apis/privilegeApi'
-import { ALL_PRIORITIES, PRIORITY_COLORS, formatDate } from '../../utils/taskDisplay'
+import { ALL_PRIORITIES } from '../../utils/taskDisplay'
+import { formatShortDate, formatShortDateRange } from '../../utils/formatDate'
+import { addDays, toDateKey } from '../../utils/calendar'
+import { compareNullable, matchesTaskSearch } from '../../utils/taskFilters'
+import { useDisplayName } from '../../store/hooks/useDisplayName'
+import { PriorityBadge } from '../Task/PriorityBadge'
+import { Alert } from '../common/Alert'
 import type { CompletedTaskDetails, ETaskPriority } from '../../types/Task/Task'
 
 type CompletedSortOption = 'newest' | 'oldest' | 'deadline'
-
-// Local YYYY-MM-DD - same format as <input type="date">, so plain string
-// comparison works for the range filter.
-function toDateKey(date: Date): string {
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${date.getFullYear()}-${month}-${day}`
-}
 
 // When the task was finished. finished_at is null for tasks completed
 // before the column existed - fall back to the planned end_date.
@@ -31,20 +29,6 @@ function completedOnKey(task: CompletedTaskDetails): string | null {
     return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : toDateKey(new Date(value))
 }
 
-function daysAgoKey(days: number): string {
-    const date = new Date()
-    date.setDate(date.getDate() - days)
-    return toDateKey(date)
-}
-
-// Nulls last regardless of direction.
-function compareNullable(a: string | null, b: string | null, direction: 1 | -1): number {
-    if (a && b) return direction * a.localeCompare(b)
-    if (a) return -1
-    if (b) return 1
-    return 0
-}
-
 
 // US-70: organisationens afsluttede opgaver med fulde detaljer, til
 // opfølgning på udført arbejde. Ekspanderbar række til detaljer (i stedet
@@ -53,7 +37,8 @@ function compareNullable(a: string | null, b: string | null, direction: 1 | -1):
 // Opgave-domænets EditTaskModal (indeholder nu selv slet) og
 // updateTaskStatus (kalder set_task_status-RPC'en).
 export function CompletedTasksPanel() {
-    const { t } = useTranslation(['dashboard', 'tasks'])
+    const { t } = useTranslation(['dashboard', 'tasks', 'common'])
+    const displayName = useDisplayName()
     const { data: tasks, isLoading, error: tasksError } = useGetCompletedTasksQuery()
     const [searchTerm, setSearchTerm] = useState('')
     const [priorityFilter, setPriorityFilter] = useState<ETaskPriority | 'all'>('all')
@@ -78,11 +63,7 @@ export function CompletedTasksPanel() {
     }
 
     if (error) {
-        return (
-            <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
-                {error}
-            </div>
-        )
+        return <Alert>{error}</Alert>
     }
 
     if (!tasks || tasks.length === 0) {
@@ -93,12 +74,7 @@ export function CompletedTasksPanel() {
 
     const filteredTasks = tasks
         .filter((task) => {
-            const matchesSearch =
-                search === '' ||
-                task.title.toLowerCase().includes(search) ||
-                (task.description ?? '').toLowerCase().includes(search) ||
-                (task.roomName ?? '').toLowerCase().includes(search) ||
-                task.assignees.some((a) => a.name.toLowerCase().includes(search))
+            const matchesSearch = matchesTaskSearch(task, task.roomName ?? undefined, task.assignees.map((a) => a.name), search)
             const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter
 
             const dateKey = completedOnKey(task)
@@ -116,7 +92,7 @@ export function CompletedTasksPanel() {
         })
 
     const setPreset = (days: number) => {
-        setFromDate(daysAgoKey(days))
+        setFromDate(toDateKey(addDays(new Date(), -days)))
         setToDate(toDateKey(new Date()))
     }
 
@@ -141,12 +117,12 @@ export function CompletedTasksPanel() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder={t('completedTasks.searchPlaceholder')}
-                    className="flex-1 min-w-[200px] rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                    className={`flex-1 min-w-[200px] ${inputClass}`}
                 />
                 <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value as ETaskPriority | 'all')}
-                    className="rounded-md border border-border-gray bg-white px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                    className={inputClass}
                 >
                     <option value="all">{t('completedTasks.allPriorities')}</option>
                     {ALL_PRIORITIES.map((priority) => (
@@ -186,7 +162,7 @@ export function CompletedTasksPanel() {
                 <button type="button" onClick={() => setPreset(0)} className={presetClass}>{t('completedTasks.presetToday')}</button>
                 <button type="button" onClick={() => setPreset(7)} className={presetClass}>{t('completedTasks.preset7')}</button>
                 <button type="button" onClick={() => setPreset(30)} className={presetClass}>{t('completedTasks.preset30')}</button>
-                <button type="button" onClick={resetFilters} className={presetClass}>{t('completedTasks.resetFilters')}</button>
+                <button type="button" onClick={resetFilters} className={presetClass}>{t('common:reset')}</button>
             </div>
 
             <p className="mb-6 text-xs text-secondary dark:text-slate-400">
@@ -216,11 +192,10 @@ export function CompletedTasksPanel() {
 
             {editingTask && (
                 <EditTaskModal
-                    isOpen={editingTask !== null}
                     onClose={() => setEditingTask(null)}
                     task={editingTask}
                     canUpdate={canUpdate}
-                    assigneeNames={editingTask.assignees.map((a) => a.name || t('tasks:assignees.unknownUser'))}
+                    assigneeNames={editingTask.assignees.map((a) => displayName(a.name))}
                     canDelete={canDelete}
                 />
             )}
@@ -249,7 +224,8 @@ function CompletedTaskRow({
     isReopening: boolean
     reopenErrorMessage: string | null
 }) {
-    const { t } = useTranslation(['dashboard', 'tasks'])
+    const { t } = useTranslation(['dashboard', 'tasks', 'common'])
+    const displayName = useDisplayName()
     const finishedDate = completedOn(task)
 
     return (
@@ -258,13 +234,9 @@ function CompletedTaskRow({
                 <div>
                     <p className="font-medium text-primary dark:text-slate-100">{task.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                        {task.priority && (
-                            <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                                {t(`tasks:priority.${task.priority}`)}
-                            </span>
-                        )}
+                        {task.priority && <PriorityBadge priority={task.priority} />}
                         {finishedDate && (
-                            <span className="text-secondary dark:text-slate-400">{t('completedTasks.finishedOn', { date: formatDate(finishedDate) })}</span>
+                            <span className="text-secondary dark:text-slate-400">{t('completedTasks.finishedOn', { date: formatShortDate(finishedDate) })}</span>
                         )}
                     </div>
                 </div>
@@ -277,11 +249,11 @@ function CompletedTaskRow({
                     <p><span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.room')}</span> {task.roomName ?? t('completedTasks.noRoom')}</p>
                     <p>
                         <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.period')}</span>{' '}
-                        {task.start_date ? formatDate(task.start_date) : t('completedTasks.unknown')} – {task.end_date ? formatDate(task.end_date) : t('completedTasks.unknown')}
+                        {formatShortDateRange(task.start_date, task.end_date, t('completedTasks.unknown'))}
                     </p>
                     <div>
                         <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.assignees')}</span>{' '}
-                        {task.assignees.length > 0 ? task.assignees.map((a) => a.name || t('tasks:assignees.unknownUser')).join(', ') : t('completedTasks.noAssignees')}
+                        {task.assignees.length > 0 ? task.assignees.map((a) => displayName(a.name)).join(', ') : t('completedTasks.noAssignees')}
                     </div>
                     <div>
                         <span className="font-medium text-primary dark:text-slate-100">{t('completedTasks.materials')}</span>{' '}
@@ -298,7 +270,7 @@ function CompletedTaskRow({
                                 className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300"
                             >
                                 <Pencil className="w-3.5 h-3.5" />
-                                {t('completedTasks.edit')}
+                                {t('common:edit')}
                             </button>
                             {canUpdate && (
                                 <button

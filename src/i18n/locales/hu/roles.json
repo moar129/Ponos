@@ -100,7 +100,6 @@
       "deadline": "Legkorábbi határidő elöl",
       "rejections": "Legtöbb elutasítás elöl"
     },
-    "resetFilters": "Visszaállítás",
     "showing": "{{count}} / {{total}}",
     "noMatch": "Egy bejelentés sem felel meg a szűrőknek.",
     "deadline": "Határidő: {{date}}",

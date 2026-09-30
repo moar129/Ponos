@@ -6,7 +6,9 @@ import type {
     RespondInvitationInput,
     SentInvitation,
 } from '../../types/membership/membershipType'
-import { mapDbError } from './apiError'
+import { errorCode, mapDbError, runQuery } from './apiError'
+import { getOptionalUserId } from './session'
+import { fetchProfilesByIds } from './profileApi'
 
 export const invitationApi = supabaseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -15,24 +17,14 @@ export const invitationApi = supabaseApi.injectEndpoints({
         // organisations(name) - tilladt af den nye "Se organisation man er
         // inviteret til"-policy, selvom brugeren ikke er medlem endnu.
         getMyPendingInvitations: builder.query<MembershipInvitation[], void>({
-            queryFn: async () => {
-                const { data: userData, error: userError } = await supabase.auth.getUser()
-
-                if (userError) {
-                    if (userError.name === 'AuthSessionMissingError') {
-                        return { data: [] }
-                    }
-                    return { error: mapDbError(userError) }
-                }
-
-                if (!userData.user) {
-                    return { data: [] }
-                }
+            queryFn: () => runQuery(async () => {
+                const userId = await getOptionalUserId()
+                if (!userId) return { data: [] }
 
                 const { data, error } = await supabase
                     .from('membership_invitations')
                     .select('id, organisation_id, created_at, organisations(name)')
-                    .eq('invited_user_id', userData.user.id)
+                    .eq('invited_user_id', userId)
                     .eq('status', 'Pending')
                     .order('created_at')
 
@@ -48,17 +40,16 @@ export const invitationApi = supabaseApi.injectEndpoints({
                         invitedAt: row.created_at,
                     })),
                 }
-            },
+            }),
 
             providesTags: ['MembershipInvitation'],
         }),
 
         // Henter de ventende invitationer, DEN AKTIVE organisation har
-        // sendt (admin-siden). Samme to-trins mønster som
-        // getPendingMembershipRequests i membershipApi.ts - en fejlende
-        // PostgREST-join ville ellers vælte hele listen.
+        // sendt (admin-siden). Profilerne hentes separat (fetchProfilesByIds)
+        // - en fejlende PostgREST-join ville ellers vælte hele listen.
         getSentInvitations: builder.query<SentInvitation[], void>({
-            queryFn: async () => {
+            queryFn: () => runQuery(async () => {
                 const { data: invitations, error: invitationsError } = await supabase
                     .from('membership_invitations')
                     .select('id, invited_user_id, created_at')
@@ -73,16 +64,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     return { data: [] }
                 }
 
-                const { data: profiles, error: profilesError } = await supabase
-                    .from('profiles')
-                    .select('id, first_name, last_name, email')
-                    .in('id', invitations.map((invitation) => invitation.invited_user_id))
-
-                if (profilesError) {
-                    return { error: mapDbError(profilesError) }
-                }
-
-                const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+                const profileById = await fetchProfilesByIds(invitations.map((invitation) => invitation.invited_user_id))
 
                 return {
                     data: invitations.flatMap((invitation) => {
@@ -102,7 +84,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                         }]
                     }),
                 }
-            },
+            }),
 
             providesTags: ['MembershipInvitation'],
         }),
@@ -116,9 +98,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
             queryFn: async ({ email }) => {
                 const trimmed = email.trim()
 
-                if (!trimmed) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'errors:required.email' } }
-                }
+                if (!trimmed) return { error: errorCode('required.email') }
 
                 const { error } = await supabase.rpc('invite_member', { p_email: trimmed })
 
@@ -170,14 +150,7 @@ export const invitationApi = supabaseApi.injectEndpoints({
                     return { error: mapDbError(error) }
                 }
 
-                if (!data || data.length === 0) {
-                    return {
-                        error: {
-                            status: 'CUSTOM_ERROR',
-                            error: 'errors:invitationAlreadyHandled',
-                        },
-                    }
-                }
+                if (!data || data.length === 0) return { error: errorCode('invitationAlreadyHandled') }
 
                 return { data: undefined }
             },
