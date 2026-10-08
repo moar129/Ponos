@@ -26,3 +26,7 @@ dist-ssr
 *.sln
 *.sw?
 docs/Supabase Snippet Full public schema export (enums, RLS, policies, functions).csv
+
+# Lokale noter/fremlæggelse - ikke i repo
+Fremlæggelse/
+documentationForProject/

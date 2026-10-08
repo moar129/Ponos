@@ -39,6 +39,10 @@ Komplet teknisk dokumentation af Ponos-kodebasen, skrevet til en udvikler, der i
 | 16 | [16-teknisk-gaeld.md](16-teknisk-gaeld.md) | Kritiske / vigtige / nice-to-have forbedringer |
 | 17 | [17-learning-guide.md](17-learning-guide.md) | Læserækkefølge for nye udviklere |
 | 18 | [18-final-summary.md](18-final-summary.md) | Arkitektur, komponenter, dataflows, risici |
+| 19 | [19-loesningsbeskrivelse.md](19-loesningsbeskrivelse.md) | Løsningsbeskrivelse: grøn omstilling, People/Profit/Planet, udbredelse |
+| 20 | [20-casebeskrivelse.md](20-casebeskrivelse.md) | Casebeskrivelse for generel læser: case, problem, løsning, værdi, status |
+| 21 | [21-afklarende-spoergsmaal.md](21-afklarende-spoergsmaal.md) | Afklarende spørgsmål før ansøgningssvar (TRIN 2) |
+| 22 | [22-ansoegningssvar.md](22-ansoegningssvar.md) | Endelige ansøgningssvar (TRIN 3) + fakta vs. antagelser |
 
 ---
 

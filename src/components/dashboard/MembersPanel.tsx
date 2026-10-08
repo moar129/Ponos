@@ -122,7 +122,8 @@ export function MembersPanel() {
         return <p className="text-secondary dark:text-slate-400">{t('members.empty')}</p>
     }
 
-    const filteredMembers = filterPeople(members, searchTerm)
+    // Kopi før sort: ved tom søgning er det RTK Querys frosne array.
+    const filteredMembers = [...filterPeople(members, searchTerm)]
         // Den indloggede bruger ligger altid øverst, uanset søgning - .sort()
         // er stabil, så resten beholder deres eksisterende rækkefølge
         // (server-sorteret på fornavn).
