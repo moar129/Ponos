@@ -1133,6 +1133,16 @@ create trigger trg_prevent_default_role_change
 -- delete set null, se afsnit 6.5) er peget væk fra rollen, inden selve
 -- sletningen sker - FK'ens `set null` rammer derfor kun, hvis "Medlem"
 -- selv skulle mangle (forsvarsnet, bør aldrig ske i praksis).
+--
+-- 2026-10-16: springes helt over når hele organisationen slettes
+-- (delete_organisation, 15.13). Ellers rammes samme membership-række TO
+-- gange i samme transaktion - først af brugerens egen rolle (role_id ->
+-- Medlem), dernæst af Medlem-rollens egen sletning (`where role_id =
+-- <Medlem>`) - og ved anden UPDATE er rækkens xmin den igangværende
+-- transaktion, så Postgres dropper sin "FK-nøglen er uændret"-genvej og
+-- re-validerer ALLE FK'er på rækken, inkl. organisation_id mod en org der
+-- allerede er slettet: "insert or update on table memberships violates
+-- foreign key constraint memberships_organisation_id_fkey".
 create or replace function public.reassign_members_before_role_delete()
 returns trigger
 language plpgsql
@@ -1142,6 +1152,14 @@ as $$
 declare
   v_default_role_id uuid;
 begin
+  -- Slettes hele organisationen, skal intet omrokeres: memberships
+  -- cascade-slettes alligevel, og en anden UPDATE af samme række i
+  -- samme transaktion ville tvinge en FK-revalidering af
+  -- organisation_id mod en org, der ikke længere findes.
+  if not exists (select 1 from public.organisations where id = old.organisation_id) then
+    return old;
+  end if;
+
   select id into v_default_role_id
   from public.roles
   where organisation_id = old.organisation_id and name = 'Medlem';
@@ -1404,6 +1422,10 @@ grant execute on function public.create_organisation(text) to authenticated;
 -- bypass_admin_protection, samme princip som bypass_self_role_org_change
 -- er sit eget flag), så transfer_admin_role (15.14b) kan nedgradere den
 -- afgivende admin til Medlem som del af samme transaktion.
+--
+-- 2026-10-16: delete_organisation (15.13) sætter nu også flaget - dens
+-- kaskade til roles trigger 15.6c, som opdaterer den slettende admins
+-- egen membership.
 create or replace function public.prevent_self_membership_role_change()
 returns trigger
 language plpgsql
@@ -1617,7 +1639,14 @@ grant execute on function public.get_my_memberships() to authenticated;
 -- trg_prevent_admin_privilege_change (15.5), som normalt (med god grund)
 -- blokerer sletning af organisationens "Admin"-rolle/privilegie - men her
 -- forsvinder hele organisationen alligevel, så beskyttelsen giver ikke
--- mening. Returnerer den slettende brugers nye aktive organisation (eller
+-- mening. 2026-10-16: tredje flag,
+-- ponos.bypass_self_membership_role_change, af samme årsag et lag
+-- længere ned - kaskaden til roles får trg_reassign_members_before_role_delete
+-- (15.6c) til at køre `update memberships set role_id = <Medlem>`, også på
+-- den slettende admins EGEN membership, hvilket ellers rammer
+-- trg_prevent_self_membership_role_change (15.9) og afbryder hele
+-- sletningen med "Du kan ikke tildele dig selv en rolle."
+-- Returnerer den slettende brugers nye aktive organisation (eller
 -- null), udfyldt kun hvis den slettede org var deres egen aktive - samme
 -- mønster som leave_organisation.
 create or replace function public.delete_organisation(p_organisation_id uuid)
@@ -1659,6 +1688,8 @@ begin
 
   perform set_config('ponos.bypass_self_role_org_change', 'true', true);
   perform set_config('ponos.bypass_admin_protection', 'true', true);
+  -- 2026-10-16: cascade -> roles -> 15.6c opdaterer vores egen membership.
+  perform set_config('ponos.bypass_self_membership_role_change', 'true', true);
 
   delete from public.organisations where id = p_organisation_id;
 
